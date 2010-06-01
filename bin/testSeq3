@@ -1,0 +1,42 @@
+#!/bin/sh
+# Script for debugging ADC overrun
+
+echo "admin probe"
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+
+echo "reset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl  2 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x0000000F
+
+echo "unreset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl  2 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x8000000F
+
+echo "Set W2 SMAdapter to Mode 0 with WSI-M null-Put "
+./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x10
+#./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x00
+
+echo "initialize workers"
+./swctl 0xF1000000 0xF2FF0000 wop  2 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 10 initialize
+
+echo "start workers"
+./swctl 0xF1000000 0xF2FF0000 wop  2 start
+./swctl 0xF1000000 0xF2FF0000 wop 10 start
+
+echo "enable ADC capture, inhibit on underflow"
+./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x4
+
+echo "ADCWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 18
+echo "W2 SMAdapter config properties"
+./swctl 0xF1000000 0xF2FF0000 wread  2 0  6
+
+sleep 1
+
+echo "ADCWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 23
+echo "W2 SMAdapter config properties"
+./swctl 0xF1000000 0xF2FF0000 wread  2 0  6
+

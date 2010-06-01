@@ -1,0 +1,6 @@
+# .gitignore file for OpenCPI
+# ssiegel 2010-06-01 creation
+#
+*~
+build/
+obj/

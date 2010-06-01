@@ -1,0 +1,14 @@
+#!/bin/sh
+# Script for debugging ADC capture
+
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+

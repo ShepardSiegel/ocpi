@@ -1,0 +1,8 @@
+#!/bin/sh
+# Script for debugging ADC capture
+
+echo "admin probe "
+sudo ./swctl 0xF1000000 0xF2FF0000 settime
+sudo ./swctl 0xF1000000 0xF2FF0000 admin
+
+./testDMA "p f m" "3" "0 4080" "1000" $*

@@ -1,0 +1,171 @@
+$date
+         Wednesday, September 09 2009 17:09:22
+$end
+$version
+	    CPI VCD Software Event Dumper V1.0
+$end
+$timescale
+          1 us
+$end
+$scope module Software $end
+$scope module Class_A:Instance:1 $end
+$var reg 1 !! Object_Exists $end
+$var reg 1 #! A_event_1 $end
+$scope module Class_B:Instance:1 $end
+$var reg 1 !# Object_Exists $end
+$var reg 1 $# B_event_1 $end
+$var reg 1 %# B_event_2 $end
+$scope module Class_C:Instance:1 $end
+$var reg 1 !% Object_Exists $end
+$var reg 1 &% Object_Terminated $end
+$var reg 1 '% State_Event1 $end
+$var reg 1 (% State_Event2 $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module Class_A:Instance:2 $end
+$var reg 1 !" Object_Exists $end
+$upscope $end
+$scope module TimeAnalyzerResource:Instance:1 $end
+$var reg 1 !$ Object_Exists $end
+$var reg 32 "$ Container_Memory $end
+$var reg 1 &$ Object_Terminated $end
+$upscope $end
+$scope module Global:Instance:1 $end
+$var reg 1 !& Object_Exists $end
+$var reg 1 )& TimeAnalyzerTest_main.cxx_line_120 $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$dumpvars
+0!!
+0#!
+0!#
+0$#
+0%#
+abcdef !%
+0&%
+0'%
+0(%
+0!"
+0!$
+0"$
+0&$
+0!&
+0)&
+$end
+
+#0
+1!!
+#1
+0!!
+
+#52
+1!"
+#53
+0!"
+
+#62
+1!#
+#63
+0!#
+
+#91
+1!$
+#92
+0!$
+
+#102
+b00000000000000000010100000000000 "$
+
+#106
+1#!
+#107
+0#!
+
+#109
+1$#
+#110
+0$#
+
+#113
+1%#
+#114
+0%#
+
+#116
+b00000000000000000010010000000000 "$
+
+#117
+1#!
+#118
+0#!
+
+#119
+b00000000000000000001000001111000 "$
+
+#121
+1$#
+#122
+0$#
+
+#122
+1%#
+#123
+0%#
+
+#125
+b00000000000000000001010001111000 "$
+
+#126
+b00000000000000000010100000000000 "$
+
+#129
+1&$
+#130
+0&$
+
+#136
+1!%
+#137
+0!%
+
+#140
+1'%
+
+#143
+1(%
+
+#145
+1#!
+#146
+0#!
+
+#148
+0'%
+
+#149
+1#!
+#150
+0#!
+
+#152
+0(%
+
+#154
+1&%
+#155
+0&%
+
+#197
+1!&
+#198
+0!&
+
+#199
+1)&
+#200
+0)&
+
+$dumpoff
+$end

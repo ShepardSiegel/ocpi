@@ -1,0 +1,37 @@
+## LX330T Generic UCF
+## Shepard Siegel for Atomic Rules LLC
+## 2009-11-16 oc1001
+
+CONFIG PART = 5vlx330tff1738-2;
+
+NET  "sys0_clkp"      LOC = J16;
+NET  "sys0_clkn"      LOC = J17;
+
+NET  "pci0_clkp"      LOC = AD4;
+NET  "pci0_clkn"      LOC = AD3;
+INST "ftop/pci0_clk"  DIFF_TERM = "TRUE";
+NET  "pci0_reset_n"   LOC = AK13 | IOSTANDARD = "LVCMOS33" | PULLUP | NODELAY;
+
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[0].GT_i" LOC = GTP_DUAL_X0Y5; 
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[2].GT_i" LOC = GTP_DUAL_X0Y4;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[4].GT_i" LOC = GTP_DUAL_X0Y3;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[6].GT_i" LOC = GTP_DUAL_X0Y2;
+
+# BlockRAM placement...
+# PCIe core...
+#INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_retry/generate_sdp.ram_sdp_inst"      LOC = RAMB36_X6Y12;
+#INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X6Y11;
+#INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X6Y10;
+#INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X6Y9;
+#INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X6Y8;
+# Timing critical placements...
+
+# Timing Constraints...
+NET "ftop/pci0_clk_O" PERIOD = 10ns;
+NET "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/gt_refclk_out[0]" TNM_NET = "PCI0CLK";
+TIMESPEC "TS_PCI0CLK"  = PERIOD "PCI0CLK" 100.00 MHz HIGH 50 % ;
+
+# LEDs and Switches...
+NET "led[0]"    LOC = N25   | IOSTANDARD = "LVCMOS33"; ## User  D1
+NET "led[1]"    LOC = P25   | IOSTANDARD = "LVCMOS33"; ## User  D2
+NET "led[2]"    LOC = P18   | IOSTANDARD = "LVCMOS33"; ## User  D3

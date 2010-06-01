@@ -1,0 +1,50 @@
+[timestart] 0
+[size] 2560 1550
+[pos] -872 -119
+*-13.507909 13930 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+[treeopen] main.top.ctop.
+[treeopen] main.top.tg.
+@200
+-
+@22
+main.top.ctop.inf.dp0.bml_lclBufsAR[7:0]
+main.top.ctop.inf.dp0.bml_lclBufsCF[7:0]
+@28
+main.top.ctop.inf.dp0.bml_lclBufStart
+main.top.ctop.inf.dp0.bml_lclBufDone
+@22
+main.top.ctop.inf.dp0.bml_lclBuf_value[7:0]
+main.top.ctop.inf.dp0.bml_lclStarts[15:0]
+main.top.ctop.inf.dp0.bml_lclDones[15:0]
+main.top.ctop.inf.dp0.bml_remDones[15:0]
+main.top.ctop.inf.dp0.bml_remBuf_value[7:0]
+@200
+-
+@22
+main.top.ctop.app.wmiW3.wsi_m_req[60:0]
+@28
+main.top.ctop.app.wmiW3.wsi_s_SThreadBusy
+@200
+-
+@22
+main.top.ctop.app.wmiW4.mesgCount[31:0]
+@200
+-
+@28
+main.top.ctop.inf.dp1.bml_lclBufStart
+main.top.ctop.inf.dp1.bml_lclBufDone
+@22
+main.top.ctop.inf.dp1.bml_lclBuf_value[7:0]
+main.top.ctop.inf.dp1.bml_lclBufsAR[7:0]
+main.top.ctop.inf.dp1.bml_lclBufsCF[7:0]
+main.top.ctop.inf.dp1.bml_lclStarts[15:0]
+main.top.ctop.inf.dp1.bml_lclDones[15:0]
+main.top.ctop.inf.dp1.bml_remDones[15:0]
+main.top.ctop.inf.dp1.bml_remBuf_value[7:0]
+@200
+-
+@22
+main.top.tg.chkErrors[31:0]
+main.top.tg.chkOpcode[7:0]

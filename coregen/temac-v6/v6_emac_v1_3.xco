@@ -1,0 +1,85 @@
+##############################################################
+#
+# Xilinx Core Generator version 11.4
+# Date: Wed Feb 10 16:08:01 2010
+#
+##############################################################
+#
+#  This file contains the customisation parameters for a
+#  Xilinx CORE Generator IP GUI. It is strongly recommended
+#  that you do not manually alter this file as it may cause
+#  unexpected and unsupported behavior.
+#
+##############################################################
+#
+# BEGIN Project Options
+SET addpads = False
+SET asysymbol = True
+SET busformat = BusFormatAngleBracketNotRipped
+SET createndf = False
+SET designentry = Verilog
+SET device = xc6vlx240t
+SET devicefamily = virtex6
+SET flowvendor = Other
+SET formalverification = False
+SET foundationsym = False
+SET implementationfiletype = Ngc
+SET package = ff1156
+SET removerpms = False
+SET simulationfiles = Behavioral
+SET speedgrade = -1
+SET verilogsim = True
+SET vhdlsim = False
+# END Project Options
+# BEGIN Select
+SELECT Virtex-6_Embedded_Tri-Mode_Ethernet_MAC_Wrapper family Xilinx,_Inc. 1.3
+# END Select
+# BEGIN Parameters
+CSET address_filter_enable=false
+CSET byte_phy=false
+CSET client_side_data_width=8_bit
+CSET clock_enable=false
+CSET component_name=v6_emac_v1_3
+CSET dcr_base_address=00
+CSET host_type=Host
+CSET mdio=true
+CSET overclocking=None
+CSET phy_an_enable=false
+CSET phy_ignore_adzero=false
+CSET phy_isolate=false
+CSET phy_link_timer_value=13D
+CSET phy_loopback_in_gtp=false
+CSET phy_loopback_msb=false
+CSET phy_powerdown=false
+CSET phy_reset=false
+CSET phy_unidirection_enable=false
+CSET physical_interface=GMII
+CSET rx_ctrl_lencheck_disable=false
+CSET rx_disable_length=false
+CSET rx_enable=true
+CSET rx_flow_control_enable=false
+CSET rx_half_duplex_enable=false
+CSET rx_in_band_fcs_enable=false
+CSET rx_jumbo_frame_enable=false
+CSET rx_reset=false
+CSET rx_vlan_enable=false
+CSET serial_mode_switch_enable=false
+CSET sgmii_mode=No_clock
+CSET speed=1000_Mbps
+CSET tx_enable=true
+CSET tx_flow_control_enable=false
+CSET tx_half_duplex_enable=false
+CSET tx_ifg_adjust_enable=false
+CSET tx_in_band_fcs_enable=false
+CSET tx_jumbo_frame_enable=false
+CSET tx_reset=false
+CSET tx_vlan_enable=false
+CSET unicast_pause_mac_address_1=AA
+CSET unicast_pause_mac_address_2=BB
+CSET unicast_pause_mac_address_3=CC
+CSET unicast_pause_mac_address_4=DD
+CSET unicast_pause_mac_address_5=EE
+CSET unicast_pause_mac_address_6=FF
+# END Parameters
+GENERATE
+# CRC: efd8285c

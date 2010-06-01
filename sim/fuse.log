@@ -1,0 +1,92 @@
+Running: /opt/Xilinx/11.1/ISE/bin/lin64/unwrapped/fuse -v 0 -o sim/a.out.isim -prj /tmp/fuse.prj.Jx9866 -sourcelibdir rtl -sourcelibdir /opt/bluespec/Bluespec-2009.09.beta0/lib/Libraries -sourcelibdir /opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog -sourcelibext .v -d TOP=mkTB2 -t worx_mkTB2.main 
+Number of CPUs detected in this system: 8
+Turning on mult-threading, number of parallel sub-compilation jobs: 16 
+Determining compilation order of HDL files
+Parsing Verilog file "/opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog/main.v" into library worx_mkTB2
+Parsing Verilog file "rtl/mkTB2.v" into library library 2
+      Resolving module mkTB2
+Parsing Verilog file "rtl/mkTLPCM.v" into library library 2
+      Resolving module mkTLPCM
+Parsing Verilog file "rtl/mkCTop.v" into library library 2
+      Resolving module mkCTop
+Parsing Verilog file "rtl/mkOCTG_genchk.v" into library library 2
+      Resolving module mkOCTG_genchk
+Parsing Verilog file "rtl/mkPktFork.v" into library library 2
+      Resolving module mkPktFork
+Parsing Verilog file "rtl/mkPktMerge.v" into library library 2
+      Resolving module mkPktMerge
+Parsing Verilog file "rtl/mkOCApp.v" into library library 2
+      Resolving module mkOCApp
+Parsing Verilog file "rtl/mkOCInf.v" into library library 2
+      Resolving module mkOCInf
+Parsing Verilog file "rtl/mkGCDWorker.v" into library library 2
+      Resolving module mkGCDWorker
+Parsing Verilog file "rtl/mkFCAdapter.v" into library library 2
+      Resolving module mkFCAdapter
+Parsing Verilog file "rtl/mkBiasWorker.v" into library library 2
+      Resolving module mkBiasWorker
+Parsing Verilog file "rtl/mkFPAdapter.v" into library library 2
+      Resolving module mkFPAdapter
+Parsing Verilog file "rtl/mkOCCP.v" into library library 2
+      Resolving module mkOCCP
+Parsing Verilog file "rtl/mkOCDP.v" into library library 2
+      Resolving module mkOCDP
+Parsing Verilog file "rtl/mkTLPSM.v" into library library 2
+      Resolving module mkTLPSM
+Parsing Verilog file "/opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog/FIFO2.v" into library library 2
+      Resolving module FIFO2
+Parsing Verilog file "/opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog/RevertReg.v" into library library 2
+      Resolving module RevertReg
+Parsing Verilog file "/opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog/SizedFIFO.v" into library library 2
+      Resolving module SizedFIFO
+Parsing Verilog file "/opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog/MakeResetA.v" into library library 2
+      Resolving module MakeResetA
+Parsing Verilog file "/opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog/FIFO1.v" into library library 2
+      Resolving module FIFO1
+Parsing Verilog file "/opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog/BRAM2.v" into library library 2
+      Resolving module BRAM2
+Parsing Verilog file "/opt/bluespec/Bluespec-2009.09.beta0/lib/Verilog/SyncResetA.v" into library library 2
+      Resolving module SyncResetA
+Starting static elaboration
+Completed static elaboration
+Fuse Memory Usage: 71492 KB
+Fuse CPU Usage: 230 ms
+Compiling module FIFO2(width=32'b010011001,guarde...
+Compiling module mkPktFork
+Compiling module mkPktMerge
+Compiling module mkTLPCM
+Compiling module SizedFIFO(p1width=32'b0111100,p2...
+Compiling module mkGCDWorker
+Compiling module FIFO2(width=32'b0100010,guarded=...
+Compiling module mkFCAdapter
+Compiling module SizedFIFO(p1width=32'b0111101,p2...
+Compiling module mkBiasWorker
+Compiling module mkFPAdapter
+Compiling module mkOCApp
+Compiling module FIFO2(width=32'b0111000,guarded=...
+Compiling module FIFO2(width=32'b0111011,guarded=...
+Compiling module FIFO2(width=32'b0101000,guarded=...
+Compiling module SyncResetA(RSTDELAY=32'b01)
+Compiling module MakeResetA(RSTDELAY=32'b01,init=...
+Compiling module FIFO1(width=32'b0100010,guarded=...
+Compiling module mkOCCP
+Compiling module BRAM2(PIPELINED=1'b0,ADDR_WIDTH=...
+Compiling module SizedFIFO(p1width=32'b0100000,p2...
+Compiling module FIFO2(width=32'b010000010,guarde...
+Compiling module FIFO2(width=32'b010001011,guarde...
+Compiling module SizedFIFO(p1width=32'b0100010,p2...
+Compiling module mkOCDP
+Compiling module mkTLPSM
+Compiling module mkOCInf
+Compiling module mkCTop
+Compiling module FIFO2(width=32'b01000,guarded=32...
+Compiling module RevertReg(width=32'b01,init=1'b1...
+Compiling module mkOCTG_genchk
+Compiling module mkTB2
+Compiling module main
+Time Resolution for simulation is 1ps.
+Compiled 33 Verilog Units
+Built simulation executable sim/a.out.isim
+Fuse Memory Usage: 256844 KB
+Fuse CPU Usage: 4440 ms
+GCC CPU Usage: 71780 ms

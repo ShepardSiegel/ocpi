@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/shep/projects/ocpi/isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="main" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="21" />
+   <wvobject fp_name="/main/top/ctop/app/wmiW3/wsi_m_req" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wsi_m_req[60:0]</obj_property>
+      <obj_property name="ObjectShortName">wsi_m_req[60:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW3/wsi_s_req" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">wsi_s_req[60:0]</obj_property>
+      <obj_property name="ObjectShortName">wsi_s_req[60:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW3/messagePush" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">messagePush[31:0]</obj_property>
+      <obj_property name="ObjectShortName">messagePush[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider156" type="divider">
+      <obj_property name="label">New Divider</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW4/WILL_FIRE_RL_wmwt_mesgBegin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">WILL_FIRE_RL_wmwt_mesgBegin</obj_property>
+      <obj_property name="ObjectShortName">WILL_FIRE_RL_wmwt_mesgBegin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW4/impreciseBurst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">impreciseBurst</obj_property>
+      <obj_property name="ObjectShortName">impreciseBurst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW4/WILL_FIRE_RL_wmwt_messagePushImprecise" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">WILL_FIRE_RL_wmwt_messagePushImprecise</obj_property>
+      <obj_property name="ObjectShortName">WILL_FIRE_RL_wmwt_messagePushImprecise</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW4/WILL_FIRE_RL_wmwt_messageFinalize" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">WILL_FIRE_RL_wmwt_messageFinalize</obj_property>
+      <obj_property name="ObjectShortName">WILL_FIRE_RL_wmwt_messageFinalize</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW4/endOfMessage" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">endOfMessage</obj_property>
+      <obj_property name="ObjectShortName">endOfMessage</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider157" type="divider">
+      <obj_property name="label">New Divider</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/WILL_FIRE_RL_wmi_getRequest" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">WILL_FIRE_RL_wmi_getRequest</obj_property>
+      <obj_property name="ObjectShortName">WILL_FIRE_RL_wmi_getRequest</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/wmi_wmi_blockReq" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wmi_wmi_blockReq</obj_property>
+      <obj_property name="ObjectShortName">wmi_wmi_blockReq</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/WILL_FIRE_RL_wmi_doWriteReq" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">WILL_FIRE_RL_wmi_doWriteReq</obj_property>
+      <obj_property name="ObjectShortName">WILL_FIRE_RL_wmi_doWriteReq</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/WILL_FIRE_RL_wmi_incMesgInterval" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">WILL_FIRE_RL_wmi_incMesgInterval</obj_property>
+      <obj_property name="ObjectShortName">WILL_FIRE_RL_wmi_incMesgInterval</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/WILL_FIRE_RL_wmi_doWriteFinalize" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">WILL_FIRE_RL_wmi_doWriteFinalize</obj_property>
+      <obj_property name="ObjectShortName">WILL_FIRE_RL_wmi_doWriteFinalize</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/WILL_FIRE_RL_wmi_doDwell" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">WILL_FIRE_RL_wmi_doDwell</obj_property>
+      <obj_property name="ObjectShortName">WILL_FIRE_RL_wmi_doDwell</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/wmi_mesgStart" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wmi_mesgStart</obj_property>
+      <obj_property name="ObjectShortName">wmi_mesgStart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/wmi_mesgDone" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wmi_mesgDone</obj_property>
+      <obj_property name="ObjectShortName">wmi_mesgDone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/inf/dp1/wmi_mesgBufReady" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">wmi_mesgBufReady</obj_property>
+      <obj_property name="ObjectShortName">wmi_mesgBufReady</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW4/errCount" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">errCount[31:0]</obj_property>
+      <obj_property name="ObjectShortName">errCount[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/ctop/app/wmiW4/valExpect" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">valExpect[31:0]</obj_property>
+      <obj_property name="ObjectShortName">valExpect[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>

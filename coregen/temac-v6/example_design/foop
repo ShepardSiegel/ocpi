@@ -1,0 +1,76 @@
+   // TX clock output
+    output          TX_CLK_OUT;
+    // TX clock input from BUFG
+    input           TX_CLK;
+
+    // LocalLink receiver interface
+    input           RX_LL_CLOCK;
+    input           RX_LL_RESET;
+    output   [7:0]  RX_LL_DATA;
+    output          RX_LL_SOF_N;
+    output          RX_LL_EOF_N;
+    output          RX_LL_SRC_RDY_N;
+    input           RX_LL_DST_RDY_N;
+    output   [3:0]  RX_LL_FIFO_STATUS;
+
+    // LocalLink transmitter interface
+    input           TX_LL_CLOCK;
+    input           TX_LL_RESET;
+    input    [7:0]  TX_LL_DATA;
+    input           TX_LL_SOF_N;
+    input           TX_LL_EOF_N;
+    input           TX_LL_SRC_RDY_N;
+    output          TX_LL_DST_RDY_N;
+
+    // Client receiver interface
+    output          EMACCLIENTRXDVLD;
+    output          EMACCLIENTRXFRAMEDROP;
+    output   [6:0]  EMACCLIENTRXSTATS;
+    output          EMACCLIENTRXSTATSVLD;
+    output          EMACCLIENTRXSTATSBYTEVLD;
+
+    // Client transmitter interface
+    input    [7:0]  CLIENTEMACTXIFGDELAY;
+    output          EMACCLIENTTXSTATS;
+    output          EMACCLIENTTXSTATSVLD;
+    output          EMACCLIENTTXSTATSBYTEVLD;
+
+    // MAC control interface
+    input           CLIENTEMACPAUSEREQ;
+    input   [15:0]  CLIENTEMACPAUSEVAL;
+
+    // Receive-side PHY clock on regional buffer, to EMAC
+    input           PHY_RX_CLK;
+
+    // Clock signal
+    input           GTX_CLK;
+
+    // GMII interface
+    output   [7:0]  GMII_TXD;
+    output          GMII_TX_EN;
+    output          GMII_TX_ER;
+    output          GMII_TX_CLK;
+    input    [7:0]  GMII_RXD;
+    input           GMII_RX_DV;
+    input           GMII_RX_ER;
+    input           GMII_RX_CLK;
+
+    // MDIO interface
+    output          MDC;
+    input           MDIO_I;
+    output          MDIO_O;
+    output          MDIO_T;
+
+    // Host interface
+    input           HOSTCLK;
+    input    [1:0]  HOSTOPCODE;
+    input           HOSTREQ;
+    input           HOSTMIIMSEL;
+    input    [9:0]  HOSTADDR;
+    input   [31:0]  HOSTWRDATA;
+    output          HOSTMIIMRDY;
+    output  [31:0]  HOSTRDDATA;
+
+    // Asynchronous reset
+    input           RESET;
+

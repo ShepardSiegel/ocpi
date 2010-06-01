@@ -1,0 +1,2 @@
+promgen -w -p mcs -c FF -ver 0 fpgaTop.bit -x xcf32p
+

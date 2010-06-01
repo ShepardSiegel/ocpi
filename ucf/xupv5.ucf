@@ -1,0 +1,45 @@
+## XUPV5 UCF
+## Shepard Siegel for Atomic Rules LLC
+## 2009-10-22 Delta from ML555 taken
+## 2009-11-16 Comment out BRAM LOCs for OCDP
+## 2010-02-28 Added sys1 125 MHz clock on GTP
+
+CONFIG PART = XC5VLX110T-FF1136-1 ;
+
+NET  "sys0_clkp"      LOC = L19;  # 200 MHz
+NET  "sys0_clkn"      LOC = K19;
+NET  "sys1_clkp"      LOC = P3;   # 125 MHz
+NET  "sys1_clkn"      LOC = P4;
+
+NET  "pci0_clkp"      LOC = AF4;
+NET  "pci0_clkn"      LOC = AF3;
+INST "ftop/pci0_clk"  DIFF_TERM = "TRUE";
+NET  "pci0_reset_n"   LOC = AF24 | IOSTANDARD = "LVCMOS25" | PULLUP | NODELAY;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[0].GT_i" LOC = GTP_DUAL_X0Y2; 
+
+# BlockRAM placement...
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_retry/generate_sdp.ram_sdp_inst"      LOC = RAMB36_X3Y11;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk_if/ll_bridge/rx_bridge/fifo_inst/oq_fifo/Mram_regBank"        LOC = RAMB36_X3Y10;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X3Y9;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X3Y8;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X3Y7;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X3Y6;
+
+# Timing critical placements...
+
+# Timing Constraints...
+NET "ftop/pci0_clk_O" PERIOD = 10ns;
+NET "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/gt_refclk_out" TNM_NET = "PCI0CLK";
+TIMESPEC "TS_PCI0CLK"  = PERIOD "PCI0CLK" 100.00 MHz HIGH 50 % ;
+
+#PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
+#PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;
+#PIN "ftop/pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+
+# LEDs and Switches...
+NET "led[0]"    LOC = H18   | IOSTANDARD = "LVCMOS25"; ## User  D0
+NET "led[1]"    LOC = L18   | IOSTANDARD = "LVCMOS25"; ## User  D1
+NET "led[2]"    LOC = G15   | IOSTANDARD = "LVCMOS25"; ## User  D2
+##NET "SWITCH[0]" LOC = AF21 | IOSTANDARD = "LVCMOS25"; ## User SW1
+##NET "SWITCH[1]" LOC = AF20 | IOSTANDARD = "LVCMOS25"; ## User SW2
+##NET "SWITCH[2]" LOC = AF14 | IOSTANDARD = "LVCMOS25"; ## User SW3

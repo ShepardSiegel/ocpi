@@ -1,0 +1,6 @@
+#!/bin/sh
+# Script for time sync
+
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 deltatime
+

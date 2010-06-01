@@ -1,0 +1,5 @@
+setMode -spi
+setCable -port usb22
+addDevice -position 1 -spi M25P32 -file spi_fpgaTop.mcs
+Program -p 1 -e -v -defaultVersion 0 
+Exit

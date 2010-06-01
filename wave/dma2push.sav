@@ -1,0 +1,39 @@
+[timestart] 0
+[size] 2560 1550
+[pos] -1 -1
+*-13.375532 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+[treeopen] main.top.ct0.app.
+[treeopen] main.top.ct0.app.wmiW2.
+[treeopen] main.top.ct0.inf.
+[treeopen] main.top.ct0.inf.sm0.pktFork.
+[treeopen] main.top.ct1.
+[treeopen] main.top.ct1.app.
+[treeopen] main.top.ct1.app.wmiW2.
+[treeopen] main.top.ct1.inf.sm0.
+[treeopen] main.top.ct1.inf.sm0.pktFork.
+@28
+main.top.ct0.inf.sm0.pktFork.fi.ENQ
+main.top.ct0.inf.cp.tlp_inF.ENQ
+@22
+main.top.ct0.inf.dp0.bml_lclBufsAR[7:0]
+main.top.ct0.inf.dp0.bml_lclBufsCF[7:0]
+main.top.ct0.app.wmiW2.thisMesg[31:0]
+main.top.ct0.app.wmiW2.mesgCount[31:0]
+main.top.ct0.inf.dp1.bml_lclBufsAR[7:0]
+main.top.ct0.inf.dp1.bml_lclBufsCF[7:0]
+@200
+-
+@28
+main.top.ct1.inf.sm0.pktFork.fi.ENQ
+main.top.ct1.inf.cp.tlp_inF.ENQ
+@22
+main.top.ct1.inf.dp0.bml_lclBufsAR[7:0]
+main.top.ct1.inf.dp0.bml_lclBufsCF[7:0]
+main.top.ct1.app.wmiW2.thisMesg[31:0]
+main.top.ct1.app.wmiW2.mesgCount[31:0]
+main.top.ct1.inf.dp1.bml_lclBufsAR[7:0]
+main.top.ct1.inf.dp1.bml_lclBufsCF[7:0]
+@200
+-

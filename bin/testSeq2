@@ -1,0 +1,31 @@
+#!/bin/sh
+# Script for debugging DAC
+
+echo "admin probe"
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+
+echo "reset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x0000000F
+
+echo "unreset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x8000000F
+
+sleep 1
+echo "DACWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 13
+
+echo "initialize workers"
+./swctl 0xF1000000 0xF2FF0000 wop 11 initialize
+
+sleep 2
+echo "DACWorker RF Mode"
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x9
+
+sleep 2
+echo "DACWorker Normal Mode - 16p sine wave at fDAC/16"
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x8
+
+echo "DACWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 13
+

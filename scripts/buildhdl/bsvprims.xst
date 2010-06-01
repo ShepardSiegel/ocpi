@@ -1,0 +1,10 @@
+run
+-opt_level 1
+-opt_mode speed
+-ifn bsvprims.prj
+-ifmt mixed
+-ofmt NGC
+-p xc5vlx110t-1-ff1136
+-top onewire
+-ofn onewire
+-verilog2001 YES

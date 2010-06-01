@@ -1,0 +1,22 @@
+# Date: Fri Feb 05 12:51:24 2010
+
+SET addpads = False
+SET asysymbol = True
+SET busformat = BusFormatAngleBracketNotRipped
+SET createndf = False
+SET designentry = Verilog
+SET device = xc6vlx240t
+SET devicefamily = virtex6
+SET flowvendor = Other
+SET formalverification = False
+SET foundationsym = False
+SET implementationfiletype = Ngc
+SET package = ff1156
+SET removerpms = False
+SET simulationfiles = Behavioral
+SET speedgrade = -1
+SET verilogsim = True
+SET vhdlsim = False
+SET workingdirectory = .\tmp\
+
+# CRC: a8bda620

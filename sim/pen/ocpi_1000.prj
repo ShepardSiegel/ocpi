@@ -1,0 +1,9 @@
+verilog work ../rtl/FIFO2.v
+verilog work ../rtl/RevertReg.v
+verilog work ../rtl/mkOCCP.v
+verilog work ../rtl/mkOCTG.v
+verilog work ../rtl/mkOCInf.v
+vhdl    work ../rtl/ft_1000.vhd
+vhdl    work ../rtl/assypkg_1000.vhd
+vhdl    work ../rtl/assy_1000.vhd
+vhdl    work ../rtl/tc_1000.vhd

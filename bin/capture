@@ -1,0 +1,3 @@
+sudo -E ./testRpl -i 2 -a -o out -I 1024
+sudo -E chmod 666 ./out
+od -x out

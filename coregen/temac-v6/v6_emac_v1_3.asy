@@ -1,0 +1,209 @@
+Version 4
+SymbolType BLOCK
+TEXT 32 32 LEFT 4 v6_emac_v1_3
+RECTANGLE Normal 32 32 800 2400
+LINE Normal 0 80 32 80
+PIN 0 80 LEFT 36
+PINATTR PinName reset
+PINATTR Polarity IN
+LINE Normal 832 80 800 80
+PIN 832 80 RIGHT 36
+PINATTR PinName emacclientrxclientclkout
+PINATTR Polarity OUT
+LINE Normal 0 112 32 112
+PIN 0 112 LEFT 36
+PINATTR PinName clientemacrxclientclkin
+PINATTR Polarity IN
+LINE Wide 832 112 800 112
+PIN 832 112 RIGHT 36
+PINATTR PinName emacclientrxd[7:0]
+PINATTR Polarity OUT
+LINE Normal 832 144 800 144
+PIN 832 144 RIGHT 36
+PINATTR PinName emacclientrxdvld
+PINATTR Polarity OUT
+LINE Normal 832 208 800 208
+PIN 832 208 RIGHT 36
+PINATTR PinName emacclientrxgoodframe
+PINATTR Polarity OUT
+LINE Normal 832 240 800 240
+PIN 832 240 RIGHT 36
+PINATTR PinName emacclientrxbadframe
+PINATTR Polarity OUT
+LINE Normal 832 272 800 272
+PIN 832 272 RIGHT 36
+PINATTR PinName emacclientrxframedrop
+PINATTR Polarity OUT
+LINE Wide 832 304 800 304
+PIN 832 304 RIGHT 36
+PINATTR PinName emacclientrxstats[6:0]
+PINATTR Polarity OUT
+LINE Normal 832 336 800 336
+PIN 832 336 RIGHT 36
+PINATTR PinName emacclientrxstatsvld
+PINATTR Polarity OUT
+LINE Normal 832 368 800 368
+PIN 832 368 RIGHT 36
+PINATTR PinName emacclientrxstatsbytevld
+PINATTR Polarity OUT
+LINE Normal 832 400 800 400
+PIN 832 400 RIGHT 36
+PINATTR PinName emacclienttxclientclkout
+PINATTR Polarity OUT
+LINE Normal 0 144 32 144
+PIN 0 144 LEFT 36
+PINATTR PinName clientemactxclientclkin
+PINATTR Polarity IN
+LINE Wide 0 176 32 176
+PIN 0 176 LEFT 36
+PINATTR PinName clientemactxd[7:0]
+PINATTR Polarity IN
+LINE Normal 0 208 32 208
+PIN 0 208 LEFT 36
+PINATTR PinName clientemactxdvld
+PINATTR Polarity IN
+LINE Normal 832 432 800 432
+PIN 832 432 RIGHT 36
+PINATTR PinName emacclienttxack
+PINATTR Polarity OUT
+LINE Normal 0 272 32 272
+PIN 0 272 LEFT 36
+PINATTR PinName clientemactxfirstbyte
+PINATTR Polarity IN
+LINE Normal 0 304 32 304
+PIN 0 304 LEFT 36
+PINATTR PinName clientemactxunderrun
+PINATTR Polarity IN
+LINE Wide 0 336 32 336
+PIN 0 336 LEFT 36
+PINATTR PinName clientemactxifgdelay[7:0]
+PINATTR Polarity IN
+LINE Normal 832 528 800 528
+PIN 832 528 RIGHT 36
+PINATTR PinName emacclienttxstats
+PINATTR Polarity OUT
+LINE Normal 832 560 800 560
+PIN 832 560 RIGHT 36
+PINATTR PinName emacclienttxstatsvld
+PINATTR Polarity OUT
+LINE Normal 832 592 800 592
+PIN 832 592 RIGHT 36
+PINATTR PinName emacclienttxstatsbytevld
+PINATTR Polarity OUT
+LINE Normal 0 368 32 368
+PIN 0 368 LEFT 36
+PINATTR PinName clientemacpausereq
+PINATTR Polarity IN
+LINE Wide 0 400 32 400
+PIN 0 400 LEFT 36
+PINATTR PinName clientemacpauseval[15:0]
+PINATTR Polarity IN
+LINE Normal 0 432 32 432
+PIN 0 432 LEFT 36
+PINATTR PinName phyemacgtx_clk
+PINATTR Polarity IN
+LINE Normal 832 624 800 624
+PIN 832 624 RIGHT 36
+PINATTR PinName emacphytxgmiimiiclkout
+PINATTR Polarity OUT
+LINE Normal 0 464 32 464
+PIN 0 464 LEFT 36
+PINATTR PinName phyemactxgmiimiiclkin
+PINATTR Polarity IN
+LINE Normal 0 496 32 496
+PIN 0 496 LEFT 36
+PINATTR PinName emac_speedis10100
+PINATTR Polarity IN
+LINE Normal 0 656 32 656
+PIN 0 656 LEFT 36
+PINATTR PinName hostclk
+PINATTR Polarity IN
+LINE Wide 0 688 32 688
+PIN 0 688 LEFT 36
+PINATTR PinName hostopcode[1:0]
+PINATTR Polarity IN
+LINE Wide 0 720 32 720
+PIN 0 720 LEFT 36
+PINATTR PinName hostaddr[9:0]
+PINATTR Polarity IN
+LINE Wide 832 656 800 656
+PIN 832 656 RIGHT 36
+PINATTR PinName hostwrdata[31:0]
+PINATTR Polarity OUT
+LINE Wide 0 752 32 752
+PIN 0 752 LEFT 36
+PINATTR PinName hostrddata[31:0]
+PINATTR Polarity IN
+LINE Normal 0 784 32 784
+PIN 0 784 LEFT 36
+PINATTR PinName hostmiimsel
+PINATTR Polarity IN
+LINE Normal 0 816 32 816
+PIN 0 816 LEFT 36
+PINATTR PinName hostreq
+PINATTR Polarity IN
+LINE Normal 832 688 800 688
+PIN 832 688 RIGHT 36
+PINATTR PinName hostmiimrdy
+PINATTR Polarity OUT
+LINE Normal 832 1104 800 1104
+PIN 832 1104 RIGHT 36
+PINATTR PinName emacphymclkout
+PINATTR Polarity OUT
+LINE Normal 0 1072 32 1072
+PIN 0 1072 LEFT 36
+PINATTR PinName phyemacmclkin
+PINATTR Polarity IN
+LINE Normal 0 1104 32 1104
+PIN 0 1104 LEFT 36
+PINATTR PinName phyemacmdin
+PINATTR Polarity IN
+LINE Normal 832 1136 800 1136
+PIN 832 1136 RIGHT 36
+PINATTR PinName emacphymdout
+PINATTR Polarity OUT
+LINE Normal 832 1168 800 1168
+PIN 832 1168 RIGHT 36
+PINATTR PinName emacphymdtri
+PINATTR Polarity OUT
+LINE Normal 832 1392 800 1392
+PIN 832 1392 RIGHT 36
+PINATTR PinName gmii_tx_clk
+PINATTR Polarity OUT
+LINE Normal 832 1424 800 1424
+PIN 832 1424 RIGHT 36
+PINATTR PinName gmii_tx_en
+PINATTR Polarity OUT
+LINE Normal 832 1456 800 1456
+PIN 832 1456 RIGHT 36
+PINATTR PinName gmii_tx_er
+PINATTR Polarity OUT
+LINE Wide 832 1488 800 1488
+PIN 832 1488 RIGHT 36
+PINATTR PinName gmii_txd[7:0]
+PINATTR Polarity OUT
+LINE Normal 0 1360 32 1360
+PIN 0 1360 LEFT 36
+PINATTR PinName gmii_rx_clk
+PINATTR Polarity IN
+LINE Normal 0 1392 32 1392
+PIN 0 1392 LEFT 36
+PINATTR PinName gmii_rx_dv
+PINATTR Polarity IN
+LINE Normal 0 1424 32 1424
+PIN 0 1424 LEFT 36
+PINATTR PinName gmii_rx_er
+PINATTR Polarity IN
+LINE Wide 0 1456 32 1456
+PIN 0 1456 LEFT 36
+PINATTR PinName gmii_rxd[7:0]
+PINATTR Polarity IN
+LINE Normal 0 1488 32 1488
+PIN 0 1488 LEFT 36
+PINATTR PinName gmii_col
+PINATTR Polarity IN
+LINE Normal 0 1520 32 1520
+PIN 0 1520 LEFT 36
+PINATTR PinName gmii_crs
+PINATTR Polarity IN
+

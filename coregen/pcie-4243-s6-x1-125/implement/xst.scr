@@ -1,0 +1,9 @@
+run
+-ifn xst.prj
+-ifmt Mixed
+-p xc6slx45t-fgg484-3
+-bufg 0
+-top xilinx_pcie_1_1_ep_s6
+-ofn xilinx_pcie_1_1_ep_s6.ngc
+-ofmt NGC
+

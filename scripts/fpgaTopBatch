@@ -1,0 +1,6 @@
+setMode -bs
+setCable -port auto
+Identify
+assignFile -p 1 -file fpgaTop.bit
+Program -p 1
+exit

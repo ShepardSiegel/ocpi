@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project NoOfControllers="1" >
+    <PLL>1</PLL>
+    <ModuleName>mig_v3_4</ModuleName>
+    <TwoByteSel>0</TwoByteSel>
+    <dci_inouts_inputs>1</dci_inouts_inputs>
+    <dci_outputs>0</dci_outputs>
+    <Class>Class II</Class>
+    <Debug_En>Enable</Debug_En>
+    <TargetFPGA>xc5vsx95t-ff1136/-2</TargetFPGA>
+    <Version>3.4</Version>
+    <SystemClock>Single-Ended</SystemClock>
+    <PinSelectionFlag>TRUE</PinSelectionFlag>
+    <IODelayHighPerformanceMode>HIGH</IODelayHighPerformanceMode>
+    <Controller number="0" >
+        <MemoryDevice>DDR2_SDRAM/Components/MT47H32M16XX-3</MemoryDevice>
+        <TimePeriod>3333</TimePeriod>
+        <DataWidth>32</DataWidth>
+        <DeepMemory>1</DeepMemory>
+        <DataMask>1</DataMask>
+        <CustomPart>FALSE</CustomPart>
+        <NewPartName></NewPartName>
+        <RowAddress>13</RowAddress>
+        <ColAddress>10</ColAddress>
+        <BankAddress>2</BankAddress>
+        <TimingParameters>
+            <Parameters tdsa="300" tjit="125" tdsb="100" twtr="7.5" tis="400" twr="15" trtp="7.5" tdha="300" trfc="105" trp="15" tdhb="175" tmrd="2" tih="400" tras="40" trcd="15" tac="450" />
+        </TimingParameters>
+        <ECC>ECC Disabled</ECC>
+        <PinSelection>
+            <Pin SignalName="clk200_n" PINNumber="G16" SignalGroup="System_Control" Bank="3" />
+            <Pin SignalName="clk200_p" PINNumber="G15" SignalGroup="System_Control" Bank="3" />
+            <Pin SignalName="ddr2_a[0]" PINNumber="U30" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[10]" PINNumber="L30" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[11]" PINNumber="J31" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[12]" PINNumber="J30" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[1]" PINNumber="R31" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[2]" PINNumber="T31" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[3]" PINNumber="N30" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[4]" PINNumber="M31" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[5]" PINNumber="P30" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[6]" PINNumber="P31" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[7]" PINNumber="L31" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[8]" PINNumber="K31" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_a[9]" PINNumber="M30" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_ba[0]" PINNumber="U27" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_ba[1]" PINNumber="T29" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_cas#" PINNumber="R26" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_ck#[0]" PINNumber="E27" SignalGroup="Address" Bank="19" />
+            <Pin SignalName="ddr2_ck#[1]" PINNumber="G31" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_ck[0]" PINNumber="E26" SignalGroup="Address" Bank="19" />
+            <Pin SignalName="ddr2_ck[1]" PINNumber="H30" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_cke[0]" PINNumber="V32" SignalGroup="Address" Bank="13" />
+            <Pin SignalName="ddr2_cs#[0]" PINNumber="U26" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_cs#[1]" PINNumber="T26" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_dm[0]" PINNumber="J24" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dm[1]" PINNumber="F25" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dm[2]" PINNumber="N24" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dm[3]" PINNumber="H29" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[0]" PINNumber="K24" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[10]" PINNumber="H25" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[11]" PINNumber="H24" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[12]" PINNumber="F26" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[13]" PINNumber="K28" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[14]" PINNumber="L28" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[15]" PINNumber="K27" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[16]" PINNumber="M28" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[17]" PINNumber="N28" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[18]" PINNumber="P26" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[19]" PINNumber="P27" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[1]" PINNumber="L24" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[20]" PINNumber="P24" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[21]" PINNumber="P25" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[22]" PINNumber="N25" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[23]" PINNumber="R24" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[24]" PINNumber="E29" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[25]" PINNumber="F29" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[26]" PINNumber="G30" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[27]" PINNumber="F30" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[28]" PINNumber="J29" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[29]" PINNumber="E31" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[2]" PINNumber="L25" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[30]" PINNumber="F31" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[31]" PINNumber="L29" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dq[3]" PINNumber="L26" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[4]" PINNumber="J25" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[5]" PINNumber="M25" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[6]" PINNumber="M26" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[7]" PINNumber="J27" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[8]" PINNumber="G25" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dq[9]" PINNumber="G26" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dqs#[0]" PINNumber="H27" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dqs#[1]" PINNumber="G28" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dqs#[2]" PINNumber="F28" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dqs#[3]" PINNumber="P29" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_dqs[0]" PINNumber="G27" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dqs[1]" PINNumber="H28" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dqs[2]" PINNumber="E28" SignalGroup="Data" Bank="19" />
+            <Pin SignalName="ddr2_dqs[3]" PINNumber="N29" SignalGroup="Data" Bank="15" />
+            <Pin SignalName="ddr2_odt[0]" PINNumber="U25" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_odt[1]" PINNumber="T25" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_ras#" PINNumber="U28" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="ddr2_we#" PINNumber="R27" SignalGroup="Address" Bank="15" />
+            <Pin SignalName="error" PINNumber="Y7" SignalGroup="Control" Bank="18" />
+            <Pin SignalName="idly_clk_200" PINNumber="J16" SignalGroup="System_Clock" Bank="3" />
+            <Pin SignalName="phy_init_done" PINNumber="Y8" SignalGroup="Control" Bank="18" />
+            <Pin SignalName="sys_clk" PINNumber="K19" SignalGroup="System_Clock" Bank="3" />
+            <Pin SignalName="sys_rst_n" PINNumber="Y11" SignalGroup="Control" Bank="18" />
+        </PinSelection>
+        <BankSelection>
+            <Bank Control="0" SysClk="0" Data="0" name="13" Address="1" wasso="38" />
+            <Bank Control="0" SysClk="0" Data="1" name="15" Address="1" wasso="38" />
+            <Bank Control="1" SysClk="0" Data="0" name="18" Address="0" wasso="38" />
+            <Bank Control="0" SysClk="0" Data="1" name="19" Address="1" wasso="38" />
+            <Bank Control="1" SysClk="1" Data="0" name="3" Address="0" wasso="19" />
+        </BankSelection>
+        <mrBurstLength name="Burst Length" >8(011)</mrBurstLength>
+        <mrBurstType name="Burst Type" >sequential(0)</mrBurstType>
+        <mrCasLatency name="CAS Latency" >5(101)</mrCasLatency>
+        <mrMode name="Mode" >normal(0)</mrMode>
+        <mrDllReset name="DLL Reset" >no(0)</mrDllReset>
+        <mrPdMode name="PD Mode" >fast exit(0)</mrPdMode>
+        <mrWriteRecovery name="Write Recovery" ></mrWriteRecovery>
+        <emrDllEnable name="DLL Enable" >Enable-Normal(0)</emrDllEnable>
+        <emrOutputDriveStrength name="Output Drive Strength" >Fullstrength(0)</emrOutputDriveStrength>
+        <emrRTT name="RTT (nominal) - ODT" >50ohms(11)</emrRTT>
+        <emrPosted name="Additive Latency (AL)" >0(000)</emrPosted>
+        <emrOCD name="OCD Operation" >OCD Exit(000)</emrOCD>
+        <emrDQS name="DQS# Enable" >Enable(0)</emrDQS>
+        <emrRDQS name="RDQS Enable" >Disable(0)</emrRDQS>
+        <emrOutputs name="Outputs" >Enable(0)</emrOutputs>
+    </Controller>
+</Project>

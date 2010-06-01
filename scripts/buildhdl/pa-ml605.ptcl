@@ -1,0 +1,8 @@
+# pa100.tcl
+hdi::project new -name project_1 -dir {./project_1} -netlist {./fpgaTop.ngc}
+hdi::project setPart -name project_1 -part {xc6vlx240tff1156-1}
+hdi::floorplan new -name floorplan_1 -part {xc6vlx240tff1156-1} -project project_1
+hdi::pconst import -project project_1 -floorplan floorplan_1 -file {./ml605.ucf}
+hdi::floorplan importPlacement -floorplan floorplan_1 -project project_1 -file {./fpgaTop.ncd}
+hdi::timing import -name results_1 -project project_1 -floorplan floorplan_1 -file {./fpgaTop.twx}
+hdi::floorplan save -name floorplan_1 -project project_1

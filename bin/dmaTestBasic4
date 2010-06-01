@@ -1,0 +1,8 @@
+#!/bin/sh
+# Script for basic dma test on board 4
+
+echo "admin probe 0000:04:00.0"
+sudo ./swctl 0xDE000000 0xDFFF0000 settime
+sudo ./swctl 0xDE000000 0xDFFF0000 admin
+
+./testDMA4 "p f m" "3" "0 4080" "1000"

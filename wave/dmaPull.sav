@@ -1,0 +1,103 @@
+[timestart] 2100
+[size] 2560 1550
+[pos] -1 -1
+*-11.146330 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+[treeopen] main.top.ctop.
+[treeopen] main.top.ctop.inf.
+[treeopen] main.top.ctop.inf.dp0.
+@28
+main.top.ctop.inf.tg.dpGo
+main.top.ctop.inf.tg.WILL_FIRE_RL_genReqReady
+main.top.ctop.inf.tg.genReqInFlight
+@22
+main.top.ctop.inf.tg.genReqTag[7:0]
+@28
+main.top.ctop.inf.tg.WILL_FIRE_RL_genRespReady
+@22
+main.top.ctop.inf.tg.genReady[32:0]
+@28
+main.top.ctop.inf.tg.WILL_FIRE_RL_genMesg
+main.top.ctop.inf.tg.WILL_FIRE_RL_genMeta0
+main.top.ctop.inf.tg.WILL_FIRE_RL_genMeta1
+main.top.ctop.inf.tg.WILL_FIRE_RL_genDoorbell
+@22
+main.top.ctop.inf.tg.genMesgAddr[31:0]
+main.top.ctop.inf.tg.genMetaAddr[31:0]
+main.top.ctop.inf.tg.genOpcode[7:0]
+@200
+-
+@22
+main.top.ctop.inf.dp0.bml_lclBufsAR[7:0]
+main.top.ctop.inf.dp0.bml_lclBufsCF[7:0]
+main.top.ctop.inf.dp0.bml_fabBufsAvail[7:0]
+@28
+main.top.ctop.inf.dp0.bml_lclBufStart
+main.top.ctop.inf.dp0.bml_lclBufDone
+@22
+main.top.ctop.inf.dp0.bml_lclBuf_value[7:0]
+main.top.ctop.inf.dp0.bml_lclStarts[15:0]
+main.top.ctop.inf.dp0.bml_lclDones[15:0]
+main.top.ctop.inf.dp0.bml_remDones[15:0]
+main.top.ctop.inf.dp0.bml_remBuf_value[7:0]
+@200
+-
+@28
+main.top.ctop.inf.dp0.WILL_FIRE_RL_tlp_dmaRequestFarMeta
+main.top.ctop.inf.dp0.tlp_reqMetaInFlight
+@22
+main.top.ctop.inf.dp0.tlp_fabMeta[32:0]
+@28
+main.top.ctop.inf.dp0.tlp_remStart
+main.top.ctop.inf.dp0.tlp_remDone
+@22
+main.top.ctop.inf.dp0.tlp_dmaPullRemainDWLen[9:0]
+@28
+main.top.ctop.inf.dp0.WILL_FIRE_RL_tlp_dmaPullRequestFarMesg
+main.top.ctop.inf.dp0.tlp_reqMesgInFlight
+main.top.ctop.inf.dp0.tlp_gotResponseHeader
+main.top.ctop.inf.dp0.WILL_FIRE_RL_tlp_dmaPullResponseHeader
+main.top.ctop.inf.dp0.WILL_FIRE_RL_tlp_dmaPullResponseBody
+main.top.ctop.inf.dp0.WILL_FIRE_RL_tlp_dmaPullTailEvent
+@22
+main.top.ctop.inf.dp0.tlp_fabMesgAddr[31:0]
+main.top.ctop.inf.dp0.tlp_fabMetaAddr[31:0]
+@200
+-
+@22
+main.top.ctop.app.wmiW3.wsi_m_req[60:0]
+@28
+main.top.ctop.app.wmiW3.wsi_s_SThreadBusy
+@200
+-
+@22
+main.top.ctop.app.wmiW4.mesgCount[31:0]
+@200
+-
+@28
+main.top.ctop.inf.dp1.bml_lclBufStart
+main.top.ctop.inf.dp1.bml_lclBufDone
+@22
+main.top.ctop.inf.dp1.bml_lclBufsAR[7:0]
+main.top.ctop.inf.dp1.bml_lclBufsCF[7:0]
+main.top.ctop.inf.dp1.bml_lclStarts[15:0]
+main.top.ctop.inf.dp1.bml_lclDones[15:0]
+main.top.ctop.inf.dp1.bml_remDones[15:0]
+main.top.ctop.inf.dp1.bml_remBuf_value[7:0]
+main.top.ctop.inf.dp1.tlp_remMetaAddr[15:0]
+main.top.ctop.inf.dp1.tlp_fabMetaAddr[31:0]
+@200
+-
+@28
+main.top.ctop.inf.dp1.WILL_FIRE_RL_tlp_dmaXmtDoorbell
+@22
+main.top.ctop.inf.dp1.tlp_fabMeta[32:0]
+main.top.ctop.inf.dp1.tlp_fabControl[31:0]
+main.top.ctop.inf.dp1.tlp_fabTailAddr[31:0]
+@28
+main.top.ctop.inf.dp1.tlp_remStart
+main.top.ctop.inf.dp1.tlp_reqMetaInFlight
+main.top.ctop.inf.dp1.tlp_tlpMetaSent
+main.top.ctop.inf.dp1.tlp_remDone
+main.top.ctop.inf.dp1.tlp_reqMesgInFlight

@@ -1,0 +1,933 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spirit:design xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xilinx="http://www.xilinx.com" >
+   <spirit:vendor>xilinx.com</spirit:vendor>
+   <spirit:library>CoreGen</spirit:library>
+   <spirit:name>coregen</spirit:name>
+   <spirit:version>1.0</spirit:version>
+   <spirit:componentInstances>
+      <spirit:componentInstance>
+         <spirit:instanceName>mig_v3_4</spirit:instanceName>
+         <spirit:displayName></spirit:displayName>
+         <spirit:description></spirit:description>
+         <spirit:componentRef spirit:vendor="xilinx.com" spirit:library="ip" spirit:name="mig" spirit:version="3.4" />
+         <spirit:configurableElementValues>
+            <spirit:configurableElementValue spirit:referenceId="parameter_xml_input_file">/home/shep/projects/ocpi/dram-v5-sx95/mig_v3_4/user_design/mig.prj</spirit:configurableElementValue>
+         </spirit:configurableElementValues>
+         <spirit:vendorExtensions>
+            <xilinx:instanceProperties>
+             <xilinx:projectOptions>
+               <xilinx:projectName>coregen</xilinx:projectName>
+               <xilinx:outputDirectory>./</xilinx:outputDirectory>
+               <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+               <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+             </xilinx:projectOptions>
+             <xilinx:part>
+               <xilinx:device>xc5vsx95t</xilinx:device>
+               <xilinx:deviceFamily>virtex5</xilinx:deviceFamily>
+               <xilinx:package>ff1136</xilinx:package>
+               <xilinx:speedGrade>-2</xilinx:speedGrade>
+             </xilinx:part>
+             <xilinx:flowOptions>
+               <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+               <xilinx:designEntry>Verilog</xilinx:designEntry>
+               <xilinx:asySymbol>true</xilinx:asySymbol>
+               <xilinx:flowVendor>Other</xilinx:flowVendor>
+               <xilinx:addPads>false</xilinx:addPads>
+               <xilinx:removeRPMs>false</xilinx:removeRPMs>
+               <xilinx:createNDF>false</xilinx:createNDF>
+               <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+               <xilinx:formalVerification>false</xilinx:formalVerification>
+             </xilinx:flowOptions>
+             <xilinx:simulationOptions>
+               <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+               <xilinx:simulationLanguage>Verilog</xilinx:simulationLanguage>
+               <xilinx:foundationSym>false</xilinx:foundationSym>
+             </xilinx:simulationOptions>
+           </xilinx:instanceProperties>
+            <xilinx:generationHistory>
+               <xilinx:fileSet>
+                  <xilinx:name>customization_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/docs/adr_cntrl_timing.xls</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xAF35ABC0</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/docs/read_data_timing.xls</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xD41334D2</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/docs/ug086.pdf</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>pdf</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xD34F3ABC</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/docs/write_data_timing.xls</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x605046E7</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/docs/xapp858.url</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5698FE61</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/datasheet.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x99F99698</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/log.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4BDD1FF6</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/mig.prj</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x92EE2B48</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/create_ise.bat</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB4922005</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/icon4_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x0F1B5045</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/ise_flow.bat</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x25651C97</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/makeproj.bat</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCFE64DF9</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/mem_interface_top.ut</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x86B57F5F</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/mig_v3_4.cdc</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x9443EDBD</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/mig_v3_4.ucf</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>ucf</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x79AC80B3</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/readme.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xFD60C56A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/rem_files.bat</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA275A519</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/set_ise_prop.tcl</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x740AC121</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/vio_async_in100_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xDB69D9FF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/vio_async_in192_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xFE32FCCE</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/vio_async_in96_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x137A9AFD</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/vio_sync_out32_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x10584E2B</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/par/xst_run.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x69565D94</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_chipscope.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x95092C51</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_ctrl.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x86FDE5D1</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_idelay_ctrl.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC0C3917A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_infrastructure.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x24A0F2B8</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_mem_if_top.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x6C6D43C3</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_calib.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4E1F017D</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_ctl_io.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x017349CC</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_dm_iob.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xDA26A245</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_dq_iob.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xAD0A995C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_dqs_iob.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x8A379F3A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_init.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x2EBFB73F</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_io.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xEA8576BF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_top.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x57ED70D2</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_phy_write.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x838E2E16</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_tb_test_addr_gen.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB2BC6AFA</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_tb_test_cmp.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x45549D96</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_tb_test_data_gen.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x8F055290</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_tb_test_gen.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x1C3F513C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_tb_top.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB5D6E43A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_top.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x45AB5589</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_usr_addr_fifo.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4D766BED</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_usr_rd.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3AD143E4</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_usr_top.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB511E631</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/ddr2_usr_wr.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x210D4920</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/rtl/mig_v3_4.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xEEA012D4</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/sim/ddr2_model.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x36128AA6</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/sim/ddr2_model_parameters.vh</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x1D074097</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/sim/glbl.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x15D5F1AC</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/sim/sim.do</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCBA8D967</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/sim/sim_tb_top.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:03 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE4974B6E</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/sim/wiredly.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3E54A291</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/synth/mem_interface_top_synp.sdc</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x522AE2F8</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/synth/mig_v3_4.lso</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xEEDE3797</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/synth/mig_v3_4.prj</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3B7384FC</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/example_design/synth/script_synp.tcl</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5C65E330</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/datasheet.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x28EEC742</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/log.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x411FA00A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/mig.prj</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x92EE2B48</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/create_ise.bat</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB4922005</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/icon4_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x0F1B5045</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/ise_flow.bat</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x25651C97</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/makeproj.bat</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCFE64DF9</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/mem_interface_top.ut</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x86B57F5F</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/mig_v3_4.cdc</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x9443EDBD</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/mig_v3_4.ucf</xilinx:name>
+                     <xilinx:userFileType>ucf</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x6D8BAA25</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/readme.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x2D7E995B</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/rem_files.bat</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA275A519</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/set_ise_prop.tcl</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x0E50172B</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/vio_async_in100_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xDB69D9FF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/vio_async_in192_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xFE32FCCE</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/vio_async_in96_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x137A9AFD</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/vio_sync_out32_cg.xco</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x10584E2B</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/par/xst_run.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x69565D94</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_chipscope.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x95092C51</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_ctrl.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x86FDE5D1</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_idelay_ctrl.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC0C3917A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_infrastructure.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x24A0F2B8</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_mem_if_top.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x6C6D43C3</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_calib.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4E1F017D</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_ctl_io.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x017349CC</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_dm_iob.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xDA26A245</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_dq_iob.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xAD0A995C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_dqs_iob.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x8A379F3A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_init.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x2EBFB73F</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_io.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xEA8576BF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_top.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x57ED70D2</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_phy_write.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x838E2E16</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_top.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x45AB5589</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_usr_addr_fifo.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4D766BED</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_usr_rd.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3AD143E4</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_usr_top.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB511E631</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/ddr2_usr_wr.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x210D4920</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/rtl/mig_v3_4.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3675C819</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/ddr2_model.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x36128AA6</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/ddr2_model_parameters.vh</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x1D074097</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/ddr2_tb_test_addr_gen.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB2BC6AFA</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/ddr2_tb_test_cmp.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x45549D96</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/ddr2_tb_test_data_gen.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x8F055290</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/ddr2_tb_test_gen.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x1C3F513C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/ddr2_tb_top.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB5D6E43A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/glbl.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x15D5F1AC</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/sim.do</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCBA8D967</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/sim_tb_top.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xBC7907BE</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/sim/wiredly.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3E54A291</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/synth/mem_interface_top_synp.sdc</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x522AE2F8</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/synth/mig_v3_4.lso</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xEEDE3797</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/synth/mig_v3_4.prj</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x98526B5D</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4/user_design/synth/script_synp.tcl</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x97FE7C85</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4.veo</xilinx:name>
+                     <xilinx:userFileType>veo</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x33D5049D</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4_xmdf.tcl</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE2FE2935</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ip_xco_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4.xco</xilinx:name>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xDD3A202C</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>implementation_source_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>instantiation_template_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>xco_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4.xco</xilinx:name>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:06 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4150EDB7</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>xmdf_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ise_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./_xmsgs/pn_parser.xmsgs</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:08 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xDE1D52E2</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4.gise</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>gise</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:08 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5A6B0134</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4.xise</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xise</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:08 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x1E102C0B</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>deliver_readme_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4_readme.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txtReadme</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:09 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x2B59D78C</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>flist_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./mig_v3_4_flist.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txtFlist</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Mon May 10 16:58:09 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x11C4B910</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>view_readme_generator</xilinx:name>
+               </xilinx:fileSet>
+            </xilinx:generationHistory>
+         </spirit:vendorExtensions>
+      </spirit:componentInstance>
+   </spirit:componentInstances>
+   <spirit:description></spirit:description>
+   <spirit:vendorExtensions>
+      <xilinx:instanceProperties>
+       <xilinx:projectOptions>
+         <xilinx:projectName>coregen</xilinx:projectName>
+         <xilinx:outputDirectory>./</xilinx:outputDirectory>
+         <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+         <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+       </xilinx:projectOptions>
+       <xilinx:part>
+         <xilinx:device>xc5vsx95t</xilinx:device>
+         <xilinx:deviceFamily>virtex5</xilinx:deviceFamily>
+         <xilinx:package>ff1136</xilinx:package>
+         <xilinx:speedGrade>-2</xilinx:speedGrade>
+       </xilinx:part>
+       <xilinx:flowOptions>
+         <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+         <xilinx:designEntry>Verilog</xilinx:designEntry>
+         <xilinx:asySymbol>true</xilinx:asySymbol>
+         <xilinx:flowVendor>Other</xilinx:flowVendor>
+         <xilinx:addPads>false</xilinx:addPads>
+         <xilinx:removeRPMs>false</xilinx:removeRPMs>
+         <xilinx:createNDF>false</xilinx:createNDF>
+         <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+         <xilinx:formalVerification>false</xilinx:formalVerification>
+       </xilinx:flowOptions>
+       <xilinx:simulationOptions>
+         <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+         <xilinx:simulationLanguage>Verilog</xilinx:simulationLanguage>
+         <xilinx:foundationSym>false</xilinx:foundationSym>
+       </xilinx:simulationOptions>
+     </xilinx:instanceProperties>
+   </spirit:vendorExtensions>
+</spirit:design>

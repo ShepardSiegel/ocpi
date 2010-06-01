@@ -1,0 +1,1 @@
+fuse -prj oc1001.prj work.main -o my_sim.exe

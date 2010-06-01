@@ -1,0 +1,7 @@
+## OC1001-SP605j 125 MHz XCF
+## 2009-10-23 ssiegel Creation to convey 125 MHz core constraint to XST
+## 2010-01-20 ssiegel SP605
+
+# Timing Constraints...
+NET "ftop/pci0_pcie_ep/trn_clk" TNM_NET = "TRNCLK";
+TIMESPEC "TS_TRNCLK"  = PERIOD "TRNCLK" 125.00 MHz HIGH 50 % ;

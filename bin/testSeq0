@@ -1,0 +1,8 @@
+#!/bin/sh
+# Script for debugging ADC capture
+
+echo "admin probe twice"
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 admin
+

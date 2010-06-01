@@ -1,0 +1,8 @@
+run
+-ifn xst.prj
+-ifmt mixed
+-ofn v6_emac_v1_3_example_design
+-top v6_emac_v1_3_example_design
+-p virtex6
+-iobuf yes
+-keep_hierarchy no

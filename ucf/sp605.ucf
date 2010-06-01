@@ -1,0 +1,38 @@
+## SP605 UCF
+## 2010-01-20 ssiegel SP605 delta
+## 2010-03-30 ssiegel Verifiy 200 MHz X0, partial merge
+
+CONFIG PART = XC6SLX45T-FGG484-3 ;
+
+# 200 MHz XO
+NET  "sys0_clkp"  LOC = K21;
+NET  "sys0_clkn"  LOC = K22;
+
+# PCIe...
+#INST s6_pcie_v1_2_i/mgt/GT_i/tile0_gtpa1_dual_wrapper_i/gtpa1_dual_i LOC = GTPA1_DUAL_X0Y0;
+NET "pci0_clkn"   LOC = "B10"; ## 1 on series C301 0.1uF, C300 pin 2 -> PCIE_250M_MGT1_C_N -> 17 on U48
+NET "pci0_clkp"   LOC = "A10"; ## 1 on series C300 0.1uF, C300 pin 2 -> PCIE_250M_MGT1_C_P -> 18 on U48
+INST "ftop/pci0_clk"  DIFF_TERM = "TRUE";
+NET "pci0_reset_n" LOC = "J7"; ## 6 on U52 (level shifter, U52.20 <-> PCIE_PERST_B <-> series R55 15 ohm <-> A11 on P4
+NET "PCIE_RX0_N"   LOC = "C7"; ## B15 on P4
+NET "PCIE_RX0_P"   LOC = "D7"; ## B14 on P4
+NET "PCIE_TX0_N"   LOC = "A6"; ## 2 on series C26 0.1uF, C26 pin 1 -> PCIE_TX0_C_N -> A17 of P4
+NET "PCIE_TX0_P"   LOC = "B6"; ## 2 on series C27 0.1uF, C26 pin 1 -> PCIE_TX0_C_P -> A16 of P4
+
+# Timing Constraints...
+#NET "ftop/pci0_clk_O" PERIOD = 4ns;
+#NET "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/gt_refclk_out" TNM_NET = "PCI0CLK";
+#TIMESPEC "TS_PCI0CLK"  = PERIOD "PCI0CLK" 250.00 MHz HIGH 50 % ;
+
+NET pci0_clk PERIOD = 8ns;
+NET s6_pcie_v1_2_i/gt_refclk_out TNM_NET = GT_REFCLK_OUT;
+TIMESPEC TS_GT_REFCLK_OUT = PERIOD GT_REFCLK_OUT 8ns HIGH 50 % ;
+
+# LEDs and Switches...
+NET "led[0]"    LOC = H18   | IOSTANDARD = "LVCMOS25"; ## User  D0
+NET "led[1]"    LOC = L18   | IOSTANDARD = "LVCMOS25"; ## User  D1
+NET "led[2]"    LOC = G15   | IOSTANDARD = "LVCMOS25"; ## User  D2
+##NET "SWITCH[0]" LOC = AF21 | IOSTANDARD = "LVCMOS25"; ## User SW1
+##NET "SWITCH[1]" LOC = AF20 | IOSTANDARD = "LVCMOS25"; ## User SW2
+##NET "SWITCH[2]" LOC = AF14 | IOSTANDARD = "LVCMOS25"; ## User SW3
+

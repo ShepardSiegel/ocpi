@@ -1,0 +1,8 @@
+setMode -bs
+setCable -port usb23
+Identify
+IdentifyMPM
+attachflash -position 2 -bpi "XCF128X"
+assignfiletoattachedflash -position 2 -file "fpgaTop.mcs"
+Program -p 2 -dataWidth 16 -rs1 NONE -rs0 NONE -bpionly -e -v -loadfpga 
+Exit

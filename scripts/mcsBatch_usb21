@@ -1,0 +1,7 @@
+setMode -bs
+setCable -port usb21
+Identify 
+identifyMPM 
+assignFile -p 3 -file fpgaTop.mcs
+Program -p 3 -e -parallel -defaultVersion 0 
+Exit

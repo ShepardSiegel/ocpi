@@ -1,0 +1,2 @@
+sudo ./swctl 0xF3B00000 0xF3CF0000 admin
+

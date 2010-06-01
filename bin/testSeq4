@@ -1,0 +1,98 @@
+#!/bin/sh
+# Script for debugging ADC capture
+
+echo "admin probe"
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+
+echo "reset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl 14 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  4 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  3 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  2 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x0000000E
+
+echo "unreset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl 14 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  4 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  3 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  2 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x8000000E
+
+echo "initialize workers"
+./swctl 0xF1000000 0xF2FF0000 wop 14 initialize
+./swctl 0xF1000000 0xF2FF0000 wop  4 initialize
+./swctl 0xF1000000 0xF2FF0000 wop  3 initialize
+./swctl 0xF1000000 0xF2FF0000 wop  2 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 10 initialize
+
+
+echo "Set W2 SMAdapter to Mode 0 WSI-S to WSI-M"
+./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x0
+#./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x10
+
+echo "Set W4 SMAdapter to Mode 2 WSI-S to WMI"
+./swctl 0xF1000000 0xF2FF0000 wwrite 4 0x00 0x2
+
+echo "Set DP1 to Four Buffer Passive Fabric Producer"
+./swctl 0xF1000000 0xF2FF0000 wwrite 14 0x00 0x4
+./swctl 0xF1000000 0xF2FF0000 wwrite 14 0x04 0x400  # 1024 buffers on host
+./swctl 0xF1000000 0xF2FF0000 wwrite 14 0x68 0x5 # producer pusher to host
+./swctl 0xF1000000 0xF2FF0000 wwrite 14 0x50 0x5F700000 # message base
+./swctl 0xF1000000 0xF2FF0000 wwrite 14 0x54 0x5FB00000 # meta base
+./swctl 0xF1000000 0xF2FF0000 wwrite 14 0x58 0x400 # message buffer size
+./swctl 0xF1000000 0xF2FF0000 wwrite 14 0x5C 0x10
+./swctl 0xF1000000 0xF2FF0000 wwrite 14 0x60 0x5FF00000 # flag base
+
+#echo "Put ADC0 in normal mode"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x6200
+
+echo "start workers"
+./swctl 0xF1000000 0xF2FF0000 wop 14 start
+./swctl 0xF1000000 0xF2FF0000 wop  4 start
+./swctl 0xF1000000 0xF2FF0000 wop  3 start
+./swctl 0xF1000000 0xF2FF0000 wop  2 start
+./swctl 0xF1000000 0xF2FF0000 wop 10 start
+
+#echo "enable ADC stop on error"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x8
+#echo "enable ADC TimeStamp Insertion"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x4
+#echo "enable ADC Sync Insertion"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x2
+#echo "disable ADC sample messages"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x1
+
+
+echo "ADCWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 18
+echo "W2 SMAdapter config properties"
+./swctl 0xF1000000 0xF2FF0000 wread  2 0  7
+echo "BiasWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread  3 0  4
+echo "W4 SMAdapter config properties"
+./swctl 0xF1000000 0xF2FF0000 wread  4 0  7
+echo "DP1 config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 14 0 28
+echo
+sleep 1
+echo
+echo "ADCWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 23
+echo "W2 SMAdapter config properties"
+./swctl 0xF1000000 0xF2FF0000 wread  2 0  7
+echo "BiasWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread  3 0  4
+echo "W4 SMAdapter config properties"
+./swctl 0xF1000000 0xF2FF0000 wread  4 0  7
+echo "DP1 config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 14 0 28
+
+
+#echo "Peek Meta"
+#./swctl 0xF1000000 0xF2FF0000 dread 0xB800 16
+#echo "Peek Data Buf 1 2 3"
+#./swctl 0xF1000000 0xF2FF0000 dread 0x8800 16
+#./swctl 0xF1000000 0xF2FF0000 dread 0x9000 16
+#./swctl 0xF1000000 0xF2FF0000 dread 0x9800 16
+
