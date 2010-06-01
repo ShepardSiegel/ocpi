@@ -13,6 +13,7 @@ OBJ     ?= obj
 RTL     ?= rtl
 BSV     ?= bsv
 
+VLG_HDL   = libsrc/hdl/ocpi
 BUILD_HDL = scripts/buildhdl
 
 default:
@@ -68,7 +69,7 @@ isim: $(OBJ)
 		-p $(BSV):lib:+ \
 		$(BSV)/$(ITEST).bsv
 	
-	bsc -vsim isim -vdir $(RTL) -bdir $(OBJ) -e mk$(ITEST) -o runsim
+	bsc -vsim isim -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST) -o runsim
 	./runsim 
 
 	# create verilog executable

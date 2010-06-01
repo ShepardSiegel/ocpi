@@ -86,6 +86,12 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   FIFOF#(Bit#(32))               wide4F             <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16F            <- mkSRLFIFO(4);
 
+  // Delay Management...
+  Accumulator2Ifc#(Int#(20))     dlyWordsStored   <- mkAccumulator2;
+  Accumulator2Ifc#(Int#(8))      dlyReadCredit    <- mkAccumulator2;
+  Reg#(UInt#(20))                dlyWAG           <- mkReg(0);
+  Reg#(UInt#(20))                dlyRAG           <- mkReg(0);
+
   Bool wsiPass  = (dlyCtrl[3:0]==4'h0);
   Bool wmiRd    = (dlyCtrl[3:0]==4'h1) || (dlyCtrl[3:0]==4'h4);
   Bool wmiWt    = (dlyCtrl[3:0]==4'h2) || (dlyCtrl[3:0]==4'h3);
@@ -363,6 +369,10 @@ endrule
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgWtCount <= 0;
   mesgRdCount <= 0;
+  dlyWordsStored.load(0);
+  dlyReadCredit.load(64);
+  dlyWAG  <= 0;
+  dlyRAG  <= 0;
   wci.ctlAck;
   $display("[%0d]: %m: Starting DelayWorker dlyCtrl:%0x", $time, dlyCtrl);
 endrule
