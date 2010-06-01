@@ -161,6 +161,7 @@ clean:
 	rm -fR info obj
 	rm -fR `find . -name \*~`
 	rm -fR bin/*.log
+	rm -fR scripts/_impactbatch.log
 	mkdir obj
 	du -s
 

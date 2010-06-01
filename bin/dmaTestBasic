@@ -6,3 +6,4 @@ sudo ./swctl 0xF1000000 0xF2FF0000 settime
 sudo ./swctl 0xF1000000 0xF2FF0000 admin
 
 ./testDMA "p f m" "3" "0 4080" "1000" $*
+./testDMA "p f m" "3" "4080" "100" $*
