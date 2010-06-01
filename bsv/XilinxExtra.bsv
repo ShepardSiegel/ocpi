@@ -678,6 +678,37 @@ module vClkIBUFDS#(Clock clk_p, Clock clk_n)(ClockBuffer);
    output_clock clkout(O);   
    same_family(clk_p, clkout);
 endmodule: vClkIBUFDS
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// ICAP
+////////////////////////////////////////////////////////////////////////////////
+(* always_ready, always_enabled *)
+interface ICAP;
+   method Bit#(32)   configOut;
+   method Bit#(1)    busy;
+   method Action     configIn(Bit#(32) i);
+   method Action     write(Bit#(1) i);
+   method Action     ce(Bit#(1) i);
+endinterface: ICAP
+
+import "BVI" ICAP_VIRTEX5 =
+module vICAP (ICAP);
+
+   default_clock clk(CLK);
+   default_reset no_reset;
+
+   parameter ICAP_WIDTH  = "X32";
+   
+   method O         configOut;
+   method BUSY      busy;
+   method configIn (I)      enable((*inhigh*)en0);
+   method write    (WRITE)  enable((*inhigh*)en1);
+   method ce       (CE)     enable((*inhigh*)en2);
+      
+   schedule (configOut, busy, configIn, write, ce) CF (configOut, busy, configIn, write, ce); 
+endmodule: vICAP
+
    
 
 endpackage: XilinxExtra

@@ -72,7 +72,7 @@ endinterface: DRAM_DDR
 typedef DRAM_DDR#(13,3,1,1,1,8,64,8) DDR3_64;
 typedef DRAM_DDR#(13,2,2,2,2,4,32,4) DDR2_32;
 
-(* always_enabled, always_ready *)
+//(* always_enabled, always_ready *)
 interface DRAM_APP#(numeric type appWidth, numeric type adrWidth, numeric type mskWidth);
   method Action              cmd      (Bit#(3) i);
 //method Action              en       (Bit#(1) i);
@@ -229,21 +229,21 @@ module vMkV5DDR2#(Clock sys0_clk, Clock mem_clk)(DramControllerV5Ifc);
   endinterface: dram
 
   interface DRAM_APP_32B app;
-    method                    cmd      (app_cmd)       enable((*inhigh*)ena1)  clocked_by(uclk) reset_by(urst_n);
-    method                    en       ()              enable(app_af_wren)     clocked_by(uclk) reset_by(urst_n);
-    method app_af_afull       full                                             clocked_by(uclk) reset_by(urst_n);
-    method                    addr     (app_addr)      enable((*inhigh*)ena3)  clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_wren ()              enable(app_wf_wren)     clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_data (app_data)      enable((*inhigh*)ena5)  clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_mask (app_mask)      enable((*inhigh*)ena6)  clocked_by(uclk) reset_by(urst_n);
-    method app_wf_afull       wdf_full                                         clocked_by(uclk) reset_by(urst_n);
-    method app_rd_data        rd_data                                          clocked_by(uclk) reset_by(urst_n);
-    method app_rd_data_valid  rd_data_valid                                    clocked_by(uclk) reset_by(urst_n);
-    method phy_init_done      init_complete                                    clocked_by(uclk) reset_by(urst_n);
+    method                    cmd      (app_cmd)       enable((*inhigh*)ignore1)  clocked_by(uclk) reset_by(urst_n);
+    method                    en       ()              enable(app_af_wren)        clocked_by(uclk) reset_by(urst_n);
+    method app_af_afull       full                                                clocked_by(uclk) reset_by(urst_n);
+    method                    addr     (app_addr)      enable((*inhigh*)ignore2)  clocked_by(uclk) reset_by(urst_n);
+    method                    wdf_wren ()              enable(app_wf_wren)        clocked_by(uclk) reset_by(urst_n);
+    method                    wdf_data (app_data)      enable((*inhigh*)ignore3)  clocked_by(uclk) reset_by(urst_n);
+    method                    wdf_mask (app_mask)      enable((*inhigh*)ignore4)  clocked_by(uclk) reset_by(urst_n);
+    method app_wf_afull       wdf_full                                            clocked_by(uclk) reset_by(urst_n);
+    method app_rd_data        rd_data                                             clocked_by(uclk) reset_by(urst_n);
+    method app_rd_data_valid  rd_data_valid                                       clocked_by(uclk) reset_by(urst_n);
+    method phy_init_done      init_complete                                       clocked_by(uclk) reset_by(urst_n);
   endinterface: app
 
   interface DRAM_DBG_V5S dbg;
-    // value methods verilogPort methodName...
+    // Value methods verilogPort methodName...
     method dbg_calib_done             calib_done                  clocked_by(uclk) reset_by(urst_n);
     method dbg_calib_err              calib_err                   clocked_by(uclk) reset_by(urst_n);
     method dbg_calib_dq_tap_cnt       calib_dq_tap_cnt            clocked_by(uclk) reset_by(urst_n);
@@ -301,19 +301,30 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   Reg#(Bool)            firstReadBeat   <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bit#(64))        firstReadData   <- mkReg(0,       clocked_by memc.uclk, reset_by memc.urst_n);
 
+  Wire#(Bit#(3))        memcCmd_w       <- mkDWire(0,     clocked_by memc.uclk, reset_by memc.urst_n);
+  Wire#(Bit#(33))       memcAddr_w      <- mkDWire(0,     clocked_by memc.uclk, reset_by memc.urst_n);
+  Wire#(Bit#(64))       memcData_w      <- mkDWire(0,     clocked_by memc.uclk, reset_by memc.urst_n);
+  Wire#(Bit#(8))        memcMask_w      <- mkDWire(0,     clocked_by memc.uclk, reset_by memc.urst_n);
+
   // Fires request for read and write...
   (* fire_when_enabled *)
   rule advance_request (unpack(memc.app.init_complete) && !unpack(memc.app.full) && !firstWriteBeat);
     let r = reqF.first;
-    memc.app.addr(extend(r.addr>>2));        // convert byte address to 64B/16B address //TODO: Check shift 
-    memc.app.cmd (r.isRead?3'b001:3'b000);   // Set the command
+
+    //memc.app.addr(extend(r.addr>>2));        // convert byte address to 64B/16B address //TODO: Check shift 
+    //memc.app.cmd (r.isRead?3'b001:3'b000);   // Set the command
+    memcAddr_w <= (extend(r.addr>>2));         // convert byte address to 64B/16B address //TODO: Check shift 
+    memcCmd_w  <= (r.isRead?3'b001:3'b000);    // Set the command
+
     memc.app.en();                           // Assert the command enable
     requestCount <= requestCount + 1;        // Bump the requestCounter
     if (r.isRead) begin                      // Read...
       reqF.deq();                            // Deq for read (we are done with read request)
     end else begin                           // Write...
-      memc.app.wdf_data (r.data[63:0]);      // First 8B of data
-      memc.app.wdf_mask (~r.be[7:0]);        // Invert myBE to be a "mask"
+      //memc.app.wdf_data (r.data[63:0]);    // First 8B of data
+      //memc.app.wdf_mask (~r.be[7:0]);      // Invert myBE to be a "mask"
+      memcData_w <= (r.data[63:0]);          // First 8B of data
+      memcMask_w <= (~r.be[7:0]);            // Invert myBE to be a "mask"
       wdfWren <= True;                       // Assert the write data enable (W0)
       firstWriteBeat <= True;                // Advance to W0
     end
@@ -323,8 +334,10 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   (* fire_when_enabled *)
   rule advance_write1 (unpack(memc.app.init_complete) && !unpack(memc.app.wdf_full) && firstWriteBeat);
     let r = reqF.first;
-    memc.app.wdf_data (r.data[127:64]);      // Second 8B of data
-    memc.app.wdf_mask (~r.be[15:8]);         // Invert myBE to be a "mask"
+    //memc.app.wdf_data (r.data[127:64]);    // Second 8B of data
+    //memc.app.wdf_mask (~r.be[15:8]);       // Invert myBE to be a "mask"
+    memcData_w <= (r.data[127:64]);          // Second 8B of data
+    memcMask_w <= (~r.be[15:8]);             // Invert myBE to be a "mask"
     wdfWren <= True;                         // Assert the write data enable (W1)
     firstWriteBeat <= False;                 // Clear the firstWriteBeat state
     reqF.deq();                              // Deq, we are done with write request
@@ -342,6 +355,15 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
       firstReadBeat <= False;
       respF.enq({memc.app.rd_data, firstReadData});
     end
+  endrule
+
+  // Since these methods are always-enabled by *inhigh*, drive them at all times to satisfy always_enabled assertion...
+  (*  fire_when_enabled, no_implicit_conditions *)
+  rule drive_memc_always_enabled (True);
+    memc.app.cmd      (memcCmd_w);
+    memc.app.addr     (memcAddr_w);
+    memc.app.wdf_data (memcData_w);
+    memc.app.wdf_mask (memcMask_w);
   endrule
 
   interface DRAM_USR16B usr;
