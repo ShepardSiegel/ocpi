@@ -84,13 +84,18 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
   FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);  
   FIFOF#(Bit#(32))               wide4F             <- mkSRLFIFO(4);
-  FIFOF#(Bit#(128))              wide16F            <- mkSRLFIFO(4);
+  FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
+  FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
 
   // Delay Management...
-  Accumulator2Ifc#(Int#(20))     dlyWordsStored   <- mkAccumulator2;
-  Accumulator2Ifc#(Int#(8))      dlyReadCredit    <- mkAccumulator2;
-  Reg#(UInt#(20))                dlyWAG           <- mkReg(0);
-  Reg#(UInt#(20))                dlyRAG           <- mkReg(0);
+  Accumulator2Ifc#(Int#(20))     dlyWordsStored     <- mkAccumulator2;
+  Accumulator2Ifc#(Int#(8))      dlyReadCredit      <- mkAccumulator2;
+  Reg#(UInt#(20))                dlyWAG             <- mkReg(0);
+  Reg#(UInt#(20))                dlyRAG             <- mkReg(0);
+
+  Reg#(Bit#(32))                 wmemiWrReq         <- mkReg(0);
+  Reg#(Bit#(32))                 wmemiRdReq         <- mkReg(0);
+  Reg#(Bit#(32))                 wmemiRdResp        <- mkReg(0);
 
   Bool wsiPass  = (dlyCtrl[3:0]==4'h0);
   Bool wmiRd    = (dlyCtrl[3:0]==4'h1) || (dlyCtrl[3:0]==4'h4);
@@ -222,8 +227,8 @@ function Action enqSer4B( Bit#(32) data);
     wrtSerStage[wrtSerPos] <= data;
     wrtSerPos <= wrtSerPos + 1;
     //Vector#(3,Bit#(32)) b = take(wrtSerStage);
-    //if (wrtSerPos==3) wide16F.enq({data,pack(b)});
-    if (wrtSerPos==3) wide16F.enq({data,wrtSerStage[2],wrtSerStage[1],wrtSerStage[0]});
+    //if (wrtSerPos==3) wide16Fa.enq({data,pack(b)});
+    if (wrtSerPos==3) wide16Fa.enq({data,wrtSerStage[2],wrtSerStage[1],wrtSerStage[0]});
   endaction
 endfunction
 
@@ -240,6 +245,38 @@ rule wrtSer_body(wci.isOperating && wmemiDly && wrtSerUnroll>0);
   enqSer4B(truncate(pack(mesg)));   //TODO: replace truncate with 1-line proviso
 endrule
 
+// Wide16Fa -> Wide16Fb is the Delay Insert point...
+
+
+//mkConnection(toGet(wide16Fa), toPut(wide16Fb));
+
+
+Bool readThreshold = (dlyWordsStored > 0);
+(* descending_urgency = "delay_write_req, delay_read_req" *)
+
+rule delay_write_req (wci.isOperating && wmemiDly);
+  dlyWordsStored.acc1(1);  // One 16B word stored
+  dlyWAG <= dlyWAG + 1;
+  wmemi.req(True, extend({pack(dlyWAG),4'h0}), 1);
+  wmemi.dh(wide16Fa.first, '1, True);
+  wide16Fa.deq;
+  wmemiWrReq <= wmemiWrReq + 1;
+endrule
+
+rule delay_read_req (wci.isOperating && wmemiDly && readThreshold);
+  dlyWordsStored.acc2(-1);  // One 16B word read
+  dlyRAG <= dlyRAG + 1;
+  dlyReadCredit.acc1(-1);   // Decrement our credit by 1
+  wmemi.req(False, extend({pack(dlyRAG),4'h0}), 1);
+  wmemiRdReq <= wmemiRdReq + 1;
+endrule
+
+rule delay_read_resp (wci.isOperating && wmemiDly);
+  dlyReadCredit.acc2(1);   // Restore our credit by one
+  let x <- wmemi.resp;
+  wide16Fb.enq(x.data);
+  wmemiRdResp <= wmemiRdResp + 1;
+endrule
 
 
 
@@ -251,12 +288,12 @@ function ActionValue#(Bit#(32)) deqSer4B();
       //4B return wide4F.first;
       Bit#(128) rdata = ?;
       if (rdSerEmpty || rdSerPos==0) begin 
-        rdata = wide16F.first;
+        rdata = wide16Fb.first;
         rdSerStage[0] <= rdata[31:0];
         rdSerStage[1] <= rdata[63:32];
         rdSerStage[2] <= rdata[95:64];
         rdSerStage[3] <= rdata[127:96];
-        wide16F.deq;
+        wide16Fb.deq;
         rdSerEmpty <= False;
       end
       rdSerPos <= rdSerPos + 1;
@@ -359,6 +396,13 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h2C : rdat = pack(wsiM.extStatus.pMesgCount);
      'h30 : rdat = pack(wsiM.extStatus.iMesgCount);
      'h34 : rdat = pack(wsiM.extStatus.tBusyCount);
+     'h38 : rdat = wmemiWrReq;
+     'h3C : rdat = wmemiRdReq;
+     'h40 : rdat = wmemiRdResp;
+     'h44 : rdat = extend(pack(dlyWordsStored));
+     'h48 : rdat = extend(pack(dlyReadCredit));
+     'h4C : rdat = extend(pack(dlyWAG));
+     'h50 : rdat = extend(pack(dlyRAG));
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      //$time, wciReq.addr, wciReq.byteEn, rdat);
@@ -369,10 +413,10 @@ endrule
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgWtCount <= 0;
   mesgRdCount <= 0;
-  dlyWordsStored.load(0);
-  dlyReadCredit.load(64);
-  dlyWAG  <= 0;
-  dlyRAG  <= 0;
+  dlyWordsStored.load(0);   // Initialize the number of (16B) words stored in memory
+  dlyReadCredit.load(15);   // Sets the maximum number of reads that can be inflight at once
+  dlyWAG  <= 0;             // Initialize the Write Address Generator accumulator
+  dlyRAG  <= 0;             // Initialize the Read  Address Generator accumulator
   wci.ctlAck;
   $display("[%0d]: %m: Starting DelayWorker dlyCtrl:%0x", $time, dlyCtrl);
 endrule

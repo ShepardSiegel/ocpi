@@ -396,7 +396,7 @@ module mkWmemiMaster (WmemiMasterIfc#(na,nb,nd,ne));
   Wire#(Bool)                  sDataAccept_w      <- mkWire;
   ReadOnly#(Bool)              isReset            <- isResetAsserted;
   Reg#(Bool)                   operateD           <- mkDReg(False);
-  Reg#(Bool)                   peerIsReady        <- mkDReg(False);
+  Reg#(Bool)                   peerIsReady        <- mkDReg(True); // WMemI Master assumes infrastructure slave is ready (no SReset_n)
   // Diagnostic state...
   Reg#(WipDataPortStatus)      statusR            <- mkConfigRegU;
   Reg#(Bool)                   errorSticky        <- mkReg(False);
@@ -464,8 +464,8 @@ interface WmemiSlaveIfc#(numeric type na, numeric type nb, numeric type nd, nume
   method ActionValue#(WmemiReq#(na,nb))   req;
   method ActionValue#(WmemiDh#(nd,ne))    dh;
   method Action                           respd (Bit#(nd) rdata);
-  method Action                           allowReq;
   method Action                           operate;
+  method WipDataPortStatus                status;    
   interface Wmemi_s#(na,nb,nd,ne)         slv;  // The Wmemi-OCP Slave Interface
 endinterface
 
@@ -475,7 +475,6 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
   FIFOLevelIfc#(WmemiReq#(na,nb),3)     reqF                 <- mkGFIFOLevel(True, False, True);
   FIFOLevelIfc#(WmemiDh#(nd,ne),3)      dhF                  <- mkGFIFOLevel(True, False, True);
   FIFOF#(WmemiResp#(nd))                respF                <- mkDFIFOF(wmemiIdleResp);
-  Reg#(Bool)                            blockReq             <- mkReg(False);
   ReadOnly#(Bool)                       isReset              <- isResetAsserted;
   Reg#(Bool)                            operateD             <- mkDReg(False);
   Reg#(Bool)                            peerIsReady          <- mkDReg(False);
@@ -493,8 +492,8 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
   rule dhF_enq    (linkReady && wmemiDh.dataValid); dhF.enq(wmemiDh); endrule
   rule respF_deq; respF.deq(); endrule
 
-  Bool sCmdAccept_l   = (reqF.isGreaterThan(3-2) || isReset || !linkReady);
-  Bool sDataAccept_l  = ( dhF.isGreaterThan(3-2) || isReset || !linkReady);
+  Bool sCmdAccept_l   = !(reqF.isGreaterThan(3-2) || isReset || !linkReady);
+  Bool sDataAccept_l  = !( dhF.isGreaterThan(3-2) || isReset || !linkReady);
 
   rule update_statusR;
     statusR <= WipDataPortStatus {
@@ -509,19 +508,10 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
     };
   endrule
    
-  
-  // blockReq is used as a predicate to the req method so that req reads are blocked when blockReq is set.
-  //   The Master partner is able to ingress requests as best as it can, governed only by the reqF FIFO
-  //   depth, and throttled by SThreadBusy. The blockReq register sets when the Slave side dequeues
-  //   a request which is the the reqLast and DWM. The user of this module should call the allowReq
-  //   method when its local processing is itself "done". This guards the slave IP from taking a request
-  //   prematurely, such as may occur in zero or short length messages where the next request may be
-  //   ready before the user logic has updated all of its per-message, multi-cycle state.
 
   // User-facing Methods...
-  method ActionValue#(WmemiReq#(na,nb)) req if (linkReady && !blockReq);
+  method ActionValue#(WmemiReq#(na,nb)) req if (linkReady);
     let x = reqF.first;
-    if (x.reqLast==True) blockReq <= True; 
     reqF.deq;
     return x;
   endmethod
@@ -529,8 +519,8 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
     let x = dhF.first; dhF.deq; return x;
   endmethod
   method Action   respd (Bit#(nd) rdata) if(linkReady); respF.enq( WmemiResp { resp:DVA, respLast:?, data:rdata} ); endmethod //TODO: respLast
-  method Action   allowReq; blockReq<=False; endmethod
   method Action   operate    = operateD._write(True);
+  method WipDataPortStatus status = statusR;    
 
   interface Wmemi_s slv; // OCP-IP Slave Interface Methods...
     method Action putReq(WmemiReq#(na,nb)  req) = wmemiReq._write(req);

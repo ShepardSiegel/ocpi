@@ -1,7 +1,7 @@
 #!/bin/csh
 
 set srcdir=$BLUESPECDIR/Verilog
-set dstdir=$OCPIDIR/libsrc/hdl/bsv
+set dstdir=$OCPI_DIR/libsrc/hdl/bsv
 
 foreach i ( BRAM1BE.v BRAM1.v BRAM2.v BypassWire.v FIFO1.v FIFO2.v main.v MakeResetA.v RevertReg.v SizedFIFO.v SyncBit.v SyncFIFO.v SyncResetA.v ResetInverter.v ClockDiv.v ResetEither.v SyncReset0.v ResetToBool.v ClockInverter.v SyncRegister.v SyncHandshake.v SyncPulse.v TriState.v )
   set srcfile=$srcdir/$i

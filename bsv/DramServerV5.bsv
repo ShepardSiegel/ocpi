@@ -3,6 +3,7 @@
 
 package DramServerV5;
 
+import Accum::*;
 import OCWip::*;
 import DRAMV5::*;
 import Config::*;
@@ -66,6 +67,15 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
   SyncFIFOIfc#(DramReq16B)         lreqF                      <- mkSyncFIFOFromCC(2, uclk);
   SyncFIFOIfc#(Bit#(128))          lrespF                     <- mkSyncFIFOToCC  (2, uclk, urst_n);
 
+  Accumulator2Ifc#(Int#(8))        wmemiReadInFlight          <- mkAccumulator2;
+  Reg#(Bit#(32))                   wmemiWrReq                 <- mkReg(0);
+  Reg#(Bit#(32))                   wmemiRdReq                 <- mkReg(0);
+  Reg#(Bit#(32))                   wmemiRdResp                <- mkReg(0);
+
+rule operating_actions (wci.isOperating);
+  wmemi.operate();
+endrule
+
 
   rule update_memIsReset;   memIsResetCC.send(pack(memIsReset)); endrule
   rule update_initComplete; initComplete.send(pack(memc.usr.initComplete)); endrule
@@ -106,6 +116,30 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
   mkConnection(toGet(lreqF), memc.usr.request);
   mkConnection(memc.usr.response, toPut(lrespF));
 
+
+// Connection to the Wmemi...
+rule getRequest;
+  let req <- wmemi.req;
+  if (req.cmd==WR) begin
+      let dh <- wmemi.dh;
+      lreqF.enq( DramReq16B {isRead:False, addr:truncate(req.addr), be:dh.dataByteEn, data:dh.data} );
+      wmemiWrReq <= wmemiWrReq + 1;
+  end else begin
+      lreqF.enq( DramReq16B {isRead:True,  addr:truncate(req.addr), be:?,             data:?} );
+      wmemiReadInFlight.acc1(1);
+      wmemiRdReq <= wmemiRdReq + 1;
+  end
+endrule
+
+rule getResponse (wmemiReadInFlight>0);
+  let rsp = lrespF.first; lrespF.deq();
+  wmemiReadInFlight.acc2(-1);
+  wmemi.respd(rsp);
+  wmemiRdResp <= wmemiRdResp + 1;
+endrule
+
+
+
   Bit#(32) dramStatus = {16'hFEED, respCount, 
     2'h0, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read};
   //      5                  4             3             2             1             0
@@ -129,7 +163,7 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
   (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd, advance_response" *)
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE, advance_response" *)
 
-  rule advance_response (!wci.configWrite);
+  rule advance_response (!wci.configWrite && wmemiReadInFlight==0);
     let rsp = lrespF.first; lrespF.deq();
     Vector#(4, Bit#(32)) rdVect = unpack(rsp);
     for(Integer i=0;i<4;i=i+1) rdReg[i] <= rdVect[i];
@@ -162,7 +196,6 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
      end else begin
        writeDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}), 4'hF, wciReq.data);
      end
-     //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
      wci.respPut.put(wciOKResponse); // write response
   endrule
 
@@ -182,11 +215,11 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
        'h20 : rdat = extend(dbg_calib_rden_delay);
        'h24 : rdat = extend(dbg_calib_gate_delay);
        'h28 : rdat = 32'hC0DEBABE;
-       'h2C : rdat = 0;
-       'h30 : rdat = 0;
-       'h34 : rdat = 0;
-       'h38 : rdat = 0;
-       'h3C : rdat = 0;
+       'h2C : rdat = wmemiWrReq;
+       'h30 : rdat = wmemiRdReq;
+       'h34 : rdat = wmemiRdResp;
+       'h38 : rdat = extend(pack(wmemi.status));
+       'h3C : rdat = extend(pack(wmemiReadInFlight));
        'h40 : rdat = 0;
        'h44 : rdat = 0;
        'h48 : rdat = extend(requestCount);
@@ -205,13 +238,13 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));
        splitRead = True;
      end
-     //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
      if (!splitRead)wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
      else splitReadInFlight <= True;
   endrule
 
   rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
     //TODO: DRAM Auto Initialize here
+    wmemiReadInFlight.load(0);
     wci.ctlAck;
     $display("[%0d]: %m: Starting DramWorker dramCtrl:%0x", $time, dramCtrl);
   endrule
