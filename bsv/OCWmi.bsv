@@ -506,7 +506,7 @@ module mkWmiMaster (WmiMasterIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), A
   endmethod
 
   method Action dh (Bit#(nd) wdata, Bit#(ne) be, Bool dataLast) if (linkReady);
-    let r = WmiDh {dataValid:True, dataLast:dataLast, data:wdata, dataInfo:0, dataByteEn:0};
+    let r = WmiDh {dataValid:True, dataLast:dataLast, data:wdata, dataInfo:0, dataByteEn:be}; //TODO: Implement or Remove dataInfo
     dhF.enq(r);
   endmethod
 

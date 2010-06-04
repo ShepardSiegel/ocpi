@@ -436,14 +436,16 @@ module mkWmemiMaster (WmemiMasterIfc#(na,nb,nd,ne));
     reqF.enq(r);
     //$display("[%0d]: %m: req addr:%0x", $time, addr);
   endmethod
+
   method Action dh (Bit#(nd) wdata, Bit#(ne) be, Bool dataLast) if (linkReady);
-    let r = WmemiDh {dataValid:True, dataLast:dataLast, data:wdata, dataByteEn:0};
+    let r = WmemiDh {dataValid:True, dataLast:dataLast, data:wdata, dataByteEn:be};
     dhF.enq(r);
   endmethod
+
   method ActionValue#(WmemiResp#(nd)) resp;
     let x = respF.first; respF.deq; return x;
   endmethod
-  method Bool     anyBusy        = False; // TODO: Check Thread vs. !Accept
+  method Bool     anyBusy        = False; // TODO: Thread vs Accept (does anyBusy make sense here?)
   method Action   operate        = operateD._write(True);
   method WipDataPortStatus status = statusR;    
 
@@ -472,6 +474,8 @@ endinterface
 module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
   Wire#(WmemiReq#(na,nb))               wmemiReq             <- mkWire;
   Wire#(WmemiDh#(nd,ne))                wmemiDh              <- mkWire;
+  Wire#(Bool)                           cmdAccept_w          <- mkDWire(False);
+  Wire#(Bool)                           dhAccept_w           <- mkDWire(False);
   FIFOLevelIfc#(WmemiReq#(na,nb),3)     reqF                 <- mkGFIFOLevel(True, False, True);
   FIFOLevelIfc#(WmemiDh#(nd,ne),3)      dhF                  <- mkGFIFOLevel(True, False, True);
   FIFOF#(WmemiResp#(nd))                respF                <- mkDFIFOF(wmemiIdleResp);
@@ -487,9 +491,14 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
   rule reqF_enq  (linkReady && wmemiReq.cmd!=IDLE);
     reqF.enq(wmemiReq);
     trafficSticky <= True;
+    cmdAccept_w   <= True;  // reactive flow-control: we assert xxxAccept on the cycle we accept
   endrule
 
-  rule dhF_enq    (linkReady && wmemiDh.dataValid); dhF.enq(wmemiDh); endrule
+  rule dhF_enq   (linkReady && wmemiDh.dataValid);
+    dhF.enq(wmemiDh); 
+    dhAccept_w   <= True;   // reactive flow-control: we assert xxxAccept on the cycle we accept
+  endrule
+
   rule respF_deq; respF.deq(); endrule
 
   Bool sCmdAccept_l   = !(reqF.isGreaterThan(3-2) || isReset || !linkReady);
@@ -526,8 +535,8 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
     method Action putReq(WmemiReq#(na,nb)  req) = wmemiReq._write(req);
     method Action putDh (WmemiDh#(nd,ne) dh)     = wmemiDh._write(dh);
     method WmemiResp#(nd) getResp = respF.first;
-    method sCmdAccept      = False; //TODO: Implement Me
-    method sDataAccept     = False; //TODO: Implement Me
+    method sCmdAccept      = cmdAccept_w;
+    method sDataAccept     = dhAccept_w;
     method Action mReset_n = peerIsReady._write(True);
   endinterface
 endmodule
