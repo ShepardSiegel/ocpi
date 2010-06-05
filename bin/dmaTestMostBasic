@@ -1,0 +1,5 @@
+#!/bin/sh
+# Script for debugging ADC capture
+
+./testDMA "p f m" "1" "16" "100" $*
+more *.log

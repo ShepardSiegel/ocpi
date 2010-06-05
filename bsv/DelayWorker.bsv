@@ -35,7 +35,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WmemiMasterIfc#(36,12,128,16)  wmemi             <- mkWmemiMaster;
   Reg#(Bit#(32))                 dlyCtrl           <- mkReg(dlyCtrlInit);
-  Reg#(Bit#(32))                 dlyHoldoff        <- mkReg(128);
+  Reg#(Bit#(32))                 dlyHoldoff        <- mkReg(0);
 
   // Delay-Write...
   Reg#(Maybe#(Bit#(8)))          opcode            <- mkReg(tagged Invalid);
@@ -67,11 +67,13 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   Vector#(4,Reg#(Bit#(32)))      rdSerStage        <- replicateM(mkRegU);
   Reg#(Bit#(2))                  rdSerPos          <- mkReg(0);
   Reg#(Bool)                     rdSerEmpty        <- mkReg(True);
+  Reg#(Bool)                     rdSyncWord        <- mkReg(False);
 
   // Delay-Read...
   Reg#(MesgMetaFlag)             readMeta          <- mkRegU;
   Reg#(UInt#(16))                unrollCnt         <- mkReg(0);
   Reg#(Bit#(32))                 mesgRdCount       <- mkReg(0);
+  Reg#(Bit#(32))                 bytesRead         <- mkReg(0);
 
   // debug...
   Reg#(Bit#(32))                 abortCount        <- mkReg(0);
@@ -83,7 +85,6 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(512);  
   FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
   FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);  
-  FIFOF#(Bit#(32))               wide4F             <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
 
@@ -221,28 +222,31 @@ endrule
 //mkConnection(toGet(metaWF), toPut(metaRF));
 //mkConnection(toGet(mesgWF), toPut(mesgRF));
 
-function Action enqSer4B( Bit#(32) data);
+function Action enqSer4B( Bit#(32) data, Bool flush);
   action
-    //4B wide4F.enq(data);
     wrtSerStage[wrtSerPos] <= data;
-    wrtSerPos <= wrtSerPos + 1;
-    //Vector#(3,Bit#(32)) b = take(wrtSerStage);
-    //if (wrtSerPos==3) wide16Fa.enq({data,pack(b)});
-    if (wrtSerPos==3) wide16Fa.enq({data,wrtSerStage[2],wrtSerStage[1],wrtSerStage[0]});
+    wrtSerPos <= flush ? 0 : wrtSerPos + 1;
+    if (wrtSerPos==3 || flush)
+      case (wrtSerPos)
+        0: wide16Fa.enq({32'h0, 32'h0,          32'h0,          data});
+        1: wide16Fa.enq({32'h0, 32'h0,          data,           wrtSerStage[0]});
+        2: wide16Fa.enq({32'h0, data,           wrtSerStage[1], wrtSerStage[0]});
+        3: wide16Fa.enq({data,  wrtSerStage[2], wrtSerStage[1], wrtSerStage[0]});
+      endcase
   endaction
 endfunction
 
 rule wrtSer_begin(wci.isOperating && wmemiDly && wrtSerUnroll==0);
   let meta = metaWF.first; metaWF.deq; wrtSerMeta <= meta;
   wrtSerUnroll  <= truncate(unpack(meta.length>>myWordShift)); // ndw-wide Words 
-  enqSer4B(pack(meta));
+  enqSer4B(pack(meta), meta.length==0);
 endrule
 
 rule wrtSer_body(wci.isOperating && wmemiDly && wrtSerUnroll>0);
   let mesg = mesgWF.first; mesgWF.deq;
-  Bool lastWord = (wrtSerUnroll == 1);  // TODO: lastWord Action
+  Bool lastWord = (wrtSerUnroll==1);
   wrtSerUnroll <= wrtSerUnroll - 1;
-  enqSer4B(truncate(pack(mesg)));   //TODO: replace truncate with 1-line proviso
+  enqSer4B(truncate(pack(mesg)), lastWord);
 endrule
 
 // Wide16Fa -> Wide16Fb is the Delay Insert point...
@@ -263,7 +267,7 @@ rule delay_write_req (wci.isOperating && wmemiDly);
   wmemiWrReq <= wmemiWrReq + 1;
 endrule
 
-rule delay_read_req (wci.isOperating && wmemiDly && readThreshold);
+rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0);
   dlyWordsStored.acc2(-1);  // One 16B word read
   dlyRAG <= dlyRAG + 1;
   dlyReadCredit.acc1(-1);   // Decrement our credit by 1
@@ -280,14 +284,11 @@ endrule
 
 
 
-
-function ActionValue#(Bit#(32)) deqSer4B();
+function ActionValue#(Bit#(32)) deqSer4B(Bool forceSync);
   return (
     actionvalue
-      //4B wide4F.deq;
-      //4B return wide4F.first;
       Bit#(128) rdata = ?;
-      if (rdSerEmpty || rdSerPos==0) begin 
+      if (rdSerEmpty || rdSerPos==0 || forceSync) begin 
         rdata = wide16Fb.first;
         rdSerStage[0] <= rdata[31:0];
         rdSerStage[1] <= rdata[63:32];
@@ -296,7 +297,7 @@ function ActionValue#(Bit#(32)) deqSer4B();
         wide16Fb.deq;
         rdSerEmpty <= False;
       end
-      rdSerPos <= rdSerPos + 1;
+      rdSerPos <= forceSync ? 0 : rdSerPos + 1;
       return (
       case (rdSerPos)
         0: rdata[31:0];
@@ -309,19 +310,28 @@ function ActionValue#(Bit#(32)) deqSer4B();
   );
 endfunction
 
-rule rdSer_begin(wci.isOperating && wmemiDly && rdSerUnroll==0);
-  let m <- deqSer4B();
+rule rdSer_begin(wci.isOperating && wmemiDly && rdSerUnroll==0 && !rdSyncWord);
+  let m <- deqSer4B(False);
   MesgMetaFlag meta = unpack(m);
   rdSerMeta <= meta;
   rdSerUnroll  <= truncate(unpack(meta.length>>myWordShift)); // ndw-wide Words 
   metaRF.enq(meta);
+  if (bytesRead < maxBound) bytesRead <= bytesRead + extend(myByteWidth);
+  rdSyncWord <= meta.length==0;
 endrule
 
-rule rdSer_body(wci.isOperating && wmemiDly && rdSerUnroll>0);
-  Bit#(32) mesg <- deqSer4B;
-  Bool lastWord = (rdSerUnroll == 1);  // TODO: lastWord Action
+rule rdSer_body(wci.isOperating && wmemiDly && rdSerUnroll>0 && !rdSyncWord);
+  Bit#(32) mesg <- deqSer4B(False);
+  Bool lastWord = (rdSerUnroll == 1);
+  rdSyncWord <= lastWord;
   rdSerUnroll <= rdSerUnroll - 1;
   mesgRF.enq(extend(mesg));
+  if (bytesRead < maxBound) bytesRead <= bytesRead + extend(myByteWidth);
+endrule
+
+rule rdSer_sync(wci.isOperating && wmemiDly && rdSyncWord);
+  Bit#(32) ignore <- deqSer4B(True);
+  rdSyncWord <= False;
 endrule
 
 
@@ -387,7 +397,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h04 : rdat = pack(dlyHoldoff);
      'h08 : rdat = pack(mesgWtCount);
      'h0C : rdat = pack(mesgRdCount);
-     'h10 : rdat = 0;
+     'h10 : rdat = pack(bytesWritten);
      'h14 : rdat = 0;
      'h18 : rdat = extend({pack(wmemi.status),pack(wsiS.status),pack(wsiM.status)});
      'h20 : rdat = pack(wsiS.extStatus.pMesgCount);
@@ -414,7 +424,7 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgWtCount <= 0;
   mesgRdCount <= 0;
   dlyWordsStored.load(0);   // Initialize the number of (16B) words stored in memory
-  dlyReadCredit.load(15);   // Sets the maximum number of reads that can be inflight at once
+  dlyReadCredit.load(8);    // Sets the maximum number of reads that can be inflight at once
   dlyWAG  <= 0;             // Initialize the Write Address Generator accumulator
   dlyRAG  <= 0;             // Initialize the Read  Address Generator accumulator
   wci.ctlAck;
