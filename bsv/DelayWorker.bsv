@@ -93,6 +93,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   Accumulator2Ifc#(Int#(8))      dlyReadCredit      <- mkAccumulator2;
   Reg#(UInt#(20))                dlyWAG             <- mkReg(0);
   Reg#(UInt#(20))                dlyRAG             <- mkReg(0);
+  Reg#(Bool)                     blockDelayWrite    <- mkReg(False);
 
   Reg#(Bit#(32))                 wmemiWrReq         <- mkReg(0);
   Reg#(Bit#(32))                 wmemiRdReq         <- mkReg(0);
@@ -258,13 +259,19 @@ endrule
 Bool readThreshold = (dlyWordsStored > 0);
 (* descending_urgency = "delay_write_req, delay_read_req" *)
 
-rule delay_write_req (wci.isOperating && wmemiDly);
+rule delay_write_req (wci.isOperating && wmemiDly && !blockDelayWrite);
   dlyWordsStored.acc1(1);  // One 16B word stored
   dlyWAG <= dlyWAG + 1;
   wmemi.req(True, extend({pack(dlyWAG),4'h0}), 1);
   wmemi.dh(wide16Fa.first, '1, True);
   wide16Fa.deq;
   wmemiWrReq <= wmemiWrReq + 1;
+  blockDelayWrite <= True;
+endrule
+
+// Experiment to reduce write duty-cycle to 50% maximum...
+rule delay_write_unblock (wci.isOperating && wmemiDly && blockDelayWrite);
+  blockDelayWrite <= False;
 endrule
 
 rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0);
@@ -284,11 +291,11 @@ endrule
 
 
 
-function ActionValue#(Bit#(32)) deqSer4B(Bool forceSync);
+function ActionValue#(Bit#(32)) deqSer4B();
   return (
     actionvalue
       Bit#(128) rdata = ?;
-      if (rdSerEmpty || rdSerPos==0 || forceSync) begin 
+      if (rdSerEmpty || rdSerPos==0) begin 
         rdata = wide16Fb.first;
         rdSerStage[0] <= rdata[31:0];
         rdSerStage[1] <= rdata[63:32];
@@ -297,7 +304,7 @@ function ActionValue#(Bit#(32)) deqSer4B(Bool forceSync);
         wide16Fb.deq;
         rdSerEmpty <= False;
       end
-      rdSerPos <= forceSync ? 0 : rdSerPos + 1;
+      rdSerPos <= rdSerPos + 1;
       return (
       case (rdSerPos)
         0: rdata[31:0];
@@ -311,27 +318,29 @@ function ActionValue#(Bit#(32)) deqSer4B(Bool forceSync);
 endfunction
 
 rule rdSer_begin(wci.isOperating && wmemiDly && rdSerUnroll==0 && !rdSyncWord);
-  let m <- deqSer4B(False);
+  let m <- deqSer4B();
   MesgMetaFlag meta = unpack(m);
   rdSerMeta <= meta;
   rdSerUnroll  <= truncate(unpack(meta.length>>myWordShift)); // ndw-wide Words 
   metaRF.enq(meta);
   if (bytesRead < maxBound) bytesRead <= bytesRead + extend(myByteWidth);
-  rdSyncWord <= meta.length==0;
+  rdSyncWord <= rdSerPos!=3 && meta.length==0;
 endrule
 
 rule rdSer_body(wci.isOperating && wmemiDly && rdSerUnroll>0 && !rdSyncWord);
-  Bit#(32) mesg <- deqSer4B(False);
+  Bit#(32) mesg <- deqSer4B();
   Bool lastWord = (rdSerUnroll == 1);
-  rdSyncWord <= lastWord;
+  rdSyncWord <= rdSerPos!=3 && lastWord;
   rdSerUnroll <= rdSerUnroll - 1;
   mesgRF.enq(extend(mesg));
   if (bytesRead < maxBound) bytesRead <= bytesRead + extend(myByteWidth);
 endrule
 
+// Effectively consume (dispose of) any remaining 4B words in the 16B chunk...
 rule rdSer_sync(wci.isOperating && wmemiDly && rdSyncWord);
-  Bit#(32) ignore <- deqSer4B(True);
   rdSyncWord <= False;
+  rdSerEmpty <= True;
+  rdSerPos   <= 0;
 endrule
 
 
@@ -424,7 +433,7 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgWtCount <= 0;
   mesgRdCount <= 0;
   dlyWordsStored.load(0);   // Initialize the number of (16B) words stored in memory
-  dlyReadCredit.load(8);    // Sets the maximum number of reads that can be inflight at once
+  dlyReadCredit.load(1);    // Sets the maximum number of reads that can be inflight at once
   dlyWAG  <= 0;             // Initialize the Write Address Generator accumulator
   dlyRAG  <= 0;             // Initialize the Read  Address Generator accumulator
   wci.ctlAck;

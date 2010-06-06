@@ -33,7 +33,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst) (OCAppIfc#(nWci,nWmi,nWmemi));
 
   // Instance the workers in this application container...
   SMAdapter4BIfc    appW2    <-  mkSMAdapter4B  (32'h00000001, reset_by(rst[2])); // Read WMI to WSI-M 
-  DelayWorker4BIfc  appW3    <-  mkDelayWorker4B(32'h00000007, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  DelayWorker4BIfc  appW3    <-  mkDelayWorker4B(32'h00000000, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapter4BIfc    appW4    <-  mkSMAdapter4B  (32'h00000002, reset_by(rst[4])); // WSI-S to WMI Write
 
   // TODO: Use Defaults for tieOff...
