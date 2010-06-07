@@ -11,12 +11,12 @@ set doChipscope = 0  # Control if chipscope is inserted
 switch ($buildTarget)
   case alder:
     set PART = xc5vlx50t-ff1136-1
-    set PCIe = pcie-4243-v5-x8-125
+    set PCIe = pcie-4243-v5-gtp-x8-125
     set CSIN = csdef103_v5.cdc
     breaksw
   case ml555:
     set PART = xc5vlx50t-ff1136-1
-    set PCIe = pcie-4243-v5-x8-125
+    set PCIe = pcie-4243-v5-gtp-x8-125
     set CSIN = csdef101_v5.cdc
     breaksw
   case xupv5:
@@ -26,7 +26,7 @@ switch ($buildTarget)
     breaksw
   case sx95t:
     set PART = xc5vsx95t-ff1136-2
-    set PCIe = pcie-4243-v5-x8-125
+    set PCIe = pcie-4243-v5-gtp-x8-125
     set CSIN = csdef101_v5.cdc
     breaksw
   case tx240:
@@ -36,7 +36,7 @@ switch ($buildTarget)
     breaksw
   case lx330:
     set PART = xc5vlx330t-ff1738-2
-    set PCIe = pcie-4243-v5-x8-125
+    set PCIe = pcie-4243-v5-gtp-x8-125
     set CSIN = csdef103_v5.cdc
     breaksw
   case ml605

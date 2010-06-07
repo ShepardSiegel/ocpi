@@ -11,7 +11,7 @@ verilog work "../../rtl/mkWsiAdapter4B16B.v"
 verilog work "../../rtl/mkWsiAdapter16B4B.v"
 verilog work "../../rtl/mkDramServerV5.v"
 
-verilog work "../../coregen/pcie-4243-v5-x8-125/pci_exp_8_lane_64b_ep.v
+verilog work "../../coregen/pcie-4243-v5-gtp-x8-125/pci_exp_8_lane_64b_ep.v
 
 verilog  work  "../../coregen/dram-v5-mig34/mig_v3_4/user_design/rtl/ddr2_ctrl.v"
 verilog  work  "../../coregen/dram-v5-mig34/mig_v3_4/user_design/rtl/ddr2_mem_if_top.v"

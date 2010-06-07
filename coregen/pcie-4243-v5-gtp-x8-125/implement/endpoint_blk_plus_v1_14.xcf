@@ -1,0 +1,7 @@
+
+NET "ep/pcie_ep0/pcie_blk/clocking_i/clkout0" TNM_NET = "CLKOUT0" ;
+TIMESPEC "TS_CLKOUT0" = PERIOD "CLKOUT0" 263 MHz HIGH 50 % ;
+
+NET "ep/pcie_ep0/pcie_blk/clocking_i/clkout1" TNM_NET = "CLKOUT1" ;
+TIMESPEC "TS_CLKOUT1" = PERIOD "CLKOUT1" 263 MHz HIGH 50 % ;
+
