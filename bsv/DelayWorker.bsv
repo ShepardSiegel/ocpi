@@ -35,7 +35,8 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WmemiMasterIfc#(36,12,128,16)  wmemi             <- mkWmemiMaster;
   Reg#(Bit#(32))                 dlyCtrl           <- mkReg(dlyCtrlInit);
-  Reg#(Bit#(32))                 dlyHoldoff        <- mkReg(0);
+  Reg#(Bit#(32))                 dlyHoldoffBytes   <- mkReg(0);
+  Reg#(Bit#(32))                 dlyHoldoffCycles  <- mkReg(0);
 
   // Delay-Write...
   Reg#(Maybe#(Bit#(8)))          opcode            <- mkReg(tagged Invalid);
@@ -52,6 +53,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   Reg#(Bool)                     doAbort           <- mkReg(False);
   Reg#(Bit#(32))                 mesgWtCount       <- mkReg(0);
   Reg#(Bit#(32))                 bytesWritten      <- mkReg(0);
+  Reg#(Bit#(32))                 cyclesPassed      <- mkReg(0);
 
   // Write Serialize...
   Reg#(Bit#(32))                 wrtSerAddr        <- mkReg(0);
@@ -59,6 +61,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   Reg#(MesgMetaFlag)             wrtSerMeta        <- mkRegU;
   Vector#(4,Reg#(Bit#(32)))      wrtSerStage       <- replicateM(mkRegU);
   Reg#(Bit#(2))                  wrtSerPos         <- mkReg(0);
+  Reg#(Bit#(3))                  wrtDutyCount      <- mkReg(0);
 
   // Read Serialize...
   Reg#(Bit#(32))                 rdSerAddr         <- mkReg(0);
@@ -100,8 +103,6 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   Reg#(Bit#(32))                 wmemiRdResp        <- mkReg(0);
 
   Bool wsiPass  = (dlyCtrl[3:0]==4'h0);
-  Bool wmiRd    = (dlyCtrl[3:0]==4'h1) || (dlyCtrl[3:0]==4'h4);
-  Bool wmiWt    = (dlyCtrl[3:0]==4'h2) || (dlyCtrl[3:0]==4'h3);
   Bool wmemiDly = (dlyCtrl[3:0]==4'h7);
 
   Bool impWsiM = False;
@@ -117,6 +118,10 @@ rule wsipass_doMessagePush (wci.isOperating && wsiPass);
   WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;
   wsiM.reqPut.put(r);
   //$display("[%0d]: %m: wsipass_doMessagePush ", $time);
+endrule
+
+rule cycles_passed_count (wsiS.status.observedTraffic); // Start cycle count when first WSI trafic is observed
+  if (cyclesPassed < maxBound) cyclesPassed <= cyclesPassed + 1;
 endrule
 
 
@@ -253,10 +258,13 @@ endrule
 // Wide16Fa -> Wide16Fb is the Delay Insert point...
 
 
+// Bypass path for 16B pipe design debug...
 //mkConnection(toGet(wide16Fa), toPut(wide16Fb));
 
 
-Bool readThreshold = (dlyWordsStored > 0);
+// When we satisfy the constraints below, we start the read process...
+Bool readThreshold = (dlyWordsStored>0 && dlyHoldoffBytes>=bytesWritten && dlyHoldoffCycles>=cyclesPassed);
+
 (* descending_urgency = "delay_write_req, delay_read_req" *)
 
 rule delay_write_req (wci.isOperating && wmemiDly && !blockDelayWrite);
@@ -266,10 +274,11 @@ rule delay_write_req (wci.isOperating && wmemiDly && !blockDelayWrite);
   wmemi.dh(wide16Fa.first, '1, True);
   wide16Fa.deq;
   wmemiWrReq <= wmemiWrReq + 1;
-  blockDelayWrite <= True;
+  wrtDutyCount <= wrtDutyCount + 1;
+  blockDelayWrite <= (wrtDutyCount==7);
 endrule
 
-// Experiment to reduce write duty-cycle to 50% maximum...
+// Experiment to reduce write duty-cycle to 7/8 maximum...
 rule delay_write_unblock (wci.isOperating && wmemiDly && blockDelayWrite);
   blockDelayWrite <= False;
 endrule
@@ -317,6 +326,8 @@ function ActionValue#(Bit#(32)) deqSer4B();
   );
 endfunction
 
+
+
 rule rdSer_begin(wci.isOperating && wmemiDly && rdSerUnroll==0 && !rdSyncWord);
   let m <- deqSer4B();
   MesgMetaFlag meta = unpack(m);
@@ -336,6 +347,8 @@ rule rdSer_body(wci.isOperating && wmemiDly && rdSerUnroll>0 && !rdSyncWord);
   if (bytesRead < maxBound) bytesRead <= bytesRead + extend(myByteWidth);
 endrule
 
+//TODO: Replce rdSyncWord with BypassFifo#(Bool) to hide sync cycle...
+
 // Effectively consume (dispose of) any remaining 4B words in the 16B chunk...
 rule rdSer_sync(wci.isOperating && wmemiDly && rdSyncWord);
   rdSyncWord <= False;
@@ -353,7 +366,7 @@ endrule
 //
 //
 // Delay Read...
-rule wmrd_mesgBegin (wci.isOperating && wmemiDly && unrollCnt==0 && bytesWritten>dlyHoldoff );
+rule wmrd_mesgBegin (wci.isOperating && wmemiDly && unrollCnt==0 );
   let meta = metaRF.first; metaRF.deq; readMeta <= meta;
   if (meta.length==0) begin
     unrollCnt      <= 1;  // One word to produce on WSI with all BEs inaction (zero lenghth mesg indication)
@@ -391,8 +404,9 @@ endrule
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wci.reqGet.get;
    case (wciReq.addr) matches
-     'h00 : dlyCtrl    <= unpack(wciReq.data);
-     'h04 : dlyHoldoff <= unpack(wciReq.data);
+     'h00 : dlyCtrl          <= unpack(wciReq.data);
+     'h04 : dlyHoldoffBytes  <= unpack(wciReq.data);
+     'h08 : dlyHoldoffCycles <= unpack(wciReq.data);
    endcase
    //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
      //$time, wciReq.addr, wciReq.byteEn, wciReq.data);
@@ -403,12 +417,13 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr) matches
      'h00 : rdat = pack(dlyCtrl);
-     'h04 : rdat = pack(dlyHoldoff);
-     'h08 : rdat = pack(mesgWtCount);
-     'h0C : rdat = pack(mesgRdCount);
-     'h10 : rdat = pack(bytesWritten);
-     'h14 : rdat = 0;
+     'h04 : rdat = pack(dlyHoldoffBytes);
+     'h08 : rdat = pack(dlyHoldoffCycles);
+     'h0C : rdat = pack(mesgWtCount);
+     'h10 : rdat = pack(mesgRdCount);
+     'h14 : rdat = pack(bytesWritten);
      'h18 : rdat = extend({pack(wmemi.status),pack(wsiS.status),pack(wsiM.status)});
+     'h1C : rdat = 0;
      'h20 : rdat = pack(wsiS.extStatus.pMesgCount);
      'h24 : rdat = pack(wsiS.extStatus.iMesgCount);
      'h28 : rdat = pack(wsiS.extStatus.tBusyCount);

@@ -223,6 +223,7 @@ endrule
        'h40 : rdat = 0;
        'h44 : rdat = 0;
        'h48 : rdat = extend(requestCount);
+       'h4C : rdat = 0;
        'h50 : rdat = extend(pReg); // page reg
        'h5C : rdat = extend(mReg); // mask Reg
        'h60 : rdat = wdReg[0];
