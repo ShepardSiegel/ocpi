@@ -31,7 +31,7 @@ switch ($buildTarget)
     breaksw
   case tx240:
     set PART = xc5vtx240t-ff1759-2
-    set PCIe = pcie-4243-v5-x8-125
+    set PCIe = pcie-4243-v5-gtx-x8-125
     set CSIN = csdef103_v5.cdc
     breaksw
   case lx330:

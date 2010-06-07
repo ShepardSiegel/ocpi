@@ -140,7 +140,7 @@ module xilinx_v5_pcie_wrapper
    wire         trn_clk_i;
    
    // endpoint instance
- endpoint_blk_plus_v1_13 ep
+ endpoint_blk_plus_v1_14 ep
    //pcie_endpoint endpoint
      (
       // Outputs

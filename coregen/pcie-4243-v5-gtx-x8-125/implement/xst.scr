@@ -1,0 +1,12 @@
+
+run
+-ifn xilinx_pci_exp_8_lane_ep_inc.xst
+-ifmt Verilog
+-p xc5vtx240t-ff1759-1
+-bufg 0
+-top xilinx_pci_exp_ep
+-ofn xilinx_pci_exp_ep.ngc
+-opt_mode SPEED
+-opt_level 2
+-ofmt NGC
+-uc endpoint_blk_plus_v1_14.xcf
