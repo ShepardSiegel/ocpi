@@ -1,7 +1,7 @@
+verilog work "../../libsrc/hdl/ocpi/ClockInvToBool.v"
 verilog work "../../libsrc/hdl/ocpi/arSRLFIFO.v"
 verilog work "../../libsrc/hdl/ocpi/xilinx_v6_pcie_wrapper.v"
-
-verilog work "../../rtl/lib/Ethernet_v6.v"
+verilog work "../../libsrc/hdl/ocpi/Ethernet_v6.v"
 
 verilog work "../../coregen/pcie-4243-v6-x4-250/v6_pcie_v1_5_eco20100428.v"
 verilog work "../../coregen/pcie-4243-v6-x4-250/source/pcie_2_0_v6.v"
@@ -78,7 +78,7 @@ verilog work "../../coregen/dram-v6-mig34/mig_v3_4/user_design/rtl/ui/ui_top.v"
 verilog work "../../coregen/dram-v6-mig34/mig_v3_4/user_design/rtl/ui/ui_wr_data.v"
 verilog work "../../coregen/dram-v6-mig34/iodelay_ctrl_eco20100428.v"
 
-verilog work "../../rtl/lib/v6_mig34.v"
+verilog work "../../libsrc/hdl/ocpi/v6_mig34.v"
 
 verilog work "../../rtl/mkTLPSM.v"
 verilog work "../../rtl/mkTLPCM.v"
