@@ -128,7 +128,7 @@ endrule
 
 Bit#(8)  genchkNumBuf = 2;
 Bit#(32) genchkInit   = 0;  // set to 0 for ZLM test
-Bit#(32) genchkDelta  = 16;  // must be 4/8/16/32 B to match ndw 1/2/4/8
+Bit#(32) genchkDelta  = 4;  // must be 4/8/16/32 B to match ndw 1/2/4/8
 Bit#(8)  genchkRepeat = 0;
 
   Stmt req = 
@@ -176,8 +176,9 @@ Bit#(8)  genchkRepeat = 0;
     $display("[%0d]: %m: Write W2 (SMA0)Config Properties...", $time);
       fsmWrite('h01, 'h30_0000, extend(32'h0000_0001));  // Passive Consumer
     $display("[%0d]: %m: Write W3 (DELAY) Config Properties...", $time);
-      fsmWrite('h01, 'h40_0000, extend(32'h0000_0007));  // Delay Mode
-      fsmWrite('h01, 'h40_0004, extend(32'h0000_0100));  // 256B Delay
+      fsmWrite('h01, 'h40_0000, extend(32'h0000_0000));  // No Delay
+      //fsmWrite('h01, 'h40_0000, extend(32'h0000_0007));  // Delay Mode
+      //fsmWrite('h01, 'h40_0004, extend(32'h0000_0100));  // 256B Delay
     $display("[%0d]: %m: Write W4 (SMA1) Config Properties...", $time);
       fsmWrite('h01, 'h50_0000, extend(32'h0000_0002));  // Passive Producer
 
@@ -396,6 +397,8 @@ Bit#(8)  genchkRepeat = 0;
   Reg#(Bit#(8))           chkCurBuf      <- mkReg(0);
   Reg#(Bool)              chkDoMeta0     <- mkReg(False);
   Reg#(Bool)              chkDoMeta1     <- mkReg(False);
+  Reg#(Bool)              chkDoMeta2     <- mkReg(False);
+  Reg#(Bool)              chkDoMeta3     <- mkReg(False);
   Reg#(Bit#(32))          chkLen         <- mkReg(genchkInit);
   Reg#(Bool)              chkDoDoor      <- mkReg(False);
   Reg#(Bit#(8))           chkOpcode      <- mkReg(0);
@@ -620,8 +623,52 @@ Bit#(8)  genchkRepeat = 0;
       $display("[%0d]: %m: chkMeta1Resp ***MISMATCH*** chkOpcode:%0x got:%0x", $time, chkOpcode, got);
     end
     chkDoMeta1 <= False;
+    chkMetaAddr <= chkMetaAddr + 4;
+    chkDoMeta2  <= True;
+  endrule
+
+
+  rule chkMeta2Req (dpGo && fromMaybe(0,chkReady)>0 && chkDoMeta2 && !chkReqInFlight && !tlpOutMutex);
+    chkReqInFlight <= True;
+    Bit#(7)  bar   = dataPlaneBar;
+    Bit#(32) bAddr = chkMetaAddr;
+    outF.enq(makeRdDwReqTLP(bar, truncate(bAddr>>2), tag));  // Launch the read-request
+    tag       <= tag + 1; 
+    chkReqTag <= tag;
+  endrule
+
+  rule chkMeta2Resp (dpGo && fromMaybe(0,chkReady)>0 && chkDoMeta2 && chkReqInFlight && tagMatch(chkReqTag,inF.first) );
+    let p = inF.first; 
+    chkReqInFlight <= False;
+    inF.deq;
+    let got  = byteSwap(p.data[31:0]);
+      $display("[%0d]: %m: chkMeta2Resp timeMS got:%0x", $time, got);
+    chkDoMeta2 <= False;
+    chkMetaAddr <= chkMetaAddr + 4;
+    chkDoMeta3  <= True;
+  endrule
+
+
+  rule chkMeta3Req (dpGo && fromMaybe(0,chkReady)>0 && chkDoMeta3 && !chkReqInFlight && !tlpOutMutex);
+    chkReqInFlight <= True;
+    Bit#(7)  bar   = dataPlaneBar;
+    Bit#(32) bAddr = chkMetaAddr;
+    outF.enq(makeRdDwReqTLP(bar, truncate(bAddr>>2), tag));  // Launch the read-request
+    tag       <= tag + 1; 
+    chkReqTag <= tag;
+  endrule
+
+  rule chkMeta3Resp (dpGo && fromMaybe(0,chkReady)>0 && chkDoMeta3 && chkReqInFlight && tagMatch(chkReqTag,inF.first) );
+    let p = inF.first; 
+    chkReqInFlight <= False;
+    inF.deq;
+    let got  = byteSwap(p.data[31:0]);
+      $display("[%0d]: %m: chkMeta3Resp timeLS got:%0x", $time, got);
+    chkDoMeta3 <= False;
+    chkMetaAddr <= chkMetaAddr + 4;
     chkDoDoor  <= True;
   endrule
+
 
   rule chkDoorbell (dpGo && fromMaybe(0,chkReady)>0 && chkDoDoor && !tlpOutMutex);
     chkDoDoor <= False;
@@ -634,7 +681,8 @@ Bit#(8)  genchkRepeat = 0;
     Bool tc = !(chkCurBuf < chkNumBuf-1);
     chkCurBuf   <= tc ? 0                   : chkCurBuf+1;
     chkMesgAddr <= tc ? extend(chkMesgBase) : chkMesgAddr+extend(chkMesgPitch);
-    chkMetaAddr <= tc ? extend(chkMetaBase) : chkMetaAddr+extend(8'h0C);
+    //chkMetaAddr <= tc ? extend(chkMetaBase) : chkMetaAddr+extend(8'h0C);
+    chkMetaAddr <= tc ? extend(chkMetaBase) : chkMetaAddr+extend(8'h00);
     chkReady <= tagged Invalid;
     // next Chk
     if (chkRepeat==0) begin
