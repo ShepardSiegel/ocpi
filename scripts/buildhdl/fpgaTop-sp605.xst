@@ -1,4 +1,4 @@
-set -xsthdpini ocpihdp.ini
+set -xsthdpini ocpihdp_v6.ini
 run
 -ifn fpgaTop-sp605.prj
 -uc sp605.xcf

@@ -12,14 +12,16 @@ typedef enum {None, Precise, Imprecise} OCP_BURST deriving (Bits, Eq);
 typedef struct {
   Bit#(32) length;  // Message Length in Bytes
   Bit#(32) opcode;  // Opcode in bits[7:0]
-  Bit#(32) tag;
-  Bit#(32) interval;
+  Bit#(32) nowMS;   // Integer portion of Time
+  Bit#(32) nowLS;   // Fractional portion of Time
 } MesgMeta deriving (Bits, Eq);
+
 typedef struct {
   Bit#(8)  tag;     // context-specifc tag
   Bit#(8)  opcode;  // 8b OpCode
   Bit#(16) length;  // (truncated) Message Length in Bytes
 } MesgMetaDW deriving (Bits, Eq);
+
 typedef struct {
   Bit#(8)  opcode;  // 8b OpCode
   Bit#(24) length;  // Message Length in Bytes

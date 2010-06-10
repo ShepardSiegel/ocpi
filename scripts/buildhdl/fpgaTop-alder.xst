@@ -1,4 +1,4 @@
-set -xsthdpini ocpihdp.ini
+set -xsthdpini ocpihdp_v5.ini
 run
 -ifn fpgaTop-alder.prj
 -ifmt mixed

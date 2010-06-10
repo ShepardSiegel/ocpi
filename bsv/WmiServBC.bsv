@@ -41,7 +41,6 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem) (WmiServBCIfc
   Reg#(Bit#(14))                bytesRemainReq   <- mkRegU;
   Reg#(Bit#(14))                bytesRemainResp  <- mkReg(0);
   Reg#(Bit#(32))                mesgCount        <- mkReg(0);
-  Reg#(Bit#(32))                mesgInterval     <- mkReg('1);
   Reg#(Bool)                    mesgBusy         <- mkReg(False);
   Reg#(Bool)                    metaBusy         <- mkReg(False);
   Reg#(Bool)                    mesgStart        <- mkDReg(False);
@@ -82,12 +81,12 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem) (WmiServBCIfc
     metaBusy <= False;
     Bit#(32) length   <- mem[0].response.get;
     Bit#(32) opcode   <- mem[1].response.get;
-    Bit#(32) tag      <- mem[2].response.get;
-    Bit#(32) interval <- mem[3].response.get;
+    Bit#(32) nowMS      <- mem[2].response.get;
+    Bit#(32) nowLS <- mem[3].response.get;
     let m = MesgMeta { length   : length, 
                        opcode   : opcode, 
-                       tag      : tag,
-                       interval : interval };
+                       nowMS    : nowMS,
+                       nowLS    : nowLS };
     mesgMeta <= tagged Valid m; // Valid mesgMeta indicates message available on SThreadBusy
     wmi.drvSFlag({opcode[7:0],length[23:0]});  // Put the opcode and length out on WMI SFlag
     //$display("[%0d]: %m: respMetaData length:%0h opcode:%0h", $time, length, opcode);
@@ -158,27 +157,21 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem) (WmiServBCIfc
   rule doWriteFinalize (wrFinalize);
     thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:wmi.reqInfo, length:truncate(wmi.mesgLength) };
     lastMesg <= thisMesg;
-    //let mesgMeta  = MesgMeta {length:extend(wmi.mesgLength), opcode:{24'h800000,wmi.reqInfo}, tag:mesgCount, interval:mesgInterval};
-    let mesgMeta  = MesgMeta {length:extend(wmi.mesgLength), opcode:{24'h800000,wmi.reqInfo}, tag:nowW[63:32], interval:nowW[31:0]};
+    let mesgMeta  = MesgMeta {length:extend(wmi.mesgLength), opcode:{24'h800000,wmi.reqInfo}, nowMS:nowW[63:32], nowLS:nowW[31:0]};
     let req = BRAMRequest {write:True, address:truncate(lclMetaAddr>>4), datain:0, responseOnWrite:False };
     // Simultaneously write all four DWORDs of the Message Metadata...
     req.datain = mesgMeta.length;   mem[0].request.put(req); 
     req.datain = mesgMeta.opcode;   mem[1].request.put(req); 
-    req.datain = mesgMeta.tag;      mem[2].request.put(req); 
-    req.datain = mesgMeta.interval; mem[3].request.put(req); 
+    req.datain = mesgMeta.nowMS;    mem[2].request.put(req); 
+    req.datain = mesgMeta.nowLS;    mem[3].request.put(req); 
     wmi.allowReq;                    // Allow the next request
     wrFinalize   <= False;           // Clear wrFinalize
     mesgDone     <= True;            // Exactly one local.done event to buffer manager logic
     bufDwell     <= 3;               // Wait 3 cycles for the finalize->done->bml->addr update
     mesgCount    <= mesgCount+1;     // Bump diagnostic message count
-    mesgInterval <= 0;               // Reset diagnostic timer
-    $display("[%0d]: %m: doWriteFinalize lclMetaAddr :%0x length:%0x opcode:%0x tag:%0x interval:%0x ",
-      $time, lclMetaAddr , mesgMeta.length, mesgMeta.opcode, mesgMeta.tag, mesgMeta.interval);
+    $display("[%0d]: %m: doWriteFinalize lclMetaAddr :%0x length:%0x opcode:%0x nowMS:%0x nowLS:%0x ",
+      $time, lclMetaAddr , mesgMeta.length, mesgMeta.opcode, mesgMeta.nowMS, mesgMeta.nowLS);
   endrule 
-
-  rule incMesgInterval (!wrFinalize);  // For fabric producer diagnostic timer...
-    if (mesgInterval!=maxBound) mesgInterval <= mesgInterval + 1;
-  endrule
 
   // Fires one or more times to REQUEST DW/QW/HQ Reads 4B/8B/16B at a time...
   rule doReadReq (rdActive);
@@ -221,8 +214,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem) (WmiServBCIfc
         doneWithMesg  <= False;       //     Invalidate DWM
         mesgDone      <= True;        //     Exactly one local.done event to buffer manager logic
         bufDwell      <= 3;           //     Wait 3 cycles before clearing mesgBusy
-        mesgCount     <= mesgCount+1; //     Bump message diagnistic count
-        mesgInterval  <= 0;           //     Reset diagnostic timer
+        mesgCount     <= mesgCount+1; //     Increment rolling message counter
         mesgMeta      <= tagged Invalid;  // Indicates Message Unavailable to Fabric Consumer
         //$display("[%0d]: %m: doReadReq4B doneWithMesg", $time);
       end

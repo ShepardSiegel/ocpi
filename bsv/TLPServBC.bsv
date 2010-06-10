@@ -126,7 +126,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevi
   Reg#(Bool)               reqMesgInFlight     <- mkReg(False);
   Reg#(Bool)               xmtMetaOK           <- mkReg(False);
   Reg#(Bool)               tlpMetaSent         <- mkReg(False);
-  Reg#(Maybe#(MesgMetaDW)) fabMeta             <- mkReg(Invalid);
+  Reg#(Maybe#(MesgMeta))   fabMeta             <- mkReg(Invalid);
   Wire#(DPControl)         dpControl           <- mkWire;
   Reg#(Bit#(8))            dmaTag              <- mkReg(0);
   Reg#(Bit#(8))            dmaReqTag           <- mkRegU;
@@ -175,20 +175,20 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevi
     $display("[%0d]: %m: dmaResponseNearMetaHead FPactMesg-Step2a/7 mesgLength:%0x", $time, byteSwap(rres.data));
   endrule
 
-  // Accept the remaining metadata back and then commit to MesgMetaDW format..
+  // Accept the remaining metadata back and then commit to MesgMeta format..
   rule dmaResponseNearMetaBody (actMesgP &&& mRespF.first matches tagged ReadBody .rres &&& rres.role==Metadata);
     mRespF.deq;
     Vector#(4, DWord) vWords = reverse(unpack(rres.data));
     Bit#(32) opcode   = byteSwap(vWords[0]);
-    Bit#(32) tag      = byteSwap(vWords[1]);
-    Bit#(32) interval = byteSwap(vWords[2]);
+    Bit#(32) nowMS    = byteSwap(vWords[1]);
+    Bit#(32) nowLS    = byteSwap(vWords[2]);
     reqMetaInFlight <= False;
-    fabMeta <= (Valid (MesgMetaDW{tag:truncate(tag), opcode:truncate(opcode), length:truncate(mesgLengthRemain)}));
+    fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemain), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
     xmtMetaOK <= (mesgLengthRemain==0); // Skip over Message Movement phases and just send metadata if mesgLength is zero
     remMesgAccu <= remMesgAddr;  // Load the message rem address accumulator so we can locally manage message segments
     srcMesgAccu <= fabMesgAddr;  // Load the message src address accumulator so we can locally manage message segments
     fabMesgAccu <= fabMesgAddr;  // Load the message fab address accumulator so we can locally manage message segments
-    $display("[%0d]: %m: dmaResponseNearMetaBody FPactMesg-Step2b/7 opcode:%0x tag:%0x interval:%0x", $time, opcode, tag, interval);
+    $display("[%0d]: %m: dmaResponseNearMetaBody FPactMesg-Step2b/7 opcode:%0x nowMS:%0x nowLS:%0x", $time, opcode, nowMS, nowLS);
   endrule
 
   // Steps 3, 4a, 4b to be repeated 0-N times.
@@ -275,12 +275,10 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevi
     doXmtMetaBody   <= False;
     tlpXmtBusy      <= False;
     tlpMetaSent     <= True;
-    Bit#(32) opcode   = extend(meta.opcode);
-    Bit#(32) tag      = extend(meta.tag);
-    Bit#(32) interval = 0;
-    let w = PTW16 {
-      data : {byteSwap(opcode), byteSwap(tag), byteSwap(interval), 32'b0},
-      be:16'hFFF0, hit:7'h2, sof:False, eof:True };
+    Bit#(32) opcode  = meta.opcode;
+    Bit#(32) nowMS   = meta.nowMS;
+    Bit#(32) nowLS   = meta.nowLS;
+    let w = PTW16 {data:{byteSwap(opcode), byteSwap(nowMS), byteSwap(nowLS), 32'b0}, be:16'hFFF0, hit:7'h2, sof:False, eof:True };
     outF.enq(w);
     $display("[%0d]: %m: dmaXmtMetaBody FPactMesg-Step6/7", $time);
   endrule
@@ -369,17 +367,17 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevi
     reqMetaBodyInFlight <= False;
     inF.deq;
     Vector#(4, DWord) vWords = reverse(unpack(pw.data));
-    Bit#(32) opcode   = byteSwap(vWords[0]);
-    Bit#(32) tag      = byteSwap(vWords[1]);
-    Bit#(32) interval = byteSwap(vWords[2]);
-    fabMeta <= (Valid (MesgMetaDW{tag:truncate(tag), opcode:truncate(opcode), length:truncate(mesgLengthRemain)}));
+    Bit#(32) opcode  = byteSwap(vWords[0]);
+    Bit#(32) nowMS   = byteSwap(vWords[1]);
+    Bit#(32) nowLS   = byteSwap(vWords[2]);
+    fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemain), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
     dmaDoTailEvent <= (mesgLengthRemain==0); // Skip over Message Movement pull phases if mesgLength is zero
     mesgComplReceived <= 0;                  // Used to form the barrier-sync before isssuing pull tail event
     remMesgAccu <= remMesgAddr;              // Load the accumulator of rem address for sub-completions and multiple requests
     fabMesgAccu <= fabMesgAddr;              // Load the accumulator of fabric starting addresses over multiple requests
     MemReqPacket mpkt = WriteData(pw.data);
     mReqF.enq(mpkt);
-    $display("[%0d]: %m: dmaRespBodyFarMeta FPactMesg-Step2b/N opcode:%0x tag:%0x interval:%0x", $time, opcode, tag, interval);
+    $display("[%0d]: %m: dmaRespBodyFarMeta FPactMesg-Step2b/N opcode:%0x nowMS:%0x nowLS:%0x", $time, opcode, nowMS, nowLS);
   endrule
 
   // Steps 3, 4a, 4b to be repeated 0-N times.
@@ -456,7 +454,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevi
   // We use the target-side "mesgComplReceived" accumulating to the full message length as the barrier-sync for the tail event.
 
   // Transmit the DMA-PULL TailEvent...
-  rule dmaPullTailEvent (actMesgC &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived==extend(meta.length)));
+  rule dmaPullTailEvent (actMesgC &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived==truncate(meta.length)));
     remDone         <= True;  // Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
     dmaDoTailEvent  <= False;
     fabMeta         <= (Invalid);
