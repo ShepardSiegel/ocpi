@@ -1,0 +1,81 @@
+OpenCPI HDL Tree - README
+ssiegel 2010-06-10 Created
+
+Principal Author: Shepard Siegel, Atomic Rules LLC
+<shepard period siegel at atomicrules period com>
+OpenCPI website: www.opencpi.org
+
+1. Getting Started
+  Browse the documentation at $(OCPI_DIR)/doc
+
+  To build a bitstream, first make sure the appropriate tools are installed
+    e.g. Install Xilinx ISE 12.x to build Xilinx bitstreams
+
+  Source code is under git verson control - if you care, install git and say
+    $ git status
+
+2. Building a Bitstream for a Target
+
+  Set the environment variable OCPI_DIR to point to this distribution
+    e.g. setenv OCPI_DIR $(HOME)/projects/ocpi
+
+  If needed, first specialize the HDL sources for a particular target. (We plan to remove the need for this step in a future release). 
+
+  From $(OCPI_DIR) say
+    $ make <target>
+  where <target> is one of
+     ml555
+     alder
+     sx95t
+     xupv5
+     fx130
+     tx240
+     lx330
+     ml605
+     sp605
+
+  Make will copy files into $(OCPI_DIR)/build/tmp-<target> and run the vendor tools. When the build sucessfully completes, the build/tmp-<target> directory will be remaned build/<target>-<timestamp>
+
+3. Loading the a Bitstream for the First Time
+  OpenCPI allows you to load a bitstream while the Linux host is running. However to achieve this capability, there is the one-time requirement of loading an OpenCPI bitsream into Flash so that the BIOS sees an OpenCPI PCIe endpoint when Linux boots.
+
+4. Normal (not the first time) Loading of the bitstream
+  Use $(OCPI_DIR)/scripts/loadBitStreamXXXX <bitstream.bit> <pcie slot> <usb port>
+  e.g $ ./loadBitStreamSX95 ../build/sx95t-20100608_1209/fpgaTop.bit 0000:03:00.0 usb21
+
+5. Setting Host to Reserve Memory to Allows User-Mode DMA w/o Kernel-Mode Driver
+   5.1 Edit grub.conf to reserve 256MB of memory...
+   e.g. 	kernel /vmlinuz-2.6.18-194.3.1.el5 ro root=/dev/VolGroup00/LogVol00 rhgb quiet memmap=256M$0x5f700000
+   5.2 Set env vars to use that memory (still using old version in some programs)
+     setenv CPI_DMA_MEMORY        256M\$0x5f700000     # depricated use on 2010-05-25
+     setenv OCPI_DMA_MEMORY       256M\$0x5f700000
+
+ 6. Running a DMA Sanity Test from $(OCPI_DIR)/bin (you probably need set addresses in script)
+      [shep@core960 bin]$ ./dmaTestBasic
+      admin probe 
+      OCCP Admin Space
+       Open:         0x4f70656e "nepO"
+       CPI:          0x43504900 ""
+       revision:     0x00000001
+       birthday:     0x4c111672 Thu Jun 10 16:44:34 2010
+       workerMask:   0x00007c1c workers 2 3 4 10 11 12 13 14 exist
+       pci_dev_id:   0x00000300
+       timeStatus:   0x10000000 timeSetSticky 
+       timeControl:  0x00000000
+       gpsTimeMS:    0x4c113d1b (1276198171) Thu Jun 10 19:29:31 2010
+       gpsTimeLS:    0xc33394e1 (3274933081)
+       deltaTimeMS:  0x00000000
+       deltaTimeLS:  0x00000000
+       refPerPPS:    0x00000000 (0)
+      Log is: /home/shep/projects/ocpi/bin/testDMA14752.log
+      ...
+      For -r1im -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 16 -i 1000 ... SUCCEEDED
+      For -r1im -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 32 -i 1000 ... SUCCEEDED
+      testDMA done
+
+7.  Running a functional simulation of DMA with ISim
+      $ make isim
+
+8.  Compiling infrastructure IP written in BSV using the Bluespec compilier (requires bsc)
+      $ make {verilog_v5|verilog_v5a|verilog_v6}
+
