@@ -21,7 +21,7 @@ switch ($buildTarget)
     breaksw
   case xupv5:
     set PART = xc5vlx110t-ff1136-1
-    set PCIe = pcie-4243-v5-x1-125
+    set PCIe = pcie-4243-v5-gtp-x1-125
     set CSIN = csdef100_v5.cdc
     breaksw
   case sx95t:
