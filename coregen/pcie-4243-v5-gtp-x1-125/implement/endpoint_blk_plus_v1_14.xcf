@@ -1,0 +1,10 @@
+
+NET "sys_clk_c" PERIOD = 10ns;
+NET "ep/pcie_ep0/pcie_blk/*/gt_refclk_out*" TNM_NET = "MGTCLK" ;
+NET "ep/pcie_ep0/pcie_blk/clocking_i/clkout0" TNM_NET = "CLKOUT0" ;
+NET "ep/pcie_ep0/pcie_blk/clocking_i/clkout1" TNM_NET = "CLKOUT1" ;
+
+TIMESPEC "TS_MGTCLK"  = PERIOD "MGTCLK" 100.00 MHz HIGH 50 % ;
+TIMESPEC "TS_CLKOUT0" = PERIOD "CLKOUT0" TS_MGTCLK*2.5 HIGH 50 % ;
+TIMESPEC "TS_CLKOUT1" = PERIOD "CLKOUT1" TS_MGTCLK*2.5 HIGH 50 % ;
+
