@@ -312,10 +312,14 @@ interface WsiMasterIfc#(numeric type nb, numeric type nd, numeric type ng, numer
 endinterface
 
 module mkWsiMaster (WsiMasterIfc#(nb,nd,ng,nh,ni));
+  //Clock                               clk              <- exposeCurrentClock;
+  //Reset                               rstLocal         <- exposeCurrentReset;
+  //MakeResetIfc                        rstRemote        <- mkReset(0,True,clk);
+  //Reset                               rstEither        <- mkResetEither
+  ReadOnly#(Bool)                     isReset          <- isResetAsserted;
   FIFOF#(WsiReq#(nb,nd,ng,nh,ni))     reqFifo          <- mkSizedDFIFOF(2,wsiIdleRequest);
   PulseWire                           sThreadBusy_pw   <- mkPulseWire;
   Reg#(Bool)                          sThreadBusy_d    <- mkReg(True);
-  ReadOnly#(Bool)                     isReset          <- isResetAsserted;
   Reg#(Bool)                          operateD         <- mkDReg(False);
   Reg#(Bool)                          peerIsReady      <- mkDReg(False);
 

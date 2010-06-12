@@ -148,7 +148,7 @@ rule wmrd_mesgBodyResponse (wci.isOperating && wmiRd && unrollCnt>0);
 endrule
 
 // WMI Write...
-(* descending_urgency = "wmwt_doAbort, wmwt_messageFinalize, wmwt_messagePushImprecise, wmwt_messagePushPrecise, wmwt_requestPrecise, wmwt_mesgBegin" *)
+(* descending_urgency = "wmwt_doAbort, wmwt_messageFinalize, wmwt_messagePushImprecise, wmwt_messagePushPrecise, wmwt_requestPrecise, wmwt_mesgBegin, wsipass_doMessagePush" *)
 
 // This rule will fire once at the beginning of every inbound WSI message
 // It relies upon the implicit condition of the wsiS.reqPeek to only fire when we a request...
