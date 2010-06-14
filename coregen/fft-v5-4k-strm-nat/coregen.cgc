@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spirit:design xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xilinx="http://www.xilinx.com" >
+   <spirit:vendor>xilinx.com</spirit:vendor>
+   <spirit:library>project</spirit:library>
+   <spirit:name>coregen</spirit:name>
+   <spirit:version>1.0</spirit:version>
+   <spirit:componentInstances>
+      <spirit:componentInstance>
+         <spirit:instanceName>xfft_v7_1</spirit:instanceName>
+         <spirit:displayName></spirit:displayName>
+         <spirit:description></spirit:description>
+         <spirit:componentRef spirit:vendor="xilinx.com" spirit:library="ip" spirit:name="xfft" spirit:version="7.1" />
+         <spirit:configurableElementValues>
+            <spirit:configurableElementValue spirit:referenceId="parameter_scaling_options">scaled</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_butterfly_type">use_luts</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_ce">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_run_time_configurable_transform_length">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_target_data_throughput">50</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_output_ordering">natural_order</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_memory_options_reorder">block_ram</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_memory_options_data">block_ram</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_number_of_stages_using_block_ram_for_data_and_phase_factors">5</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_cyclic_prefix_insertion">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_ovflo">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_rounding_modes">truncation</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_memory_options_phase_factors">block_ram</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_data_format">fixed_point</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_target_clock_frequency">250</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_transform_length">4096</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_implementation_options">pipelined_streaming_io</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_complex_mult_type">use_mults_performance</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_sclr">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_channels">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_input_width">16</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_memory_options_hybrid">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_phase_factor_width">16</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_input_data_offset">no_offset</spirit:configurableElementValue>
+         </spirit:configurableElementValues>
+         <spirit:vendorExtensions>
+            <xilinx:instanceProperties>
+             <xilinx:projectOptions>
+               <xilinx:projectName>coregen</xilinx:projectName>
+               <xilinx:outputDirectory>./</xilinx:outputDirectory>
+               <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+               <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+             </xilinx:projectOptions>
+             <xilinx:part>
+               <xilinx:device>xc5vsx95t</xilinx:device>
+               <xilinx:deviceFamily>virtex5</xilinx:deviceFamily>
+               <xilinx:package>ff1136</xilinx:package>
+               <xilinx:speedGrade>-2</xilinx:speedGrade>
+             </xilinx:part>
+             <xilinx:flowOptions>
+               <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+               <xilinx:designEntry>Verilog</xilinx:designEntry>
+               <xilinx:asySymbol>true</xilinx:asySymbol>
+               <xilinx:flowVendor>Other</xilinx:flowVendor>
+               <xilinx:addPads>false</xilinx:addPads>
+               <xilinx:removeRPMs>false</xilinx:removeRPMs>
+               <xilinx:createNDF>false</xilinx:createNDF>
+               <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+               <xilinx:formalVerification>false</xilinx:formalVerification>
+             </xilinx:flowOptions>
+             <xilinx:simulationOptions>
+               <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+               <xilinx:simulationLanguage>Verilog</xilinx:simulationLanguage>
+               <xilinx:foundationSym>false</xilinx:foundationSym>
+             </xilinx:simulationOptions>
+           </xilinx:instanceProperties>
+         </spirit:vendorExtensions>
+      </spirit:componentInstance>
+   </spirit:componentInstances>
+   <spirit:description></spirit:description>
+   <spirit:vendorExtensions>
+      <xilinx:instanceProperties>
+       <xilinx:projectOptions>
+         <xilinx:projectName>coregen</xilinx:projectName>
+         <xilinx:outputDirectory>./</xilinx:outputDirectory>
+         <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+         <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+       </xilinx:projectOptions>
+       <xilinx:part>
+         <xilinx:device>xc5vsx95t</xilinx:device>
+         <xilinx:deviceFamily>virtex5</xilinx:deviceFamily>
+         <xilinx:package>ff1136</xilinx:package>
+         <xilinx:speedGrade>-2</xilinx:speedGrade>
+       </xilinx:part>
+       <xilinx:flowOptions>
+         <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+         <xilinx:designEntry>Verilog</xilinx:designEntry>
+         <xilinx:asySymbol>true</xilinx:asySymbol>
+         <xilinx:flowVendor>Other</xilinx:flowVendor>
+         <xilinx:addPads>false</xilinx:addPads>
+         <xilinx:removeRPMs>false</xilinx:removeRPMs>
+         <xilinx:createNDF>false</xilinx:createNDF>
+         <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+         <xilinx:formalVerification>false</xilinx:formalVerification>
+       </xilinx:flowOptions>
+       <xilinx:simulationOptions>
+         <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+         <xilinx:simulationLanguage>Verilog</xilinx:simulationLanguage>
+         <xilinx:foundationSym>false</xilinx:foundationSym>
+       </xilinx:simulationOptions>
+     </xilinx:instanceProperties>
+   </spirit:vendorExtensions>
+</spirit:design>
