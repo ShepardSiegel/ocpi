@@ -12,7 +12,7 @@ Assumptions:
 
 Cascade of Operations:
 
-1. Precise Frame Formatting (4K sample 2-buffer)
+1. Precise Frame Formatting, WsiToPrecise (4K sample 2-buffer)
   Format an imprecise-burst of time-domain samples from a prior stage into a precisely-sized message buffer.
   This is done as a processing convienience using a 2-buffered BRAM. One buffer may be written while the other
   is read. The utility is that the read side logic can be sure all 4K samples may be read at once, without interruption.
@@ -55,26 +55,40 @@ typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 interface PSDIfc;
   interface Wci_Es#(NwciAddr)        wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,32,4,8,0)     wsiS1;    // WSI-S Stream Input
-  interface Wmi_Em#(14,12,32,0,4,32) wmiM;     // WSI-M Message Output
+  interface Wsi_Em#(12,32,4,8,0)     wsiM1;    // WSI-M Stream Output
+  //interface Wmi_Em#(14,12,32,0,4,32) wmiM;     // WSI-M Message Output
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkPSDInit#(parameter Bit#(32) psdCtrl, parameter Bool hasDebugLogic) (PSDIfc);
+module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSDIfc);
 
   WciSlaveIfc #(NwciAddr)            wci        <- mkWciSlave;
   WsiSlaveIfc #(12,32,4,8,0)         wsiS       <- mkWsiSlave;
-  WmiMasterIfc#(14,12,32,0,4,32)     wmi        <- mkWmiMaster;
-  Reg#(Bit#(32))                     psdCtrl    <- mkReg(fgCtrlInit);
+  WsiMasterIfc#(12,32,4,8,0)         wsiM        <- mkWsiMaster;
+  //WmiMasterIfc#(14,12,32,0,4,32)     wmi        <- mkWmiMaster;
+  Reg#(Bit#(32))                     psdCtrl    <- mkReg(psdCtrlInit);
 
 rule operating_actions (wci.isOperating);
   wsiS.operate();
-  wmiM.operate();
+  wsiM.operate();
+  //wmiM.operate();
 endrule
+
+rule wsipass_doMessagePush (wci.isOperating);
+  WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
+  wsiM.reqPut.put(r);
+endrule
+
+
+
 
 
 //
 // WCI...
 //
+
+Bit#(32) psdStatus = extend({pack(hasDebugLogic)});
+
 (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
@@ -87,22 +101,18 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
    wci.respPut.put(wciOKResponse); // write response
 endrule
 
-Bit#(32) frameGateStatus = extend({pack(hasDebugLogic)});
-
 rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr) matches
      'h00 : rdat = pack(psdStatus);
      'h04 : rdat = pack(psdCtrl);
-      if (hasDebugLogic) begin
-        'h10 : rdat = extend({pack(wsiS.status),pack(wmiM.status)});
-        'h14 : rdat = pack(wsiS.extStatus.pMesgCount);
-        'h18 : rdat = pack(wsiS.extStatus.iMesgCount);
-        'h1C : rdat = pack(wsiS.extStatus.tBusyCount);
-        'h20 : rdat = pack(wmiM.extStatus.pMesgCount);
-        'h24 : rdat = pack(wmiM.extStatus.iMesgCount);
-        'h28 : rdat = pack(wmiM.extStatus.tBusyCount);
-      end
+     'h10 : rdat = !hasDebugLogic ? 0 : extend({pack(wsiS.status),pack(wsiM.status)});
+     'h14 : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.pMesgCount);
+     'h18 : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.iMesgCount);
+     'h1C : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.tBusyCount);
+     'h20 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.pMesgCount);
+     'h24 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.iMesgCount);
+     'h28 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.tBusyCount);
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
@@ -118,10 +128,11 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
   Wci_Es#(NwciAddr)        wci_Es    <- mkWciStoES(wci.slv); 
   Wsi_Es#(12,32,4,8,0)     wsi_Es    <- mkWsiStoES(wsiS.slv);
-  Wmi_Em#(14,12,32,0,4,32) wmi_Em <- mkWmiMtoEm(wmi.mas);
+  //Wmi_Em#(14,12,32,0,4,32) wmi_Em <- mkWmiMtoEm(wmi.mas);
 
   interface wciS0  = wci_Es;
   interface wsiS1  = wsi_Es;
-  interface wmiM   = wmi_Em;
+  interface wsiM1 = toWsiEM(wsiM.mas); 
+  //interface wmiM   = wmi_Em;
 endmodule
 
