@@ -263,7 +263,7 @@ endrule
 
 
 // When we satisfy the constraints below, we start the read process...
-Bool readThreshold = (dlyWordsStored>0 && dlyHoldoffBytes>=bytesWritten && dlyHoldoffCycles>=cyclesPassed);
+Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cyclesPassed>=dlyHoldoffCycles);
 
 (* descending_urgency = "delay_write_req, delay_read_req" *)
 

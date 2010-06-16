@@ -45,18 +45,7 @@ typedef struct {
 
 interface FFT_CONTROL;
   method Action              fwd      (Bool i);
-//method Action              en       (Bit#(1) i);
-  method Action              en       ();
-  method Bit#(1)             full;
-  method Action              addr     (Bit#(adrWidth) i);
-//method Action              wdf_wren (Bit#(1) i);
-  method Action              wdf_wren ();
-  method Action              wdf_data (Bit#(appWidth) i);
-  method Action              wdf_mask (Bit#(mskWidth) i);
-  method Bit#(1)             wdf_full;
-  method Bit#(appWidth)      rd_data;
-  method Bit#(1)             rd_data_valid;
-  method Bit#(1)             init_complete;
+  method Action              scale    (Bit#(12) i);
 endinterface: FFT_CONTROL
 
 (* always_enabled, always_ready *)

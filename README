@@ -79,3 +79,10 @@ OpenCPI website: www.opencpi.org
 8.  Compiling infrastructure IP written in BSV using the Bluespec compilier (requires bsc)
       $ make {verilog_v5|verilog_v5a|verilog_v6}
 
+9. FAQs
+  "My bitstream build failed, where can I look to see what went wrong?"
+     Look in the $OCPIDIR/scripts/buildhdl directory at the script "build_fpgaTop" and then at the appropriate
+     .xst and .prj files. Also look in the $OCPIDIR/build/tmp-<target> directory, where an incomplete build's
+     artifacts will remain.
+
+
