@@ -16,6 +16,7 @@ import GetPut::*;
 import Vector::*;
 
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
+typedef 23 Ndag;     // Number of bits in the delay address generator log2 of 16B words entries (e.g. 23=8M*16B = 128MB)
 
 interface DelayWorkerIfc#(numeric type ndw);
   interface Wci_Es#(NwciAddr)                           wciS0;    // Worker Control and Configuration 
@@ -92,10 +93,10 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
 
   // Delay Management...
-  Accumulator2Ifc#(Int#(20))     dlyWordsStored     <- mkAccumulator2;
+  Accumulator2Ifc#(Int#(Ndag))   dlyWordsStored     <- mkAccumulator2;
   Accumulator2Ifc#(Int#(8))      dlyReadCredit      <- mkAccumulator2;
-  Reg#(UInt#(20))                dlyWAG             <- mkReg(0);
-  Reg#(UInt#(20))                dlyRAG             <- mkReg(0);
+  Reg#(UInt#(Ndag))              dlyWAG             <- mkReg(0);
+  Reg#(UInt#(Ndag))              dlyRAG             <- mkReg(0);
   Reg#(Bool)                     blockDelayWrite    <- mkReg(False);
 
   Reg#(Bit#(32))                 wmemiWrReq         <- mkReg(0);
