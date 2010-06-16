@@ -118,7 +118,7 @@ endrule
 
 
 // Connection to the Wmemi...
-rule getRequest;
+rule getRequest (!wci.configWrite && !wci.configRead); // Rule predicate gives PIO config access priority
   let req <- wmemi.req;
   if (req.cmd==WR) begin
       let dh <- wmemi.dh;

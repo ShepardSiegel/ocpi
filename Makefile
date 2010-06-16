@@ -113,7 +113,7 @@ verilog_s6: $(OBJ)
 verilog_v5: $(OBJ)
 	
 	# compile to verilog backend for RTL
-	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/CompileTime.bsv
+	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/CompileTime.bsv
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
@@ -125,7 +125,7 @@ verilog_v5: $(OBJ)
 verilog_v5a: $(OBJ)
 	
 	# compile to verilog backend for RTL
-	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/CompileTime.bsv
+	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/CompileTime.bsv
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
