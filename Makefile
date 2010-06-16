@@ -107,6 +107,7 @@ verilog_s6: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
 		$(BSV)/$(RTESTS6).bsv
+	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTESTS6).v
 
 ######################################################################
 verilog_v5: $(OBJ)
@@ -118,6 +119,7 @@ verilog_v5: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
 		$(BSV)/$(RTEST5).bsv
+	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5).v
 
 ######################################################################
 verilog_v5a: $(OBJ)
@@ -129,6 +131,7 @@ verilog_v5a: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
 		$(BSV)/$(RTEST5a).bsv
+	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5a).v
 
 ######################################################################
 verilog_v5m: $(OBJ)
@@ -140,6 +143,7 @@ verilog_v5m: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
 		$(BSV)/$(RTEST5m).bsv
+	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5m).v
 
 ######################################################################
 verilog_v5g: $(OBJ)
@@ -151,6 +155,7 @@ verilog_v5g: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
 		$(BSV)/$(RTEST5g).bsv
+	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5g).v
 
 ######################################################################
 verilog_v6: $(OBJ)
@@ -162,6 +167,7 @@ verilog_v6: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
 		$(BSV)/$(RTEST6).bsv
+	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST6).v
 
 $(OBJ):
 	@mkdir -p $(OBJ)

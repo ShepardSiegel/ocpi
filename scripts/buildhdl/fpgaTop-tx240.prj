@@ -16,3 +16,6 @@ verilog work "../../rtl/mkOCApp.v"
 verilog work "../../rtl/mkCTop.v"
 verilog work "../../rtl/mkFTop.v"
 verilog work "../../rtl/fpgaTop_v5.v"
+
+verilog work "../../libsrc/hdl/ocpi/mkFTopV5.v"
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_v5.v"
