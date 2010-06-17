@@ -86,9 +86,9 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
 
   // Delay FIFOs
   FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
-  FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(512);  
+  FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(1024);  // Must be sized large enough for imprecise->precise conversion
   FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
-  FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);  
+  FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);   // Needs only to be large enough to accomodate the dlyReadCredit
   FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
 
@@ -223,6 +223,30 @@ rule wmwt_messageFinalize
   endOfMessage   <= False;
   $display("[%0d]: %m: wmwt_messageFinalize mesgWtCount:%0x WSI mesgLength:%0x", $time, mesgWtCount, fromMaybe(0,mesgLength));
 endrule
+
+/*
+  Message and Message Metadata Serialization Technique
+
+  Utility: The Worker Streaming Interface (WSI) allows for the ingress of precise or imprecise length messages and their associated
+  metadata (e.g. opcode and length). This apparatus serializes this data and packs it into an integer number of (16B) packets. These
+  packets are suitable for sequential storage to and retrieval from a FIFO. Then this apparatus de-serializes (or de-multiplexes) the
+  (16B) packets into a mesage and metadata stream. 
+
+  Pre-Requsites: Incident WSI streams may be either precise or imprecise. In the precise case, metadata preceeds the message of some length.
+  In the imprecise case, the message data must be received as an external circuit counts the number of words in the message. It is not until
+  the endOfMessage that the length is known. Because of this, the mesgWF must be deep enough to capture as many words as the longest
+  imprecise message. If it is not, the message body will block (no room in message FIFO), and there will never be a commit to the metadata.
+  The restriction can be ignored if all input messages are required to be precise.
+
+  FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(512);  
+  FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
+  FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
+  ...
+  FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
+  FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);  
+  FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
+
+*/
 
 
 // Connect the WFs to RFs...
