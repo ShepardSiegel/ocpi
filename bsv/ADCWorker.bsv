@@ -135,8 +135,7 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
      'b10 : adcCore1.req.put(SpiReq{rdCmd:False, addr:wciReq.addr[9:2], wdata:wciReq.data[7:0]});
      'b11 : spiClk.req.put  (SpiReq{rdCmd:False, addr:wciReq.addr[9:2], wdata:wciReq.data[7:0]});
    endcase
-   $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
-     $time, wciReq.addr, wciReq.byteEn, wciReq.data);
+   $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
 endrule
 

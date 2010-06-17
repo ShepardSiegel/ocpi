@@ -56,7 +56,7 @@ module mkCollectGate (CollectGateIfc);
 
   Bool collectRising = (collectPW && !collectD);         // Rising edge of the collection (dwell) activity
   Bool activeRising  = (sampActive && !sampActiveD);     // Rising edge of active sample availability (e.g. dynamic ingress)
-  Bool eitherRising  = (collectRising || activeRising);  // Eitehr the start of collection (dwell) or active (available)
+  Bool eitherRising  = (collectRising || activeRising);  // Either the start of collection (dwell) or active (available)
 
   (* fire_when_enabled *) rule pipeline_registers (operatePW); collectD<=collectPW; sampActiveD<=sampActive; endrule
 
@@ -88,8 +88,13 @@ module mkCollectGate (CollectGateIfc);
     syncMesg <= syncMesg - 1;
   endrule
 
+  // Product-Terms common to the next three rule predicates...
+  Bool attemptSampleEnq = (operatePW && timeMesg==0 && collectPW && collectD); 
+
+  (* descending_urgency = "overrun_recovery, count_dropped_samples, capture_collect" *)
+
   // Send the sample data...
-  rule capture_collect (operatePW && timeMesg==0 && syncMesg==0 && ovrRecover==0 && collectPW && collectD);
+  rule capture_collect (attemptSampleEnq && syncMesg==0 && ovrRecover==0 );
     Bool lastSample = (uprollCnt==maxBurstLenW-1); 
     SampMesg d = SampMesg { data:sampDataW, opcode:Sample, last:lastSample, be:'1 };
     sampCount <= sampCount + 1;
@@ -98,21 +103,19 @@ module mkCollectGate (CollectGateIfc);
   endrule
 
   // ... unless we can't sucessfully enque the sample FIFO...
-  rule capture_overrun_trigger (operatePW && timeMesg==0 && ovrRecover==0 && sampActive && collectPW && collectD && !sampF.notFull);
-    sampDataWD <= sampDataW; // save the last continious sample for subsequent enq
-    ovrRecover <= 15;
-    dwellFails <= dwellFails + 1;
-  endrule
-
-  // Maintain a count of dropped samples...
-  rule count_dropped_samples (operatePW && timeMesg==0 && sampActive && collectPW && collectD && !sampF.notFull);
-    dropCount <= dropCount + 1;
+  rule count_dropped_samples(attemptSampleEnq  && sampActive && !sampF.notFull);
+    if (ovrRecover==0) begin
+      sampDataWD <= sampDataW; // save the last continious sample for subsequent enq
+      ovrRecover <= 15;
+      dwellFails <= dwellFails + 1;
+    end
+    dropCount <= dropCount + 1; // Maintain a count of dropped samples
   endrule
 
   // Place the last continious sample before overrun in the stream, and reset the uproll count...
   //   note that this rule wont *first* fire after overrun until we can again enq the sampFIFO
   //   This rule terminates the imprecise burst with the last continious sample of the mesage before overrrun
-  rule overrun_recovery (operatePW && timeMesg==0 && collectPW && collectD && ovrRecover!=0);
+  rule overrun_recovery (attemptSampleEnq && ovrRecover!=0);
     if (ovrRecover==15) begin
       SampMesg d = SampMesg { data:sampDataWD, opcode:Sample, last:True, be:'1 };
       uprollCnt <= 0;

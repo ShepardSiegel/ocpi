@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script tstseq6 for debugging ADC to DAC flow, no Delay
+# Script tstseq6a for debugging ADC to DAC flow, with DRAM Delay
 
 echo "admin probe"
 ./swctl 0xF1000000 0xF2FF0000 settime
@@ -11,6 +11,7 @@ echo "reset workers"
 ./swctl 0xF1000000 0xF2FF0000 wwctl  2 0x00000004
 ./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x0000000F
 ./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x0000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 12 0x0000000F
 
 echo "unreset workers"
 ./swctl 0xF1000000 0xF2FF0000 wwctl  4 0x80000004
@@ -18,6 +19,7 @@ echo "unreset workers"
 ./swctl 0xF1000000 0xF2FF0000 wwctl  2 0x80000004
 ./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x8000000F
 ./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x8000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 12 0x8000000F
 
 echo "initialize workers"
 ./swctl 0xF1000000 0xF2FF0000 wop  4 initialize
@@ -25,6 +27,7 @@ echo "initialize workers"
 ./swctl 0xF1000000 0xF2FF0000 wop  2 initialize
 ./swctl 0xF1000000 0xF2FF0000 wop 10 initialize
 ./swctl 0xF1000000 0xF2FF0000 wop 11 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 12 initialize
 
 echo "Set DACWorker W11 "
 #./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x9
@@ -35,7 +38,9 @@ echo "Set W2 SMAdapter to Mode 0 WSI-S to WSI-M"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x0
 
 echo "Set W3 DelayWorker"
-./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x0
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x7
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x04 0x000
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x08 0x100
 
 echo "Set W4 SMAdapter to Mode 2 WSI-S to WSI-M"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 4 0x00 0x0
@@ -56,6 +61,8 @@ echo "Put ADC0 in offset binary"
 #./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x1
 
 echo "start workers"
+./swctl 0xF1000000 0xF2FF0000 wop 12 start
+sleep 2
 ./swctl 0xF1000000 0xF2FF0000 wop 11 start
 ./swctl 0xF1000000 0xF2FF0000 wop  4 start
 ./swctl 0xF1000000 0xF2FF0000 wop  3 start
@@ -67,7 +74,7 @@ echo "ADCWorker config properties"
 echo "SMAdapter W2 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 2 0 14
 echo "DelayWorker W3 config properties"
-./swctl 0xF1000000 0xF2FF0000 wread 3 0 14
+./swctl 0xF1000000 0xF2FF0000 wread 3 0 21
 echo "SMAdapter W4 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 4 0 14
 echo "DACWorker config properties"
@@ -81,7 +88,7 @@ echo "ADCWorker config properties"
 echo "SMAdapter W2 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 2 0 14
 echo "DelayWorker W3 config properties"
-./swctl 0xF1000000 0xF2FF0000 wread 3 0 14
+./swctl 0xF1000000 0xF2FF0000 wread 3 0 21
 echo "SMAdapter W4 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 4 0 14
 echo "DACWorker config properties"
