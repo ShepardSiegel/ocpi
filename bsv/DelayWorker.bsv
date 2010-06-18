@@ -79,11 +79,6 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
   Reg#(Bit#(32))                 mesgRdCount       <- mkReg(0);
   Reg#(Bit#(32))                 bytesRead         <- mkReg(0);
 
-  // debug...
-  Reg#(Bit#(32))                 abortCount        <- mkReg(0);
-  Reg#(Bit#(nd))                 valExpect         <- mkReg(0);
-  Reg#(Bit#(nd))                 errCount          <- mkReg(0);
-
   // Delay FIFOs
   FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
   FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(1024);  // Must be sized large enough for imprecise->precise conversion
@@ -192,9 +187,6 @@ rule wmwt_messagePushImprecise (wci.isOperating && wmemiDly && readyToPush && im
       endOfMessage <= True;
     end
     mesgLengthSoFar <= mlp1;
-    // Count Pattern Error check...
-    if (!zlm) valExpect <= valExpect + 1;
-    if (w.data!=valExpect && !zlm) errCount <= errCount + 1;
   end
 endrule
 
@@ -206,7 +198,6 @@ rule wmwt_doAbort (wci.isOperating && wmemiDly && doAbort);
   impreciseBurst  <= False;
   opcode          <= tagged Invalid;
   mesgLength      <= tagged Invalid;
-  abortCount      <= abortCount + 1;
   $display("[%0d]: %m: wmwt_doAbort", $time );
 endrule
 
@@ -238,13 +229,24 @@ endrule
   imprecise message. If it is not, the message body will block (no room in message FIFO), and there will never be a commit to the metadata.
   The restriction can be ignored if all input messages are required to be precise.
 
+  ... Serializer Storage ...
   FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(512);  
   FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
-  ...
+  ... De-Serializer Storage..
   FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
   FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);  
   FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
+
+  Overview:   Serializer -> 16B FIFO Channel -> De-Serializer
+
+  Serializer: DEQs metadata and message data from metaWF and mesgWF as it forms an integer number of ENQs to
+  the wide16Fa. The Final enq of a sequence of 16B ENQs may have 0, 1, 2, or 3 DW of padding added so that full
+  messages (meta+mesg) are not split between two 16B words. The Action function enqSer4B accumulates 4B call
+  data one 4B word at a time. The serialization order is
+    1 DW of MesgMetaFlag  // when wrtSer_begin FIRES
+    m DW of MessageData   // when wrtSer_body  FIRES
+    p DW of zero-padding  // when wrtSer_body  FIRES with lasword/flush True
 
 */
 
