@@ -62,9 +62,10 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit) (SMAdapterIfc#(ndw))
   Reg#(Bit#(nd))                 valExpect         <- mkReg(0);
   Reg#(Bit#(nd))                 errCount          <- mkReg(0);
 
-  Bool wsiPass = (smaCtrl[3:0]==4'h0) || (smaCtrl[3:0]==4'h3);
-  Bool wmiRd   = (smaCtrl[3:0]==4'h1) || (smaCtrl[3:0]==4'h4) || (smaCtrl[3:0]==4'h9); // FIXME: 4'h9 is temp workaround for testRpl sw
-  Bool wmiWt   = (smaCtrl[3:0]==4'h2) || (smaCtrl[3:0]==4'h3);
+  Bool wsiPass  = (smaCtrl[3:0]==4'h0);
+  Bool wmiRd    = (smaCtrl[3:0]==4'h1) || (smaCtrl[3:0]==4'h4) || (smaCtrl[3:0]==4'h9); // FIXME: 4'h9 is temp workaround for testRpl sw
+  Bool wmiWt    = (smaCtrl[3:0]==4'h2) || (smaCtrl[3:0]==4'h3);  // Split function adds additional WSI-M egress to WMI Write
+  Bool wxiSplit = (smaCtrl[3:0]==4'h3);
   Bool nixWsiM = unpack(smaCtrl[4]);  // Setting bit 4 disables target WSI-M Put
   Bool impWsiM = unpack(smaCtrl[5]);  // Setting bit 5 forces imprecise burst (for testing)
 
@@ -190,7 +191,8 @@ endrule
 
 // Push precise message WSI to WMI. This rule fires once for each word moved...
 rule wmwt_messagePushPrecise (wci.isOperating && wmiWt && wsiWordsRemain>0 && mesgReqValid && preciseBurst);
-  WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;
+  WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;  // ActionValue Get
+  if (wxiSplit) wsiM.reqPut.put(w);             // Feed wsiM in Split Mode
   wmi.dh(w.data, '1, (wsiWordsRemain==1));
   wsiWordsRemain <= wsiWordsRemain - 1;
   //$display("[%0d]: %m: wmwt_messagePushPrecise", $time );
@@ -198,7 +200,8 @@ endrule
 
 // Push imprecise message WSI to WMI...
 rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impreciseBurst);
-  WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;
+  WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;  // ActionValue Get
+  if (wxiSplit) wsiM.reqPut.put(w);             // Feed wsiM in Split Mode
   Bool dwm = (w.burstLength==1);       // Imprecise WSI ends with burstLength==1, used to make WMI DWM
   Bool zlm = dwm && (w.byteEn=='0);    // Zero Length Message is 0 BEs on DWM 
   Bit#(14) mlp1  =  mesgLengthSoFar+1; // message length so far plus one (in Words)
