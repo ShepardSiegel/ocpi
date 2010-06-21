@@ -111,7 +111,7 @@ verilog_scenario3a: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
 		$(BSV)/$(OCAPP_S3a).bsv
-	cp $(RTL)/mkOCApp_scenario3a.v $(VLG_HDL)/mk$(OCAPP_S3a).v
+	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S3a).v
 
 ######################################################################
 verilog_s6: $(OBJ)

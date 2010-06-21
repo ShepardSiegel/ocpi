@@ -78,10 +78,10 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst) (OCAppIfc#(nWci,nWmi,nWmemi));
 endmodule : mkOCApp_poly
 
 (* synthesize *)
-module mkOCApp_scenario3a#(Vector#(Nwci_app, Reset) rst) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
+module mkOCApp#(Vector#(Nwci_app, Reset) rst) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
    (*hide*)
    let _ifc <- mkOCApp_poly(rst);
    return _ifc;
-endmodule: mkOCApp_scenario3a
+endmodule: mkOCApp
 
 endpackage: OCApp
