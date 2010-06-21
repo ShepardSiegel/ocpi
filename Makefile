@@ -1,21 +1,23 @@
 ##
 ## Makefile
 ##
-BTEST   ?= TB2
-ITEST   ?= TB2
-ITEST10 ?= TB10
-RTEST5  ?= FTopV5
-RTESTS6 ?= FTopS6
-RTEST5a ?= FTopV5_adc
-RTEST5m ?= FTopV5_mem
-RTEST5g ?= FTopV5_gbe
-RTEST6  ?= FTopV6
-OBJ     ?= obj
-RTL     ?= rtl
-BSV     ?= bsv
+BTEST     ?= TB2
+ITEST     ?= TB2
+ITEST10   ?= TB10
+RTEST5    ?= FTopV5
+RTESTS6   ?= FTopS6
+RTEST5a   ?= FTopV5_adc
+RTEST5m   ?= FTopV5_mem
+RTEST5g   ?= FTopV5_gbe
+RTEST6    ?= FTopV6
+OBJ       ?= obj
+RTL       ?= rtl
+BSV       ?= bsv
 
 VLG_HDL   = libsrc/hdl/ocpi
 BUILD_HDL = scripts/buildhdl
+
+OCPI_DIR  ?= (shell pwd)
 
 default:
 	make bsim
@@ -125,7 +127,7 @@ verilog_v5: $(OBJ)
 verilog_v5a: $(OBJ)
 	
 	# compile to verilog backend for RTL
-	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/CompileTime.bsv
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
