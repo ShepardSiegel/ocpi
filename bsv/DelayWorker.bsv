@@ -81,7 +81,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
 
   // Delay FIFOs
   FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
-  FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(1024);  // Must be sized large enough for imprecise->precise conversion
+  FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(2048);  // Must be sized large enough for imprecise->precise conversion
   FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
   FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);   // Needs only to be large enough to accomodate the dlyReadCredit
   FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
