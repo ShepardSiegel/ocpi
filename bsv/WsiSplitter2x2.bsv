@@ -6,7 +6,7 @@ import OCWip::*;
 import GetPut::*;
 
 interface WsiSplitter2x2Ifc#(numeric type ndw);
-  interface Wci_Es#(20)                                  wci_s;
+  interface Wci_Es#(20)                                  wciS0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiS0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiS1;
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiM0;
@@ -87,7 +87,7 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
   Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsi_Es0 <- mkWsiStoES(wsi_S0.slv);
   Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsi_Es1 <- mkWsiStoES(wsi_S1.slv);
 
-  interface Wci_s wci_s  = wci_Es;
+  interface Wci_s wciS0  = wci_Es;
   interface Wsi_s wsiS0  = wsi_Es0;
   interface Wsi_s wsiS1  = wsi_Es1;
   interface Wsi_m wsiM0  = toWsiEM(wsi_M0.mas);
