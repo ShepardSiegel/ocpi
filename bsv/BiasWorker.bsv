@@ -9,15 +9,15 @@ import Vector::*;
 
 interface BiasWorker4BIfc;
   interface Wci_Es#(20)           wciS0;  // WCI Slave  for Control and Configuration
-  interface Wsi_Es#(12,32,4,8,1)  wsiS1;  // WSI Slave  for message ingress (consumer port)
-  interface Wsi_Em#(12,32,4,8,1)  wsiM1;  // WSI Master for message egress (producer port)
+  interface Wsi_Es#(12,32,4,8,0)  wsiS1;  // WSI Slave  for message ingress (consumer port)
+  interface Wsi_Em#(12,32,4,8,0)  wsiM1;  // WSI Master for message egress (producer port)
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkBiasWorker (BiasWorker4BIfc);
   WciSlaveIfc#(20)              wci          <- mkWciSlave;   // WCI-Slave  convienenice logic
-  WsiSlaveIfc #(12,32,4,8,1)    wsiS         <- mkWsiSlave;    // WSI-Slave  convienenice logic
-  WsiMasterIfc#(12,32,4,8,1)    wsiM         <- mkWsiMaster;   // WSI-Master convienenice logic
+  WsiSlaveIfc #(12,32,4,8,0)    wsiS         <- mkWsiSlave;    // WSI-Slave  convienenice logic
+  WsiMasterIfc#(12,32,4,8,0)    wsiM         <- mkWsiMaster;   // WSI-Master convienenice logic
   Reg#(Bit#(32))                biasValue    <- mkRegU;        // storage for the biasValue
   Reg#(Bit#(32))                controlReg   <- mkRegU;        // storage for the controlReg
 
@@ -29,7 +29,7 @@ module mkBiasWorker (BiasWorker4BIfc);
   
   // Each firing of this rule processes exactly one word and applies the biasValue...
   rule doMessagePush (wci.isOperating);
-    WsiReq#(12,32,4,8,1) r <- wsiS.reqGet.get;     // get the request from the slave-cosumer
+    WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;     // get the request from the slave-cosumer
     r.data = r.data + biasValue;                   // apply the biasValue to the data
     wsiM.reqPut.put(r);                            // put the request to the master-producer
   endrule
@@ -81,7 +81,7 @@ module mkBiasWorker (BiasWorker4BIfc);
 
 
   Wci_Es#(20)          wci_Es <- mkWciStoES(wci.slv);  // Convert the conventional to explicit 
-  Wsi_Es#(12,32,4,8,1) wsi_Es <- mkWsiStoES(wsiS.slv); // Convert the conventional to explicit 
+  Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv); // Convert the conventional to explicit 
 
   // Interfaces provided...
   interface wciS0 = wci_Es;

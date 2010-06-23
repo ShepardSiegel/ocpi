@@ -1,0 +1,19 @@
+verilog work "../../libsrc/hdl/ocpi/arSRLFIFO.v"
+verilog work "../../libsrc/hdl/ocpi/xilinx_v5_pcie_wrapper.v"
+
+verilog work "../../coregen/pcie-4243-v5-gtp-x8-125/pci_exp_8_lane_64b_ep.v
+
+verilog work "../../rtl/mkSMAdapter4B.v"
+verilog work "../../rtl/mkDelayWorker4B.v"
+verilog work "../../rtl/mkTLPSM.v"
+verilog work "../../rtl/mkTLPCM.v"
+verilog work "../../rtl/mkPktFork.v"
+verilog work "../../rtl/mkPktMerge.v"
+verilog work "../../rtl/mkOCCP.v"
+verilog work "../../rtl/mkOCDP.v"
+verilog work "../../rtl/mkOCInf.v"
+verilog work "../../rtl/mkOCApp.v"
+verilog work "../../rtl/mkCTop.v"
+
+verilog work "../../libsrc/hdl/ocpi/mkFTopV5.v"
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_v5.v"

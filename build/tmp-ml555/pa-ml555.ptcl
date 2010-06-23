@@ -1,0 +1,8 @@
+# pa-ml555.ptcl
+hdi::project new -name project_1 -dir {./project_1} -netlist {.} -search_path {{../../coregen/pcie-4243-v5-x8-125}}
+hdi::project setPart -name project_1 -part {xc5vlx50tff1136-1}
+hdi::floorplan new -name floorplan_1 -part {xc5vlx50tff1136-1} -project project_1
+hdi::pconst import -project project_1 -floorplan floorplan_1 -file {./ml555.ucf}
+hdi::floorplan importPlacement -floorplan floorplan_1 -project project_1 -file {./fpgaTop.ncd}
+hdi::timing import -name results_1 -project project_1 -floorplan floorplan_1 -file {./fpgaTop.twx}
+hdi::floorplan save -name floorplan_1 -project project_1

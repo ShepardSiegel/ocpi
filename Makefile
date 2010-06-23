@@ -14,6 +14,7 @@ OBJ       ?= obj
 RTL       ?= rtl
 BSV       ?= bsv
 
+OCAPP_S0  ?= OCApp_scenario0
 OCAPP_S1  ?= OCApp_scenario1
 OCAPP_S3a ?= OCApp_scenario3a
 
@@ -101,6 +102,16 @@ isim10: $(OBJ)
 
 	#@# test to be sure the word "PASSED" is in the log file
 	#@ if !(grep -c PASSED $(OBJ)/mk$(ITEST).runlog) then exit 2; fi
+
+######################################################################
+verilog_scenario0: $(OBJ)
+	
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSV):lib:+ \
+		$(BSV)/$(OCAPP_S0).bsv
+	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S0).v
 
 ######################################################################
 verilog_scenario1: $(OBJ)
