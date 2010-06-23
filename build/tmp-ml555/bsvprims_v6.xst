@@ -1,9 +1,0 @@
-run
--opt_level 1
--opt_mode speed
--ifn bsvprims.prj
--ifmt mixed
--ofmt NGC
--p xc6vlx240t-ff1156-1
--top onewire
--ofn onewire
