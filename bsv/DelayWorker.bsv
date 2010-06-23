@@ -475,7 +475,7 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgWtCount <= 0;
   mesgRdCount <= 0;
   dlyWordsStored.load(0);   // Initialize the number of (16B) words stored in memory
-  dlyReadCredit.load(1);    // Sets the maximum number of reads that can be inflight at once
+  dlyReadCredit.load(4);    // Sets the maximum number of reads that can be inflight at once
   dlyWAG  <= 0;             // Initialize the Write Address Generator accumulator
   dlyRAG  <= 0;             // Initialize the Read  Address Generator accumulator
   wci.ctlAck;
