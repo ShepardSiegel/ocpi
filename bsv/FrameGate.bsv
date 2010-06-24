@@ -117,25 +117,25 @@ endmodule
 
 typedef FrameGateIfc#(1) FrameGate4BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkFrameGate4B#(parameter Bit#(32) fgCtrlInit) (FrameGate4BIfc);
-  FrameGate4BIfc _a <- mkFrameGate(fgCtrlInit, True); return _a;
+module mkFrameGate4B#(parameter Bit#(32) fgCtrlInit, parameter Bool hasDebugLogic) (FrameGate4BIfc);
+  FrameGate4BIfc _a <- mkFrameGate(fgCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef FrameGateIfc#(2) FrameGate8BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkFrameGate8B#(parameter Bit#(32) fgCtrlInit) (FrameGate8BIfc);
-  FrameGate8BIfc _a <- mkFrameGate(fgCtrlInit, True); return _a;
+module mkFrameGate8B#(parameter Bit#(32) fgCtrlInit, parameter Bool hasDebugLogic) (FrameGate8BIfc);
+  FrameGate8BIfc _a <- mkFrameGate(fgCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef FrameGateIfc#(4) FrameGate16BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkFrameGate16B#(parameter Bit#(32) fgCtrlInit) (FrameGate16BIfc);
-  FrameGate16BIfc _a <- mkFrameGate(fgCtrlInit, True); return _a;
+module mkFrameGate16B#(parameter Bit#(32) fgCtrlInit, parameter Bool hasDebugLogic) (FrameGate16BIfc);
+  FrameGate16BIfc _a <- mkFrameGate(fgCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef FrameGateIfc#(8) FrameGate32BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkFrameGate32B#(parameter Bit#(32) fgCtrlInit) (FrameGate32BIfc);
-  FrameGate32BIfc _a <- mkFrameGate(fgCtrlInit, True); return _a;
+module mkFrameGate32B#(parameter Bit#(32) fgCtrlInit, parameter Bool hasDebugLogic) (FrameGate32BIfc);
+  FrameGate32BIfc _a <- mkFrameGate(fgCtrlInit, hasDebugLogic); return _a;
 endmodule
 

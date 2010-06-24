@@ -54,9 +54,8 @@ typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface PSDIfc;
   interface Wci_Es#(NwciAddr)        wciS0;    // Worker Control and Configuration 
-  interface Wsi_Es#(12,32,4,8,0)     wsiS1;    // WSI-S Stream Input
-  interface Wsi_Em#(12,32,4,8,0)     wsiM1;    // WSI-M Stream Output
-  //interface Wmi_Em#(14,12,32,0,4,32) wmiM;     // WSI-M Message Output
+  interface Wsi_Es#(12,32,4,8,0)     wsiS0;    // WSI-S Stream Input
+  interface Wsi_Em#(12,32,4,8,0)     wsiM0;    // WSI-M Stream Output
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
@@ -64,14 +63,12 @@ module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSD
 
   WciSlaveIfc #(NwciAddr)            wci        <- mkWciSlave;
   WsiSlaveIfc #(12,32,4,8,0)         wsiS       <- mkWsiSlave;
-  WsiMasterIfc#(12,32,4,8,0)         wsiM        <- mkWsiMaster;
-  //WmiMasterIfc#(14,12,32,0,4,32)     wmi        <- mkWmiMaster;
+  WsiMasterIfc#(12,32,4,8,0)         wsiM       <- mkWsiMaster;
   Reg#(Bit#(32))                     psdCtrl    <- mkReg(psdCtrlInit);
 
 rule operating_actions (wci.isOperating);
   wsiS.operate();
   wsiM.operate();
-  //wmiM.operate();
 endrule
 
 rule wsipass_doMessagePush (wci.isOperating);
@@ -131,8 +128,8 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
   //Wmi_Em#(14,12,32,0,4,32) wmi_Em <- mkWmiMtoEm(wmi.mas);
 
   interface wciS0  = wci_Es;
-  interface wsiS1  = wsi_Es;
-  interface wsiM1 = toWsiEM(wsiM.mas); 
+  interface wsiS0  = wsi_Es;
+  interface wsiM0 = toWsiEM(wsiM.mas); 
   //interface wmiM   = wmi_Em;
 endmodule
 

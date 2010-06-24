@@ -20,7 +20,7 @@ interface SMAdapterIfc#(numeric type ndw);
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiS1;
 endinterface 
 
-module mkSMAdapter#(parameter Bit#(32) smaCtrlInit) (SMAdapterIfc#(ndw))
+module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapterIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe));
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
@@ -273,17 +273,17 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr[7:0]) matches
      'h00 : rdat = pack(smaCtrl);
-     'h04 : rdat = pack(mesgCount);
-     'h08 : rdat = pack(abortCount);
-     'h10 : rdat = pack(thisMesg);
-     'h14 : rdat = pack(lastMesg);
-     'h18 : rdat = extend({pack(wsiS.status),pack(wsiM.status)});
-     'h20 : rdat = pack(wsiS.extStatus.pMesgCount);
-     'h24 : rdat = pack(wsiS.extStatus.iMesgCount);
-     'h28 : rdat = pack(wsiS.extStatus.tBusyCount);
-     'h2C : rdat = pack(wsiM.extStatus.pMesgCount);
-     'h30 : rdat = pack(wsiM.extStatus.iMesgCount);
-     'h34 : rdat = pack(wsiM.extStatus.tBusyCount);
+     'h04 : rdat = (!hasDebugLogic) ? 0 : pack(mesgCount);
+     'h08 : rdat = (!hasDebugLogic) ? 0 : pack(abortCount);
+     'h10 : rdat = (!hasDebugLogic) ? 0 : pack(thisMesg);
+     'h14 : rdat = (!hasDebugLogic) ? 0 : pack(lastMesg);
+     'h18 : rdat = (!hasDebugLogic) ? 0 : extend({pack(wsiS.status),pack(wsiM.status)});
+     'h20 : rdat = (!hasDebugLogic) ? 0 : pack(wsiS.extStatus.pMesgCount);
+     'h24 : rdat = (!hasDebugLogic) ? 0 : pack(wsiS.extStatus.iMesgCount);
+     'h28 : rdat = (!hasDebugLogic) ? 0 : pack(wsiS.extStatus.tBusyCount);
+     'h2C : rdat = (!hasDebugLogic) ? 0 : pack(wsiM.extStatus.pMesgCount);
+     'h30 : rdat = (!hasDebugLogic) ? 0 : pack(wsiM.extStatus.iMesgCount);
+     'h34 : rdat = (!hasDebugLogic) ? 0 : pack(wsiM.extStatus.tBusyCount);
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      //$time, wciReq.addr, wciReq.byteEn, rdat);
@@ -319,25 +319,25 @@ endmodule
 
 typedef SMAdapterIfc#(1) SMAdapter4BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkSMAdapter4B#(parameter Bit#(32) smaCtrlInit) (SMAdapter4BIfc);
-  SMAdapter4BIfc _a <- mkSMAdapter(smaCtrlInit); return _a;
+module mkSMAdapter4B#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapter4BIfc);
+  SMAdapter4BIfc _a <- mkSMAdapter(smaCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef SMAdapterIfc#(2) SMAdapter8BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkSMAdapter8B#(parameter Bit#(32) smaCtrlInit) (SMAdapter8BIfc);
-  SMAdapter8BIfc _a <- mkSMAdapter(smaCtrlInit); return _a;
+module mkSMAdapter8B#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapter8BIfc);
+  SMAdapter8BIfc _a <- mkSMAdapter(smaCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef SMAdapterIfc#(4) SMAdapter16BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkSMAdapter16B#(parameter Bit#(32) smaCtrlInit) (SMAdapter16BIfc);
-  SMAdapter16BIfc _a <- mkSMAdapter(smaCtrlInit); return _a;
+module mkSMAdapter16B#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapter16BIfc);
+  SMAdapter16BIfc _a <- mkSMAdapter(smaCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef SMAdapterIfc#(8) SMAdapter32BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkSMAdapter32B#(parameter Bit#(32) smaCtrlInit) (SMAdapter32BIfc);
-  SMAdapter32BIfc _a <- mkSMAdapter(smaCtrlInit); return _a;
+module mkSMAdapter32B#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapter32BIfc);
+  SMAdapter32BIfc _a <- mkSMAdapter(smaCtrlInit, hasDebugLogic); return _a;
 endmodule
 

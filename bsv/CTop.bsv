@@ -36,10 +36,12 @@ endinterface
 (* synthesize *)
 module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc);
 
+  Bool hasDebugLogic = True;
+
   OCInfIfc#(Nwci_ctop) inf  <- mkOCInf(pciDevice, sys0_clk, sys0_rst);             // Instance the Infrastructre
   Vector#(iNwci_ctop, Reset) resetVec = newVector;                                 // Vector of WCI Resets
   for (Integer i=0; i<iNwci_app; i=i+1) resetVec[i] = inf.wci_m[i].mReset_n;       // Reset Vector for the Application
-  OCAppIfc#(Nwci_app,Nwmi,Nwmemi)  app  <- mkOCApp(resetVec);                      // Instance the Application
+  OCAppIfc#(Nwci_app,Nwmi,Nwmemi)  app  <- mkOCApp(resetVec, hasDebugLogic);       // Instance the Application
   for (Integer i=0; i<iNwci_app; i=i+1) mkConnection(inf.wci_m[i], app.wci_s[i]);  // Connect WCI between INF/APP
   Vector#(Nwci_ftop, Wci_Em#(20)) wci_c2f = takeAt(iNwci_app, inf.wci_m);          // Take the unused WCI for FTop
 

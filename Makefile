@@ -17,6 +17,7 @@ BSV       ?= bsv
 OCAPP_S0  ?= OCApp_scenario0
 OCAPP_S1  ?= OCApp_scenario1
 OCAPP_S3a ?= OCApp_scenario3a
+OCAPP_S3b ?= OCApp_scenario3b
 
 VLG_HDL   = libsrc/hdl/ocpi
 BUILD_HDL = scripts/buildhdl
@@ -105,33 +106,24 @@ isim10: $(OBJ)
 
 ######################################################################
 verilog_scenario0: $(OBJ)
-	
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
-		-aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(OCAPP_S0).bsv
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S0).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S0).v
 
-######################################################################
 verilog_scenario1: $(OBJ)
-	
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
-		-aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(OCAPP_S1).bsv
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S1).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S1).v
 
-######################################################################
 verilog_scenario3a: $(OBJ)
-	
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
-		-aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(OCAPP_S3a).bsv
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S3a).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S3a).v
+
+verilog_scenario3b: $(OBJ)
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S3b).bsv
+	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S3b).v
 
 ######################################################################
 verilog_s6: $(OBJ)

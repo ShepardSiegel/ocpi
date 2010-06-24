@@ -25,7 +25,7 @@ interface DelayWorkerIfc#(numeric type ndw);
   interface WmemiEM16B                                  wmemiM;   // WMI Memory
 endinterface 
 
-module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit) (DelayWorkerIfc#(ndw))
+module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLogic) (DelayWorkerIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)));
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
@@ -435,8 +435,7 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
      'h04 : dlyHoldoffBytes  <= unpack(wciReq.data);
      'h08 : dlyHoldoffCycles <= unpack(wciReq.data);
    endcase
-   //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
-     //$time, wciReq.addr, wciReq.byteEn, wciReq.data);
+   //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
 endrule
 
@@ -446,27 +445,26 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h00 : rdat = pack(dlyCtrl);
      'h04 : rdat = pack(dlyHoldoffBytes);
      'h08 : rdat = pack(dlyHoldoffCycles);
-     'h0C : rdat = pack(mesgWtCount);
-     'h10 : rdat = pack(mesgRdCount);
-     'h14 : rdat = pack(bytesWritten);
-     'h18 : rdat = extend({pack(wmemi.status),pack(wsiS.status),pack(wsiM.status)});
-     'h1C : rdat = 0;
-     'h20 : rdat = pack(wsiS.extStatus.pMesgCount);
-     'h24 : rdat = pack(wsiS.extStatus.iMesgCount);
-     'h28 : rdat = pack(wsiS.extStatus.tBusyCount);
-     'h2C : rdat = pack(wsiM.extStatus.pMesgCount);
-     'h30 : rdat = pack(wsiM.extStatus.iMesgCount);
-     'h34 : rdat = pack(wsiM.extStatus.tBusyCount);
-     'h38 : rdat = wmemiWrReq;
-     'h3C : rdat = wmemiRdReq;
-     'h40 : rdat = wmemiRdResp;
-     'h44 : rdat = extend(pack(dlyWordsStored));
-     'h48 : rdat = extend(pack(dlyReadCredit));
-     'h4C : rdat = extend(pack(dlyWAG));
-     'h50 : rdat = extend(pack(dlyRAG));
+     'h0C : rdat = (!hasDebugLogic) ? 0 : pack(mesgWtCount);
+     'h10 : rdat = (!hasDebugLogic) ? 0 : pack(mesgRdCount);
+     'h14 : rdat = (!hasDebugLogic) ? 0 : pack(bytesWritten);
+     'h18 : rdat = (!hasDebugLogic) ? 0 : extend({pack(wmemi.status),pack(wsiS.status),pack(wsiM.status)});
+     'h1C : rdat = (!hasDebugLogic) ? 0 : 0;
+     'h20 : rdat = (!hasDebugLogic) ? 0 : pack(wsiS.extStatus.pMesgCount);
+     'h24 : rdat = (!hasDebugLogic) ? 0 : pack(wsiS.extStatus.iMesgCount);
+     'h28 : rdat = (!hasDebugLogic) ? 0 : pack(wsiS.extStatus.tBusyCount);
+     'h2C : rdat = (!hasDebugLogic) ? 0 : pack(wsiM.extStatus.pMesgCount);
+     'h30 : rdat = (!hasDebugLogic) ? 0 : pack(wsiM.extStatus.iMesgCount);
+     'h34 : rdat = (!hasDebugLogic) ? 0 : pack(wsiM.extStatus.tBusyCount);
+     'h38 : rdat = (!hasDebugLogic) ? 0 : wmemiWrReq;
+     'h3C : rdat = (!hasDebugLogic) ? 0 : wmemiRdReq;
+     'h40 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp;
+     'h44 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyWordsStored));
+     'h48 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyReadCredit));
+     'h4C : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyWAG));
+     'h50 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyRAG));
    endcase
-   //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
-     //$time, wciReq.addr, wciReq.byteEn, rdat);
+   //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
 endrule
 
@@ -499,25 +497,25 @@ endmodule
 
 typedef DelayWorkerIfc#(1) DelayWorker4BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDelayWorker4B#(parameter Bit#(32) dlyCtrlInit) (DelayWorker4BIfc);
-  DelayWorker4BIfc _a <- mkDelayWorker(dlyCtrlInit); return _a;
+module mkDelayWorker4B#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLogic) (DelayWorker4BIfc);
+  DelayWorker4BIfc _a <- mkDelayWorker(dlyCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef DelayWorkerIfc#(2) DelayWorker8BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDelayWorker8B#(parameter Bit#(32) dlyCtrlInit) (DelayWorker8BIfc);
-  DelayWorker8BIfc _a <- mkDelayWorker(dlyCtrlInit); return _a;
+module mkDelayWorker8B#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLogic) (DelayWorker8BIfc);
+  DelayWorker8BIfc _a <- mkDelayWorker(dlyCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef DelayWorkerIfc#(4) DelayWorker16BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDelayWorker16B#(parameter Bit#(32) dlyCtrlInit) (DelayWorker16BIfc);
-  DelayWorker16BIfc _a <- mkDelayWorker(dlyCtrlInit); return _a;
+module mkDelayWorker16B#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLogic) (DelayWorker16BIfc);
+  DelayWorker16BIfc _a <- mkDelayWorker(dlyCtrlInit, hasDebugLogic); return _a;
 endmodule
 
 typedef DelayWorkerIfc#(8) DelayWorker32BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDelayWorker32B#(parameter Bit#(32) dlyCtrlInit) (DelayWorker32BIfc);
-  DelayWorker32BIfc _a <- mkDelayWorker(dlyCtrlInit); return _a;
+module mkDelayWorker32B#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLogic) (DelayWorker32BIfc);
+  DelayWorker32BIfc _a <- mkDelayWorker(dlyCtrlInit, hasDebugLogic); return _a;
 endmodule
 
