@@ -45,6 +45,7 @@ Cascade of Operations:
 */
 
 import OCWip::*;
+import FFT::*;
 
 import Alias::*;
 import Connectable::*;
@@ -66,12 +67,14 @@ module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSD
   WsiMasterIfc#(12,32,4,8,0)         wsiM       <- mkWsiMaster;
   Reg#(Bit#(32))                     psdCtrl    <- mkReg(psdCtrlInit);
 
+  Bool psdPass  = (psdCtrl[3:0]==4'h0);
+
 rule operating_actions (wci.isOperating);
   wsiS.operate();
   wsiM.operate();
 endrule
 
-rule wsipass_doMessagePush (wci.isOperating);
+rule psdpass_doMessagePush (wci.isOperating && psdPass);
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   wsiM.reqPut.put(r);
 endrule
@@ -125,11 +128,8 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
   Wci_Es#(NwciAddr)        wci_Es    <- mkWciStoES(wci.slv); 
   Wsi_Es#(12,32,4,8,0)     wsi_Es    <- mkWsiStoES(wsiS.slv);
-  //Wmi_Em#(14,12,32,0,4,32) wmi_Em <- mkWmiMtoEm(wmi.mas);
 
   interface wciS0  = wci_Es;
   interface wsiS0  = wsi_Es;
   interface wsiM0 = toWsiEM(wsiM.mas); 
-  //interface wmiM   = wmi_Em;
 endmodule
-

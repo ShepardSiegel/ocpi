@@ -3,7 +3,6 @@
 
 package FFT;
 
-import BRAM            ::*;
 import Clocks          ::*;
 import Complex         ::*;
 import ClientServer    ::*;
@@ -16,226 +15,61 @@ import SpecialFIFOs    ::*;
 import Vector          ::*;
 import XilinxCells     ::*;
 
-
-typedef struct {
-  Bool      isRead; // request is read
-  Bit#(na)  addr;   // memory address
- } DramReq#(numeric type na) deriving (Bits, Eq);
-
-typedef struct {
-  Bool      isLast; // request is last of burst
-  Bit#(nbe) be;     // byte-lane write enables (active-high)
-  Bit#(nd)  data;   // write data
- } DramWrite#(numeric type nd, numeric type nbe) deriving (Bits, Eq);
-
-typedef struct {
-  Bool      isLast; // request is last of burst
-  Bit#(nd)  data;   // read data
- } DramRead#(numeric type nd) deriving (Bits, Eq);
-
-typedef struct {
-  Bool       isRead; // request is read
-  Bit#(32)   addr;   // memory address
-  Bit#(16)   be;     // byte-lane write enables (active-high)
-  Bit#(128)  data;   // write data (16B)
- } DramReq16B deriving (Bits, Eq);
-
-
 // Interfaces...
 
-interface FFT_CONTROL;
-  method Action              fwd      (Bool i);
-  method Action              scale    (Bit#(12) i);
-endinterface: FFT_CONTROL
-
 (* always_enabled, always_ready *)
-interface DRAM_DEBUG#(numeric type dqsWidth, numeric type dqsCntWidth);
-  method Bit#(dqsWidth)            wl_dqs_inverted;
-  method Bit#(TMul#(2,dqsWidth))   wr_calib_clk_delay;
-  method Bit#(TMul#(5,dqsWidth))   wl_odelay_dqs_tap_cnt;
-  method Bit#(TMul#(5,dqsWidth))   wl_odelay_dq_tap_cnt;
-  method Bit#(2)                   rdlvl_done;
-  method Bit#(2)                   rdlvl_err;
-  method Bit#(TMul#(5,dqsWidth))   cpt_tap_cnt;
-  method Bit#(TMul#(5,dqsWidth))   cpt_first_edge_cnt;
-  method Bit#(TMul#(5,dqsWidth))   cpt_second_edge_cnt;
-  method Bit#(TMul#(3,dqsWidth))   rd_bitslip_cnt;
-  method Bit#(TMul#(2,dqsWidth))   rd_clkdly_cnt;
-  method Bit#(5)                   rd_active_dly;
-  method Action                    pd_off             (Bit#(1) i);
-  method Action                    pd_maintain_off    (Bit#(1) i);
-  method Action                    pd_maintain_0_only (Bit#(1) i);
-  method Action                    ocb_mon_off        (Bit#(1) i);
-  method Action                    inc_cpt            (Bit#(1) i);
-  method Action                    dec_cpt            (Bit#(1) i);
-  method Action                    inc_rd_dqs         (Bit#(1) i);
-  method Action                    dec_rd_dqs         (Bit#(1) i);
-  method Action                    inc_dec_sel        (Bit#(dqsCntWidth) i);
-  method Bit#(TMul#(5,dqsWidth))   dqs_p_tap_cnt;
-  method Bit#(TMul#(5,dqsWidth))   dqs_n_tap_cnt;
-  method Bit#(TMul#(5,dqsWidth))   dq_tap_cnt;
-  method Bit#(TMul#(4,dqsWidth))   rddata;
-endinterface: DRAM_DEBUG
-typedef DRAM_DEBUG#(8,3) DRAM_DBG_32B;
+interface FFTvIfc;
+  method Action   fwd      (Bit#(1)  i);
+  method Action   fwd_we   (Bit#(1)  i);
+  method Action   scale    (Bit#(12) i);
+  method Action   scale_we (Bit#(1)  i);
+  method Action   start    (Bit#(1)  i);
+  method Bit#(1)  readyForData;
+  method Bit#(1)  dataValid;
+  method Bit#(1)  edone;
+  method Bit#(1)  done;
+  method Bit#(1)  busy;
+  method Action   xnRe    (Bit#(16) i);
+  method Action   xnIm    (Bit#(16) i);
+  method Bit#(12) xnIndex;
+  method Bit#(16) xkRe;
+  method Bit#(16) xkIm;
+  method Bit#(12) xkIndex;
+endinterface: FFTvIfc
 
-
-// 22 DDR2 V5 Specific MIG Debug Methods...
-(* always_enabled, always_ready *)
-interface DRAM_DEBUG_DDR2_V5#(numeric type dqsWidth, numeric type dqsPerDqs);
-  method Bit#(4)                   calib_done;
-  method Bit#(4)                   calib_err;
-  method Bit#(TMul#(6,dqsWidth))   calib_dq_tap_cnt;
-  method Bit#(TMul#(6,dqsWidth))   calib_dqs_tap_cnt;
-  method Bit#(TMul#(6,dqsWidth))   calib_gate_tap_cnt;
-  method Bit#(dqsWidth)            calib_rd_data_sel;
-  method Bit#(TMul#(5,dqsWidth))   calib_rden_delay;
-  method Bit#(TMul#(5,dqsWidth))   calib_gate_delay;
-  method Action                    idel_up_all             (Bit#(1) i);
-  method Action                    idel_down_all           (Bit#(1) i);
-  method Action                    sel_all_idel_dq         (Bit#(1) i);
-  method Action                    sel_idel_dq             (Bit#(TLog#(TMul#(dqsWidth,dqsPerDqs))) i);
-  method Action                    idel_up_dq              (Bit#(1) i);
-  method Action                    idel_down_dq            (Bit#(1) i);
-  method Action                    sel_all_idel_dqs        (Bit#(1) i);
-  method Action                    sel_idel_dqs            (Bit#(TLog#(dqsWidth)) i);
-  method Action                    idel_up_dqs             (Bit#(1) i);
-  method Action                    idel_down_dqs           (Bit#(1) i);
-  method Action                    sel_all_idel_gate       (Bit#(1) i);
-  method Action                    sel_idel_gate           (Bit#(TLog#(dqsWidth)) i);
-  method Action                    idel_up_gate            (Bit#(1) i);
-  method Action                    idel_down_gate          (Bit#(1) i);
-endinterface: DRAM_DEBUG_DDR2_V5
-typedef DRAM_DEBUG_DDR2_V5#(4,8) DRAM_DBG_V5S;
-
-
-(* always_enabled, always_ready *)
-interface DRAM_INF#(numeric type bmWidth);
-  method Bit#(1)             pll_lock_ck_fb;
-  method Action              rst_pll_ck_fb;
-  method Bit#(bmWidth)       bank_mach_next;
-  method Bit#(1)             ocb_mon_PSEN;
-  method Bit#(1)             ocb_mon_PSINCDEC;
-  method Bit#(1)             dfi_init_complete;
-  method Bit#(4)             app_ecc_multiple_err;
-  interface Clock            clk;
-  interface Clock            clk_mem;
-  interface Clock            clk_wr_i;
-  interface Clock            clk_wr_o;
-  method Action              ocb_mon_PSDONE (Bit#(1) i);
-  interface Reset            rst;
-endinterface: DRAM_INF
-
-interface DramControllerV5Ifc;
-  interface DDR2_32       dram;
-  interface DRAM_APP_8B   app;
-  interface DRAM_DBG_V5S  dbg;       // V5-SX
-  interface Clock         uclk;      // user-facing clock
-  interface Reset         urst_n;    // user-facing reset
-endinterface: DramControllerV5Ifc
-
-interface DRAM_USR16B;                             // 16B Usr interface
-  method    Bool                   initComplete;   // memory server ready
-  method    Bool                   appFull;
-  method    Bool                   wdfFull;
-  method    Bool                   firBeat;
-  method    Bool                   secBeat;
-  interface Put#(DramReq16B)       request;        // 16B dram request
-  interface Get#(Bit#(128))        response;       // 16B read data response
-endinterface
-
-interface DramControllerUiV5Ifc;
-  interface DRAM_USR16B          usr;       // user interface
-  interface DDR2_32              dram;      // dram pins
-  interface DRAM_DBG_V5S         dbg;       // debug port
-  interface Clock                uclk;      // user-facing clock
-  interface Reset                urst_n;    // user-facing reset
-  method Bit#(16) reqCount;
-endinterface: DramControllerUiV5Ifc
 
 import "BVI" xfft_v7_1 = 
-module vMkV5DDR2#(Clock sys0_clk, Clock mem_clk)(DramControllerV5Ifc);
+module vMkFFT (FFTvIfc);
 
-  default_clock clk();
-  default_reset rst(sys_rst_n); 
+  default_clock clk   (clk);
+  default_reset rst_n (no_reset); 
 
-  input_clock (clk_ref) = sys0_clk;  // 200 MHz Stable Source feeding IODELAY CONTROL LOGIC
-  input_clock (clk_sys) = mem_clk;   // 300~200 MHz Clock feeding X0Y9 MMCM
+  // Action methods methodName (VerilogPort)...
+  method fwd      (fwd_inv)       enable((*inhigh*)ena1);
+  method fwd_we   (fwd_inv_we)    enable((*inhigh*)ena2);
+  method scale    (scale_sch)     enable((*inhigh*)ena3);
+  method scale_we (scale_sch_we)  enable((*inhigh*)ena4);
+  method start    (start)         enable((*inhigh*)ena5);
+  method xnRe     (xn_re)         enable((*inhigh*)ena6);
+  method xnIm     (xn_im)         enable((*inhigh*)ena7);
+  // Value methods verilogPort methodName...
+  method rfd      readyForData;
+  method dv       dataValid;
+  method edone    edone;
+  method done     done;
+  method busy     busy;
+  method xn_index xnIndex;
+  method xk_re    xkRe;
+  method xk_im    xkIm;
+  method xk_index xkIndex;
 
-  output_clock    uclk     (tb_clk);
-  output_reset    urst_n   (tb_rst_n) clocked_by (uclk); 
+  // schedule ()
+  //  CF
+  //  ()
 
-  interface DDR2_32 dram;
-    //output_clock clk(clk_sys);
-    //output_reset rst(sys_rst);
-    ifc_inout  io_dq(ddr2_dq)       clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_addr     addr      clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_ba       ba        clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_ras_n    ras_n     clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_cas_n    cas_n     clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_we_n     we_n      clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_cs_n     cs_n      clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_odt      odt       clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_cke      cke       clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_dm       dm        clocked_by(mem_clk) reset_by(rst);
-    ifc_inout  io_dqs_p(ddr2_dqs_p) clocked_by(mem_clk) reset_by(rst);
-    ifc_inout  io_dqs_n(ddr2_dqs_n) clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_ck_p     ck_p      clocked_by(mem_clk) reset_by(rst);
-    method  ddr2_ck_n     ck_n      clocked_by(mem_clk) reset_by(rst);
-  endinterface: dram
+endmodule: vMkFFT
 
-  interface DRAM_APP_32B app;
-    method                    cmd      (app_cmd)       enable((*inhigh*)ignore1)  clocked_by(uclk) reset_by(urst_n);
-    method                    en       ()              enable(app_af_wren)        clocked_by(uclk) reset_by(urst_n);
-    method app_af_afull       full                                                clocked_by(uclk) reset_by(urst_n);
-    method                    addr     (app_addr)      enable((*inhigh*)ignore2)  clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_wren ()              enable(app_wf_wren)        clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_data (app_data)      enable((*inhigh*)ignore3)  clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_mask (app_mask)      enable((*inhigh*)ignore4)  clocked_by(uclk) reset_by(urst_n);
-    method app_wf_afull       wdf_full                                            clocked_by(uclk) reset_by(urst_n);
-    method app_rd_data        rd_data                                             clocked_by(uclk) reset_by(urst_n);
-    method app_rd_data_valid  rd_data_valid                                       clocked_by(uclk) reset_by(urst_n);
-    method phy_init_done      init_complete                                       clocked_by(uclk) reset_by(urst_n);
-  endinterface: app
-
-  interface DRAM_DBG_V5S dbg;
-    // Value methods verilogPort methodName...
-    method dbg_calib_done             calib_done                  clocked_by(uclk) reset_by(urst_n);
-    method dbg_calib_err              calib_err                   clocked_by(uclk) reset_by(urst_n);
-    method dbg_calib_dq_tap_cnt       calib_dq_tap_cnt            clocked_by(uclk) reset_by(urst_n);
-    method dbg_calib_dqs_tap_cnt      calib_dqs_tap_cnt           clocked_by(uclk) reset_by(urst_n);
-    method dbg_calib_gate_tap_cnt     calib_gate_tap_cnt          clocked_by(uclk) reset_by(urst_n);
-    method dbg_calib_rd_data_sel      calib_rd_data_sel           clocked_by(uclk) reset_by(urst_n);
-    method dbg_calib_rden_delay       calib_rden_delay            clocked_by(uclk) reset_by(urst_n);
-    method dbg_calib_gate_delay       calib_gate_delay            clocked_by(uclk) reset_by(urst_n);
-    // Action methods methodName (VerilogPort)...
-    method idel_up_all        (dbg_idel_up_all)          enable((*inhigh*)enb1) clocked_by(uclk) reset_by(urst_n);
-    method idel_down_all      (dbg_idel_down_all)        enable((*inhigh*)enb2) clocked_by(uclk) reset_by(urst_n);
-    method sel_all_idel_dq    (dbg_sel_all_idel_dq)      enable((*inhigh*)enb3) clocked_by(uclk) reset_by(urst_n);
-    method sel_idel_dq        (dbg_sel_idel_dq)          enable((*inhigh*)enb4) clocked_by(uclk) reset_by(urst_n);
-    method idel_up_dq         (dbg_idel_up_dq)           enable((*inhigh*)enb5) clocked_by(uclk) reset_by(urst_n);
-    method idel_down_dq       (dbg_idel_down_dq)         enable((*inhigh*)enb6) clocked_by(uclk) reset_by(urst_n);
-    method sel_all_idel_dqs   (dbg_sel_all_idel_dqs)     enable((*inhigh*)enb7) clocked_by(uclk) reset_by(urst_n);
-    method sel_idel_dqs       (dbg_sel_idel_dqs)         enable((*inhigh*)enb8) clocked_by(uclk) reset_by(urst_n);
-    method idel_up_dqs        (dbg_idel_up_dqs)          enable((*inhigh*)enb9) clocked_by(uclk) reset_by(urst_n);
-    method idel_down_dqs      (dbg_idel_down_dqs)        enable((*inhigh*)enba) clocked_by(uclk) reset_by(urst_n);
-    method sel_all_idel_gate  (dbg_sel_all_idel_gate)    enable((*inhigh*)enbb) clocked_by(uclk) reset_by(urst_n);
-    method sel_idel_gate      (dbg_sel_idel_gate)        enable((*inhigh*)enbc) clocked_by(uclk) reset_by(urst_n);
-    method idel_up_gate       (dbg_idel_up_gate )        enable((*inhigh*)enbd) clocked_by(uclk) reset_by(urst_n);
-    method idel_down_gate     (dbg_idel_down_gate)       enable((*inhigh*)enbe) clocked_by(uclk) reset_by(urst_n);
-  endinterface: dbg
-
-  //TODO: Make conflict free all..
-   schedule (
-   dram_addr, dram_ba, dram_ras_n, dram_cas_n, dram_we_n, dram_cs_n, dram_odt, dram_cke, dram_dm, dram_ck_p, dram_ck_n,
-   app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_full, app_wdf_full, app_rd_data, app_rd_data_valid, app_init_complete, 
-   dbg_calib_done, dbg_calib_err, dbg_calib_dq_tap_cnt, dbg_calib_dqs_tap_cnt, dbg_calib_gate_tap_cnt, dbg_calib_rd_data_sel, dbg_calib_rden_delay, dbg_calib_gate_delay, dbg_idel_up_all, dbg_idel_down_all, dbg_sel_all_idel_dq, dbg_sel_idel_dq, dbg_idel_up_dq, dbg_idel_down_dq, dbg_sel_all_idel_dqs, dbg_sel_idel_dqs, dbg_idel_up_dqs, dbg_idel_down_dqs, dbg_sel_all_idel_gate, dbg_sel_idel_gate, dbg_idel_up_gate, dbg_idel_down_gate)
-    CF
-    ( dram_addr, dram_ba, dram_ras_n, dram_cas_n, dram_we_n, dram_cs_n, dram_odt, dram_cke, dram_dm, dram_ck_p, dram_ck_n,
-    app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_full, app_wdf_full, app_rd_data, app_rd_data_valid, app_init_complete, 
-      dbg_calib_done, dbg_calib_err, dbg_calib_dq_tap_cnt, dbg_calib_dqs_tap_cnt, dbg_calib_gate_tap_cnt, dbg_calib_rd_data_sel, dbg_calib_rden_delay, dbg_calib_gate_delay, dbg_idel_up_all, dbg_idel_down_all, dbg_sel_all_idel_dq, dbg_sel_idel_dq, dbg_idel_up_dq, dbg_idel_down_dq, dbg_sel_all_idel_dqs, dbg_sel_idel_dqs, dbg_idel_up_dqs, dbg_idel_down_dqs, dbg_sel_all_idel_gate, dbg_sel_idel_gate, dbg_idel_up_gate, dbg_idel_down_gate );
-
-endmodule: vMkV5DDR2
-
+/*
 module mkDramControllerV5#(Clock sys0_clk, Clock mem_clk) (DramControllerV5Ifc);
   Clock                 clk           <-  exposeCurrentClock;
   Reset                 rst_n         <-  exposeCurrentReset;
@@ -336,5 +170,6 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   interface Reset          urst_n  = memc.urst_n;
   method Bit#(16) reqCount = requestCount;
 endmodule: mkDramControllerV5Ui
+*/
 
 endpackage: FFT
