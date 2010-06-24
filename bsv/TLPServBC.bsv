@@ -79,20 +79,14 @@ typedef union tagged {
 
 module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(20) wci) (TLPServBCIfc);
 
-  Reg#(Bool)               inIgnorePkt         <- mkRegU;
-  /*
-  FIFOF#(PTW16)            inF                 <- mkFIFOF;
-  FIFOF#(PTW16)            outF                <- mkFIFOF;
-  FIFO#(MemReqPacket)      mReqF               <- mkFIFO;
-  FIFO#(MemRespPacket)     mRespF              <- mkFIFO;
-  FIFO#(ReadReq)           readReq             <- mkFIFO;
-  */
-  FIFOF#(PTW16)            inF                 <- mkSRLFIFO(4);
-  FIFOF#(PTW16)            outF                <- mkSRLFIFO(4);
-  FIFOF#(MemReqPacket)     mReqF               <- mkSRLFIFO(4);
-  FIFOF#(MemRespPacket)    mRespF              <- mkSRLFIFO(4);
-  FIFOF#(ReadReq)          readReq             <- mkSRLFIFO(4);
+  Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
+  FIFOF#(PTW16)            inF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(PTW16)            outF                <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(MemReqPacket)     mReqF               <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(MemRespPacket)    mRespF              <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(ReadReq)          readReq             <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
 
+  Reg#(Bool)               inIgnorePkt         <- mkRegU;
   Reg#(Bit#(10))           outDwRemain         <- mkRegU;
   Reg#(Bit#(12))           writeDWAddr         <- mkRegU;
   Reg#(Bit#(10))           writeRemainDWLen    <- mkRegU;
