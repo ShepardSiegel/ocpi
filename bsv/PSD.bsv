@@ -48,6 +48,7 @@ import OCWip::*;
 import FFT::*;
 
 import Alias::*;
+import Complex::*;
 import Connectable::*;
 import GetPut::*;
 
@@ -62,24 +63,48 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSDIfc);
 
-  WciSlaveIfc #(NwciAddr)            wci        <- mkWciSlave;
-  WsiSlaveIfc #(12,32,4,8,0)         wsiS       <- mkWsiSlave;
-  WsiMasterIfc#(12,32,4,8,0)         wsiM       <- mkWsiMaster;
-  Reg#(Bit#(32))                     psdCtrl    <- mkReg(psdCtrlInit);
+  WciSlaveIfc #(NwciAddr)            wci         <- mkWciSlave;
+  WsiSlaveIfc #(12,32,4,8,0)         wsiS        <- mkWsiSlave;
+  WsiMasterIfc#(12,32,4,8,0)         wsiM        <- mkWsiMaster;
+  Reg#(Bit#(32))                     psdCtrl     <- mkReg(psdCtrlInit);
+  FFTIfc                             fft         <- mkFFT;
+  Reg#(UInt#(16))                    unrollCnt   <- mkReg(0);
 
   Bool psdPass  = (psdCtrl[3:0]==4'h0);
+  Bool psdFFT   = (psdCtrl[3:0]==4'h1);
 
 rule operating_actions (wci.isOperating);
   wsiS.operate();
   wsiM.operate();
 endrule
 
-rule psdpass_doMessagePush (wci.isOperating && psdPass);
+rule psdPass_doMessagePush (wci.isOperating && psdPass);
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   wsiM.reqPut.put(r);
 endrule
 
+rule psdFFT_doIngress (wci.isOperating && psdFFT);
+  WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
+  let xn = (Valid (Complex{rel:truncate(r.data), img:0}));
+  fft.putXn.put(xn);
+endrule
 
+rule psdFFT_doEgress (wci.isOperating && psdFFT);
+  CmpMaybe xk <- fft.getXk.get;
+  Bit#(16) xkRel = fromMaybe(?,xk).rel;
+  Bit#(16) xkImg = fromMaybe(?,xk).img;
+  Bool lastWord = (unrollCnt == 1);
+  if (isValid(xk)) begin
+    wsiM.reqPut.put (WsiReq    {cmd  : WR ,
+                             reqLast : lastWord,
+                             reqInfo : 0,
+                        burstPrecise : True,
+                         burstLength : 1024, // 4B words
+                               data  : {xkRel, xkImg},
+                             byteEn  : '1,
+                           dataInfo  : '0 });
+  end
+endrule
 
 
 

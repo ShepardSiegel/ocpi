@@ -61,15 +61,15 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr[7:0]) matches
      'h04 : rdat = pack(splitCtrl);
-     'h1C : rdat = (!hasDebugLogic) ? 0 : {pack(wsi_S0.status),pack(wsi_S1.status),pack(wsi_M0.status),pack(wsi_M1.status)};
-     'h20 : rdat = (!hasDebugLogic) ? 0 : pack(wsi_S0.extStatus.pMesgCount);
-     'h24 : rdat = (!hasDebugLogic) ? 0 : pack(wsi_S0.extStatus.iMesgCount);
-     'h28 : rdat = (!hasDebugLogic) ? 0 : pack(wsi_S0.extStatus.pMesgCount);
-     'h2C : rdat = (!hasDebugLogic) ? 0 : pack(wsi_S1.extStatus.iMesgCount);
-     'h30 : rdat = (!hasDebugLogic) ? 0 : pack(wsi_M0.extStatus.pMesgCount);
-     'h34 : rdat = (!hasDebugLogic) ? 0 : pack(wsi_M0.extStatus.iMesgCount);
-     'h38 : rdat = (!hasDebugLogic) ? 0 : pack(wsi_M1.extStatus.pMesgCount);
-     'h3C : rdat = (!hasDebugLogic) ? 0 : pack(wsi_M1.extStatus.iMesgCount);
+     'h1C : rdat = !hasDebugLogic ? 0 : {pack(wsi_S0.status),pack(wsi_S1.status),pack(wsi_M0.status),pack(wsi_M1.status)};
+     'h20 : rdat = !hasDebugLogic ? 0 : pack(wsi_S0.extStatus.pMesgCount);
+     'h24 : rdat = !hasDebugLogic ? 0 : pack(wsi_S0.extStatus.iMesgCount);
+     'h28 : rdat = !hasDebugLogic ? 0 : pack(wsi_S1.extStatus.pMesgCount);
+     'h2C : rdat = !hasDebugLogic ? 0 : pack(wsi_S1.extStatus.iMesgCount);
+     'h30 : rdat = !hasDebugLogic ? 0 : pack(wsi_M0.extStatus.pMesgCount);
+     'h34 : rdat = !hasDebugLogic ? 0 : pack(wsi_M0.extStatus.iMesgCount);
+     'h38 : rdat = !hasDebugLogic ? 0 : pack(wsi_M1.extStatus.pMesgCount);
+     'h3C : rdat = !hasDebugLogic ? 0 : pack(wsi_M1.extStatus.iMesgCount);
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      $time, wciReq.addr, wciReq.byteEn, rdat);
