@@ -18,5 +18,5 @@ module xfft_v7_1 (
   output           dv,
   output [15 : 0]  xk_re,
   output [15 : 0]  xk_im,
-  output [11 : 0]  xk_index )
+  output [11 : 0]  xk_index );
 endmodule
