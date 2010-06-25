@@ -27,7 +27,7 @@ module mkFrameGate#(parameter Bit#(32) fgCtrlInit, parameter Bool hasDebugLogic)
   Reg#(Bit#(32))                 frameGateCtrl      <- mkReg(fgCtrlInit);
   Reg#(Bit#(32))                 frameSize          <- mkReg(0);
   Reg#(Bit#(32))                 gateSize           <- mkReg(0);
-  Reg#(Bit#(32))                 byteCount          <- mkReg(0);
+  Reg#(Bit#(32))                 byteCount          <- mkReg(extend(myByteWidth));
   Reg#(Bool)                     gated              <- mkReg(False);
   Reg#(Bit#(32))                 op0MesgCnt         <- mkReg(0);
   Reg#(Bit#(32))                 otherMesgCnt       <- mkReg(0);
@@ -45,10 +45,10 @@ rule wsipass_doMessagePush (wci.isOperating);
 
   if          (!gated && (byteCount==frameSize)) begin
     gated     <= True;
-    byteCount <= 0;
+    byteCount <= extend(myByteWidth);
   end else if ( gated && (byteCount==gateSize))  begin
     gated     <= False;
-    byteCount <= 0;
+    byteCount <= extend(myByteWidth);
   end else begin
     byteCount <= byteCount + extend(myByteWidth);
   end

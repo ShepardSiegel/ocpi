@@ -112,7 +112,7 @@ module mkFFT (FFTIfc);
 
   rule fft_stream_egress (unpack(fft.dataValid));
     let xk = (Valid (Complex{rel:fft.xkRe, img:fft.xkIm}));
-    xnF.enq(xk);
+    xkF.enq(xk);
   endrule
 
   interface Put putXn = toPut(xnF);
