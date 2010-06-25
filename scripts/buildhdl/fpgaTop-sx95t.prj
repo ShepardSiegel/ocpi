@@ -39,7 +39,7 @@ verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkDelayWorker4B.v"
 verilog work "../../rtl/mkWsiSplitter2x24B.v"
 verilog work "../../rtl/mkFrameGate4B.v"
-verilog work "../../libsrc/hdl/ocpi/xfft.v"
+verilog work "../../libsrc/hdl/ocpi/xfft_v7_1.v"
 verilog work "../../rtl/mkPSD.v"
 verilog work "../../libsrc/hdl/ocpi/mkOCApp_scenario3b.v"
 

@@ -29,12 +29,12 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
   interface WsiEM4B                   wsi_m_dac;
 endinterface
 
-module mkOCApp_poly#(Vector#(nWci, Reset) rst) (OCAppIfc#(nWci,nWmi,nWmemi));
+module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
 
   // Instance the workers in this application container...
-  SMAdapter4BIfc    appW2    <-  mkSMAdapter4B  (32'h00000001, reset_by(rst[2])); // Read WMI to WSI-M 
-  DelayWorker4BIfc  appW3    <-  mkDelayWorker4B(32'h00000000, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  SMAdapter4BIfc    appW4    <-  mkSMAdapter4B  (32'h00000002, reset_by(rst[4])); // WSI-S to WMI Write
+  SMAdapter4BIfc    appW2    <-  mkSMAdapter4B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  DelayWorker4BIfc  appW3    <-  mkDelayWorker4B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapter4BIfc    appW4    <-  mkSMAdapter4B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 
   // TODO: Use Default for tieOff...
   Wci_Es#(20) tieOff0  <- mkWciSlaveENull;
@@ -73,9 +73,9 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst) (OCAppIfc#(nWci,nWmi,nWmemi));
 endmodule : mkOCApp_poly
 
 (* synthesize *)
-module mkOCApp#(Vector#(Nwci_app, Reset) rst) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
+module mkOCApp#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
    (*hide*)
-   let _ifc <- mkOCApp_poly(rst);
+   let _ifc <- mkOCApp_poly(rst, hasDebugLogic);
    return _ifc;
 endmodule: mkOCApp
 
