@@ -40,6 +40,10 @@ rule operating_actions (wci.isOperating);
   wsiM.operate();
 endrule
 
+// The assumption is that messages arriving are imprecise and that both
+// frameSize and gateSize are integer multiples of the message length so that
+// the end of message indication with r.burstLenth==1 is taken on the correct
+// cycle...
 rule wsipass_doMessagePush (wci.isOperating);
   WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;
 
@@ -53,7 +57,7 @@ rule wsipass_doMessagePush (wci.isOperating);
     byteCount <= byteCount + extend(myByteWidth);
   end
 
-  if(wsiPass || (frameGate && !gated) || r.burstLength==1) wsiM.reqPut.put(r);
+  if (wsiPass || (frameGate && !gated)) wsiM.reqPut.put(r);
 endrule
 
 
