@@ -72,7 +72,7 @@ typedef Wsi_Es#(12,256,32,8,0) WsiES32B;
 
 typedef struct {
   OCP_CMD  cmd;           // IDLE WR RD (non-Idle qualifies group)
-  Bool     reqLast;       // Last cycle of request
+  Bool     reqLast;       // Last cycle of request (always included)
   Bool     burstPrecise;  // 0=Imprecise, 1=Precise
   Bit#(nb) burstLength;   // polymorhic burst length (nb)
   Bit#(nd) data;          // polymorphic data width  (nd)
@@ -341,8 +341,8 @@ module mkWsiMaster (WsiMasterIfc#(nb,nd,ng,nh,ni));
     if (r.cmd==WR) begin
       case (burstKind)
         None      :  burstKind <= (r.burstPrecise) ? Precise : Imprecise;
-        Precise   :  begin if (r.reqLast==True)  begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
-        Imprecise :  begin if (r.burstLength==1) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
+        Precise   :  begin if (r.reqLast==True) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
+        Imprecise :  begin if (r.reqLast==True) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
       endcase
       trafficSticky <= True;
     end
@@ -421,8 +421,8 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
     if (r.cmd==WR) begin
       case (burstKind)
         None      :  burstKind <= (r.burstPrecise) ? Precise : Imprecise;
-        Precise   :  begin if (r.reqLast==True)  begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
-        Imprecise :  begin if (r.burstLength==1) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
+        Precise   :  begin if (r.reqLast==True) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
+        Imprecise :  begin if (r.reqLast==True) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
       endcase
       trafficSticky <= True;
     end

@@ -142,8 +142,7 @@ rule wmwt_mesgBegin (wci.isOperating && wmemiDly && !isValid(opcode));
     end
     wsiWordsRemain  <= wsiS.reqPeek.burstLength; 
     readyToRequest  <= True;
-    $display("[%0d]: %m: mesgBegin PRECISE mesgWtCount:%0x WSI burstLength:%0x reqInfo:%0x",
-      $time, mesgWtCount, wsiS.reqPeek.burstLength, wsiS.reqPeek.reqInfo);
+    $display("[%0d]: %m: mesgBegin PRECISE mesgWtCount:%0x WSI burstLength:%0x reqInfo:%0x", $time, mesgWtCount, wsiS.reqPeek.burstLength, wsiS.reqPeek.reqInfo);
   end else begin
     impreciseBurst  <= True;
     mesgLengthSoFar <= 0; 
@@ -171,7 +170,7 @@ endrule
 // Push imprecise message WSI to WMI...
 rule wmwt_messagePushImprecise (wci.isOperating && wmemiDly && readyToPush && impreciseBurst);
   WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;
-  Bool dwm = (w.burstLength==1);       // Imprecise WSI ends with burstLength==1, used to make WMI DWM
+  Bool dwm = (w.reqLast);              // WSI ends with reqLast, used to make WMI DWM
   Bool zlm = dwm && (w.byteEn=='0);    // Zero Length Message is 0 BEs on DWM 
   Bit#(14) mlp1  =  mesgLengthSoFar+1; // message length so far plus one (in Words)
   Bit#(14) mlp1B =  mlp1<<myWordShift; // message length so far plus one (in Bytes)

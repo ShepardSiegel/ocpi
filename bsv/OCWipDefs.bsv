@@ -55,9 +55,9 @@ typedef struct {         //bit  -Description--
 // Worker Data Interface Port Extended Status Structure...
 // State is reset by local reset only...
 typedef struct {          // -Description--
-  Bit#(32) pMesgCount;    // rolling count of precise  messages completed  (counts on reqLast)
-  Bit#(32) iMesgCount;    // rolling count of imprecise messages completed (counts in burstLength==1)
-  Bit#(32) tBusyCount;    // rolling count of ThreadBusy while linkReady (indication of how much "backpressure")
+  Bit#(32) pMesgCount;    // rolling count of precise   messages completed  (counts on reqLast)
+  Bit#(32) iMesgCount;    // rolling count of imprecise messages completed  (counts on reqLast)
+  Bit#(32) tBusyCount;    // rolling count of ThreadBusy while linkReady    (indication of how much "backpressure")
 } WipDataPortExtendedStatus deriving (Bits, Eq);
 
 

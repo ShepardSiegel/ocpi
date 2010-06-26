@@ -137,7 +137,7 @@ rule wmrd_mesgBodyResponse (wci.isOperating && wmiRd && unrollCnt>0);
                              reqLast : lastWord,
                              reqInfo : thisMesg.opcode,
                         burstPrecise : !impWsiM,
-                         burstLength : (zlm || (impWsiM && lastWord)) ? 1 : (impWsiM)? '1 : truncate(wsiBurstLength),
+                         burstLength : (zlm || (impWsiM && lastWord)) ? 1 : (impWsiM) ? '1 : truncate(wsiBurstLength),
                                data  : x.data,
                              byteEn  : (zlm) ? '0 : '1,   // For Zero-Length WSI Messages
                            dataInfo  : '0 });
@@ -204,7 +204,7 @@ endrule
 rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impreciseBurst);
   WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;  // ActionValue Get
   if (wxiSplit) wsiM.reqPut.put(w);             // Feed wsiM in Split Mode
-  Bool dwm = (w.burstLength==1);       // Imprecise WSI ends with burstLength==1, used to make WMI DWM
+  Bool dwm = (w.reqLast);              // WSI ends with reqLast, used to make WMI DWM
   Bool zlm = dwm && (w.byteEn=='0);    // Zero Length Message is 0 BEs on DWM 
   Bit#(14) mlp1  =  mesgLengthSoFar+1; // message length so far plus one (in Words)
   Bit#(14) mlp1B =  mlp1<<myWordShift; // message length so far plus one (in Bytes)
