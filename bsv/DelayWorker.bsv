@@ -81,9 +81,9 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
 
   // Delay FIFOs
   FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
-  FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(2048);  // Must be sized large enough for imprecise->precise conversion
+  FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(2048);  // MUST be sized large enough for imprecise->precise conversion!
   FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
-  FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);   // Needs only to be large enough to accomodate the dlyReadCredit
+  FIFOF#(Bit#(nd))               mesgRF             <- mkSRLFIFO(4);            // Needs only to be large enough to accomodate the dlyReadCredit
   FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
 

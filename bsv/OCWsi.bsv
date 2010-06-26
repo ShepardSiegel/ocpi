@@ -341,8 +341,8 @@ module mkWsiMaster (WsiMasterIfc#(nb,nd,ng,nh,ni));
     if (r.cmd==WR) begin
       case (burstKind)
         None      :  burstKind <= (r.burstPrecise) ? Precise : Imprecise;
-        Precise   :  begin if (r.reqLast==True) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
-        Imprecise :  begin if (r.reqLast==True) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
+        Precise   :  begin if (r.reqLast) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
+        Imprecise :  begin if (r.reqLast) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
       endcase
       trafficSticky <= True;
     end
@@ -421,8 +421,8 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
     if (r.cmd==WR) begin
       case (burstKind)
         None      :  burstKind <= (r.burstPrecise) ? Precise : Imprecise;
-        Precise   :  begin if (r.reqLast==True) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
-        Imprecise :  begin if (r.reqLast==True) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
+        Precise   :  begin if (r.reqLast) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
+        Imprecise :  begin if (r.reqLast) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
       endcase
       trafficSticky <= True;
     end

@@ -46,6 +46,7 @@ Cascade of Operations:
 
 import OCWip::*;
 import FFT::*;
+import WsiToPrecise::*;
 
 import Alias::*;
 import Complex::*;
@@ -65,24 +66,40 @@ module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSD
 
   WciSlaveIfc #(NwciAddr)            wci         <- mkWciSlave;
   WsiSlaveIfc #(12,32,4,8,0)         wsiS        <- mkWsiSlave;
+  WsiToPreciseGPIfc#(1)              w2p         <- mkWsiToPreciseGP;
   WsiMasterIfc#(12,32,4,8,0)         wsiM        <- mkWsiMaster;
   Reg#(Bit#(32))                     psdCtrl     <- mkReg(psdCtrlInit);
   FFTIfc                             fft         <- mkFFT;
   Reg#(UInt#(16))                    unrollCnt   <- mkReg(0);
 
-  Bool psdPass  = (psdCtrl[3:0]==4'h0);
-  Bool psdFFT   = (psdCtrl[3:0]==4'h1);
+  Bool psdPass      = (psdCtrl[3:0]==4'h0);
+  Bool psdPrecise   = (psdCtrl[3:0]==4'h1);
+  Bool psdFFT       = (psdCtrl[3:0]==4'h2);
 
 rule operating_actions (wci.isOperating);
   wsiS.operate();
   wsiM.operate();
+  if (psdPrecise) w2p.operate();
 endrule
 
-rule psdPass_doMessagePush (wci.isOperating && psdPass);
+//////////////////////////////////////////////////////// Pass
+rule psdPass_bypass (wci.isOperating && psdPass);
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   wsiM.reqPut.put(r);
 endrule
 
+//////////////////////////////////////////////////////// Precise
+rule psdPrecise_input (wci.isOperating && psdPrecise);
+  WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
+  w2p.putWsi.put(r);
+endrule
+
+rule psdPrecise_output (wci.isOperating && psdPrecise);
+  WsiReq#(12,32,4,8,0) r <- w2p.getWsi.get;
+  wsiM.reqPut.put(r);
+endrule
+
+//////////////////////////////////////////////////////// FFT
 rule psdFFT_doIngress (wci.isOperating && psdFFT);
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   let xn = (Valid (Complex{rel:truncate(r.data), img:0}));

@@ -585,7 +585,7 @@ module mkWmiSlave (WmiSlaveIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add
 
   method ActionValue#(WmiReq#(na,nb)) req if (linkReady && !blockReq);
     let x = reqF.first;
-    if (x.reqLast==True && x.reqInfo==1'b1) blockReq <= True; 
+    if (x.reqLast && x.reqInfo==1'b1) blockReq <= True; 
     if (x.reqInfo==pack(True) && mFlagF.notEmpty) begin 
       mFlagReg<=mFlagF.first; 
       mFlagF.deq; 
