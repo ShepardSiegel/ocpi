@@ -51,6 +51,8 @@ import WsiToPrecise::*;
 import Alias::*;
 import Complex::*;
 import Connectable::*;
+import FIFO::*;
+import FIFOF::*;
 import GetPut::*;
 
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
@@ -71,6 +73,9 @@ module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSD
   Reg#(Bit#(32))                     psdCtrl     <- mkReg(psdCtrlInit);
   FFTIfc                             fft         <- mkFFT;
   Reg#(UInt#(16))                    unrollCnt   <- mkReg(0);
+  FIFOF#(Bit#(32))                   xnF         <- mkFIFOF;
+  Reg#(Bool)                         takeEven    <- mkReg(True); // start with 0
+  Reg#(Bool)                         sendEven    <- mkReg(True); // start with 0
 
   Bool psdPass      = (psdCtrl[3:0]==4'h0);
   Bool psdPrecise   = (psdCtrl[3:0]==4'h1);
@@ -88,26 +93,30 @@ rule psdPass_bypass (wci.isOperating && psdPass);
   wsiM.reqPut.put(r);
 endrule
 
-//////////////////////////////////////////////////////// Precise
-rule psdPrecise_input (wci.isOperating && psdPrecise);
+//////////////////////////////////////////////////////// Precise || FFT
+rule psdPrecise_input (wci.isOperating && (psdPrecise||psdFFT));
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   w2p.putWsi.put(r);
 endrule
 
-rule psdPrecise_output (wci.isOperating && psdPrecise);
+rule psdPrecise_output (wci.isOperating && (psdPrecise||psdFFT));
   WsiReq#(12,32,4,8,0) r <- w2p.getWsi.get;
-  wsiM.reqPut.put(r);
+  if(psdPrecise) wsiM.reqPut.put(r); // bypass the FFT
+  else           xnF.enq(r.data);    // feed the FFT xnF
 endrule
 
 //////////////////////////////////////////////////////// FFT
-rule psdFFT_doIngress (wci.isOperating && psdFFT);
-  WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
-  let xn = (Valid (Complex{rel:truncate(r.data), img:0}));
-  fft.putXn.put(xn);
+rule psdFFT_doIngress (wci.isOperating && psdFFT);      // rule will fire 4K times per frame
+  Bit#(32) d32   = xnF.first;
+  Bit#(16) dReal = (takeEven) ? d32[15:0] : d32[31:16]; // little-endian: first, even sample at LS word
+  fft.putXn.put( Valid (Complex{rel:dReal, img:0}) );   // put 4K real time-domain samples
+  if (!takeEven) xnF.deq;                               // only 2K DEQs per frame
+  takeEven <= !takeEven;
 endrule
 
 rule psdFFT_doEgress (wci.isOperating && psdFFT);
-  CmpMaybe xk <- fft.getXk.get;
+  //CmpMaybe xk <- fft.getXk.get;
+  CmpMaybe xk  = fft.fifoXk.first;
   Bit#(16) xkRel = fromMaybe(?,xk).rel;
   Bit#(16) xkImg = fromMaybe(?,xk).img;
   Bool lastWord = (unrollCnt == 1);
@@ -116,11 +125,13 @@ rule psdFFT_doEgress (wci.isOperating && psdFFT);
                              reqLast : lastWord,
                              reqInfo : 0,
                         burstPrecise : True,
-                         burstLength : 1024, // 4B words
+                         burstLength : 2048, // 4B words =  8KB
                                data  : {xkRel, xkImg},
                              byteEn  : '1,
                            dataInfo  : '0 });
   end
+  if (!sendEven) fft.fifoXk.deq;
+  sendEven <= !sendEven;
 endrule
 
 

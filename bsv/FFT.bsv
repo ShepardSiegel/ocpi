@@ -41,7 +41,8 @@ endinterface: FFTvIfc
 
 interface FFTIfc;
   interface Put#(CmpMaybe) putXn;
-  interface Get#(CmpMaybe) getXk;
+  //interface Get#(CmpMaybe) getXk;
+  interface FIFO#(CmpMaybe) fifoXk;
 endinterface: FFTIfc
 
 
@@ -116,7 +117,8 @@ module mkFFT (FFTIfc);
   endrule
 
   interface Put putXn = toPut(xnF);
-  interface Get getXk = toGet(xkF);
+  //interface Get getXk = toGet(xkF);
+  interface FIFO fifoXk = xkF;
 endmodule: mkFFT
 
 
