@@ -55,6 +55,20 @@ import FIFO::*;
 import FIFOF::*;
 import GetPut::*;
 
+
+// Magnitude Approximations (as in Lyons)...
+
+function UInt#(16) magApprox1(Complex#(UInt#(16)) c);   // |V| = Max + Min/2
+  if (c.rel > c.img) return( c.rel   +  c.img/2);
+  else               return( c.rel/2 +  c.img);
+endfunction
+
+function UInt#(16) magApprox2(Complex#(UInt#(16)) c);   // |V| = 15(Max + Min/2)/16
+  let v = magApprox1(c);
+  return( v - v/16);
+endfunction
+
+
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface PSDIfc;
@@ -72,14 +86,16 @@ module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSD
   WsiMasterIfc#(12,32,4,8,0)         wsiM        <- mkWsiMaster;
   Reg#(Bit#(32))                     psdCtrl     <- mkReg(psdCtrlInit);
   FFTIfc                             fft         <- mkFFT;
-  Reg#(UInt#(16))                    unrollCnt   <- mkReg(0);
+  Reg#(UInt#(16))                    unloadCnt   <- mkReg(0);
   FIFOF#(Bit#(32))                   xnF         <- mkFIFOF;
   Reg#(Bool)                         takeEven    <- mkReg(True); // start with 0
   Reg#(Bool)                         sendEven    <- mkReg(True); // start with 0
+  Reg#(UInt#(16))                    evenMag     <- mkRegU;
 
-  Bool psdPass      = (psdCtrl[3:0]==4'h0);
-  Bool psdPrecise   = (psdCtrl[3:0]==4'h1);
-  Bool psdFFT       = (psdCtrl[3:0]==4'h2);
+  Bool psdPass       = (psdCtrl[3:0]==4'h0);
+  Bool psdPrecise    = (psdCtrl[3:0]==4'h1);
+  Bool psdFFT        = (psdCtrl[3:0]==4'h2);
+  Bool fromOffsetBin = unpack(psdCtrl[4]);
 
 rule operating_actions (wci.isOperating);
   wsiS.operate();
@@ -109,29 +125,34 @@ endrule
 rule psdFFT_doIngress (wci.isOperating && psdFFT);      // rule will fire 4K times per frame
   Bit#(32) d32   = xnF.first;
   Bit#(16) dReal = (takeEven) ? d32[15:0] : d32[31:16]; // little-endian: first, even sample at LS word
+  if (fromOffsetBin) dReal[15] = ~dReal[15];            // If converting from Offset Binary, flip MSP to get 2's comp
   fft.putXn.put( Valid (Complex{rel:dReal, img:0}) );   // put 4K real time-domain samples
   if (!takeEven) xnF.deq;                               // only 2K DEQs per frame
   takeEven <= !takeEven;
 endrule
 
 rule psdFFT_doEgress (wci.isOperating && psdFFT);
-  //CmpMaybe xk <- fft.getXk.get;
   CmpMaybe xk  = fft.fifoXk.first;
-  Bit#(16) xkRel = fromMaybe(?,xk).rel;
-  Bit#(16) xkImg = fromMaybe(?,xk).img;
-  Bool lastWord = (unrollCnt == 1);
-  if (isValid(xk)) begin
+  Int#(16) xkRel = unpack(fromMaybe(?,xk).rel);                    // Signed 16b I FFT Outout
+  Int#(16) xkImg = unpack(fromMaybe(?,xk).img);                    // Signed 16b Q FFT Outout
+  UInt#(16) absXkRel =  unpack(pack(abs(xkRel)));                  // take |i| and convert to UInt
+  UInt#(16) absXkImg =  unpack(pack(abs(xkImg)));                  // take |q| and convert to UInt
+  UInt#(16) mag = magApprox2(Complex{rel:absXkRel,img:absXkImg});  // pass the 1st quadrant to magApprox1
+  Bool lastWord = (unloadCnt == 4095);                             // Hardcoded to 4K Transform
+  if (sendEven) evenMag <= mag;
+  if (isValid(xk) && !sendEven) begin
     wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                              reqLast : lastWord,
                              reqInfo : 0,
                         burstPrecise : True,
-                         burstLength : 2048, // 4B words =  8KB
-                               data  : {xkRel, xkImg},
+                         burstLength : 2048, // 4B words =  8KB      Hardcoded to 4K Transform
+                               data  : {pack(mag), pack(evenMag)},
                              byteEn  : '1,
                            dataInfo  : '0 });
   end
-  if (!sendEven) fft.fifoXk.deq;
+  fft.fifoXk.deq;                                                  // 4K FFT unloads
   sendEven <= !sendEven;
+  unloadCnt <= (lastWord) ? 0 : unloadCnt + 1;
 endrule
 
 
@@ -186,3 +207,4 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
   interface wsiS0  = wsi_Es;
   interface wsiM0 = toWsiEM(wsiM.mas); 
 endmodule
+

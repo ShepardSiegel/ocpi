@@ -42,7 +42,7 @@ endinterface: FFTvIfc
 interface FFTIfc;
   interface Put#(CmpMaybe) putXn;
   //interface Get#(CmpMaybe) getXk;
-  interface FIFO#(CmpMaybe) fifoXk;
+  interface FIFO#(CmpMaybe) fifoXk;  // Wating for Get Split (GetS?) to be defined and implemented
 endinterface: FFTIfc
 
 
