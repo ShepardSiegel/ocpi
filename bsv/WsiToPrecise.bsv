@@ -14,6 +14,7 @@ import GetPut::*;
 
 interface WsiToPreciseGPIfc#(numeric type ndw);
   method Action operate;
+  method Action setWordsExact (UInt#(16) i);
   interface Put#(WsiReq#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)) putWsi;
   interface Get#(WsiReq#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)) getWsi;
 endinterface 
@@ -28,11 +29,10 @@ module mkWsiToPreciseGP (WsiToPreciseGPIfc#(ndw))
   FIFOF#(WsiReq#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)) outF <- mkFIFOF;
   FIFOF#(Bit#(nd))               dataF             <- mkSizedBRAMFIFOF(2048);  // MUST be sized large enough for imprecise->precise conversion!
   FIFOF#(Bit#(8))                reqF              <- mkFIFOF;
+  Reg#(UInt#(16))                wordsExact        <- mkReg(2048);
   Reg#(UInt#(16))                wordsEnqued       <- mkReg(0);
   Reg#(UInt#(16))                wordsDequed       <- mkReg(0);
   Wire#(Bool)                    operateW          <- mkDWire(False);
-
-  UInt#(16) wordsExact = 1024;
 
   rule imprecise_enq (operateW);
     let w = inF.first; inF.deq;
@@ -60,6 +60,7 @@ module mkWsiToPreciseGP (WsiToPreciseGPIfc#(ndw))
   endrule
   
   method Action operate = operateW._write(True);
+  method Action setWordsExact (UInt#(16) i) = wordsExact._write(i);
   interface Put putWsi = toPut(inF);
   interface Get getWsi = toGet(outF);
 endmodule
