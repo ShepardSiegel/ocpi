@@ -100,7 +100,7 @@ module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSD
 rule operating_actions (wci.isOperating);
   wsiS.operate();
   wsiM.operate();
-  if (psdPrecise) w2p.operate();
+  w2p.operate();
 endrule
 
 //////////////////////////////////////////////////////// Pass
@@ -110,19 +110,23 @@ rule psdPass_bypass (wci.isOperating && psdPass);
 endrule
 
 //////////////////////////////////////////////////////// Precise || FFT
-rule psdPrecise_input (wci.isOperating && (psdPrecise||psdFFT));
+rule psdPrecise_input (wci.isOperating && (psdPrecise||psdFFT) && !psdPass);
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   w2p.putWsi.put(r);
 endrule
 
-rule psdPrecise_output (wci.isOperating && (psdPrecise||psdFFT));
+rule psdPrecise_output_bypassFFT (wci.isOperating && psdPrecise && !(psdPass||psdFFT) );
   WsiReq#(12,32,4,8,0) r <- w2p.getWsi.get;
-  if(psdPrecise) wsiM.reqPut.put(r); // bypass the FFT
-  else           xnF.enq(r.data);    // feed the FFT xnF
+  wsiM.reqPut.put(r); // bypass the FFT
+endrule
+
+rule psdPrecise_output_feedFFT (wci.isOperating && psdFFT && !(psdPass||psdPrecise));
+  WsiReq#(12,32,4,8,0) r <- w2p.getWsi.get;
+  xnF.enq(r.data);    // feed the FFT xnF
 endrule
 
 //////////////////////////////////////////////////////// FFT
-rule psdFFT_doIngress (wci.isOperating && psdFFT);      // rule will fire 4K times per frame
+rule psdFFT_doIngress (wci.isOperating && psdFFT && !(psdPrecise||psdPass)); // rule will fire 4K times per frame
   Bit#(32) d32   = xnF.first;
   Bit#(16) dReal = (takeEven) ? d32[15:0] : d32[31:16]; // little-endian: first, even sample at LS word
   if (fromOffsetBin) dReal[15] = ~dReal[15];            // If converting from Offset Binary, flip MSP to get 2's comp
@@ -131,7 +135,7 @@ rule psdFFT_doIngress (wci.isOperating && psdFFT);      // rule will fire 4K tim
   takeEven <= !takeEven;
 endrule
 
-rule psdFFT_doEgress (wci.isOperating && psdFFT);
+rule psdFFT_doEgress (wci.isOperating && psdFFT && !(psdPrecise||psdPass));
   CmpMaybe xk  = fft.fifoXk.first;
   Int#(16) xkRel = unpack(fromMaybe(?,xk).rel);                    // Signed 16b I FFT Outout
   Int#(16) xkImg = unpack(fromMaybe(?,xk).img);                    // Signed 16b Q FFT Outout
