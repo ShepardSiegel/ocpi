@@ -15,6 +15,7 @@ import SpecialFIFOs    ::*;
 import Vector          ::*;
 import XilinxCells     ::*;
 
+typedef Complex#(Bit#(16))         Cmp16;
 typedef Maybe#(Complex#(Bit#(16))) CmpMaybe;
 
 // Interfaces...
@@ -40,9 +41,10 @@ interface FFTvIfc;
 endinterface: FFTvIfc
 
 interface FFTIfc;
-  interface Put#(CmpMaybe) putXn;
-  //interface Get#(CmpMaybe) getXk;
-  interface FIFO#(CmpMaybe) fifoXk;  // Wating for Get Split (GetS?) to be defined and implemented
+  interface Put#(Cmp16)  putXn;
+  //interface Get#(Cmp16) getXk;
+  interface FIFO#(Cmp16) fifoXk;  // Wating for Get Split (GetS?) to be defined and implemented
+  method Bit#(32) fftFrameCounts;
 endinterface: FFTIfc
 
 
@@ -81,8 +83,13 @@ endmodule: vMkFFT
 
 module mkFFT (FFTIfc);
   FFTvIfc               fft             <- vMkFFT;
-  FIFO#(CmpMaybe)       xnF             <- mkFIFO;
-  FIFO#(CmpMaybe)       xkF             <- mkFIFO;
+  FIFOF#(Cmp16)         xnF             <- mkFIFOF;
+  FIFO#(Cmp16)          xkF             <- mkFIFO;
+  Reg#(Bool)            fftStarted      <- mkReg(False);
+  Reg#(UInt#(16))       loadIndex       <- mkReg(0);
+  Reg#(UInt#(16))       loadFrames      <- mkReg(0);
+  Reg#(UInt#(16))       unloadIndex     <- mkReg(0);
+  Reg#(UInt#(16))       unloadFrames    <- mkReg(0);
 
   Wire#(Bit#(1))        fwd_w           <- mkDWire(0);
   Wire#(Bit#(1))        fwd_we_w        <- mkDWire(0);
@@ -104,21 +111,35 @@ module mkFFT (FFTIfc);
     fft.xnIm     (xnIm_w);
   endrule
 
-  rule fft_stream_ingress (unpack(fft.readyForData) &&& xnF.first matches tagged Valid .xn);
-    xnRe_w  <= xn.rel;
-    xnIm_w  <= xn.img;
-    start_w <= 1;
+  rule frame_start (xnF.notEmpty && !fftStarted);
+    start_w    <= 1;
+    fftStarted <= True;
+  endrule
+
+  rule fft_stream_ingress (unpack(fft.readyForData) && fftStarted);
+    xnRe_w  <= xnF.first.rel;
+    xnIm_w  <= xnF.first.img;
     xnF.deq;
+    Bool endOfLoad = (loadIndex==4095); // hardcoded 4K
+    loadIndex <= (endOfLoad) ? 0 : loadIndex + 1;
+    if (endOfLoad) begin
+      loadFrames <= loadFrames + 1;
+      fftStarted <= False;
+    end
   endrule
 
   rule fft_stream_egress (unpack(fft.dataValid));
-    let xk = (Valid (Complex{rel:fft.xkRe, img:fft.xkIm}));
+    let xk = (Complex{rel:fft.xkRe, img:fft.xkIm});
     xkF.enq(xk);
+    Bool endOfUnload = (unloadIndex==4095); // hardcoded 4K
+    unloadIndex <= (endOfUnload) ? 0 : unloadIndex + 1;
+    if (endOfUnload) unloadFrames <= unloadFrames + 1;
   endrule
 
   interface Put putXn = toPut(xnF);
   //interface Get getXk = toGet(xkF);
   interface FIFO fifoXk = xkF;
+  method Bit#(32) fftFrameCounts = {pack(loadFrames),pack(unloadFrames)};
 endmodule: mkFFT
 
 

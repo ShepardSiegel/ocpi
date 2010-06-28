@@ -70,6 +70,7 @@ endfunction
 
 
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
+typedef enum {PsdPass, PsdPrecise, PsdFFT, PsdSpare} PSDMode deriving (Bits, Eq);  // PSD mode bits in psdCtrl[1:0]
 
 interface PSDIfc;
   interface Wci_Es#(NwciAddr)        wciS0;    // Worker Control and Configuration 
@@ -92,59 +93,56 @@ module mkPSD#(parameter Bit#(32) psdCtrlInit, parameter Bool hasDebugLogic) (PSD
   Reg#(Bool)                         sendEven    <- mkReg(True); // start with 0
   Reg#(UInt#(16))                    evenMag     <- mkRegU;
 
-  Bool psdPass       = (psdCtrl[3:0]==4'h0);
-  Bool psdPrecise    = (psdCtrl[3:0]==4'h1);
-  Bool psdFFT        = (psdCtrl[3:0]==4'h2);
+  PSDMode pmod = unpack(psdCtrl[1:0]);
   Bool fromOffsetBin = unpack(psdCtrl[4]);
 
+(* fire_when_enabled, no_implicit_conditions *)
 rule operating_actions (wci.isOperating);
-  wsiS.operate();
-  wsiM.operate();
-  w2p.operate();
+  wsiS.operate(); wsiM.operate(); w2p.operate();
 endrule
 
 //////////////////////////////////////////////////////// Pass
-rule psdPass_bypass (wci.isOperating && psdPass);
+rule psdPass_bypass (wci.isOperating && pmod==PsdPass);
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   wsiM.reqPut.put(r);
 endrule
 
 //////////////////////////////////////////////////////// Precise || FFT
-rule psdPrecise_input (wci.isOperating && (psdPrecise||psdFFT) && !psdPass);
+rule psdPrecise_input (wci.isOperating && (pmod==PsdPrecise||pmod==PsdFFT));
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   w2p.putWsi.put(r);
 endrule
 
-rule psdPrecise_output_bypassFFT (wci.isOperating && psdPrecise && !(psdPass||psdFFT) );
+rule psdPrecise_output_bypassFFT (wci.isOperating && pmod==PsdPrecise);
   WsiReq#(12,32,4,8,0) r <- w2p.getWsi.get;
   wsiM.reqPut.put(r); // bypass the FFT
 endrule
 
-rule psdPrecise_output_feedFFT (wci.isOperating && psdFFT && !(psdPass||psdPrecise));
+rule psdPrecise_output_feedFFT (wci.isOperating && pmod==PsdFFT);
   WsiReq#(12,32,4,8,0) r <- w2p.getWsi.get;
   xnF.enq(r.data);    // feed the FFT xnF
 endrule
 
 //////////////////////////////////////////////////////// FFT
-rule psdFFT_doIngress (wci.isOperating && psdFFT && !(psdPrecise||psdPass)); // rule will fire 4K times per frame
+rule psdFFT_doIngress (wci.isOperating && pmod==PsdFFT); // rule will fire 4K times per frame
   Bit#(32) d32   = xnF.first;
   Bit#(16) dReal = (takeEven) ? d32[15:0] : d32[31:16]; // little-endian: first, even sample at LS word
   if (fromOffsetBin) dReal[15] = ~dReal[15];            // If converting from Offset Binary, flip MSP to get 2's comp
-  fft.putXn.put( Valid (Complex{rel:dReal, img:0}) );   // put 4K real time-domain samples
+  fft.putXn.put(Complex{rel:dReal, img:0});             // put 4K real time-domain samples
   if (!takeEven) xnF.deq;                               // only 2K DEQs per frame
   takeEven <= !takeEven;
 endrule
 
-rule psdFFT_doEgress (wci.isOperating && psdFFT && !(psdPrecise||psdPass));
-  CmpMaybe xk  = fft.fifoXk.first;
-  Int#(16) xkRel = unpack(fromMaybe(?,xk).rel);                    // Signed 16b I FFT Outout
-  Int#(16) xkImg = unpack(fromMaybe(?,xk).img);                    // Signed 16b Q FFT Outout
+rule psdFFT_doEgress (wci.isOperating && pmod==PsdFFT);
+  Cmp16 xk  = fft.fifoXk.first;
+  Int#(16) xkRel = unpack(xk.rel);                                 // Signed 16b I FFT Outout
+  Int#(16) xkImg = unpack(xk.img);                                 // Signed 16b Q FFT Outout
   UInt#(16) absXkRel =  unpack(pack(abs(xkRel)));                  // take |i| and convert to UInt
   UInt#(16) absXkImg =  unpack(pack(abs(xkImg)));                  // take |q| and convert to UInt
   UInt#(16) mag = magApprox2(Complex{rel:absXkRel,img:absXkImg});  // pass the 1st quadrant to magApprox1
   Bool lastWord = (unloadCnt == 4095);                             // Hardcoded to 4K Transform
-  if (sendEven) evenMag <= mag;
-  if (isValid(xk) && !sendEven) begin
+  if (sendEven) evenMag <= mag;                                    // stage and store for the next firing
+  else begin
     wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                              reqLast : lastWord,
                              reqInfo : 0,
@@ -191,6 +189,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h20 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.pMesgCount);
      'h24 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.iMesgCount);
      'h28 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.tBusyCount);
+     'h2C : rdat = !hasDebugLogic ? 0 : fft.fftFrameCounts;
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
