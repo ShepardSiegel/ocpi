@@ -112,13 +112,17 @@ module mkFFT (FFTIfc);
   endrule
 
   rule frame_start (xnF.notEmpty && !fftStarted);
-    start_w    <= 1;
+    start_w    <= 1; 
     fftStarted <= True;
   endrule
 
+ // rule drive_start (fftStarted);
+ //   start_w   <= 1; 
+ // endrule
+
   rule fft_stream_ingress (unpack(fft.readyForData) && fftStarted);
-    xnRe_w  <= xnF.first.rel;
-    xnIm_w  <= xnF.first.img;
+    xnRe_w    <= xnF.first.rel;
+    xnIm_w    <= xnF.first.img;
     xnF.deq;
     Bool endOfLoad = (loadIndex==4095); // hardcoded 4K
     loadIndex <= (endOfLoad) ? 0 : loadIndex + 1;

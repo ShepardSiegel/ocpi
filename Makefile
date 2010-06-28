@@ -91,8 +91,8 @@ isim10: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
 		$(BSV)/$(ITEST10).bsv
-	
-	bsc -vsim isim -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST10) -o runsim
+
+	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST10) -o runsim
 	./runsim 
 
 	# create verilog executable

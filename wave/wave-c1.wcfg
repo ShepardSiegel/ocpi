@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/shep/projects/ocpi/isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="main" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="23" />
+   <wvobject fp_name="/main/top/srcMesgCount" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">srcMesgCount[15:0]</obj_property>
+      <obj_property name="ObjectShortName">srcMesgCount[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/srcDataOut" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">srcDataOut[31:0]</obj_property>
+      <obj_property name="ObjectShortName">srcDataOut[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/w2p_inF/ENQ" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ENQ</obj_property>
+      <obj_property name="ObjectShortName">ENQ</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/w2p_reqF/ENQ" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ENQ</obj_property>
+      <obj_property name="ObjectShortName">ENQ</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/w2p_inF/DEQ" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">DEQ</obj_property>
+      <obj_property name="ObjectShortName">DEQ</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/w2p_inF/EMPTY_N" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">EMPTY_N</obj_property>
+      <obj_property name="ObjectShortName">EMPTY_N</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/w2p_inF/FULL_N" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">FULL_N</obj_property>
+      <obj_property name="ObjectShortName">FULL_N</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/w2p_reqF/ENQ" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ENQ</obj_property>
+      <obj_property name="ObjectShortName">ENQ</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/w2p_reqF/ENQ" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ENQ</obj_property>
+      <obj_property name="ObjectShortName">ENQ</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/w2p_reqF/DEQ" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">DEQ</obj_property>
+      <obj_property name="ObjectShortName">DEQ</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/rfd" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rfd</obj_property>
+      <obj_property name="ObjectShortName">rfd</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/start" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">start</obj_property>
+      <obj_property name="ObjectShortName">start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/xn_re" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">xn_re[15:0]</obj_property>
+      <obj_property name="ObjectShortName">xn_re[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/xn_index" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">xn_index[11:0]</obj_property>
+      <obj_property name="ObjectShortName">xn_index[11:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/busy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">busy</obj_property>
+      <obj_property name="ObjectShortName">busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/edone" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">edone</obj_property>
+      <obj_property name="ObjectShortName">edone</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/done" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">done</obj_property>
+      <obj_property name="ObjectShortName">done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/xk_index" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">xk_index[11:0]</obj_property>
+      <obj_property name="ObjectShortName">xk_index[11:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/xk_re" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">xk_re[15:0]</obj_property>
+      <obj_property name="ObjectShortName">xk_re[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/xk_im" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">xk_im[15:0]</obj_property>
+      <obj_property name="ObjectShortName">xk_im[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/fft_fft/dv" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">dv</obj_property>
+      <obj_property name="ObjectShortName">dv</obj_property>
+   </wvobject>
+   <wvobject fp_name="/main/top/psdWorker/evenMag" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">evenMag[15:0]</obj_property>
+      <obj_property name="ObjectShortName">evenMag[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>
