@@ -33,14 +33,14 @@ endrule
 
 rule doMessageConsume_S0 (wci.isOperating);
   WsiReq#(12,nd,nbe,8,0) r <- wsi_S0.reqGet.get;
-  if (!unpack(splitCtrl[0])) wsi_M0.reqPut.put(r);
-  if (!unpack(splitCtrl[8])) wsi_M1.reqPut.put(r);
+  if (!unpack(splitCtrl[0]) && !unpack(splitCtrl[7]))  wsi_M0.reqPut.put(r);
+  if (!unpack(splitCtrl[8]) && !unpack(splitCtrl[15])) wsi_M1.reqPut.put(r);
 endrule
 
 rule doMessageConsume_S1 (wci.isOperating);
   WsiReq#(12,nd,nbe,8,0) r <- wsi_S1.reqGet.get;
-  if ( unpack(splitCtrl[0])) wsi_M0.reqPut.put(r);
-  if ( unpack(splitCtrl[8])) wsi_M1.reqPut.put(r);
+  if ( unpack(splitCtrl[0]) && !unpack(splitCtrl[7]))  wsi_M0.reqPut.put(r);
+  if ( unpack(splitCtrl[8]) && !unpack(splitCtrl[15])) wsi_M1.reqPut.put(r);
 endrule
 
 
