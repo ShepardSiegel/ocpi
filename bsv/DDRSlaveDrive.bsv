@@ -85,9 +85,31 @@ module vMkDDRSlaveDrive#(Clock ddrCk) (VDDRSlaveDriveIfc);
   CF       (sdr0,sdr1,sdr2,sdr3,sdr4,sdr5,sdr6,sdr7,sdr8,sdr9,sdrA,sdrB,sdrC,sdrD,sdrE,sdrF,dap,dan,dbp,dbn,dcp,dcn,ddp,ddn,dcmLocked);
 endmodule
 
+// TODO: 2s comp to be made offset-binary
+Bit#(16) cos1[16] = {
+  16'h7eb8, // i:   0 phi:0.0000 cosphi:1.0000 
+  16'h7513, // i:   1 phi:0.3927 cosphi:0.9239 
+  16'h599b, // i:   2 phi:0.7854 cosphi:0.7071 
+  16'h307e, // i:   3 phi:1.1781 cosphi:0.3827 
+  16'h0000, // i:   4 phi:1.5708 cosphi:-0.0000 
+  16'hcf83, // i:   5 phi:1.9635 cosphi:-0.3827 
+  16'ha666, // i:   6 phi:2.3562 cosphi:-0.7071 
+  16'h8aee, // i:   7 phi:2.7489 cosphi:-0.9239 
+  16'h8149, // i:   8 phi:3.1416 cosphi:-1.0000 
+  16'h8aee, // i:   9 phi:3.5343 cosphi:-0.9239 
+  16'ha666, // i:  10 phi:3.9270 cosphi:-0.7071 
+  16'hcf83, // i:  11 phi:4.3197 cosphi:-0.3827 
+  16'h0000, // i:  12 phi:4.7124 cosphi:0.0000 
+  16'h307e, // i:  13 phi:5.1051 cosphi:0.3827 
+  16'h599b, // i:  14 phi:5.4978 cosphi:0.7071 
+  16'h7513  // i:  15 phi:5.8905 cosphi:0.9239 
+ };
+
 typedef Vector#(16, Bit#(12)) DacSWord; // DAC Superword
 DacSWord ob16p =
   reverse(unpack({12'hf3e,12'hd8b,12'hb00,12'h800,12'h500,12'h275,12'h0c2,12'h029,12'h0c2,12'h275,12'h500,12'h800,12'hb00,12'hd8b,12'hf3e,12'hfd7}));
+
+//DacSWord ob16p1 = reverse(cos1);
 
 DacSWord obZero =
   (unpack({12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800,12'h800}));
