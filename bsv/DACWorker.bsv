@@ -67,6 +67,9 @@ module mkDACWorker#(Clock dac_clk, Reset dac_rst) (DACWorkerIfc);
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
 
+  Bool invertMSB = unpack(dacControl[6]);
+  Bool upConv8x  = unpack(dacControl[5]);
+
 rule operating_actions (wci.isOperating); wsiS.operate(); endrule // Indicate to the WSI-S that we are available
 
 // Cloned ruleset from WSI-S to WMI-Write transformation...
@@ -119,14 +122,27 @@ endrule
 rule emit_messagePushPrecise (wci.isOperating && wsiWordsRemain>0 && mesgReqValid && preciseBurst);
   WsiReq#(12,32,4,8,0) w <- wsiS.reqGet.get; //nd==32 nopoly
 
+  if (invertMSB) begin
+    w.data[31] = ~w.data[31];
+    w.data[15] = ~w.data[15];
+  end
+
   //ENQ EMIT HERE
-  case (srcCnt)
-    2'h0:  begin rf[0]  <= w.data[15:4];  rf[1]  <= w.data[15:4]; rf[2]   <= w.data[31:20];  rf[3]  <= w.data[31:20]; end
-    2'h1:  begin rf[4]  <= w.data[15:4];  rf[5]  <= w.data[15:4]; rf[6]   <= w.data[31:20];  rf[7]  <= w.data[31:20]; end
-    2'h2:  begin rf[8]  <= w.data[15:4];  rf[9]  <= w.data[15:4]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20]; end
-    2'h3:  begin rf[12] <= w.data[15:4];  rf[13] <= w.data[15:4]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20]; stageReady<=True; end
-  endcase
-  srcCnt <= srcCnt + 1;
+  if (!upConv8x) begin
+    case (srcCnt)
+      2'h0:  begin rf[0]  <= w.data[15:4];  rf[1]  <= w.data[15:4]; rf[2]   <= w.data[31:20];  rf[3]  <= w.data[31:20]; end
+      2'h1:  begin rf[4]  <= w.data[15:4];  rf[5]  <= w.data[15:4]; rf[6]   <= w.data[31:20];  rf[7]  <= w.data[31:20]; end
+      2'h2:  begin rf[8]  <= w.data[15:4];  rf[9]  <= w.data[15:4]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20]; end
+      2'h3:  begin rf[12] <= w.data[15:4];  rf[13] <= w.data[15:4]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20]; stageReady<=True; end
+    endcase
+    srcCnt <= srcCnt + 1;
+  end else begin
+    rf[0]  <= w.data[15:4];   rf[1]  <= w.data[15:4];  rf[2]   <= w.data[15:4];   rf[3]  <= w.data[15:4];
+    rf[4]  <= w.data[15:4];   rf[5]  <= w.data[15:4];  rf[6]   <= w.data[15:4];   rf[7]  <= w.data[15:4];
+    rf[8]  <= w.data[31:20];  rf[9]  <= w.data[31:20]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20];
+    rf[12] <= w.data[31:20];  rf[13] <= w.data[31:20]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20];
+    stageReady<=True;
+  end
 
   //wmi.dh(w.data, '1, (wsiWordsRemain==1));
   wsiWordsRemain <= wsiWordsRemain - 1;
@@ -145,14 +161,27 @@ rule emit_messagePushImprecise (wci.isOperating && readyToPush && impreciseBurst
   end else begin
     let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(mlp1B)}; 
 
+  if (invertMSB) begin
+    w.data[31] = ~w.data[31];
+    w.data[15] = ~w.data[15];
+  end
+
   //ENQ EMIT HERE
-  case (srcCnt)
-    2'h0:  begin rf[0]  <= w.data[15:4];  rf[1]  <= w.data[15:4]; rf[2]   <= w.data[31:20];  rf[3]  <= w.data[31:20]; end
-    2'h1:  begin rf[4]  <= w.data[15:4];  rf[5]  <= w.data[15:4]; rf[6]   <= w.data[31:20];  rf[7]  <= w.data[31:20]; end
-    2'h2:  begin rf[8]  <= w.data[15:4];  rf[9]  <= w.data[15:4]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20]; end
-    2'h3:  begin rf[12] <= w.data[15:4];  rf[13] <= w.data[15:4]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20]; stageReady<=True; end
-  endcase
-  srcCnt <= srcCnt + 1;
+  if (!upConv8x) begin
+    case (srcCnt)
+      2'h0:  begin rf[0]  <= w.data[15:4];  rf[1]  <= w.data[15:4]; rf[2]   <= w.data[31:20];  rf[3]  <= w.data[31:20]; end
+      2'h1:  begin rf[4]  <= w.data[15:4];  rf[5]  <= w.data[15:4]; rf[6]   <= w.data[31:20];  rf[7]  <= w.data[31:20]; end
+      2'h2:  begin rf[8]  <= w.data[15:4];  rf[9]  <= w.data[15:4]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20]; end
+      2'h3:  begin rf[12] <= w.data[15:4];  rf[13] <= w.data[15:4]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20]; stageReady<=True; end
+    endcase
+    srcCnt <= srcCnt + 1;
+  end else begin
+    rf[0]  <= w.data[15:4];   rf[1]  <= w.data[15:4];  rf[2]   <= w.data[15:4];   rf[3]  <= w.data[15:4];
+    rf[4]  <= w.data[15:4];   rf[5]  <= w.data[15:4];  rf[6]   <= w.data[15:4];   rf[7]  <= w.data[15:4];
+    rf[8]  <= w.data[31:20];  rf[9]  <= w.data[31:20]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20];
+    rf[12] <= w.data[31:20];  rf[13] <= w.data[31:20]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20];
+    stageReady<=True;
+  end
 
     //wmi.req(True, mesgLengthSoFar<<myWordShift, 1, dwm, pack(mesgMetaF)); // Write, addr, 1Word, dwm, mFlag;
     //wmi.dh(w.data,  '1, dwm);                                             // Data, BE,           dwm
