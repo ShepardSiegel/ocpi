@@ -65,10 +65,13 @@ module mkDACWorker#(Clock dac_clk, Reset dac_rst) (DACWorkerIfc);
   Reg#(Bool)                     stageReady        <- mkReg(False);
   Reg#(Bit#(32))                 stageCount        <- mkReg(0);
 
+  Reg#(Bool)                     takeEven          <- mkReg(True); // start with 0
+  FIFOF#(Bit#(32))               stageF            <- mkFIFOF;
+
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
 
   Bool invertMSB = unpack(dacControl[6]);
-  Bool upConv8x  = unpack(dacControl[5]);
+  Bool upConv16x = unpack(dacControl[5]);
 
 rule operating_actions (wci.isOperating); wsiS.operate(); endrule // Indicate to the WSI-S that we are available
 
@@ -121,78 +124,52 @@ endrule
 // Push precise message WSI to WMI. This rule fires once for each word moved...
 rule emit_messagePushPrecise (wci.isOperating && wsiWordsRemain>0 && mesgReqValid && preciseBurst);
   WsiReq#(12,32,4,8,0) w <- wsiS.reqGet.get; //nd==32 nopoly
-
   if (invertMSB) begin
     w.data[31] = ~w.data[31];
     w.data[15] = ~w.data[15];
   end
-
-  //ENQ EMIT HERE
-  if (!upConv8x) begin
-    case (srcCnt)
-      2'h0:  begin rf[0]  <= w.data[15:4];  rf[1]  <= w.data[15:4]; rf[2]   <= w.data[31:20];  rf[3]  <= w.data[31:20]; end
-      2'h1:  begin rf[4]  <= w.data[15:4];  rf[5]  <= w.data[15:4]; rf[6]   <= w.data[31:20];  rf[7]  <= w.data[31:20]; end
-      2'h2:  begin rf[8]  <= w.data[15:4];  rf[9]  <= w.data[15:4]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20]; end
-      2'h3:  begin rf[12] <= w.data[15:4];  rf[13] <= w.data[15:4]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20]; stageReady<=True; end
-    endcase
-    srcCnt <= srcCnt + 1;
-  end else begin
-    rf[0]  <= w.data[15:4];   rf[1]  <= w.data[15:4];  rf[2]   <= w.data[15:4];   rf[3]  <= w.data[15:4];
-    rf[4]  <= w.data[15:4];   rf[5]  <= w.data[15:4];  rf[6]   <= w.data[15:4];   rf[7]  <= w.data[15:4];
-    rf[8]  <= w.data[31:20];  rf[9]  <= w.data[31:20]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20];
-    rf[12] <= w.data[31:20];  rf[13] <= w.data[31:20]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20];
-    stageReady<=True;
-  end
-
-  //wmi.dh(w.data, '1, (wsiWordsRemain==1));
   wsiWordsRemain <= wsiWordsRemain - 1;
-  //$display("[%0d]: %m: emit_messagePushPrecise", $time );
+  stageF.enq(w.data);
 endrule
 
 // Push imprecise message WSI to WMI...
 rule emit_messagePushImprecise (wci.isOperating && readyToPush && impreciseBurst);
   WsiReq#(12,32,4,8,0) w <- wsiS.reqGet.get; //nd==32 nopoly
-  Bool dwm = (w.reqLast);              // WSI ends with reqLast==True, used to make WMI DWM
-  Bool zlm = dwm && (w.byteEn=='0);    // Zero Length Message is 0 BEs on DWM 
-  Bit#(14) mlp1  =  mesgLengthSoFar+1; // message length so far plus one (in Words)
-  Bit#(14) mlp1B =  mlp1<<myWordShift; // message length so far plus one (in Bytes)
-  if (isAborted(w)) begin
-    doAbort <= True;
-  end else begin
-    let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(mlp1B)}; 
-
   if (invertMSB) begin
     w.data[31] = ~w.data[31];
     w.data[15] = ~w.data[15];
   end
+  Bool dwm = (w.reqLast);              // WSI ends with reqLast==True, used to make WMI DWM
+  Bool zlm = dwm && (w.byteEn=='0);    // Zero Length Message is 0 BEs on DWM 
+  Bit#(14) mlp1  =  mesgLengthSoFar+1; // message length so far plus one (in Words)
+  Bit#(14) mlp1B =  mlp1<<myWordShift; // message length so far plus one (in Bytes)
+  if (dwm) begin
+    mesgLength   <= tagged Valid pack(mlp1B);
+    readyToPush  <= False;
+    endOfMessage <= True;
+  end
+  mesgLengthSoFar <= mlp1;
+  stageF.enq(w.data);
+endrule
 
-  //ENQ EMIT HERE
-  if (!upConv8x) begin
+rule process_staged_data (wci.isOperating);
+  let sd = stageF.first;
+  if (!upConv16x) begin
     case (srcCnt)
-      2'h0:  begin rf[0]  <= w.data[15:4];  rf[1]  <= w.data[15:4]; rf[2]   <= w.data[31:20];  rf[3]  <= w.data[31:20]; end
-      2'h1:  begin rf[4]  <= w.data[15:4];  rf[5]  <= w.data[15:4]; rf[6]   <= w.data[31:20];  rf[7]  <= w.data[31:20]; end
-      2'h2:  begin rf[8]  <= w.data[15:4];  rf[9]  <= w.data[15:4]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20]; end
-      2'h3:  begin rf[12] <= w.data[15:4];  rf[13] <= w.data[15:4]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20]; stageReady<=True; end
+      2'h0:  begin rf[0]  <= sd[15:4];  rf[1]  <= sd[15:4]; rf[2]   <= sd[31:20];  rf[3]  <= sd[31:20]; end
+      2'h1:  begin rf[4]  <= sd[15:4];  rf[5]  <= sd[15:4]; rf[6]   <= sd[31:20];  rf[7]  <= sd[31:20]; end
+      2'h2:  begin rf[8]  <= sd[15:4];  rf[9]  <= sd[15:4]; rf[10]  <= sd[31:20];  rf[11] <= sd[31:20]; end
+      2'h3:  begin rf[12] <= sd[15:4];  rf[13] <= sd[15:4]; rf[14]  <= sd[31:20];  rf[15] <= sd[31:20]; stageReady<=True; end
     endcase
     srcCnt <= srcCnt + 1;
+    stageF.deq;  // consume 2 source samples every 4 target DAC samples
   end else begin
-    rf[0]  <= w.data[15:4];   rf[1]  <= w.data[15:4];  rf[2]   <= w.data[15:4];   rf[3]  <= w.data[15:4];
-    rf[4]  <= w.data[15:4];   rf[5]  <= w.data[15:4];  rf[6]   <= w.data[15:4];   rf[7]  <= w.data[15:4];
-    rf[8]  <= w.data[31:20];  rf[9]  <= w.data[31:20]; rf[10]  <= w.data[31:20];  rf[11] <= w.data[31:20];
-    rf[12] <= w.data[31:20];  rf[13] <= w.data[31:20]; rf[14]  <= w.data[31:20];  rf[15] <= w.data[31:20];
+    Bit#(12) repeatData = (takeEven) ? sd[15:4] : sd[31:20];
+    writeVReg(rf, replicate(repeatData));
     stageReady<=True;
+    takeEven <= !takeEven;
+    if (!takeEven) stageF.deq; // consume 2 source sample every 32 target DAC samples
   end
-
-    //wmi.req(True, mesgLengthSoFar<<myWordShift, 1, dwm, pack(mesgMetaF)); // Write, addr, 1Word, dwm, mFlag;
-    //wmi.dh(w.data,  '1, dwm);                                             // Data, BE,           dwm
-    if (dwm) begin
-      mesgLength   <= tagged Valid pack(mlp1B);
-      readyToPush  <= False;
-      endOfMessage <= True;
-    end
-    mesgLengthSoFar <= mlp1;
-  end
-  //$display("[%0d]: %m: emit_messagePushImprecise", $time );
 endrule
 
 // In case we abort the imprecise WSI...
