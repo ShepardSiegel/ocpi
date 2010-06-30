@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script tstseq6c for debugging ADC to DAC flow, with DRAM Delay, with Scenario E, 16X mode
+# Script tstseq6d for debugging ADC to DAC flow, with DRAM Delay, with Scenario E, 16X mode, Twos Comp ADC/DAC
 
 echo "admin probe"
 ./swctl 0xF1000000 0xF2FF0000 settime
@@ -40,6 +40,7 @@ echo "Set DACWorker W11 "
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x8   #normal
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x18  #emit on
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x38  #set bit 5 16x
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x78  #invert msb
 
 echo "Set W2 SMAdapter to Mode 0 WSI-S to WSI-M"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x0
@@ -57,8 +58,10 @@ echo "Set W4 SMAdapter to Mode 2 WSI-S to WSI-M"
 #./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x08 0x4000
 echo "Put ADC0 in normal mode"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x6200
-echo "Put ADC0 in offset binary"
-./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5056
+#echo "Put ADC0 in offset binary"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5056
+echo "Put ADC0 in 2s comp to match DAC"
+./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5054
 #echo "enable ADC stop on error"
 #./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x8
 #echo "enable ADC TimeStamp Insertion"
