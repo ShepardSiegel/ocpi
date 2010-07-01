@@ -47,6 +47,7 @@ interface Max19692Ifc;
   method Bit#(32)      dacSampleDeq;
   method Action        emitEn;
   interface SyncFIFOSrcIfc#(DacSWord) smpF;
+  //method Bool          dacUnderflow;    // Add me to allow FIFO precharge
 
   method Action        dacCtrl (Bit#(4) arg);
   method Action        doInitSeq;   // do chip init
@@ -136,7 +137,7 @@ module mkMax19692#(Clock dac_clk) (Max19692Ifc);
   rule ramp_word (!emit);
    // DacSWord dSW = ?;
    // for (Integer i=0; i<16; i=i+1) dSW[i] = muteDAC ? 0 : {dacCount,fromInteger(i)};
-    ddrSDrv.sdrData(ob16p); // push superword of 16 DAC samples
+    ddrSDrv.sdrData(obZero); // push superword of 16 DAC samples
   endrule
 
   (* fire_when_enabled *) rule synOut; syncOut_obuf  <= pack(syncOut);  endrule
