@@ -419,7 +419,7 @@ function MemReqHdr1 makeRdReqHdr (PciId rid, Bit#(8) tag, Bit#(10) len, Bit#(4) 
     trafficClass  : '0,
     hasDigest     : False,
     isPoisoned    : False,
-    attrOrdering  : False,
+    attrOrdering  : False,  // When set (relaxed): Read Completions are allowed to pass Memory Writes or Messages
     attrNoSnoop   : True,
     length        : len,
     requesterID   : rid,
