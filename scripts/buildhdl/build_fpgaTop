@@ -6,7 +6,7 @@ endif
 
 set buildTarget = $argv[1]
 set doXst       = 1  # Control if XST is run
-set doChipscope = 0  # Control if chipscope is inserted
+set doChipscope = 1  # Control if chipscope is inserted
 
 switch ($buildTarget)
   case alder:
@@ -72,7 +72,7 @@ if ($status != 0) then
 endif
 
 if ($doChipscope == 1) then
-  inserter.sh -insert $CSIN -p $PART -i fpgaTop.ngc fpgaTop_csi.ngc
+  inserter -insert $CSIN -p $PART -i fpgaTop.ngc fpgaTop_csi.ngc
 else
   cp fpgaTop.ngc fpgaTop_csi.ngc
 endif

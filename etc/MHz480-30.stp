@@ -1,0 +1,89 @@
+;Header containes information about the setup file type and revision
+<Header>
+   Product=AD9551
+   FileVersion=1.2
+   DecimalSeparator=.     ;Used for internationalization
+</Header>
+
+<FileDescription>
+
+</FileDescription>
+
+<RegisterMap>
+;The RegMap section defines the register map that will be applied to the DUT
+;when the file is loaded
+;Values and Addresses can be Hex, Binary, Octal or Decimal
+;Preceed with &H for Hex values
+;Preceed with &O for Octal values
+;Preceed with &B for Binary values - Binary Values are assumed to 8 bits
+
+;RegAddress, Value
+   &H00,&H18
+   &H02,&H00
+   &H04,&H00
+   &H05,&H00
+   &H06,&H00
+   &H07,&H00
+   &H0A,&H80
+   &H0B,&H30
+   &H0C,&H00
+   &H0D,&H00
+   &H0E,&H74
+   &H0F,&H80
+   &H10,&H80
+   &H11,&H93
+   &H12,&H3D
+   &H13,&H09
+   &H14,&H08
+   &H15,&H2A
+   &H16,&H41
+   &H17,&H50
+   &H18,&H0C
+   &H19,&HD0
+   &H1A,&H00
+   &H1B,&H80
+   &H1C,&H00
+   &H1D,&H00
+   &H1E,&HB0
+   &H1F,&H6D
+   &H20,&H15
+   &H21,&H10
+   &H22,&H5C
+   &H23,&H7F
+   &H24,&HFC
+   &H25,&H10
+   &H26,&HB0
+   &H27,&H6D
+   &H28,&H15
+   &H29,&H10
+   &H2A,&H5C
+   &H2B,&H7F
+   &H2C,&HFC
+   &H2D,&H10
+   &H2E,&H40
+   &H2F,&H00
+   &H30,&H40
+   &H31,&H00
+   &H32,&HA8
+   &H33,&H00
+   &H34,&HA8
+</RegisterMap>
+
+<PinStates>
+;This seciton contains the configuration and value of each port in the FX2
+   PortA=138
+   PortAConfig=55
+   PortC=0
+   PortCConfig=255
+   PortD=0
+   PortDConfig=255
+   PortE=0
+   PortEConfig=0
+</PinStates>
+
+;This section stores several software settings
+<SoftwareSettings>
+   AutoUpdate=1
+   RefA=622.08
+   RefB=622.08
+</SoftwareSettings>
