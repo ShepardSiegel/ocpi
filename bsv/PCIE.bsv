@@ -1336,6 +1336,7 @@ instance Connectable#(Put#(TLPData#(8)), PCIE_TRN_RECV);
       (* no_implicit_conditions, fire_when_enabled *)
       rule every;
          r.non_posted_ready(True);
+         r.completion_streaming(True);
       endrule
       rule connect;
          let data <- r.recv;
@@ -1376,6 +1377,7 @@ instance Connectable#(Put#(TLPData#(8)), PCIE_TRN_RECV_V6);
       (* no_implicit_conditions, fire_when_enabled *)
       rule every;
          r.non_posted_ready(True);
+         r.completion_streaming(True);
       endrule
       rule connect;
          let data <- r.recv;
@@ -1519,6 +1521,7 @@ instance Connectable#(Put#(TLPData#(16)), PCIE_TRN_RECV);
       (* no_implicit_conditions, fire_when_enabled *)
       rule every;
          r.non_posted_ready(True);
+         r.completion_streaming(True);
       endrule
 
       rule connect;
@@ -1573,6 +1576,7 @@ instance Connectable#(Put#(TLPData#(16)), PCIE_TRN_RECV_V6);
       (* no_implicit_conditions, fire_when_enabled *)
       rule every;
          r.non_posted_ready(True);
+         r.completion_streaming(True);
       endrule
 
       rule connect;
@@ -1621,6 +1625,7 @@ instance ConnectableWithClocks#(Put#(TLPData#(16)), PCIE_TRN_RECV);
       (* no_implicit_conditions, fire_when_enabled *)
       rule every;
          g.non_posted_ready(True);
+         g.completion_streaming(True);
       endrule
 
       rule accept_data;
@@ -1817,6 +1822,7 @@ instance ConnectableWithClocks#(Put#(TLPData#(16)), PCIE_TRN_RECV_V6);
       (* no_implicit_conditions, fire_when_enabled *)
       rule every;
          g.non_posted_ready(True);
+         g.completion_streaming(True);
       endrule
 
       rule accept_data;
