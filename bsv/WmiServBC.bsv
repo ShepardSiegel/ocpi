@@ -26,7 +26,7 @@ interface WmiServBCIfc#(numeric type ndw);
   method Action                                 now     (Bit#(64) arg);
 endinterface 
 
-module mkWmiServBC#(Vector#(4,BRAMServer#(HexABits,Bit#(32))) mem) (WmiServBCIfc#(ndw))
+module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBCIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd));
 
   Bit#(8)  wmiByteWidth  = fromInteger(valueOf(nd))>>3;         // Width of WMI in Bytes
@@ -48,8 +48,8 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(HexABits,Bit#(32))) mem) (WmiServBCIfc
   Reg#(Bool)                    mesgBufReady     <- mkDReg(False);
   Reg#(Bit#(2))                 bufDwell         <- mkReg(0);
   Reg#(Bit#(2))                 p4B              <- mkReg(0);
-  Reg#(Bit#(16))                lclMetaAddr      <- mkRegU;
-  Reg#(Bit#(16))                lclMesgAddr      <- mkRegU;
+  Reg#(DPBufBAddr)              lclMetaAddr      <- mkRegU;
+  Reg#(DPBufBAddr)              lclMesgAddr      <- mkRegU;
   Reg#(MesgMetaDW)              thisMesg         <- mkReg(unpack(32'hFEFE_FFFE));
   Reg#(MesgMetaDW)              lastMesg         <- mkReg(unpack(32'hFEFE_FFFE));
   Reg#(Bit#(16))                reqCount         <- mkReg(0);
@@ -123,7 +123,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(HexABits,Bit#(32))) mem) (WmiServBCIfc
     wrtCount <= wrtCount + 1;
     addr     <= addr + extend(wmiByteWidth);
     bytesRemainReq <= bytesRemainReq - extend(wmiByteWidth);
-    HexABits bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
+    DPBufHWAddr bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
     case (wmiByteWidth)
       4:  action
             let req4  = BRAMRequest { write:True, address:bramAddr, datain:vWord[0], responseOnWrite:False };
@@ -178,7 +178,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(HexABits,Bit#(32))) mem) (WmiServBCIfc
     Bool lastWordofReq = (bytesRemainReq==extend(wmiByteWidth));
     addr           <= addr + extend(wmiByteWidth);
     bytesRemainReq <= bytesRemainReq - extend(wmiByteWidth);
-    HexABits bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
+    DPBufHWAddr bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
     // There are at least two approaches we can take for reads:
     // We could simply read the entire 16B superword, capure the entire 16B response, then select whatever 4B/8B/16B we need
     // Or, we could issue specific 4B/8B/16B requests and then selectively capture the responses to the parts we requested
@@ -264,8 +264,8 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(HexABits,Bit#(32))) mem) (WmiServBCIfc
     method Action rdy     = mesgBufReady._write(True);
     method Action frdy    = noAction;
     method Action credit  = noAction;
-    method Action bufMeta (Bit#(16) bMeta); lclMetaAddr<=bMeta; endmethod
-    method Action bufMesg (Bit#(16) bMesg); lclMesgAddr<=bMesg; endmethod
+    method Action bufMeta (Bit#(16) bMeta); lclMetaAddr<=truncate(bMeta); endmethod
+    method Action bufMesg (Bit#(16) bMesg); lclMesgAddr<=truncate(bMesg); endmethod
     method Action fabMeta (Bit#(32) fMeta) = noAction;
     method Action fabMesg (Bit#(32) fMesg) = noAction;
     method Action fabFlow (Bit#(32) fFlow) = noAction;

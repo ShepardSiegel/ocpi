@@ -26,9 +26,16 @@ import CounterM::*;
 import DReg::*;
 import Connectable::*;
 
-// Data Buffer BRAM Address and Data Widths
-//typedef Bit#(10) HexABits; // 2^10 x 2'4 = 2^14  16KB BRAM
-typedef Bit#(11) HexABits; // 2^11 x 2'4 = 2^15  32KB BRAM
+// Data Buffer BRAM Address and Data Widths...
+typedef 32768                       DPBufSizeBytes;      // *** Set DP Buffer Size here ***
+typedef TDiv#(DPBufSizeBytes,16)    DPBufSizeInHWords;  
+typedef TLog#(DPBufSizeBytes)       DPLogBufSizeBytes;
+typedef TSub#(DPLogBufSizeBytes,2)  DPLogBufSizeDWords;
+typedef TSub#(DPLogBufSizeBytes,4)  DPLogBufSizeHWords;
+
+typedef Bit#(DPLogBufSizeBytes)  DPBufBAddr;   // A DP Buffer Byte Address
+typedef Bit#(DPLogBufSizeDWords) DPBufDWAddr;  // A DP Buffer DW   Address
+typedef Bit#(DPLogBufSizeHWords) DPBufHWAddr;  // A DP Buffer HW   Address
 
 typedef enum {Disabled,FProducer,FConsumer,Rsvd} DPDirection deriving (Bits,Eq);
 typedef enum {Passive,ActMesg,ActFlow,Rsvd}      DPRole      deriving (Bits,Eq);

@@ -37,14 +37,13 @@ endinterface
 module mkOCDP#(PciId pciDevice) (OCDPIfc);
 
   BRAM_Configure cfg = defaultValue;
-    //cfg.memorySize = 1024; // Use 10b of address on each 4B BRAM 2^10   4B x 1K = 4KB x 4 = 16KB/DP
-    cfg.memorySize = 2048; // Use 11b of address on each 4B BRAM 2^11     4B x 2K = 8KB x 4 = 32KB/DP
+    cfg.memorySize = valueOf(DPBufSizeInHWords); 
     cfg.latency    = 1;
-  Vector#(4, BRAM2Port# (HexABits, DWord)) bram <- replicateM(mkBRAM2Server(cfg));
-  function   BRAMServer#(HexABits, DWord)  getPortA (Integer i) = bram[i].portA;
-  function   BRAMServer#(HexABits, DWord)  getPortB (Integer i) = bram[i].portB;
-  Vector#(4, BRAMServer#(HexABits, DWord)) bramsA = genWith(getPortA);
-  Vector#(4, BRAMServer#(HexABits, DWord)) bramsB = genWith(getPortB);
+  Vector#(4, BRAM2Port# (DPBufHWAddr, DWord)) bram <- replicateM(mkBRAM2Server(cfg));
+  function   BRAMServer#(DPBufHWAddr, DWord)  getPortA (Integer i) = bram[i].portA;
+  function   BRAMServer#(DPBufHWAddr, DWord)  getPortB (Integer i) = bram[i].portB;
+  Vector#(4, BRAMServer#(DPBufHWAddr, DWord)) bramsA = genWith(getPortA);
+  Vector#(4, BRAMServer#(DPBufHWAddr, DWord)) bramsB = genWith(getPortB);
 
   WciSlaveIfc#(20)  wci  <- mkWciSlave;
   WtiSlaveIfc#(64)  wti  <- mkWtiSlave;
