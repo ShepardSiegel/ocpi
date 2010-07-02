@@ -26,6 +26,10 @@ import CounterM::*;
 import DReg::*;
 import Connectable::*;
 
+// Data Buffer BRAM Address and Data Widths
+//typedef Bit#(10) HexABits; // 2^10 x 2'4 = 2^14  16KB BRAM
+typedef Bit#(11) HexABits; // 2^11 x 2'4 = 2^15  32KB BRAM
+
 typedef enum {Disabled,FProducer,FConsumer,Rsvd} DPDirection deriving (Bits,Eq);
 typedef enum {Passive,ActMesg,ActFlow,Rsvd}      DPRole      deriving (Bits,Eq);
 typedef struct {

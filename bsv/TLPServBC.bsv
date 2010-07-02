@@ -77,7 +77,7 @@ typedef union tagged {
 } MemRespPacket deriving (Bits);
 
 
-module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(20) wci) (TLPServBCIfc);
+module mkTLPServBC#(Vector#(4,BRAMServer#(HexABits,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(20) wci) (TLPServBCIfc);
 
   Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
   FIFOF#(PTW16)            inF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
@@ -567,7 +567,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevi
   rule writeData (mReqF.first matches tagged WriteData .wrdata);
     mReqF.deq;
     Vector#(4, DWord)    vWords   = reverse(unpack(wrdata)); // place low-addr DW at LS
-    Vector#(4, Bit#(10)) vAddrs   = ?;
+    Vector#(4, HexABits) vAddrs   = ?;
     Vector#(4, Bool)     vInclude = ?;
     Vector#(4, Bit#(4))  vByteEn  = ?;
 
@@ -618,7 +618,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem, PciId pciDevi
     readNxtDWAddr    <= readNxtDWAddr   + 4;
     //$display("[%0d] TLP Mem: Next nDW read request (addr %x, dwLen %0d)", $time, {readNxtDWAddr,2'b00}, readRemainDWLen );
 
-    Vector#(4, Bit#(10)) vAddrs = ?;
+    Vector#(4, HexABits) vAddrs = ?;
     for (Integer i=0; i<4; i=i+1)
       //vAddrs[i] = (readNxtDWAddr + fromInteger(i))[11:2];
       vAddrs[i] = truncate((readNxtDWAddr + fromInteger(i))>>2);

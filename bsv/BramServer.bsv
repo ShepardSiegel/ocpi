@@ -26,11 +26,11 @@ module mkBramServer (BramServerIfc);
   BRAM_Configure cfg = defaultValue;
     cfg.memorySize = 1024; // Use 10b of address on each 4B BRAM 2^10
     cfg.latency    = 1;
-  Vector#(4, BRAM2Port# (Bit#(10), DWord)) bram <- replicateM(mkBRAM2Server(cfg));
-  function   BRAMServer#(Bit#(10), DWord)  getPortA (Integer i) = bram[i].portA;
-  function   BRAMServer#(Bit#(10), DWord)  getPortB (Integer i) = bram[i].portB;
-  Vector#(4, BRAMServer#(Bit#(10), DWord)) bramsA = genWith(getPortA);
-  Vector#(4, BRAMServer#(Bit#(10), DWord)) bramsB = genWith(getPortB);
+  Vector#(4, BRAM2Port# (HexABits, DWord)) bram <- replicateM(mkBRAM2Server(cfg));
+  function   BRAMServer#(HexABits, DWord)  getPortA (Integer i) = bram[i].portA;
+  function   BRAMServer#(HexABits, DWord)  getPortB (Integer i) = bram[i].portB;
+  Vector#(4, BRAMServer#(HexABits, DWord)) bramsA = genWith(getPortA);
+  Vector#(4, BRAMServer#(HexABits, DWord)) bramsB = genWith(getPortB);
 
 
   // Put Req
@@ -42,7 +42,7 @@ module mkBramServer (BramServerIfc);
     wrtCount <= wrtCount + 1;
     addr     <= addr + extend(wmiByteWidth);
     bytesRemainReq <= bytesRemainReq - extend(wmiByteWidth);
-    Bit#(10) bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
+    HexABits bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
     case (wmiByteWidth)
       4:  action
             let req4  = BRAMRequest { write:True, address:bramAddr, datain:vWord[0], responseOnWrite:False };

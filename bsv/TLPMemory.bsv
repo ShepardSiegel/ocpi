@@ -67,8 +67,8 @@ module mkTLPMemory#(PciId pciDevice) (TLPMemoryIfc);
     cfg.memorySize = 1024; // Use 10b of address on each 4B BRAM 2^10
     cfg.latency    = 1;
    
-  //Vector#(4, BRAM1PortBE#(Bit#(10), DWord, 4)) mems <- replicateM(mkBRAM1ServerBE(cfg));
-  Vector#(4, BRAM1Port#(Bit#(10), DWord)) mems <- replicateM(mkBRAM1Server(cfg));
+  //Vector#(4, BRAM1PortBE#(HexABits, DWord, 4)) mems <- replicateM(mkBRAM1ServerBE(cfg));
+  Vector#(4, BRAM1Port#(HexABits, DWord)) mems <- replicateM(mkBRAM1Server(cfg));
   Reg#(Bool)            inIgnorePkt        <- mkRegU;
   FIFOF#(PTW16)         inF                <- mkFIFOF;
   FIFOF#(PTW16)         outF               <- mkFIFOF;
@@ -192,7 +192,7 @@ module mkTLPMemory#(PciId pciDevice) (TLPMemoryIfc);
   rule writeData (mReqF.first matches tagged WriteData .wrdata);
     mReqF.deq;
     Vector#(4, DWord)    vWords   = reverse(unpack(wrdata));
-    Vector#(4, Bit#(10)) vAddrs   = ?;
+    Vector#(4, HexABits) vAddrs   = ?;
     Vector#(4, Bool)     vInclude = ?;
     Vector#(4, Bit#(4))  vByteEn  = ?;
 
@@ -263,7 +263,7 @@ module mkTLPMemory#(PciId pciDevice) (TLPMemoryIfc);
     readNxtDWAddr    <= readNxtDWAddr   + 4;
     $display("[%0d] Mem: Next read request (addr %x, len %0d)", $time, {readNxtDWAddr,2'b00}, readReaminDWLen );
 
-    Vector#(4, Bit#(10)) vAddrs = ?;
+    Vector#(4, HexABits) vAddrs = ?;
     for (Integer i=0; i<4; i=i+1)
       vAddrs[i] = (readNxtDWAddr + fromInteger(i))[11:2];
 

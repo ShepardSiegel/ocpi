@@ -26,7 +26,7 @@ interface WmiServBCIfc#(numeric type ndw);
   method Action                                 now     (Bit#(64) arg);
 endinterface 
 
-module mkWmiServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem) (WmiServBCIfc#(ndw))
+module mkWmiServBC#(Vector#(4,BRAMServer#(HexABits,Bit#(32))) mem) (WmiServBCIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd));
 
   Bit#(8)  wmiByteWidth  = fromInteger(valueOf(nd))>>3;         // Width of WMI in Bytes
@@ -123,7 +123,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem) (WmiServBCIfc
     wrtCount <= wrtCount + 1;
     addr     <= addr + extend(wmiByteWidth);
     bytesRemainReq <= bytesRemainReq - extend(wmiByteWidth);
-    Bit#(10) bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
+    HexABits bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
     case (wmiByteWidth)
       4:  action
             let req4  = BRAMRequest { write:True, address:bramAddr, datain:vWord[0], responseOnWrite:False };
@@ -178,7 +178,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(Bit#(10),Bit#(32))) mem) (WmiServBCIfc
     Bool lastWordofReq = (bytesRemainReq==extend(wmiByteWidth));
     addr           <= addr + extend(wmiByteWidth);
     bytesRemainReq <= bytesRemainReq - extend(wmiByteWidth);
-    Bit#(10) bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
+    HexABits bramAddr = truncate(lclMesgAddr>>4) + truncate(addr>>4);
     // There are at least two approaches we can take for reads:
     // We could simply read the entire 16B superword, capure the entire 16B response, then select whatever 4B/8B/16B we need
     // Or, we could issue specific 4B/8B/16B requests and then selectively capture the responses to the parts we requested

@@ -38,11 +38,11 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc);
   BRAM_Configure cfg = defaultValue;
     cfg.memorySize = 1024; // Use 10b of address on each 4B BRAM 2^10
     cfg.latency    = 1;
-  Vector#(4, BRAM2Port# (Bit#(10), DWord)) bram <- replicateM(mkBRAM2Server(cfg));
-  function   BRAMServer#(Bit#(10), DWord)  getPortA (Integer i) = bram[i].portA;
-  function   BRAMServer#(Bit#(10), DWord)  getPortB (Integer i) = bram[i].portB;
-  Vector#(4, BRAMServer#(Bit#(10), DWord)) bramsA = genWith(getPortA);
-  Vector#(4, BRAMServer#(Bit#(10), DWord)) bramsB = genWith(getPortB);
+  Vector#(4, BRAM2Port# (HexABits, DWord)) bram <- replicateM(mkBRAM2Server(cfg));
+  function   BRAMServer#(HexABits, DWord)  getPortA (Integer i) = bram[i].portA;
+  function   BRAMServer#(HexABits, DWord)  getPortB (Integer i) = bram[i].portB;
+  Vector#(4, BRAMServer#(HexABits, DWord)) bramsA = genWith(getPortA);
+  Vector#(4, BRAMServer#(HexABits, DWord)) bramsB = genWith(getPortB);
 
   WciSlaveIfc#(20)  wci  <- mkWciSlave;
   WtiSlaveIfc#(64)  wti  <- mkWtiSlave;

@@ -32,17 +32,19 @@ interface OCDPIfc;
   interface Server#(PTW16,PTW16) server;   // facing the infrastructure (remote)
 endinterface
 
+
 (* synthesize *)
 module mkOCDP#(PciId pciDevice) (OCDPIfc);
 
   BRAM_Configure cfg = defaultValue;
-    cfg.memorySize = 1024; // Use 10b of address on each 4B BRAM 2^10
+    //cfg.memorySize = 1024; // Use 10b of address on each 4B BRAM 2^10   4B x 1K = 4KB x 4 = 16KB/DP
+    cfg.memorySize = 2048; // Use 11b of address on each 4B BRAM 2^11     4B x 2K = 8KB x 4 = 32KB/DP
     cfg.latency    = 1;
-  Vector#(4, BRAM2Port# (Bit#(10), DWord)) bram <- replicateM(mkBRAM2Server(cfg));
-  function   BRAMServer#(Bit#(10), DWord)  getPortA (Integer i) = bram[i].portA;
-  function   BRAMServer#(Bit#(10), DWord)  getPortB (Integer i) = bram[i].portB;
-  Vector#(4, BRAMServer#(Bit#(10), DWord)) bramsA = genWith(getPortA);
-  Vector#(4, BRAMServer#(Bit#(10), DWord)) bramsB = genWith(getPortB);
+  Vector#(4, BRAM2Port# (HexABits, DWord)) bram <- replicateM(mkBRAM2Server(cfg));
+  function   BRAMServer#(HexABits, DWord)  getPortA (Integer i) = bram[i].portA;
+  function   BRAMServer#(HexABits, DWord)  getPortB (Integer i) = bram[i].portB;
+  Vector#(4, BRAMServer#(HexABits, DWord)) bramsA = genWith(getPortA);
+  Vector#(4, BRAMServer#(HexABits, DWord)) bramsB = genWith(getPortB);
 
   WciSlaveIfc#(20)  wci  <- mkWciSlave;
   WtiSlaveIfc#(64)  wti  <- mkWtiSlave;
@@ -102,7 +104,8 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc);
        //'h40 : rdat = pack(v[1]);  // req/wrt Count
        //'h44 : rdat = pack(v[0]);  // wrtData
        'h48 : rdat = 32'hDADE_BABE;
-       'h4C : rdat = 32'h0000_4000;  // TODO: This location returns the bufferExtent (memory size)
+       //'h4C : rdat = 32'h0000_4000;  // 2^14 16KB TODO: This location returns the bufferExtent (memory size)
+       'h4C : rdat = 32'h0000_8000;  // 2^15 32KB TODO: This location returns the bufferExtent (memory size)
        'h50 : rdat = extend(pack(bml.i_fabMesgBase));
        'h54 : rdat = extend(pack(bml.i_fabMetaBase));
        'h58 : rdat = extend(pack(bml.i_fabMesgSize));
