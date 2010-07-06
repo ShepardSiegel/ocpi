@@ -389,7 +389,7 @@ endinterface
 module mkWmemiMaster (WmemiMasterIfc#(na,nb,nd,ne));
   FIFOF#(WmemiReq#(na,nb))     reqF               <- mkSizedDFIFOF(2,wmemiIdleRequest);
   FIFOF#(WmemiDh#(nd,ne))      dhF                <- mkSizedDFIFOF(2,wmemiIdleDh);
-  FIFOF#(WmemiResp#(nd))       respF              <- mkSizedFIFOF(2);
+  FIFOF#(WmemiResp#(nd))       respF              <- mkSizedFIFOF(2); //TODO: This response FIFO has unguarded ENQ
   Reg#(Bool)                   busyWithMessage    <- mkReg(False);
   Wire#(WmemiResp#(nd))        wmemiResponse      <- mkWire;
   Wire#(Bool)                  sCmdAccept_w       <- mkWire;
@@ -413,7 +413,10 @@ module mkWmemiMaster (WmemiMasterIfc#(na,nb,nd,ne));
     reqF.deq();
   endrule
   rule dhF_deq  (sDataAccept_w); dhF.deq(); endrule
-  rule respAdvance (linkReady && !respNULL); respF.enq(wmemiResponse); endrule
+  rule respAdvance (linkReady && !respNULL);
+    respF.enq(wmemiResponse);
+    if (!respF.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full, unguarded respF
+  endrule
 
   //TODO: Factor the (nearly) common WipDataPortStatus and ExtendedStatus into reused module or function
   rule update_statusR;
@@ -492,11 +495,13 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
     reqF.enq(wmemiReq);
     trafficSticky <= True;
     cmdAccept_w   <= True;  // reactive flow-control: we assert xxxAccept on the cycle we accept
+    if (!reqF.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full, unguarded reqF
   endrule
 
   rule dhF_enq   (linkReady && wmemiDh.dataValid);
     dhF.enq(wmemiDh); 
     dhAccept_w   <= True;   // reactive flow-control: we assert xxxAccept on the cycle we accept
+    if (!dhF.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full, unguarded dhF
   endrule
 
   rule respF_deq; respF.deq(); endrule

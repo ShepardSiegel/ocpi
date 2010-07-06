@@ -472,7 +472,7 @@ module mkWmiMaster (WmiMasterIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), A
   FIFOF#(WmiReq#(na,nb))       reqF               <- mkSizedDFIFOF(2,wmiIdleRequest);
   FIFOF#(Bit#(nf))             mFlagF             <- mkSizedDFIFOF(2,'0);
   FIFOF#(WmiDh#(nd,ni,ne))     dhF                <- mkSizedDFIFOF(2,wmiIdleDh);
-  FIFOF#(WmiResp#(nd))         respF              <- mkSizedFIFOF(2);
+  FIFOF#(WmiResp#(nd))         respF              <- mkSizedFIFOF(2); //TODO: This response FIFO has unguarded ENQ
   Reg#(Bool)                   busyWithMessage    <- mkReg(False);
   Wire#(WmiResp#(nd))          wmiResponse        <- mkWire;
   Reg#(Bool)                   sThreadBusy_d      <- mkDReg(False);
