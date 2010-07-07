@@ -36,6 +36,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WmemiMasterIfc#(36,12,128,16)  wmemi             <- mkWmemiMaster;
   Reg#(Bit#(32))                 dlyCtrl           <- mkReg(dlyCtrlInit);
+  Reg#(Int#(8))                  dlyMaxReadCredit  <- mkReg(1);
   Reg#(Bit#(32))                 dlyHoldoffBytes   <- mkReg(0);
   Reg#(Bit#(32))                 dlyHoldoffCycles  <- mkReg(0);
 
@@ -62,7 +63,6 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Reg#(MesgMetaFlag)             wrtSerMeta        <- mkRegU;
   Vector#(4,Reg#(Bit#(32)))      wrtSerStage       <- replicateM(mkRegU);
   Reg#(Bit#(2))                  wrtSerPos         <- mkReg(0);
-  Reg#(Bit#(3))                  wrtDutyCount      <- mkReg(0);
 
   // Read Serialize...
   Reg#(Bit#(32))                 rdSerAddr         <- mkReg(0);
@@ -92,7 +92,10 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Accumulator2Ifc#(Int#(8))      dlyReadCredit      <- mkAccumulator2;
   Reg#(UInt#(Ndag))              dlyWAG             <- mkReg(0);
   Reg#(UInt#(Ndag))              dlyRAG             <- mkReg(0);
-  Reg#(Bool)                     blockDelayWrite    <- mkReg(False);
+  Accumulator2Ifc#(Int#(4))      dlyReadyToWrite    <- mkAccumulator2;          // Measures the occupancy of the wide16Fa FIFO
+  Reg#(Bool)                     dlyWriteJustFired  <- mkDReg(False);
+  Reg#(Bool)                     dlyReadJustFired   <- mkDReg(False);
+  Reg#(UInt#(8))                 dlyWriteFlush      <- mkReg(0);
 
   Reg#(Bit#(32))                 wmemiWrReq         <- mkReg(0);
   Reg#(Bit#(32))                 wmemiRdReq         <- mkReg(0);
@@ -265,6 +268,7 @@ function Action enqSer4B( Bit#(32) data, Bool flush);
         2: wide16Fa.enq({32'h0, data,           wrtSerStage[1], wrtSerStage[0]});
         3: wide16Fa.enq({data,  wrtSerStage[2], wrtSerStage[1], wrtSerStage[0]});
       endcase
+      dlyReadyToWrite.acc1(1);
   endaction
 endfunction
 
@@ -293,28 +297,33 @@ Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cycle
 
 (* descending_urgency = "delay_write_req, delay_read_req" *)
 
-rule delay_write_req (wci.isOperating && wmemiDly && !blockDelayWrite);
+// If we fired on the previous cycle, keep pushing writes until we run out of things to write.
+// Otherwise, wait until we have at least 4 16B Wmemi words that we could push at once.
+// Unless the dlyFlushTimer has expired in which case we just go if we have anything at all.
+rule delay_write_req (wci.isOperating && wmemiDly && ((dlyWriteJustFired||dlyWriteFlush==maxBound) ? dlyReadyToWrite>0 : dlyReadyToWrite>3) && !dlyReadJustFired);
   dlyWordsStored.acc1(1);  // One 16B word stored
   dlyWAG <= dlyWAG + 1;
-  wmemi.req(True, extend({pack(dlyWAG),4'h0}), 1);
-  wmemi.dh(wide16Fa.first, '1, True);
+  wmemi.req(True, extend({pack(dlyWAG),4'h0}), 1); // Write Request
+  wmemi.dh(wide16Fa.first, '1, True);              // Write 16B Datahandshake
   wide16Fa.deq;
   wmemiWrReq <= wmemiWrReq + 1;
-  wrtDutyCount <= wrtDutyCount + 1;
-  blockDelayWrite <= (wrtDutyCount==7);
+  dlyReadyToWrite.acc2(-1);
+  dlyWriteJustFired <= True;
+  dlyWriteFlush <= 0;
 endrule
 
-// Experiment to reduce write duty-cycle to 7/8 maximum...
-rule delay_write_unblock (wci.isOperating && wmemiDly && blockDelayWrite);
-  blockDelayWrite <= False;
+rule delay_writeFlush (wci.isOperating && wmemiDly && !dlyWriteJustFired);
+  if (dlyWriteFlush < maxBound) dlyWriteFlush <= dlyWriteFlush + 1;
 endrule
 
-rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0);
+
+rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && !dlyWriteJustFired);
   dlyWordsStored.acc2(-1);  // One 16B word read
   dlyRAG <= dlyRAG + 1;
   dlyReadCredit.acc1(-1);   // Decrement our credit by 1
-  wmemi.req(False, extend({pack(dlyRAG),4'h0}), 1);
+  wmemi.req(False, extend({pack(dlyRAG),4'h0}), 1);  // Read Request
   wmemiRdReq <= wmemiRdReq + 1;
+  dlyReadJustFired <= True;
 endrule
 
 rule delay_read_resp (wci.isOperating && wmemiDly);
@@ -433,6 +442,7 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
      'h00 : dlyCtrl          <= unpack(wciReq.data);
      'h04 : dlyHoldoffBytes  <= unpack(wciReq.data);
      'h08 : dlyHoldoffCycles <= unpack(wciReq.data);
+     'h54 : dlyMaxReadCredit <= truncate(unpack(wciReq.data));
    endcase
    //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
@@ -462,6 +472,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h48 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyReadCredit));
      'h4C : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyWAG));
      'h50 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyRAG));
+     'h54 : rdat = pack(extend(dlyMaxReadCredit));
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
@@ -472,7 +483,8 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgWtCount <= 0;
   mesgRdCount <= 0;
   dlyWordsStored.load(0);   // Initialize the number of (16B) words stored in memory
-  dlyReadCredit.load(1);    // Sets the maximum number of reads that can be inflight at once        //TODO: Understand issue with >1
+  dlyReadCredit.load(dlyMaxReadCredit);    // Sets the maximum number of reads that can be inflight at once        //TODO: Understand issue with >1
+  dlyReadyToWrite.load(0);  // How many 16B words are ReadyToWrite to DRAM
   dlyWAG  <= 0;             // Initialize the Write Address Generator accumulator
   dlyRAG  <= 0;             // Initialize the Read  Address Generator accumulator
   wci.ctlAck;
