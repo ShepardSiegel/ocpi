@@ -491,14 +491,14 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
 
   Bool linkReady = (operateD && peerIsReady);
 
-  rule reqF_enq  (linkReady && wmemiReq.cmd!=IDLE);
+  rule reqF_enq  (linkReady && wmemiReq.cmd!=IDLE && reqF.notFull);  // Rule wont fire if reqF is FULL, so cmdAccept is held off
     reqF.enq(wmemiReq);
     trafficSticky <= True;
     cmdAccept_w   <= True;  // reactive flow-control: we assert xxxAccept on the cycle we accept
     if (!reqF.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full, unguarded reqF
   endrule
 
-  rule dhF_enq   (linkReady && wmemiDh.dataValid);
+  rule dhF_enq   (linkReady && wmemiDh.dataValid && dhF.notFull);  // Rule wont fire if dhF is FULL, so dhAccept is held off
     dhF.enq(wmemiDh); 
     dhAccept_w   <= True;   // reactive flow-control: we assert xxxAccept on the cycle we accept
     if (!dhF.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full, unguarded dhF

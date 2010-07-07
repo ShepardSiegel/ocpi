@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script tstseq6d for debugging ADC to DAC flow, with DRAM Delay Bypassed, with Scenario E, 16X mode, Twos Comp ADC/DAC
+# Script tstseq6f for debugging ADC to DAC flow, with DRAM Delay, with Scenario E, 16X mode, Twos Comp ADC/DAC
 
 echo "admin probe"
 ./swctl 0xF1000000 0xF2FF0000 settime
@@ -45,10 +45,11 @@ echo "Set W2 SMAdapter to Mode 0 WSI-S to WSI-M"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x0
 
 echo "Set W3 DelayWorker"
-#./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x7
-./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x0    #bypass
-./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x04 0x000
-./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x08 0x100
+#./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x0    #bypass
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x7     #enable delay
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x04 0x0000
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x08 0x1000
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x54 0x04    # dlyMaxReadCredit of n
 
 echo "Set W4 SMAdapter to Mode 2 WSI-S to WSI-M"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 4 0x00 0x0
@@ -99,7 +100,7 @@ echo "ADCWorker config properties"
 echo "SMAdapter W2 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 2 0 14
 echo "DelayWorker W3 config properties"
-./swctl 0xF1000000 0xF2FF0000 wread 3 0 21
+./swctl 0xF1000000 0xF2FF0000 wread 3 0 22
 echo "SMAdapter W4 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 4 0 14
 echo "DACWorker config properties"

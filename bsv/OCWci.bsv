@@ -852,7 +852,7 @@ module mkWciSlave (WciSlaveIfc#(na));
   endrule
 
   rule sThreadBusy_reg; sThreadBusy_d <= sThreadBusy_pw; endrule
-  rule reqF_enq (wciReq.cmd!=IDLE); reqF.enq(wciReq); endrule
+  rule reqF_enq (wciReq.cmd!=IDLE); reqF.enq(wciReq); endrule //TODO: Unguarded FIFO - consider block xxAccept holdoff when Full
   rule respF_deq; respF.deq(); endrule
 
   rule ctl_op_start (wci_ctrl_pw);

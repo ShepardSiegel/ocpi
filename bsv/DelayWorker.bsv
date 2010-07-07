@@ -36,7 +36,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WmemiMasterIfc#(36,12,128,16)  wmemi             <- mkWmemiMaster;
   Reg#(Bit#(32))                 dlyCtrl           <- mkReg(dlyCtrlInit);
-  Reg#(Int#(8))                  dlyMaxReadCredit  <- mkReg(1);
+  Reg#(Int#(8))                  dlyMaxReadCredit  <- mkReg(4);
   Reg#(Bit#(32))                 dlyHoldoffBytes   <- mkReg(0);
   Reg#(Bit#(32))                 dlyHoldoffCycles  <- mkReg(0);
 
@@ -88,11 +88,11 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
 
   // Delay Management...
-  Accumulator2Ifc#(Int#(Ndag))   dlyWordsStored     <- mkAccumulator2;
+  Accumulator2Ifc#(Int#(TAdd#(Ndag,1))) dlyWordsStored     <- mkAccumulator2;  // Signed Accumulator needs 1 additional bit
   Accumulator2Ifc#(Int#(8))      dlyReadCredit      <- mkAccumulator2;
   Reg#(UInt#(Ndag))              dlyWAG             <- mkReg(0);
   Reg#(UInt#(Ndag))              dlyRAG             <- mkReg(0);
-  Accumulator2Ifc#(Int#(4))      dlyReadyToWrite    <- mkAccumulator2;          // Measures the occupancy of the wide16Fa FIFO
+  Accumulator2Ifc#(Int#(5))      dlyReadyToWrite    <- mkAccumulator2;          // Measures the occupancy of the wide16Fa FIFO
   Reg#(Bool)                     dlyWriteJustFired  <- mkDReg(False);
   Reg#(Bool)                     dlyReadJustFired   <- mkDReg(False);
   Reg#(UInt#(8))                 dlyWriteFlush      <- mkReg(0);
@@ -297,6 +297,7 @@ Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cycle
 
 (* descending_urgency = "delay_write_req, delay_read_req" *)
 
+// As long as we didn't just finish a read request parade (so as to be polite between reads and wtites)...
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.
 // Otherwise, wait until we have at least 4 16B Wmemi words that we could push at once.
 // Unless the dlyFlushTimer has expired in which case we just go if we have anything at all.
@@ -317,6 +318,8 @@ rule delay_writeFlush (wci.isOperating && wmemiDly && !dlyWriteJustFired);
 endrule
 
 
+// As long as we didn't just finish a write request parade (so as to be polite between writes and reads)
+// if we have reads do ask for, ask for as many as we can...
 rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && !dlyWriteJustFired);
   dlyWordsStored.acc2(-1);  // One 16B word read
   dlyRAG <= dlyRAG + 1;

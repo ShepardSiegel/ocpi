@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script tstseq6d for debugging ADC to DAC flow, with DRAM Delay, with Scenario E, 16X mode, Twos Comp ADC/DAC
+# Script tstseq6e for debugging ADC to DAC flow, with DRAM Delay, with Scenario E, 16X mode, Twos Comp ADC/DAC
 
 echo "admin probe"
 ./swctl 0xF1000000 0xF2FF0000 settime
@@ -36,8 +36,7 @@ echo "program WsiSplitter W5"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 5 0x4 0x8001   # master 0 listen slave 1 (ADC); master 1 disabled
 
 echo "Set DACWorker W11 "
-#./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x9
-./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x8   #normal
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x08  #normal
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x18  #emit on
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x38  #set bit 5 16x
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x78  #invert msb
@@ -46,16 +45,16 @@ echo "Set W2 SMAdapter to Mode 0 WSI-S to WSI-M"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x0
 
 echo "Set W3 DelayWorker"
-./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x7
 #./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x0    #bypass
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x7     #enable delay
 ./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x04 0x000
 ./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x08 0x010
 
 echo "Set W4 SMAdapter to Mode 2 WSI-S to WSI-M"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 4 0x00 0x0
 
-#echo "Put ADC0 16KB mode"
-#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x08 0x4000
+echo "Put ADC0 8KB maxMessageLength"
+./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x08 0x2000
 echo "Put ADC0 in normal mode"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x6200
 #echo "Put ADC0 in offset binary"
