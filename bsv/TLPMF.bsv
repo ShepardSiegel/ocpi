@@ -38,87 +38,64 @@ endinterface
 // From original PCIe MemReqHdr1 and CompletionHdr...
 
 typedef struct {
-   Bool isWrite;
-   Bool is4DW;
-   Bit#(5) pktType;
-   Bit#(3) trafficClass;
-   Bool hasDigest;
-   Bool isPoisoned;
-   Bool attrOrdering;
-   Bool attrNoSnoop;
+   Bool     isWrite;
+   Bool     is4DW;
+   Bit#(5)  pktType;
+   Bit#(3)  trafficClass;
+   Bool     hasDigest;
+   Bool     isPoisoned;
+   Bool     attrOrdering;
+   Bool     attrNoSnoop;
    Bit#(10) length;
-   PciId   requesterID;
-   Bit#(8) tag;
-   Bit#(4) lastDWByteEn;
-   Bit#(4) firstDWByteEn;
+   PciId    requesterID;
+   Bit#(8)  tag;
+   Bit#(4)  lastDWByteEn;
+   Bit#(4)  firstDWByteEn;
  } MemReqHdr1;
 
 instance Bits#(MemReqHdr1,64);
-   function Bit#(64) pack(MemReqHdr1 hdr);
-      return { 1'b0, pack(hdr.isWrite), pack(hdr.is4DW), hdr.pktType,
-               1'b0, hdr.trafficClass, 4'b0000,
-               pack(hdr.hasDigest), pack(hdr.isPoisoned),
-               pack(hdr.attrOrdering), pack(hdr.attrNoSnoop), 2'b00,
-               hdr.length, pack(hdr.requesterID), hdr.tag,
-               hdr.lastDWByteEn, hdr.firstDWByteEn };
+  function Bit#(64) pack(MemReqHdr1 hdr);
+    return { 1'b0, pack(hdr.isWrite), pack(hdr.is4DW), hdr.pktType,
+             1'b0, hdr.trafficClass, 4'b0000,
+             pack(hdr.hasDigest), pack(hdr.isPoisoned),
+             pack(hdr.attrOrdering), pack(hdr.attrNoSnoop), 2'b00,
+             hdr.length, pack(hdr.requesterID), hdr.tag,
+             hdr.lastDWByteEn, hdr.firstDWByteEn };
    endfunction
-   function MemReqHdr1 unpack(Bit#(64) w);
-      return (MemReqHdr1 {
-                 isWrite: unpack(w[62]),
-                 is4DW: unpack(w[61]),
-                 pktType: w[60:56],
-                 trafficClass: w[54:52],
-                 hasDigest: unpack(w[47]),
-                 isPoisoned: unpack(w[46]),
-                 attrOrdering: unpack(w[45]),
-                 attrNoSnoop: unpack(w[44]),
-                 length: w[41:32],
-                 requesterID: unpack(w[31:16]),
-                 tag: w[15:8],
-                 lastDWByteEn: w[7:4],
-                 firstDWByteEn: w[3:0]
-              });
+  function MemReqHdr1 unpack(Bit#(64) w);
+    return (MemReqHdr1 {
+             isWrite: unpack(w[62]),
+             is4DW: unpack(w[61]),
+             pktType: w[60:56],
+             trafficClass: w[54:52],
+             hasDigest: unpack(w[47]),
+             isPoisoned: unpack(w[46]),
+             attrOrdering: unpack(w[45]),
+             attrNoSnoop: unpack(w[44]),
+             length: w[41:32],
+             requesterID: unpack(w[31:16]),
+             tag: w[15:8],
+             lastDWByteEn: w[7:4],
+             firstDWByteEn: w[3:0] });
    endfunction
 endinstance
 
-function MemReqHdr1 make3DWWriteHdr (PciId rid, Bit#(10) len,
-                                     Bit#(4) firstBE, Bit#(4) lastBE);
-   return (MemReqHdr1 {
-              isWrite: True,
-              is4DW: False,
-              pktType: '0,
-              trafficClass: '0,
-              hasDigest: False,
-              isPoisoned: False,
-              attrOrdering: False,
-              attrNoSnoop: True,
-              length: len,
-              requesterID: rid,
-              tag: '0,
-              lastDWByteEn: lastBE,
-              firstDWByteEn: firstBE
-           });
+function MemReqHdr1 makeWrReqHdr (PciId rid, Bit#(10) len, Bit#(4) firstBE, Bit#(4) lastBE, Bool is64b);
+  return (MemReqHdr1 {
+    isWrite:       True,
+    is4DW:         is64b,
+    pktType:       '0,
+    trafficClass:  '0,
+    hasDigest:     False,
+    isPoisoned:    False,
+    attrOrdering:  False,
+    attrNoSnoop:   True,
+    length:        len,
+    requesterID:   rid,
+    tag:           '0,
+    lastDWByteEn:  lastBE,
+    firstDWByteEn: firstBE });
 endfunction
-
-function MemReqHdr1 make3DWWriteHdrSnoop (PciId rid, Bit#(10) len,
-                                     Bit#(4) firstBE, Bit#(4) lastBE);
-   return (MemReqHdr1 {
-              isWrite: True,
-              is4DW: False,
-              pktType: '0,
-              trafficClass: '0,
-              hasDigest: False,
-              isPoisoned: False,
-              attrOrdering: False,
-              attrNoSnoop: False,
-              length: len,
-              requesterID: rid,
-              tag: '0,
-              lastDWByteEn: lastBE,
-              firstDWByteEn: firstBE
-           });
-endfunction
-
 
 typedef enum {
    SuccessfulCompletion = 0,
@@ -374,7 +351,7 @@ endinstance
 
 function PTW16 makeWtDwReqTLP(Bit#(7) bar, Bit#(30) a, Bit#(32) wd);
   PciId  rid  = PciId {bus:255, dev:0, func:0};
-  MemReqHdr1 h = make3DWWriteHdr(rid, 1, '1, '0);
+  MemReqHdr1 h = makeWrReqHdr(rid, 1, '1, '0, False);
   return PTW16 {
     data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:byteSwap(wd)}),  // Perform DWORD byteSwap to get on TLP
     be   : '1,
@@ -385,7 +362,7 @@ endfunction
 
 function PTW16 makeWtNDwReqTLP(Bit#(7) bar, Bit#(30) a, Bit#(32) wd0, Bit#(10) dwLen);
   PciId  rid  = PciId {bus:255, dev:0, func:0};
-  MemReqHdr1 h = make3DWWriteHdr(rid, dwLen, '1, (dwLen==1)?'0:'1);
+  MemReqHdr1 h = makeWrReqHdr(rid, dwLen, '1, (dwLen==1)?'0:'1, False);
   return PTW16 {
     data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:byteSwap(wd0)}),  // Perform DWORD byteSwap to get on TLP
     be   : '1,
@@ -396,7 +373,7 @@ endfunction
 
 function PTW16 makeRdDwReqTLP(Bit#(7) bar, Bit#(30) a, Bit#(8) tag);
   PciId  rid  = PciId {bus:255, dev:0, func:0};
-  MemReqHdr1 h = makeRdReqHdr(rid, tag, 1, '1, '0);
+  MemReqHdr1 h = makeRdReqHdr(rid, tag, 1, '1, '0, False);
   return PTW16 {
     data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:'0}),
     be   : '1,
@@ -406,21 +383,21 @@ function PTW16 makeRdDwReqTLP(Bit#(7) bar, Bit#(30) a, Bit#(8) tag);
 endfunction
 
 function PTW16 makeRdNDwReqTLP(PciId rid, Bit#(7) bar, Bit#(30) a, Bit#(8) tag, Bit#(10) dwLen);
-  MemReqHdr1 h = makeRdReqHdr(rid, tag, dwLen, '1, (dwLen==1)?'0:'1);
+  MemReqHdr1 h = makeRdReqHdr(rid, tag, dwLen, '1, (dwLen==1)?'0:'1, False);
   return PTW16 {
     data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:'0}), be:remFromDW(3), hit:bar, sof:True, eof:True }; // 3DW Request
 endfunction
 
-function MemReqHdr1 makeRdReqHdr (PciId rid, Bit#(8) tag, Bit#(10) len, Bit#(4) firstBE, Bit#(4) lastBE);
+function MemReqHdr1 makeRdReqHdr (PciId rid, Bit#(8) tag, Bit#(10) len, Bit#(4) firstBE, Bit#(4) lastBE, Bool is64b);
   return (MemReqHdr1 {
     isWrite       : False,
-    is4DW         : False,
+    is4DW         : is64b,
     pktType       : '0,
     trafficClass  : '0,
     hasDigest     : False,
     isPoisoned    : False,
     attrOrdering  : False,  // When set (relaxed): Read Completions are allowed to pass Memory Writes or Messages
-    attrNoSnoop   : True,
+    attrNoSnoop   : True,   // When set, NoSnoop means transactions targeting host memory don't need to snoop cache
     length        : len,
     requesterID   : rid,
     tag           : tag,
@@ -652,8 +629,8 @@ module mkPktFork#(PktForkKey pfk) (PktForkIfc);
   Reg#(Bool)   f1Active   <- mkReg(False);  // True on the 2nd to end cycle of input packet
 
   function Bool fork0(PTW16 x);
-  Ptw16CompletionHdr p = unpack(x.data);  // defined here 4DW (3DW comp hdr + 1 DW data_
-  Ptw16Hdr    z = unpack(x.data);         // define here 4DW (2DW req hdr + 1 DW addr + 1 DW data
+  Ptw16CompletionHdr p = unpack(x.data);  // defined here 4DW (3DW comp hdr + 1 DW data)
+  Ptw16Hdr    z = unpack(x.data);         // defined here 4DW (2DW req hdr + 1 DW addr + 1 DW data)
   DWAddress dwAddr = z.dwAddr;
     case (pfk) matches
       tagged Bar   .bar: return(x.hit==1<< bar);

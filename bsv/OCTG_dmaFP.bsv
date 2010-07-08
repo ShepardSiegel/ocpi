@@ -292,7 +292,7 @@ Bit#(8)  genLimit = 4;
     PciId    rid    = PciId {bus:255, dev:0, func:0};
     Bit#(10) len    = truncate(genUnroll>>2);
     Bit#(30) dwAddr = truncate(bAddr>>2);
-    MemReqHdr1 h = make3DWWriteHdr(rid, len, '1, '0);
+    MemReqHdr1 h = makeWrReqHdr(rid, len, '1, '0, False);
     let d = PTW16 {
       data : {pack(h), dwAddr,2'b0, byteSwap(wd)},
       be   : '1,
@@ -478,7 +478,7 @@ Bit#(8)  genLimit = 4;
     PciId    rid    = PciId {bus:255, dev:0, func:0};
     Bit#(10) len    = truncate(chkUnroll>>2);
     Bit#(30) dwAddr = truncate(bAddr>>2);
-    MemReqHdr1 h = makeRdReqHdr(rid, tag, len, '1, '0);
+    MemReqHdr1 h = makeRdReqHdr(rid, tag, len, '1, '0, False);
     let d = PTW16 {
       data : {pack(h), dwAddr,2'b0, 32'h0},
       be   : '1,

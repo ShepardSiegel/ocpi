@@ -218,7 +218,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     mRespF.deq;
     Bool onlyBeatInSegment = (rres.dwLength==1);
     Bool lastSegmentInMesg = (rres.tag==8'h01); 
-    MemReqHdr1 h = make3DWWriteHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0); // TODO: Byte Enable Support
+    MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, False); // TODO: Byte Enable Support
     let w = PTW16 { data : {pack(h), fabMesgAccu, rres.data}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
     outF.enq(w);
     fabMesgAccu <= fabMesgAccu + extend(rres.dwLength<<2);  // increment the fabric address accumulator
@@ -255,7 +255,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     tlpXmtBusy      <= True;
     doXmtMetaBody   <= True;
     xmtMetaOK       <= False;
-    MemReqHdr1 h = make3DWWriteHdr(pciDevice, 4, '1, '1); // Move 4 DW for Metdata
+    MemReqHdr1 h = makeWrReqHdr(pciDevice, 4, '1, '1, False); // Move 4 DW for Metdata
     let w = PTW16 {
       data : {pack(h), fabMetaAddr, byteSwap(extend(meta.length))},
       be:'1, hit:7'h2, sof:True, eof:False };
@@ -282,7 +282,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     xmtMetaInFlight <= False;
     tlpMetaSent     <= False;
     fabMeta         <= (Invalid);
-    MemReqHdr1 h = make3DWWriteHdr(pciDevice, 1, '1, '0);
+    MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
     let w = PTW16 {
       data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)},
       be:'1, hit:7'h1, sof:True, eof:True };
@@ -301,7 +301,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule dmaXmtDoorbell (actFlow && !tlpXmtBusy && postSeqDwell==0 && creditReady);
     remStart     <= True;   // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
     postSeqDwell <= 15;     // insert dwell cycles between sending events to avoid blocking other traffic
-    MemReqHdr1 h = make3DWWriteHdr(pciDevice, 1, '1, '0);
+    MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
     flowDiagCount <= flowDiagCount + 1;
     let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
     outF.enq(w);
@@ -452,7 +452,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     remDone         <= True;  // Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
     dmaDoTailEvent  <= False;
     fabMeta         <= (Invalid);
-    MemReqHdr1 h = make3DWWriteHdr(pciDevice, 1, '1, '0);
+    MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
     let w = PTW16 {
       data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)},
       be:'1, hit:7'h1, sof:True, eof:True };
