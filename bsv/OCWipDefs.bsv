@@ -3,6 +3,9 @@
 
 package OCWipDefs;
 
+// Specify the depth of Slave-Request buffer...
+typedef 3 SRBsize; // 3 is the minimum required to support the latency of pipelined SThreadBusy
+
 // OCP-IP Enums...
 typedef enum {IDLE, WR, RD, RDEX, RDL, WRNP, WRC, BCST} OCP_CMD deriving (Bits, Eq);
 typedef enum {NULL, DVA, FAIL, ERR} OCP_RESP deriving (Bits, Eq);

@@ -6,7 +6,7 @@ endif
 
 set buildTarget = $argv[1]
 set doXst       = 1  # Control if XST is run
-set doChipscope = 1  # Control if chipscope is inserted
+set doChipscope = 0  # Control if chipscope is inserted
 
 switch ($buildTarget)
   case alder:

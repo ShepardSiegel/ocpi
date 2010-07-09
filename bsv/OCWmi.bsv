@@ -465,14 +465,15 @@ interface WmiMasterIfc#(numeric type na, numeric type nb, numeric type nd, numer
   method Bit#(24)              mesgLength;
   method Bool                  zeroLengthMesg;
   method Action                operate;
+  method WipDataPortStatus     status;
   interface Wmi_m#(na,nb,nd,ni,ne,nf) mas;  // The WMI-OCP Master Interface
 endinterface
 
 module mkWmiMaster (WmiMasterIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add#(b_,24,nf));
-  FIFOF#(WmiReq#(na,nb))       reqF               <- mkSizedDFIFOF(2,wmiIdleRequest);
-  FIFOF#(Bit#(nf))             mFlagF             <- mkSizedDFIFOF(2,'0);
-  FIFOF#(WmiDh#(nd,ni,ne))     dhF                <- mkSizedDFIFOF(2,wmiIdleDh);
-  FIFOF#(WmiResp#(nd))         respF              <- mkSizedFIFOF(2); //TODO: This response FIFO has unguarded ENQ
+  FIFOF#(WmiReq#(na,nb))       reqF               <- mkDFIFOF(wmiIdleRequest);
+  FIFOF#(Bit#(nf))             mFlagF             <- mkDFIFOF('0);
+  FIFOF#(WmiDh#(nd,ni,ne))     dhF                <- mkDFIFOF(wmiIdleDh);
+  FIFOF#(WmiResp#(nd))         respF              <- mkFIFOF;
   Reg#(Bool)                   busyWithMessage    <- mkReg(False);
   Wire#(WmiResp#(nd))          wmiResponse        <- mkWire;
   Reg#(Bool)                   sThreadBusy_d      <- mkDReg(False);
@@ -482,19 +483,30 @@ module mkWmiMaster (WmiMasterIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), A
   Reg#(Bool)                   operateD           <- mkDReg(False);
   Reg#(Bool)                   peerIsReady        <- mkDReg(False);
 
+  Reg#(WipDataPortStatus)      statusR            <- mkConfigRegU;
+  Reg#(Bool)                   errorSticky        <- mkReg(False);
+  Reg#(Bool)                   trafficSticky      <- mkReg(False);
+
   Bool linkReady = (operateD && peerIsReady);
   Bool respNULL  = (wmiResponse.resp==NULL);
   Bool respDVA   = (wmiResponse.resp==DVA);
   Bool respFAIL  = (wmiResponse.resp==FAIL);
   Bool respERR   = (wmiResponse.resp==ERR);
 
-  rule reqF_deq (!sThreadBusy_d);
+  rule reqF_deq (linkReady && !sThreadBusy_d);
     // if producer DWM, deq the message metadata associated with this request...
     if (reqF.first.reqInfo==pack(True)) mFlagF.deq();
     reqF.deq();
   endrule
-  rule dhF_deq  (!sDataThreadBusy_d); dhF.deq(); endrule
-  rule respAdvance (linkReady && !respNULL); respF.enq(wmiResponse); endrule
+
+  rule dhF_deq  (linkReady && !sDataThreadBusy_d);
+    dhF.deq();
+  endrule
+
+  rule respAdvance (linkReady && !respNULL);
+    if (respF.notFull) respF.enq(wmiResponse); // enq the response in the respF  (normal behavior)
+    else errorSticky<=True;                    // set errorSticky if we try to enq a full respF (response was dropped)
+  endrule
 
   //TODO: convert the awkward OCP bl in cycles to a friendly length in Bytes
   method Action req (Bool write, Bit#(na) addr, Bit#(nb) bl, Bool doneWithMessage, Bit#(nf) mf) if (linkReady);
@@ -514,13 +526,14 @@ module mkWmiMaster (WmiMasterIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), A
     let x = respF.first; respF.deq; return x;
   endmethod
 
-  method Bool     attn           = False;
-  method Bool     anyBusy        = sThreadBusy_d || sDataThreadBusy_d;
-  method Bit#(nf) peekSFlag      = sFlagReg;
-  method Bit#(8)  reqInfo        = truncate(sFlagReg>>24);  
-  method Bit#(24) mesgLength     = truncate(sFlagReg);
-  method Bool     zeroLengthMesg = (sFlagReg[23:0]==0);
-  method Action   operate        = operateD._write(True);
+  method Bool      attn           = False;
+  method Bool      anyBusy        = sThreadBusy_d || sDataThreadBusy_d;
+  method Bit#(nf)  peekSFlag      = sFlagReg;
+  method Bit#(8)   reqInfo        = truncate(sFlagReg>>24);  
+  method Bit#(24)  mesgLength     = truncate(sFlagReg);
+  method Bool      zeroLengthMesg = (sFlagReg[23:0]==0);
+  method Action    operate        = operateD._write(True);
+  method WipDataPortStatus status = statusR;    
 
   interface Wmi_m mas;
     method WmiReq#(na,nb) getReq   = sThreadBusy_d ? wmiIdleRequest : reqF.first;
@@ -550,6 +563,7 @@ interface WmiSlaveIfc#(numeric type na, numeric type nb, numeric type nd, numeri
   method Bit#(8)                        reqInfo;  
   method Bit#(24)                       mesgLength;
   method Action                         operate;
+  method WipDataPortStatus              status;
   interface Wmi_s#(na,nb,nd,ni,ne,nf) slv;  // The WMI-OCP Slave Interface
 endinterface
 
@@ -558,9 +572,9 @@ module mkWmiSlave (WmiSlaveIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add
   Wire#(Bit#(nf))                     wmiMFlag             <- mkWire;
   Wire#(WmiDh#(nd,ni,ne))             wmiDh                <- mkWire;
   PulseWire                           forceSThreadBusy_pw  <- mkPulseWire;
-  FIFOLevelIfc#(WmiReq#(na,nb),3)     reqF                 <- mkGFIFOLevel(True, False, True);
-  FIFOLevelIfc#(Bit#(nf),3)           mFlagF               <- mkGFIFOLevel(True, False, True);
-  FIFOLevelIfc#(WmiDh#(nd,ni,ne),3)   dhF                  <- mkGFIFOLevel(True, False, True);
+  FIFOLevelIfc#(WmiReq#(na,nb),SRBsize)   reqF             <- mkFIFOLevel;
+  FIFOLevelIfc#(Bit#(nf),SRBsize)         mFlagF           <- mkFIFOLevel;
+  FIFOLevelIfc#(WmiDh#(nd,ni,ne),SRBsize) dhF              <- mkFIFOLevel;
   FIFOF#(WmiResp#(nd))                respF                <- mkDFIFOF(wmiIdleResp);
   Reg#(Bit#(nf))                      mFlagReg             <- mkReg(0);
   Reg#(Bit#(nf))                      sFlagReg             <- mkReg(0);
@@ -568,11 +582,39 @@ module mkWmiSlave (WmiSlaveIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add
   ReadOnly#(Bool)                     isReset              <- isResetAsserted;
   Reg#(Bool)                          operateD             <- mkDReg(False);
   Reg#(Bool)                          peerIsReady          <- mkDReg(False);
+  Wire#(Bool)                         sThreadBusy_dw       <- mkDWire(True);  // Default True applies SThreadBusy Backpressure
+  Wire#(Bool)                         sDataThreadBusy_dw   <- mkDWire(True);  // Default True applies SDataThreadBusy Backpressure
+
+  Reg#(WipDataPortStatus)             statusR              <- mkConfigRegU;
+  Reg#(Bool)                          errorSticky          <- mkReg(False);
+  Reg#(Bool)                          trafficSticky        <- mkReg(False);
 
   Bool linkReady = (operateD && peerIsReady);
-  rule reqF_enq   (linkReady && wmiReq.cmd!=IDLE); reqF.enq(wmiReq); endrule
-  rule mFlagF_enq (linkReady && wmiReq.cmd!=IDLE && wmiReq.reqInfo==pack(True)); mFlagF.enq(wmiMFlag); endrule
-  rule dhF_enq    (linkReady && wmiDh.dataValid); dhF.enq(wmiDh); endrule
+
+  // Only when this rule fires (which requires the implicit condition on reqFifo.isGreaterThan) will we drive sThreadBusy_dw low...
+  rule backpressure_req (linkReady && !forceSThreadBusy_pw);
+    sThreadBusy_dw <= (reqF.isGreaterThan(valueOf(SRBsize)-2)); // for correct SThreadBusy behavior
+  endrule
+  rule backpressure_dh (linkReady);
+    sDataThreadBusy_dw <= (dhF.isGreaterThan(valueOf(SRBsize)-2)); // for correct SDataThreadBusy behavior
+  endrule
+
+  rule reqF_enq   (linkReady && wmiReq.cmd!=IDLE); 
+    if (reqF.notFull) reqF.enq(wmiReq);
+    else errorSticky <= True;
+  endrule
+
+  // Opcode and Message Size sent M->S on MFlag when DWM is indicated on reqInfo...
+  rule mFlagF_enq (linkReady && wmiReq.cmd!=IDLE && wmiReq.reqInfo==pack(True));
+    if (mFlagF.notFull) mFlagF.enq(wmiMFlag);
+    else errorSticky <= True;
+  endrule
+
+  rule dhF_enq    (linkReady && wmiDh.dataValid); 
+    if (dhF.notFull) dhF.enq(wmiDh);
+    else errorSticky <= True;
+  endrule
+
   rule respF_deq; respF.deq(); endrule
   
   // blockReq is used as a predicate to the req method so that req reads are blocked when blockReq is set.
@@ -606,14 +648,15 @@ module mkWmiSlave (WmiSlaveIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add
   method Bit#(8)  reqInfo    = truncate(mFlagReg>>24);  
   method Bit#(24) mesgLength = truncate(mFlagReg);
   method Action   operate    = operateD._write(True);
+  method WipDataPortStatus status = statusR;    
 
   interface Wmi_s slv;
     method Action putReq(WmiReq#(na,nb)   req) = wmiReq._write(req);
     method Action mFlag(Bit#(nf) mf)           = wmiMFlag._write(mf);
     method Action putDh (WmiDh#(nd,ni,ne) dh)  = wmiDh._write(dh);
     method WmiResp#(nd) getResp = respF.first;
-    method sThreadBusy      = (reqF.isGreaterThan(3-2) || forceSThreadBusy_pw || isReset || !linkReady);
-    method sDataThreadBusy  = ( dhF.isGreaterThan(3-2) || isReset || !linkReady);
+    method sThreadBusy      = sThreadBusy_dw;
+    method sDataThreadBusy  = sDataThreadBusy_dw;
     method sRespLast        = False; //TODO Implement Me
     method sFlag = sFlagReg;
     method sReset_n = !(isReset || !operateD);

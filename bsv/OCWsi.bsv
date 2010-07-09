@@ -317,7 +317,7 @@ module mkWsiMaster (WsiMasterIfc#(nb,nd,ng,nh,ni));
   //MakeResetIfc                        rstRemote        <- mkReset(0,True,clk);
   //Reset                               rstEither        <- mkResetEither
   ReadOnly#(Bool)                     isReset          <- isResetAsserted;
-  FIFOF#(WsiReq#(nb,nd,ng,nh,ni))     reqFifo          <- mkSizedDFIFOF(2,wsiIdleRequest);
+  FIFOF#(WsiReq#(nb,nd,ng,nh,ni))     reqFifo          <- mkDFIFOF(wsiIdleRequest);
   PulseWire                           sThreadBusy_pw   <- mkPulseWire;
   Reg#(Bool)                          sThreadBusy_d    <- mkReg(True);
   Reg#(Bool)                          operateD         <- mkDReg(False);
@@ -392,15 +392,13 @@ interface WsiSlaveIfc#(numeric type nb, numeric type nd, numeric type ng, numeri
   interface Wsi_s#(nb,nd,ng,nh,ni) slv; // OCP-IP WSI Slave
 endinterface
 
-// Paramatization of the depth of Slave-Request buffer...
-typedef 3 SRBsize;
-
 module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
   Wire#(WsiReq#(nb,nd,ng,nh,ni))                 wsiReq          <- mkWire;
-  FIFOLevelIfc#(WsiReq#(nb,nd,ng,nh,ni),SRBsize) reqFifo         <- mkGFIFOLevel(True, False, True);
+  FIFOLevelIfc#(WsiReq#(nb,nd,ng,nh,ni),SRBsize) reqFifo         <- mkFIFOLevel;
   ReadOnly#(Bool)                                isReset         <- isResetAsserted;
   Reg#(Bool)                                     operateD        <- mkDReg(False);
   Reg#(Bool)                                     peerIsReady     <- mkDReg(False);
+  Wire#(Bool)                                    sThreadBusy_dw  <- mkDWire(True);  // Default True applies SThreadBusy Backpressure
 
   Reg#(WipDataPortStatus)                        statusR         <- mkConfigRegU;
   Reg#(Bool)                                     errorSticky     <- mkReg(False);
@@ -413,34 +411,40 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
 
   Bool isBusy    = (burstKind!=None);
   Bool linkReady = (operateD && peerIsReady);
-  Bool backPress = (reqFifo.isGreaterThan(valueOf(SRBsize)-2)); // for correct SThreadBusy behavior
-  Bool sThreadBusyB = (backPress || isReset || !linkReady);
-  rule reqFifo_enq (linkReady && wsiReq.cmd==WR);
-    reqFifo.enq(wsiReq); 
-    let r = wsiReq;
-    if (r.cmd==WR) begin
-      case (burstKind)
-        None      :  burstKind <= (r.burstPrecise) ? Precise : Imprecise;
-        Precise   :  begin if (r.reqLast) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
-        Imprecise :  begin if (r.reqLast) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
-      endcase
-      trafficSticky <= True;
-    end
-    if (!reqFifo.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full reqFifo
+
+  // Only when this rule fires (which requires the implicit condition on reqFifo.isGreaterThan) will we drive sThreadBusy_dw low...
+  rule backpressure (linkReady);
+    sThreadBusy_dw <= (reqFifo.isGreaterThan(valueOf(SRBsize)-2)); // for correct SThreadBusy behavior
   endrule
-  rule inc_tBusyCount (linkReady && backPress); tBusyCount <= tBusyCount + 1; endrule
+
+  rule reqFifo_enq (linkReady && wsiReq.cmd==WR);
+    if (reqFifo.notFull) begin
+      reqFifo.enq(wsiReq); 
+      let r = wsiReq;
+      if (r.cmd==WR) begin
+        case (burstKind)
+          None      :  burstKind <= (r.burstPrecise) ? Precise : Imprecise;
+          Precise   :  begin if (r.reqLast) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
+          Imprecise :  begin if (r.reqLast) begin burstKind <= None; iMesgCount<=iMesgCount+1; end end
+        endcase
+        trafficSticky <= True;
+      end
+    end else errorSticky<=True;  // set errorSticky if we try to enq a full reqFifo
+  endrule
+
+  rule inc_tBusyCount (linkReady && sThreadBusy_dw); tBusyCount <= tBusyCount + 1; endrule
   rule ext_status_assign; extStatusW <= WipDataPortExtendedStatus {pMesgCount:pMesgCount, iMesgCount:iMesgCount, tBusyCount:tBusyCount}; endrule
 
   rule update_statusR;
     statusR <= WipDataPortStatus {
-      localReset      : isReset,       // 7:  This port is reset
-      partnerReset    : !peerIsReady,  // 6:  The connected partner port is reset
-      notOperatonal   : !operateD,     // 5:  This port is not Operational
-      observedError   : errorSticky,   // 4:  An error has been observed since port became operational (sticky)
-      inProgress      : isBusy,        // 3:  A message is in progress at this port
-      sThreadBusy     : sThreadBusyB,  // 2:  Present value of SThreadBusy
-      sDataThreadBusy : False,         // 1:  Present value of SDataThreadBusy (datahandshakeonly)
-      observedTraffic : trafficSticky  // 0:  Traffic has moved across this port since it became operational (sticky)
+      localReset      : isReset,        // 7:  This port is reset
+      partnerReset    : !peerIsReady,   // 6:  The connected partner port is reset
+      notOperatonal   : !operateD,      // 5:  This port is not Operational
+      observedError   : errorSticky,    // 4:  An error has been observed since port became operational (sticky)
+      inProgress      : isBusy,         // 3:  A message is in progress at this port
+      sThreadBusy     : sThreadBusy_dw, // 2:  Present value of SThreadBusy
+      sDataThreadBusy : False,          // 1:  Present value of SDataThreadBusy (datahandshakeonly)
+      observedTraffic : trafficSticky   // 0:  Traffic has moved across this port since it became operational (sticky)
     };
   endrule
   
@@ -453,7 +457,7 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
 
   interface Wsi_s slv; // OCP-IP Slave Interface Methods...
     method Action put(WsiReq#(nb,nd,ng,nh,ni) req) = wsiReq._write(req);
-    method sThreadBusy = sThreadBusyB;
+    method sThreadBusy = sThreadBusy_dw;
     method sReset_n = !(isReset || !operateD);
     method Action mReset_n = peerIsReady._write(True);
   endinterface

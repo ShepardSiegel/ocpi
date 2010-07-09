@@ -958,7 +958,7 @@ endinterface
 
 module mkWciXSlave (WciXSlaveIfc#(na));
   Wire#(WciReq#(na))            wciReq           <- mkWire;
-  FIFOLevelIfc#(WciReq#(na),3)  reqF             <- mkGFIFOLevel(True, False, True);
+  FIFOLevelIfc#(WciReq#(na),SRBsize)  reqF       <- mkFIFOLevel;
   FIFOF#(WciResp)               respF            <- mkDFIFOF(wciIdleResponse);
   Reg#(WCI_STATE)               cState           <- mkReg(Exists);  // current control state
   Reg#(WCI_STATE)               nState           <- mkReg(Exists);  // next control state
@@ -974,6 +974,7 @@ module mkWciXSlave (WciXSlaveIfc#(na));
   Reg#(Bool)                    ctlOpActive      <- mkReg(False);
   Reg#(Bool)                    ctlAckReg        <- mkDReg(False);
   ReadOnly#(Bool)               isReset          <- isResetAsserted;
+  Reg#(Bool)                    errorSticky      <- mkReg(False);
 
   // Schedule completions to have priority over new transactions...
   (* descending_urgency = "ctl_op_complete, ctl_op_start, request_decode" *)
@@ -986,7 +987,10 @@ module mkWciXSlave (WciXSlaveIfc#(na));
   endrule
 
   rule sThreadBusy_reg; sThreadBusy_d <= sThreadBusy_pw; endrule
-  rule reqF_enq (wciReq.cmd!=IDLE); reqF.enq(wciReq); endrule
+  rule reqF_enq (wciReq.cmd!=IDLE);
+    if (reqF.notFull) reqF.enq(wciReq);
+    else errorSticky <= True;
+  endrule
   rule respF_deq; respF.deq(); endrule
 
   rule ctl_op_start (wci_ctrl_pw);
@@ -1036,7 +1040,7 @@ module mkWciXSlave (WciXSlaveIfc#(na));
           addr      : mAddr,
           data      : mData });
       endmethod
-      method sThreadBusy  = (reqF.isGreaterThan(3-2) || isReset);
+      method sThreadBusy  = (reqF.isGreaterThan(valueOf(SRBsize)-2) || isReset);
     endinterface
 
     interface Wci_SlaveResp_Ifc slaveResp;

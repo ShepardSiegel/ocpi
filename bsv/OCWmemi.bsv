@@ -387,9 +387,9 @@ interface WmemiMasterIfc#(numeric type na, numeric type nb, numeric type nd, num
 endinterface
 
 module mkWmemiMaster (WmemiMasterIfc#(na,nb,nd,ne));
-  FIFOF#(WmemiReq#(na,nb))     reqF               <- mkSizedDFIFOF(2,wmemiIdleRequest);
-  FIFOF#(WmemiDh#(nd,ne))      dhF                <- mkSizedDFIFOF(2,wmemiIdleDh);
-  FIFOF#(WmemiResp#(nd))       respF              <- mkSizedFIFOF(2); //TODO: This response FIFO has unguarded ENQ
+  FIFOF#(WmemiReq#(na,nb))     reqF               <- mkDFIFOF(wmemiIdleRequest);
+  FIFOF#(WmemiDh#(nd,ne))      dhF                <- mkDFIFOF(wmemiIdleDh);
+  FIFOF#(WmemiResp#(nd))       respF              <- mkFIFOF;
   Reg#(Bool)                   busyWithMessage    <- mkReg(False);
   Wire#(WmemiResp#(nd))        wmemiResponse      <- mkWire;
   Wire#(Bool)                  sCmdAccept_w       <- mkWire;
@@ -408,14 +408,13 @@ module mkWmemiMaster (WmemiMasterIfc#(na,nb,nd,ne));
   Bool respFAIL  = (wmemiResponse.resp==FAIL);
   Bool respERR   = (wmemiResponse.resp==ERR);
 
-  rule reqF_deq (sCmdAccept_w);
-    trafficSticky <= True;
-    reqF.deq();
-  endrule
+  // Command and Data are advanced by the Slave asserting {Cmd|Data}Accept...
+  rule reqF_deq (sCmdAccept_w); trafficSticky <= True; reqF.deq(); endrule
   rule dhF_deq  (sDataAccept_w); dhF.deq(); endrule
-  rule respAdvance (linkReady && !respNULL);
-    respF.enq(wmemiResponse);
-    if (!respF.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full, unguarded respF
+
+  rule respAdvance (linkReady && !respNULL);     // This profile does not use respAccept, no response backpresure...
+    if (respF.notFull) respF.enq(wmemiResponse); // enq the response in the respF  (normal behavior)
+    else errorSticky<=True;                      // set errorSticky if we try to enq a full respF (response was dropped)
   endrule
 
   //TODO: Factor the (nearly) common WipDataPortStatus and ExtendedStatus into reused module or function
@@ -468,7 +467,7 @@ endmodule
 interface WmemiSlaveIfc#(numeric type na, numeric type nb, numeric type nd, numeric type ne);
   method ActionValue#(WmemiReq#(na,nb))   req;
   method ActionValue#(WmemiDh#(nd,ne))    dh;
-  method Action                           respd (Bit#(nd) rdata);
+  method Action                           respd (Bit#(nd) rdata, Bool respLast);
   method Action                           operate;
   method WipDataPortStatus                status;    
   interface Wmemi_s#(na,nb,nd,ne)         slv;  // The Wmemi-OCP Slave Interface
@@ -479,8 +478,8 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
   Wire#(WmemiDh#(nd,ne))                wmemiDh              <- mkWire;
   Wire#(Bool)                           cmdAccept_w          <- mkDWire(False);
   Wire#(Bool)                           dhAccept_w           <- mkDWire(False);
-  FIFOLevelIfc#(WmemiReq#(na,nb),3)     reqF                 <- mkGFIFOLevel(True, False, True);
-  FIFOLevelIfc#(WmemiDh#(nd,ne),3)      dhF                  <- mkGFIFOLevel(True, False, True);
+  FIFOF#(WmemiReq#(na,nb))              reqF                 <- mkFIFOF;
+  FIFOF#(WmemiDh#(nd,ne))               dhF                  <- mkFIFOF;
   FIFOF#(WmemiResp#(nd))                respF                <- mkDFIFOF(wmemiIdleResp);
   ReadOnly#(Bool)                       isReset              <- isResetAsserted;
   Reg#(Bool)                            operateD             <- mkDReg(False);
@@ -491,23 +490,18 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
 
   Bool linkReady = (operateD && peerIsReady);
 
-  rule reqF_enq  (linkReady && wmemiReq.cmd!=IDLE && reqF.notFull);  // Rule wont fire if reqF is FULL, so cmdAccept is held off
+  rule reqF_enq (linkReady && wmemiReq.cmd!=IDLE && reqF.notFull);  // Rule wont fire if reqF is FULL, so cmdAccept is held off
     reqF.enq(wmemiReq);
     trafficSticky <= True;
-    cmdAccept_w   <= True;  // reactive flow-control: we assert xxxAccept on the cycle we accept
-    if (!reqF.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full, unguarded reqF
+    cmdAccept_w   <= True;  // reactive flow-control: we assert cmdAccept on the cycle we accept
   endrule
 
-  rule dhF_enq   (linkReady && wmemiDh.dataValid && dhF.notFull);  // Rule wont fire if dhF is FULL, so dhAccept is held off
+  rule dhF_enq  (linkReady && wmemiDh.dataValid && dhF.notFull);    // Rule wont fire if dhF is FULL, so dhAccept is held off
     dhF.enq(wmemiDh); 
-    dhAccept_w   <= True;   // reactive flow-control: we assert xxxAccept on the cycle we accept
-    if (!dhF.notFull) errorSticky<=True;  // set errorSticky if we try to enq a full, unguarded dhF
+    dhAccept_w   <= True;   // reactive flow-control: we assert  dhAccept on the cycle we accept
   endrule
 
   rule respF_deq; respF.deq(); endrule
-
-  Bool sCmdAccept_l   = !(reqF.isGreaterThan(3-2) || isReset || !linkReady);
-  Bool sDataAccept_l  = !( dhF.isGreaterThan(3-2) || isReset || !linkReady);
 
   rule update_statusR;
     statusR <= WipDataPortStatus {
@@ -525,14 +519,12 @@ module mkWmemiSlave (WmemiSlaveIfc#(na,nb,nd,ne));
 
   // User-facing Methods...
   method ActionValue#(WmemiReq#(na,nb)) req if (linkReady);
-    let x = reqF.first;
-    reqF.deq;
-    return x;
+    let x = reqF.first; reqF.deq; return x;
   endmethod
   method ActionValue#(WmemiDh#(nd,ne)) dh if (linkReady);
-    let x = dhF.first; dhF.deq; return x;
+    let x = dhF.first;  dhF.deq; return x;
   endmethod
-  method Action   respd (Bit#(nd) rdata) if(linkReady); respF.enq( WmemiResp { resp:DVA, respLast:?, data:rdata} ); endmethod //TODO: respLast
+  method Action   respd (Bit#(nd) rdata, Bool respLast) if(linkReady); respF.enq( WmemiResp { resp:DVA, respLast:respLast, data:rdata} ); endmethod
   method Action   operate    = operateD._write(True);
   method WipDataPortStatus status = statusR;    
 

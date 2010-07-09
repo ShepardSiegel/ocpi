@@ -81,8 +81,8 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
     metaBusy <= False;
     Bit#(32) length   <- mem[0].response.get;
     Bit#(32) opcode   <- mem[1].response.get;
-    Bit#(32) nowMS      <- mem[2].response.get;
-    Bit#(32) nowLS <- mem[3].response.get;
+    Bit#(32) nowMS    <- mem[2].response.get;
+    Bit#(32) nowLS    <- mem[3].response.get;
     let m = MesgMeta { length   : length, 
                        opcode   : opcode, 
                        nowMS    : nowMS,

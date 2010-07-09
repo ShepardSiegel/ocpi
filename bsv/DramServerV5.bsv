@@ -134,7 +134,7 @@ endrule
 rule getResponse (wmemiReadInFlight>0);
   let rsp = lrespF.first; lrespF.deq();
   wmemiReadInFlight.acc2(-1);
-  wmemi.respd(rsp);
+  wmemi.respd(rsp, True);
   wmemiRdResp <= wmemiRdResp + 1;
 endrule
 
