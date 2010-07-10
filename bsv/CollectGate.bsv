@@ -23,6 +23,7 @@ typedef struct {
 interface CollectGateIfc;
   method Action      operate;                       // Operational State
   method Action      collect;                       // Gated Collection Indication
+  method Action      average;                       // Average 4 samples
   method Action      enableSync;                    // Enable Sync at capture start
   method Action      enableTimestamp;               // Enable Timestamp at capture start
   method Action      now          (Bit#(64) arg);   // Current Time
@@ -36,6 +37,7 @@ module mkCollectGate (CollectGateIfc);
   FIFOF#(SampMesg)      sampF           <-  mkSRLFIFO(4);
   PulseWire             operatePW       <-  mkPulseWire;
   PulseWire             collectPW       <-  mkPulseWire;
+  PulseWire             averagePW       <-  mkPulseWire;
   PulseWire             enaSyncPW       <-  mkPulseWire;
   PulseWire             enaTimestampPW  <-  mkPulseWire;
   Reg#(Bool)            collectD        <-  mkReg(False);
@@ -53,6 +55,10 @@ module mkCollectGate (CollectGateIfc);
   Reg#(Bit#(4))         ovrRecover      <-  mkReg(0);
   Reg#(Bit#(3))         timeMesg        <-  mkReg(0);
   Reg#(Bit#(2))         syncMesg        <-  mkReg(0);
+  Reg#(Bit#(2))         avgPhase        <-  mkReg(0);
+  Reg#(Bit#(18))        avgEven         <-  mkReg(0);
+  Reg#(Bit#(18))        avgOdd          <-  mkReg(0);
+  Wire#(Bit#(32))       avgDataW        <-  mkWire;
 
   Bool collectRising = (collectPW && !collectD);         // Rising edge of the collection (dwell) activity
   Bool activeRising  = (sampActive && !sampActiveD);     // Rising edge of active sample availability (e.g. dynamic ingress)
@@ -94,12 +100,24 @@ module mkCollectGate (CollectGateIfc);
   (* descending_urgency = "overrun_recovery, count_dropped_samples, capture_collect" *)
 
   // Send the sample data...
-  rule capture_collect (attemptSampleEnq && syncMesg==0 && ovrRecover==0 );
+  rule capture_collect (attemptSampleEnq && syncMesg==0 && ovrRecover==0 && (!averagePW || averagePW && avgPhase==0) );
     Bool lastSample = (uprollCnt==maxBurstLenW-1); 
-    SampMesg d = SampMesg { data:sampDataW, opcode:Sample, last:lastSample, be:'1 };
+    SampMesg d = SampMesg { data:(averagePW)?avgDataW:sampDataW, opcode:Sample, last:lastSample, be:'1 };
     sampCount <= sampCount + 1;
     uprollCnt <= (lastSample) ? 0 : uprollCnt + 1;
     sampF.enq(d);
+  endrule
+
+  // create the 4:1 averaged avgDataW for use in avg4 mode...
+  rule form_avg4_sample (operatePW);
+    case (avgPhase)
+      0: avgEven <=           extend(sampDataW[31:16]) + extend(sampDataW[15:0]);
+      1: avgEven <= avgEven + extend(sampDataW[31:16]) + extend(sampDataW[15:0]);
+      2: avgOdd  <=           extend(sampDataW[31:16]) + extend(sampDataW[15:0]);
+      3: avgOdd  <= avgOdd  + extend(sampDataW[31:16]) + extend(sampDataW[15:0]);
+    endcase
+    avgDataW <= {(avgOdd>>2)[15:0], (avgEven>>2)[15:0]};
+    avgPhase <= avgPhase + 1;
   endrule
 
   // ... unless we can't sucessfully enque the sample FIFO...
@@ -131,6 +149,7 @@ module mkCollectGate (CollectGateIfc);
   // Interfaces Provided...
   method Action  operate = operatePW.send;
   method Action  collect = collectPW.send;
+  method Action  average = averagePW.send;
   method Action  enableSync      = enaSyncPW.send;
   method Action  enableTimestamp = enaTimestampPW.send;
   method Action  now         (Bit#(64) arg) = nowW._write(arg);

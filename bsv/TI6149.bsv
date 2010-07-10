@@ -52,6 +52,7 @@ endinterface: Ads6149Ifc
 interface Ti6149Ifc;
   method Action        operate;
   method Action        acquire;
+  method Action        average;
   interface Clock adcSdrClk;
   interface Reset adcSdrRst;
   method Action        now             (Bit#(64) arg);
@@ -74,8 +75,10 @@ module mkTi6149#(Clock ddrClk) (Ti6149Ifc);
   CollectGateIfc          colGate      <-   mkCollectGate(clocked_by sdrClk, reset_by sdrRst);
   Reg#(Bool)              operateDReg  <-   mkDReg(False);
   Reg#(Bool)              acquireDReg  <-   mkDReg(False);
+  Reg#(Bool)              averageDReg  <-   mkDReg(False);
   Reg#(Bool)              operateD     <-   mkSyncRegFromCC(False, sdrClk);
   Reg#(Bool)              acquireD     <-   mkSyncRegFromCC(False, sdrClk);
+  Reg#(Bool)              averageD     <-   mkSyncRegFromCC(False, sdrClk);
   Reg#(SampleStats)       statsCC      <-   mkSyncRegToCC(unpack(0), sdrClk, sdrRst);
   Reg#(Bit#(32))          samp         <-   mkRegU(clocked_by sdrClk, reset_by sdrRst); //TODO: consider prune of this rank
   Reg#(Bit#(32))          sampCC       <-   mkSyncRegToCC('0, sdrClk, sdrRst);
@@ -87,12 +90,14 @@ module mkTi6149#(Clock ddrClk) (Ti6149Ifc);
   rule update_sampCC; sampCC._write(samp); endrule             // writing the sampCC synchronizer
 
   rule pipe;
-    operateD <= operateDReg;
-    acquireD <= acquireDReg;
+    operateD  <= operateDReg;
+    acquireD  <= acquireDReg;
+    averageD  <= averageDReg;
   endrule
 
   rule r_operate (operateD);  colGate.operate;          endrule
   rule r_collect (acquireD);  colGate.collect;          endrule
+  rule r_average (averageD);  colGate.average;          endrule
   rule r_now     (True);      colGate.now(nowW);        endrule
   rule r_bl      (True);      colGate.maxBurstLen(maxBurstLengthR); endrule
   rule r_sampdat (True);      colGate.sampData(samp);   endrule
@@ -136,6 +141,7 @@ module mkTi6149#(Clock ddrClk) (Ti6149Ifc);
   // Interfaces Provided...
   method Action  operate = operateDReg._write(True);
   method Action  acquire = acquireDReg._write(True);
+  method Action  average = averageDReg._write(True);
   interface Clock adcSdrClk = sdrClk;
   interface Reset adcSdrRst = sdrRst;
   method Action  now             (Bit#(64) arg) = nowW._write(arg);

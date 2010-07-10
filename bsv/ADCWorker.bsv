@@ -93,6 +93,10 @@ rule doAcquire (wci.isOperating && !unpack(adcControl[0]));
   if (!unpack(adcControl[3]) || overflowCountD==0) adcCore0.acquire();  // Pass dataMesgEnable down
 endrule
 
+rule doAverage (wci.isOperating && unpack(adcControl[4]));
+  adcCore0.average();  // Pass dataMesgEnable down
+endrule
+
 rule inc_modcnt; oneKHz.inc(); endrule
 rule send_pulse (oneKHz.tc);
   fcAdc.pulse();  // measure KHz
