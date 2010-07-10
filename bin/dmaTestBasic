@@ -1,10 +1,12 @@
 #!/bin/sh
-# Script for debugging ADC capture
+# dmaTestBasic - a script for dma "sanity" that runs in less than a minute
 
 echo "admin probe "
 sudo ./swctl 0xF1000000 0xF2FF0000 settime
 sudo ./swctl 0xF1000000 0xF2FF0000 admin
 
-./testDMA "p f m" "3" "16 32" "1000" $*
-./testDMA "p f m" "3" "0 4080" "100" $*
-./testDMA "p f m" "3" "4080" "100" $*
+./testDMA "p f m" "3" "0 2048 4112 8176" "100" $*
+
+# TODO: Understand system "hiccup" or full stall with 4096 or 8192 and 100+ iterations
+# observed only with m+m
+# seems to happen much less when size is not exactly big 2^n (try +/- 16B)
