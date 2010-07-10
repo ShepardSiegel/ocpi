@@ -35,6 +35,12 @@ echo "initialize workers"
 echo "program WsiSplitter W5"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 5 0x4 0x8001   # master 0 listen slave 1 (ADC); master 1 disabled
 
+# Some interesting test cases for synchronous ADC/DAC clocks...
+# ADC 40,  DAC 640; (1:16)  ADC 1:1; PIPE 40  MSPS; DAC 1:16
+# ADC 160, DAC 640; (1:4)   ADC 4:1; PIPE 40  MSPS; DAC 1:16
+# ADC 232, DAC 464; (1:2)   ADC 1:1; PIPE 232 MSPS; DAC 1:2
+# ADC 320, DAC 160; (2:1)   ADC 4:1; PIPE 80  MSPS; DAC 1:2
+
 echo "Set DACWorker W11 "
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x08  #normal
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x18  #emit on
@@ -61,14 +67,16 @@ echo "Put ADC0 in normal mode"
 #./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5056
 echo "Put ADC0 in 2s comp to match DAC"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5054
-#echo "enable ADC stop on error"
-#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x8
-#echo "enable ADC TimeStamp Insertion"
-#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x4
-#echo "enable ADC Sync Insertion"
-#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x2
-#echo "disable ADC sample messages"
-#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x1
+#echo "ADC averager"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x10
+#echo "ADC inhibitOnDrop"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x08
+#echo "ADC enableTimeStamp"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x04
+#echo "ADC enableSync"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x02
+#echo "ADC disableSample"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x01
 
 echo "start workers"
 ./swctl 0xF1000000 0xF2FF0000 wop 12 start

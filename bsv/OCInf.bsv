@@ -40,8 +40,8 @@ module mkOCInf#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci
 
   OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst);                 // control plane
   TLPSMIfc        sm0  <- mkTLPSM(tagged Bar 0);      // server merge, fork away Bar 0
-  TLPSMIfc        sm1  <- mkTLPSM(tagged Bar64 BarSub64{bar:1,top32K:0,func:0}); // server merge, fork Bar1 bot32K
-  TLPSMIfc        sm2  <- mkTLPSM(tagged Bar64 BarSub64{bar:1,top32K:1,func:1}); // server merge, fork Bar1 top32K
+  TLPSMIfc        sm1  <- mkTLPSM(tagged Bar64 BarSub64{bar:1,top32K:0,func:1}); // server merge, fork Bar1 bot32K, function 1
+  TLPSMIfc        sm2  <- mkTLPSM(tagged Bar64 BarSub64{bar:1,top32K:1,func:2}); // server merge, fork Bar1 top32K, function 2
   Reg#(UInt#(8))  chompCnt <- mkReg(0);               // fall-through chomp count
 
   // Intercept the highest-numbered WCI for infrastructure control and properties...
@@ -52,8 +52,8 @@ module mkOCInf#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci
   for (Integer i=0; i<15; i=i+1) rst[i] = vWci[i].mReset_n;
 
   // The producer/consumer and passive/active roles are set by dataplane configuration properties...
-  OCDPIfc         dp0  <- mkOCDP(pciDevice,reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-  OCDPIfc         dp1  <- mkOCDP(pciDevice,reset_by rst[14]); // data-plane memory (fabric producer in example app)
+  OCDPIfc  dp0  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+  OCDPIfc  dp1  <- mkOCDP(insertFNum(pciDevice,2), reset_by rst[14]); // data-plane memory (fabric producer in example app)
 
   // Infrastruture WCI slaves...
   mkConnection(vWci[13], dp0.wci_s);

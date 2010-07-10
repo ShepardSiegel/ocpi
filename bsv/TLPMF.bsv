@@ -35,6 +35,12 @@ interface OCTGIfc;
   interface Client#(PTW16,PTW16) client;
 endinterface
 
+// Convienient PCIe functions...
+
+function PciId insertFNum(PciId pcid, FuncNumber fn); // Take the pcid and replace the Function Number
+  return (PciId{bus:pcid.bus, dev:pcid.dev, func:fn}); 
+endfunction
+
 // From original PCIe MemReqHdr1 and CompletionHdr...
 
 typedef struct {
