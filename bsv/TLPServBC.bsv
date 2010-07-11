@@ -76,6 +76,7 @@ typedef union tagged {
   ReadPayld  ReadBody;
 } MemRespPacket deriving (Bits);
 
+typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b is optional; 11b with phantom-tags stealing 3b device num
 
 module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(20) wci) (TLPServBCIfc);
 
@@ -122,8 +123,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)               tlpMetaSent         <- mkReg(False);
   Reg#(Maybe#(MesgMeta))   fabMeta             <- mkReg(Invalid);
   Wire#(DPControl)         dpControl           <- mkWire;
-  Reg#(Bit#(8))            dmaTag              <- mkReg(0);
-  Reg#(Bit#(8))            dmaReqTag           <- mkRegU;
+  Reg#(Bit#(NtagBits))     dmaTag              <- mkReg(0); 
+  Reg#(Bit#(NtagBits))     dmaReqTag           <- mkRegU;
   Reg#(Bit#(10))           dmaPullRemainDWLen  <- mkRegU;
   Reg#(Bit#(10))           dmaPullRemainDWSub  <- mkRegU;
   Reg#(Bool)               gotResponseHeader   <- mkReg(False);
@@ -326,8 +327,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule dmaRequestFarMeta (actMesgC && !tlpXmtBusy && !reqMetaInFlight && !reqMetaBodyInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
     remStart        <= True;  // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
-    // TODO: request needs the correct function number to facilitate completion routing
-    PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMetaAddr>>2), dmaTag, 4); // Read Request 4DW of metadata
+    // TODO: request needs the correct function number to facilitate completion routing (see comments in OCInf.bsv)
+    PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMetaAddr>>2), extend(dmaTag), 4); // Read Request 4DW of metadata
     dmaReqTag <= dmaTag;
     dmaTag    <= dmaTag + 1; 
     outF.enq(w);
@@ -335,7 +336,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Receive the first 1DW metadata back in the completion header...
-  rule dmaRespHeadFarMeta (actMesgC && reqMetaInFlight && !tlpRcvBusy && tagCompletionMatch(pciDevice,dmaReqTag,inF.first) );
+  rule dmaRespHeadFarMeta (actMesgC && reqMetaInFlight && !tlpRcvBusy && tagCompletionMatch(pciDevice,extend(dmaReqTag),inF.first) );
     PTW16 pw = inF.first;
     Ptw16Hdr p = unpack(pw.data);
     reqMetaInFlight     <= False;
@@ -387,7 +388,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     fabMesgAccu <= fabMesgAccu + extend(thisRequestLength);                                                     // increment the fabric address accumulator
     reqMesgInFlight   <= True;  // Asserted while individual requests, with one or more (sub)completions, are in flight
     gotResponseHeader <= False;
-    PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMesgAccu>>2), dmaTag, truncate(thisRequestLength>>2));
+    PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMesgAccu>>2), extend(dmaTag), truncate(thisRequestLength>>2));
     dmaPullRemainDWLen <= truncate(thisRequestLength>>2); // How many DW remain in this request
     dmaReqTag   <= dmaTag;
     dmaTag      <= dmaTag + 1; 
@@ -395,7 +396,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     $display("[%0d]: %m: dmaPullRequestFarMesg FCactMesg-Step3/5", $time);
   endrule
 
-  rule dmaPullResponseHeaderTag (actMesgC); pullTagMatch <= tagCompletionMatch(pciDevice,dmaReqTag,inF.first); endrule
+  rule dmaPullResponseHeaderTag (actMesgC); pullTagMatch <= tagCompletionMatch(pciDevice,extend(dmaReqTag),inF.first); endrule
 
   function Action updatePullState(Bool endOfSubCompletion, Bool endOfReqCompletion);
    action

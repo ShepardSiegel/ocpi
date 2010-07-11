@@ -295,7 +295,7 @@ endrule
 // When we satisfy the constraints below, we start the read process...
 Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cyclesPassed>=dlyHoldoffCycles);
 
-(* descending_urgency = "delay_write_req, delay_read_req" *)
+(* descending_urgency = "delay_write_req, delay_read_req, delay_writeFlush" *)
 
 // As long as we didn't just finish a read request parade (so as to be polite between reads and wtites)...
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.

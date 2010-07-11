@@ -159,12 +159,7 @@ instance Bits#(CompletionHdr,96);
    endfunction
 endinstance
 
-function CompletionHdr make2DWReadCompletion (PciId cid,
-                                              PciId rid,
-					      Bit#(8) tag,
-					      Bit#(3) tc,
-					      Bool    poison,
-                                              Bit#(7) lowAddr);
+function CompletionHdr make2DWReadCompletion (PciId cid, PciId rid, Bit#(8) tag, Bit#(3) tc, Bool poison, Bit#(7) lowAddr);
    return (CompletionHdr {
               hasData: True,
               trafficClass: tc,
@@ -173,7 +168,7 @@ function CompletionHdr make2DWReadCompletion (PciId cid,
               attrOrdering: False,
               attrNoSnoop: False,
               length: 1,
-	      completerID: cid,
+	            completerID: cid,
               status: SuccessfulCompletion,
               byteCountModified: False,
               byteCount: 0,
@@ -183,13 +178,7 @@ function CompletionHdr make2DWReadCompletion (PciId cid,
            });
 endfunction
 
-function CompletionHdr makeReadCompletionHdr (PciId cid,
-                                              PciId rid,
-                                              Bit#(10) length,
-					      Bit#(8) tag,
-					      Bit#(3) tc,
-                                              Bit#(7) lowAddr,
-                                              Bit#(12) byteCount);
+function CompletionHdr makeReadCompletionHdr (PciId cid, PciId rid, Bit#(10) length, Bit#(8) tag, Bit#(3) tc, Bit#(7) lowAddr, Bit#(12) byteCount);
    return (CompletionHdr {
               hasData: True,
               trafficClass: tc,
@@ -198,7 +187,7 @@ function CompletionHdr makeReadCompletionHdr (PciId cid,
               attrOrdering: False,
               attrNoSnoop: False,
               length: length,
-	      completerID: cid,
+	            completerID: cid,
               status: SuccessfulCompletion,
               byteCountModified: False,
               byteCount: byteCount,
@@ -626,7 +615,6 @@ module mkPktFork#(PktForkKey pfk) (PktForkIfc);
   FIFO#(PTW16) fo0        <- mkFIFO;
   FIFO#(PTW16) fo1        <- mkFIFO;
   */
-  // FIXME: Use of the mkSRL_FIFOF here seems to cause bsc to run forever...
   FIFOF#(PTW16) fi        <- mkSRLFIFO(4);
   FIFOF#(PTW16) fo0       <- mkSRLFIFO(4);
   FIFOF#(PTW16) fo1       <- mkSRLFIFO(4);
@@ -641,7 +629,7 @@ module mkPktFork#(PktForkKey pfk) (PktForkIfc);
     case (pfk) matches
       tagged Bar   .bar: return(x.hit==1<< bar);
       tagged Bar64 .b64: 
-        if (z.hdr.pktType==5'b01010) return(p.hdr.requesterID.func==b64.func);  // if a completion
+        if (z.hdr.pktType==5'b01010) return(p.hdr.requesterID.func==b64.func);  // if a completion, Fork on function match
         else return((x.hit==1<<b64.bar) && (b64.top32K[0]==dwAddr[13]));
       tagged Bus   .bus:   return((p.hdr.requesterID.bus==bus)&&(z.hdr.pktType==5'b01010));
       tagged Route .route: 
