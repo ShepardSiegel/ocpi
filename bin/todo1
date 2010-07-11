@@ -1,0 +1,11 @@
+#!/bin/sh
+# dmaTestBasic - a script for dma "sanity" that runs in less than a minute
+
+#./testDMA "p f m" "3" "0 4112 8176" "100" $*
+#./testDMA "p f m" "3" "0 4096 8192" "100" $*
+
+# TODO: Understand system "hiccup" or full stall with 4096 or 8192 and 100+ iterations
+# observed only with m+m
+# seems to happen much less when size is not exactly big 2^n (try +/- 16B)
+
+sudo -E testRpl -r1im -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 4096 -i 13 -N4i 3 -r6om -N6o 3 -p 0000:03:00.0 
