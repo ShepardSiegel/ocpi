@@ -67,8 +67,8 @@ echo "Put ADC0 in normal mode"
 #./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5056
 echo "Put ADC0 in 2s comp to match DAC"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5054
-#echo "ADC averager"
-#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x10
+echo "ADC averager"
+./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x10
 #echo "ADC inhibitOnDrop"
 #./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x08
 #echo "ADC enableTimeStamp"
