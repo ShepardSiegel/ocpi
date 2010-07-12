@@ -28,30 +28,28 @@ endinterface
 
 (* synthesize *)
 module mkDACWorker#(Clock dac_clk, Reset dac_rst) (DACWorkerIfc);
-  WciSlaveIfc#(20)            wci                <-  mkWciSlave;               // WCI
-  WtiSlaveIfc#(64)            wti                <-  mkWtiSlave(clocked_by dac_clk, reset_by dac_rst); 
-  Reg#(Bool)                  sFlagState         <-  mkReg(False);             // Worker Attention
-  Reg#(Bool)                  splitReadInFlight  <-  mkReg(False);             // Split WCI Read
-  Reg#(Bool)                  initOpInFlight     <-  mkReg(False);             // Asserted While Init-ing
-  Max19692Ifc                 dacCore0           <-  mkMax19692(dac_clk);      // DAC
-  Clock                       dacSdrClk          =   dacCore0.dac.dacSdrClk;
-  FreqCounterIfc#(16)         fcDac              <-  mkFreqCounter(dacSdrClk); // Measure DAC SDR clock 1/16 DAC Clk
-  CounterMod#(Bit#(18))       oneKHz             <-  mkCounterMod(125000);
-  Reg#(Bit#(32))              dacControl         <-  mkReg(32'h0000_0008);
-  Reg#(Bit#(32))              mesgCount          <-  mkReg(0);
-  Reg#(Bit#(32))              lastOverflowMesg   <-  mkReg('1);
-  WsiSlaveIfc#(12,32,4,8,0)   wsiS               <-  mkWsiSlave;               //nd=32 not poly
-  Reg#(Bit#(16))              unrollCnt          <-  mkReg(0);
-  Reg#(Bit#(32))              popCount           <-  mkReg(0);
-  Reg#(Bit#(32))              syncCount          <-  mkReg(0);
-  Reg#(Bit#(32))              mesgStart          <-  mkReg(0);
-  Reg#(Maybe#(Bit#(8)))       opcode             <-  mkReg(tagged Invalid);
-  Reg#(Bit#(2))               srcCnt             <-  mkReg(0);
-  Vector#(16,Reg#(Bit#(12)))  rf                 <-  replicateM(mkReg(0));
-  Reg#(Bit#(32))              stageCount         <-  mkReg(0);
-  Reg#(Bool)                  takeEven           <-  mkReg(True);               // start with 0, little-endian
-  FIFOF#(Bit#(32))            stageF             <-  mkFIFOF;
-  Reg#(UInt#(8))              wordsConsumed      <-  mkReg(0);
+  WciSlaveIfc#(20)            wci                 <-  mkWciSlave;               // WCI
+  WtiSlaveIfc#(64)            wti                 <-  mkWtiSlave(clocked_by dac_clk, reset_by dac_rst); 
+  Reg#(Bool)                  sFlagState          <-  mkReg(False);             // Worker Attention
+  Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);             // Split WCI Read
+  Reg#(Bool)                  initOpInFlight      <-  mkReg(False);             // Asserted While Init-ing
+  Max19692Ifc                 dacCore0            <-  mkMax19692(dac_clk);      // DAC
+  Clock                       dacSdrClk           =   dacCore0.dac.dacSdrClk;
+  FreqCounterIfc#(16)         fcDac               <-  mkFreqCounter(dacSdrClk); // Measure DAC SDR clock 1/16 DAC Clk
+  CounterMod#(Bit#(18))       oneKHz              <-  mkCounterMod(125000);
+  Reg#(Bit#(32))              dacControl          <-  mkReg(32'h0000_0008);
+  Reg#(Bit#(32))              firstUnderflowMesg  <-  mkReg('1);
+  Reg#(Bool)                  hasUnderflowed      <-  mkReg(False);
+  WsiSlaveIfc#(12,32,4,8,0)   wsiS                <-  mkWsiSlave;               //nd=32 not poly
+  Reg#(Bit#(32))              syncCount           <-  mkReg(0);
+  Reg#(Bit#(32))              mesgStart           <-  mkReg(0);
+  Reg#(Maybe#(Bit#(8)))       opcode              <-  mkReg(tagged Invalid);
+  Reg#(Bit#(2))               srcCnt              <-  mkReg(0);
+  Vector#(16,Reg#(Bit#(12)))  rf                  <-  replicateM(mkReg(0));
+  Reg#(Bit#(32))              stageCount          <-  mkReg(0);
+  Reg#(Bool)                  takeEven            <-  mkReg(True);               // start with 0, little-endian
+  FIFOF#(Bit#(32))            stageF              <-  mkFIFOF;
+  Reg#(UInt#(8))              wordsConsumed       <-  mkReg(0);
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
 
@@ -73,10 +71,7 @@ rule emit_mesgConsume (wci.isOperating && isValid(opcode));
   end
   stageF.enq(w.data);                        // First level data staging on stageF
   if (wordsConsumed < maxBound) wordsConsumed <= wordsConsumed + 1;
-  if (w.reqLast) begin
-    opcode         <= tagged Invalid;
-    mesgCount      <= mesgCount + 1;
-  end
+  if (w.reqLast) opcode <= tagged Invalid;
 endrule
 
 rule process_staged_data (wci.isOperating);
@@ -107,6 +102,11 @@ endrule
 
 rule doEmit (wci.isOperating && unpack(dacControl[4]) && wordsConsumed>127); // wait for 128 Words, 256 WSI samples
   dacCore0.emitEn();
+endrule
+
+rule capture_underflow(wci.isOperating && !hasUnderflowed && dacCore0.underflowCnt!=0);
+  firstUnderflowMesg <= mesgStart;
+  hasUnderflowed     <= True;
 endrule
 
 rule inc_modcnt; oneKHz.inc(); endrule
@@ -145,9 +145,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
        'h0C : rdat = dacControl;
        'h10 : rdat = extend(fcDac); // multiply by 8*2 for DAC sample rate
        'h14 : rdat = dacCore0.dacSampleDeq;
-       'h18 : rdat = mesgCount;
-       'h28 : rdat = popCount;
-       'h2C : rdat = extend(unrollCnt);
+       'h24 : rdat = firstUnderflowMesg;
        'h30 : rdat = syncCount;
        'h34 : rdat = mesgStart;
        'h38 : rdat = dacCore0.underflowCnt;

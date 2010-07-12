@@ -60,42 +60,38 @@ endinterface: Max19692Ifc
 
 module mkMax19692#(Clock dac_clk) (Max19692Ifc);
 
-  DDRSlaveDriveIfc       ddrSDrv       <-  mkDDRSlaveDrive(dac_clk);
-  Clock                  sdrClk        =   ddrSDrv.sdrClk;
-  Reset                  sdrRst        <-  mkAsyncResetFromCR(1,sdrClk);
-  Reg#(Bit#(8))          dacCount      <-  mkRegU(        clocked_by sdrClk, reset_by sdrRst);
-  Reg#(Bool)             calBit        <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
-  Reg#(Bool)             muteDAC       <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
-  Reg#(Bool)             syncOut       <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
-  Reg#(Bool)             syncMute      <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
-  DiffOutIfc#(Bit#(1))   syncOut_obuf  <-  mkOBUFDS(      clocked_by sdrClk, reset_by sdrRst);
-  DiffOutIfc#(Bit#(1))   syncMute_obuf <-  mkOBUFDS(      clocked_by sdrClk, reset_by sdrRst);
-  SyncBitIfc#(Bit#(1))   dcmLck_cc     <-  mkSyncBitToCC(sdrClk,sdrRst);
-  SyncFIFOIfc#(DacSWord) sampF         <-  mkSyncBRAMFIFOFromCC(512,sdrClk, sdrRst);
-  Reg#(Bit#(4))          dacCtrl_w     <-  mkReg(4'h8);
-  ReadOnly#(Bit#(4))     dacCtrl_s     <-  mkNullCrossingWire(sdrClk, dacCtrl_w);
-  PulseWire              emitEn_pw     <-  mkPulseWire;                                     // EmitEn Method Enabled
-  SyncBitIfc#(Bit#(1))   emitEn_d      <-  mkSyncBitFromCC(sdrClk);                         // EmitEn in sdrClk domain
-  Reg#(Bool)             emit          <-  mkReg(False,clocked_by sdrClk, reset_by sdrRst); // emit  flop   
-  Reg#(Bool)             emitD         <-  mkReg(False,clocked_by sdrClk, reset_by sdrRst); // emitD flop
+  DDRSlaveDriveIfc        ddrSDrv       <-  mkDDRSlaveDrive(dac_clk);
+  Clock                   sdrClk        =   ddrSDrv.sdrClk;
+  Reset                   sdrRst        <-  mkAsyncResetFromCR(1,sdrClk);
+  Reg#(Bit#(8))           dacCount      <-  mkRegU(        clocked_by sdrClk, reset_by sdrRst);
+  Reg#(Bool)              calBit        <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
+  Reg#(Bool)              muteDAC       <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
+  Reg#(Bool)              syncOut       <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
+  Reg#(Bool)              syncMute      <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
+  DiffOutIfc#(Bit#(1))    syncOut_obuf  <-  mkOBUFDS(      clocked_by sdrClk, reset_by sdrRst);
+  DiffOutIfc#(Bit#(1))    syncMute_obuf <-  mkOBUFDS(      clocked_by sdrClk, reset_by sdrRst);
+  SyncBitIfc#(Bit#(1))    dcmLck_cc     <-  mkSyncBitToCC(sdrClk,sdrRst);
+  SyncFIFOIfc#(DacSWord)  sampF         <-  mkSyncBRAMFIFOFromCC(512, sdrClk, sdrRst);
+  Reg#(Bit#(4))           dacCtrl_w     <-  mkReg(4'h8);
+  ReadOnly#(Bit#(4))      dacCtrl_s     <-  mkNullCrossingWire(sdrClk, dacCtrl_w);
+  PulseWire               emitEn_pw     <-  mkPulseWire;                                        // EmitEn Method Enabled
+  SyncBitIfc#(Bit#(1))    emitEn_d      <-  mkSyncBitFromCC(sdrClk);                            // EmitEn in sdrClk domain
+  Reg#(Bool)              emit          <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst); // emit  flop   
+  Reg#(Bool)              emitD         <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst); // emitD flop
+  Reg#(Bit#(32))          emitCnt       <-  mkReg(0,       clocked_by sdrClk, reset_by sdrRst);
+  Reg#(Bit#(32))          emitCntCC     <-  mkSyncRegToCC(0, sdrClk, sdrRst);
+  Reg#(Bit#(32))          undCount      <-  mkReg(0,clocked_by sdrClk, reset_by sdrRst);
+  Reg#(Bit#(32))          undCountCC    <-  mkSyncRegToCC(0, sdrClk, sdrRst);
 
-  Reg#(Bit#(32))         emitCnt      <-   mkReg(0, clocked_by sdrClk, reset_by sdrRst);
-  Reg#(Bit#(32))         emitCntCC    <-   mkSyncRegToCC(0, sdrClk, sdrRst);
-
-  rule emit_to_sdr;  emitEn_d.send(pack(emitEn_pw));             endrule  // CC  domain connect
-  rule sdr_emit_adv; emit<=unpack(emitEn_d.read); emitD <= emit; endrule  // SDR domain connect
-
-  rule update_emitcnt;    emitCntCC._write(emitCnt);     endrule
-
-  Reg#(Bit#(32))          undCount     <-   mkReg(0,clocked_by sdrClk, reset_by sdrRst);
-  Reg#(Bit#(32))          undCountCC   <-   mkSyncRegToCC(0, sdrClk, sdrRst);
-  rule update_undcount;   undCountCC._write(undCount);   endrule
+  rule emit_to_sdr;      emitEn_d.send(pack(emitEn_pw));             endrule  // CC  domain connect
+  rule sdr_emit_adv;     emit<=unpack(emitEn_d.read); emitD <= emit; endrule  // SDR domain connect
+  rule update_emitcnt;   emitCntCC._write(emitCnt);                  endrule
+  rule update_undcount;  undCountCC._write(undCount);                endrule
 
   rule und_count (emit && !sampF.notEmpty);
-    ddrSDrv.sdrData(obZero);
-    undCount <= undCount + 1;
+    ddrSDrv.sdrData(obZero);   // Drive out zero when we underflow
+    undCount <= undCount + 1;  // Bump the undeflow counter
   endrule
-
 
   // Max19692 Initialization/Calibration sequence... (see Pp14 MAX19692 datasheet)
   Stmt iseq = seq
