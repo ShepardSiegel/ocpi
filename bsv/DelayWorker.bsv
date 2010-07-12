@@ -319,8 +319,8 @@ endrule
 
 
 // As long as we didn't just finish a write request parade (so as to be polite between writes and reads)
-// if we have reads do ask for, ask for as many as we can...
-rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && !dlyWriteJustFired);
+// if we have reads do ask for, ask for as many as we can, as long as the WSI-M request FIFO is not Full (due to downstream backpressure)...
+rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && !dlyWriteJustFired && wsiM.reqFifoNotFull);
   dlyWordsStored.acc2(-1);  // One 16B word read
   dlyRAG <= dlyRAG + 1;
   dlyReadCredit.acc1(-1);   // Decrement our credit by 1

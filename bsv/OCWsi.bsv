@@ -306,6 +306,7 @@ endfunction
 interface WsiMasterIfc#(numeric type nb, numeric type nd, numeric type ng, numeric type nh, numeric type ni);
   interface Put#(WsiReq#(nb,nd,ng,nh,ni))  reqPut;   // The WSI Request Put
   method Action                            operate;  // Assert to operate
+  method Bool                              reqFifoNotFull; 
   method WipDataPortStatus                 status;    
   method WipDataPortExtendedStatus         extStatus;
   interface Wsi_m#(nb,nd,ng,nh,ni) mas; // OCP-IP WSI Master 
@@ -368,6 +369,7 @@ module mkWsiMaster (WsiMasterIfc#(nb,nd,ng,nh,ni));
   // User-facing Methods...
   interface reqPut = toPut(reqFifo);
   method Action operate = operateD._write(True);
+  method Bool reqFifoNotFull = reqFifo.notFull; 
   method WipDataPortStatus status = statusR;    
   method WipDataPortExtendedStatus extStatus = extStatusW;
 
