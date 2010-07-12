@@ -295,7 +295,7 @@ endrule
 // When we satisfy the constraints below, we start the read process...
 Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cyclesPassed>=dlyHoldoffCycles);
 
-(* descending_urgency = "delay_write_req, delay_read_req, delay_writeFlush" *)
+(* descending_urgency = "delay_read_req, delay_write_req, delay_writeFlush" *)
 
 // As long as we didn't just finish a read request parade (so as to be polite between reads and wtites)...
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.
@@ -329,14 +329,12 @@ rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCred
   dlyReadJustFired <= True;
 endrule
 
+(* fire_when_enabled *)
 rule delay_read_resp (wci.isOperating && wmemiDly);
-  dlyReadCredit.acc2(1);   // Restore our credit by one
   let x <- wmemi.resp;
   wide16Fb.enq(x.data);
   wmemiRdResp <= wmemiRdResp + 1;
 endrule
-
-
 
 function ActionValue#(Bit#(32)) deqSer4B();
   return (
@@ -349,6 +347,7 @@ function ActionValue#(Bit#(32)) deqSer4B();
         rdSerStage[2] <= rdata[95:64];
         rdSerStage[3] <= rdata[127:96];
         wide16Fb.deq;
+        dlyReadCredit.acc2(1);   // Restore our credit by one
         rdSerEmpty <= False;
       end
       rdSerPos <= rdSerPos + 1;
