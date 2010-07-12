@@ -88,11 +88,6 @@ module mkMax19692#(Clock dac_clk) (Max19692Ifc);
   rule update_emitcnt;   emitCntCC._write(emitCnt);                  endrule
   rule update_undcount;  undCountCC._write(undCount);                endrule
 
-  rule und_count (emit && !sampF.notEmpty);
-    ddrSDrv.sdrData(obZero);   // Drive out zero when we underflow
-    undCount <= undCount + 1;  // Bump the undeflow counter
-  endrule
-
   // Max19692 Initialization/Calibration sequence... (see Pp14 MAX19692 datasheet)
   Stmt iseq = seq
     muteDAC <= True;          // Mute the data to the DAC OSERDES (DAC inputs not switching)
@@ -123,16 +118,20 @@ module mkMax19692#(Clock dac_clk) (Max19692Ifc);
     syncOut <= (dacCount=='0);
   endrule
 
-
+  (* fire_when_enabled *)
   rule emit_word (emit);
-    ddrSDrv.sdrData(sampF.first);
-    sampF.deq;
-    emitCnt <= emitCnt + 1;
+    if (sampF.notEmpty) begin       // Samples available...
+      ddrSDrv.sdrData(sampF.first);   // Push to DAC
+      sampF.deq;                      // DEQ
+      emitCnt  <= emitCnt + 1;        // Bump emission count
+    end else begin                  // No Samples available...
+      ddrSDrv.sdrData(obZero);        // Drive out zero when we underflow
+      undCount <= undCount + 1;       // Bump the undeflow counter
+    end
   endrule
 
+  (* fire_when_enabled *)
   rule ramp_word (!emit);
-   // DacSWord dSW = ?;
-   // for (Integer i=0; i<16; i=i+1) dSW[i] = muteDAC ? 0 : {dacCount,fromInteger(i)};
     ddrSDrv.sdrData(obZero); // push superword of 16 DAC samples
   endrule
 
