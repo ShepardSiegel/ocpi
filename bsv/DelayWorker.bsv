@@ -86,6 +86,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   FIFOF#(Bit#(nd))               mesgRF             <- mkSRLFIFO(4);            // Needs only to be large enough to accomodate the dlyReadCredit
   FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
+  FIFOF#(Bit#(128))              wide16Fc           <- mkSRLFIFO(4);
 
   // Delay Management...
   Accumulator2Ifc#(Int#(TAdd#(Ndag,1))) dlyWordsStored     <- mkAccumulator2;  // Signed Accumulator needs 1 additional bit
@@ -103,6 +104,8 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
 
   Bool wsiPass  = (dlyCtrl[3:0]==4'h0);
   Bool wmemiDly = (dlyCtrl[3:0]==4'h7);
+  Bool wtImpolite = unpack(dlyCtrl[4]); // Set to let writes issue immediately after reads (may improve WR BW)
+  Bool rdImpolite = unpack(dlyCtrl[5]); // Set to let reads issue immediately after writes (may improve RD BW)
 
   Bool impWsiM = False;
 
@@ -299,9 +302,9 @@ Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cycle
 
 // As long as we didn't just finish a read request parade (so as to be polite between reads and wtites)...
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.
-// Otherwise, wait until we have at least 4 16B Wmemi words that we could push at once.
+// Otherwise, wait until we have at least 8 16B Wmemi words that we could push at once.
 // Unless the dlyFlushTimer has expired in which case we just go if we have anything at all.
-rule delay_write_req (wci.isOperating && wmemiDly && ((dlyWriteJustFired||dlyWriteFlush==maxBound) ? dlyReadyToWrite>0 : dlyReadyToWrite>3) && !dlyReadJustFired);
+rule delay_write_req (wci.isOperating && wmemiDly && ((dlyWriteJustFired||dlyWriteFlush==maxBound) ? dlyReadyToWrite>0 : dlyReadyToWrite>7) && (!dlyReadJustFired || wtImpolite));
   dlyWordsStored.acc1(1);  // One 16B word stored
   dlyWAG <= dlyWAG + 1;
   wmemi.req(True, extend({pack(dlyWAG),4'h0}), 1); // Write Request
@@ -320,7 +323,7 @@ endrule
 
 // As long as we didn't just finish a write request parade (so as to be polite between writes and reads)
 // if we have reads do ask for, ask for as many as we can, as long as the WSI-M request FIFO is not Full (due to downstream backpressure)...
-rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && !dlyWriteJustFired && wsiM.reqFifoNotFull);
+rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && (!dlyWriteJustFired || rdImpolite) && wsiM.reqFifoNotFull);
   dlyWordsStored.acc2(-1);  // One 16B word read
   dlyRAG <= dlyRAG + 1;
   dlyReadCredit.acc1(-1);   // Decrement our read credit by one
@@ -336,18 +339,25 @@ rule delay_read_resp (wci.isOperating && wmemiDly);
   wmemiRdResp <= wmemiRdResp + 1;
 endrule
 
+(* fire_when_enabled *)
+rule delay_Fb2Fc (wci.isOperating && wmemiDly);
+  let b = wide16Fb.first;
+  wide16Fb.deq;
+  wide16Fc.enq(b);
+  dlyReadCredit.acc2(1);   // Restore our read credit by one
+endrule
+
 function ActionValue#(Bit#(32)) deqSer4B();
   return (
     actionvalue
       Bit#(128) rdata = ?;
       if (rdSerEmpty || rdSerPos==0) begin 
-        rdata = wide16Fb.first;
+        rdata = wide16Fc.first;
         rdSerStage[0] <= rdata[31:0];
         rdSerStage[1] <= rdata[63:32];
         rdSerStage[2] <= rdata[95:64];
         rdSerStage[3] <= rdata[127:96];
-        wide16Fb.deq;
-        dlyReadCredit.acc2(1);   // Restore our read credit by one
+        wide16Fc.deq;
         rdSerEmpty <= False;
       end
       rdSerPos <= rdSerPos + 1;

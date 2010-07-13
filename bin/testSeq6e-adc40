@@ -1,0 +1,110 @@
+#!/bin/sh
+# Script tstseq6e for debugging ADC to DAC flow, with DRAM Delay, with Scenario E, 16X mode, Twos Comp ADC/DAC
+
+echo "admin probe"
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+
+echo "reset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl  5 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  4 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  3 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  2 0x00000004
+./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x0000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x0000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 12 0x0000000F
+
+echo "unreset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl  5 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  4 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  3 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl  2 0x80000004
+./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x8000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x8000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 12 0x8000000F
+
+echo "initialize workers"
+./swctl 0xF1000000 0xF2FF0000 wop  5 initialize
+./swctl 0xF1000000 0xF2FF0000 wop  4 initialize
+./swctl 0xF1000000 0xF2FF0000 wop  3 initialize
+./swctl 0xF1000000 0xF2FF0000 wop  2 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 10 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 11 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 12 initialize
+
+echo "program WsiSplitter W5"
+./swctl 0xF1000000 0xF2FF0000 wwrite 5 0x4 0x8001   # master 0 listen slave 1 (ADC); master 1 disabled
+
+echo "Set DACWorker W11 "
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x08  #normal
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x18  #emit on
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x38  #set bit 5 16x
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x78  #invert msb
+
+echo "Set W2 SMAdapter to Mode 0 WSI-S to WSI-M"
+./swctl 0xF1000000 0xF2FF0000 wwrite 2 0x00 0x0
+
+echo "Set W3 DelayWorker"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x0    #bypass
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x00 0x7     #enable delay
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x04 0x000
+./swctl 0xF1000000 0xF2FF0000 wwrite 3 0x08 0x010
+
+echo "Set W4 SMAdapter to Mode 2 WSI-S to WSI-M"
+./swctl 0xF1000000 0xF2FF0000 wwrite 4 0x00 0x0
+
+echo "Put ADC0 8KB maxMessageLength"
+./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x08 0x2000
+echo "Put ADC0 in normal mode"
+./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x6200
+#echo "Put ADC0 in offset binary"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5056
+echo "Put ADC0 in 2s comp to match DAC"
+./swctl 0xF1000000 0xF2FF0000 wwrite 10 0x28 0x5054
+#echo "averger"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x10
+#echo "enable ADC stop on error"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x8
+#echo "enable ADC TimeStamp Insertion"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x4
+#echo "enable ADC Sync Insertion"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x2
+#echo "disable ADC sample messages"
+#./swctl 0xF1000000 0xF2FF0000 wwrite 10 0xC 0x1
+
+echo "start workers"
+./swctl 0xF1000000 0xF2FF0000 wop 12 start
+sleep 2
+./swctl 0xF1000000 0xF2FF0000 wop 11 start
+./swctl 0xF1000000 0xF2FF0000 wop  4 start
+./swctl 0xF1000000 0xF2FF0000 wop  3 start
+./swctl 0xF1000000 0xF2FF0000 wop  2 start
+./swctl 0xF1000000 0xF2FF0000 wop  5 start
+./swctl 0xF1000000 0xF2FF0000 wop 10 start
+
+echo "ADCWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 25
+echo "SMAdapter W2 config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 2 0 14
+echo "DelayWorker W3 config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 3 0 21
+echo "SMAdapter W4 config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 4 0 14
+echo "DACWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 21
+
+echo "After one second"
+sleep 1
+
+echo "ADCWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 25
+echo "SMAdapter W2 config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 2 0 14
+echo "DelayWorker W3 config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 3 0 21
+echo "SMAdapter W4 config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 4 0 14
+echo "DACWorker config properties"
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 21
+
+
