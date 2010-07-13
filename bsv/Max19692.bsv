@@ -46,6 +46,7 @@ interface Max19692Ifc;
   method Bit#(32)      underflowCnt;
   method Bit#(32)      dacSampleDeq;
   method Action        emitEn;
+  method Action        toneEn;
   interface SyncFIFOSrcIfc#(DacSWord) smpF;
   //method Bool          dacUnderflow;    // Add me to allow FIFO precharge
 
@@ -80,6 +81,9 @@ module mkMax19692#(Clock dac_clk) (Max19692Ifc);
   Reg#(Bool)              emitD         <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst); // emitD flop
   Reg#(Bit#(32))          emitCnt       <-  mkReg(0,       clocked_by sdrClk, reset_by sdrRst);
   Reg#(Bit#(32))          emitCntCC     <-  mkSyncRegToCC(0, sdrClk, sdrRst);
+  PulseWire               toneEn_pw     <-  mkPulseWire;
+  SyncBitIfc#(Bit#(1))    toneEn_d      <-  mkSyncBitFromCC(sdrClk);
+  Reg#(Bool)              tone          <-  mkReg(False,   clocked_by sdrClk, reset_by sdrRst);
   Reg#(Bit#(32))          undCount      <-  mkReg(0,clocked_by sdrClk, reset_by sdrRst);
   Reg#(Bit#(32))          undCountCC    <-  mkSyncRegToCC(0, sdrClk, sdrRst);
 
@@ -87,6 +91,9 @@ module mkMax19692#(Clock dac_clk) (Max19692Ifc);
   rule sdr_emit_adv;     emit<=unpack(emitEn_d.read); emitD <= emit; endrule  // SDR domain connect
   rule update_emitcnt;   emitCntCC._write(emitCnt);                  endrule
   rule update_undcount;  undCountCC._write(undCount);                endrule
+
+  rule tone_to_sdr;      toneEn_d.send(pack(toneEn_pw)); endrule  // CC  domain connect
+  rule sdr_tone_adv;     tone<=unpack(toneEn_d.read);    endrule  // SDR domain connect
 
   // Max19692 Initialization/Calibration sequence... (see Pp14 MAX19692 datasheet)
   Stmt iseq = seq
@@ -132,7 +139,7 @@ module mkMax19692#(Clock dac_clk) (Max19692Ifc);
 
   (* fire_when_enabled *)
   rule ramp_word (!emit);
-    ddrSDrv.sdrData(obZero); // push superword of 16 DAC samples
+    ddrSDrv.sdrData(tone?ob16p:obZero); // push superword of 16 DAC samples
   endrule
 
   (* fire_when_enabled *) rule synOut; syncOut_obuf  <= pack(syncOut);  endrule
@@ -146,6 +153,7 @@ module mkMax19692#(Clock dac_clk) (Max19692Ifc);
   method Bit#(32) underflowCnt = undCountCC;
   method Bit#(32) dacSampleDeq = emitCntCC;
   method Action emitEn = emitEn_pw.send;
+  method Action toneEn = toneEn_pw.send;
   method Action dacCtrl (Bit#(4) arg)  = dacCtrl_w._write(arg);
   method Action doInitSeq       = startIseqF.enq(1'b0);
   method Bool   isInited        = unpack(iSeqDone.read);

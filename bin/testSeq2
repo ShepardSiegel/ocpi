@@ -11,21 +11,15 @@ echo "reset workers"
 echo "unreset workers"
 ./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x8000000F
 
-sleep 1
-echo "DACWorker config properties"
-./swctl 0xF1000000 0xF2FF0000 wread 11 0 13
-
 echo "initialize workers"
 ./swctl 0xF1000000 0xF2FF0000 wop 11 initialize
 
-sleep 2
-echo "DACWorker RF Mode"
-./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x9
-
-sleep 2
 echo "DACWorker Normal Mode - 16p sine wave at fDAC/16"
-./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x8
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0xC 0x88
+
+echo "start workers"
+./swctl 0xF1000000 0xF2FF0000 wop 11 start
 
 echo "DACWorker config properties"
-./swctl 0xF1000000 0xF2FF0000 wread 11 0 13
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 21
 

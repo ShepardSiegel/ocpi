@@ -343,6 +343,8 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
 
   // Fires on the two beats of each word read response; rdpF selects where to select 16B from 64B
   // TODO: Understand 16B-1/3 reversal
+  // TODO: Guard the maximum number of Read Responses in flight so as not to overflow the respF;
+  // The DRAM controntroller read channel does not respect backpressure!
   rule advance_readData (unpack(memc.app.init_complete) && unpack(memc.app.rd_data_valid));
     let p = rdpF.first;
     case({unpack(memc.app.rd_data_end),p})

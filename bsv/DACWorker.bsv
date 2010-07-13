@@ -104,6 +104,10 @@ rule doEmit (wci.isOperating && unpack(dacControl[4]) && wordsConsumed>127); // 
   dacCore0.emitEn();
 endrule
 
+rule doTone (wci.isOperating && unpack(dacControl[7]));
+  dacCore0.toneEn();
+endrule
+
 rule capture_underflow(wci.isOperating && !hasUnderflowed && dacCore0.underflowCnt!=0);
   firstUnderflowMesg <= mesgStart;
   hasUnderflowed     <= True;

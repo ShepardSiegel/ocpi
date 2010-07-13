@@ -294,7 +294,7 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   //Reset                 mem_rst_n     <- mkAsyncReset(16, rst_n, sys0_clk); // active-low for importBVI use
   DramControllerV5Ifc   memc            <- vMkV5DDR2(sys0_clk, mem_clk, clocked_by sys0_clk, reset_by sys0_rst);
   FIFO#(DramReq16B)     reqF            <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
-  FIFO#(Bit#(128))      respF           <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
+  FIFO#(Bit#(128))      respF           <- mkSizedFIFO(4, clocked_by memc.uclk, reset_by memc.urst_n); // Unguarded ENQ
   Reg#(Bit#(16))        requestCount    <- mkReg(0,       clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bool)            firstWriteBeat  <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
   Wire#(Bool)           wdfWren         <- mkDWire(False, clocked_by memc.uclk, reset_by memc.urst_n);
@@ -346,14 +346,16 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   rule drive_wdf_wren (wdfWren); memc.app.wdf_wren();    endrule
 
   // V5 - Take 8B (64b) from Memory and form 16B (128b) response
+  // TODO: Guard the maximum number of Read Responses in flight so as not to overflow the respF;
+  // The DRAM controntroller read channel does not respect backpressure!
   (* fire_when_enabled *)
   rule advance_readData (unpack(memc.app.init_complete) && unpack(memc.app.rd_data_valid));
     if (!firstReadBeat) begin
       firstReadBeat <= True;
-      firstReadData <= memc.app.rd_data;
+      firstReadData <= memc.app.rd_data;             // Stage the first 8B returned in firstReadData
     end else begin
       firstReadBeat <= False;
-      respF.enq({memc.app.rd_data, firstReadData});
+      respF.enq({memc.app.rd_data, firstReadData});  // Form the 16B little-endian word with the second 8B
     end
   endrule
 

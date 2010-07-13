@@ -295,7 +295,7 @@ endrule
 // When we satisfy the constraints below, we start the read process...
 Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cyclesPassed>=dlyHoldoffCycles);
 
-(* descending_urgency = "delay_read_req, delay_write_req, delay_writeFlush" *)
+(* descending_urgency = "delay_write_req, delay_read_req, delay_writeFlush" *)
 
 // As long as we didn't just finish a read request parade (so as to be polite between reads and wtites)...
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.
@@ -323,7 +323,7 @@ endrule
 rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && !dlyWriteJustFired && wsiM.reqFifoNotFull);
   dlyWordsStored.acc2(-1);  // One 16B word read
   dlyRAG <= dlyRAG + 1;
-  dlyReadCredit.acc1(-1);   // Decrement our credit by 1
+  dlyReadCredit.acc1(-1);   // Decrement our read credit by one
   wmemi.req(False, extend({pack(dlyRAG),4'h0}), 1);  // Read Request
   wmemiRdReq <= wmemiRdReq + 1;
   dlyReadJustFired <= True;
@@ -347,7 +347,7 @@ function ActionValue#(Bit#(32)) deqSer4B();
         rdSerStage[2] <= rdata[95:64];
         rdSerStage[3] <= rdata[127:96];
         wide16Fb.deq;
-        dlyReadCredit.acc2(1);   // Restore our credit by one
+        dlyReadCredit.acc2(1);   // Restore our read credit by one
         rdSerEmpty <= False;
       end
       rdSerPos <= rdSerPos + 1;
@@ -475,6 +475,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h4C : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyWAG));
      'h50 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyRAG));
      'h54 : rdat = pack(extend(dlyMaxReadCredit));
+     'h58 : rdat = pack(extend(dlyReadCredit));
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response

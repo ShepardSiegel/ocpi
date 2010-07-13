@@ -65,7 +65,7 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
   Vector#(4,Reg#(Bit#(32)))        rdReg                      <- replicateM(mkReg(0));
 
   SyncFIFOIfc#(DramReq16B)         lreqF                      <- mkSyncFIFOFromCC(2, uclk);
-  SyncFIFOIfc#(Bit#(128))          lrespF                     <- mkSyncFIFOToCC  (2, uclk, urst_n);
+  SyncFIFOIfc#(Bit#(128))          lrespF                     <- mkSyncFIFOToCC  (5, uclk, urst_n);
 
   Accumulator2Ifc#(Int#(8))        wmemiReadInFlight          <- mkAccumulator2;
   Reg#(Bit#(32))                   wmemiWrReq                 <- mkReg(0);
