@@ -89,7 +89,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   FIFOF#(Bit#(128))              wide16Fc           <- mkSRLFIFO(4);
 
   // Delay Management...
-  Accumulator2Ifc#(Int#(TAdd#(Ndag,1))) dlyWordsStored     <- mkAccumulator2;  // Signed Accumulator needs 1 additional bit
+  Accumulator2Ifc#(Int#(TAdd#(Ndag,2))) dlyWordsStored     <- mkAccumulator2;   // Signed Accumulator needs 2 additional bits
   Accumulator2Ifc#(Int#(8))      dlyReadCredit      <- mkAccumulator2;
   Reg#(UInt#(Ndag))              dlyWAG             <- mkReg(0);
   Reg#(UInt#(Ndag))              dlyRAG             <- mkReg(0);
@@ -97,6 +97,9 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Reg#(Bool)                     dlyWriteJustFired  <- mkDReg(False);
   Reg#(Bool)                     dlyReadJustFired   <- mkDReg(False);
   Reg#(UInt#(8))                 dlyWriteFlush      <- mkReg(0);
+
+  Reg#(Bit#(32))                 dlyRdOpZero         <- mkReg(0);
+  Reg#(Bit#(32))                 dlyRdOpOther        <- mkReg(0);
 
   Reg#(Bit#(32))                 wmemiWrReq         <- mkReg(0);
   Reg#(Bit#(32))                 wmemiRdReq         <- mkReg(0);
@@ -297,6 +300,9 @@ endrule
 
 // When we satisfy the constraints below, we start the read process...
 Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cyclesPassed>=dlyHoldoffCycles);
+Bool writeNotBlockedByRead = !readThreshold || (readThreshold && !wsiM.reqFifoNotFull);  // True, when reads are fully-satisfied; Hold back writes until the WSI-M FIFO is full once we've begun reading
+//Bool writeNotTooFarAhead = (dlyWordsStored < extend(fromInteger(2**valueOf(Ndag))) );    // True, as long we we have not stored too much data; Goes low if danger of writes passing reads in buffer
+Bool writeNotTooFarAhead = (dlyWordsStored < 8388608 );    // True, as long we we have not stored too much data; Goes low if danger of writes passing reads in buffer
 
 (* descending_urgency = "delay_write_req, delay_read_req, delay_writeFlush" *)
 
@@ -304,9 +310,9 @@ Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cycle
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.
 // Otherwise, wait until we have at least 8 16B Wmemi words that we could push at once.
 // Unless the dlyFlushTimer has expired in which case we just go if we have anything at all.
-rule delay_write_req (wci.isOperating && wmemiDly && ((dlyWriteJustFired||dlyWriteFlush==maxBound) ? dlyReadyToWrite>0 : dlyReadyToWrite>7) && (!dlyReadJustFired || wtImpolite));
-  dlyWordsStored.acc1(1);  // One 16B word stored
-  dlyWAG <= dlyWAG + 1;
+rule delay_write_req (wci.isOperating && wmemiDly && ((dlyWriteJustFired||dlyWriteFlush==maxBound) ? dlyReadyToWrite>0 : dlyReadyToWrite>7) && (!dlyReadJustFired || wtImpolite) && writeNotBlockedByRead && writeNotTooFarAhead );
+  dlyWordsStored.acc1(1);                          // One 16B word stored
+  dlyWAG <= dlyWAG + 1;                            // Bump WAG
   wmemi.req(True, extend({pack(dlyWAG),4'h0}), 1); // Write Request
   wmemi.dh(wide16Fa.first, '1, True);              // Write 16B Datahandshake
   wide16Fa.deq;
@@ -374,12 +380,13 @@ function ActionValue#(Bit#(32)) deqSer4B();
 endfunction
 
 
-
 rule rdSer_begin(wci.isOperating && wmemiDly && rdSerUnroll==0 && !rdSyncWord);
   let m <- deqSer4B();
   MesgMetaFlag meta = unpack(m);
   rdSerMeta <= meta;
   rdSerUnroll  <= truncate(unpack(meta.length>>myWordShift)); // ndw-wide Words 
+  if (meta.opcode==0) dlyRdOpZero  <= dlyRdOpZero  + 1;
+  if (meta.opcode!=0) dlyRdOpOther <= dlyRdOpOther + 1;
   metaRF.enq(meta);
   if (bytesRead < maxBound) bytesRead <= bytesRead + extend(myByteWidth);
   rdSyncWord <= rdSerPos!=3 && meta.length==0;
@@ -485,7 +492,8 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h4C : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyWAG));
      'h50 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyRAG));
      'h54 : rdat = pack(extend(dlyMaxReadCredit));
-     'h58 : rdat = pack(extend(dlyReadCredit));
+     'h58 : rdat = pack(dlyRdOpZero);
+     'h5C : rdat = pack(dlyRdOpOther);
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
