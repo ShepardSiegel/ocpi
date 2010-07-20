@@ -54,6 +54,7 @@
 <property name="dlyRdCredit" readable="true" writable="false" type="ULong"/>
 <property name="dlyWAG" readable="true" writable="false" type="ULong"/>
 <property name="dlyRAG" readable="true" writable="false" type="ULong"/>
+<property name="dlyMaxReadCredit" readable="true" writable="true" type="ULong"/>
 <port name="WSIin" provider="true"/>
 <port name="WSIout" provider="false"/>
 </worker>
@@ -291,4 +292,4 @@
 <connection from="DELAYi" out="WSIout" to="SMA1" in="WSIin" />
 <connection from="SMA1" out="WMIout" to="DP1" in="WMIin"/>
 </artifact>
-X20372
+X20453

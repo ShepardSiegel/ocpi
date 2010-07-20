@@ -116,10 +116,11 @@ module mkTi6149#(Clock ddrClk) (Ti6149Ifc);
     adcRst <= True;
     adcRst <= True;   // 16 nS Reset asserted
     delay(13);        // Wait 104 nS before any action
-    spiI.req.put(SpiReq {rdCmd:False, addr:8'h50, wdata:8'h04});  // Data Format
+    spiI.req.put(SpiReq {rdCmd:False, addr:8'h50, wdata:8'h06});  // Data Format: 2's complement
     spiI.req.put(SpiReq {rdCmd:False, addr:8'h51, wdata:8'h34});  // Data Pattern low
     spiI.req.put(SpiReq {rdCmd:False, addr:8'h52, wdata:8'h12});  // Data Pattern High
-    spiI.req.put(SpiReq {rdCmd:False, addr:8'h55, wdata:8'h10});  // Fine Gain : Offset Tc
+    spiI.req.put(SpiReq {rdCmd:False, addr:8'h54, wdata:8'h40});  // Enable Offset Correction Servo
+    spiI.req.put(SpiReq {rdCmd:False, addr:8'h55, wdata:8'h10});  // Fine Gain is +0.5dB : Offset TC is 256K samples
     spiI.req.put(SpiReq {rdCmd:False, addr:8'h62, wdata:8'h04});  // 14b Ramp
   endseq;
   FSM iseqFsm <- mkFSM(iseq);

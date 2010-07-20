@@ -41,26 +41,14 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Reg#(Bit#(32))                 dlyHoldoffCycles  <- mkReg(0);
 
   // Delay-Write...
-  Reg#(Maybe#(Bit#(8)))          opcode            <- mkReg(tagged Invalid);
-  Reg#(Maybe#(Bit#(14)))         mesgLength        <- mkReg(tagged Invalid); // in Bytes
-  Reg#(Bit#(12))                 wsiWordsRemain    <- mkReg(0);              // in ndw-wide words
-  Reg#(Bool)                     mesgReqValid      <- mkReg(False);
-  Reg#(Bool)                     impreciseBurst    <- mkReg(False);
-  Reg#(Bool)                     preciseBurst      <- mkReg(False);
-  Reg#(Bool)                     endOfMessage      <- mkReg(False);
-  Reg#(Bool)                     readyToRequest    <- mkReg(False);
-  Reg#(Bool)                     readyToPush       <- mkReg(False);
-  Reg#(Bit#(14))                 mesgLengthSoFar   <- mkReg(0);
-  Reg#(Bool)                     zeroLengthMesg    <- mkReg(False);
-  Reg#(Bool)                     doAbort           <- mkReg(False);
-  Reg#(Bit#(32))                 mesgWtCount       <- mkReg(0);
   Reg#(Bit#(32))                 bytesWritten      <- mkReg(0);
   Reg#(Bit#(32))                 cyclesPassed      <- mkReg(0);
+  Reg#(Bit#(16))                 wordsExact        <- mkReg(2048);
+  Reg#(Bit#(16))                 wordsEnqued       <- mkReg(0);
 
   // Write Serialize...
   Reg#(Bit#(32))                 wrtSerAddr        <- mkReg(0);
   Reg#(UInt#(16))                wrtSerUnroll      <- mkReg(0);
-  Reg#(MesgMetaFlag)             wrtSerMeta        <- mkRegU;
   Vector#(4,Reg#(Bit#(32)))      wrtSerStage       <- replicateM(mkRegU);
   Reg#(Bit#(2))                  wrtSerPos         <- mkReg(0);
 
@@ -76,6 +64,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   // Delay-Read...
   Reg#(MesgMetaFlag)             readMeta          <- mkRegU;
   Reg#(UInt#(16))                unrollCnt         <- mkReg(0);
+  Reg#(Bit#(32))                 mesgWtCount       <- mkReg(0);
   Reg#(Bit#(32))                 mesgRdCount       <- mkReg(0);
   Reg#(Bit#(32))                 bytesRead         <- mkReg(0);
 
@@ -93,23 +82,21 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Accumulator2Ifc#(Int#(8))      dlyReadCredit      <- mkAccumulator2;
   Reg#(UInt#(Ndag))              dlyWAG             <- mkReg(0);
   Reg#(UInt#(Ndag))              dlyRAG             <- mkReg(0);
-  Accumulator2Ifc#(Int#(5))      dlyReadyToWrite    <- mkAccumulator2;          // Measures the occupancy of the wide16Fa FIFO
+  Accumulator2Ifc#(Int#(16))     dlyReadyToWrite    <- mkAccumulator2;          // Measures the occupancy of the wide16Fa FIFO
   Reg#(Bool)                     dlyWriteJustFired  <- mkDReg(False);
   Reg#(Bool)                     dlyReadJustFired   <- mkDReg(False);
   Reg#(UInt#(8))                 dlyWriteFlush      <- mkReg(0);
 
-  Reg#(Bit#(32))                 dlyRdOpZero         <- mkReg(0);
-  Reg#(Bit#(32))                 dlyRdOpOther        <- mkReg(0);
+  Reg#(Bit#(32))                 dlyRdOpZero        <- mkReg(0);
+  Reg#(Bit#(32))                 dlyRdOpOther       <- mkReg(0);
 
   Reg#(Bit#(32))                 wmemiWrReq         <- mkReg(0);
   Reg#(Bit#(32))                 wmemiRdReq         <- mkReg(0);
   Reg#(Bit#(32))                 wmemiRdResp        <- mkReg(0);
+  Reg#(Bit#(32))                 wmemiRdResp2       <- mkReg(0);
 
   Bool wsiPass  = (dlyCtrl[3:0]==4'h0);
   Bool wmemiDly = (dlyCtrl[3:0]==4'h7);
-  Bool wtImpolite = unpack(dlyCtrl[4]); // Set to let writes issue immediately after reads (may improve WR BW)
-  Bool rdImpolite = unpack(dlyCtrl[5]); // Set to let reads issue immediately after writes (may improve RD BW)
-
   Bool impWsiM = False;
 
 rule operating_actions (wci.isOperating);
@@ -122,105 +109,22 @@ endrule
 rule wsipass_doMessagePush (wci.isOperating && wsiPass);
   WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;
   wsiM.reqPut.put(r);
-  //$display("[%0d]: %m: wsipass_doMessagePush ", $time);
 endrule
 
-rule cycles_passed_count (wsiS.status.observedTraffic); // Start cycle count when first WSI trafic is observed
+rule cycles_passed_count (wsiS.status.observedTraffic); // Start cycle count when first WSI traffic is observed
   if (cyclesPassed < maxBound) cyclesPassed <= cyclesPassed + 1;
 endrule
 
-
-//
-//
-// Delay Write...
-(* descending_urgency = "wmwt_doAbort, wmwt_messageFinalize, wmwt_messagePushImprecise, wmwt_messagePushPrecise, wmwt_requestPrecise, wmwt_mesgBegin" *)
-
-// This rule will fire once at the beginning of every inbound WSI message
-// It relies upon the implicit condition of the wsiS.reqPeek to only fire when we a request...
-rule wmwt_mesgBegin (wci.isOperating && wmemiDly && !isValid(opcode));
-  opcode <= tagged Valid wsiS.reqPeek.reqInfo;
-  Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength)<<myWordShift; // ndw-wide burstLength words to mesgLength Bytes
-  if (wsiS.reqPeek.burstPrecise) begin
-    preciseBurst    <= True;
-    if (wsiS.reqPeek.byteEn=='0) begin
-      zeroLengthMesg  <= True;
-      mesgLength      <= tagged Valid 0;
-    end else begin
-      zeroLengthMesg  <= False;
-      mesgLength      <= tagged Valid (mesgLengthB);
-    end
-    wsiWordsRemain  <= wsiS.reqPeek.burstLength; 
-    readyToRequest  <= True;
-    $display("[%0d]: %m: mesgBegin PRECISE mesgWtCount:%0x WSI burstLength:%0x reqInfo:%0x", $time, mesgWtCount, wsiS.reqPeek.burstLength, wsiS.reqPeek.reqInfo);
-  end else begin
-    impreciseBurst  <= True;
-    mesgLengthSoFar <= 0; 
-    readyToPush     <= True;
-    $display("[%0d]: %m: wmwt_mesgBegin IMPRECISE mesgWtCount:%0x", $time, mesgWtCount);
-  end
-endrule
-
-// This rule firing posts an WMemiI SRMD request based upon
-rule wmwt_requestPrecise (wci.isOperating && wmemiDly && readyToRequest && preciseBurst);
-  let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(fromMaybe(0,mesgLength))}; 
-  metaWF.enq(mesgMetaF);
-  readyToRequest <= False;
-  mesgReqValid   <= True;
-endrule
-
-// Push precise message WSI to WMI. This rule fires once for each word moved...
-rule wmwt_messagePushPrecise (wci.isOperating && wmemiDly && wsiWordsRemain>0 && mesgReqValid && preciseBurst);
+rule wmwt_mesg_ingress (wci.isOperating && wmemiDly);
   WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;
   mesgWF.enq(w.data);
+  if (wordsEnqued==wordsExact-1) begin
+    let mesgMetaF = MesgMetaFlag {opcode:w.reqInfo, length:extend(wordsExact<<myWordShift)}; 
+    metaWF.enq(mesgMetaF); 
+    wordsEnqued <= 0;
+    mesgWtCount <= mesgWtCount + 1;
+  end else wordsEnqued <= wordsEnqued + 1;
   if (bytesWritten < maxBound) bytesWritten <= bytesWritten + extend(myByteWidth);
-  wsiWordsRemain <= wsiWordsRemain - 1;
-endrule
-
-// Push imprecise message WSI to WMI...
-rule wmwt_messagePushImprecise (wci.isOperating && wmemiDly && readyToPush && impreciseBurst);
-  WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;
-  Bool dwm = (w.reqLast);              // WSI ends with reqLast, used to make WMI DWM
-  Bool zlm = dwm && (w.byteEn=='0);    // Zero Length Message is 0 BEs on DWM 
-  Bit#(14) mlp1  =  mesgLengthSoFar+1; // message length so far plus one (in Words)
-  Bit#(14) mlp1B =  mlp1<<myWordShift; // message length so far plus one (in Bytes)
-  if (isAborted(w)) begin
-    doAbort <= True;
-  end else begin
-    let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(mlp1B)}; 
-    mesgWF.enq(w.data);
-    if (bytesWritten < maxBound) bytesWritten <= bytesWritten + extend(myByteWidth);
-    if (dwm) begin
-      mesgLength   <= tagged Valid pack(mlp1B);
-      readyToPush  <= False;
-      endOfMessage <= True;
-    end
-    mesgLengthSoFar <= mlp1;
-  end
-endrule
-
-// In case we abort the imprecise WSI...
-rule wmwt_doAbort (wci.isOperating && wmemiDly && doAbort);
-  doAbort         <= False;
-  readyToPush     <= False;
-  preciseBurst    <= False;
-  impreciseBurst  <= False;
-  opcode          <= tagged Invalid;
-  mesgLength      <= tagged Invalid;
-  $display("[%0d]: %m: wmwt_doAbort", $time );
-endrule
-
-// When we have pushed all the data through, this rule fires to prepare us for the next...
-rule wmwt_messageFinalize
-  (wci.isOperating && wmemiDly && isValid(mesgLength) && !doAbort && ((preciseBurst && wsiWordsRemain==0) || (impreciseBurst && endOfMessage)) );
-  if (impreciseBurst) metaWF.enq(MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(fromMaybe(0,mesgLength))}); 
-  opcode         <= tagged Invalid;
-  mesgLength     <= tagged Invalid;
-  mesgWtCount    <= mesgWtCount + 1;
-  mesgReqValid   <= False;
-  preciseBurst   <= False;
-  impreciseBurst <= False;
-  endOfMessage   <= False;
-  $display("[%0d]: %m: wmwt_messageFinalize mesgWtCount:%0x WSI mesgLength:%0x", $time, mesgWtCount, fromMaybe(0,mesgLength));
 endrule
 
 /*
@@ -279,7 +183,7 @@ function Action enqSer4B( Bit#(32) data, Bool flush);
 endfunction
 
 rule wrtSer_begin(wci.isOperating && wmemiDly && wrtSerUnroll==0);
-  let meta = metaWF.first; metaWF.deq; wrtSerMeta <= meta;
+  let meta = metaWF.first; metaWF.deq;
   wrtSerUnroll  <= truncate(unpack(meta.length>>myWordShift)); // ndw-wide Words 
   enqSer4B(pack(meta), meta.length==0);
 endrule
@@ -291,8 +195,8 @@ rule wrtSer_body(wci.isOperating && wmemiDly && wrtSerUnroll>0);
   enqSer4B(truncate(pack(mesg)), lastWord);
 endrule
 
-// Wide16Fa -> Wide16Fb is the Delay Insert point...
 
+// Wide16Fa -> Wide16Fb is the Delay Insert point...
 
 // Bypass path for 16B pipe design debug...
 //mkConnection(toGet(wide16Fa), toPut(wide16Fb));
@@ -310,7 +214,8 @@ Bool writeNotTooFarAhead = (dlyWordsStored < 8388608 );    // True, as long we w
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.
 // Otherwise, wait until we have at least 8 16B Wmemi words that we could push at once.
 // Unless the dlyFlushTimer has expired in which case we just go if we have anything at all.
-rule delay_write_req (wci.isOperating && wmemiDly && ((dlyWriteJustFired||dlyWriteFlush==maxBound) ? dlyReadyToWrite>0 : dlyReadyToWrite>7) && (!dlyReadJustFired || wtImpolite) && writeNotBlockedByRead && writeNotTooFarAhead );
+rule delay_write_req (wci.isOperating && wmemiDly && writeNotBlockedByRead && writeNotTooFarAhead );
+//rule delay_write_req (wci.isOperating && wmemiDly && ((dlyWriteJustFired||dlyWriteFlush==maxBound) ? dlyReadyToWrite>0 : dlyReadyToWrite>7) && writeNotBlockedByRead && writeNotTooFarAhead );
   dlyWordsStored.acc1(1);                          // One 16B word stored
   dlyWAG <= dlyWAG + 1;                            // Bump WAG
   wmemi.req(True, extend({pack(dlyWAG),4'h0}), 1); // Write Request
@@ -329,7 +234,7 @@ endrule
 
 // As long as we didn't just finish a write request parade (so as to be polite between writes and reads)
 // if we have reads do ask for, ask for as many as we can, as long as the WSI-M request FIFO is not Full (due to downstream backpressure)...
-rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && (!dlyWriteJustFired || rdImpolite) && wsiM.reqFifoNotFull);
+rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCredit>0 && wsiM.reqFifoNotFull);
   dlyWordsStored.acc2(-1);  // One 16B word read
   dlyRAG <= dlyRAG + 1;
   dlyReadCredit.acc1(-1);   // Decrement our read credit by one
@@ -351,6 +256,7 @@ rule delay_Fb2Fc (wci.isOperating && wmemiDly);
   wide16Fb.deq;
   wide16Fc.enq(b);
   dlyReadCredit.acc2(1);   // Restore our read credit by one
+  wmemiRdResp2 <= wmemiRdResp2 + 1;
 endrule
 
 function ActionValue#(Bit#(32)) deqSer4B();
@@ -449,8 +355,20 @@ endrule
 
 
 
-
 // WCI...
+
+  Bit#(32) delayStatus = {15'h0,
+    pack(writeNotBlockedByRead),
+    pack(writeNotTooFarAhead),
+    pack(wsiM.reqFifoNotFull),
+    pack(metaWF.notFull),   pack(metaWF.notEmpty),
+    pack(mesgWF.notFull),   pack(mesgWF.notEmpty),
+    pack(metaRF.notFull),   pack(metaRF.notEmpty),
+    pack(mesgRF.notFull),   pack(mesgRF.notEmpty),
+    pack(wide16Fa.notFull), pack(wide16Fa.notEmpty),
+    pack(wide16Fb.notFull), pack(wide16Fb.notEmpty),
+    pack(wide16Fc.notFull), pack(wide16Fc.notEmpty)};
+
 
 (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
@@ -487,13 +405,16 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h38 : rdat = (!hasDebugLogic) ? 0 : wmemiWrReq;
      'h3C : rdat = (!hasDebugLogic) ? 0 : wmemiRdReq;
      'h40 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp;
-     'h44 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyWordsStored));
-     'h48 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyReadCredit));
-     'h4C : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyWAG));
-     'h50 : rdat = (!hasDebugLogic) ? 0 : extend(pack(dlyRAG));
+     'h44 : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyWordsStored));
+     'h48 : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyReadCredit));
+     'h4C : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyWAG));
+     'h50 : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyRAG));
      'h54 : rdat = pack(extend(dlyMaxReadCredit));
      'h58 : rdat = pack(dlyRdOpZero);
      'h5C : rdat = pack(dlyRdOpOther);
+     'h60 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp2;
+     'h64 : rdat = delayStatus;
+     'h68 : rdat = pack(extend(dlyReadyToWrite));
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
@@ -504,7 +425,7 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgWtCount <= 0;
   mesgRdCount <= 0;
   dlyWordsStored.load(0);   // Initialize the number of (16B) words stored in memory
-  dlyReadCredit.load(dlyMaxReadCredit);    // Sets the maximum number of reads that can be inflight at once        //TODO: Understand issue with >1
+  dlyReadCredit.load(dlyMaxReadCredit); // The maximum number of reads that can be inflight at once 
   dlyReadyToWrite.load(0);  // How many 16B words are ReadyToWrite to DRAM
   dlyWAG  <= 0;             // Initialize the Write Address Generator accumulator
   dlyRAG  <= 0;             // Initialize the Read  Address Generator accumulator
