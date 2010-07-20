@@ -83,9 +83,6 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Reg#(UInt#(Ndag))              dlyWAG             <- mkReg(0);
   Reg#(UInt#(Ndag))              dlyRAG             <- mkReg(0);
   Accumulator2Ifc#(Int#(16))     dlyReadyToWrite    <- mkAccumulator2;          // Measures the occupancy of the wide16Fa FIFO
-  Reg#(Bool)                     dlyWriteJustFired  <- mkDReg(False);
-  Reg#(Bool)                     dlyReadJustFired   <- mkDReg(False);
-  Reg#(UInt#(8))                 dlyWriteFlush      <- mkReg(0);
 
   Reg#(Bit#(32))                 dlyRdOpZero        <- mkReg(0);
   Reg#(Bit#(32))                 dlyRdOpOther       <- mkReg(0);
@@ -124,7 +121,7 @@ rule wmwt_mesg_ingress (wci.isOperating && wmemiDly);
     wordsEnqued <= 0;
     mesgWtCount <= mesgWtCount + 1;
   end else wordsEnqued <= wordsEnqued + 1;
-  if (bytesWritten < maxBound) bytesWritten <= bytesWritten + extend(myByteWidth);
+  if (bytesWritten < (maxBound-extend(myByteWidth))) bytesWritten <= bytesWritten + extend(myByteWidth);
 endrule
 
 /*
@@ -208,7 +205,7 @@ Bool writeNotBlockedByRead = !readThreshold || (readThreshold && !wsiM.reqFifoNo
 //Bool writeNotTooFarAhead = (dlyWordsStored < extend(fromInteger(2**valueOf(Ndag))) );    // True, as long we we have not stored too much data; Goes low if danger of writes passing reads in buffer
 Bool writeNotTooFarAhead = (dlyWordsStored < 8388608 );    // True, as long we we have not stored too much data; Goes low if danger of writes passing reads in buffer
 
-(* descending_urgency = "delay_write_req, delay_read_req, delay_writeFlush" *)
+(* descending_urgency = "delay_write_req, delay_read_req" *)
 
 // As long as we didn't just finish a read request parade (so as to be polite between reads and wtites)...
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.
@@ -223,12 +220,6 @@ rule delay_write_req (wci.isOperating && wmemiDly && writeNotBlockedByRead && wr
   wide16Fa.deq;
   wmemiWrReq <= wmemiWrReq + 1;
   dlyReadyToWrite.acc2(-1);
-  dlyWriteJustFired <= True;
-  dlyWriteFlush <= 0;
-endrule
-
-rule delay_writeFlush (wci.isOperating && wmemiDly && !dlyWriteJustFired);
-  if (dlyWriteFlush < maxBound) dlyWriteFlush <= dlyWriteFlush + 1;
 endrule
 
 
@@ -240,7 +231,6 @@ rule delay_read_req (wci.isOperating && wmemiDly && readThreshold && dlyReadCred
   dlyReadCredit.acc1(-1);   // Decrement our read credit by one
   wmemi.req(False, extend({pack(dlyRAG),4'h0}), 1);  // Read Request
   wmemiRdReq <= wmemiRdReq + 1;
-  dlyReadJustFired <= True;
 endrule
 
 (* fire_when_enabled *)
