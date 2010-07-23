@@ -36,15 +36,12 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WmemiMasterIfc#(36,12,128,16)  wmemi             <- mkWmemiMaster;
   Reg#(Bit#(32))                 dlyCtrl           <- mkReg(dlyCtrlInit);
-  Reg#(Int#(8))                  dlyMaxReadCredit  <- mkReg(4);
   Reg#(Bit#(32))                 dlyHoldoffBytes   <- mkReg(0);
   Reg#(Bit#(32))                 dlyHoldoffCycles  <- mkReg(0);
 
   // Delay-Write...
   Reg#(Bit#(32))                 bytesWritten      <- mkReg(0);
   Reg#(Bit#(32))                 cyclesPassed      <- mkReg(0);
-  Reg#(Bit#(16))                 wordsExact        <- mkReg(2048);
-  Reg#(Bit#(16))                 wordsEnqued       <- mkReg(0);
 
   // Write Serialize...
   Reg#(Bit#(32))                 wrtSerAddr        <- mkReg(0);
@@ -115,12 +112,11 @@ endrule
 rule wmwt_mesg_ingress (wci.isOperating && wmemiDly);
   WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;
   mesgWF.enq(w.data);
-  if (wordsEnqued==wordsExact-1) begin
-    let mesgMetaF = MesgMetaFlag {opcode:w.reqInfo, length:extend(wordsExact<<myWordShift)}; 
+  if (w.reqLast) begin
+    let mesgMetaF = MesgMetaFlag {opcode:w.reqInfo, length:extend(wsiS.wordsThisMessage<<myWordShift)}; 
     metaWF.enq(mesgMetaF); 
-    wordsEnqued <= 0;
     mesgWtCount <= mesgWtCount + 1;
-  end else wordsEnqued <= wordsEnqued + 1;
+  end
   if (bytesWritten < (maxBound-extend(myByteWidth))) bytesWritten <= bytesWritten + extend(myByteWidth);
 endrule
 
@@ -242,9 +238,8 @@ endrule
 
 (* fire_when_enabled *)
 rule delay_Fb2Fc (wci.isOperating && wmemiDly);
-  let b = wide16Fb.first;
+  wide16Fc.enq(wide16Fb.first);
   wide16Fb.deq;
-  wide16Fc.enq(b);
   dlyReadCredit.acc2(1);   // Restore our read credit by one
   wmemiRdResp2 <= wmemiRdResp2 + 1;
 endrule
@@ -369,7 +364,6 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
      'h00 : dlyCtrl          <= unpack(wciReq.data);
      'h04 : dlyHoldoffBytes  <= unpack(wciReq.data);
      'h08 : dlyHoldoffCycles <= unpack(wciReq.data);
-     'h54 : dlyMaxReadCredit <= truncate(unpack(wciReq.data));
    endcase
    //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
@@ -399,7 +393,6 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h48 : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyReadCredit));
      'h4C : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyWAG));
      'h50 : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyRAG));
-     'h54 : rdat = pack(extend(dlyMaxReadCredit));
      'h58 : rdat = pack(dlyRdOpZero);
      'h5C : rdat = pack(dlyRdOpOther);
      'h60 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp2;
@@ -415,7 +408,6 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgWtCount <= 0;
   mesgRdCount <= 0;
   dlyWordsStored.load(0);   // Initialize the number of (16B) words stored in memory
-  dlyReadCredit.load(dlyMaxReadCredit); // The maximum number of reads that can be inflight at once 
   dlyReadyToWrite.load(0);  // How many 16B words are ReadyToWrite to DRAM
   dlyWAG  <= 0;             // Initialize the Write Address Generator accumulator
   dlyRAG  <= 0;             // Initialize the Read  Address Generator accumulator
