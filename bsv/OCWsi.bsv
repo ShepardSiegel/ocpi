@@ -411,7 +411,7 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
   Reg#(Bit#(32))                                 iMesgCount      <- mkReg(0);
   Reg#(Bit#(32))                                 tBusyCount      <- mkReg(0);
   Wire#(WipDataPortExtendedStatus)               extStatusW      <- mkBypassWire;
-  Reg#(Bit#(nb))                                 wordCount       <- mkReg(0);
+  Reg#(Bit#(nb))                                 wordCount       <- mkReg(1);
 
   Bool isBusy    = (burstKind!=None);
   Bool linkReady = (operateD && peerIsReady);
@@ -426,7 +426,7 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
       reqFifo.enq(wsiReq); 
       let r = wsiReq;
       if (r.cmd==WR) begin
-        wordCount <= (r.reqLast) ? 0 : wordCount + 1; // reset message wordCount to zero on reqLast
+        wordCount <= (r.reqLast) ? 1 : wordCount + 1; // reset message wordCount to zero on reqLast
         case (burstKind)
           None      :  burstKind <= (r.burstPrecise) ? Precise : Imprecise;
           Precise   :  begin if (r.reqLast) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
