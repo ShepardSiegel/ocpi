@@ -1,4 +1,0 @@
-
-Event Name                    Total ticks    Average ticks      Occurrences
-send data                    132220394652  132220394652.00                1
-
