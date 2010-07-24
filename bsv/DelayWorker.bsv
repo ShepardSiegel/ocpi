@@ -38,6 +38,9 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Reg#(Bit#(32))                 dlyCtrl           <- mkReg(dlyCtrlInit);
   Reg#(Bit#(32))                 dlyHoldoffBytes   <- mkReg(0);
   Reg#(Bit#(32))                 dlyHoldoffCycles  <- mkReg(0);
+  Reg#(Bool)                     tog50             <- mkReg(False);
+  Reg#(Bit#(24))                 bytesThisMessage  <- mkReg(0);
+  Reg#(Bit#(14))                 mesgLengthSoFar   <- mkReg(0);
 
   // Delay-Write...
   Reg#(Bit#(32))                 bytesWritten      <- mkReg(0);
@@ -66,6 +69,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Reg#(Bit#(32))                 bytesRead         <- mkReg(0);
 
   // Delay FIFOs
+  /*
   FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
   FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(2048);  // MUST be sized large enough for imprecise->precise conversion!
   FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
@@ -73,6 +77,15 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
   FIFOF#(Bit#(128))              wide16Fc           <- mkSRLFIFO(4);
+  */
+
+  FIFOF#(MesgMetaFlag)           metaWF             <- mkSizedFIFOF(15);
+  FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(2048);  // MUST be sized large enough for imprecise->precise conversion!
+  FIFOF#(MesgMetaFlag)           metaRF             <- mkSizedFIFOF(15);
+  FIFOF#(Bit#(nd))               mesgRF             <- mkSizedFIFOF(15);            // Needs only to be large enough to accomodate the dlyReadCredit
+  FIFOF#(Bit#(128))              wide16Fa           <- mkSizedFIFOF(15);
+  FIFOF#(Bit#(128))              wide16Fb           <- mkSizedFIFOF(15);
+  FIFOF#(Bit#(128))              wide16Fc           <- mkSizedFIFOF(15);
 
   // Delay Management...
   Accumulator2Ifc#(Int#(TAdd#(Ndag,2))) dlyWordsStored     <- mkAccumulator2;   // Signed Accumulator needs 2 additional bits
@@ -86,7 +99,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
 
   Reg#(Bit#(32))                 wmemiWrReq         <- mkReg(0);
   Reg#(Bit#(32))                 wmemiRdReq         <- mkReg(0);
-  Reg#(Bit#(32))                 wmemiRdResp        <- mkReg(0);
+  Reg#(Bit#(32))                 wmemiRdResp1       <- mkReg(0);
   Reg#(Bit#(32))                 wmemiRdResp2       <- mkReg(0);
 
   Bool wsiPass  = (dlyCtrl[3:0]==4'h0);
@@ -97,6 +110,7 @@ rule operating_actions (wci.isOperating);
   wsiS.operate();
   wsiM.operate();
   wmemi.operate();
+  tog50 <= !tog50;
 endrule
 
 // WSI Pass...
@@ -111,10 +125,15 @@ endrule
 
 rule wmwt_mesg_ingress (wci.isOperating && wmemiDly);
   WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;
-  mesgWF.enq(w.data);
+  mesgWF.enq(w.data); // Move the message data into the Write FIFO
+  mesgLengthSoFar <= (w.reqLast) ? 0 : mesgLengthSoFar + 1;
   if (w.reqLast) begin
-    let mesgMetaF = MesgMetaFlag {opcode:w.reqInfo, length:extend(wsiS.wordsThisMessage<<myWordShift)}; 
-    metaWF.enq(mesgMetaF); 
+    // FIXME: wordsThisMessage seems to return result-1 for precise bursts!
+    //Bit#(24) btm = extend(wsiS.wordsThisMessage)<<myWordShift; 
+    Bit#(24) btm = wsiS.reqPeek.burstPrecise ?  extend(wsiS.reqPeek.burstLength)<<myWordShift : extend(mesgLengthSoFar+1)<<myWordShift;
+    bytesThisMessage <= btm;
+    let mesgMetaF = MesgMetaFlag {opcode:w.reqInfo, length:btm}; 
+    metaWF.enq(mesgMetaF);  // Enque the metadata
     mesgWtCount <= mesgWtCount + 1;
   end
   if (bytesWritten < (maxBound-extend(myByteWidth))) bytesWritten <= bytesWritten + extend(myByteWidth);
@@ -197,11 +216,11 @@ endrule
 
 // When we satisfy the constraints below, we start the read process...
 Bool readThreshold = (dlyWordsStored>0 && bytesWritten>=dlyHoldoffBytes && cyclesPassed>=dlyHoldoffCycles);
-Bool writeNotBlockedByRead = !readThreshold || (readThreshold && !wsiM.reqFifoNotFull);  // True, when reads are fully-satisfied; Hold back writes until the WSI-M FIFO is full once we've begun reading
+Bool writeNotBlockedByRead = !readThreshold || (readThreshold && (!wsiM.reqFifoNotFull || tog50) );  // True, when reads are fully-satisfied; Restrict Write BW to 50% when WSI-M FIFO is not full once we've begun reading
 //Bool writeNotTooFarAhead = (dlyWordsStored < extend(fromInteger(2**valueOf(Ndag))) );    // True, as long we we have not stored too much data; Goes low if danger of writes passing reads in buffer
 Bool writeNotTooFarAhead = (dlyWordsStored < 8388608 );    // True, as long we we have not stored too much data; Goes low if danger of writes passing reads in buffer
 
-(* descending_urgency = "delay_write_req, delay_read_req" *)
+//(* descending_urgency = "delay_write_req, delay_read_req" *)
 
 // As long as we didn't just finish a read request parade (so as to be polite between reads and wtites)...
 // If we fired on the previous cycle, keep pushing writes until we run out of things to write.
@@ -233,7 +252,7 @@ endrule
 rule delay_read_resp (wci.isOperating && wmemiDly);
   let x <- wmemi.resp;
   wide16Fb.enq(x.data);
-  wmemiRdResp <= wmemiRdResp + 1;
+  wmemiRdResp1 <= wmemiRdResp1 + 1;
 endrule
 
 (* fire_when_enabled *)
@@ -342,10 +361,11 @@ endrule
 
 // WCI...
 
-  Bit#(32) delayStatus = {15'h0,
-    pack(writeNotBlockedByRead),
-    pack(writeNotTooFarAhead),
-    pack(wsiM.reqFifoNotFull),
+  Bit#(32) delayStatus = {14'h0,
+    pack(readThreshold),            //b17
+    pack(writeNotBlockedByRead),    //b16
+    pack(writeNotTooFarAhead),      //b15
+    pack(wsiM.reqFifoNotFull),      //b14
     pack(metaWF.notFull),   pack(metaWF.notEmpty),
     pack(mesgWF.notFull),   pack(mesgWF.notEmpty),
     pack(metaRF.notFull),   pack(metaRF.notEmpty),
@@ -388,7 +408,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h34 : rdat = (!hasDebugLogic) ? 0 : pack(wsiM.extStatus.tBusyCount);
      'h38 : rdat = (!hasDebugLogic) ? 0 : wmemiWrReq;
      'h3C : rdat = (!hasDebugLogic) ? 0 : wmemiRdReq;
-     'h40 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp;
+     'h40 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp1;
      'h44 : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyWordsStored));
      'h48 : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyReadCredit));
      'h4C : rdat = (!hasDebugLogic) ? 0 : pack(extend(dlyWAG));
@@ -398,6 +418,9 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h60 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp2;
      'h64 : rdat = delayStatus;
      'h68 : rdat = pack(extend(dlyReadyToWrite));
+     'h6C : rdat = pack(extend(wrtSerUnroll));
+     'h70 : rdat = pack(extend(bytesThisMessage));
+     'h74 : rdat = pack(extend(mesgLengthSoFar));
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
@@ -409,6 +432,7 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   mesgRdCount <= 0;
   dlyWordsStored.load(0);   // Initialize the number of (16B) words stored in memory
   dlyReadyToWrite.load(0);  // How many 16B words are ReadyToWrite to DRAM
+  dlyReadCredit.load(12);   // Maximum Number of Reads in Flight
   dlyWAG  <= 0;             // Initialize the Write Address Generator accumulator
   dlyRAG  <= 0;             // Initialize the Read  Address Generator accumulator
   wci.ctlAck;

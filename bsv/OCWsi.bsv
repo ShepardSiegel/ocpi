@@ -412,6 +412,7 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
   Reg#(Bit#(32))                                 tBusyCount      <- mkReg(0);
   Wire#(WipDataPortExtendedStatus)               extStatusW      <- mkBypassWire;
   Reg#(Bit#(nb))                                 wordCount       <- mkReg(1);
+  Reg#(Bit#(nb))                                 mesgWordLength  <- mkRegU;
 
   Bool isBusy    = (burstKind!=None);
   Bool linkReady = (operateD && peerIsReady);
@@ -421,12 +422,14 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
     sThreadBusy_dw <= (reqFifo.isGreaterThan(valueOf(SRBsize)-2)); // for correct SThreadBusy behavior
   endrule
 
+  // This rule fires on the OCP-Wire Side of the Slave convienience IP...
   rule reqFifo_enq (linkReady && wsiReq.cmd==WR);
     if (reqFifo.notFull) begin
-      reqFifo.enq(wsiReq); 
       let r = wsiReq;
+      reqFifo.enq(r); 
       if (r.cmd==WR) begin
-        wordCount <= (r.reqLast) ? 1 : wordCount + 1; // reset message wordCount to zero on reqLast
+        wordCount <= (r.reqLast) ? 1 : wordCount + 1; // reset message wordCount to one on reqLast
+        if (r.reqLast) mesgWordLength <= wordCount;   // transfer the wordCount to mesgWordLengh for user to observe Value method
         case (burstKind)
           None      :  burstKind <= (r.burstPrecise) ? Precise : Imprecise;
           Precise   :  begin if (r.reqLast) begin burstKind <= None; pMesgCount<=pMesgCount+1; end end
@@ -459,7 +462,7 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
   method Action operate = operateD._write(True);
   method WipDataPortStatus status = statusR;    
   method WipDataPortExtendedStatus extStatus = extStatusW;
-  method Bit#(nb) wordsThisMessage = wordCount;
+  method Bit#(nb) wordsThisMessage = mesgWordLength;        // provides length of last complete message in words
 
   interface Wsi_s slv; // OCP-IP Slave Interface Methods...
     method Action put(WsiReq#(nb,nd,ng,nh,ni) req) = wsiReq._write(req);

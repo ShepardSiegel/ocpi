@@ -87,7 +87,7 @@ echo "ADCWorker config properties"
 echo "SMAdapter W2 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 2 0 14
 echo "DelayWorker W3 config properties"
-./swctl 0xF1000000 0xF2FF0000 wread 3 0 21
+./swctl 0xF1000000 0xF2FF0000 wread 3 0 29
 echo "SMAdapter W4 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 4 0 14
 echo "DACWorker config properties"
@@ -101,7 +101,7 @@ echo "ADCWorker config properties"
 echo "SMAdapter W2 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 2 0 14
 echo "DelayWorker W3 config properties"
-./swctl 0xF1000000 0xF2FF0000 wread 3 0 21
+./swctl 0xF1000000 0xF2FF0000 wread 3 0 29
 echo "SMAdapter W4 config properties"
 ./swctl 0xF1000000 0xF2FF0000 wread 4 0 14
 echo "DACWorker config properties"
