@@ -28,15 +28,15 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi);
   interface Wsi_s#(12,32,4,8,1)       wsi_s_adc;  //nd=32 not poly
 endinterface
 
-module mkOCApp_poly#(Vector#(nWci, Reset) rst) (OCAppIfc#(nWci,nWmi));
+module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi));
 
   // Instance the workers in this application container...
-  GCDWorkerIfc    gcdW0     <-  mkGCDWorker(0, reset_by(rst[0]));
-  GCDWorkerIfc    gcdW1     <-  mkGCDWorker(1, reset_by(rst[1]));
+  GCDWorkerIfc    gcdW0     <-  mkGCDWorker(0, hasDebugLogic, reset_by(rst[0]));
+  GCDWorkerIfc    gcdW1     <-  mkGCDWorker(1, hasDebugLogic, reset_by(rst[1]));
 
-  FCAdapter4BIfc  wmiW2     <-  mkFCAdapter4B( reset_by(rst[2]));
-  BiasWorker4BIfc wmiW3     <-  mkBiasWorker4B(reset_by(rst[3]));
-  FPAdapter4BIfc  wmiW4     <-  mkFPAdapter4B( reset_by(rst[4]));
+  FCAdapter4BIfc  wmiW2     <-  mkFCAdapter4B (                      reset_by(rst[2]));
+  BiasWorker4BIfc wmiW3     <-  mkBiasWorker4B(32'h0, hasDebugLogic, reset_by(rst[3]));
+  FPAdapter4BIfc  wmiW4     <-  mkFPAdapter4B (                      reset_by(rst[4]));
 
 
   WciSlaveNullIfc#(20) tieOff5  <- mkWciSlaveNull;
@@ -85,9 +85,9 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst) (OCAppIfc#(nWci,nWmi));
 endmodule : mkOCApp_poly
 
 (* synthesize *)
-module mkOCApp#(Vector#(Nwci_app, Reset) rst) (OCAppIfc#(Nwci_app,Nwmi));
+module mkOCApp#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(Nwci_app,Nwmi));
    (*hide*)
-   let _ifc <- mkOCApp_poly(rst);
+   let _ifc <- mkOCApp_poly(rst, hasDebugLogic);
    return _ifc;
 endmodule: mkOCApp
 

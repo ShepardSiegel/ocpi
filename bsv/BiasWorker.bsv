@@ -14,7 +14,7 @@ interface BiasWorker4BIfc;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkBiasWorker (BiasWorker4BIfc);
+module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
   WciSlaveIfc#(20)              wci          <- mkWciSlave;   // WCI-Slave  convienenice logic
   WsiSlaveIfc #(12,32,4,8,0)    wsiS         <- mkWsiSlave;    // WSI-Slave  convienenice logic
   WsiMasterIfc#(12,32,4,8,0)    wsiM         <- mkWsiMaster;   // WSI-Master convienenice logic

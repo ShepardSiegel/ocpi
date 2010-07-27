@@ -31,7 +31,7 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
   interface WsiEM4B                   wsi_m_dac;
 endinterface
 
-module mkOCApp_poly#(Vector#(nWci, Reset) rst) (OCAppIfc#(nWci,nWmi,nWmemi));
+module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
 
   Clock wciClk <- exposeCurrentClock;
   Vector#(3,Reset) wciRst;
@@ -57,9 +57,9 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst) (OCAppIfc#(nWci,nWmi,nWmemi));
 endmodule : mkOCApp_poly
 
 (* synthesize *)
-module mkOCApp#(Vector#(Nwci_app, Reset) rst) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
+module mkOCApp#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
    (*hide*)
-   let _ifc <- mkOCApp_poly(rst);
+   let _ifc <- mkOCApp_poly(rst, hasDebugLogic);
    return _ifc;
 endmodule: mkOCApp
 
