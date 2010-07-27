@@ -1,5 +1,6 @@
 OpenCPI HDL Tree - README
 ssiegel 2010-06-10 Created
+ssiegel 2010-07-26 ISE 12.2 Updates
 
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
@@ -18,6 +19,11 @@ OpenCPI website: www.opencpi.org
 
   Set the environment variable OCPI_DIR to point to this distribution
     e.g. setenv OCPI_DIR $(HOME)/projects/ocpi
+
+  You may need to set certain environment variables, for example...
+    source /opt/Xilinx/12.2/ISE_DS/settings64.csh
+    setenv XIL_PAR_DESIGN_CHECK_VERBOSE 1
+    setenv XIL_TIMING_ALLOW_IMPOSSIBLE  1
 
   If needed, first specialize the HDL sources for a particular target. (We plan to remove the need for this step in a future release). 
 
