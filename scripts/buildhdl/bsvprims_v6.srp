@@ -1,4 +1,4 @@
-Release 12.1 - xst M.53d (lin64)
+Release 12.2 - xst M.63c (lin64)
 Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
 --> 
 
@@ -48,51 +48,51 @@ Optimization Goal                  : speed
 =========================================================================
 *                          HDL Parsing                                  *
 =========================================================================
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/TriState.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/TriState.v\" into library bsv
 Parsing module <TriState>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/MakeResetA.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/MakeResetA.v\" into library bsv
 Parsing module <MakeResetA>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SyncReset0.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/SyncReset0.v\" into library bsv
 Parsing module <SyncReset0>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SyncResetA.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/SyncResetA.v\" into library bsv
 Parsing module <SyncResetA>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/ResetToBool.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/ResetToBool.v\" into library bsv
 Parsing module <ResetToBool>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/ResetInverter.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/ResetInverter.v\" into library bsv
 Parsing module <ResetInverter>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SizedFIFO.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/SizedFIFO.v\" into library bsv
 Parsing module <SizedFIFO>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/RevertReg.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/RevertReg.v\" into library bsv
 Parsing module <RevertReg>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/FIFO2.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/FIFO2.v\" into library bsv
 Parsing module <FIFO2>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/FIFO1.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/FIFO1.v\" into library bsv
 Parsing module <FIFO1>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SyncFIFO.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/SyncFIFO.v\" into library bsv
 Parsing module <SyncFIFO>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SyncBit.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/SyncBit.v\" into library bsv
 Parsing module <SyncBit>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/BypassWire.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/BypassWire.v\" into library bsv
 Parsing module <BypassWire>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/ClockDiv.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/ClockDiv.v\" into library bsv
 Parsing module <ClockDiv>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/ClockInverter.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/ClockInverter.v\" into library bsv
 Parsing module <ClockInverter>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/ResetEither.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/ResetEither.v\" into library bsv
 Parsing module <ResetEither>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SyncRegister.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/SyncRegister.v\" into library bsv
 Parsing module <SyncRegister>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SyncHandshake.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/SyncHandshake.v\" into library bsv
 Parsing module <SyncHandshake>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SyncPulse.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/SyncPulse.v\" into library bsv
 Parsing module <SyncPulse>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/BRAM2.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/BRAM2.v\" into library bsv
 Parsing module <BRAM2>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/BRAM1.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/BRAM1.v\" into library bsv
 Parsing module <BRAM1>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/BRAM1BE.v" into library bsv
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/BRAM1BE.v\" into library bsv
 Parsing module <BRAM1BE>.
-Parsing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/ocpi/onewire.v" into library work
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/ocpi/onewire.v\" into library work
 Parsing module <onewire>.
 
 =========================================================================
@@ -253,12 +253,12 @@ Delay:               0.405ns (Levels of Logic = 2)
 
 
 Total REAL time to Xst completion: 4.00 secs
-Total CPU time to Xst completion: 3.87 secs
+Total CPU time to Xst completion: 3.88 secs
  
 --> 
 
 
-Total memory usage is 432604 kilobytes
+Total memory usage is 433744 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    0 (   0 filtered)
