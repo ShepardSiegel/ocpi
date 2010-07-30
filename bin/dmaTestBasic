@@ -1,9 +1,14 @@
 #!/bin/sh
 # dmaTestBasic - a script for dma "sanity" that runs in less than a minute
 
+SLOT3_BAR0=0xF1000000
+SLOT3_BAR1=0xF2FF0000
+SLOT4_BAR0=0xDE000000
+SLOT4_BAR1=0xDFFF0000
+
 echo "admin probe "
-sudo ./swctl 0xF1000000 0xF2FF0000 settime
-sudo ./swctl 0xF1000000 0xF2FF0000 admin
+sudo ./swctl $SLOT3_BAR0 $SLOT3_BAR1 settime
+sudo ./swctl $SLOT3_BAR0 $SLOT3_BAR1 admin
 
 #./testDMA "p f m" "3" "0 4112 8176" "100" $*
 ./testDMA "p f m" "3" "0 4096 8192" "100" $*

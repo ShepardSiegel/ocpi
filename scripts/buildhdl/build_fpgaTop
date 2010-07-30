@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/csh -v
 if ($#argv != 1) then
   echo $0{}: Usage is: build_fpgaTop buildTarget
   exit 1
@@ -114,21 +114,23 @@ tar czvf fpgaTop-$buildTarget.bit.-gz fpgaTop.bit
 # .bin may be built from filename.bit
 # promgen -u 0x0 filename.bit -p bin -w -spi
 
-
-echo $buildTarget PROM generation
-switch ($buildTarget)
-  case ml555:
-    promgen -w -p mcs -c FF -ver 0 fpgaTop.bit -x xcf32p
-    breaksw
-  case xupv5:
-    promgen -w -p mcs -c FF -ver 0 fpgaTop.bit -x xcf32p
-    breaksw
-  case ml605
-    promgen -w -p mcs -c FF -x xcf128x -u 00000000 ./fpgaTop.bit -data_width 16 
-    breaksw
-  default:
-    breaksw
-endsw
+#
+# FIXME: Something causes RHEL to hang when this switch is executed...
+#
+#echo $buildTarget PROM generation
+#switch ($buildTarget)
+#  case ml555:
+#    promgen -w -p mcs -c FF -ver 0 fpgaTop.bit -x xcf32p
+#    breaksw
+#  case xupv5:
+#    promgen -w -p mcs -c FF -ver 0 fpgaTop.bit -x xcf32p
+#    breaksw
+#  case ml605
+#    promgen -w -p mcs -c FF -x xcf128x -u 00000000 ./fpgaTop.bit -data_width 16 
+#    breaksw
+#  default:
+#    breaksw
+#endsw
 
 grep errors fpgaTop.twr | tee twrErrors.txt
 
