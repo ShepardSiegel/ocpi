@@ -1,0 +1,95 @@
+##############################################################
+#
+# Xilinx Core Generator version 12.2
+# Date: Tue Aug 03 19:10:42 2010
+#
+##############################################################
+#
+#  This file contains the customisation parameters for a
+#  Xilinx CORE Generator IP GUI. It is strongly recommended
+#  that you do not manually alter this file as it may cause
+#  unexpected and unsupported behavior.
+#
+##############################################################
+#
+# BEGIN Project Options
+SET addpads = false
+SET asysymbol = true
+SET busformat = BusFormatAngleBracketNotRipped
+SET createndf = false
+SET designentry = Verilog
+SET device = xc5vlx110t
+SET devicefamily = virtex5
+SET flowvendor = Other
+SET formalverification = false
+SET foundationsym = false
+SET implementationfiletype = Ngc
+SET package = ff1136
+SET removerpms = false
+SET simulationfiles = Structural
+SET speedgrade = -1
+SET verilogsim = true
+SET vhdlsim = false
+# END Project Options
+# BEGIN Select
+SELECT DUC/DDC_Compiler family Xilinx,_Inc. 1.0
+# END Select
+# BEGIN Parameters
+CSET baseband_sample_rate=1.92
+CSET bram_usage=Auto
+CSET carrier_frequency_1=0
+CSET carrier_frequency_10=0
+CSET carrier_frequency_11=0
+CSET carrier_frequency_12=0
+CSET carrier_frequency_13=0
+CSET carrier_frequency_14=0
+CSET carrier_frequency_15=0
+CSET carrier_frequency_16=0
+CSET carrier_frequency_17=0
+CSET carrier_frequency_18=0
+CSET carrier_frequency_2=0
+CSET carrier_frequency_3=0
+CSET carrier_frequency_4=0
+CSET carrier_frequency_5=0
+CSET carrier_frequency_6=0
+CSET carrier_frequency_7=0
+CSET carrier_frequency_8=0
+CSET carrier_frequency_9=0
+CSET carrier_phase_offset_1=0
+CSET carrier_phase_offset_10=0
+CSET carrier_phase_offset_11=0
+CSET carrier_phase_offset_12=0
+CSET carrier_phase_offset_13=0
+CSET carrier_phase_offset_14=0
+CSET carrier_phase_offset_15=0
+CSET carrier_phase_offset_16=0
+CSET carrier_phase_offset_17=0
+CSET carrier_phase_offset_18=0
+CSET carrier_phase_offset_2=0
+CSET carrier_phase_offset_3=0
+CSET carrier_phase_offset_4=0
+CSET carrier_phase_offset_5=0
+CSET carrier_phase_offset_6=0
+CSET carrier_phase_offset_7=0
+CSET carrier_phase_offset_8=0
+CSET carrier_phase_offset_9=0
+CSET channel_bandwidth=1.4
+CSET clock_frequency=122.88
+CSET component_name=duc_ddc_compiler_v1_0
+CSET core_type=DDC
+CSET data_interface_format=Separate_I_and_Q_signals
+CSET digital_if=Fs/4
+CSET if_passband=10
+CSET implementation_goal=Optimize_For_Minimum_Area
+CSET input_data_width=16
+CSET number_of_antennas=1
+CSET number_of_carriers=4
+CSET output_data_width=16
+CSET programmable_carrier_frequencies=true
+CSET programmable_carrier_gain_control=false
+CSET reset=true
+CSET rf_sample_rate=61.44
+CSET wireless_standard=LTE
+# END Parameters
+GENERATE
+# CRC: ad5d296f

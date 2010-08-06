@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spirit:design xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xilinx="http://www.xilinx.com" >
+   <spirit:vendor>xilinx.com</spirit:vendor>
+   <spirit:library>project</spirit:library>
+   <spirit:name>coregen</spirit:name>
+   <spirit:version>1.0</spirit:version>
+   <spirit:componentInstances>
+      <spirit:componentInstance>
+         <spirit:instanceName>duc_ddc_compiler_v1_0</spirit:instanceName>
+         <spirit:displayName></spirit:displayName>
+         <spirit:description></spirit:description>
+         <spirit:componentRef spirit:vendor="xilinx.com" spirit:library="ip" spirit:name="duc_ddc_compiler" spirit:version="1.0" />
+         <spirit:configurableElementValues>
+            <spirit:configurableElementValue spirit:referenceId="parameter_programmable_carrier_frequencies">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_1">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_2">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_3">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_4">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_5">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_6">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_7">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_wireless_standard">LTE</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_8">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_output_data_width">16</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_digital_if">Fs/4</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_9">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_clock_frequency">122.88</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_data_interface_format">Separate_I_and_Q_signals</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_number_of_carriers">4</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_if_passband">10</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_programmable_carrier_gain_control">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_number_of_antennas">1</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_implementation_goal">Optimize_For_Minimum_Area</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_10">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_10">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_11">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_11">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_12">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_12">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_13">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_13">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_14">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_14">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_15">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_15">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_16">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_16">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_17">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_17">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_frequency_18">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_18">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_channel_bandwidth">1.4</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_reset">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_rf_sample_rate">61.44</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_bram_usage">Auto</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_core_type">DDC</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_1">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_2">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_3">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_input_data_width">16</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_4">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_5">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_6">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_7">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_8">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_carrier_phase_offset_9">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="parameter_baseband_sample_rate">1.92</spirit:configurableElementValue>
+         </spirit:configurableElementValues>
+         <spirit:vendorExtensions>
+            <xilinx:instanceProperties>
+             <xilinx:projectOptions>
+               <xilinx:projectName>coregen</xilinx:projectName>
+               <xilinx:outputDirectory>./</xilinx:outputDirectory>
+               <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+               <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+             </xilinx:projectOptions>
+             <xilinx:part>
+               <xilinx:device>xc5vlx110t</xilinx:device>
+               <xilinx:deviceFamily>virtex5</xilinx:deviceFamily>
+               <xilinx:package>ff1136</xilinx:package>
+               <xilinx:speedGrade>-1</xilinx:speedGrade>
+             </xilinx:part>
+             <xilinx:flowOptions>
+               <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+               <xilinx:designEntry>Verilog</xilinx:designEntry>
+               <xilinx:asySymbol>true</xilinx:asySymbol>
+               <xilinx:flowVendor>Other</xilinx:flowVendor>
+               <xilinx:addPads>false</xilinx:addPads>
+               <xilinx:removeRPMs>false</xilinx:removeRPMs>
+               <xilinx:createNDF>false</xilinx:createNDF>
+               <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+               <xilinx:formalVerification>false</xilinx:formalVerification>
+             </xilinx:flowOptions>
+             <xilinx:simulationOptions>
+               <xilinx:simulationModel>Structural</xilinx:simulationModel>
+               <xilinx:simulationLanguage>Verilog</xilinx:simulationLanguage>
+               <xilinx:foundationSym>false</xilinx:foundationSym>
+             </xilinx:simulationOptions>
+           </xilinx:instanceProperties>
+            <xilinx:generationHistory>
+               <xilinx:fileSet>
+                  <xilinx:name>customization_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2.cfg</xilinx:name>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC2DE0513</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s1.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB648362F</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s2.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE7DC1EFE</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s3.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x298627AD</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s4.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE6B2F547</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s5.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xF952A531</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s6.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x2D70E722</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_chbw5_C1_pb5_if0_frf122_os3.cfg</xilinx:name>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:05:00 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x9A265451</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_chbw5_C1_pb5_if0_frf122_os3_s1.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:05:00 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x19425369</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_chbw5_C1_pb5_if0_frf122_os3_s2.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:05:00 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xBE8AFDC8</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_chbw5_C1_pb5_if0_frf122_os3_s3.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:05:00 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xD6CA0562</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_chbw5_C1_pb5_if0_frf122_os3_s4.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:05:00 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC847A31F</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_chbw5_C1_pb5_if0_frf122_os3_s5.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:05:00 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA7993A02</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ip_xco_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.xco</xilinx:name>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:04 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x1FE4266F</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>implementation_netlist_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2.cfg</xilinx:name>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC2DE0513</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s1.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB648362F</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s2.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE7DC1EFE</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s3.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x298627AD</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s4.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE6B2F547</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s5.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xF952A531</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./ddc_chbw1_C4_pb10_if1_frf61_os2_s6.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x2D70E722</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.asy</xilinx:name>
+                     <xilinx:userFileType>asy</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:07:05 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4D348070</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.ngc</xilinx:name>
+                     <xilinx:userFileType>ngc</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:33 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE335915C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:35 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x89BABC50</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.veo</xilinx:name>
+                     <xilinx:userFileType>veo</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:07 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xBEA80A8A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s1_f0COEFF_auto0_0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:24 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x04D3A303</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s1_f0filt_decode_rom.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:24 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5C39BD8C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s2_f0COEFF_auto0_0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:25 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB15E0199</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s2_f0COEFF_auto_HALFBAND_CENTRE0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:25 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCF7C4AFF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s2_f0filt_decode_rom.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:25 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xED5519B9</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s3_f0COEFF_auto0_0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:26 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCC5DE9A9</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s3_f0COEFF_auto_HALFBAND_CENTRE0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:26 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCF7C4AFF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s3_f0filt_decode_rom.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:27 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x010E6B9C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s4_f0COEFF_auto0_0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:27 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCAF6185E</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s4_f0COEFF_auto_HALFBAND_CENTRE0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:27 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCF7C4AFF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s4_f0filt_decode_rom.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:28 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5C39BD8C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s5_f0COEFF_auto0_0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:28 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x24EB5AFB</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s5_f0COEFF_auto_HALFBAND_CENTRE0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:28 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xCF7C4AFF</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s5_f0filt_decode_rom.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:28 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xED5519B9</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s6_f0COEFF_auto0_0.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:29 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB9853045</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s6_f0COEFF_auto0_1.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:29 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA3709D8D</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s6_f0COEFF_auto0_2.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:29 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x746972F1</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s6_f0COEFF_auto0_3.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:29 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE19A4F0A</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s6_f0COEFF_auto0_4.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:29 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB2D645A1</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s6_f0COEFF_auto0_5.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:29 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x7C074A38</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s6_f0COEFF_auto0_6.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:29 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x9AFC4AE6</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_s6_f0filt_decode_rom.mif</xilinx:name>
+                     <xilinx:userFileType>mif</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:08:29 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xED5519B9</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>instantiation_template_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.veo</xilinx:name>
+                     <xilinx:userFileType>veo</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:36 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xBAD893CD</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>xco_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.xco</xilinx:name>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:42 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x68BC860E</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>xmdf_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_xmdf.tcl</xilinx:name>
+                     <xilinx:userFileType>tclXmdf</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:42 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA62665D1</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ise_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./_xmsgs/pn_parser.xmsgs</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:46 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x66971B1D</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.gise</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>gise</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:46 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4226905C</xilinx:checkSum>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0.xise</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xise</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:46 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x6B8B097D</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>deliver_readme_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_readme.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txtReadme</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:46 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0xDB30793D</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>flist_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./duc_ddc_compiler_v1_0_flist.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txtFlist</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Aug 03 19:10:47 GMT 2010</xilinx:timeStamp>
+                     <xilinx:checkSum>0x2A3F25EE</xilinx:checkSum>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>view_readme_generator</xilinx:name>
+               </xilinx:fileSet>
+            </xilinx:generationHistory>
+         </spirit:vendorExtensions>
+      </spirit:componentInstance>
+   </spirit:componentInstances>
+   <spirit:description></spirit:description>
+   <spirit:vendorExtensions>
+      <xilinx:instanceProperties xmlns:xilinx="http://www.xilinx.com">
+       <xilinx:projectOptions>
+         <xilinx:projectName>coregen</xilinx:projectName>
+         <xilinx:outputDirectory>./</xilinx:outputDirectory>
+         <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+         <xilinx:subWorkingDirectory>./tmp/_cg</xilinx:subWorkingDirectory>
+       </xilinx:projectOptions>
+       <xilinx:part>
+         <xilinx:device>xc5vlx110t</xilinx:device>
+         <xilinx:deviceFamily>virtex5</xilinx:deviceFamily>
+         <xilinx:package>ff1136</xilinx:package>
+         <xilinx:speedGrade>-1</xilinx:speedGrade>
+       </xilinx:part>
+       <xilinx:flowOptions>
+         <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+         <xilinx:designEntry>Verilog</xilinx:designEntry>
+         <xilinx:asySymbol>true</xilinx:asySymbol>
+         <xilinx:flowVendor>Other</xilinx:flowVendor>
+         <xilinx:addPads>false</xilinx:addPads>
+         <xilinx:removeRPMs>false</xilinx:removeRPMs>
+         <xilinx:createNDF>false</xilinx:createNDF>
+         <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+         <xilinx:formalVerification>false</xilinx:formalVerification>
+       </xilinx:flowOptions>
+       <xilinx:simulationOptions>
+         <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+         <xilinx:simulationLanguage>Verilog</xilinx:simulationLanguage>
+         <xilinx:foundationSym>false</xilinx:foundationSym>
+       </xilinx:simulationOptions>
+     </xilinx:instanceProperties>
+   </spirit:vendorExtensions>
+</spirit:design>
