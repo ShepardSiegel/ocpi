@@ -15,23 +15,21 @@ import SpecialFIFOs    ::*;
 import Vector          ::*;
 import XilinxCells     ::*;
 
-typedef Complex#(Bit#(16))         Cmp16;
-typedef Maybe#(Complex#(Bit#(16))) CmpMaybe;
+typedef Complex#(Bit#(16)) Cmp16;
 
 // Interfaces...
 
 (* always_enabled, always_ready *)
 interface DDCvIfc;
-  method Action   sDataValid (Bit#(1)  i);
+  method Action   sDataValid   (Bit#(1)  i);
   method Bit#(1)  sDataReady;
-  method Action   sDataR     (Bit#(1)  i);
-  method Action   mDataReady (Bit#(1)  i);
+  method Action   sDataR       (Bit#(16) i);
+  method Action   mDataReady   (Bit#(1)  i);
   method Bit#(1)  mDataValid;
   method Bit#(1)  mDataLast;
   method Bit#(1)  mDataClean;
   method Bit#(16) mDataI;
   method Bit#(16) mDataQ;
-  method Action  
   method Action   sRegPresetn  (Bit#(1)  i);
 	method Action   sRegPaddr    (Bit#(1)  i);
 	method Action   sRegPsel     (Bit#(1)  i);
@@ -39,8 +37,8 @@ interface DDCvIfc;
 	method Action   sRegPwrite   (Bit#(1)  i);
 	method Action   sRegPwdata   (Bit#(32) i);
 	method Bit#(1)  sRegPready;
-	method Bit#(32) sRegPrdata   (Bit#(1)  i);
-	method Bit#(1)  sRegPslverr  (Bit#(1)  i);
+	method Bit#(32) sRegPrdata;
+	method Bit#(1)  sRegPslverr;
 	method Bit#(1)  intMissinput;
 	method Bit#(1)  intErrpacket;
 	method Bit#(1)  intLostoutput;
@@ -48,12 +46,10 @@ interface DDCvIfc;
 endinterface: DDCvIfc
 
 interface DDCIfc;
-  interface Put#(Cmp16)  putXn;
+  interface Put#(Bit#(16)) putXn;
   //interface Get#(Cmp16) getXk;
-  interface FIFO#(Cmp16) fifoXk;  // Wating for Get Split (GetS?) to be defined and implemented
-  method Bit#(32) ddcFrameCounts;
+  interface FIFO#(Cmp16)  fifoXk;  // Wating for Get Split (GetS?) to be defined and implemented
 endinterface: DDCIfc
-
 
 import "BVI" duc_ddc_compiler_v1_0 = 
 module vMkDDC (DDCvIfc);
@@ -62,84 +58,83 @@ module vMkDDC (DDCvIfc);
   default_reset rst_n (data_resetn); 
 
   // Action methods methodName (VerilogPort) enable()...
+  method sDataValid   (sdata_valid)  enable((*inhigh*)en1);
+  method sDataR       (sdata_r)      enable((*inhigh*)en2);
+  method mDataReady   (mdata_ready)  enable((*inhigh*)en3);
+  method sRegPresetn  (sreg_presetn) enable((*inhigh*)en4);
+	method sRegPaddr    (sreg_paddr)   enable((*inhigh*)en5);
+	method sRegPsel     (sreg_psel)    enable((*inhigh*)en6);
+	method sRegPenable  (sreg_penable) enable((*inhigh*)en7);
+	method sRegPwrite   (sreg_pwrite)  enable((*inhigh*)en8);
+	method sRegPwdata   (sreg_pwdata)  enable((*inhigh*)en9);
+
   // Value methods verilogPort methodName...
+  method  sdata_ready    sDataReady;
+  method  mdata_valid    mDataValid;
+  method  mdata_last     mDataLast;
+  method  mdata_clean    mDataClean;
+  method  mdata_i        mDataI;
+  method  mdata_q        mDataQ;
+	method  sreg_pready    sRegPready;
+	method  sreg_prdata    sRegPrdata;
+	method  sreg_pslverr   sRegPslverr;
+	method  int_missinput  intMissinput;
+	method  int_errpacket  intErrpacket;
+	method  int_lostoutput intLostoutput;
+	method  int_ducddc     intDucddc;
 
-  method sdata        (sdata_r)       enable((*inhigh*)ena1);
-  method sdata_val    (sdata_valid)   enable((*inhigh*)ena2);
-  method sdata_ready  sdata_rdy;
-
-
+  //TODO: Learn the proper methodology for schedule composition - for now, make everthing conflict-free...
   schedule
-    (fwd, fwd_we, scale, scale_we, start, xnRe, xnIm, readyForData, dataValid, edone, done, busy, xnIndex, xkRe, xkIm,  xkIndex)
+  ( sDataValid, sDataReady, sDataR, mDataReady, mDataValid, mDataLast, mDataClean, mDataI, mDataQ, sRegPresetn, sRegPaddr, sRegPsel, sRegPenable, sRegPwrite, sRegPwdata, sRegPready, sRegPrdata, sRegPslverr, intMissinput, intErrpacket, intLostoutput, intDucddc )
     CF
-    (fwd, fwd_we, scale, scale_we, start, xnRe, xnIm, readyForData, dataValid, edone, done, busy, xnIndex, xkRe, xkIm,  xkIndex);
+  ( sDataValid, sDataReady, sDataR, mDataReady, mDataValid, mDataLast, mDataClean, mDataI, mDataQ, sRegPresetn, sRegPaddr, sRegPsel, sRegPenable, sRegPwrite, sRegPwdata, sRegPready, sRegPrdata, sRegPslverr, intMissinput, intErrpacket, intLostoutput, intDucddc );
 
 endmodule: vMkDDC
 
 
 module mkDDC (DDCIfc);
   DDCvIfc               ddc             <- vMkDDC;
-  FIFOF#(Cmp16)         xnF             <- mkFIFOF;
+  FIFOF#(Bit#(16))      xnF             <- mkFIFOF;
   FIFO#(Cmp16)          xkF             <- mkFIFO;
-  Reg#(Bool)            ddcStarted      <- mkReg(False);
-  Reg#(UInt#(16))       loadIndex       <- mkReg(0);
-  Reg#(UInt#(16))       loadFrames      <- mkReg(0);
-  Reg#(UInt#(16))       unloadIndex     <- mkReg(0);
-  Reg#(UInt#(16))       unloadFrames    <- mkReg(0);
 
-  Wire#(Bit#(1))        fwd_w           <- mkDWire(0);
-  Wire#(Bit#(1))        fwd_we_w        <- mkDWire(0);
-  Wire#(Bit#(12))       scale_w         <- mkDWire(0);
-  Wire#(Bit#(1))        scale_we_w      <- mkDWire(0);
-  Wire#(Bit#(1))        start_w         <- mkDWire(0);
-  Wire#(Bit#(16))       xnRe_w          <- mkDWire(0);
-  Wire#(Bit#(16))       xnIm_w          <- mkDWire(0);
+  Wire#(Bit#(1))        sDataValid_w    <- mkDWire(0);
+  Wire#(Bit#(16))       sDataR_w        <- mkDWire(0);
+  Wire#(Bit#(1))        mDataReady_w    <- mkDWire(0);
+  Wire#(Bit#(1))        sRegPresetn_w   <- mkDWire(0);
+  Wire#(Bit#(1))        sRegPaddr_w     <- mkDWire(0);
+  Wire#(Bit#(1))        sRegPsel_w      <- mkDWire(0);
+  Wire#(Bit#(1))        sRegPenable_w   <- mkDWire(0);
+  Wire#(Bit#(1))        sRegPwrite_w    <- mkDWire(0);
+  Wire#(Bit#(32))       sRegPwdata_w    <- mkDWire(0);
 
-  // Since these methods are always-enabled by *inhigh*, drive them at all times to satisfy always_enabled assertion...
+  // Since these methods are always-enabled by *inhigh*, drive them at all times to satisfy the always_enabled assertion...
   (*  fire_when_enabled, no_implicit_conditions *)
   rule drive_ddc_always_enabled (True);
-    ddc.fwd      (fwd_w);
-    ddc.fwd_we   (fwd_we_w);
-    ddc.scale    (scale_w);
-    ddc.scale_we (scale_we_w);
-    ddc.start    (start_w);
-    ddc.xnRe     (xnRe_w);
-    ddc.xnIm     (xnIm_w);
+    ddc.sDataValid  (sDataValid_w);
+    ddc.sDataR      (sDataR_w);
+    ddc.mDataReady  (mDataReady_w);
+    ddc.sRegPresetn (sRegPresetn_w);
+    ddc.sRegPaddr   (sRegPaddr_w);
+    ddc.sRegPsel    (sRegPsel_w);
+    ddc.sRegPenable (sRegPenable_w);
+    ddc.sRegPwrite  (sRegPwrite_w);
+    ddc.sRegPwdata  (sRegPwdata_w);
   endrule
 
-  rule frame_start (xnF.notEmpty && !ddcStarted);
-    start_w    <= 1; 
-    ddcStarted <= True;
-  endrule
-
- // rule drive_start (ddcStarted);
- //   start_w   <= 1; 
- // endrule
-
-  rule ddc_stream_ingress (unpack(ddc.readyForData) && ddcStarted);
-    xnRe_w    <= xnF.first.rel;
-    xnIm_w    <= xnF.first.img;
+  rule ddc_stream_ingress (unpack(ddc.sDataReady));
+    sDataValid_w  <= pack(True);
+    sDataR_w      <= xnF.first;
     xnF.deq;
-    Bool endOfLoad = (loadIndex==4095); // hardcoded 4K
-    loadIndex <= (endOfLoad) ? 0 : loadIndex + 1;
-    if (endOfLoad) begin
-      loadFrames <= loadFrames + 1;
-      ddcStarted <= False;
-    end
   endrule
 
-  rule ddc_stream_egress (unpack(ddc.dataValid));
-    let xk = (Complex{rel:ddc.xkRe, img:ddc.xkIm});
+  rule ddc_stream_egress (unpack(ddc.mDataValid));
+    let xk = (Complex{rel:ddc.mDataI, img:ddc.mDataQ});
     xkF.enq(xk);
-    Bool endOfUnload = (unloadIndex==4095); // hardcoded 4K
-    unloadIndex <= (endOfUnload) ? 0 : unloadIndex + 1;
-    if (endOfUnload) unloadFrames <= unloadFrames + 1;
+    mDataReady_w <= pack(True);
   endrule
 
-  interface Put putXn = toPut(xnF);
-  //interface Get getXk = toGet(xkF);
+  interface Put  putXn  = toPut(xnF);
   interface FIFO fifoXk = xkF;
-  method Bit#(32) ddcFrameCounts = {pack(loadFrames),pack(unloadFrames)};
 endmodule: mkDDC
 
 

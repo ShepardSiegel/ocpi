@@ -16,6 +16,7 @@ BSV       ?= bsv
 
 OCAPP_S0  ?= OCApp_scenario0
 OCAPP_S1  ?= OCApp_scenario1
+OCAPP_S2  ?= OCApp_scenario2
 OCAPP_S3a ?= OCApp_scenario3a
 OCAPP_S3b ?= OCApp_scenario3b
 
@@ -114,6 +115,11 @@ verilog_scenario1: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S1).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S1).v
+
+verilog_scenario2: $(OBJ)
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S2).bsv
+	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S2).v
 
 verilog_scenario3a: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
