@@ -13,48 +13,56 @@ switch ($buildTarget)
     set PART = xc5vlx50t-ff1136-1
     set PCIe = pcie-4243-v5-gtp-x8-125
     set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef103_v5.cdc
     breaksw
   case ml555:
     set PART = xc5vlx50t-ff1136-1
     set PCIe = pcie-4243-v5-gtp-x8-125
     set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef101_v5.cdc
     breaksw
   case xupv5:
     set PART = xc5vlx110t-ff1136-1
     set PCIe = pcie-4243-v5-gtp-x1-125
     set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef100_v5.cdc
     breaksw
   case sx95t:
     set PART = xc5vsx95t-ff1136-2
     set PCIe = pcie-4243-v5-gtp-x8-125
     set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef104_v5.cdc
     breaksw
   case tx240:
     set PART = xc5vtx240t-ff1759-2
     set PCIe = pcie-4243-v5-gtx-x8-125
     set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef103_v5.cdc
     breaksw
   case lx330:
     set PART = xc5vlx330t-ff1738-2
     set PCIe = pcie-4243-v5-gtp-x8-125
     set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef103_v5.cdc
     breaksw
   case ml605
     set PART = xc6vlx240t-ff1156-1
     set PCIe = pcie-4243-v6-x4-250
     set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
     set CSIN = csdefv6mem.cdc
     breaksw
   case sp605:
     set PART = xc6slx45t-fgg484-3
     set PCIe = pcie-4243-s6-x1-125
     set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef100_v5.cdc
     breaksw
   default:
@@ -81,7 +89,7 @@ if ($status != 0) then
   exit 1
 endif
 
-ngdbuild -sd ../../coregen/$PCIe -sd ../../coregen/$FFT \
+ngdbuild -sd ../../coregen/$PCIe -sd ../../coregen/$FFT  -sd ../../coregen/$DDC \
   -aul -aut -uc $buildTarget.ucf -p $PART fpgaTop_csi.ngc fpgaTop.ngd  
 if ($status != 0) then
   echo NGDBuild returned non-zero status

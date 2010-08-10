@@ -170,9 +170,9 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
        'h88 : rdReg[2]  <= wciReq.data;
        'h8C : rdReg[3]  <= wciReq.data;
      endcase
-     end else begin
-       writeDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}), 4'hF, wciReq.data);
-     end
+   end else begin
+       writeDram4B(trunYcate({pReg,wciReq.addr[18:2],2'b0}), 4'hF, wciReq.data);
+   end
      //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
      wci.respPut.put(wciOKResponse); // write response
   endrule
@@ -211,11 +211,11 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
        'h84 : rdat = rdReg[1];
        'h88 : rdat = rdReg[2];
        'h8C : rdat = rdReg[3];
-     endcase
-     end else begin
+      endcase
+    end else begin
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));
        splitRead = True;
-     end
+    end
      //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
      if (!splitRead)wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
      else splitReadInFlight <= True;

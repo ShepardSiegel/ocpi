@@ -17,6 +17,19 @@ import XilinxCells     ::*;
 
 typedef Complex#(Bit#(16)) Cmp16;
 
+typedef struct {
+  Bool      isWrite; // request is a write 
+  Bool      isError; // request is a error
+  Bit#(na)  addr;    // memory byte address
+  Bit#(nd)  data;    // write data
+ } AMBA3APBReq#(numeric type na, numeric type nd) deriving (Bits, Eq);
+
+typedef struct {
+  Bool      isError; // response is an error
+  Bit#(nd)  data;    // read data response
+ } AMBA3APBResp#(numeric type nd) deriving (Bits, Eq);
+
+
 // Interfaces...
 
 (* always_enabled, always_ready *)
@@ -49,6 +62,8 @@ interface DDCIfc;
   interface Put#(Bit#(16)) putXn;
   //interface Get#(Cmp16) getXk;
   interface FIFO#(Cmp16)  fifoXk;  // Wating for Get Split (GetS?) to be defined and implemented
+  interface Put#(AMBA3APBReq#(12,32))  putApb;
+  interface Get#(AMBA3APBResp#(12))    getApb;
 endinterface: DDCIfc
 
 import "BVI" duc_ddc_compiler_v1_0 = 
@@ -96,6 +111,8 @@ module mkDDC (DDCIfc);
   DDCvIfc               ddc             <- vMkDDC;
   FIFOF#(Bit#(16))      xnF             <- mkFIFOF;
   FIFO#(Cmp16)          xkF             <- mkFIFO;
+  FIFO#(AMBA3APBReq#(12,32))  apbReqF   <- mkFIFO; 
+  FIFO#(AMBA3APBResp#(12))    apbRespF  <- mkFIFO;
 
   Wire#(Bit#(1))        sDataValid_w    <- mkDWire(0);
   Wire#(Bit#(16))       sDataR_w        <- mkDWire(0);
@@ -135,6 +152,8 @@ module mkDDC (DDCIfc);
 
   interface Put  putXn  = toPut(xnF);
   interface FIFO fifoXk = xkF;
+  interface Put  putApb = toPut(apbReqF);
+  interface Get  getApb = toGet(apbRespF);
 endmodule: mkDDC
 
 
