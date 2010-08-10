@@ -32,6 +32,9 @@ module mkDDCWorker#(parameter Bit#(32) ddcCtrlInit, parameter Bool hasDebugLogic
   Reg#(Bool)                  takeEven           <- mkReg(True); // start with 0
   Reg#(UInt#(16))             unloadCnt          <- mkReg(0);
   Reg#(Bool)                  splitReadInFlight  <- mkReg(False); 
+  Reg#(Bit#(32))              ambaWrReqCnt       <- mkReg(0);
+  Reg#(Bit#(32))              ambaRdReqCnt       <- mkReg(0);
+  Reg#(Bit#(32))              ambaRespCnt        <- mkReg(0);
 
   DDCMode pmod = unpack(ddcCtrl[1:0]);
   Bool fromOffsetBin = unpack(ddcCtrl[4]);
@@ -68,8 +71,8 @@ rule ddcEnable_doEgress (wci.isOperating && pmod==DDCEnable);
                            reqLast : lastWord,
                            reqInfo : 0,
                       burstPrecise : True,
-                       burstLength : 2048, // 4B words =  8KB      Hardcoded to 4K Transform
-                             data  : {pack(xkImg), pack(xkRel)},    // Little-Endian I/Q (Real in 15:0)
+                       burstLength : 2048,                         // 2K 4B words =  8KB
+                             data  : {pack(xkImg), pack(xkRel)},   // Little-Endian I/Q (Real in 15:0)
                            byteEn  : '1,
                          dataInfo  : '0 });
   ddc.fifoXk.deq;                                                  
@@ -83,22 +86,15 @@ endrule
 
   Bit#(32) ddcStatus = extend({pack(hasDebugLogic)});
 
-  (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
+  (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd, advance_wci_response" *)
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
-  /*
-  rule advance_response (!wci.configWrite);
-    let rsp = lrespF.first; lrespF.deq();
-    Vector#(4, Bit#(32)) rdVect = unpack(rsp);
-    for(Integer i=0;i<4;i=i+1) rdReg[i] <= rdVect[i];
-    if (splitReadInFlight) begin
-      let p = splaF.first; splaF.deq();
-      wci.respPut.put(WciResp{resp:DVA, data:rdVect[p]}); // put the correct 4B DW from 16B return
-      splitReadInFlight <= False;
-    end
-    respCount <= respCount + 1;
+  rule advance_wci_response (!wci.configWrite);
+    let resp <-  ddc.getApb.get;
+    wci.respPut.put(WciResp{resp:DVA, data:resp.data});
+    splitReadInFlight <= False;
+    ambaRespCnt <= ambaRespCnt + 1;
   endrule
-  */
 
   rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
    let wciReq <- wci.reqGet.get;
@@ -108,6 +104,7 @@ endrule
      endcase
    end else begin
      ddc.putApb.put(AMBA3APBReq {isWrite:True, isError:False, addr:truncate(wciReq.addr), data:wciReq.data});
+     ambaWrReqCnt <= ambaWrReqCnt + 1;
    end
      //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, wciReq.data);
      wci.respPut.put(wciOKResponse); // write response
@@ -127,9 +124,13 @@ endrule
        'h20 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.pMesgCount);
        'h24 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.iMesgCount);
        'h28 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.tBusyCount);
+       'h2C : rdat = !hasDebugLogic ? 0 : pack(ambaWrReqCnt);
+       'h30 : rdat = !hasDebugLogic ? 0 : pack(ambaRdReqCnt);
+       'h34 : rdat = !hasDebugLogic ? 0 : pack(ambaRespCnt);
      endcase
    end else begin
      ddc.putApb.put(AMBA3APBReq {isWrite:False, isError:False, addr:truncate(wciReq.addr), data:?});
+     ambaRdReqCnt <= ambaRdReqCnt + 1;
      splitRead = True;
    end
      //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, rdat);

@@ -44,7 +44,7 @@ interface DDCvIfc;
   method Bit#(16) mDataI;
   method Bit#(16) mDataQ;
   method Action   sRegPresetn  (Bit#(1)  i);
-	method Action   sRegPaddr    (Bit#(1)  i);
+	method Action   sRegPaddr    (Bit#(12) i);
 	method Action   sRegPsel     (Bit#(1)  i);
 	method Action   sRegPenable  (Bit#(1)  i);
 	method Action   sRegPwrite   (Bit#(1)  i);
@@ -63,7 +63,7 @@ interface DDCIfc;
   //interface Get#(Cmp16) getXk;
   interface FIFO#(Cmp16)  fifoXk;  // Wating for Get Split (GetS?) to be defined and implemented
   interface Put#(AMBA3APBReq#(12,32))  putApb;
-  interface Get#(AMBA3APBResp#(12))    getApb;
+  interface Get#(AMBA3APBResp#(32))    getApb;
 endinterface: DDCIfc
 
 import "BVI" duc_ddc_compiler_v1_0 = 
@@ -112,17 +112,19 @@ module mkDDC (DDCIfc);
   FIFOF#(Bit#(16))      xnF             <- mkFIFOF;
   FIFO#(Cmp16)          xkF             <- mkFIFO;
   FIFO#(AMBA3APBReq#(12,32))  apbReqF   <- mkFIFO; 
-  FIFO#(AMBA3APBResp#(12))    apbRespF  <- mkFIFO;
+  FIFO#(AMBA3APBResp#(32))    apbRespF  <- mkFIFO;
 
   Wire#(Bit#(1))        sDataValid_w    <- mkDWire(0);
   Wire#(Bit#(16))       sDataR_w        <- mkDWire(0);
   Wire#(Bit#(1))        mDataReady_w    <- mkDWire(0);
   Wire#(Bit#(1))        sRegPresetn_w   <- mkDWire(0);
-  Wire#(Bit#(1))        sRegPaddr_w     <- mkDWire(0);
+  Wire#(Bit#(12))       sRegPaddr_w     <- mkDWire(0);
   Wire#(Bit#(1))        sRegPsel_w      <- mkDWire(0);
   Wire#(Bit#(1))        sRegPenable_w   <- mkDWire(0);
   Wire#(Bit#(1))        sRegPwrite_w    <- mkDWire(0);
   Wire#(Bit#(32))       sRegPwdata_w    <- mkDWire(0);
+
+  Reg#(Bool)            reqSetup        <- mkReg(False);
 
   // Since these methods are always-enabled by *inhigh*, drive them at all times to satisfy the always_enabled assertion...
   (*  fire_when_enabled, no_implicit_conditions *)
@@ -148,6 +150,28 @@ module mkDDC (DDCIfc);
     let xk = (Complex{rel:ddc.mDataI, img:ddc.mDataQ});
     xkF.enq(xk);
     mDataReady_w <= pack(True);
+  endrule
+
+  rule sreg_reset;
+    sRegPresetn_w <= pack(True); // drive reset inactive
+  endrule
+
+  rule sreg_request;
+    let req = apbReqF.first;
+    if (!reqSetup) begin
+      sRegPwrite_w  <= pack(req.isWrite);
+      sRegPaddr_w   <= req.addr;
+      sRegPwdata_w  <= req.data;
+      sRegPsel_w    <= pack(True);
+      sRegPenable_w <= pack(True);
+      reqSetup      <= True;
+    end else begin
+      if (unpack(ddc.sRegPready)) begin
+        reqSetup   <= False;
+        apbReqF.deq;
+        if (!req.isWrite) apbRespF.enq(AMBA3APBResp {isError:False, data:ddc.sRegPrdata});
+      end
+    end
   endrule
 
   interface Put  putXn  = toPut(xnF);
