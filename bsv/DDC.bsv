@@ -43,7 +43,7 @@ interface DDCvIfc;
   method Bit#(1)  mDataClean;
   method Bit#(16) mDataI;
   method Bit#(16) mDataQ;
-  method Action   sRegPresetn  (Bit#(1)  i);
+  method Action   dataResetn   (Bit#(1)  i);
 	method Action   sRegPaddr    (Bit#(12) i);
 	method Action   sRegPsel     (Bit#(1)  i);
 	method Action   sRegPenable  (Bit#(1)  i);
@@ -69,14 +69,14 @@ endinterface: DDCIfc
 import "BVI" duc_ddc_compiler_v1_0 = 
 module vMkDDC (DDCvIfc);
 
-  default_clock clk   (clk);
-  default_reset rst_n (data_resetn); 
+  default_clock clk        (clk);
+  default_reset rst_n      (sreg_presetn); 
 
   // Action methods methodName (VerilogPort) enable()...
   method sDataValid   (sdata_valid)  enable((*inhigh*)en1);
   method sDataR       (sdata_r)      enable((*inhigh*)en2);
   method mDataReady   (mdata_ready)  enable((*inhigh*)en3);
-  method sRegPresetn  (sreg_presetn) enable((*inhigh*)en4);
+  method dataResetn   (data_resetn)  enable((*inhigh*)en4);
 	method sRegPaddr    (sreg_paddr)   enable((*inhigh*)en5);
 	method sRegPsel     (sreg_psel)    enable((*inhigh*)en6);
 	method sRegPenable  (sreg_penable) enable((*inhigh*)en7);
@@ -100,14 +100,15 @@ module vMkDDC (DDCvIfc);
 
   //TODO: Learn the proper methodology for schedule composition - for now, make everthing conflict-free...
   schedule
-  ( sDataValid, sDataReady, sDataR, mDataReady, mDataValid, mDataLast, mDataClean, mDataI, mDataQ, sRegPresetn, sRegPaddr, sRegPsel, sRegPenable, sRegPwrite, sRegPwdata, sRegPready, sRegPrdata, sRegPslverr, intMissinput, intErrpacket, intLostoutput, intDucddc )
+  ( sDataValid, sDataReady, sDataR, mDataReady, mDataValid, mDataLast, mDataClean, mDataI, mDataQ, dataResetn, sRegPaddr, sRegPsel, sRegPenable, sRegPwrite, sRegPwdata, sRegPready, sRegPrdata, sRegPslverr, intMissinput, intErrpacket, intLostoutput, intDucddc )
     CF
-  ( sDataValid, sDataReady, sDataR, mDataReady, mDataValid, mDataLast, mDataClean, mDataI, mDataQ, sRegPresetn, sRegPaddr, sRegPsel, sRegPenable, sRegPwrite, sRegPwdata, sRegPready, sRegPrdata, sRegPslverr, intMissinput, intErrpacket, intLostoutput, intDucddc );
+  ( sDataValid, sDataReady, sDataR, mDataReady, mDataValid, mDataLast, mDataClean, mDataI, mDataQ, dataResetn, sRegPaddr, sRegPsel, sRegPenable, sRegPwrite, sRegPwdata, sRegPready, sRegPrdata, sRegPslverr, intMissinput, intErrpacket, intLostoutput, intDucddc );
 
 endmodule: vMkDDC
 
 
 module mkDDC (DDCIfc);
+  Reset                 rst_n           <- exposeCurrentReset;
   DDCvIfc               ddc             <- vMkDDC;
   FIFOF#(Bit#(16))      xnF             <- mkFIFOF;
   FIFO#(Cmp16)          xkF             <- mkFIFO;
@@ -117,13 +118,14 @@ module mkDDC (DDCIfc);
   Wire#(Bit#(1))        sDataValid_w    <- mkDWire(0);
   Wire#(Bit#(16))       sDataR_w        <- mkDWire(0);
   Wire#(Bit#(1))        mDataReady_w    <- mkDWire(0);
-  Wire#(Bit#(1))        sRegPresetn_w   <- mkDWire(0);
+  Wire#(Bit#(1))        dataResetn_w    <- mkDWire(0);
   Wire#(Bit#(12))       sRegPaddr_w     <- mkDWire(0);
   Wire#(Bit#(1))        sRegPsel_w      <- mkDWire(0);
   Wire#(Bit#(1))        sRegPenable_w   <- mkDWire(0);
   Wire#(Bit#(1))        sRegPwrite_w    <- mkDWire(0);
   Wire#(Bit#(32))       sRegPwdata_w    <- mkDWire(0);
 
+  Reg#(Bool)            started         <- mkReg(False);
   Reg#(Bool)            reqSetup        <- mkReg(False);
 
   // Since these methods are always-enabled by *inhigh*, drive them at all times to satisfy the always_enabled assertion...
@@ -132,7 +134,7 @@ module mkDDC (DDCIfc);
     ddc.sDataValid  (sDataValid_w);
     ddc.sDataR      (sDataR_w);
     ddc.mDataReady  (mDataReady_w);
-    ddc.sRegPresetn (sRegPresetn_w);
+    ddc.dataResetn  (dataResetn_w);
     ddc.sRegPaddr   (sRegPaddr_w);
     ddc.sRegPsel    (sRegPsel_w);
     ddc.sRegPenable (sRegPenable_w);
@@ -152,10 +154,10 @@ module mkDDC (DDCIfc);
     mDataReady_w <= pack(True);
   endrule
 
-  rule sreg_reset;
-    sRegPresetn_w <= pack(True); // drive reset inactive
-  endrule
+  rule start (!started); started <= True; endrule
+  rule run   ( started); dataResetn_w <= pack(True); endrule
 
+  //This rule must fire during the lifetime of a request...
   rule sreg_request;
     let req = apbReqF.first;
     sRegPwrite_w  <= pack(req.isWrite);
