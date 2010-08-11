@@ -1,0 +1,59 @@
+#!/bin/sh
+# Script for debugging DDC
+
+echo "admin probe "
+./swctl 0xDE000000 0xDEFF0000 settime
+./swctl 0xDE000000 0xDEFF0000 admin
+
+echo "reset workers"
+./swctl 0xDE000000 0xDEFF0000 wwctl 14 0x00000004
+./swctl 0xDE000000 0xDEFF0000 wwctl  4 0x00000004
+./swctl 0xDE000000 0xDEFF0000 wwctl  3 0x00000004
+./swctl 0xDE000000 0xDEFF0000 wwctl  2 0x00000004
+./swctl 0xDE000000 0xDEFF0000 wwctl 10 0x0000000F
+
+echo "unreset workers"
+./swctl 0xDE000000 0xDEFF0000 wwctl 14 0x80000004
+./swctl 0xDE000000 0xDEFF0000 wwctl  4 0x80000004
+./swctl 0xDE000000 0xDEFF0000 wwctl  3 0x80000004
+./swctl 0xDE000000 0xDEFF0000 wwctl  2 0x80000004
+./swctl 0xDE000000 0xDEFF0000 wwctl 10 0x8000000F
+
+echo "Set W2 SMAdapter to Mode 0 WSI-S to WSI-M"
+./swctl 0xDE000000 0xDEFF0000 wwrite 2 0x00 0x0
+
+echo "Set W4 SMAdapter to Mode 2 WSI-S to WMI"
+./swctl 0xDE000000 0xDEFF0000 wwrite 4 0x00 0x2
+
+echo "Set DP1 to Four Buffer Passive Fabric Producer"
+./swctl 0xDE000000 0xDEFF0000 wwrite 14 0x00 0x4
+./swctl 0xDE000000 0xDEFF0000 wwrite 14 0x68 0x4
+
+echo "initialize workers"
+./swctl 0xDE000000 0xDEFF0000 wop 14 initialize
+./swctl 0xDE000000 0xDEFF0000 wop  4 initialize
+./swctl 0xDE000000 0xDEFF0000 wop  3 initialize
+./swctl 0xDE000000 0xDEFF0000 wop  2 initialize
+./swctl 0xDE000000 0xDEFF0000 wop 10 initialize
+
+#echo "DDC config properties"
+#./swctl 0xDE000000 0xDEFF0000 wread 3 0 14 
+#echo "DUCDDC config properties"
+#./swctl 0xDE000000 0xDEFF0000 wread 3 4096 1024 
+#echo "DDC config properties"
+#./swctl 0xDE000000 0xDEFF0000 wread 3 0 14 
+
+./swctl 0xDE000000 0xDEFF0000 wwrite 3 0x1500 0x1
+./swctl 0xDE000000 0xDEFF0000 wwrite 3 0x1504 0x2
+./swctl 0xDE000000 0xDEFF0000 wwrite 3 0x1508 0x3
+./swctl 0xDE000000 0xDEFF0000 wwrite 3 0x150C 0x4
+./swctl 0xDE000000 0xDEFF0000 wread  3 0x1500 4 
+#./swctl 0xDE000000 0xDEFF0000 wread 3 0 14
+
+echo "start workers"
+./swctl 0xDE000000 0xDEFF0000 wop 14 start
+./swctl 0xDE000000 0xDEFF0000 wop  4 start
+./swctl 0xDE000000 0xDEFF0000 wop  3 start
+./swctl 0xDE000000 0xDEFF0000 wop  2 start
+./swctl 0xDE000000 0xDEFF0000 wop 10 start
+

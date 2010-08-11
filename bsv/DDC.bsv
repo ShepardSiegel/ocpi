@@ -29,6 +29,12 @@ typedef struct {
   Bit#(nd)  data;    // read data response
  } AMBA3APBResp#(numeric type nd) deriving (Bits, Eq);
 
+typedef struct {
+  Bool missInput;
+  Bool errPacket;
+  Bool lostOutput;
+  Bool ducDdc;
+} DdcInt deriving (Bits, Eq);
 
 // Interfaces...
 
@@ -64,6 +70,7 @@ interface DDCIfc;
   interface FIFO#(Cmp16)  fifoXk;  // Wating for Get Split (GetS?) to be defined and implemented
   interface Put#(AMBA3APBReq#(12,32))  putApb;
   interface Get#(AMBA3APBResp#(32))    getApb;
+  method DdcInt ddcint;
 endinterface: DDCIfc
 
 import "BVI" duc_ddc_compiler_v1_0 = 
@@ -157,21 +164,21 @@ module mkDDC (DDCIfc);
   rule start (!started); started <= True; endrule
   rule run   ( started); dataResetn_w <= pack(True); endrule
 
-  //This rule must fire during the lifetime of a request...
+  //This rule must fire continiuously during the lifetime of a request...
   rule sreg_request;
     let req = apbReqF.first;
     sRegPwrite_w  <= pack(req.isWrite);
     sRegPaddr_w   <= req.addr;
     sRegPwdata_w  <= req.data;
     sRegPsel_w    <= pack(True);
-    sRegPenable_w <= pack(reqSetup);  // Assert PENABLE one cycle after PSEL
+    sRegPenable_w <= pack(reqSetup);     // Assert PENABLE one cycle after PSEL
     if (!reqSetup) begin
       reqSetup    <= True;
     end else begin
-      if (unpack(ddc.sRegPready)) begin
-        reqSetup  <= False;
-        apbReqF.deq;
-        if (!req.isWrite) apbRespF.enq(AMBA3APBResp {isError:False, data:ddc.sRegPrdata});
+      if (unpack(ddc.sRegPready)) begin  // PREADY asserted while PENABLE driven means cycle complete
+        reqSetup  <= False;              // Clear for next request
+        apbReqF.deq;                     // DEQ the current request
+        if (!req.isWrite) apbRespF.enq(AMBA3APBResp {isError:False, data:ddc.sRegPrdata}); // ENQ the response
       end
     end
   endrule
@@ -180,6 +187,11 @@ module mkDDC (DDCIfc);
   interface FIFO fifoXk = xkF;
   interface Put  putApb = toPut(apbReqF);
   interface Get  getApb = toGet(apbRespF);
+  method    DdcInt ddcint = (DdcInt 
+    {missInput :unpack(ddc.intMissinput),
+     errPacket :unpack(ddc.intErrpacket),
+     lostOutput:unpack(ddc.intLostoutput),
+     ducDdc    :unpack(ddc.intDucddc)});
 endmodule: mkDDC
 
 

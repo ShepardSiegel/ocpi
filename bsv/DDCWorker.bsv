@@ -35,6 +35,7 @@ module mkDDCWorker#(parameter Bit#(32) ddcCtrlInit, parameter Bool hasDebugLogic
   Reg#(Bit#(32))              ambaWrReqCnt       <- mkReg(0);
   Reg#(Bit#(32))              ambaRdReqCnt       <- mkReg(0);
   Reg#(Bit#(32))              ambaRespCnt        <- mkReg(0);
+  Reg#(Bit#(32))              outMesgCnt         <- mkReg(0);
 
   DDCMode pmod = unpack(ddcCtrl[1:0]);
   Bool fromOffsetBin = unpack(ddcCtrl[4]);
@@ -49,7 +50,7 @@ rule ddcPass_bypass (wci.isOperating && pmod==DDCPass);
   wsiM.reqPut.put(r);
 endrule
 
-rule ddcEnable_output_feedFFT (wci.isOperating && pmod==DDCEnable);
+rule ddcEnable_output_feedDDC (wci.isOperating && pmod==DDCEnable);
   WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;
   xnF.enq(r.data);    // feed the DDC xnF
 endrule
@@ -77,6 +78,7 @@ rule ddcEnable_doEgress (wci.isOperating && pmod==DDCEnable);
                          dataInfo  : '0 });
   ddc.fifoXk.deq;                                                  
   unloadCnt <= (lastWord) ? 0 : unloadCnt + 1;
+  if (lastWord)  outMesgCnt <= outMesgCnt + 1;
 endrule
 
 
@@ -84,7 +86,7 @@ endrule
   // WCI...
   //
 
-  Bit#(32) ddcStatus = extend({pack(hasDebugLogic)});
+  Bit#(32) ddcStatus = extend({pack(ddc.ddcint), 3'b0, pack(hasDebugLogic)});
 
   (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd, advance_wci_response" *)
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
@@ -127,6 +129,7 @@ endrule
        'h2C : rdat = !hasDebugLogic ? 0 : pack(ambaWrReqCnt);
        'h30 : rdat = !hasDebugLogic ? 0 : pack(ambaRdReqCnt);
        'h34 : rdat = !hasDebugLogic ? 0 : pack(ambaRespCnt);
+       'h38 : rdat = !hasDebugLogic ? 0 : pack(outMesgCnt);
      endcase
    end else begin
      ddc.putApb.put(AMBA3APBReq {isWrite:False, isError:False, addr:truncate(wciReq.addr), data:?});
