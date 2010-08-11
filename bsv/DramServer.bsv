@@ -171,7 +171,7 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
        'h8C : rdReg[3]  <= wciReq.data;
      endcase
    end else begin
-       writeDram4B(trunYcate({pReg,wciReq.addr[18:2],2'b0}), 4'hF, wciReq.data);
+       writeDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}), 4'hF, wciReq.data);
    end
      //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
      wci.respPut.put(wciOKResponse); // write response
