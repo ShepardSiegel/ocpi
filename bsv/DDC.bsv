@@ -158,16 +158,16 @@ module mkDDC (DDCIfc);
 
   rule sreg_request;
     let req = apbReqF.first;
+    sRegPwrite_w  <= pack(req.isWrite);
+    sRegPaddr_w   <= req.addr;
+    sRegPwdata_w  <= req.data;
+    sRegPsel_w    <= pack(True);
+    sRegPenable_w <= pack(reqSetup);  // Assert PENABLE one cycle after PSEL
     if (!reqSetup) begin
-      sRegPwrite_w  <= pack(req.isWrite);
-      sRegPaddr_w   <= req.addr;
-      sRegPwdata_w  <= req.data;
-      sRegPsel_w    <= pack(True);
-      sRegPenable_w <= pack(True);
-      reqSetup      <= True;
+      reqSetup    <= True;
     end else begin
       if (unpack(ddc.sRegPready)) begin
-        reqSetup   <= False;
+        reqSetup  <= False;
         apbReqF.deq;
         if (!req.isWrite) apbRespF.enq(AMBA3APBResp {isError:False, data:ddc.sRegPrdata});
       end
