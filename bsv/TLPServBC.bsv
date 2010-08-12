@@ -1,5 +1,5 @@
-// TLPServBC.bsv
-// Copyright (c) 2009 Atomic Rules LLC - ALL RIGHTS RESERVED
+// TLPServBC.bsv - TLP Server, BRAM Client
+// Copyright (c) 2009,2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import TLPMF::*;
 import OCBufQ::*;
@@ -131,6 +131,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)               pullTagMatch        <- mkDReg(False);
   Reg#(Bool)               dmaDoTailEvent      <- mkReg(False);
   Reg#(Bit#(24))           mesgLengthRemain    <- mkRegU;
+  Reg#(Bit#(13))           minMLR4096          <- mkRegU;      // min(min(mesgLengthRemain,4096),maxPayloadSize) pipelined, to speed thisRequestLength calculation path
   Reg#(Bit#(24))           mesgComplReceived   <- mkRegU;
   Reg#(Bit#(13))           maxPayloadSize      <- mkReg(128);  // 128B Typical
   Reg#(Bit#(13))           maxReadReqSize      <- mkReg(512);  // 512B Typical
@@ -167,6 +168,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule dmaResponseNearMetaHead (actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==Metadata);
     mRespF.deq;
     mesgLengthRemain <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
+    minMLR4096       <= min(min(truncate(byteSwap(rres.data)),4096),maxPayloadSize); // pre-calculate the min of { mesgLengthRemain, 4096B, and maxPayloadSize }
     $display("[%0d]: %m: dmaResponseNearMetaHead FPactMesg-Step2a/7 mesgLength:%0x", $time, byteSwap(rres.data));
   endrule
 
@@ -196,7 +198,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // If needed, make multiple requests until the full extent of the message is traversed, as signalled by mesgLengthRemain==0...
   rule dmaPushRequestMesg (actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemain!=0);
     Bit#(13) spanToNextPage = 4096 - extend(srcMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
-    Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemain,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
+    //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemain,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
+    Bit#(13) thisRequestLength = min(minMLR4096,spanToNextPage);  // minimum of what we want and what we are allowed (uses pre-calculated minMLR4096
     mesgLengthRemain  <= mesgLengthRemain - extend(thisRequestLength);
     ReadReq rreq = ReadReq {
       role     : DMASrc,
