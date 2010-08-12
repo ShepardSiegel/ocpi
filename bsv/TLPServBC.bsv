@@ -167,8 +167,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Accept the first DW metadata back... 
   rule dmaResponseNearMetaHead (actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==Metadata);
     mRespF.deq;
-    mesgLengthRemain <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
-    minMLR4096       <= min(min(truncate(byteSwap(rres.data)),4096),maxPayloadSize); // pre-calculate the min of { mesgLengthRemain, 4096B, and maxPayloadSize }
+    Bit#(24) mesgLengthRemain_l = truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
+      mesgLengthRemain <= mesgLengthRemain_l;
+      minMLR4096       <= min(truncate(min(mesgLengthRemain_l,4096)),maxPayloadSize);
     $display("[%0d]: %m: dmaResponseNearMetaHead FPactMesg-Step2a/7 mesgLength:%0x", $time, byteSwap(rres.data));
   endrule
 
