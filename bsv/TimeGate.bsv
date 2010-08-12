@@ -10,203 +10,71 @@ import DReg::*;
 import FIFO::*;
 import GetPut::*;
 import Vector::*;
-import Real::*;
-import StmtFSM::*;
 import Synchronizer::*;
 
 typedef struct {
   Bool periodic;    // When True, enables the periodic self retrigger generated from the period
+  Bit#(4)  syncEn;  // Selects which syncEn input(s) are used to reset the start, dwell, and period counters
   Bit#(32) start;   // Integer number of iso clock cycles after trigger event until the dwell begins
   Bit#(32) dwell;   // Integer number of iso clock cycles that dwell is active after the start interval
   Bit#(32) period;  // Integer number of iso clock cycles (> start+dwell) where TimeGate will self retrigger
 } TimeGateControl deriving (Bits, Eq);
 
 interface TimeGateControlIfc;
-  method Action    setControlA  (TimeGateControl arg);
-  method Action    setControlB  (TimeGateControl arg);
+  method Action  setControlA  (TimeGateControl arg);  // Control Bank A
+  method Action  setControlB  (TimeGateControl arg);  // Control Bank B
 endinterface
 
 interface TimeGateIsoIfc;
-  method Action    syncIn0;
-  method Action    syncIn1;
-  method Bool      dwellGate;
-  method Bool      syncOut0;
-  method Bool      syncOut1;
+  method Action  syncIn (Bit#(4) arg);
+  method Bool    dwellGate;
+  method Bool    syncOut;   // Pulses in phase with the internal sync
 endinterface
 
-
-typedef enum {TimeServ, PpsIn, LocalXo, Mute} PPSOutMode deriving (Bits, Eq);
-typedef struct {
-  Bool       disableServo;    // 4
-  Bool       disableGPS;      // 3
-  Bool       disablePPSIn;    // 2
-  PPSOutMode drivePPSOut;     // 1:0
- } TimeControl deriving (Bits, Eq);
+interface TimeGateIfc;
+  interface TimeGateControlIfc ctrl; // The Control sub-interface
+  interface TimeGateIsoIfc     iso;  // The Isonchronous sub-interface
+endinterface
 
 module mkTimeGate#(Clock iso_clk, Reset iso_rst) (TimeGateIfc);
 
   // Sofware Control Interface State...
-  Reg#(TimeControl)        rplTimeControl  <- mkReg(unpack(0));
-  Reg#(Bool)               ppsLostSticky   <- mkReg(False);
-  Reg#(Bool)               gpsInSticky     <- mkReg(False);
-  Reg#(Bool)               ppsInSticky     <- mkReg(False);
-  Reg#(Bool)               ppsOKCC         <- mkSyncRegToCC(False,  sys0_clk, sys0_rst);
-  Reg#(Bool)               ppsLostCC       <- mkSyncRegToCC(False,  sys0_clk, sys0_rst);
-  Reg#(Bool)               timeSetSticky   <- mkReg(False);
-  Reg#(Bit#(8))            rollingPPSIn    <- mkSyncRegToCC(0,      sys0_clk, sys0_rst);
-  Bit#(32) rplTimeStatus = {pack(ppsLostSticky),pack(gpsInSticky),pack(ppsInSticky),pack(timeSetSticky),pack(ppsOKCC),pack(ppsLostCC),18'h0,rollingPPSIn};
-  SyncFIFOIfc#(GPS64_t)    setRefF         <- mkSyncFIFOFromCC(2,   sys0_clk);
-  Reg#(Bit#(28))           refPerPPS       <- mkSyncRegToCC(0,      sys0_clk, sys0_rst);
-  Reg#(GPS64_t)            nowInCC         <- mkSyncRegToCC(0,      sys0_clk, sys0_rst);
-  // Sys0 Clock Timebase...
-  Reg#(FixedPoint#(2,48))  fracSeconds     <- mkReg(0.0,            clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(FixedPoint#(2,48))  lastSecond      <- mkReg(0.0,            clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(FixedPoint#(2,48))  fracInc         <- mkReg(fromRational(1,round(tsmp.refFreq)), clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(FixedPoint#(2,48))  delSecond       <- mkReg(1.0,            clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(FixedPoint#(2,0))   delSec          <- mkReg(0.0,            clocked_by sys0_clk, reset_by sys0_rst);
-  Synchronizer#(Bool)      ppsExtSync      <- mkSynchronizer(False, clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(PPSOutMode)         ppsOutMode      <- mkSyncRegFromCC(TimeServ, sys0_clk);
-  Reg#(Bool)               ppsDisablePPS   <- mkSyncRegFromCC(False,    sys0_clk);
-  Reg#(Bool)               disableServo    <- mkSyncRegFromCC(False,    sys0_clk);
-  Reg#(Bool)               ppsExtSyncD     <- mkReg(False,          clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bool)               ppsExtCapture   <- mkReg(False,          clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bool)               ppsDrive        <- mkReg(False,          clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bool)               ppsOK           <- mkReg(False,          clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bool)               ppsLost         <- mkReg(False,          clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bool)               xo2             <- mkReg(False,          clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bit#(8))            ppsEdgeCount    <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bit#(28))           refFromRise     <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bit#(28))           refPerCount     <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bit#(28))           refFreeCount    <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bit#(28))           refFreeSamp     <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bit#(28))           refFreeSpan     <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bit#(32))           refSecCount     <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(GPS64_t)            now             <- mkReg(unpack(0),      clocked_by sys0_clk, reset_by sys0_rst);
+  Reg#(TimeGateControl)    ctlA            <- mkSyncRegFromCC(unpack(0), iso_clk, iso_rst);
+  Reg#(TimeGateControl)    ctlB            <- mkSyncRegFromCC(unpack(0), iso_clk, iso_rst);
 
-  Bool ppsExtRising  = ( ppsExtSync && !ppsExtSyncD);
-  Bool ppsExtFalling = (!ppsExtSync &&  ppsExtSyncD);
+  // Isochronous Clock Timebase...
+  Reg#(Bool)               tgRunning       <- mkReg(False,  clocked_by iso_clk, reset_by iso_rst);
+  Reg#(Bool)               intSync         <- mkDReg(False, clocked_by iso_clk, reset_by iso_rst);
+  Reg#(Bit#(32))           startCount      <- mkReg(0,      clocked_by iso_clk, reset_by iso_rst);
+  Reg#(Bit#(32))           dwellCount      <- mkReg(0,      clocked_by iso_clk, reset_by iso_rst);
+  Reg#(Bit#(32))           periodCount     <- mkReg(0,      clocked_by iso_clk, reset_by iso_rst);
 
-  rule pps_assign (!ppsDisablePPS); ppsExtSyncD<=ppsExtSync; endrule
-  rule ppsEdgeCountInc (ppsExtRising); ppsEdgeCount <= ppsEdgeCount + 1; endrule
-  rule ppsEdgeCountIncCC;  rollingPPSIn  <= ppsEdgeCount; endrule
-  rule xfr_ppsOutmode;     ppsOutMode    <= rplTimeControl.drivePPSOut;  endrule
-  rule xfr_ppsDisablePPS;  ppsDisablePPS <= rplTimeControl.disablePPSIn; endrule
-  rule xfr_disableServo;   disableServo  <= rplTimeControl.disableServo; endrule
-  rule xfr_ppsOK;          ppsOKCC       <= ppsOK; endrule
-  rule xfr_ppsLost;        ppsLostCC     <= ppsLost; endrule
-  rule ppsStickySet (ppsOKCC);   ppsInSticky   <= True; endrule
-  rule ppsLostSet   (ppsLostCC); ppsLostSticky <= True; endrule
-  rule make_xo2; xo2 <= !xo2; endrule  // 100 MHz
+  Bit#(32) actDwellStart = ((activeBankA) ? ctlA : ctlB).start;
+  Bit#(32) actDwellEnd   = ((activeBankA) ? ctlA : ctlB).dwell;
+  Bit#(32) actPeriodEnd  = ((activeBankA) ? ctlA : ctlB).period;
 
-  Bool  refPerReset  = ppsOK ? ppsExtRising : (fxptGetInt(delSec) != fxptGetInt(fracSeconds));
+  Bool startCountEna  = tgRunning && (startCount  < maxBound);
+  Bool dwellCountEna  = tgRunning && (dwellCount  < maxBound) && (startCount >= actDwellStart);
+  Bool periodCountEna = tgRunning && (periodCount < maxBound);
 
-  // The refFreeCount is an uncompensated 200 MHz rolling count that has no runtime reset
-  // The refFromRise counter is reset by any rising edge on PPS, and is used to detect when the incident PPS is OK
-  // The refPerCount  is an uncompensated 200 MHz count off of sys0 clk; reset by the refPerReset condition
   (* fire_when_enabled, no_implicit_conditions *) // Assert that this rule will always fire on every XO cycle
-  rule every_xo_cycle;
-     refPerCount  <= refPerReset  ? 0 : refPerCount + 1;
-     refFromRise  <= ppsExtRising ? 0 : refFromRise + 1;
-     refFreeCount <= refFreeCount + 1;
-
-     Bool inWindow = ( (refFromRise>fromInteger(round(tsmp.refFreq*0.999))) &&   // -.1% (1000 PPM)
-                       (refFromRise<fromInteger(round(tsmp.refFreq*1.001))) );   // +.1% (1000 PPM)
-     Bool pastWindow = (refFromRise>fromInteger(round(tsmp.refFreq*1.001)));     // +.1% (1000 PPM)
-
-     ppsOK   <= ((ppsExtRising && inWindow) || (ppsOK && !ppsLost));        // Set ppsOK if it lies within our window, Hold while not Lost
-     ppsLost <= ( ppsOK && ((ppsExtRising && !inWindow) || (pastWindow)));  // Pulse ppsLost if it was OK, but now is not (will clear ppsOK)
-
-     if (ppsExtRising && inWindow) begin            // On every PPS rising edge...
-       refFreeSamp <= refFreeCount;                 // Sample the refFreeCount for the next second around
-       refFreeSpan <= refFreeCount - refFreeSamp;   // Holds the number of sys0 clocks in 1 pps Span (PPS measure of refFreq)
-       lastSecond  <= fracSeconds;                  // Capture "now" to last second for delSecond update
-       delSecond   <= fracSeconds - lastSecond;     // The 2.48 measurement of 1 second, according to PPS
-       // With each PPS, proportionally correct the fractonal increment by the measured error divided by the number of increments...
-       // Positive beta == ref is SLOW wrt PPS ; Negative beta == ref is FAST wrt PPS
-       FixedPoint#(2,48) beta = ((1.0-delSecond)>>28); // Kp: (gain) 2^28 ~= 200e6, thus our proportional response is slightly over-damped
-       if (ppsOK && !disableServo) fracInc <= fracInc + beta; // Apply the proporional beta compensation to the fracSeconds accumulator
-     end
-
-     ppsDrive    <= (refPerCount<fromInteger(round(tsmp.refFreq*0.9)));  // 90% HI, 10% LO
-     fracSeconds <= fracSeconds + fracInc;
-     delSec      <= fromInt(fxptGetInt(fracSeconds));
+  rule every_iso_cycle;
+     startCount   <= (intSync) ? 0 : (startCountEna)  ? startCount  + 1 : startCount;
+     dwellCount   <= (intSync) ? 0 : (dwellCountEna)  ? dwellCount  + 1 : dwellCount;
+     periodCount  <= (intSync) ? 0 : (periodCountEna) ? periodCount + 1 : periodCount;
   endrule
  
-  rule update_refPerPPS (ppsExtRising);
-    refPerPPS  <= refFreeSpan; // For rplTimeRefPerPPS visability back in CC domain
-  endrule
-
-  rule refSecCounter;
-    if (setRefF.notEmpty) begin // Time Set has priority over integer second increment
-      refSecCount   <= pack(fxptGetInt(setRefF.first));
-      setRefF.deq;
-    end else if (refPerReset) refSecCount  <= refSecCount  + 1;
-  endrule
-
-  rule updateNow;
-     now     <= unpack({refSecCount,pack(fracSeconds)[47:16]});
-     nowInCC <= unpack({refSecCount,pack(fracSeconds)[47:16]});
-  endrule
 
   // Interfaces Provided...
-  method Action setTime (GPS64_t sTime);
-    setRefF.enq(sTime);
-    timeSetSticky <= True;
-  endmethod
-  method Bit#(32) getStatus = rplTimeStatus;
-  method Action   setControl (Bit#(32) arg);
-    rplTimeControl <= unpack(truncate(arg));
-    if (unpack(arg[31])) begin  // clearStickyBits
-      ppsLostSticky <= False;
-      gpsInSticky   <= False;
-      ppsInSticky   <= False;
-      timeSetSticky <= False;
-    end
-  endmethod
-  method Bit#(32) getControl = extend(pack(rplTimeControl));
-  method tRefPerPps = extend(refPerPPS);
+  interface TimeGateControlIfc ctrl; // The Control sub-interface
+    method Action setControlA  (TimeGateControl arg) = ctlA._write(arg);
+    method Action setControlB  (TimeGateControl arg) = ctlB._write(arg);
+  endinterface
 
-  method GPS64_t  gpsTimeCC = nowInCC;
-  method GPS64_t  gpsTime    = now;
+  interface TimeGateIsoIfc     iso;  // The Isonchronous sub-interface
+    method Action  syncIn (Bit#(4) arg);
+    method Bool    dwellGate = tgRunning && dwellCountEna && (dwellCount < actDwellEnd);
+    method Bool    syncOut   = intSync;   
+  endinterface
 
-  interface GPSIfc gps;
-    method ppsSyncIn (Bool x)  = ppsExtSync._write(x); 
-    method ppsSyncOut;
-      case (ppsOutMode)
-        TimeServ : return(ppsDrive);
-        PpsIn    : return(ppsExtSync);
-        LocalXo  : return(xo2);
-        Mute     : return(False);
-      endcase
-    endmethod
-   endinterface
-
-endmodule: mkTimeServer
-
-//---
-
-// The TimeService TimeClient is instanced for each target WTI clock domain one or more times
-// The time client transfers the time from the time server to the target clock domain and compensates for the latency
-// The time clinet provides a OCP::WIP::WTI compliant WTI-M interface
-
-interface TimeClientIfc;
-  method Action gpsTime (GPS64_t arg); 
-  interface Wti_m#(64) wti_m;
-endinterface
-
-module mkTimeClient#(Clock sys0_clk, Reset sys0_rst, Clock wti_clk, Reset wti_rst) (TimeClientIfc);
-
-  Reg#(GPS64_t)      now   <- mkSyncReg(unpack(0), sys0_clk, sys0_rst, wti_clk);
-  WtiMasterIfc#(64)  wti   <- mkWtiMaster(clocked_by wti_clk, reset_by wti_rst); 
-
-  rule send_time;
-    wti.reqPut.put (WtiReq {cmd:WR, data:pack(now)});
-  endrule
-
-  // Interfaces Provided...
-  method Action gpsTime (GPS64_t arg) = now._write(arg);
-  interface Wti_m wti_m = wti.mas;
-
-endmodule: mkTimeClient
-
-endpackage: TimeGate
+endmodule: mkTimeGate
