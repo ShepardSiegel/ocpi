@@ -131,10 +131,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)               pullTagMatch        <- mkDReg(False);
   Reg#(Bool)               dmaDoTailEvent      <- mkReg(False);
   Reg#(Bit#(24))           mesgLengthRemain    <- mkRegU;
-  Reg#(Bit#(13))           minMLR4096          <- mkRegU;      // min(min(mesgLengthRemain,4096),maxPayloadSize) pipelined, to speed thisRequestLength calculation path
   Reg#(Bit#(24))           mesgComplReceived   <- mkRegU;
-  Reg#(Bit#(13))           maxPayloadSize      <- mkReg(128);  // 128B Typical
-  Reg#(Bit#(13))           maxReadReqSize      <- mkReg(512);  // 512B Typical
+  Reg#(Bit#(13))           maxPayloadSize      <- mkReg(128);  // 128B Typical - Must not exceed 4096B
+  Reg#(Bit#(13))           maxReadReqSize      <- mkReg(512);  // 512B Typical - Must not exceed 4096B
   Reg#(Bit#(32))           flowDiagCount       <- mkReg(0);
 
   Bool actMesgP = (dpControl==fProdActMesg);
@@ -167,9 +166,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Accept the first DW metadata back... 
   rule dmaResponseNearMetaHead (actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==Metadata);
     mRespF.deq;
-    Bit#(24) mesgLengthRemain_l = truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
-      mesgLengthRemain <= mesgLengthRemain_l;
-      minMLR4096       <= min(truncate(min(mesgLengthRemain_l,4096)),maxPayloadSize);
+    mesgLengthRemain <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
     $display("[%0d]: %m: dmaResponseNearMetaHead FPactMesg-Step2a/7 mesgLength:%0x", $time, byteSwap(rres.data));
   endrule
 
@@ -200,7 +197,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule dmaPushRequestMesg (actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemain!=0);
     Bit#(13) spanToNextPage = 4096 - extend(srcMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
     //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemain,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
-    Bit#(13) thisRequestLength = min(minMLR4096,spanToNextPage);  // minimum of what we want and what we are allowed (uses pre-calculated minMLR4096
+    Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemain,extend(maxPayloadSize))),spanToNextPage);  // minimum of what we want and what we are allowed 
     mesgLengthRemain  <= mesgLengthRemain - extend(thisRequestLength);
     ReadReq rreq = ReadReq {
       role     : DMASrc,
@@ -387,7 +384,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Request the message from the far side fabric node...
   rule dmaPullRequestFarMesg (actMesgC &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpXmtBusy &&& !reqMesgInFlight &&& mesgLengthRemain!=0);
     Bit#(13) spanToNextPage = 4096 - extend(fabMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
-    Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemain,4096)),maxReadReqSize),spanToNextPage);  // minimum of what we want and what we are allowed
+    //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemain,4096)),maxReadReqSize),spanToNextPage);  // minimum of what we want and what we are allowed
+    Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemain,extend(maxReadReqSize))),spanToNextPage);            // minimum of what we want and what we are allowed
     mesgLengthRemain  <= mesgLengthRemain - extend(thisRequestLength);                                          // decrement mesgLengthRemain at the source
     fabMesgAccu <= fabMesgAccu + extend(thisRequestLength);                                                     // increment the fabric address accumulator
     reqMesgInFlight   <= True;  // Asserted while individual requests, with one or more (sub)completions, are in flight
