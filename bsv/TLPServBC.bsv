@@ -130,8 +130,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)               gotResponseHeader   <- mkReg(False);
   Reg#(Bool)               pullTagMatch        <- mkDReg(False);
   Reg#(Bool)               dmaDoTailEvent      <- mkReg(False);
-  Reg#(Bit#(24))           mesgLengthRemain    <- mkRegU;
-  Reg#(Bit#(24))           mesgComplReceived   <- mkRegU;
+  Reg#(Bit#(17))           mesgLengthRemain    <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
+  Reg#(Bit#(17))           mesgComplReceived   <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
   Reg#(Bit#(13))           maxPayloadSize      <- mkReg(128);  // 128B Typical - Must not exceed 4096B
   Reg#(Bit#(13))           maxReadReqSize      <- mkReg(512);  // 512B Typical - Must not exceed 4096B
   Reg#(Bit#(32))           flowDiagCount       <- mkReg(0);
@@ -199,6 +199,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemain,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
     Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemain,extend(maxPayloadSize))),spanToNextPage);  // minimum of what we want and what we are allowed 
     mesgLengthRemain  <= mesgLengthRemain - extend(thisRequestLength);
+    //lastSegmentOfMessage <= (mesgLengthRemain - extend(thisRequestLength)) < min(maxPayloadSize, f(spanToNextPage) TODO: Needs work to pipeline critical path to EoM tag
     ReadReq rreq = ReadReq {
       role     : DMASrc,
       reqID    : PciId {bus:255, dev:31, func:0},
