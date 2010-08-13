@@ -84,7 +84,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   FIFOF#(PTW16)            inF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(PTW16)            outF                <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(MemReqPacket)     mReqF               <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-  FIFOF#(MemRespPacket)    mRespF              <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+//FIFOF#(MemRespPacket)    mRespF              <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(MemRespPacket)    mRespF              <- mkFIFOF; // Use mkFIFOF for mRespF as mkSRLFIFO has 2-level long c->q on a critical path through rule dmaPushResponseBody
   FIFOF#(ReadReq)          readReq             <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
 
   Reg#(Bool)               inIgnorePkt         <- mkRegU;
