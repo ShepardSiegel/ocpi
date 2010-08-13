@@ -37,18 +37,18 @@ echo "initialize workers"
 ./swctl 0xDE000000 0xDEFF0000 wop 10 initialize
 
 echo "DDC config properties"
-./swctl 0xDE000000 0xDEFF0000 wread 3 0 15 
+./swctl 0xDE000000 0xDEFF0000 wread 3 0 16 
 echo "DUCDDC config properties"
 ./swctl 0xDE000000 0xDEFF0000 wread 3 4096 1024 
 echo "DDC config properties"
-./swctl 0xDE000000 0xDEFF0000 wread 3 0 15 
+./swctl 0xDE000000 0xDEFF0000 wread 3 0 16 
 
 ./swctl 0xDE000000 0xDEFF0000 wwrite 3 0x1500 0x1 
 ./swctl 0xDE000000 0xDEFF0000 wwrite 3 0x1504 0x2
 ./swctl 0xDE000000 0xDEFF0000 wwrite 3 0x1508 0x3
 ./swctl 0xDE000000 0xDEFF0000 wwrite 3 0x150C 0x4
 ./swctl 0xDE000000 0xDEFF0000 wread  3 0x1500 4 
-./swctl 0xDE000000 0xDEFF0000 wread 3 0 15
+./swctl 0xDE000000 0xDEFF0000 wread 3 0 16
 
 echo "start workers"
 ./swctl 0xDE000000 0xDEFF0000 wop 14 start

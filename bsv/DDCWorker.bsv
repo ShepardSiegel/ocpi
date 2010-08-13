@@ -23,21 +23,21 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkDDCWorker#(parameter Bit#(32) ddcCtrlInit, parameter Bool hasDebugLogic) (DDCWorkerIfc);
 
-  WciSlaveIfc #(NwciAddr)     wci                <- mkWciSlave;
-  WsiSlaveIfc #(12,32,4,8,0)  wsiS               <- mkWsiSlave;
-  WsiMasterIfc#(12,32,4,8,0)  wsiM               <- mkWsiMaster;
-  Reg#(Bit#(32))              ddcCtrl            <- mkReg(ddcCtrlInit);
-  DDCIfc                      ddc                <- mkDDC;
-  FIFOF#(Bit#(32))            xnF                <- mkFIFOF;
-  Reg#(Bool)                  takeEven           <- mkReg(True); // start with 0
-  Reg#(UInt#(16))             unloadCnt          <- mkReg(0);
+  WciSlaveIfc #(NwciAddr)     wci                 <- mkWciSlave;
+  WsiSlaveIfc #(12,32,4,8,0)  wsiS                <- mkWsiSlave;
+  WsiMasterIfc#(12,32,4,8,0)  wsiM                <- mkWsiMaster;
+  Reg#(Bit#(32))              ddcCtrl             <- mkReg(ddcCtrlInit);
+  DDCIfc                      ddc                 <- mkDDC;
+  FIFOF#(Bit#(32))            xnF                 <- mkFIFOF;
+  Reg#(Bool)                  takeEven            <- mkReg(True); // start with 0
+  Reg#(UInt#(16))             unloadCnt           <- mkReg(0);
   Reg#(Bool)                  splitWriteInFlight  <- mkReg(False); 
-  Reg#(Bool)                  splitReadInFlight  <- mkReg(False); 
-  Reg#(Bit#(32))              ambaWrReqCnt       <- mkReg(0);
-  Reg#(Bit#(32))              ambaRdReqCnt       <- mkReg(0);
-  Reg#(Bit#(32))              ambaRespCnt        <- mkReg(0);
-  Reg#(Bit#(32))              ambaErrCnt         <- mkReg(0);
-  Reg#(Bit#(32))              outMesgCnt         <- mkReg(0);
+  Reg#(Bool)                  splitReadInFlight   <- mkReg(False); 
+  Reg#(Bit#(32))              ambaWrReqCnt        <- mkReg(0);
+  Reg#(Bit#(32))              ambaRdReqCnt        <- mkReg(0);
+  Reg#(Bit#(32))              ambaRespCnt         <- mkReg(0);
+  Reg#(Bit#(32))              ambaErrCnt          <- mkReg(0);
+  Reg#(Bit#(32))              outMesgCnt          <- mkReg(0);
 
   DDCMode pmod = unpack(ddcCtrl[1:0]);
   Bool fromOffsetBin = unpack(ddcCtrl[4]);
@@ -94,7 +94,7 @@ endrule
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
   rule advance_wci_response (!wci.configWrite);
-    let resp <- ddc.getApb.get;  // AMBA3 provides responses for both write and read
+    let resp <- ddc.getApb.get;  // AMBA3 provides responses for both write and read, we only support read here
     if (splitWriteInFlight) splitWriteInFlight <= False;
     if (splitReadInFlight)  splitReadInFlight  <= False;
     wci.respPut.put(resp.isError ? wciErrorResponse : (splitWriteInFlight) ? wciOKResponse : WciResp{resp:DVA, data:resp.data});
@@ -115,8 +115,9 @@ endrule
      splitWrite = True;
    end
      //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, wciReq.data);
-     if (!splitWrite) wci.respPut.put(wciOKResponse); // write response
-     else splitWriteInFlight <= True;
+     wci.respPut.put(wciOKResponse); // write response
+     //if (!splitWrite) wci.respPut.put(wciOKResponse); // write response
+     //else splitWriteInFlight <= True;
   endrule
   
   rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...

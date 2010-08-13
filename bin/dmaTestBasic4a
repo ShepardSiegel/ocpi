@@ -1,0 +1,21 @@
+#!/bin/sh
+# dmaTestBasic - a script for dma "sanity" that runs in less than a minute
+
+SLOT3_BAR0=0xF1000000
+SLOT3_BAR1=0xF2FF0000
+SLOT4_BAR0=0xDE000000
+SLOT4_BAR1=0xDFFF0000
+
+echo "admin probe "
+sudo ./swctl $SLOT4_BAR0 $SLOT3_BAR1 settime
+sudo ./swctl $SLOT4_BAR0 $SLOT3_BAR1 admin
+
+#./testDMA "p f m" "3" "0  4112 4128" "100" $*
+#./testDMA "p f m" "3" "0 4112 8176" "100" $*
+#./testDMA "p f m" "3" "0 4096 8192" "100" $*
+./testDMA "p f m" "3" "0 2048 4112" "100" $*
+
+# TODO: Understand system "hiccup" or full stall with 4096 or 8192 and 100+ iterations
+# observed only with m+m
+# seems to happen much less when size is not exactly big 2^n (try +/- 16B)
+# observed on XUPV5 (Gen1 x1); but not on ML605 (Gen2 x4)

@@ -178,7 +178,8 @@ module mkDDC (DDCIfc);
       if (unpack(ddc.sRegPready)) begin  // PREADY asserted while PENABLE driven means cycle complete
         reqSetup  <= False;              // Clear for next request
         apbReqF.deq;                     // DEQ the current request
-        apbRespF.enq(AMBA3APBResp {isError:unpack(ddc.sRegPslverr), data:ddc.sRegPrdata}); // ENQ the responses for both writes and reads
+        // AMBA3/APB supports reponses for both reads and wrirtes, but only respond to reads here...
+        if(!req.isWrite) apbRespF.enq(AMBA3APBResp {isError:unpack(ddc.sRegPslverr), data:ddc.sRegPrdata}); // ENQ the response
       end
     end
   endrule
