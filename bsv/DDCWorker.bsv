@@ -31,10 +31,12 @@ module mkDDCWorker#(parameter Bit#(32) ddcCtrlInit, parameter Bool hasDebugLogic
   FIFOF#(Bit#(32))            xnF                <- mkFIFOF;
   Reg#(Bool)                  takeEven           <- mkReg(True); // start with 0
   Reg#(UInt#(16))             unloadCnt          <- mkReg(0);
+  Reg#(Bool)                  splitWriteInFlight  <- mkReg(False); 
   Reg#(Bool)                  splitReadInFlight  <- mkReg(False); 
   Reg#(Bit#(32))              ambaWrReqCnt       <- mkReg(0);
   Reg#(Bit#(32))              ambaRdReqCnt       <- mkReg(0);
   Reg#(Bit#(32))              ambaRespCnt        <- mkReg(0);
+  Reg#(Bit#(32))              ambaErrCnt         <- mkReg(0);
   Reg#(Bit#(32))              outMesgCnt         <- mkReg(0);
 
   DDCMode pmod = unpack(ddcCtrl[1:0]);
@@ -92,13 +94,16 @@ endrule
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
   rule advance_wci_response (!wci.configWrite);
-    let resp <-  ddc.getApb.get;
-    wci.respPut.put(WciResp{resp:DVA, data:resp.data});
-    splitReadInFlight <= False;
-    ambaRespCnt <= ambaRespCnt + 1;
+    let resp <- ddc.getApb.get;  // AMBA3 provides responses for both write and read
+    if (splitWriteInFlight) splitWriteInFlight <= False;
+    if (splitReadInFlight)  splitReadInFlight  <= False;
+    wci.respPut.put(resp.isError ? wciErrorResponse : (splitWriteInFlight) ? wciOKResponse : WciResp{resp:DVA, data:resp.data});
+    if (resp.isError) ambaErrCnt  <= ambaErrCnt  + 1;
+    else              ambaRespCnt <= ambaRespCnt + 1;
   endrule
 
   rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
+   Bool splitWrite = False;
    let wciReq <- wci.reqGet.get;
    if(wciReq.addr[12]==0) begin
      case (wciReq.addr) matches
@@ -107,9 +112,11 @@ endrule
    end else begin
      ddc.putApb.put(AMBA3APBReq {isWrite:True, isError:False, addr:truncate(wciReq.addr), data:wciReq.data});
      ambaWrReqCnt <= ambaWrReqCnt + 1;
+     splitWrite = True;
    end
      //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, wciReq.data);
-     wci.respPut.put(wciOKResponse); // write response
+     if (!splitWrite) wci.respPut.put(wciOKResponse); // write response
+     else splitWriteInFlight <= True;
   endrule
   
   rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
@@ -129,7 +136,8 @@ endrule
        'h2C : rdat = !hasDebugLogic ? 0 : pack(ambaWrReqCnt);
        'h30 : rdat = !hasDebugLogic ? 0 : pack(ambaRdReqCnt);
        'h34 : rdat = !hasDebugLogic ? 0 : pack(ambaRespCnt);
-       'h38 : rdat = !hasDebugLogic ? 0 : pack(outMesgCnt);
+       'h38 : rdat = !hasDebugLogic ? 0 : pack(ambaErrCnt);
+       'h3C : rdat = !hasDebugLogic ? 0 : pack(outMesgCnt);
      endcase
    end else begin
      ddc.putApb.put(AMBA3APBReq {isWrite:False, isError:False, addr:truncate(wciReq.addr), data:?});
