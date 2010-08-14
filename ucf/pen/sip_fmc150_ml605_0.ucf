@@ -1,0 +1,91 @@
+################################################################################
+# Clock constraints
+################################################################################
+
+NET "CLK_AB_P_0" TNM_NET = CLK_AB_P_0;
+TIMESPEC TS_CLK_AB_P_0 = PERIOD "CLK_AB_P_0" 250 MHz HIGH 50%;
+NET "CLK_TO_FPGA_P_0" TNM_NET = CLK_TO_FPGA_P_0;
+TIMESPEC TS_CLK_TO_FPGA_P_0 = PERIOD "CLK_TO_FPGA_P_0" 500 MHz HIGH 50%;
+NET "EXT_TRIGGER_P_0" TNM_NET = EXT_TRIGGER_P_0;
+TIMESPEC TS_EXT_TRIGGER_P_0 = PERIOD "EXT_TRIGGER_P_0" 250 MHz HIGH 50%;
+
+NET "CLK_AB_P_0" CLOCK_DEDICATED_ROUTE = FALSE;
+
+################################################################################
+# FMC signals (FMC150 on ML605, LPC site)
+################################################################################
+NET "ADC_N_EN_0" LOC="A33";
+NET "ADC_RESET_0" LOC="B32";
+NET "ADC_SDO_0" LOC="C32";
+NET "CDCE_N_EN_0" LOC="M26";
+NET "CDCE_N_PD_0" LOC="L31";
+NET "CDCE_N_RESET_0" LOC="M31";
+NET "CDCE_SDO_0" LOC="M27";
+NET "CHA_N_0<0>" LOC="E31";
+NET "CHA_N_0<1>" LOC="H30";
+NET "CHA_N_0<2>" LOC="J32";
+NET "CHA_N_0<3>" LOC="J29";
+NET "CHA_N_0<4>" LOC="H33";
+NET "CHA_N_0<5>" LOC="J34";
+NET "CHA_N_0<6>" LOC="H32";
+NET "CHA_P_0<0>" LOC="F31";
+NET "CHA_P_0<1>" LOC="G31";
+NET "CHA_P_0<2>" LOC="J31";
+NET "CHA_P_0<3>" LOC="K28";
+NET "CHA_P_0<4>" LOC="H34";
+NET "CHA_P_0<5>" LOC="K33";
+NET "CHA_P_0<6>" LOC="G32";
+NET "CHB_N_0<0>" LOC="K29";
+NET "CHB_N_0<1>" LOC="L26";
+NET "CHB_N_0<2>" LOC="G30";
+NET "CHB_N_0<3>" LOC="D32";
+NET "CHB_N_0<4>" LOC="E33";
+NET "CHB_N_0<5>" LOC="C34";
+NET "CHB_N_0<6>" LOC="B34";
+NET "CHB_P_0<0>" LOC="J30";
+NET "CHB_P_0<1>" LOC="L25";
+NET "CHB_P_0<2>" LOC="F30";
+NET "CHB_P_0<3>" LOC="D31";
+NET "CHB_P_0<4>" LOC="E32";
+NET "CHB_P_0<5>" LOC="D34";
+NET "CHB_P_0<6>" LOC="C33";
+NET "CLK_AB_N_0" LOC="K27";
+NET "CLK_AB_P_0" LOC="K26";
+NET "CLK_TO_FPGA_N_0" LOC="B10";
+NET "CLK_TO_FPGA_P_0" LOC="A10";
+NET "DAC_D_N_0<0>" LOC="M32";
+NET "DAC_D_N_0<1>" LOC="P30";
+NET "DAC_D_N_0<2>" LOC="P32";
+NET "DAC_D_N_0<3>" LOC="R27";
+NET "DAC_D_N_0<4>" LOC="R29";
+NET "DAC_D_N_0<5>" LOC="N30";
+NET "DAC_D_N_0<6>" LOC="L30";
+NET "DAC_D_N_0<7>" LOC="N29";
+NET "DAC_D_P_0<0>" LOC="L33";
+NET "DAC_D_P_0<1>" LOC="P31";
+NET "DAC_D_P_0<2>" LOC="N32";
+NET "DAC_D_P_0<3>" LOC="R28";
+NET "DAC_D_P_0<4>" LOC="P29";
+NET "DAC_D_P_0<5>" LOC="M30";
+NET "DAC_D_P_0<6>" LOC="L29";
+NET "DAC_D_P_0<7>" LOC="N28";
+NET "DAC_DCLK_N_0" LOC="T26";
+NET "DAC_DCLK_P_0" LOC="R26";
+NET "DAC_N_EN_0" LOC="N33";
+NET "DAC_SDO_0" LOC="M33";
+NET "EXT_TRIGGER_N_0" LOC="G33";
+NET "EXT_TRIGGER_P_0" LOC="F33";
+NET "FRAME_N_0" LOC="P27";
+NET "FRAME_P_0" LOC="N27";
+NET "MON_N_EN_0" LOC="R31";
+NET "MON_N_INT_0" LOC="M25";
+NET "MON_N_RESET_0" LOC="R32";
+NET "MON_SDO_0" LOC="N25";
+NET "PG_C2M_0" LOC="K9";
+NET "PLL_STATUS_0" LOC="K31";
+NET "PRSNT_M2C_L_0" LOC="AD9";
+NET "REF_EN_0" LOC="K32";
+NET "SPI_SCLK_0" LOC="N34";
+NET "SPI_SDATA_0" LOC="P34";
+NET "TXENABLE_0" LOC="B33";
+################################################################################
