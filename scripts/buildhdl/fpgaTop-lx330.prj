@@ -4,8 +4,13 @@ verilog work "../../libsrc/hdl/ocpi/xilinx_v5_pcie_wrapper.v"
 verilog work "../../coregen/pcie-4243-v5-gtp-x8-125/pci_exp_8_lane_64b_ep.v
 
 verilog work "../../rtl/mkSMAdapter4B.v"
+
 verilog work "../../libsrc/hdl/ocpi/duc_ddc_compiler_v1_0.v"
 verilog work "../../rtl/mkDDCWorker.v"
+
+verilog work "../../libsrc/hdl/ocpi/xfft_v7_1.v"
+verilog work "../../rtl/mkPSD.v"
+
 verilog work "../../rtl/mkTLPSM.v"
 verilog work "../../rtl/mkTLPCM.v"
 verilog work "../../rtl/mkPktFork.v"

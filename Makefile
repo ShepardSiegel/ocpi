@@ -19,6 +19,7 @@ OCAPP_S1  ?= OCApp_scenario1
 OCAPP_S2  ?= OCApp_scenario2
 OCAPP_S3a ?= OCApp_scenario3a
 OCAPP_S3b ?= OCApp_scenario3b
+OCAPP_S4  ?= OCApp_scenario4
 
 VLG_HDL   = libsrc/hdl/ocpi
 BUILD_HDL = scripts/buildhdl
@@ -130,6 +131,11 @@ verilog_scenario3b: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S3b).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S3b).v
+
+verilog_scenario4: $(OBJ)
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S4).bsv
+	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S4).v
 
 ######################################################################
 verilog_s6: $(OBJ)
