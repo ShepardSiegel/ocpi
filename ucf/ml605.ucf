@@ -218,6 +218,9 @@ NET "gmii_TXC_GTXCLK" LOC = "AH12" | IOSTANDARD=LVCMOS25; ## 14 on U80
 ###
 # FMC signals (e.g. FMC150 on ML605, LPC site)
 ###
+#
+#NET "spi_sclk"   LOC = "N34" | IOSTANDARD = "LVTTL";   # Common SPI SCLK
+#NET "spi_sdc2m"  LOC = "P34" | IOSTANDARD = "LVTTL";   # Common SPI Data from Carrier to Mezzanine (FPGA Out)
 
 ## TI CDCE72010...
 #NET "CDCE_N_EN_0" LOC="M26";
@@ -228,8 +231,6 @@ NET "gmii_TXC_GTXCLK" LOC = "AH12" | IOSTANDARD=LVCMOS25; ## 14 on U80
 #NET "CLK_TO_FPGA_P_0" LOC="A10";
 #NET "PLL_STATUS_0" LOC="K31";
 #NET "REF_EN_0" LOC="K32";
-#NET "SPI_SCLK_0" LOC="N34";
-#NET "SPI_SDATA_0" LOC="P34";
 #
 ## ADC TI ADS62P49...
 #NET "ADC_N_EN_0" LOC="A33";

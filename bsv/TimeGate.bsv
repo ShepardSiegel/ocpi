@@ -13,6 +13,7 @@ import Vector::*;
 import Synchronizer::*;
 
 typedef struct {
+  Bool gatedDwell;  // When True, enables the dwellGate logic; When False, dwellGate is simply asserted
   Bool periodic;    // When True, enables the periodic self retrigger generated from the period
   Bit#(4)  syncEn;  // Selects which syncEn input(s) are used to reset the start, dwell, and period counters
   Bit#(32) start;   // Integer number of iso clock cycles after trigger event until the dwell begins
@@ -49,6 +50,7 @@ module mkTimeGate#(Clock iso_clk, Reset iso_rst) (TimeGateIfc);
   Reg#(Bit#(32))           dwellCount      <- mkReg(0,      clocked_by iso_clk, reset_by iso_rst);
   Reg#(Bit#(32))           periodCount     <- mkReg(0,      clocked_by iso_clk, reset_by iso_rst);
 
+  Bool     actDwellGate  = ((activeBankA) ? ctlA : ctlB).gatedDwell;
   Bit#(32) actDwellStart = ((activeBankA) ? ctlA : ctlB).start;
   Bit#(32) actDwellEnd   = ((activeBankA) ? ctlA : ctlB).dwell;
   Bit#(32) actPeriodEnd  = ((activeBankA) ? ctlA : ctlB).period;
@@ -73,7 +75,7 @@ module mkTimeGate#(Clock iso_clk, Reset iso_rst) (TimeGateIfc);
 
   interface TimeGateIsoIfc     iso;  // The Isonchronous sub-interface
     method Action  syncIn (Bit#(4) arg);
-    method Bool    dwellGate = tgRunning && dwellCountEna && (dwellCount < actDwellEnd);
+    method Bool    dwellGate = !actDwellGate || (tgRunning && dwellCountEna && (dwellCount < actDwellEnd));
     method Bool    syncOut   = intSync;   
   endinterface
 
