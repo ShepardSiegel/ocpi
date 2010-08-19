@@ -57,7 +57,10 @@ rule ddcEnable_output_feedDDC (wci.isOperating && pmod==DDCEnable);
   xnF.enq(r.data);    // feed the DDC xnF
 endrule
 
-rule ddcEnable_doIngress (wci.isOperating && pmod==DDCEnable);
+// The following rule predicate uses the !wsiM.status.partnerReset to ensure data can move downstream
+// Since the DDC core's output does not allow any backpressure; we do not want to start any ingress unless we are
+// sure the downconverted data has a uninhibited path out. This is necessary to allow workers to start in any order.
+rule ddcEnable_doIngress (wci.isOperating && pmod==DDCEnable && !wsiM.status.partnerReset);
   Bit#(32) d32   = xnF.first;
   Bit#(16) dReal = (takeEven) ? d32[15:0] : d32[31:16]; // little-endian: first, even sample at LS word
   ddc.putXn.put(dReal);

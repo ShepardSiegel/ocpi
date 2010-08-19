@@ -49,6 +49,22 @@ module fpgaTop(
   inout  wire [7:0]  ddr3_dqs_n,
   output wire [0:0]  ddr3_ck_p,
   output wire [0:0]  ddr3_ck_n
+
+  //output wire        flp_com_sclk,   // FMC150 in LPC Slot...
+  //output wire        flp_com_sdc2m,
+  //input  wire        flp_cdc_sdm2c,
+  //input  wire        flp_mon_sdm2c,
+  //input  wire        flp_adc_sdm2c,
+  //input  wire        flp_dac_sdm2c,
+  //output wire        flp_cdc_sen_n,
+  //output wire        flp_mon_sen_n,
+  //output wire        flp_adc_sen_n,
+  //output wire        flp_dac_sen_n,
+  //output wire        flp_cdc_rstn,
+  //output wire        flp_cdc_pdn,
+  //output wire        flp_mon_rstn,
+  //output wire        flp_mon_intn,
+  //output wire        flp_adc_rstn
 );
 
 // Instance and connect mkFTop...
@@ -101,6 +117,22 @@ module fpgaTop(
   .dram_io_dqs_n     (ddr3_dqs_n),
   .dram_ck_p         (ddr3_ck_p),
   .dram_ck_n         (ddr3_ck_n)
+
+  //.flp_com_sclk      (flp_com_sclk),
+  //.flp_com_sdc2m     (flp_com_sdc2m),
+  //.flp_cdc_sdm2c     (flp_cdc_sdm2c),
+  //.flp_mon_sdm2c     (flp_mon_sdm2c),
+  //.flp_adc_sdm2c     (flp_adc_sdm2c),
+  //.flp_dac_sdm2c     (flp_dac_sdm2c),
+  //.flp_cdc_sen_n     (flp_cdc_sen_n),
+  //.flp_mon_sen_n     (flp_mon_sen_n),
+  //.flp_adc_sen_n     (flp_adc_sen_n),
+  //.flp_dac_sen_n     (flp_dac_sen_n),
+  //.flp_cdc_rstn      (flp_cdc_rstn),
+  //.flp_cdc_pdn       (flp_cdc_pdn),
+  //.flp_mon_rstn      (flp_mon_rstn),
+  //.flp_mon_intn      (flp_mon_intn),
+  //.flp_adc_rstn      (flp_adc_rstn)
 );
 
 endmodule

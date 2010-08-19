@@ -215,69 +215,83 @@ NET "gmii_TXC_GTXCLK" LOC = "AH12" | IOSTANDARD=LVCMOS25; ## 14 on U80
 
 
 
-###
+################################################################################
 # FMC signals (e.g. FMC150 on ML605, LPC site)
-###
-#
-#NET "spi_sclk"   LOC = "N34" | IOSTANDARD = "LVTTL";   # Common SPI SCLK
-#NET "spi_sdc2m"  LOC = "P34" | IOSTANDARD = "LVTTL";   # Common SPI Data from Carrier to Mezzanine (FPGA Out)
+################################################################################
+# flp = FMC LPC Connector for 4DSP FMC150
+# com = Common
+# cdc = TI CDCE72010
+# mon = TI AMC7823
+# adc = TI ADS62P49
+# dac = TI DAC3283
 
-## TI CDCE72010...
-#NET "CDCE_N_EN_0" LOC="M26";
-#NET "CDCE_N_PD_0" LOC="L31";
-#NET "CDCE_N_RESET_0" LOC="M31";
-#NET "CDCE_SDO_0" LOC="M27";
+# Serial Control of FMC150 devices...
+NET "flp_com_sclk"   LOC = "N34" | IOSTANDARD = "LVTTL";   # Common SPI SCLK
+NET "flp_com_sdc2m"  LOC = "P34" | IOSTANDARD = "LVTTL";   # Common SPI Data from Carrier to Mezzanine (FPGA Out to all Serial Inputs)
+NET "flp_cdc_sdm2c"  LOC = "M27" | IOSTANDARD = "LVTTL";   # CDC SDO    Individual Mezzanine to Carrier SDOs...
+NET "flp_mon_sdm2c"  LOC = "N25" | IOSTANDARD = "LVTTL";   # MON SDO     ibid
+NET "flp_adc_sdm2c"  LOC = "C32" | IOSTANDARD = "LVTTL";   # ADC SDO     ibid
+NET "flp_dac_sdm2c"  LOC = "M33" | IOSTANDARD = "LVTTL";   # DAC SDO     ibid
+NET "flp_cdc_sen_n"  LOC = "M26" | IOSTANDARD = "LVTTL";   # CDC EN_N   Individual active-low enables...
+NET "flp_mon_sen_n"  LOC = "R31" | IOSTANDARD = "LVTTL";   # MON EN_N    ibid
+NET "flp_adc_sen_n"  LOC = "A23" | IOSTANDARD = "LVTTL";   # ADC EN_N    ibid
+NET "flp_dac_sen_n"  LOC = "N33" | IOSTANDARD = "LVTTL";   # DAC EN_N    ibid
+
+## CDC TI CDCE72010...
+NET "flp_cdc_rstn"   LOC = "M31" | IOSTANDARD = "LVTTL";   # CDC RST_N
+NET "flp_cdc_pdn"    LOC = "L31" | IOSTANDARD = "LVTTL";   # CDC PD_N
 #NET "CLK_TO_FPGA_N_0" LOC="B10";
 #NET "CLK_TO_FPGA_P_0" LOC="A10";
 #NET "PLL_STATUS_0" LOC="K31";
 #NET "REF_EN_0" LOC="K32";
-#
+
+## MON TI AMC7823 and Misc...
+NET "flp_mon_rstn"   LOC = "R32" | IOSTANDARD = "LVTTL";   # MON RST_N
+NET "flp_mon_intn"   LOC = "M25" | IOSTANDARD = "LVTTL";   # MON GALR_N
+#NET "flp_pg_c2m"     LOC = "K9"  | IOSTANDARD = "LVTTL";   # Power Good Carrier to Mezzanine
+#NET "flp_prsnt_m2c"  LOC = "AD9" | IOSTANDARD = "LVTTL";   # Low when Carrier is Inserted
+#NET "flp_xtrig_n"    LOC = "G33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE; # External Trigger
+#NET "flp_xtrig_p"    LOC = "F33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+
 ## ADC TI ADS62P49...
-#NET "ADC_N_EN_0" LOC="A33";
-#NET "ADC_RESET_0" LOC="B32";
-#NET "ADC_SDO_0" LOC="C32";
-#
-#NET "adc_clkn"    LOC = "K27" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc_clkp"    LOC = "K26" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddn[0]" LOC = "E31" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddp[0]" LOC = "F31" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddn[1]" LOC = "H30" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddp[1]" LOC = "G31" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddn[2]" LOC = "J32" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddp[2]" LOC = "J31" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddn[3]" LOC = "J29" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddp[3]" LOC = "K28" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddn[4]" LOC = "H33" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddp[4]" LOC = "H34" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddn[5]" LOC = "J34" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddp[5]" LOC = "K33" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddn[6]" LOC = "H32" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc0_ddp[6]" LOC = "G32" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddn[0]" LOC = "K29" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddp[0]" LOC = "J30" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddn[1]" LOC = "L26" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddp[1]" LOC = "L25" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddn[2]" LOC = "G30" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddp[2]" LOC = "F30" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddn[3]" LOC = "D32" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddp[3]" LOC = "D31" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddn[4]" LOC = "E33" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddp[4]" LOC = "E32" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddn[5]" LOC = "C34" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddp[5]" LOC = "D34" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddn[6]" LOC = "B34" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#NET "adc1_ddp[6]" LOC = "C33" |IOSTANDARD = "LVDS_25" |DIFF_TERM = TRUE;
-#
-#
-## DAC3283...
+NET "flp_adc_rstn"   LOC = "B32" | IOSTANDARD = "LVTTL";   # ADC RSTN
+#NET "adc_clkn"    LOC = "K27" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc_clkp"    LOC = "K26" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddn[0]" LOC = "E31" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddp[0]" LOC = "F31" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddn[1]" LOC = "H30" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddp[1]" LOC = "G31" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddn[2]" LOC = "J32" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddp[2]" LOC = "J31" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddn[3]" LOC = "J29" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddp[3]" LOC = "K28" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddn[4]" LOC = "H33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddp[4]" LOC = "H34" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddn[5]" LOC = "J34" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddp[5]" LOC = "K33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddn[6]" LOC = "H32" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc0_ddp[6]" LOC = "G32" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddn[0]" LOC = "K29" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddp[0]" LOC = "J30" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddn[1]" LOC = "L26" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddp[1]" LOC = "L25" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddn[2]" LOC = "G30" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddp[2]" LOC = "F30" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddn[3]" LOC = "D32" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddp[3]" LOC = "D31" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddn[4]" LOC = "E33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddp[4]" LOC = "E32" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddn[5]" LOC = "C34" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddp[5]" LOC = "D34" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddn[6]" LOC = "B34" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+#NET "adc1_ddp[6]" LOC = "C33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
+
+## DAC TI DAC3283...
 #NET "DAC_DCLK_N_0" LOC="T26";
 #NET "DAC_DCLK_P_0" LOC="R26";
-#NET "DAC_N_EN_0" LOC="N33";
-#NET "DAC_SDO_0" LOC="M33";
 #NET "FRAME_N_0" LOC="P27";
 #NET "FRAME_P_0" LOC="N27";
 #NET "TXENABLE_0" LOC="B33";
-#
 #NET "dac0_dan[0]" LOC = "M32"  | IOSTANDARD = "LVDS_25";
 #NET "dac0_dap[0]" LOC = "L33"  | IOSTANDARD = "LVDS_25";
 #NET "dac0_dan[1]" LOC = "P30"  | IOSTANDARD = "LVDS_25";
@@ -294,25 +308,14 @@ NET "gmii_TXC_GTXCLK" LOC = "AH12" | IOSTANDARD=LVCMOS25; ## 14 on U80
 #NET "dac0_dap[6]" LOC = "L29"  | IOSTANDARD = "LVDS_25";
 #NET "dac0_dan[7]" LOC = "N29"  | IOSTANDARD = "LVDS_25";
 #NET "dac0_dap[7]" LOC = "N28"  | IOSTANDARD = "LVDS_25";
-#
-## External Trigger/Sync In...
-#NET "EXT_TRIGGER_N_0" LOC="G33";
-#NET "EXT_TRIGGER_P_0" LOC="F33";
-#
-## Supervisory...
-#NET "MON_N_EN_0"    LOC="R31";
-#NET "MON_N_INT_0"   LOC="M25";
-#NET "MON_N_RESET_0" LOC="R32";
-#NET "MON_SDO_0"     LOC="N25";
-#NET "PG_C2M_0"      LOC="K9";
-#NET "PRSNT_M2C_L_0" LOC="AD9";
+
+
+
+
 
 
 ################################################################################
-
-
 ## ML605 DDR3 MIG for OpenCPI...
-
 ############################################################################
 ##  Xilinx, Inc. 2006            www.xilinx.com 
 ##  Fri Dec 11 13:34:50 2009
