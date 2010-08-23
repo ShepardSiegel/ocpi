@@ -178,7 +178,13 @@ rule init_complete_ok(initOpInFlight && dacCore0.isInited);
   wci.ctlAck;
 endrule
 
-rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
+rule wci_ctrl_IsO ((wci.isInitialized || wci.isSuspended) && wci.ctlOp==Start);
+  // Any actions from (INITIALIZED or SUSPENDED) to OPERATING state
+  wci.ctlAck;
+endrule
+
+rule wci_ctrl_OperatingToSuspended(wci.isOperating && wci.ctlOp==Stop);
+  // Any actions from OPERATING to SUSPENED state
   wci.ctlAck;
 endrule
 

@@ -816,10 +816,12 @@ interface WciSlaveIfc#(numeric type na);
   method Bool                 controlOp;
   method Bool                 wrkReset;
   method Action               drvSFlag();
-  method WCI_STATE            ctlState;     // expose the control state
-  method Bool                 isOperating;  // shorthand for ctlState==Operating
-  method WCI_CONTROL_OP       ctlOp;        // expose control Op edges; ready only when ctlOpActive
-  method Action               ctlAck;       // Acknowledge Current Control Operation
+  method WCI_STATE            ctlState;      // expose the control state
+  method Bool                 isInitialized; // shorthand for ctlState==Initialized
+  method Bool                 isOperating;   // shorthand for ctlState==Operating
+  method Bool                 isSuspended;   // shorthand for ctlState==Suspended
+  method WCI_CONTROL_OP       ctlOp;         // expose control Op edges; ready only when ctlOpActive
+  method Action               ctlAck;        // Acknowledge Current Control Operation
 endinterface
 
 module mkWciSlave (WciSlaveIfc#(na));
@@ -905,7 +907,9 @@ module mkWciSlave (WciSlaveIfc#(na));
   method Action drvSFlag(); sFlagReg<=True; endmethod
 
   method ctlState    = cState;   // provide the current control state
-  method isOperating = (cState==Operating);
+  method isInitialized = (cState==Initialized);
+  method isOperating   = (cState==Operating);
+  method isSuspended   = (cState==Suspended);
   method ctlOp if (wci_ctrl_pw);  // ctlOp is only ready for one cycle, when it is issued
     return(wEdge);
   endmethod
