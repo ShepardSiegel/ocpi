@@ -32,6 +32,7 @@ typedef enum {OKAY, EXOCKAY, SLVERR, DECERR} DataRespEnc deriving (Bits, Eq);  /
 // These are the four signal bundles used to communicate AXI4-Lite with FIFO-Like Semantics
 // Data is interchnaged between master and slave on the cycles when both xxValid and xxReady are asserted in the same cycle...
 
+// Write Address Channel...
 typedef struct {
   Bool         awvalid;    //  Master-sourced signal which indicates that write-address and control are available
   Bool         awready;    //  Slave-sourced signal which indicates that the slave is ready
@@ -39,6 +40,7 @@ typedef struct {
   ProtEnc      awprot;     //  Master-sourced signal with the encoded protection type
 } WriteAddressChannel deriving (Bits, Eq);  // Used for the Write address channel
 
+// Write Data Channel...
 typedef struct {
   Bool         wvalid;     //  Master-sourced signal which indicates that write-data and control are available
   Bool         wready;     //  Slave-sourced signal which indicates that the slave is ready
@@ -46,12 +48,14 @@ typedef struct {
   Bit#(4)      wstrb;      //  Master-sourced signal with the byte-lane enables
 } WriteDataChannel deriving (Bits, Eq);  // Used for the Write data channel
 
+// Write Response Channel...
 typedef struct {
   Bool         bvalid;     //  Slave-sourced signal which indicates that write-response and control are available
   Bool         bready;     //  Master-sourced signal which indicates that the master is ready
   DataRespEnc  bresp;      //  Slave-sourced signal with write-response data
 } WriteResponseChannel deriving (Bits, Eq);  // Used for the Write response data channel
 
+// Read Address Channel...
 typedef struct {
   Bool         arvalid;    //  Master-sourced signal which indicates that read-address and control are available
   Bool         arready;    //  Slave-sourced signal which indicates that the slave is ready
@@ -59,6 +63,7 @@ typedef struct {
   ProtEnc      arprot;     //  Master-sourced signal with the encoded protection type
 } ReadAddressChannel deriving (Bits, Eq);  // Used for the Read address channel
 
+// Read Data Channel...
 typedef struct {
   Bool         rvalid;     //  Slave-sourced signal which indicates that read-data and control are available
   Bool         rready;     //  Master-sourced signal which indicates that the master is ready
@@ -74,7 +79,7 @@ typedef struct {
   WmemiResp#(nd)     wmemiIdleResp    = WmemiResp {resp:NULL,       respLast:?, data:?};
 
 (* always_ready *)
-interface Wmemi_m#(numeric type na, numeric type nb, numeric type nd, numeric type ne);
+interface A4L_m);
   (* result = "req" *)                     method WmemiReq#(na,nb)   getReq;
   (* result = "dh" *)                      method WmemiDh#(nd,ne)    getDh;
   (* always_enabled, prefix = ""*)         method Action             putResp(WmemiResp#(nd) resp);
