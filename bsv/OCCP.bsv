@@ -21,6 +21,15 @@ import Connectable::*;
 import StmtFSM::*;
 import Vector::*;
 
+typedef struct {
+  Bit#(4)  bar;     // The PCIe BAR that this memory region belong to
+  Bit#(14) offset;  // Offset into this PCIe BAR, in 4KB pages
+  Bit#(14) size;    // Size of this memory region, in 4KB pages
+} DPMemRegion deriving (Bits, Eq);
+
+DPMemRegion dpMemRegion0 = DPMemRegion {bar:1, offset:0, size:8};  // Bar 1, Offset 0,    Size 32 KB
+DPMemRegion dpMemRegion1 = DPMemRegion {bar:1, offset:8, size:8};  // Bar 1, Offset 32KB, Size 32 KB
+
 //
 // OpenCPI Control Plane Interface 
 //
@@ -80,7 +89,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   DWord cpBirthday  = compileTime;
   DWord cpStatus    = extend(pack(rogueTLP));
 
-  function Action setAdminReg(Bit#(7) bAddr, DWord wd);
+  function Action setAdminReg(Bit#(8) bAddr, DWord wd);
   action
     case (bAddr)
       'h20 : scratch20    <= wd;
@@ -112,7 +121,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   endaction
   endfunction
 
-  function Maybe#(DWord) getAdminReg(Bit#(7) bAddr);
+  function Maybe#(DWord) getAdminReg(Bit#(8) bAddr);
     case (bAddr)
       'h00 : return Valid(32'h_4F_70_65_6E);          // Open
       'h04 : return Valid(32'h_43_50_49_00);          // CPI
@@ -135,6 +144,10 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
       'h40 : return Valid(pack(fxptGetInt(deltaTime)));           // Measured deltaTime Integer Seconds
       'h44 : return Valid(pack(fxptGetFrac(deltaTime)));          // Measured deltaTime Fractional Seconds
       'h48 : return Valid(pack(timeServ.tRefPerPps));             // rplTimeRefPerPPS (frequency counter)
+
+      'h7C : return Valid(32'd2);
+      'h80 : return Valid(pack(dpMemRegion0));  
+      'h84 : return Valid(pack(dpMemRegion1));  
 
       default: return Invalid;
     endcase
