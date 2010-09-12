@@ -1,0 +1,6 @@
+#!/bin/sh
+
+#./testDMA "p f m" "3" "0 4112 8176" "100" $*
+#./testDMA "p f m" "3" "0 4096 8192" "100" $*
+
+sudo -E testRpl -r1ip -r3op -I 16 -i 10 -p 0000:03:00.0 
