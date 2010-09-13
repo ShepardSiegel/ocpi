@@ -14,9 +14,10 @@ main(argc, argv)
   int argc;
   char *argv[];
 {
-FILE *verhex0, *fopen();
+FILE *verhex0, *fopen(), *cbinf;
 char clname[256];
 int32_t w[NPTS];
+int16_t tmp16;
 int i, j;
 double phi, dphi, cosphi;
 
@@ -24,6 +25,8 @@ double phi, dphi, cosphi;
 	else           strcpy(clname, "costable.hex");
 	if ((verhex0 = fopen(clname, "w")) == NULL)
     printf("oops, cannot open %s .\n", clname);
+
+  cbinf = fopen("cosbin", "w");
 
   phi  = 0.0;
   dphi = 2.*PI / FREQ;
@@ -38,9 +41,12 @@ double phi, dphi, cosphi;
     w[i] = (int32_t) (cosphi * D2E15 * GAIN + 0.5);
     printf("i:%4d phi:%1.4lf cosphi:%1.4lf w:%04x \n", i, phi, cosphi, w[i]&0xFFFF);
     fprintf(verhex0, "  16'h%04x, // i:%4d phi:%1.4lf cosphi:%1.4lf \n", w[i]&0xFFFF, i, phi, cosphi);
+    tmp16 = (int16_t) w[i];
+    fwrite(&tmp16, 2, 1, cbinf);
     phi += dphi;
   }
 
 	fclose(verhex0);
+	fclose(cbinf);
 	exit(0);
 }
