@@ -1,0 +1,8 @@
+INTSTYLE=impact
+INFILE=/home/shep/projects/ocpi/scripts/impact.xsl
+OUTFILE=/home/shep/projects/ocpi/scripts/impact.xsl
+FAMILY=Multiple
+PART=Multiple
+WORKINGDIR=/home/shep/projects/ocpi/scripts
+LICENSE=iMPACT
+USER_INFO=iMPACT

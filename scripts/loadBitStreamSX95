@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/csh 
 if ($#argv != 3) then
     echo $0{}: Usage is: loadBitStream bit_file PCI_device USB_portname
     echo Use "lspci -D" command to find PCI devices, like \"0000:03:00.0\"
