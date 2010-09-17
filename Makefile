@@ -3,6 +3,7 @@
 ##
 BTEST     ?= TB2
 ITEST     ?= TB2
+ITEST7    ?= TB7
 ITEST10   ?= TB10
 RTEST5    ?= FTopV5
 RTESTS6   ?= FTopS6
@@ -80,6 +81,21 @@ isim: $(OBJ)
 		$(BSV)/$(ITEST).bsv
 	
 	bsc -vsim isim -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST) -o runsim
+	./runsim 
+
+######################################################################
+isim7: $(OBJ)
+
+	# compile to verilog backend for ISim
+	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/CompileTime.bsv
+	bsc -u -verilog -elab \
+		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSV):lib:+ \
+		$(BSV)/$(ITEST7).bsv
+
+	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST7) -o runsim
 	./runsim 
 
 ######################################################################
