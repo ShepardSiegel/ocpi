@@ -6,8 +6,10 @@ package XilinxExtra;
 import XilinxCells::*;
 import Vector::*;
 import Clocks::*;
-import DefaultValue::*;
 import Connectable::*;
+import DefaultValue::*;
+import FIFOF::*;	
+import GetPut::*;
 
 interface DiffOutIfc#(type t);
    method Action _write(t val);
@@ -688,12 +690,12 @@ interface ICAP;
    method Bit#(32)   configOut;
    method Bit#(1)    busy;
    method Action     configIn(Bit#(32) i);
-   method Action     write(Bit#(1) i);
-   method Action     ce(Bit#(1) i);
+   method Action     rdwrb(Bit#(1) i);       // Read, Active-Low For Write
+   method Action     csb(Bit#(1) i);         // Active-Low Chip Select
 endinterface: ICAP
 
 import "BVI" ICAP_VIRTEX5 =
-module vICAP (ICAP);
+module vICAP_V5 (ICAP);
 
    default_clock clk(CLK);
    default_reset no_reset;
@@ -703,12 +705,72 @@ module vICAP (ICAP);
    method O         configOut;
    method BUSY      busy;
    method configIn (I)      enable((*inhigh*)en0);
-   method write    (WRITE)  enable((*inhigh*)en1);
-   method ce       (CE)     enable((*inhigh*)en2);
+   method rdwrb    (WRITE)  enable((*inhigh*)en1);
+   method csb      (CE)     enable((*inhigh*)en2);
       
-   schedule (configOut, busy, configIn, write, ce) CF (configOut, busy, configIn, write, ce); 
-endmodule: vICAP
+   schedule (configOut, busy, configIn, rdwrb, csb) CF (configOut, busy, configIn, rdwrb, csb); 
+endmodule: vICAP_V5
 
+import "BVI" ICAP_VIRTEX6 =
+module vICAP_V6 (ICAP);
+
+   default_clock clk(CLK);
+   default_reset no_reset;
+
+   parameter ICAP_WIDTH  = "X32";
    
+   method O         configOut;
+   method BUSY      busy;
+   method configIn (I)      enable((*inhigh*)en0);
+   method rdwrb    (RDWRB)  enable((*inhigh*)en1);
+   method csb      (CSB)    enable((*inhigh*)en2);
+      
+   schedule (configOut, busy, configIn, rdwrb, csb) CF (configOut, busy, configIn, rdwrb, csb); 
+endmodule: vICAP_V6
+
+interface ICAPIfc;
+  method Action configWriteEnable (Bool e);
+  method Action configReadEnable  (Bool e);
+  method Put#(Bit#(32)) configIn;
+  method Get#(Bit#(32)) configOut;
+endinterface
+
+module mkICAP (ICAPIfc);
+
+  ICAP                 icap      <- vICAP_V6;
+  FIFOF#(Bit#(32))     cinF      <- mkFIFOF;
+  FIFOF#(Bit#(32))     coutF     <- mkFIFOF;
+  Wire#(Bool)          icapCs    <- mkDWire(False);
+  Wire#(Bool)          icapRd    <- mkDWire(True);
+  Wire#(Bit#(32))      icapWd    <- mkDWire(0);
+  Wire#(Bool)          cwe       <- mkDWire(False);
+  Wire#(Bool)          cre       <- mkDWire(False);
+
+  rule drive_icap_control;
+    icap.csb  (pack(!icapCs));
+    icap.rdwrb(pack(icapRd));
+    icap.configIn(icapWd);
+  endrule
+  
+  rule write_configration_data (cwe && cinF.notEmpty);
+    icapCs <= True;
+    icapRd <= False;
+    icapWd <= cinF.first;
+    cinF.deq;
+  endrule
+
+  rule read_configuration_data (cre && coutF.notFull);
+    icapCs <= True;
+    icapRd <= True;
+    if (icap.busy==1'b0) coutF.enq(icap.configOut);
+  endrule
+
+  method Action configWriteEnable (Bool e); cwe <= e; endmethod
+  method Action configReadEnable  (Bool e); cre <= e; endmethod
+  method Put#(Bit#(32)) configIn  = toPut(cinF);
+  method Get#(Bit#(32)) configOut = toGet(coutF);
+
+endmodule
+
 
 endpackage: XilinxExtra

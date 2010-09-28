@@ -8,6 +8,7 @@ import DramServer        ::*;
 import Ethernet          ::*;
 import FlashWorker       ::*;
 import GbeWorker         ::*;
+import ICAPWorker         ::*;
 import OCWip             ::*;
 import TimeService       ::*;
 import WsiAdapter        ::*;
@@ -94,13 +95,13 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   Vector#(Nwci_ftop,Wci_Em#(20)) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level board-specific workers..
+  ICAPWorkerIfc    icap     <- mkICAPWorker(True,True,                      clocked_by trn2_clk, reset_by(vWci[0].mReset_n));
   FlashWorkerIfc   flash0   <- mkFlashWorker(                               clocked_by trn2_clk, reset_by(vWci[1].mReset_n));
   GbeWorkerIfc     gbe0     <- mkGbeWorker(gmii_rx_clk, sys1_clk, sys1_rst, clocked_by trn2_clk, reset_by(vWci[2].mReset_n));
   DramServerIfc    dram0    <- mkDramServer(sys0_clk, sys0_rst,             clocked_by trn2_clk, reset_by(vWci[4].mReset_n));
 
   // WCI...
-  WciSlaveNullIfc#(20) tieOff0  <- mkWciSlaveNull;
-  mkConnection(vWci[0], tieOff0.slv);   // worker 8
+  mkConnection(vWci[0], icap.wci_s);    // worker 8
   mkConnection(vWci[1], flash0.wci_s);  // worker 9
   mkConnection(vWci[2], gbe0.wci_rx);   // worker 10 
   mkConnection(vWci[3], gbe0.wci_tx);   // worker 11
