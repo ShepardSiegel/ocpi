@@ -100,7 +100,7 @@ typedef struct {
 
 
 typedef int func(volatile OCCP_Space *, char **, volatile OCCP_WorkerControl *, volatile uint8_t *, volatile OCDP_Space *);
-static func admin, wdump, wread, wwrite, wadmin, settime, deltatime, wop, wwctl, dtest, dmeta, dpnd, dread, dwrite, wunreset, wreset;
+static func admin, wdump, wread, wwrite, wadmin, settime, deltatime, wop, wwctl, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset;
 
 typedef struct {
   char *name;
@@ -119,6 +119,7 @@ static OCCP_Command commands[] = {
   {"wop", wop, 1},      // do control op
   {"wwctl", wwctl, 1},  // write worker control register
   {"dtest", dtest, 1},     // Perform test on data memory
+  {"smtest", smtest, 1},   // Perform test on SelectMAP ICAP 
   {"dmeta", dmeta},     // Dump metadata
   {"dpnd", dpnd}, // Pull without copying data
   {"dread", dread}, // Dump some data plane
@@ -475,6 +476,64 @@ dtest(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
 
   if (errors==0) printf("\nSuccess\n");
   else           printf("\n%d  Errors\n", errors);
+  return 0;
+}
+
+static int
+smtest(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  uint8_t size;
+  unsigned  off = atoi_any(*ap++,  &size);
+  unsigned soff = atoi_any("0x00", &size);  // status
+  unsigned coff = atoi_any("0x04", &size);  // control
+  unsigned woff = atoi_any("0x08", &size);  // write config
+  unsigned roff = atoi_any("0x0C", &size);  // read config
+  unsigned  val = atoi_any(*ap, 0);
+  uint32_t *p32 = (uint32_t *)&config[off];
+  uint32_t *c32 = (uint32_t *)&config[coff];
+  uint32_t *s32 = (uint32_t *)&config[soff];
+  uint32_t *w32 = (uint32_t *)&config[woff];
+  uint32_t *r32 = (uint32_t *)&config[roff];
+  unsigned int ugot32;
+
+  printf("Worker %ld, SelectMAP ICAP Communication Test \n", (OCCP_WorkerControlSpace *)w - p->control);
+
+  printf("Worker Status is: 0x%08x\n", *s32);
+  printf("Enabling Write ICAP\n");
+  *c32 = 0x00000001;
+  printf("Worker Status is: 0x%08x\n", *s32);
+
+  // See table 7-1 in Xilinx V6 UG360 v3.1 on pahge 125...
+  //
+  *w32 = 0xFFFFFFFF; // Dummy Word
+  *w32 = 0x000000BB; // Bus Width Sync Word
+  *w32 = 0x11220044; // Bus Width Detect
+  *w32 = 0xFFFFFFFF; // Dummy Word
+  *w32 = 0xAA995566; // Sync Word
+  *w32 = 0x20000000; // NOOP
+  *w32 = 0x20000000; // NOOP
+  *w32 = 0x2800E001; // Type 1 packet header to read STAT register
+  *w32 = 0x20000000; // NOOP
+  *w32 = 0x20000000; // NOOP
+
+  printf("Worker Status is: 0x%08x\n", *s32);
+  printf("Enabling Read ICAP\n");
+  *c32 = 0x00000002;
+  printf("Worker Status is: 0x%08x\n", *s32);
+
+  ugot32 = *r32;     // Read one word from STAT register
+  printf("STAT register is 0x%08x\n", ugot32);
+
+  printf("Worker Status is: 0x%08x\n", *s32);
+  printf("Enabling Write ICAP\n");
+  *c32 = 0x00000001;
+  printf("Worker Status is: 0x%08x\n", *s32);
+
+  *w32 = 0x30008001; // Type 1 Write 1 Word to CMD
+  *w32 = 0x0000000D; // DESYNC Command
+  *w32 = 0x20000000; // NOOP
+  *w32 = 0x20000000; // NOOP
+
   return 0;
 }
 
