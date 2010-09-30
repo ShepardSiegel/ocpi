@@ -483,27 +483,34 @@ static int
 smtest(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
 {
   uint8_t size;
-  unsigned  off = atoi_any(*ap++,  &size);
-  unsigned soff = atoi_any("0x00", &size);  // status
-  unsigned coff = atoi_any("0x04", &size);  // control
-  unsigned woff = atoi_any("0x08", &size);  // write config
-  unsigned roff = atoi_any("0x0C", &size);  // read config
-  unsigned  val = atoi_any(*ap, 0);
-  uint32_t *p32 = (uint32_t *)&config[off];
-  uint32_t *c32 = (uint32_t *)&config[coff];
-  uint32_t *s32 = (uint32_t *)&config[soff];
-  uint32_t *w32 = (uint32_t *)&config[woff];
-  uint32_t *r32 = (uint32_t *)&config[roff];
+  unsigned  off  = atoi_any(*ap++,  &size);
+  unsigned soff  = atoi_any("0x00", &size);  // status
+  unsigned coff  = atoi_any("0x04", &size);  // control
+  unsigned woff  = atoi_any("0x08", &size);  // write config
+  unsigned roff  = atoi_any("0x0C", &size);  // read config
+  unsigned icoff = atoi_any("0x48", &size);  // inCount
+  unsigned ocoff = atoi_any("0x4C", &size);  // outCount
+  uint32_t *p32  = (uint32_t *)&config[off];
+  uint32_t *s32  = (uint32_t *)&config[soff];
+  uint32_t *c32  = (uint32_t *)&config[coff];
+  uint32_t *w32  = (uint32_t *)&config[woff];
+  uint32_t *r32  = (uint32_t *)&config[roff];
+  uint32_t *ic32 = (uint32_t *)&config[icoff];
+  uint32_t *oc32 = (uint32_t *)&config[ocoff];
   unsigned int ugot32;
+  unsigned int pollCount = 0;
 
   printf("Worker %ld, SelectMAP ICAP Communication Test \n", (OCCP_WorkerControlSpace *)w - p->control);
 
-  printf("Worker Status is: 0x%08x\n", *s32);
+  printf("Worker Status  is: 0x%08x\n", *s32);
   printf("Enabling Write ICAP\n");
   *c32 = 0x00000001;
-  printf("Worker Status is: 0x%08x\n", *s32);
+  printf("Worker Control is: 0x%08x\n", *c32);
+  printf("Worker Status  is: 0x%08x\n", *s32);
+  printf("InCount        is: 0x%08x\n", *ic32);
+  printf("OutCount       is: 0x%08x\n", *oc32);
 
-  // See table 7-1 in Xilinx V6 UG360 v3.1 on pahge 125...
+  // See table 7-1 in Xilinx V6 UG360 v3.1 on page 125...
   //
   *w32 = 0xFFFFFFFF; // Dummy Word
   *w32 = 0x000000BB; // Bus Width Sync Word
@@ -513,21 +520,55 @@ smtest(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volati
   *w32 = 0x20000000; // NOOP
   *w32 = 0x20000000; // NOOP
   *w32 = 0x2800E001; // Type 1 packet header to read STAT register
+//  *w32 = 0x28018001; // Type 1 packet header to read IDCODE register
   *w32 = 0x20000000; // NOOP
   *w32 = 0x20000000; // NOOP
+  /*
+  *w32 = 0xFFFFFFFF; // Dummy Word
+  *w32 = 0x000000DD; // Bus Width Sync Word
+  *w32 = 0x88440022; // Bus Width Detect
+  *w32 = 0xFFFFFFFF; // Dummy Word
+  *w32 = 0x5599AA66; // Sync Word
+  *w32 = 0x04000000; // NOOP
+  *w32 = 0x04000000; // NOOP
+  *w32 = 0x14000780; // Type 1 packet header to read STAT register
+  *w32 = 0x04000000; // NOOP
+  *w32 = 0x04000000; // NOOP
+  */
 
-  printf("Worker Status is: 0x%08x\n", *s32);
+  printf("Worker Status  is: 0x%08x\n", *s32);
   printf("Enabling Read ICAP\n");
   *c32 = 0x00000002;
-  printf("Worker Status is: 0x%08x\n", *s32);
+  printf("Worker Control is: 0x%08x\n", *c32);
+  printf("Worker Status  is: 0x%08x\n", *s32);
+  printf("InCount        is: 0x%08x\n", *ic32);
+  printf("OutCount       is: 0x%08x\n", *oc32);
+
+  // Don't attempt to reference *r32 until there is something  to read...
+  do {
+    ugot32 = *s32;
+    pollCount++;
+    if (pollCount > 1000) {
+      printf("Did not see coutF.notEmpty True after %d polls (workerStatus:0x%08x)\n", pollCount, ugot32);
+      printf("Worker Control is: 0x%08x\n", *c32);
+      printf("Worker Status  is: 0x%08x\n", *s32);
+      printf("InCount        is: 0x%08x\n", *ic32);
+      printf("OutCount       is: 0x%08x\n", *oc32);
+      return(1);
+    }
+  } while (!(ugot32 & 0x00000004));  // wait for Bit 2 to go true
+  printf("Found workerStatus bit 2 set after %d polls (workerStatus:0x%08x)\n", pollCount, ugot32);
 
   ugot32 = *r32;     // Read one word from STAT register
-  printf("STAT register is 0x%08x\n", ugot32);
+  printf("STAT register read returned 0x%08x\n", ugot32);
+  ugot32 = *r32;     // Read one word from STAT register
+  printf("STAT register read returned 0x%08x\n", ugot32);
 
   printf("Worker Status is: 0x%08x\n", *s32);
   printf("Enabling Write ICAP\n");
   *c32 = 0x00000001;
-  printf("Worker Status is: 0x%08x\n", *s32);
+  printf("Worker Control is: 0x%08x\n", *c32);
+  printf("Worker Status  is: 0x%08x\n", *s32);
 
   *w32 = 0x30008001; // Type 1 Write 1 Word to CMD
   *w32 = 0x0000000D; // DESYNC Command

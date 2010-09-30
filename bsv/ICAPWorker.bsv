@@ -21,7 +21,6 @@ import Vector::*;
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface ICAPWorkerIfc;
-  //interface Wci_Es#(NwciAddr)                           wciS0;    // Worker Control and Configuration 
   interface Wci_s#(NwciAddr)                           wci_s;    // Worker Control and Configuration 
 endinterface 
 
@@ -43,8 +42,13 @@ module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICA
   AlignedFIFO#(Bit#(32))      cinF        <- mkAlignedFIFO(cd.fastClock,fastReset,cd.slowClock,slowReset,cinS,cd.clockReady,True);
   SyncFIFOIfc#(Bit#(32))      coutF       <- mkSyncBRAMFIFOToCC(512, cd.slowClock, slowReset);
 
-  Bool writeICAP = unpack(icapCtrl[0]);
-  Bool readICAP  = unpack(icapCtrl[1]);
+  Reg#(Bit#(32))              inCnt       <- mkSyncRegToCC(0, cd.slowClock, slowReset);
+  Reg#(Bit#(32))              outCnt      <- mkSyncRegToCC(0, cd.slowClock, slowReset);
+
+
+  Bool writeICAP  = unpack(icapCtrl[0]);
+  Bool readICAP   = unpack(icapCtrl[1]);
+  Bool noBitSwap  = unpack(icapCtrl[2]);
 
   rule update_control (wci.isOperating);
     cwe <= writeICAP;
@@ -53,6 +57,8 @@ module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICA
 
   rule connect_cwe; icap.configWriteEnable(cwe); endrule
   rule connect_cre; icap.configReadEnable(cre);  endrule
+  rule connect_inc;  inCnt  <= icap.dwInCount; endrule
+  rule connect_outc; outCnt <= icap.dwOutCount; endrule
 
   rule config_write;
      icap.configIn.put(cinF.first);
@@ -66,6 +72,13 @@ module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICA
 
 // WCI...
 
+// The Xilinx SelectMAP BitSwap reverses the position of bits in Bytes, while leaving Bytes positionally intact...
+function Bit#(n) reverseBitsInBytes(Bit#(n) a) provisos (Mul#(8,b,n));
+  Vector#(b, Bit#(8)) vBytes = unpack(a);
+  vBytes = map(reverseBits, vBytes);
+  return pack(vBytes);
+endfunction
+
 Bit#(32) icapStatus = extend({pack(coutF.notEmpty), pack(readICAP), pack(writeICAP)});
 
 (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
@@ -75,7 +88,7 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wci.reqGet.get;
    case (wciReq.addr) matches
      'h04 : icapCtrl <= unpack(wciReq.data);
-     'h08 : cinF.enq(wciReq.data);
+     'h08 : cinF.enq(noBitSwap ? wciReq.data : reverseBitsInBytes(wciReq.data));
    endcase
    //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
@@ -89,6 +102,8 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h0C : begin rdat = pack(coutF.first); coutF.deq; end
      'h40 : rdat = !hasDebugLogic ? 0 : pack(dwWritten);
      'h44 : rdat = !hasDebugLogic ? 0 : pack(dwRead);
+     'h48 : rdat = !hasDebugLogic ? 0 : pack(inCnt);
+     'h4C : rdat = !hasDebugLogic ? 0 : pack(outCnt);
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
@@ -102,9 +117,5 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  // Only needed for expanded application...
-  //Wci_Es#(NwciAddr)       wci_Es    <- mkWciStoES(wci.slv); 
-
-  //interface wciS0  = wci_Es;
   interface Wci_s wci_s  = wci.slv;
 endmodule

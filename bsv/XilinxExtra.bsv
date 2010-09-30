@@ -733,6 +733,8 @@ interface ICAPIfc;
   method Action configReadEnable  (Bool e);
   method Put#(Bit#(32)) configIn;
   method Get#(Bit#(32)) configOut;
+  method Bit#(32) dwInCount;
+  method Bit#(32) dwOutCount;
 endinterface
 
 module mkICAP (ICAPIfc);
@@ -745,30 +747,40 @@ module mkICAP (ICAPIfc);
   Wire#(Bit#(32))      icapWd    <- mkDWire(0);
   Wire#(Bool)          cwe       <- mkDWire(False);
   Wire#(Bool)          cre       <- mkDWire(False);
+  Reg#(Bit#(32))       inCount   <- mkReg(0);
+  Reg#(Bit#(32))       outCount  <- mkReg(0);
 
   rule drive_icap_control;
     icap.csb  (pack(!icapCs));
     icap.rdwrb(pack(icapRd));
     icap.configIn(icapWd);
   endrule
+
+  (* mutually_exclusive = "write_configration_data, read_configuration_data" *)
   
-  rule write_configration_data (cwe && cinF.notEmpty);
+  rule write_configration_data (cwe && !cre && cinF.notEmpty);
     icapCs <= True;
     icapRd <= False;
     icapWd <= cinF.first;
     cinF.deq;
+    inCount <= inCount + 1;
   endrule
 
-  rule read_configuration_data (cre && coutF.notFull);
+  rule read_configuration_data (cre && !cwe && coutF.notFull);
     icapCs <= True;
     icapRd <= True;
-    if (icap.busy==1'b0) coutF.enq(icap.configOut);
+    if (icap.busy==1'b0) begin
+      coutF.enq(icap.configOut);
+      outCount <= outCount + 1;
+    end
   endrule
 
   method Action configWriteEnable (Bool e); cwe <= e; endmethod
   method Action configReadEnable  (Bool e); cre <= e; endmethod
   method Put#(Bit#(32)) configIn  = toPut(cinF);
   method Get#(Bit#(32)) configOut = toGet(coutF);
+  method Bit#(32) dwInCount = inCount;
+  method Bit#(32) dwOutCount = outCount;
 
 endmodule
 
