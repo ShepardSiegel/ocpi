@@ -2,9 +2,9 @@
 // Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import Accum::*;
+import ICAP::*;
 import OCWip::*;
 import SRLFIFO::*;
-import XilinxExtra::*;
 
 import Alias::*;
 import AlignedFIFOs::*;
@@ -48,7 +48,6 @@ module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICA
 
   Bool writeICAP  = unpack(icapCtrl[0]);
   Bool readICAP   = unpack(icapCtrl[1]);
-  Bool noBitSwap  = unpack(icapCtrl[2]);
 
   rule update_control (wci.isOperating);
     cwe <= writeICAP;
@@ -72,13 +71,6 @@ module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICA
 
 // WCI...
 
-// The Xilinx SelectMAP BitSwap reverses the position of bits in Bytes, while leaving Bytes positionally intact...
-function Bit#(n) reverseBitsInBytes(Bit#(n) a) provisos (Mul#(8,b,n));
-  Vector#(b, Bit#(8)) vBytes = unpack(a);
-  vBytes = map(reverseBits, vBytes);
-  return pack(vBytes);
-endfunction
-
 Bit#(32) icapStatus = extend({pack(coutF.notEmpty), pack(readICAP), pack(writeICAP)});
 
 (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
@@ -88,7 +80,7 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wci.reqGet.get;
    case (wciReq.addr) matches
      'h04 : icapCtrl <= unpack(wciReq.data);
-     'h08 : cinF.enq(noBitSwap ? wciReq.data : reverseBitsInBytes(wciReq.data));
+     'h08 : cinF.enq(wciReq.data);
    endcase
    //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response

@@ -129,6 +129,38 @@ static OCCP_Command commands[] = {
   {0}
 };
 
+typedef struct {
+  char *name;     // From table 6-26 in UG360 (v3.1)
+  int address;    // 5b to fill Type 1 packet bits [17:13]
+  int readable;   // 1 if register is readable
+  int writable;   // 1 if register is writable
+} XIL_T1_PacketRegisters;
+
+static XIL_T1_PacketRegisters xt1pr[] = {
+  {"CRC",    0x00, 1, 1},
+  {"FAR",    0x01, 1, 1},
+  {"FDRI",   0x02, 0, 1},
+  {"FDRO",   0x03, 1, 0},
+  {"CMD",    0x04, 1, 1},
+  {"CTL0",   0x05, 1, 1},
+  {"MASK",   0x06, 1, 1},
+  {"STAT",   0x07, 1, 0},
+  {"LOUT",   0x08, 0, 1},
+  {"COR0",   0x09, 1, 1},
+  {"MFWR",   0x0A, 0, 1},
+  {"CBC",    0x0B, 0, 1},
+  {"IDCODE", 0x0C, 1, 1},
+  {"AXSS",   0x0D, 1, 1},
+  {"COR1",   0x0E, 1, 1},
+  {"CSOB",   0x0F, 0, 1},
+  {"WBSTAR", 0x10, 1, 1},
+  {"TIMER",  0x11, 1, 1},
+  {"BOOTSTS",0x16, 1, 0},
+  {"CTL1",   0x18, 1, 1},
+  {"DWC",    0x1A, 1, 1},
+  {0}
+};
+
  static int
 atoi_any(char *arg, uint8_t *sizep)
 {
@@ -519,26 +551,14 @@ smtest(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volati
   *w32 = 0xAA995566; // Sync Word
   *w32 = 0x20000000; // NOOP
   *w32 = 0x20000000; // NOOP
-  *w32 = 0x2800E001; // Type 1 packet header to read STAT register
-//  *w32 = 0x28018001; // Type 1 packet header to read IDCODE register
+//  *w32 = 0x2800E001; // Type 1 packet header to read STAT register
+  *w32 = 0x28018004; // Type 1 packet header to read IDCODE register
   *w32 = 0x20000000; // NOOP
   *w32 = 0x20000000; // NOOP
-  /*
-  *w32 = 0xFFFFFFFF; // Dummy Word
-  *w32 = 0x000000DD; // Bus Width Sync Word
-  *w32 = 0x88440022; // Bus Width Detect
-  *w32 = 0xFFFFFFFF; // Dummy Word
-  *w32 = 0x5599AA66; // Sync Word
-  *w32 = 0x04000000; // NOOP
-  *w32 = 0x04000000; // NOOP
-  *w32 = 0x14000780; // Type 1 packet header to read STAT register
-  *w32 = 0x04000000; // NOOP
-  *w32 = 0x04000000; // NOOP
-  */
 
-  printf("Worker Status  is: 0x%08x\n", *s32);
-  printf("Enabling Read ICAP\n");
+
   *c32 = 0x00000002;
+  printf("\nEnabling Read ICAP\n");
   printf("Worker Control is: 0x%08x\n", *c32);
   printf("Worker Status  is: 0x%08x\n", *s32);
   printf("InCount        is: 0x%08x\n", *ic32);
@@ -559,6 +579,12 @@ smtest(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volati
   } while (!(ugot32 & 0x00000004));  // wait for Bit 2 to go true
   printf("Found workerStatus bit 2 set after %d polls (workerStatus:0x%08x)\n", pollCount, ugot32);
 
+  ugot32 = *r32;     // Read one word from STAT register
+  printf("STAT register read returned 0x%08x\n", ugot32);
+  ugot32 = *r32;     // Read one word from STAT register
+  printf("STAT register read returned 0x%08x\n", ugot32);
+  ugot32 = *r32;     // Read one word from STAT register
+  printf("STAT register read returned 0x%08x\n", ugot32);
   ugot32 = *r32;     // Read one word from STAT register
   printf("STAT register read returned 0x%08x\n", ugot32);
   ugot32 = *r32;     // Read one word from STAT register
