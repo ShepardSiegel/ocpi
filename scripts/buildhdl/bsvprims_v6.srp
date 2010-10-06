@@ -1,4 +1,4 @@
-Release 12.2 - xst M.63c (lin64)
+Release 12.3 - xst M.70d (lin64)
 Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
 --> 
 
@@ -21,6 +21,7 @@ TABLE OF CONTENTS
             8.4.2) Asynchronous Control Signals Information
             8.4.3) Timing Summary
             8.4.4) Timing Details
+            8.4.5) Cross Clock Domains Report
 
 
 =========================================================================
@@ -110,7 +111,7 @@ Synthesizing Unit <onewire>.
     Summary:
 	no macro.
 Unit <onewire> synthesized.
-RTL-Simplification CPUSTAT: 0.00 
+RTL-Simplification CPUSTAT: 0.01 
 RTL-BasicInf CPUSTAT: 0.00 
 RTL-BasicOpt CPUSTAT: 0.00 
 RTL-Remain-Bus CPUSTAT: 0.00 
@@ -251,14 +252,19 @@ Delay:               0.405ns (Levels of Logic = 2)
 
 =========================================================================
 
+Cross Clock Domains Report:
+--------------------------
+
+=========================================================================
+
 
 Total REAL time to Xst completion: 4.00 secs
-Total CPU time to Xst completion: 3.88 secs
+Total CPU time to Xst completion: 3.87 secs
  
 --> 
 
 
-Total memory usage is 433744 kilobytes
+Total memory usage is 435156 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    0 (   0 filtered)

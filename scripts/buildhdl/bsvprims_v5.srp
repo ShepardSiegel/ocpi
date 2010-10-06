@@ -1,0 +1,275 @@
+Release 12.3 - xst M.70d (lin64)
+Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
+--> 
+
+TABLE OF CONTENTS
+  1) Synthesis Options Summary
+  2) HDL Compilation
+  3) Design Hierarchy Analysis
+  4) HDL Analysis
+  5) HDL Synthesis
+     5.1) HDL Synthesis Report
+  6) Advanced HDL Synthesis
+     6.1) Advanced HDL Synthesis Report
+  7) Low Level Synthesis
+  8) Partition Report
+  9) Final Report
+	9.1) Device utilization summary
+	9.2) Partition Resource Summary
+	9.3) TIMING REPORT
+
+
+=========================================================================
+*                      Synthesis Options Summary                        *
+=========================================================================
+---- Source Parameters
+Input File Name                    : "bsvprims.prj"
+Input Format                       : mixed
+
+---- Target Parameters
+Output Format                      : NGC
+Target Device                      : xc5vlx110t-1-ff1136
+Output File Name                   : "onewire"
+
+---- Source Options
+Top Module Name                    : onewire
+
+---- General Options
+Optimization Effort                : 1
+Optimization Goal                  : speed
+Verilog 2001                       : YES
+
+=========================================================================
+
+
+=========================================================================
+*                          HDL Compilation                              *
+=========================================================================
+Compiling verilog file "../../libsrc/hdl/bsv/TriState.v" in library bsv
+Compiling verilog file "../../libsrc/hdl/bsv/MakeResetA.v" in library bsv
+Module <TriState> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncReset0.v" in library bsv
+Module <MakeResetA> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncResetA.v" in library bsv
+Module <SyncReset0> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ResetToBool.v" in library bsv
+Module <SyncResetA> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ResetInverter.v" in library bsv
+Module <ResetToBool> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SizedFIFO.v" in library bsv
+Module <ResetInverter> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/RevertReg.v" in library bsv
+Module <SizedFIFO> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/FIFO2.v" in library bsv
+Module <RevertReg> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/FIFO1.v" in library bsv
+Module <FIFO2> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncFIFO.v" in library bsv
+Module <FIFO1> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncBit.v" in library bsv
+Module <SyncFIFO> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/BypassWire.v" in library bsv
+Module <SyncBit> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ClockDiv.v" in library bsv
+Module <BypassWire> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ClockInverter.v" in library bsv
+Module <ClockDiv> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ResetEither.v" in library bsv
+Module <ClockInverter> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncRegister.v" in library bsv
+Module <ResetEither> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncHandshake.v" in library bsv
+Module <SyncRegister> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncPulse.v" in library bsv
+Module <SyncHandshake> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/BRAM2.v" in library bsv
+Module <SyncPulse> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/BRAM1.v" in library bsv
+Module <BRAM2> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/BRAM1BE.v" in library bsv
+Module <BRAM1> compiled
+Module <BRAM1BE> compiled
+Compiling verilog file "../../libsrc/hdl/ocpi/onewire.v" in library work
+Module <onewire> compiled
+No errors in compilation
+Analysis of file <"bsvprims.prj"> succeeded.
+ 
+
+=========================================================================
+*                     Design Hierarchy Analysis                         *
+=========================================================================
+Analyzing hierarchy for module <onewire> in library <work>.
+
+
+=========================================================================
+*                            HDL Analysis                               *
+=========================================================================
+Analyzing top module <onewire>.
+Module <onewire> is correct for synthesis.
+ 
+
+=========================================================================
+*                           HDL Synthesis                               *
+=========================================================================
+
+Performing bidirectional port resolution...
+
+Synthesizing Unit <onewire>.
+    Related source file is "../../libsrc/hdl/ocpi/onewire.v".
+Unit <onewire> synthesized.
+
+
+=========================================================================
+HDL Synthesis Report
+
+Found no macro
+=========================================================================
+
+=========================================================================
+*                       Advanced HDL Synthesis                          *
+=========================================================================
+
+
+=========================================================================
+Advanced HDL Synthesis Report
+
+Found no macro
+=========================================================================
+
+=========================================================================
+*                         Low Level Synthesis                           *
+=========================================================================
+
+Optimizing unit <onewire> ...
+
+Mapping all equations...
+Building and optimizing final netlist ...
+
+Final Macro Processing ...
+
+=========================================================================
+Final Register Report
+
+Found no macro
+=========================================================================
+
+=========================================================================
+*                           Partition Report                            *
+=========================================================================
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+=========================================================================
+*                            Final Report                               *
+=========================================================================
+Final Results
+Top Level Output File Name         : onewire
+Output Format                      : NGC
+Optimization Goal                  : speed
+Keep Hierarchy                     : no
+
+Design Statistics
+# IOs                              : 2
+
+Cell Usage :
+# IO Buffers                       : 2
+#      IBUF                        : 1
+#      OBUF                        : 1
+=========================================================================
+
+Device utilization summary:
+---------------------------
+
+Selected Device : 5vlx110tff1136-1 
+
+
+Slice Logic Utilization: 
+
+Slice Logic Distribution: 
+ Number of LUT Flip Flop pairs used:      0
+   Number with an unused Flip Flop:       0  out of      0         
+   Number with an unused LUT:             0  out of      0         
+   Number of fully used LUT-FF pairs:     0  out of      0         
+   Number of unique control sets:         0
+
+IO Utilization: 
+ Number of IOs:                           2
+ Number of bonded IOBs:                   2  out of    640     0%  
+
+Specific Feature Utilization:
+
+---------------------------
+Partition Resource Summary:
+---------------------------
+
+  No Partitions were found in this design.
+
+---------------------------
+
+
+=========================================================================
+TIMING REPORT
+
+NOTE: THESE TIMING NUMBERS ARE ONLY A SYNTHESIS ESTIMATE.
+      FOR ACCURATE TIMING INFORMATION PLEASE REFER TO THE TRACE REPORT
+      GENERATED AFTER PLACE-and-ROUTE.
+
+Clock Information:
+------------------
+No clock signals found in this design
+
+Asynchronous Control Signals Information:
+----------------------------------------
+No asynchronous control signals found in this design
+
+Timing Summary:
+---------------
+Speed Grade: -1
+
+   Minimum period: No path found
+   Minimum input arrival time before clock: No path found
+   Maximum output required time after clock: No path found
+   Maximum combinational path delay: 3.606ns
+
+Timing Detail:
+--------------
+All values displayed in nanoseconds (ns)
+
+=========================================================================
+Timing constraint: Default path analysis
+  Total number of paths / destination ports: 1 / 1
+-------------------------------------------------------------------------
+Delay:               3.606ns (Levels of Logic = 2)
+  Source:            W_IN (PAD)
+  Destination:       W_OUT (PAD)
+
+  Data Path: W_IN to W_OUT
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     IBUF:I->O             1   0.818   0.336  W_IN_IBUF (W_OUT_OBUF)
+     OBUF:I->O                 2.452          W_OUT_OBUF (W_OUT)
+    ----------------------------------------
+    Total                      3.606ns (3.270ns logic, 0.336ns route)
+                                       (90.7% logic, 9.3% route)
+
+=========================================================================
+
+
+Total REAL time to Xst completion: 3.00 secs
+Total CPU time to Xst completion: 3.32 secs
+ 
+--> 
+
+
+Total memory usage is 415980 kilobytes
+
+Number of errors   :    0 (   0 filtered)
+Number of warnings :    0 (   0 filtered)
+Number of infos    :    0 (   0 filtered)
+
