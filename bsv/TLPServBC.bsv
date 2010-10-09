@@ -81,61 +81,62 @@ typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b
 module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(20) wci) (TLPServBCIfc);
 
   Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
-  FIFOF#(PTW16)            inF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-  FIFOF#(PTW16)            outF                <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-  FIFOF#(MemReqPacket)     mReqF               <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-//FIFOF#(MemRespPacket)    mRespF              <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-  FIFOF#(MemRespPacket)    mRespF              <- mkFIFOF; // Use mkFIFOF for mRespF as mkSRLFIFO has 2-level long c->q on a critical path through rule dmaPushResponseBody
-  FIFOF#(ReadReq)          readReq             <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(MemReqPacket)     mReqF                <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+//FIFOF#(MemRespPacket)    mRespF               <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(MemRespPacket)    mRespF               <- mkFIFOF; // Use mkFIFOF for mRespF as mkSRLFIFO has 2-level long c->q on a critical path through rule dmaPushResponseBody
+  FIFOF#(ReadReq)          readReq              <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
 
-  Reg#(Bool)               inIgnorePkt         <- mkRegU;
-  Reg#(Bit#(10))           outDwRemain         <- mkRegU;
-  Reg#(DPBufDWAddr)        writeDWAddr         <- mkRegU;
-  Reg#(Bit#(10))           writeRemainDWLen    <- mkRegU;
-  Reg#(Bit#(4))            writeLastBE         <- mkRegU;
-  Reg#(Bool)               readStarted         <- mkReg(False);
-  Reg#(Bool)               readHeaderSent      <- mkReg(False);
-  Reg#(Bit#(10))           rdRespDwRemain      <- mkRegU;
-  Reg#(Bit#(10))           readRemainDWLen     <- mkRegU;
-  Reg#(DPBufDWAddr)        readNxtDWAddr       <- mkRegU;
-  Reg#(Bool)               tlpRcvBusy          <- mkReg(False);
-  Reg#(Bool)               tlpXmtBusy          <- mkReg(False);
-  Reg#(Bit#(128))          debugBdata          <- mkReg(0);
-  Reg#(Bool)               remStart            <- mkDReg(False);
-  Reg#(Bool)               remDone             <- mkDReg(False);
-  Reg#(Bool)               nearBufReady        <- mkDReg(False);
-  Reg#(Bool)               farBufReady         <- mkDReg(False);
-  Reg#(Bool)               creditReady         <- mkDReg(False);
-  Reg#(Bit#(16))           remMetaAddr         <- mkRegU;
-  Reg#(Bit#(16))           remMesgAddr         <- mkRegU;
-  Reg#(Bit#(16))           remMesgAccu         <- mkRegU;
-  Reg#(Bit#(32))           fabMetaAddr         <- mkRegU;
-  Reg#(Bit#(32))           fabMesgAddr         <- mkRegU;
-  Reg#(Bit#(32))           fabFlowAddr         <- mkRegU;
-  Reg#(Bit#(32))           srcMesgAccu         <- mkRegU;
-  Reg#(Bit#(32))           fabMesgAccu         <- mkRegU;
-  Reg#(Bit#(4))            postSeqDwell        <- mkReg(0);
-  Reg#(Bool)               reqMetaInFlight     <- mkReg(False);
-  Reg#(Bool)               reqMetaBodyInFlight <- mkReg(False);
-  Reg#(Bool)               xmtMetaInFlight     <- mkReg(False);
-  Reg#(Bool)               doXmtMetaBody       <- mkReg(False);
-  Reg#(Bool)               reqMesgInFlight     <- mkReg(False);
-  Reg#(Bool)               xmtMetaOK           <- mkReg(False);
-  Reg#(Bool)               tlpMetaSent         <- mkReg(False);
-  Reg#(Maybe#(MesgMeta))   fabMeta             <- mkReg(Invalid);
-  Wire#(DPControl)         dpControl           <- mkWire;
-  Reg#(Bit#(NtagBits))     dmaTag              <- mkReg(0); 
-  Reg#(Bit#(NtagBits))     dmaReqTag           <- mkRegU;
-  Reg#(Bit#(10))           dmaPullRemainDWLen  <- mkRegU;
-  Reg#(Bit#(10))           dmaPullRemainDWSub  <- mkRegU;
-  Reg#(Bool)               gotResponseHeader   <- mkReg(False);
-  Reg#(Bool)               pullTagMatch        <- mkDReg(False);
-  Reg#(Bool)               dmaDoTailEvent      <- mkReg(False);
-  Reg#(Bit#(17))           mesgLengthRemain    <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
-  Reg#(Bit#(17))           mesgComplReceived   <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
-  Reg#(Bit#(13))           maxPayloadSize      <- mkReg(128);  // 128B Typical - Must not exceed 4096B
-  Reg#(Bit#(13))           maxReadReqSize      <- mkReg(512);  // 512B Typical - Must not exceed 4096B
-  Reg#(Bit#(32))           flowDiagCount       <- mkReg(0);
+  Reg#(Bool)               inIgnorePkt          <- mkRegU;
+  Reg#(Bit#(10))           outDwRemain          <- mkRegU;
+  Reg#(DPBufDWAddr)        writeDWAddr          <- mkRegU;
+  Reg#(Bit#(10))           writeRemainDWLen     <- mkRegU;
+  Reg#(Bit#(4))            writeLastBE          <- mkRegU;
+  Reg#(Bool)               readStarted          <- mkReg(False);
+  Reg#(Bool)               readHeaderSent       <- mkReg(False);
+  Reg#(Bit#(10))           rdRespDwRemain       <- mkRegU;
+  Reg#(Bit#(10))           readRemainDWLen      <- mkRegU;
+  Reg#(DPBufDWAddr)        readNxtDWAddr        <- mkRegU;
+  Reg#(Bool)               tlpRcvBusy           <- mkReg(False);
+  Reg#(Bool)               tlpXmtBusy           <- mkReg(False);
+  Reg#(Bit#(128))          debugBdata           <- mkReg(0);
+  Reg#(Bool)               remStart             <- mkDReg(False);
+  Reg#(Bool)               remDone              <- mkDReg(False);
+  Reg#(Bool)               nearBufReady         <- mkDReg(False);
+  Reg#(Bool)               farBufReady          <- mkDReg(False);
+  Reg#(Bool)               creditReady          <- mkDReg(False);
+  Reg#(Bit#(16))           remMetaAddr          <- mkRegU;
+  Reg#(Bit#(16))           remMesgAddr          <- mkRegU;
+  Reg#(Bit#(16))           remMesgAccu          <- mkRegU;
+  Reg#(Bit#(32))           fabMetaAddr          <- mkRegU;
+  Reg#(Bit#(32))           fabMesgAddr          <- mkRegU;
+  Reg#(Bit#(32))           fabFlowAddr          <- mkRegU;
+  Reg#(Bit#(32))           srcMesgAccu          <- mkRegU;
+  Reg#(Bit#(32))           fabMesgAccu          <- mkRegU;
+  Reg#(Bit#(4))            postSeqDwell         <- mkReg(0);
+  Reg#(Bool)               reqMetaInFlight      <- mkReg(False);
+  Reg#(Bool)               reqMetaBodyInFlight  <- mkReg(False);
+  Reg#(Bool)               xmtMetaInFlight      <- mkReg(False);
+  Reg#(Bool)               doXmtMetaBody        <- mkReg(False);
+  Reg#(Bool)               reqMesgInFlight      <- mkReg(False);
+  Reg#(Bool)               xmtMetaOK            <- mkReg(False);
+  Reg#(Bool)               tlpMetaSent          <- mkReg(False);
+  Reg#(Maybe#(MesgMeta))   fabMeta              <- mkReg(Invalid);
+  Wire#(DPControl)         dpControl            <- mkWire;
+  Reg#(Bit#(NtagBits))     dmaTag               <- mkReg(0); 
+  Reg#(Bit#(NtagBits))     dmaReqTag            <- mkRegU;
+  Reg#(Bit#(10))           dmaPullRemainDWLen   <- mkRegU;
+  Reg#(Bit#(10))           dmaPullRemainDWSub   <- mkRegU;
+  Reg#(Bool)               gotResponseHeader    <- mkReg(False);
+  Reg#(Bool)               pullTagMatch         <- mkDReg(False);
+  Reg#(Bool)               dmaDoTailEvent       <- mkReg(False);
+  Reg#(Bit#(17))           mesgLengthRemainPush <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path) (for Push Logic)
+  Reg#(Bit#(17))           mesgLengthRemainPull <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path) (for Pull Logic)
+  Reg#(Bit#(17))           mesgComplReceived    <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
+  Reg#(Bit#(13))           maxPayloadSize       <- mkReg(128);  // 128B Typical - Must not exceed 4096B
+  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(512);  // 512B Typical - Must not exceed 4096B
+  Reg#(Bit#(32))           flowDiagCount        <- mkReg(0);
 
   Bool actMesgP = (dpControl==fProdActMesg);
   Bool actMesgC = (dpControl==fConsActMesg);
@@ -167,7 +168,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Accept the first DW metadata back... 
   rule dmaResponseNearMetaHead (actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==Metadata);
     mRespF.deq;
-    mesgLengthRemain <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
+    mesgLengthRemainPush <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
     $display("[%0d]: %m: dmaResponseNearMetaHead FPactMesg-Step2a/7 mesgLength:%0x", $time, byteSwap(rres.data));
   endrule
 
@@ -179,8 +180,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Bit#(32) nowMS    = byteSwap(vWords[1]);
     Bit#(32) nowLS    = byteSwap(vWords[2]);
     reqMetaInFlight <= False;
-    fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemain), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
-    xmtMetaOK <= (mesgLengthRemain==0); // Skip over Message Movement phases and just send metadata if mesgLength is zero
+    fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemainPush), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
+    xmtMetaOK <= (mesgLengthRemainPush==0); // Skip over Message Movement phases and just send metadata if mesgLength is zero
     remMesgAccu <= remMesgAddr;  // Load the message rem address accumulator so we can locally manage message segments
     srcMesgAccu <= fabMesgAddr;  // Load the message src address accumulator so we can locally manage message segments
     fabMesgAccu <= fabMesgAddr;  // Load the message fab address accumulator so we can locally manage message segments
@@ -194,18 +195,18 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // Request the message from the remote-facing ready buffer...
   // Inhibit this rule while tlpRcvBusy with other rem buffer access...
-  // If needed, make multiple requests until the full extent of the message is traversed, as signalled by mesgLengthRemain==0...
-  rule dmaPushRequestMesg (actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemain!=0);
+  // If needed, make multiple requests until the full extent of the message is traversed, as signalled by mesgLengthRemainPush==0...
+  rule dmaPushRequestMesg (actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0);
     Bit#(13) spanToNextPage = 4096 - extend(srcMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
-    //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemain,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
-    Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemain,extend(maxPayloadSize))),spanToNextPage);  // minimum of what we want and what we are allowed 
-    mesgLengthRemain  <= mesgLengthRemain - extend(thisRequestLength);
-    //lastSegmentOfMessage <= (mesgLengthRemain - extend(thisRequestLength)) < min(maxPayloadSize, f(spanToNextPage) TODO: Needs work to pipeline critical path to EoM tag
+    //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemainPush,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
+    Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPush,extend(maxPayloadSize))),spanToNextPage);  // minimum of what we want and what we are allowed 
+    mesgLengthRemainPush  <= mesgLengthRemainPush - extend(thisRequestLength);
+    //lastSegmentOfMessage <= (mesgLengthRemainPush - extend(thisRequestLength)) < min(maxPayloadSize, f(spanToNextPage) TODO: Needs work to pipeline critical path to EoM tag
     ReadReq rreq = ReadReq {
       role     : DMASrc,
       reqID    : PciId {bus:255, dev:31, func:0},
       dwLength : truncate(thisRequestLength>>2),
-      tag      : (extend(thisRequestLength)==mesgLengthRemain)?8'h01:8'h00, // Tag the last segment of a message request with 8'h01
+      tag      : (extend(thisRequestLength)==mesgLengthRemainPush)?8'h01:8'h00, // Tag the last segment of a message request with 8'h01
       tc       : ?,
       dwAddr   : truncate(remMesgAccu>>2),
       firstBE  : '1,
@@ -344,7 +345,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Ptw16Hdr p = unpack(pw.data);
     reqMetaInFlight     <= False;
     reqMetaBodyInFlight <= True;
-    mesgLengthRemain <=     truncate(byteSwap(pw.data[31:0]));  // Source of Pull demand
+    mesgLengthRemainPull <=     truncate(byteSwap(pw.data[31:0]));  // Source of Pull demand
     inF.deq;
     // Push the 1st of the metadata into local buffer...
     WriteReq wreq = WriteReq {
@@ -368,8 +369,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Bit#(32) opcode  = byteSwap(vWords[0]);
     Bit#(32) nowMS   = byteSwap(vWords[1]);
     Bit#(32) nowLS   = byteSwap(vWords[2]);
-    fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemain), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
-    dmaDoTailEvent <= (mesgLengthRemain==0); // Skip over Message Movement pull phases if mesgLength is zero
+    fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemainPull), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
+    dmaDoTailEvent <= (mesgLengthRemainPull==0); // Skip over Message Movement pull phases if mesgLength is zero
     mesgComplReceived <= 0;                  // Used to form the barrier-sync before isssuing pull tail event
     remMesgAccu <= remMesgAddr;              // Load the accumulator of rem address for sub-completions and multiple requests
     fabMesgAccu <= fabMesgAddr;              // Load the accumulator of fabric starting addresses over multiple requests
@@ -384,11 +385,11 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //   Policy includes: i) Do not exceed (typ 512B) Maximum Read Request Size; ii) Do not cross 4KB (10b) DW bounds.
 
   // Request the message from the far side fabric node...
-  rule dmaPullRequestFarMesg (actMesgC &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpXmtBusy &&& !reqMesgInFlight &&& mesgLengthRemain!=0);
+  rule dmaPullRequestFarMesg (actMesgC &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpXmtBusy &&& !reqMesgInFlight &&& mesgLengthRemainPull!=0);
     Bit#(13) spanToNextPage = 4096 - extend(fabMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
-    //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemain,4096)),maxReadReqSize),spanToNextPage);  // minimum of what we want and what we are allowed
-    Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemain,extend(maxReadReqSize))),spanToNextPage);            // minimum of what we want and what we are allowed
-    mesgLengthRemain  <= mesgLengthRemain - extend(thisRequestLength);                                          // decrement mesgLengthRemain at the source
+    //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemainPull,4096)),maxReadReqSize),spanToNextPage);  // minimum of what we want and what we are allowed
+    Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPull,extend(maxReadReqSize))),spanToNextPage);            // minimum of what we want and what we are allowed
+    mesgLengthRemainPull  <= mesgLengthRemainPull - extend(thisRequestLength);                                          // decrement mesgLengthRemainPull at the source
     fabMesgAccu <= fabMesgAccu + extend(thisRequestLength);                                                     // increment the fabric address accumulator
     reqMesgInFlight   <= True;  // Asserted while individual requests, with one or more (sub)completions, are in flight
     gotResponseHeader <= False;
