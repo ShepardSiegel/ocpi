@@ -1,0 +1,39 @@
+[timestart] 4498
+[size] 1640 1492
+[pos] -274 -263
+*-8.354737 5405 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+[treeopen] main.top.ctop.
+[treeopen] main.top.ctop.app.
+[treeopen] main.top.ctop.app.appW2.
+[treeopen] main.top.ctop.inf.
+[treeopen] main.top.ctop.inf.dp0.
+[treeopen] main.top.tg.
+@22
+main.cycle[31:0]
+main.top.ctop.inf.dp0.bml_lclBufsCF[15:0]
+@28
+main.top.ctop.inf.dp0.WILL_FIRE_RL_wmi_reqMetadata
+main.top.ctop.inf.dp0.WILL_FIRE_RL_wmi_respMetadata
+main.top.ctop.app.appW2.CAN_FIRE_RL_wmrd_mesgBegin
+@22
+main.top.ctop.app.appW2.fabWordsRemain[13:0]
+main.top.ctop.app.appW2.fabRespCredit_value[4:0]
+@28
+main.top.ctop.app.appW2.WILL_FIRE_RL_wmrd_mesgBodyPreRequest
+@22
+main.top.ctop.app.appW2.fabWordsCurReq[13:0]
+@28
+main.top.ctop.app.appW2.WILL_FIRE_RL_wmrd_mesgBodyRequest
+main.top.ctop.inf.dp0.WILL_FIRE_RL_wmi_getRequest
+main.top.ctop.app.appW2.WILL_FIRE_RL_wmrd_mesgBodyResponse
+@22
+main.top.ctop.app.appW2.unrollCnt[15:0]
+main.top.ctop.inf.dp0.wmi_bytesRemainResp[13:0]
+@28
+main.top.ctop.app.appW2.respF.FULL_N
+@29
+main.top.ctop.app.appW2.respF.EMPTY_N
+[pattern_trace] 1
+[pattern_trace] 0

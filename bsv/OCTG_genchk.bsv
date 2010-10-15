@@ -127,8 +127,8 @@ rule pushMulti (mReg matches tagged Valid .p);
 endrule
 
 Bit#(8)  genchkNumBuf = 2;
-Bit#(32) genchkInit   = 0;  // set to 0 for ZLM test
-Bit#(32) genchkDelta  = 4;  // must be 4/8/16/32 B to match ndw 1/2/4/8
+Bit#(32) genchkInit   = 0;  // set to 0 for ZLM test (Bytes) (0 default)
+Bit#(32) genchkDelta  = 4;  // must be 4/8/16/32 B to match ndw 1/2/4/8 (Bytes) (4 default)
 Bit#(8)  genchkRepeat = 0;
 
   Stmt req = 

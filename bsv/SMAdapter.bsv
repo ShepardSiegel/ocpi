@@ -9,6 +9,7 @@ import Connectable::*;
 import DReg::*;
 import FIFO::*;	
 import FIFOF::*;	
+import SRLFIFO::*;
 import GetPut::*;
 
 //TODO: Zero-Base the wsi{M|S}x index...
@@ -37,13 +38,14 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
   Reg#(MesgMetaDW)               thisMesg          <- mkReg(unpack(32'hFEFE_FFFE));
   Reg#(MesgMetaDW)               lastMesg          <- mkReg(unpack(32'hFEFE_FFFE));
   Reg#(UInt#(16))                unrollCnt         <- mkReg(0);
-  Accumulator2Ifc#(Int#(4))      fabRespCredit     <- mkAccumulator2;
+  Accumulator2Ifc#(Int#(5))      fabRespCredit     <- mkAccumulator2;
   Reg#(UInt#(14))                fabWordsRemain    <- mkReg(0);            // ndw-wide Words that remain to be consumed
   Reg#(UInt#(14))                fabWordsCurReq    <- mkRegU;              // ndw-wide Words in the current request
   Reg#(UInt#(14))                mesgReqAddr       <- mkRegU;              // Message Request Byte Address 
   Reg#(Bool)                     mesgPreRequest    <- mkDReg(False);
   Reg#(Bool)                     mesgReqOK         <- mkReg(False);
   Reg#(Bool)                     firstMsgReq       <- mkReg(False);
+  FIFOF#(WsiReq#(12,nd,nbe,8,0)) respF             <- mkSRLFIFO(4);        // 16 Words of Message Response Storage
 
   // WMI-Write...
   Reg#(Maybe#(Bit#(8)))          opcode            <- mkReg(tagged Invalid);
@@ -125,15 +127,15 @@ rule wmrd_mesgBodyRequest (wci.isOperating && wmiRd && mesgPreRequest);
   // $time, mesgReqAddr, fabWordsCurReq, fabWordsRemain );
 endrule
 
-(* execution_order = "wmrd_mesgBodyResponse, wci_cfwr" *) 
+
+//(* execution_order = "wmrd_mesgBodyResponse, wci_cfwr" *) 
 rule wmrd_mesgBodyResponse (wci.isOperating && wmiRd && unrollCnt>0);
   let x <- wmi.resp;     // Take the response from the WMI interface
-  fabRespCredit.acc2(1); // Credit one word removed from the Resp FIFO this cycle
   Bool zlm = (thisMesg.length==0);
   Bit#(16) wsiBurstLength = (impWsiM) ? 2 : thisMesg.length>>myWordShift; // convert Bytes to ndw-wide WSI Words burstLength
   Bool lastWord = (unrollCnt == 1);
   if (!nixWsiM)          // Setting nixWsiM disables target WSI-M Put
-    wsiM.reqPut.put (WsiReq    {cmd  : WR ,
+    respF.enq       (WsiReq    {cmd  : WR ,
                              reqLast : lastWord,
                              reqInfo : thisMesg.opcode,
                         burstPrecise : !impWsiM,
@@ -149,6 +151,16 @@ rule wmrd_mesgBodyResponse (wci.isOperating && wmiRd && unrollCnt>0);
   mesgReqOK <= True;           // OK to issue another request now
   unrollCnt <= unrollCnt - 1;
 endrule
+
+// Could do this with mkConnection except that we need to get credit on deq
+//mkConnection(toGet(respF), wsiM.reqPut); 
+rule wmrd_mesgResptoWsi (wci.isOperating && wmiRd);
+  wsiM.reqPut.put(respF.first); // Put the message read response FIFO to the wsiM
+  respF.deq;
+  fabRespCredit.acc2(1);        // Credit one word removed from the Resp FIFO this cycle
+endrule
+
+
 
 // WMI Write...
 (* descending_urgency = "wmwt_doAbort, wmwt_messageFinalize, wmwt_messagePushImprecise, wmwt_messagePushPrecise, wmwt_requestPrecise, wmwt_mesgBegin, wsipass_doMessagePush" *)
@@ -292,7 +304,7 @@ endrule
 
 
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
-  fabRespCredit.load(2);  // sized to the WMI Response to WSI Master Buffering
+  fabRespCredit.load(15);  // sized to the WMI Response to WSI Master Buffering
   mesgCount <= 0;
   thisMesg  <= unpack(32'hFEFE_FFFE);
   lastMesg  <= unpack(32'hFEFE_FFFE);

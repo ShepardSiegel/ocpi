@@ -26,6 +26,7 @@ verilog work "../../rtl/mkDDCWorker.v"
 verilog work "../../rtl/mkDelayWorker4B.v"
 verilog work "../../libsrc/hdl/ocpi/xfft_v7_1.v"
 verilog work "../../rtl/mkPSD.v"
+verilog work "../../rtl/mkBiasWorker.v"
 verilog work "../../rtl/mkGbeWorker.v"
 verilog work "../../rtl/mkICAPWorker.v"
 verilog work "../../rtl/mkFlashWorker.v"
@@ -93,7 +94,7 @@ verilog work "../../rtl/mkOCCP.v"
 verilog work "../../rtl/mkOCDP.v"
 verilog work "../../rtl/mkOCInf.v"
 
-verilog work "../../libsrc/hdl/ocpi/mkOCApp_scenario4.v"
+verilog work "../../libsrc/hdl/ocpi/mkOCApp_scenario0.v"
 
 verilog work "../../rtl/mkCTop.v"
 
