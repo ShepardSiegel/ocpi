@@ -1,1 +1,1 @@
-Bit#(32) compileTime = 1287149722; // ISim Fri Oct 15 09:35:22 EDT 2010
+Bit#(32) compileTime = 1287751220; // Verilog Fri Oct 22 08:40:20 EDT 2010
