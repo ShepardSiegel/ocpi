@@ -8,7 +8,8 @@ typedef 3 SRBsize; // 3 is the minimum required to support the latency of pipeli
 
 // OCP-IP Enums...
 typedef enum {IDLE, WR, RD, RDEX, RDL, WRNP, WRC, BCST} OCP_CMD deriving (Bits, Eq);
-typedef enum {NULL, DVA, FAIL, ERR} OCP_RESP deriving (Bits, Eq);
+typedef enum {NULL, DVA,     FAIL,   ERR}   OCP_RESP deriving (Bits, Eq);
+typedef enum {OKAY, EXOKAY, SLVERR, DECERR} AXI_RESP deriving (Bits, Eq);
 typedef enum {None, Precise, Imprecise} OCP_BURST deriving (Bits, Eq);
 
 // Message Metadata (RDMA) Structures...

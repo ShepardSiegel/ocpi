@@ -19,14 +19,14 @@ export Flash::*;
 export FlashWorker::*;
 
 interface FlashWorkerIfc;
-  interface Wci_s#(20)       wci_s;    // Worker Control and Configuration
+  interface WciOcp_s#(20)    wci_s;    // Worker Control and Configuration
   interface FLASH_IO#(24,16) flash;    // The interface to the Flash pins
 endinterface
 
 (*synthesize*)
 module mkFlashWorker (FlashWorkerIfc);
 
-  WciSlaveIfc #(20)            wci         <- mkWciSlave;
+  WciOcpSlaveIfc#(20)          wci         <- mkWciOcpSlave;
   FlashControllerIfc#(24,16)   flashC      <- mkFlashController;
   Reg#(Bit#(32))               flashCtrl   <- mkReg(0);
   Reg#(Bit#(32))               aReg        <- mkReg(0);
@@ -43,7 +43,7 @@ module mkFlashWorker (FlashWorkerIfc);
     let rsp <- flashC.user.response.get;
     rdReg <= extend(rsp);
     if (splitReadInFlight) begin
-      wci.respPut.put(WciResp{resp:DVA, data:extend(rsp)});
+      wci.respPut.put(WciResp{resp:OK, data:extend(rsp)});
       splitReadInFlight <= False;
     end
   endrule
@@ -78,7 +78,7 @@ module mkFlashWorker (FlashWorkerIfc);
       splitRead = True;
     end
     //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-    if (!splitRead)wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+    if (!splitRead)wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
     else splitReadInFlight <= True;
   endrule
 
@@ -90,7 +90,7 @@ module mkFlashWorker (FlashWorkerIfc);
   rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  interface Wci_s      wci_s   = wci.slv;
+  interface WciOcp_s   wci_s   = wci.slv;
   interface FLASH      flash   = flashC.flash; 
 
 endmodule : mkFlashWorker

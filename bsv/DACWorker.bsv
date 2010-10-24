@@ -20,7 +20,7 @@ import XilinxCells::*;
 import XilinxExtra::*;
 
 interface DACWorkerIfc;
-  interface Wci_s#(20) wci_s;                 // WCI
+  interface WciOcp_s#(20) wci_s;              // WCI
   interface Wti_s#(64) wti_s;                 // WTI
   interface Wsi_Es#(12,32,4,8,0) wsiS1;       // WSI DAC Slave
   interface P_Max19692Ifc dac0;               // Maxim 19662
@@ -28,7 +28,7 @@ endinterface
 
 (* synthesize *)
 module mkDACWorker#(Clock dac_clk, Reset dac_rst) (DACWorkerIfc);
-  WciSlaveIfc#(20)            wci                 <-  mkWciSlave;               // WCI
+  WciOcpSlaveIfc#(20)         wci                 <-  mkWciOcpSlave;               // WCI
   WtiSlaveIfc#(64)            wti                 <-  mkWtiSlave(clocked_by dac_clk, reset_by dac_rst); 
   Reg#(Bool)                  sFlagState          <-  mkReg(False);             // Worker Attention
   Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);             // Split WCI Read
@@ -160,7 +160,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
        endcase
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   if (!splitRead) wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   if (!splitRead) wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
    else splitReadInFlight <= True;
 endrule
 
@@ -194,9 +194,9 @@ endrule
 
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv); // Convert the conventional to explicit 
 
-  interface Wci_s wci_s = wci.slv;
-  interface Wti_s wti_s = wti.slv;
-  interface Wsi_s wsiS1 = wsi_Es;
+  interface WciOcp_s wci_s = wci.slv;
+  interface Wti_s    wti_s = wti.slv;
+  interface Wsi_s    wsiS1 = wsi_Es;
   interface Max19692Ifc dac0 = dacCore0.dac;
 endmodule
 

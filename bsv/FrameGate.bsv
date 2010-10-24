@@ -10,7 +10,7 @@ import GetPut::*;
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface FrameGateIfc#(numeric type ndw);
-  interface Wci_Es#(NwciAddr)                           wciS0;    // Worker Control and Configuration 
+  interface WciOcp_Es#(NwciAddr)                        wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM0;    // WSI-M Stream Output
 endinterface 
@@ -21,7 +21,7 @@ module mkFrameGate#(parameter Bit#(32) fgCtrlInit, parameter Bool hasDebugLogic)
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc #(NwciAddr)        wci                <- mkWciSlave;
+  WciOcpSlaveIfc #(NwciAddr)        wci                <- mkWciOcpSlave;
   WsiSlaveIfc #(12,nd,nbe,8,0)   wsiS               <- mkWsiSlave;
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM               <- mkWsiMaster;
   Reg#(Bit#(32))                 frameGateCtrl      <- mkReg(fgCtrlInit);
@@ -98,7 +98,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h30 : rdat = (!hasDebugLogic) ? 0 : extend(pack(otherMesgCnt));
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, rdat);
-   wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
 endrule
 
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
@@ -109,7 +109,7 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  Wci_Es#(NwciAddr)       wci_Es    <- mkWciStoES(wci.slv); 
+  WciOcp_Es#(NwciAddr)    wci_Es    <- mkWciOcpStoES(wci.slv); 
   Wsi_Es#(12,nd,nbe,8,0)  wsi_Es    <- mkWsiStoES(wsiS.slv);
 
   interface wciS0  = wci_Es;

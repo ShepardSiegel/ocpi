@@ -19,9 +19,9 @@ export DRAM::*;
 export DramServer::*;
 
 interface DramServerIfc;
-  interface Wci_s#(20)  wci_s;   // Worker Control and Configuration
-  interface DDR3_64     dram;    // The interface to the DRAM pins
-  interface WmemiES16B  wmemiS;  // The Wmemi slave interface provided to the application
+  interface WciOcp_s#(20) wci_s;   // Worker Control and Configuration
+  interface DDR3_64       dram;    // The interface to the DRAM pins
+  interface WmemiES16B    wmemiS;  // The Wmemi slave interface provided to the application
 endinterface
 
 typedef 8 DqsWidth;
@@ -29,7 +29,7 @@ typedef 8 DqsWidth;
 (*synthesize*)
 module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
 
-  WciSlaveIfc #(20)                wci                        <- mkWciSlave;
+  WciOcpSlaveIfc#(20)              wci                        <- mkWciOcpSlave;
   DramControllerUiIfc              memc                       <- mkDramControllerUi(sys0_clk, sys0_clk);
   WmemiSlaveIfc#(36,12,128,16)     wmemi                      <- mkWmemiSlave; 
   Reg#(Bit#(32))                   dramCtrl                   <- mkReg(0);
@@ -146,7 +146,7 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
     for(Integer i=0;i<4;i=i+1) rdReg[i] <= rdVect[i];
     if (splitReadInFlight) begin
       let p = splaF.first; splaF.deq();
-      wci.respPut.put(WciResp{resp:DVA, data:rdVect[p]}); // put the correct 4B DW from 16B return
+      wci.respPut.put(WciResp{resp:OK, data:rdVect[p]}); // put the correct 4B DW from 16B return
       splitReadInFlight <= False;
     end
     respCount <= respCount + 1;
@@ -217,7 +217,7 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
        splitRead = True;
     end
      //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-     if (!splitRead)wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+     if (!splitRead)wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
      else splitReadInFlight <= True;
   endrule
 
@@ -232,7 +232,7 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
 
   WmemiES16B wmemi_Es <- mkWmemiStoES(wmemi.slv);
 
-  interface Wci_s       wci_s   = wci.slv;
+  interface WciOcp_s    wci_s   = wci.slv;
   interface DDR3_64     dram    = memc.dram; 
   interface WmemiES16B  wmemiS  = wmemi_Es;
 

@@ -15,7 +15,7 @@ typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 typedef enum {DDCPass, DDCEnable, DDCSpare2, DDCSpare3} DDCMode deriving (Bits, Eq);  // DDC mode bits in ddcCtrl[1:0]
 
 interface DDCWorkerIfc;
-  interface Wci_Es#(NwciAddr)        wciS0;    // Worker Control and Configuration 
+  interface WciOcp_Es#(NwciAddr)        wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,32,4,8,0)     wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,32,4,8,0)     wsiM0;    // WSI-M Stream Output
 endinterface 
@@ -23,7 +23,7 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkDDCWorker#(parameter Bit#(32) ddcCtrlInit, parameter Bool hasDebugLogic) (DDCWorkerIfc);
 
-  WciSlaveIfc #(NwciAddr)     wci                 <- mkWciSlave;
+  WciOcpSlaveIfc #(NwciAddr)     wci                 <- mkWciOcpSlave;
   WsiSlaveIfc #(12,32,4,8,0)  wsiS                <- mkWsiSlave;
   WsiMasterIfc#(12,32,4,8,0)  wsiM                <- mkWsiMaster;
   Reg#(Bit#(32))              ddcCtrl             <- mkReg(ddcCtrlInit);
@@ -100,7 +100,7 @@ endrule
     let resp <- ddc.getApb.get;  // AMBA3 provides responses for both write and read, we only support read here
     if (splitWriteInFlight) splitWriteInFlight <= False;
     if (splitReadInFlight)  splitReadInFlight  <= False;
-    wci.respPut.put(resp.isError ? wciErrorResponse : (splitWriteInFlight) ? wciOKResponse : WciResp{resp:DVA, data:resp.data});
+    wci.respPut.put(resp.isError ? wciErrorResponse : (splitWriteInFlight) ? wciOKResponse : WciResp{resp:OK, data:resp.data});
     if (resp.isError) ambaErrCnt  <= ambaErrCnt  + 1;
     else              ambaRespCnt <= ambaRespCnt + 1;
   endrule
@@ -149,7 +149,7 @@ endrule
      splitRead = True;
    end
      //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, rdat);
-     if (!splitRead) wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+     if (!splitRead) wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
      else splitReadInFlight <= True;
   endrule
   
@@ -161,7 +161,7 @@ endrule
   rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
   
-  Wci_Es#(NwciAddr)        wci_Es    <- mkWciStoES(wci.slv); 
+  WciOcp_Es#(NwciAddr)     wci_Es    <- mkWciOcpStoES(wci.slv); 
   Wsi_Es#(12,32,4,8,0)     wsi_Es    <- mkWsiStoES(wsiS.slv);
 
   interface wciS0  = wci_Es;

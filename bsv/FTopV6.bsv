@@ -92,7 +92,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
 
   ReadOnly#(Bit#(2)) infLed    <- mkNullCrossingWire(noClock, ctop.led);
 
-  Vector#(Nwci_ftop,Wci_Em#(20)) vWci = ctop.wci_m;  // expose WCI from CTop
+  Vector#(Nwci_ftop,WciOcp_Em#(20)) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level board-specific workers..
   ICAPWorkerIfc    icap     <- mkICAPWorker(True,True,                      clocked_by trn2_clk, reset_by(vWci[0].mReset_n));

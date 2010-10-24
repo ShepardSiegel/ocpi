@@ -8,14 +8,14 @@ import GetPut::*;
 import Vector::*;
 
 interface BiasWorker4BIfc;
-  interface Wci_Es#(20)           wciS0;  // WCI Slave  for Control and Configuration
+  interface WciOcp_Es#(20)        wciS0;  // WCI Slave  for Control and Configuration
   interface Wsi_Es#(12,32,4,8,0)  wsiS1;  // WSI Slave  for message ingress (consumer port)
   interface Wsi_Em#(12,32,4,8,0)  wsiM1;  // WSI Master for message egress (producer port)
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
-  WciSlaveIfc#(20)              wci          <- mkWciSlave;   // WCI-Slave  convienenice logic
+  WciOcpSlaveIfc#(20)           wci          <- mkWciOcpSlave;   // WCI-Slave  convienenice logic
   WsiSlaveIfc #(12,32,4,8,0)    wsiS         <- mkWsiSlave;    // WSI-Slave  convienenice logic
   WsiMasterIfc#(12,32,4,8,0)    wsiM         <- mkWsiMaster;   // WSI-Master convienenice logic
   Reg#(Bit#(32))                biasValue    <- mkRegU;        // storage for the biasValue
@@ -66,7 +66,7 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);
-     wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+     wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
   endrule
   
   // This rule contains the operations that take place in the Exists->Initialized control edge...
@@ -80,7 +80,7 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
 
-  Wci_Es#(20)          wci_Es <- mkWciStoES(wci.slv);  // Convert the conventional to explicit 
+  WciOcp_Es#(20)       wci_Es <- mkWciOcpStoES(wci.slv);  // Convert the conventional to explicit 
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv); // Convert the conventional to explicit 
 
   // Interfaces provided...

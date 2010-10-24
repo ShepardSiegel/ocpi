@@ -6,7 +6,7 @@ import GetPut::*;
 import Vector::*;
 
 interface WsiSelectorIfc#(numeric type ndw, numeric type nd);
-  interface Wci_s#(20)              wci_s;
+  interface WciOcp_s#(20)           wci_s;
   interface Wsi_s#(12,nd,4,8,1)     wsi_s0;
   interface Wsi_s#(12,nd,4,8,1)     wsi_s1;
   interface Wsi_m#(12,nd,4,8,1)     wsi_m;
@@ -17,7 +17,7 @@ module mkWsiSelector (WsiSelectorIfc#(ndw,nd))
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2; // Width in Bytes
 
-  WciSlaveIfc#(20)             wci           <- mkWciSlave;
+  WciOcpSlaveIfc#(20)          wci           <- mkWciOcpSlave;
   WsiSlaveIfc #(12,nd,4,8,1)   wsiS0         <- mkWsiSlave;
   WsiSlaveIfc #(12,nd,4,8,1)   wsiS1         <- mkWsiSlave;
   WsiMasterIfc#(12,nd,4,8,1)   wsiM          <- mkWsiMaster;
@@ -62,7 +62,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      $time, wciReq.addr, wciReq.byteEn, rdat);
-   wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
 endrule
 
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize);
@@ -72,7 +72,7 @@ endrule
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  interface Wci_s wci_s  = wci.slv;
+  interface WciOcp_s wci_s  = wci.slv;
   interface Wsi_s wsi_s0 = wsiS0.slv;
   interface Wsi_s wsi_s1 = wsiS1.slv;
   interface Wsi_m wsi_m  = wsiM.mas;

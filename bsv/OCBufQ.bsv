@@ -136,7 +136,7 @@ interface FabPCIfc;
   method Action dpCtrl (DPControl dc);
 endinterface 
 
-module mkFabPC#(WciSlaveIfc#(20) wci) (FabPCIfc);
+module mkFabPC#(WciOcpSlaveIfc#(20) wci) (FabPCIfc);
   Reg#(Bool)          lclBufStart     <- mkDReg(False);         // local buffer start
   Reg#(Bool)          lclBufDone      <- mkDReg(False);         // local buffer done
   Reg#(Bool)          remStart        <- mkDReg(False);         // remote buffer start

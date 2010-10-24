@@ -26,7 +26,7 @@ import ClientServer::*;
 import DefaultValue::*;
 
 interface OCDPIfc;
-  interface Wci_Es#(20)          wci_s;    // Control and Configuration
+  interface WciOcp_Es#(20)       wci_s;    // Control and Configuration
   interface Wti_s#(64)           wti_s;    // Worker Time Interface (for timestamping)
   interface WmiES4B              wmiS1;    // facing the application  (local)
   interface Server#(PTW16,PTW16) server;   // facing the infrastructure (remote)
@@ -45,11 +45,11 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc);
   Vector#(4, BRAMServer#(DPBufHWAddr, DWord)) bramsA = genWith(getPortA);
   Vector#(4, BRAMServer#(DPBufHWAddr, DWord)) bramsB = genWith(getPortB);
 
-  WciSlaveIfc#(20)  wci  <- mkWciSlave;
-  WtiSlaveIfc#(64)  wti  <- mkWtiSlave;
-  TLPServBCIfc      tlp  <- mkTLPServBC(bramsA,pciDevice,wci); // The TLP to Memory adaptation
-  WmiServBCIfc#(1)  wmi  <- mkWmiServBC(bramsB);               // The 4B WMI to Memory adaptation
-  FabPCIfc          bml  <- mkFabPC(wci);                      // Buffer Management Logic
+  WciOcpSlaveIfc#(20) wci  <- mkWciOcpSlave;
+  WtiSlaveIfc#(64)    wti  <- mkWtiSlave;
+  TLPServBCIfc        tlp  <- mkTLPServBC(bramsA,pciDevice,wci); // The TLP to Memory adaptation
+  WmiServBCIfc#(1)    wmi  <- mkWmiServBC(bramsB);               // The 4B WMI to Memory adaptation
+  FabPCIfc            bml  <- mkFabPC(wci);                      // Buffer Management Logic
 
   mkConnection(bml.lcl, wmi.bufq);       // Buffer Managment signals with local  WMI
   mkConnection(bml.rem, tlp.bufq);       // Buffer Managment signals with remote TLP
@@ -116,7 +116,7 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc);
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);
-     wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+     wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
   endrule
 
   rule assignControl;
@@ -129,7 +129,7 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc);
 
   mkConnection(wti.now, wmi.now); // Pass the WTI Time data down to the WmiServBC
 
-  Wci_Es#(20) wci_Es <- mkWciStoES(wci.slv);
+  WciOcp_Es#(20) wci_Es <- mkWciOcpStoES(wci.slv);
   WmiES4B     wmi_Es <- mkWmiStoES(wmi.wmi_s);
 
   // Control Op logic pushed down into OCBufQ

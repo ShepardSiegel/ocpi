@@ -78,7 +78,7 @@ typedef union tagged {
 
 typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b is optional; 11b with phantom-tags stealing 3b device num
 
-module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(20) wci) (TLPServBCIfc);
+module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciOcpSlaveIfc#(20) wci) (TLPServBCIfc);
 
   Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
   FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;

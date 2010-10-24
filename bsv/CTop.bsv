@@ -25,7 +25,7 @@ interface CTopIfc;
   interface Server#(PTW16,PTW16) server;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
-  interface Vector#(Nwci_ftop, Wci_Em#(20)) wci_m;  // provide WCI interfaces to Ftop
+  interface Vector#(Nwci_ftop, WciOcp_Em#(20)) wci_m;  // provide WCI interfaces to Ftop
   interface  GPS64_t     cpNow;
   interface  WsiES4B     wsi_s_adc;
   interface  WsiEM4B     wsi_m_dac;
@@ -43,7 +43,7 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc);
   for (Integer i=0; i<iNwci_app; i=i+1) resetVec[i] = inf.wci_m[i].mReset_n;       // Reset Vector for the Application
   OCAppIfc#(Nwci_app,Nwmi,Nwmemi)  app  <- mkOCApp(resetVec, hasDebugLogic);       // Instance the Application
   for (Integer i=0; i<iNwci_app; i=i+1) mkConnection(inf.wci_m[i], app.wci_s[i]);  // Connect WCI between INF/APP
-  Vector#(Nwci_ftop, Wci_Em#(20)) wci_c2f = takeAt(iNwci_app, inf.wci_m);          // Take the unused WCI for FTop
+  Vector#(Nwci_ftop, WciOcp_Em#(20)) wci_c2f = takeAt(iNwci_app, inf.wci_m);       // Take the unused WCI for FTop
 
   // WMI interfaces between App(masters) to Inf(Slaves)...
   mkConnection(app.wmiM0, inf.wmiS0);

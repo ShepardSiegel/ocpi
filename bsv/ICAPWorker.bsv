@@ -21,13 +21,13 @@ import Vector::*;
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface ICAPWorkerIfc;
-  interface Wci_s#(NwciAddr)                           wci_s;    // Worker Control and Configuration 
+  interface WciOcp_s#(NwciAddr)                           wci_s;    // Worker Control and Configuration 
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICAPWorkerIfc);
 
-  WciSlaveIfc#(NwciAddr)      wci         <- mkWciSlave;
+  WciOcpSlaveIfc#(NwciAddr)   wci         <- mkWciOcpSlave;
   Reg#(Bit#(32))              icapCtrl    <- mkReg(0);
   Reg#(Bit#(32))              dwWritten   <- mkReg(0);
   Reg#(Bit#(32))              dwRead      <- mkReg(0);
@@ -98,7 +98,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h4C : rdat = !hasDebugLogic ? 0 : pack(outCnt);
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
 endrule
 
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
@@ -109,5 +109,5 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  interface Wci_s wci_s  = wci.slv;
+  interface WciOcp_s wci_s  = wci.slv;
 endmodule

@@ -11,7 +11,7 @@ import DReg::*;
 import Alias::*;
 
 interface FCAdapterIfc#(numeric type ndw);
-  interface Wci_s#(20)                         wci_s;
+  interface WciOcp_s#(20)                      wci_s;
   interface Wmi_m#(14,12,TMul#(ndw,32),0,0,32) wmi_m;
   interface Wsi_m#(12,TMul#(ndw,32),4,8,1)     wsi_m;
 endinterface 
@@ -22,7 +22,7 @@ module mkFCAdapter (FCAdapterIfc#(ndw))
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc#(20)               wci               <- mkWciSlave;
+  WciOcpSlaveIfc#(20)            wci               <- mkWciOcpSlave;
   WmiMasterIfc#(14,12,nd,0,0,32) wmi               <- mkWmiMaster;
   WsiMasterIfc#(12,nd,4,8,1)     wsi               <- mkWsiMaster;
   Reg#(Bit#(32))                 r0                <- mkReg(0);
@@ -145,7 +145,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      //$time, wciReq.addr, wciReq.byteEn, rdat);
-   wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
 endrule
 
 
@@ -162,7 +162,7 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  interface Wci_s wci_s = wci.slv;
+  interface WciOcp_s wci_s = wci.slv;
   interface Wmi_m wmi_m = wmi.mas;
   interface Wsi_m wsi_m = wsi.mas;
 endmodule

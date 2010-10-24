@@ -9,12 +9,12 @@ import FIFOF::*;
 import SpecialFIFOs::*;
 
 interface GCDWorkerIfc;
-  interface Wci_s#(20) wci_s;
+  interface WciOcp_s#(20) wci_s;
 endinterface 
 
 (* synthesize *)
 module mkGCDWorker#(Bit#(4) ordinalId) (GCDWorkerIfc);
-  WciSlaveIfc#(20)        wci        <- mkWciSlave;
+  WciOcpSlaveIfc#(20)     wci        <- mkWciOcpSlave;
   Reg#(Bit#(32))          r0         <- mkReg(0);
   Reg#(Bit#(32))          r4         <- mkReg(0);
   Reg#(Bit#(8))           b18        <- mkReg(8'h18);
@@ -94,7 +94,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      $time, wciReq.addr, wciReq.byteEn, rdat);
-   if (allowResponse) wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   if (allowResponse) wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
 endrule
 
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize);
@@ -111,6 +111,6 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);
   wci.ctlAck;
 endrule
 
-  interface Wci_s wci_s = wci.slv;
+  interface WciOcp_s wci_s = wci.slv;
 endmodule
 

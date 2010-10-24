@@ -22,7 +22,7 @@ import XilinxCells::*;
 import XilinxExtra::*;
 
 interface ADCWorkerIfc;
-  interface Wci_s#(20) wci_s;                 // WCI
+  interface WciOcp_s#(20) wci_s;              // WCI
   interface Wti_s#(64) wti_s;                 // WTI
   interface Wsi_Em#(12,32,4,8,0) wsiM1;       // WSI ADC Master
   (* prefix = "" *) interface AD9512Ifc adx;  // AD AD9512 Clock Driver
@@ -34,7 +34,7 @@ endinterface
 
 (* synthesize *)
 module mkADCWorker#(Clock sys0_clk, Reset sys0_rst, Clock adc_clk, Clock adc0_clk, Clock adc1_clk, Reset adcx_rst) (ADCWorkerIfc);
-  WciSlaveIfc#(20)     wci                <-  mkWciSlave;               // WCI
+  WciOcpSlaveIfc#(20)  wci                <-  mkWciOcpSlave;               // WCI
   Reg#(Bool)           sFlagState         <-  mkReg(False);             // Worker Attention
   Reg#(Bool)           splitReadInFlight  <-  mkReg(False);             // Asserted for Split Reads
   Reg#(Bool)           initOpInFlight     <-  mkReg(False);             // Asserted While Init-ing
@@ -114,7 +114,7 @@ function Action completeSpiResponse(Bit#(8) arg);
  action
   spiResp  <= arg;
   if (splitReadInFlight) begin
-    wci.respPut.put(WciResp{resp:DVA, data:extend(arg)});
+    wci.respPut.put(WciResp{resp:OK, data:extend(arg)});
     splitReadInFlight <= False;
   end
  endaction
@@ -178,7 +178,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
      'b11 : begin spiClk.req.put  (SpiReq{rdCmd:True, addr:wciReq.addr[9:2], wdata:'0}); splitRead=True; end
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   if (!splitRead) wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   if (!splitRead) wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
    else splitReadInFlight <= True;
 endrule
 
@@ -202,9 +202,9 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);
   wci.ctlAck;
 endrule
 
-  interface Wci_s wci_s = wci.slv;
-  interface Wti_s wti_s = wti.slv;
-  interface Wsi_m wsiM1 = toWsiEM(wsiM.mas);
+  interface WciOcp_s wci_s   = wci.slv;
+  interface Wti_s wti_s      = wti.slv;
+  interface Wsi_m wsiM1      = toWsiEM(wsiM.mas);
   interface AD9512Ifc  adx   = spiClk.adx;
   interface Ads6149Ifc adc0  = adcCore0.adc;
   interface Ads6149Ifc adc1  = adcCore1.adc;

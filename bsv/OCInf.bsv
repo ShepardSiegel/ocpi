@@ -25,7 +25,7 @@ interface OCInfIfc#(type iNwci_ctop);
   interface Server#(PTW16,PTW16) server;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
-  interface Vector#(iNwci_ctop,Wci_Em#(20))  wci_m;
+  interface Vector#(iNwci_ctop,WciOcp_Em#(20))  wci_m;
 
   //interface Vector#(iNwmi,WmiES4B)           wmiS;
   interface WmiES4B wmiS0;
@@ -45,7 +45,7 @@ module mkOCInf#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci
   Reg#(UInt#(8))  chompCnt <- mkReg(0);               // fall-through chomp count
 
   // Intercept the highest-numbered WCI for infrastructure control and properties...
-  Vector#(15,Wci_Em#(20)) vWci;
+  Vector#(15,WciOcp_Em#(20)) vWci;
   vWci = cp.wci_Vm;
   // Pull out the resets so we can use them to reset infrastructure IPs...
   Vector#(15, Reset) rst = newVector;

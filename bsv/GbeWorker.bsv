@@ -16,8 +16,8 @@ import XilinxCells::*;
 import XilinxExtra::*;
 
 interface GbeWorkerIfc;
-  interface Wci_s#(20) wci_rx;                // WCI
-  interface Wci_s#(20) wci_tx;                // WCI
+  interface WciOcp_s#(20) wci_rx;             // WCI
+  interface WciOcp_s#(20) wci_tx;             // WCI
   interface Wti_s#(64) wti_s;                 // WTI
   interface Wsi_Em#(12,32,4,8,0) wsiM1;       // WSI Rx Packet Stream
   interface Wsi_Es#(12,32,4,8,0) wsiS1;       // WSI Tx Packet Stream
@@ -30,8 +30,8 @@ endinterface
 (* synthesize *)
 module mkGbeWorker#(Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeWorkerIfc);
 
-  WciSlaveIfc#(20)            wciRx        <-  mkWciSlave; 
-  WciSlaveIfc#(20)            wciTx        <-  mkWciSlave; 
+  WciOcpSlaveIfc#(20)         wciRx        <-  mkWciOcpSlave; 
+  WciOcpSlaveIfc#(20)         wciTx        <-  mkWciOcpSlave; 
   WtiSlaveIfc#(64)            wti          <-  mkWtiSlave(clocked_by sys1_clk, reset_by sys1_rst); 
   WsiMasterIfc#(12,32,4,8,0)  wsiM         <-  mkWsiMaster; 
   WsiSlaveIfc #(12,32,4,8,0)  wsiS         <-  mkWsiSlave;
@@ -89,7 +89,7 @@ rule wci_cfrd (wciRx.configRead); // WCI Configuration Property Reads...
      'h1C : rdat = wsiS.extStatus.iMesgCount;
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   wciRx.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   wciRx.respPut.put(WciResp{resp:OK, data:rdat}); // read response
 endrule
 
 rule wci_ctrl_EiI (wciRx.ctlState==Exists && wciRx.ctlOp==Initialize);
@@ -107,8 +107,8 @@ endrule
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);
 
   // Interfaces and Methods provided...
-  interface Wci_s  wci_rx = wciRx.slv;
-  interface Wci_s  wci_tx = wciTx.slv;
+  interface WciOcp_s  wci_rx = wciRx.slv;
+  interface WciOcp_s  wci_tx = wciTx.slv;
   interface Wti_s  wti_s  = wti.slv;
   interface Wsi_Em wsiM1  = toWsiEM(wsiM.mas);
   interface Wsi_Es wsiS1  = wsi_Es;

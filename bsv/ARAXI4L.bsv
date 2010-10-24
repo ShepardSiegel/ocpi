@@ -18,7 +18,7 @@ typedef struct {
  } A4Prot deriving (Bits, Eq);
 A4Prot aProtDflt = A4Prot{isInstruction:False, isNonSecure:False, isPrivileged:False};
 
-typedef enum {OKAY, EXOCKAY, SLVERR, DECERR} A4Resp deriving (Bits, Eq);  // Used for Read and Write Response
+typedef enum {OKAY, EXOKAY, SLVERR, DECERR} A4Resp deriving (Bits, Eq);  // Used for Read and Write Response
 
 typedef struct {   // Used for both the Write- and Read- Address channels...
   A4Prot    prot;
@@ -44,11 +44,11 @@ typedef struct {   // Used for the Read-Response channel...
 A4LRdResp  aRdRespDflt = A4LRdResp{resp:OKAY, data:'0}; 
 
 interface A4LMIfc;
-  interface BusSend#(A4LAddrCmd) wrAddr;
-  interface BusSend#(A4LWrData)  wrData;
-  interface BusRecv#(A4LWrResp)  wrResp;
-  interface BusSend#(A4LAddrCmd) rdAddr;
-  interface BusRecv#(A4LRdResp)  rdResp;
+  interface BusSend#(A4LAddrCmd) wrAddr; // (AW) Write Address
+  interface BusSend#(A4LWrData)  wrData; // (W)  Write Data
+  interface BusRecv#(A4LWrResp)  wrResp; // (B)  Write Response
+  interface BusSend#(A4LAddrCmd) rdAddr; // (AR) Read Address
+  interface BusRecv#(A4LRdResp)  rdResp; // (R)  Read Response
 endinterface
 
 interface A4LSIfc;

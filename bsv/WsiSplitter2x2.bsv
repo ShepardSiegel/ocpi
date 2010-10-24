@@ -6,7 +6,7 @@ import OCWip::*;
 import GetPut::*;
 
 interface WsiSplitter2x2Ifc#(numeric type ndw);
-  interface Wci_Es#(20)                                  wciS0;
+  interface WciOcp_Es#(20)                               wciS0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiS0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiS1;
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiM0;
@@ -19,7 +19,7 @@ module mkWsiSplitter2x2#(parameter Bit#(32) ctrlInit, parameter Bool hasDebugLog
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc#(20)                wci           <- mkWciSlave;
+  WciOcpSlaveIfc#(20)             wci           <- mkWciOcpSlave;
   WsiSlaveIfc #(12,nd,nbe,8,0)    wsi_S0        <- mkWsiSlave;
   WsiSlaveIfc #(12,nd,nbe,8,0)    wsi_S1        <- mkWsiSlave;
   WsiMasterIfc#(12,nd,nbe,8,0)    wsi_M0        <- mkWsiMaster;
@@ -73,7 +73,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      $time, wciReq.addr, wciReq.byteEn, rdat);
-   wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
 endrule
 
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize);
@@ -83,11 +83,11 @@ endrule
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  Wci_Es#(20)                                 wci_Es  <- mkWciStoES(wci.slv); 
+  WciOcp_Es#(20)                              wci_Es  <- mkWciOcpStoES(wci.slv); 
   Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsi_Es0 <- mkWsiStoES(wsi_S0.slv);
   Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsi_Es1 <- mkWsiStoES(wsi_S1.slv);
 
-  interface Wci_s wciS0  = wci_Es;
+  interface WciOcp_s wciS0  = wci_Es;
   interface Wsi_s wsiS0  = wsi_Es0;
   interface Wsi_s wsiS1  = wsi_Es1;
   interface Wsi_m wsiM0  = toWsiEM(wsi_M0.mas);

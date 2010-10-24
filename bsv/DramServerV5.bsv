@@ -20,9 +20,9 @@ export DRAMV5::*;
 export DramServerV5::*;
 
 interface DramServerV5Ifc;
-  interface Wci_s#(20)  wci_s;   // Worker Control and Configuration
-  interface DDR2_32     dram;    // The interface to the DRAM pins
-  interface WmemiES16B  wmemiS;  // The Wmemi slave interface provided to the application
+  interface WciOcp_s#(20)  wci_s;   // Worker Control and Configuration
+  interface DDR2_32        dram;    // The interface to the DRAM pins
+  interface WmemiES16B     wmemiS;  // The Wmemi slave interface provided to the application
 endinterface
 
 typedef 4 DqsWidth;
@@ -31,7 +31,7 @@ typedef 8 DqsPerDqs;
 (*synthesize*)
 module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys1_rst) (DramServerV5Ifc);
 
-  WciSlaveIfc #(20)                wci                        <- mkWciSlave;
+  WciOcpSlaveIfc#(20)              wci                        <- mkWciOcpSlave;
   DramControllerUiV5Ifc            memc                       <- mkDramControllerV5Ui(sys0_clk, sys0_rst, sys1_clk);
   WmemiSlaveIfc#(36,12,128,16)     wmemi                      <- mkWmemiSlave; 
   Reg#(Bit#(32))                   dramCtrl                   <- mkReg(0);
@@ -169,7 +169,7 @@ endrule
     for(Integer i=0;i<4;i=i+1) rdReg[i] <= rdVect[i];
     if (splitReadInFlight) begin
       let p = splaF.first; splaF.deq();
-      wci.respPut.put(WciResp{resp:DVA, data:rdVect[p]}); // put the correct 4B DW from 16B return
+      wci.respPut.put(WciResp{resp:OK, data:rdVect[p]}); // put the correct 4B DW from 16B return
       splitReadInFlight <= False;
     end
     respCount <= respCount + 1;
@@ -239,7 +239,7 @@ endrule
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));
        splitRead = True;
      end
-     if (!splitRead)wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+     if (!splitRead)wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
      else splitReadInFlight <= True;
   endrule
 
@@ -255,7 +255,7 @@ endrule
 
   WmemiES16B wmemi_Es <- mkWmemiStoES(wmemi.slv);
 
-  interface Wci_s       wci_s   = wci.slv;
+  interface WciOcp_s    wci_s   = wci.slv;
   interface DDR3_64     dram    = memc.dram; 
   interface WmemiES16B  wmemiS  = wmemi_Es;
 

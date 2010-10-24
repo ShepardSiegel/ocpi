@@ -15,7 +15,7 @@ import GetPut::*;
 //TODO: Zero-Base the wsi{M|S}x index...
 
 interface SMAdapterIfc#(numeric type ndw);
-  interface Wci_Es#(20)                                    wciS0;
+  interface WciOcp_Es#(20)                                 wciS0;
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmiM;
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiM1;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiS1;
@@ -27,7 +27,7 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc #(20)              wci               <- mkWciSlave;
+  WciOcpSlaveIfc#(20)            wci               <- mkWciOcpSlave;
   WmiMasterIfc#(14,12,nd,0,TMul#(ndw,4),32) wmi    <- mkWmiMaster;
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WsiSlaveIfc #(12,nd,nbe,8,0)   wsiS              <- mkWsiSlave;
@@ -299,7 +299,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      //$time, wciReq.addr, wciReq.byteEn, rdat);
-   wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
 endrule
 
 
@@ -315,7 +315,7 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  Wci_Es#(20)                                    wci_Es <- mkWciStoES(wci.slv); 
+  WciOcp_Es#(20)                                 wci_Es <- mkWciOcpStoES(wci.slv); 
   Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsi_Es <- mkWsiStoES(wsiS.slv);
   Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Em <- mkWmiMtoEm(wmi.mas);
 
