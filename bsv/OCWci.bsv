@@ -1,6 +1,10 @@
 // OCWci.bsv - OpenCPI Worker Control Interface (WCI)
 // Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
+// This package contains the code that is common to WCI::{OCP,AXI,etc} implementations
+// It should contain the WCI higher-level attributes; not the protocol-specific bits
+// It will typically be imported by the protocol-specific packages for its common WCI abstraction
+
 package OCWci;
 
 import Clocks::*;

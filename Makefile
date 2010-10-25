@@ -2,8 +2,11 @@
 ## Makefile
 ##
 BTEST     ?= TB2
+BTEST7    ?= TB7
+BTEST8    ?= TB8
 ITEST     ?= TB2
 ITEST7    ?= TB7
+ITEST8    ?= TB8
 ITEST10   ?= TB10
 RTEST5    ?= FTopV5
 RTESTS6   ?= FTopS6
@@ -69,6 +72,46 @@ bsim: $(OBJ)
 
 
 ######################################################################
+bsim7: $(OBJ)
+
+	# compile to bluesim backend
+	echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/CompileTime.bsv
+	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSV):lib:+ \
+		$(BSV)/$(BTEST7).bsv
+
+	# create bluesim executable
+	bsc -sim -keep-fires -keep-inlined-boundaries \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-o $(OBJ)/mk$(BTEST7).bexe -e mk$(BTEST7) $(OBJ)/*.ba
+
+	# run bluesim executable
+	$(OBJ)/mk$(BTEST7).bexe -V
+
+
+######################################################################
+bsim8: $(OBJ)
+
+	# compile to bluesim backend
+	echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/CompileTime.bsv
+	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSV):lib:+ \
+		$(BSV)/$(BTEST8).bsv
+
+	# create bluesim executable
+	bsc -sim -keep-fires -keep-inlined-boundaries \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-o $(OBJ)/mk$(BTEST8).bexe -e mk$(BTEST8) $(OBJ)/*.ba
+
+	# run bluesim executable
+	$(OBJ)/mk$(BTEST8).bexe -V
+
+
+######################################################################
 isim: $(OBJ)
 
 	# compile to verilog backend for ISim
@@ -96,6 +139,21 @@ isim7: $(OBJ)
 		$(BSV)/$(ITEST7).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST7) -o runsim
+	./runsim 
+
+######################################################################
+isim8: $(OBJ)
+
+	# compile to verilog backend for ISim
+	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/CompileTime.bsv
+	bsc -u -verilog -elab \
+		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSV):lib:+ \
+		$(BSV)/$(ITEST8).bsv
+
+	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST8) -o runsim
 	./runsim 
 
 ######################################################################
