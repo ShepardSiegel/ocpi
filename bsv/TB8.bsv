@@ -14,7 +14,7 @@ import StmtFSM::*;
 module mkTB8();
 
   Reg#(Bit#(16))         simCycle       <- mkReg(0);         // simulation cycle counter
-  WciAxiMasterIfc#(20)   wci            <- mkWciAxiMaster;   // WCI::AXI Master convienenice logic
+  WciAxiMasterIfc        wci            <- mkWciAxiMaster;   // WCI::AXI Master convienenice logic
   A4LSIfc                a4ls           <- mkA4LS     (True, reset_by wci.mas.mReset_n);   // instance the simple AXI4-L Slave
   WciAxi_Em#(20 )        wci_Em         <- mkWciAxiMtoEm(wci.mas);  // Convert the conventional to explicit 
 
@@ -62,7 +62,7 @@ module mkTB8();
   endrule
 
   rule terminate (simCycle==1000);
-    $display("[%0d]: %m: mkTB7 termination", $time);
+    $display("[%0d]: %m: mkTB8 termination", $time);
     $finish;
   endrule
 

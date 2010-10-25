@@ -8,6 +8,7 @@
 package OCWci;
 
 import Clocks::*;
+import ClientServer::*;
 import GetPut::*;
 import DefaultValue::*;
 import Connectable::*;
@@ -102,6 +103,17 @@ WciResp     wciErrorResponse   = WciResp{resp:Error,   data:32'hC0DE_4202}; // E
 WciResp     wciTimeoutResponse = WciResp{resp:Timeout, data:32'hC0DE_4203}; // Timeout
 WciResp     wciResetResponse   = WciResp{resp:OK,      data:32'hC0DE_4204}; // Reset
 
+interface WciInitiator;                          // WCI Initiator, Protocol Independent
+  interface Server#(WciReq,WciResp)  wciServ;    // WCI Request/Response 
+  method Bool                        attention;  // True indicates worker/target attention
+  method Bool                        present;    // True indicates worker/target present
+endinterface
+
+interface WciTarget;                             // WCI Target, Protocol Independent
+  interface Client#(WciReq,WciResp)  wciTarg;    // WCI Request/Response
+  method Action                      attention;  // True to signal attention
+  method Action                      present;    // True to signal present
+endinterface
+
 
 endpackage: OCWci
-
