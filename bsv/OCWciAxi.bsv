@@ -8,6 +8,7 @@ import OCWipDefs::*;
 
 import Bus::*;
 import Clocks::*;
+import ClientServer::*;
 import GetPut::*;
 import ConfigReg::*;
 import DefaultValue::*;
@@ -144,5 +145,115 @@ instance Connectable#(WciAxi_m, WciAxi_s);
   endmodule
 endinstance
 
+
+
+
+// WciAxiMaster is a protocol adapter between abstract WIP::WCI an WCI::AXI...
+interface WciAxiMasterIfc;
+  interface WciInitiator  wci;  // The abstract transaction interface
+  interface WciAxi_m      axi;  // The protocol specific interface
+endinterface
+
+module mkWciAxiMaster (WciAxiMasterIfc);
+  FIFOF#(WciRequest)         reqF    <- mkSizedFIFOF(1);
+  FIFOF#(WciResponse)        respF   <- mkSizedFIFOF(1);
+  BusSender#(A4LAddrCmd)     awBS    <- mkBusSender(aAddrCmdDflt);
+  BusSender#(A4LWrData)      wBS     <- mkBusSender(aWrDataDflt);
+  BusReceiver#(A4LWrResp)    bBR     <- mkBusReceiver;
+  BusSender#(A4LAddrCmd)     arBS    <- mkBusSender(aAddrCmdDflt);
+  BusReceiver#(A4LRdResp)    rBR     <- mkBusReceiver;
+
+  rule config_request (reqF.first matches tagged ConfigReq .confreq);
+    if (confreq.req == Write) begin
+      awBS.in.enq( A4LAddrCmd { prot:unpack(0),  addr:confreq.addr } );  // (AW) Write Address Channel
+      wBS.in.enq ( A4LWrData  { strb:confreq.be, data:confreq.data } );  // (W)  Write Data Channel
+    end else begin
+      arBS.in.enq( A4LAddrCmd { prot:unpack(0), addr:confreq.addr  } );  // (AR) Read Address Channel
+    end
+    reqF.deq; 
+  endrule
+
+  rule wci_write_response;
+    let wResp = bBR.out.first; bBR.out.deq;
+    WciResponse wresp = RawResponse( WciRaw {resp:OK} );
+    respF.enq(wresp);
+  endrule
+
+  rule wci_read_response;
+    let rResp = rBR.out.first; rBR.out.deq;
+    WciResponse rresp = ReadResponse( WciResp {resp:OK, data:rResp.data} );
+    respF.enq(rresp);
+  endrule
+
+  interface WciInitiator  wci;
+    interface Server wciInit   = Server {request:toPut(reqF), response:toGet(respF)};   
+    method Bool      attention = False;  // True indicates worker/target attention
+    method Bool      present   = True;   // True indicates worker/target present
+  endinterface
+
+  interface WciAxi_m  axi;
+    interface BusSend wrAddr = awBS.out;
+    interface BusSend wrData = wBS.out;
+    interface BusRecv wrResp = bBR.in;
+    interface BusRecv rdAddr = arBS.out;
+    interface BusSend rdResp = rBR.in;
+  endinterface
+
+endmodule
+
+
+// WciAxiSlave is a protocol adapter between WCI::AXI and abstract WCI...
+interface WciAxiSlaveIfc;
+  interface WciAxi_s      axi;  // The protocol specific interface
+  interface WciTarget     wci;  // The abstract transaction interface
+endinterface
+
+module mkWciAxiSlave (WciAxiSlaveIfc);
+  FIFOF#(WciRequest)         reqF    <- mkSizedFIFOF(1);
+  FIFOF#(WciResponse)        respF   <- mkSizedFIFOF(1);
+  BusReceiver#(A4LAddrCmd)   awBR    <- mkBusReceiver;
+  BusReceiver#(A4LWrData)    wBR     <- mkBusReceiver;
+  BusSender#(A4LWrResp)      wBS     <- mkBusSender(aWrRespDflt);
+  BusReceiver#(A4LAddrCmd)   bBR     <- mkBusReceiver;
+  BusSender#(A4LRdResp)      rBS     <- mkBusSender(aRdRespDflt);
+
+
+  rule wci_write_request;
+    let wAddr = awBR.out.first; awBR.out.deq;
+    let wData =  wBR.out.first;  wBR.out.deq;
+    reqF.enq(wciConfigWrite(wAddr.addr, wData.data, wData.strb));
+  endrule
+
+  rule wci_read_request;
+    let rAddr = bBR.out.first; bBR.out.deq;
+    reqF.enq(wciConfigRead(rAddr.addr));
+  endrule
+
+  rule config_write_response (respF.first matches tagged RawResponse .resp);
+    wBS.in.enq( A4LWrResp { resp:OKAY } );  // (B) Write Response Channel
+    respF.deq; 
+  endrule
+
+  rule config_read_response (respF.first matches tagged ReadResponse .resp);
+    rBS.in.enq( A4LRdResp { resp:OKAY, data:resp.data } );  // (R) Read Response Channel
+    respF.deq; 
+  endrule
+
+  interface WciAxi_s  axi;
+    interface BusRecv wrAddr = awBR.in;
+    interface BusRecv wrData = wBR.in;
+    interface BusSend wrResp = wBS.out;
+    interface BusRecv rdAddr = bBR.in;
+    interface BusSend rdResp = rBS.out;
+  endinterface
+
+  interface WciTarget  wci;
+    interface Client wciTarg   = Client {request:toGet(reqF), response:toPut(respF)};   
+    method Action    attention = noAction;
+    method Action    present   = noAction;
+  endinterface
+
+
+endmodule
 
 endpackage: OCWciAxi

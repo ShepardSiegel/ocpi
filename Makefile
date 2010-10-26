@@ -95,7 +95,7 @@ bsim7: $(OBJ)
 bsim8: $(OBJ)
 
 	# compile to bluesim backend
-	echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/CompileTime.bsv
 	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \

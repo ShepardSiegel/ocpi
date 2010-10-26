@@ -1,9 +1,6 @@
 // TB8.bsv - A simple native WCI:AXI testbench
 // Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import ARAXI4L::*;
-import WCIS2AL4M::*;
-import A4LS::*;
 import OCWip::*;
 
 import Connectable::*;
@@ -20,32 +17,31 @@ module mkTB8();
 
   mkConnection(wci_Em, a4ls);  // connect the WCI::AXI Master to the WCI::AXI Slave
 
-  // WCI Interaction
-  // A sequence of control-configuration operartions to be performed...
+  // A sequence of WCI control-configuration operartions to be performed...
   Stmt wciSeq = 
   seq
-    $display("[%0d]: %m: Checking for DUT presence...", $time);
-    await(wci.present);
+    //$display("[%0d]: %m: Checking for DUT presence...", $time);
+    //await(wci.present);
 
-    $display("[%0d]: %m: Taking DUT out of Reset...", $time);
-    wci.req(Admin, True,  20'h00_0024, 'h8000_0004, 'hF);
-    action let r <- wci.resp; endaction
+    //$display("[%0d]: %m: Taking DUT out of Reset...", $time);
+    //wci.req(Admin, True,  20'h00_0024, 'h8000_0004, 'hF);
+    //action let r <- wci.resp; endaction
 
-    $display("[%0d]: %m: CONTROL-OP: -INITIALIZE- DUT...", $time);
-    wci.req(Control, False, 20'h00_0000, ?, ?);
-    action let r <- wci.resp; endaction
+    //$display("[%0d]: %m: CONTROL-OP: -INITIALIZE- DUT...", $time);
+    //wci.req(Control, False, 20'h00_0000, ?, ?);
+    //action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Write Dataplane Config Properties...", $time);
-    wci.req(Config, True, 20'h00_0004, 32'h0000_4242, 'hF);
+    wci.req(wciConfigWrite(32'h0000_0004, 32'h0000_4242, 'hF));
     action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Read Dataplane Config Properties...", $time);
-    wci.req(Config, False, 20'h00_0004, ?, ?);
+    wci.req(wciConfigRead(32'h0000_0004));
     action let r <- wci.resp; endaction
 
-    $display("[%0d]: %m: CONTROL-OP: -START- DUT...", $time);
-    wci.req(Control, False, 20'h00_0004, ?, ?);
-    action let r <- wci.resp; endaction
+    //$display("[%0d]: %m: CONTROL-OP: -START- DUT...", $time);
+    //wci.req(Control, False, 20'h00_0004, ?, ?);
+    //action let r <- wci.resp; endaction
 
   endseq;
   FSM  wciSeqFsm  <- mkFSM(wciSeq);

@@ -83,7 +83,7 @@ endinstance
 
 typedef struct {
   WCI_CONFIG_REQ req;     // WCI Configuration Request Operation Type
-  Bit#(4)        byteEn;  // 1=byte lane enabled
+  Bit#(4)        be;      // 1=byte lane enabled
   Bit#(32)       addr;    // Byte Address
   Bit#(32)       data;    // One DWord
 } WciConfigReq deriving (Bits, Eq);
@@ -91,29 +91,47 @@ typedef struct {
 typedef union tagged {
   WCI_CONTROL_OP ControlOp;
   WciConfigReq   ConfigReq;
-} WciReq deriving (Bits);
+} WciRequest deriving (Bits);
+
+typedef struct {
+  WCI_RESP resp;          // WCI Response
+} WciRaw deriving (Bits, Eq);
 
 typedef struct {
   WCI_RESP resp;          // WCI Response
   Bit#(32) data;          // One DWord
 } WciResp deriving (Bits, Eq);
 
-WciResp     wciOKResponse      = WciResp{resp:OK,      data:32'hC0DE_4201}; // OK
-WciResp     wciErrorResponse   = WciResp{resp:Error,   data:32'hC0DE_4202}; // Error
-WciResp     wciTimeoutResponse = WciResp{resp:Timeout, data:32'hC0DE_4203}; // Timeout
-WciResp     wciResetResponse   = WciResp{resp:OK,      data:32'hC0DE_4204}; // Reset
+typedef union tagged {
+  WciRaw     RawResponse;
+  WciResp    ReadResponse;
+} WciResponse deriving (Bits);
+
+WciResp wciOKResponse      = WciResp{resp:OK,      data:32'hC0DE_4201}; // OK
+WciResp wciErrorResponse   = WciResp{resp:Error,   data:32'hC0DE_4202}; // Error
+WciResp wciTimeoutResponse = WciResp{resp:Timeout, data:32'hC0DE_4203}; // Timeout
+WciResp wciResetResponse   = WciResp{resp:OK,      data:32'hC0DE_4204}; // Reset
+
+function WciRequest wciConfigWrite(Bit#(32) addr, Bit#(32) data, Bit#(4) be);
+  let configReq = WciConfigReq {req:Write, be:be, addr:addr, data:data};
+  return(tagged ConfigReq configReq);
+endfunction
+
+function WciRequest wciConfigRead(Bit#(32) addr);
+  let configReq = WciConfigReq {req:Read, be:'0, addr:addr, data:'0 };
+  return(tagged ConfigReq configReq);
+endfunction
 
 interface WciInitiator;                          // WCI Initiator, Protocol Independent
-  interface Server#(WciReq,WciResp)  wciServ;    // WCI Request/Response 
+  interface Server#(WciRequest,WciResponse)  wciInit;    // WCI Request/Response 
   method Bool                        attention;  // True indicates worker/target attention
   method Bool                        present;    // True indicates worker/target present
 endinterface
 
 interface WciTarget;                             // WCI Target, Protocol Independent
-  interface Client#(WciReq,WciResp)  wciTarg;    // WCI Request/Response
+  interface Client#(WciRequest,WciResponse)  wciTarg;    // WCI Request/Response
   method Action                      attention;  // True to signal attention
   method Action                      present;    // True to signal present
 endinterface
-
 
 endpackage: OCWci
