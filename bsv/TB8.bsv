@@ -3,6 +3,7 @@
 
 import OCWip::*;
 
+import ClientServer::*;
 import Connectable::*;
 import GetPut::*;
 import StmtFSM::*;
@@ -11,11 +12,18 @@ import StmtFSM::*;
 module mkTB8();
 
   Reg#(Bit#(16))         simCycle       <- mkReg(0);         // simulation cycle counter
-  WciAxiMasterIfc        wci            <- mkWciAxiMaster;   // WCI::AXI Master convienenice logic
-  A4LSIfc                a4ls           <- mkA4LS     (True, reset_by wci.mas.mReset_n);   // instance the simple AXI4-L Slave
-  WciAxi_Em#(20 )        wci_Em         <- mkWciAxiMtoEm(wci.mas);  // Convert the conventional to explicit 
+  WciAxiMasterIfc        wci_m          <- mkWciAxiMaster;   // WCI::AXI Master convienenice logic
+  WciAxiSlaveIfc         wci_s          <- mkWciAxiSlave;   // WCI::AXI Master convienenice logic
 
-  mkConnection(wci_Em, a4ls);  // connect the WCI::AXI Master to the WCI::AXI Slave
+  mkConnection(wci_m.axi, wci_s.axi);
+
+  Reg#(Bit#(32))         reg4           <- mkReg(0);
+
+  rule target_action;
+    let req <- wci_s.wci.wciTarg.request.get;
+    wci_s.wci.wciTarg.response.put(unpack(0));
+  endrule
+
 
   // A sequence of WCI control-configuration operartions to be performed...
   Stmt wciSeq = 
@@ -32,12 +40,12 @@ module mkTB8();
     //action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Write Dataplane Config Properties...", $time);
-    wci.req(wciConfigWrite(32'h0000_0004, 32'h0000_4242, 'hF));
-    action let r <- wci.resp; endaction
+    wci_m.wci.wciInit.request.put(wciConfigWrite(32'h0000_0004, 32'h0000_4242, 'hF));
+    action let r <- wci_m.wci.wciInit.response.get; endaction
 
     $display("[%0d]: %m: Read Dataplane Config Properties...", $time);
-    wci.req(wciConfigRead(32'h0000_0004));
-    action let r <- wci.resp; endaction
+    wci_m.wci.wciInit.request.put(wciConfigRead(32'h0000_0004));
+    action let r <- wci_m.wci.wciInit.response.get; endaction
 
     //$display("[%0d]: %m: CONTROL-OP: -START- DUT...", $time);
     //wci.req(Control, False, 20'h00_0004, ?, ?);
