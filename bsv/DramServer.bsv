@@ -3,6 +3,7 @@
 
 package DramServer;
 
+import Accum::*;
 import OCWip::*;
 import DRAM::*;
 import Config::*;
@@ -73,6 +74,14 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
   SyncFIFOIfc#(DramReq16B)         lreqF                      <- mkSyncFIFOFromCC(2, uclk);
   SyncFIFOIfc#(Bit#(128))          lrespF                     <- mkSyncFIFOToCC  (2, uclk, urst_n);
 
+  Accumulator2Ifc#(Int#(8))        wmemiReadInFlight          <- mkAccumulator2;
+  Reg#(Bit#(32))                   wmemiWrReq                 <- mkReg(0);
+  Reg#(Bit#(32))                   wmemiRdReq                 <- mkReg(0);
+  Reg#(Bit#(32))                   wmemiRdResp                <- mkReg(0);
+
+  rule operating_actions (wci.isOperating);
+     wmemi.operate();
+  endrule
 
   rule update_memIsReset;   memIsResetCC.send(pack(memIsReset)); endrule
   rule update_initComplete; initComplete.send(pack(memc.usr.initComplete)); endrule
@@ -121,6 +130,29 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
     2'h0, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read});
   //      5                  4             3             2             1             0
 
+
+// Connection to the Wmemi...
+rule getRequest (!wci.configWrite && !wci.configRead); // Rule predicate gives PIO config access priority
+  let req <- wmemi.req;
+  if (req.cmd==WR) begin
+      let dh <- wmemi.dh;
+      lreqF.enq( DramReq16B {isRead:False, addr:truncate(req.addr), be:dh.dataByteEn, data:dh.data} );
+      wmemiWrReq <= wmemiWrReq + 1;
+  end else begin
+      lreqF.enq( DramReq16B {isRead:True,  addr:truncate(req.addr), be:?,             data:?} );
+      wmemiReadInFlight.acc1(1);
+      wmemiRdReq <= wmemiRdReq + 1;
+  end
+endrule
+
+rule getResponse (wmemiReadInFlight>0);
+  let rsp = lrespF.first; lrespF.deq();
+  wmemiReadInFlight.acc2(-1);
+  wmemi.respd(rsp, True);
+  wmemiRdResp <= wmemiRdResp + 1;
+endrule
+   
+   
   function Action writeDram4B(Bit#(32) addr, Bit#(4) be, Bit#(32) wdata);
     action
       Vector#(4, Bit#(4))  vbe  = replicate(4'h0);
@@ -140,7 +172,7 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
   (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd, advance_response" *)
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE, advance_response" *)
 
-  rule advance_response (!wci.configWrite);
+  rule advance_response (!wci.configWrite && wmemiReadInFlight==0);
     let rsp = lrespF.first; lrespF.deq();
     Vector#(4, Bit#(32)) rdVect = unpack(rsp);
     for(Integer i=0;i<4;i=i+1) rdReg[i] <= rdVect[i];
@@ -223,6 +255,7 @@ module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
 
   rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
     //TODO: DRAM Auto Initialize here
+    wmemiReadInFlight.load(0);
     wci.ctlAck;
     $display("[%0d]: %m: Starting DramWorker dramCtrl:%0x", $time, dramCtrl);
   endrule
