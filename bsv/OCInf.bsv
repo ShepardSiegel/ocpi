@@ -54,8 +54,8 @@ module mkOCInf#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci
   //TODO: The PCIe Configuration needs to be adjusted so that device functions with non-zero function number will be completed to!
 
   // The producer/consumer and passive/active roles are set by dataplane configuration properties...
-  OCDPIfc  dp0  <- mkOCDP(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-  OCDPIfc  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
+  OCDP4BIfc  dp0  <- mkOCDP4B(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+  OCDP4BIfc  dp1  <- mkOCDP4B(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
 
   // Infrastruture WCI slaves...
   mkConnection(vWci[13], dp0.wci_s);

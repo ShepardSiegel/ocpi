@@ -29,7 +29,7 @@ endinterface
 module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBCIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd));
 
-  Bit#(8)  wmiByteWidth  = fromInteger(valueOf(nd))>>3;         // Width of WMI in Bytes
+  Bit#(9)  wmiByteWidth  = fromInteger(valueOf(nd))>>3;         // Width of WMI in Bytes
 
   WmiSlaveIfc#(14,12,nd,0,TMul#(ndw,4),32) wmi   <- mkWmiSlave;
   Reg#(Maybe#(MesgMeta))        mesgMeta         <- mkReg(tagged Invalid);

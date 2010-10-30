@@ -1,4 +1,4 @@
-// BiasWorker.bsv - Stripped Down 4B Example Version
+// BiasWorker.bsv 
 // Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import OCWip::*;
@@ -7,19 +7,25 @@ import Connectable::*;
 import GetPut::*;
 import Vector::*;
 
-interface BiasWorker4BIfc;
-  interface WciOcp_Es#(20)        wciS0;  // WCI Slave  for Control and Configuration
-  interface Wsi_Es#(12,32,4,8,0)  wsiS1;  // WSI Slave  for message ingress (consumer port)
-  interface Wsi_Em#(12,32,4,8,0)  wsiM1;  // WSI Master for message egress (producer port)
+typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
+
+interface BiasWorkerIfc#(numeric type ndw);
+  interface WciOcp_Es#(NwciAddr)                        wciS0;    // Worker Control and Configuration 
+  interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS1;    // WSI-S Stream Input
+  interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM1;    // WSI-M Stream Output
 endinterface 
 
-(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
-  WciOcpSlaveIfc#(20)           wci          <- mkWciOcpSlave;   // WCI-Slave  convienenice logic
-  WsiSlaveIfc #(12,32,4,8,0)    wsiS         <- mkWsiSlave;    // WSI-Slave  convienenice logic
-  WsiMasterIfc#(12,32,4,8,0)    wsiM         <- mkWsiMaster;   // WSI-Master convienenice logic
-  Reg#(Bit#(32))                biasValue    <- mkRegU;        // storage for the biasValue
-  Reg#(Bit#(32))                controlReg   <- mkRegU;        // storage for the controlReg
+module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
+  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)));
+
+  Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;          // Width in Bytes
+  Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));    // Shift amount between Bytes and ndw-wide Words
+
+  WciOcpSlaveIfc#(NwciAddr)     wci          <- mkWciOcpSlave;   // WCI-Slave  convienenice logic
+  WsiSlaveIfc #(12,nd,nbe,8,0)  wsiS         <- mkWsiSlave;      // WSI-Slave  convienenice logic
+  WsiMasterIfc#(12,nd,nbe,8,0)  wsiM         <- mkWsiMaster;     // WSI-Master convienenice logic
+  Reg#(Bit#(32))                biasValue    <- mkRegU;          // storage for the biasValue
+  Reg#(Bit#(32))                controlReg   <- mkRegU;          // storage for the controlReg
 
   // This rule inhibits dataflow on the WSI ports until the WCI port isOperating...
   rule operating_actions (wci.isOperating);
@@ -29,8 +35,8 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
   
   // Each firing of this rule processes exactly one word and applies the biasValue...
   rule doMessagePush (wci.isOperating);
-    WsiReq#(12,32,4,8,0) r <- wsiS.reqGet.get;     // get the request from the slave-cosumer
-    r.data = r.data + biasValue;                   // apply the biasValue to the data
+    WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;   // get the request from the slave-cosumer
+    r.data = r.data + extend(biasValue);           // apply the biasValue to the data
     wsiM.reqPut.put(r);                            // put the request to the master-producer
   endrule
 
@@ -45,8 +51,7 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
        'h00 : biasValue  <= unpack(wciReq.data);
        'h04 : controlReg <= unpack(wciReq.data);
      endcase
-     $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
-       $time, wciReq.addr, wciReq.byteEn, wciReq.data);
+     $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
      wci.respPut.put(wciOKResponse); // write response
   endrule
   
@@ -56,16 +61,15 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
        'h00 : rdat = pack(biasValue);
        'h04 : rdat = pack(controlReg);
        // Diagnostic data from WSI slabe and master ports...
-       //'h20 : rdat = extend({pack(wsiS.status),pack(wsiM.status)});
-       //'h24 : rdat = pack(wsiS.extStatus.pMesgCount);
-       //'h28 : rdat = pack(wsiS.extStatus.iMesgCount);
-       //'h2C : rdat = pack(wsiS.extStatus.tBusyCount);
-       //'h30 : rdat = pack(wsiM.extStatus.pMesgCount);
-       //'h34 : rdat = pack(wsiM.extStatus.iMesgCount);
-       //'h38 : rdat = pack(wsiM.extStatus.tBusyCount);
+       'h20 : rdat = !hasDebugLogic ? 0 : extend({pack(wsiS.status),pack(wsiM.status)});
+       'h24 : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.pMesgCount);
+       'h28 : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.iMesgCount);
+       'h2C : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.tBusyCount);
+       'h30 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.pMesgCount);
+       'h34 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.iMesgCount);
+       'h38 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.tBusyCount);
      endcase
-     $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
-       $time, wciReq.addr, wciReq.byteEn, rdat);
+     $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
      wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
   endrule
   
@@ -80,8 +84,8 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
 
-  WciOcp_Es#(20)       wci_Es <- mkWciOcpStoES(wci.slv);  // Convert the conventional to explicit 
-  Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv); // Convert the conventional to explicit 
+  WciOcp_Es#(NwciAddr)   wci_Es <- mkWciOcpStoES(wci.slv);  // Convert the conventional to explicit 
+  Wsi_Es#(12,nd,nbe,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);    // Convert the conventional to explicit 
 
   // Interfaces provided...
   interface wciS0 = wci_Es;
@@ -89,3 +93,30 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
   interface wsiM1 = toWsiEM(wsiM.mas);
 
 endmodule: mkBiasWorker
+
+// Synthesizeable, non-polymorphic modules that use the poly module above...
+
+typedef BiasWorkerIfc#(1) BiasWorker4BIfc;
+(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
+module mkBiasWorker4B#(parameter Bool hasDebugLogic) (BiasWorker4BIfc);
+  BiasWorker4BIfc _a <- mkBiasWorker(hasDebugLogic); return _a;
+endmodule
+
+typedef BiasWorkerIfc#(2) BiasWorker8BIfc;
+(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
+module mkBiasWorker8B#(parameter Bool hasDebugLogic) (BiasWorker8BIfc);
+  BiasWorker8BIfc _a <- mkBiasWorker(hasDebugLogic); return _a;
+endmodule
+
+typedef BiasWorkerIfc#(4) BiasWorker16BIfc;
+(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
+module mkBiasWorker16B#(parameter Bool hasDebugLogic) (BiasWorker16BIfc);
+  BiasWorker16BIfc _a <- mkBiasWorker(hasDebugLogic); return _a;
+endmodule
+
+typedef BiasWorkerIfc#(8) BiasWorker32BIfc;
+(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
+module mkBiasWorker32B#(parameter Bool hasDebugLogic) (BiasWorker32BIfc);
+  BiasWorker32BIfc _a <- mkBiasWorker(hasDebugLogic); return _a;
+endmodule
+

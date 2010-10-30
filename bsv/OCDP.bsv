@@ -25,16 +25,18 @@ import Connectable::*;
 import ClientServer::*; 
 import DefaultValue::*;
 
-interface OCDPIfc;
+interface OCDPIfc#(numeric type ndw);
   interface WciOcp_Es#(20)       wci_s;    // Control and Configuration
   interface Wti_s#(64)           wti_s;    // Worker Time Interface (for timestamping)
-  interface WmiES4B              wmiS1;    // facing the application  (local)
+  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS1; // facing the application  (local)
   interface Server#(PTW16,PTW16) server;   // facing the infrastructure (remote)
 endinterface
 
+module mkOCDP#(PciId pciDevice) (OCDPIfc#(ndw))
+  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)));
 
-(* synthesize *)
-module mkOCDP#(PciId pciDevice) (OCDPIfc);
+  Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;          // Width in Bytes
+  Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));    // Shift amount between Bytes and ndw-wide Words
 
   BRAM_Configure cfg = defaultValue;
     cfg.memorySize = valueOf(DPBufSizeInHWords); 
@@ -48,7 +50,7 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc);
   WciOcpSlaveIfc#(20) wci  <- mkWciOcpSlave;
   WtiSlaveIfc#(64)    wti  <- mkWtiSlave;
   TLPServBCIfc        tlp  <- mkTLPServBC(bramsA,pciDevice,wci); // The TLP to Memory adaptation
-  WmiServBCIfc#(1)    wmi  <- mkWmiServBC(bramsB);               // The 4B WMI to Memory adaptation
+  WmiServBCIfc#(ndw)  wmi  <- mkWmiServBC(bramsB);               // The ndw-Byte WMI to Memory adaptation
   FabPCIfc            bml  <- mkFabPC(wci);                      // Buffer Management Logic
 
   mkConnection(bml.lcl, wmi.bufq);       // Buffer Managment signals with local  WMI
@@ -130,7 +132,7 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc);
   mkConnection(wti.now, wmi.now); // Pass the WTI Time data down to the WmiServBC
 
   WciOcp_Es#(20) wci_Es <- mkWciOcpStoES(wci.slv);
-  WmiES4B     wmi_Es <- mkWmiStoES(wmi.wmi_s);
+  Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Es <- mkWmiStoES(wmi.wmi_s);
 
   // Control Op logic pushed down into OCBufQ
   interface wci_s  = wci_Es;      // Provide the WCI interface
@@ -140,5 +142,31 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc);
 
 endmodule
 
-endpackage: OCDP
 
+// Synthesizeable, non-polymorphic modules that use the poly module above...
+
+typedef OCDPIfc#(1) OCDP4BIfc;
+(* synthesize *)
+module mkOCDP4B#(PciId pciDevice) (OCDP4BIfc);
+  OCDP4BIfc _a <- mkOCDP(pciDevice); return _a;
+endmodule
+
+typedef OCDPIfc#(2) OCDP8BIfc;
+(* synthesize *)
+module mkOCDP8B#(PciId pciDevice) (OCDP8BIfc);
+  OCDP8BIfc _a <- mkOCDP(pciDevice); return _a;
+endmodule
+
+typedef OCDPIfc#(4) OCDP16BIfc;
+(* synthesize *)
+module mkOCDP16B#(PciId pciDevice) (OCDP16BIfc);
+  OCDP16BIfc _a <- mkOCDP(pciDevice); return _a;
+endmodule
+
+typedef OCDPIfc#(8) OCDP32BIfc;
+(* synthesize *)
+module mkOCDP32B#(PciId pciDevice) (OCDP32BIfc);
+  OCDP32BIfc _a <- mkOCDP(pciDevice); return _a;
+endmodule
+
+endpackage: OCDP

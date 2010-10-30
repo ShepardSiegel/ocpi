@@ -10,6 +10,7 @@ sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 256  -i 1000 -z 0000:04:00.0 >>& 
 sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 512  -i 1000 -z 0000:04:00.0 >>& result.log
 sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 1024 -i 1000 -z 0000:04:00.0 >>& result.log
 sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 2048 -i 1000 -z 0000:04:00.0 >>& result.log
+sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 4096 -i 1000 -z 0000:04:00.0 >>& result.log
 sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 8192 -i 1000 -z 0000:04:00.0 >>& result.log
 grep Framesize result.log
 
