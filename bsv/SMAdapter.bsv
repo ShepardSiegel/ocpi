@@ -5,6 +5,7 @@ import Accum::*;
 import OCWip::*;
 
 import Alias::*;
+import BRAMFIFO::*;	
 import Connectable::*;
 import DReg::*;
 import FIFO::*;	
@@ -22,7 +23,11 @@ interface SMAdapterIfc#(numeric type ndw);
 endinterface 
 
 module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapterIfc#(ndw))
-  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe));
+  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe),
+    Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8)))))))
+  );
+
+  Bool hasDeepResponseBuffer = True;
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
@@ -38,14 +43,17 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
   Reg#(MesgMetaDW)               thisMesg          <- mkReg(unpack(32'hFEFE_FFFE));
   Reg#(MesgMetaDW)               lastMesg          <- mkReg(unpack(32'hFEFE_FFFE));
   Reg#(UInt#(16))                unrollCnt         <- mkReg(0);
-  Accumulator2Ifc#(Int#(5))      fabRespCredit     <- mkAccumulator2;
+  Accumulator2Ifc#(Int#(12))     fabRespCredit     <- mkAccumulator2;
   Reg#(UInt#(14))                fabWordsRemain    <- mkReg(0);            // ndw-wide Words that remain to be consumed
   Reg#(UInt#(14))                fabWordsCurReq    <- mkRegU;              // ndw-wide Words in the current request
   Reg#(UInt#(14))                mesgReqAddr       <- mkRegU;              // Message Request Byte Address 
   Reg#(Bool)                     mesgPreRequest    <- mkDReg(False);
   Reg#(Bool)                     mesgReqOK         <- mkReg(False);
   Reg#(Bool)                     firstMsgReq       <- mkReg(False);
-  FIFOF#(WsiReq#(12,nd,nbe,8,0)) respF             <- mkSRLFIFO(4);        // 16 Words of Message Response Storage
+
+  FIFOF#(WsiReq#(12,nd,nbe,8,0)) respF             <- hasDeepResponseBuffer ?
+                                                      mkSizedBRAMFIFOF(1024) : // 1024 Words of Message Response Storage
+                                                      mkSRLFIFO(4);            // 16   Words of Message Response Storage
 
   // WMI-Write...
   Reg#(Maybe#(Bit#(8)))          opcode            <- mkReg(tagged Invalid);
@@ -304,7 +312,7 @@ endrule
 
 
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
-  fabRespCredit.load(15);  // sized to the WMI Response to WSI Master Buffering
+  fabRespCredit.load(hasDeepResponseBuffer?1024:16);  // sized to the WMI Response to WSI Master Buffering
   mesgCount <= 0;
   thisMesg  <= unpack(32'hFEFE_FFFE);
   lastMesg  <= unpack(32'hFEFE_FFFE);
