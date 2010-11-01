@@ -1,0 +1,61 @@
+## NETFPGA-10G / TX240 UCF
+## 2009-10-22 ssiegel Delta from ML555 taken
+## 2009-11-16 ssiegel Comment out BRAM LOCs for OCDP
+## 2010-01-20 ssiegel TXT240 Changes
+## 2010-06-07 ssiegel TXT240 LED changes from Paul
+## 2010-11-01 ssiegel Fork from TX240
+
+CONFIG PART = XC5VTX240T-FF1759-2;
+
+
+# From schematic...
+#NET "usr_sprclk_n"      LOC = "AM26" ;                              # CONFIGURABLE CLK FROM X2
+#NET "usr_sprclk_p"      LOC = "AL26" ;                              # CONFIGURABLE CLK FROM X2
+#NET "usr_osc2_clk"      LOC = "AL25" | IOSTANDARD = LVCMOS33;       # SOCKETABLE CLK X4
+#NET "usr_osc1_clk"      LOC = "AN20" | IOSTANDARD = LVCMOS33;       # SOCKETABLE CLK X3
+#NET "usr_25mhz"         LOC = "AJ25" | IOSTANDARD = LVCMOS33;       # 25MHZ CLOCK
+#NET "sysclk"            LOC = "AN25" | IOSTANDARD = LVCMOS33;       # 100MHZ CLOCK
+
+
+# Check OSC Frequency, is likely not 200 MHz...
+NET  "sys0_clkp"      LOC = AL26;  # CONFIGURABLE CLK FROM X2
+NET  "sys0_clkn"      LOC = AM26;  # CONFIGURABLE CLK FROM X2
+
+NET  "pci0_clkp"      LOC = AT4;
+NET  "pci0_clkn"      LOC = AT3;
+INST "ftop/pci0_clk"  DIFF_TERM = "TRUE";
+NET  "pci0_reset_n"   LOC = AL24 | IOSTANDARD = LVCMOS25 | PULLUP | NODELAY ;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[0].GT_i" LOC = GTX_DUAL_X1Y5;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[2].GT_i" LOC = GTX_DUAL_X1Y4;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[4].GT_i" LOC = GTX_DUAL_X1Y3;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[6].GT_i" LOC = GTX_DUAL_X1Y2;
+
+# BlockRAM placement...
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_retry/generate_sdp.ram_sdp_inst"      LOC = RAMB36_X5Y20 ;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X5Y19 ;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X5Y18 ;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X5Y17 ;
+INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X5Y16 ;
+
+
+# Timing Constraints...
+NET "ftop/pci0_clk_O" PERIOD = 10ns;
+NET "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/gt_refclk_out[0]" TNM_NET = "PCI0CLK";
+TIMESPEC "TS_PCI0CLK"  = PERIOD "PCI0CLK" 100.00 MHz HIGH 50 % ;
+
+#PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
+#PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;
+#PIN "ftop/pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+
+# LEDs and Switches...
+NET "led[0]"    LOC = AK25   | IOSTANDARD = "LVCMOS25"; ## User  D0 3V3
+NET "led[1]"    LOC = AM24   | IOSTANDARD = "LVCMOS25"; ## User  D1 3V3
+NET "led[2]"    LOC = AP20   | IOSTANDARD = "LVCMOS25"; ## User  D2 3V3
+##NET "SWITCH[0]" LOC = AF21 | IOSTANDARD = "LVCMOS25"; ## User SW1
+##NET "SWITCH[1]" LOC = AF20 | IOSTANDARD = "LVCMOS25"; ## User SW2
+##NET "SWITCH[2]" LOC = AF14 | IOSTANDARD = "LVCMOS25"; ## User SW3
+#
+#
+#
+
+

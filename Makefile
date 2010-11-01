@@ -378,6 +378,16 @@ tx240:
 	mv build/tmp-tx240 build/tx240-`date +%Y%m%d_%H%M`
 	echo tx240 Build complete
 
+net10:
+	mkdir -p build
+	rm -rf build/tmp-net10
+	cp -r $(BUILD_HDL) build/tmp-net10
+	cp ucf/net10.ucf build/tmp-net10
+	cp ucf/net10.xcf build/tmp-net10
+	cd build/tmp-net10; ./build_fpgaTop net10
+	mv build/tmp-net10 build/net10-`date +%Y%m%d_%H%M`
+	echo net10 Build complete
+
 fx130:
 	mkdir -p build
 	rm -rf build/tmp-fx130

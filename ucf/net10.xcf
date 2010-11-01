@@ -1,0 +1,8 @@
+## OC1001-NETFPGA-10G 125 MHz XCF
+##
+## 2010-01-20 ssiegel Creation to convey 125 MHz core constraint to XST
+## 2010-11-01 ssiegel Fork from tx240
+
+# Timing Constraints...
+NET "ftop/pci0_pcie_ep/trn_clk" TNM_NET = "TRNCLK";
+TIMESPEC "TS_TRNCLK"  = PERIOD "TRNCLK" 125.00 MHz HIGH 50 % ;
