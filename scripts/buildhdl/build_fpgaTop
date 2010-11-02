@@ -6,7 +6,7 @@ endif
 
 set buildTarget = $argv[1]
 set doXst       = 1  # Control if XST is run
-set doChipscope = 0  # Control if chipscope is inserted
+set doChipscope = 1  # Control if chipscope is inserted
 
 switch ($buildTarget)
   case alder:
@@ -56,7 +56,7 @@ switch ($buildTarget)
     set PCIe = pcie-4243-v6-x4-250
     set FFT  = fft-v5-4k-strm-nat
     set DDC  = ddc-4243-4ch-v5
-    set CSIN = csdefv6mem.cdc
+    set CSIN = ml605_1102.cdc
     breaksw
   case sp605:
     set PART = xc6slx45t-fgg484-3

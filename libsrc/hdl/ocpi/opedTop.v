@@ -1,6 +1,7 @@
 // opedTop.v - Top Level Verilog wrapper for NETFPGA10G "OPED" component
 // Copyright (c) 2010 Atomic Rules LLC, ALL RIGHTS RESERVED
 // 2010-10-31 ssiegel Creation with WCI::AXI only
+// 2010-11-02 ssiegel Made debug a 32b vector
 
 module opedTop(
  
@@ -13,12 +14,11 @@ module opedTop(
   input  wire   [7:0] pcie_rxp,
   input  wire   [7:0] pcie_rxn,
 
+  output wire  [31:0] debug,           // See debug bit assigments below and in doc
+
   // Inward-Facing OPED signals, clock, resets for AXI ports...
   output wire         oped_clk125,     // OPED Clock Output (nominaly 125 MHz)
   output wire         oped_reset,      // OPED Reset (active high)
-  output wire         oped_link_up,    // True when the PCIe link-layer is established with OPED
-  output wire         oped_ingress,    // True when TL data is making ingress from PCIe to OPED
-  output wire         oped_egress,     // True when TL data is making egress to PCIe from OPED
 
   // WCI::AXI AXI4-Lite Master WCIM0...
   output wire         wcim0_awvalid,   // (AW) Write Address Channel...
@@ -69,5 +69,13 @@ module opedTop(
   input  wire [  3:0] wsis0ic_tstrb,
   input  wire         wsis0ic_tlast
 );
+
+  // Debug Port Bitfields...
+  // debug[31:3] reserved        // For future use, will read as '0'
+  // debug[2]    oped_egress     // True when TL data is making egress to PCIe from OPED
+  // debug[1]    oped_ingress    // True when TL data is making ingress from PCIe to OPED
+  // debug[0]    oped_linkp      // True when the PCIe link-layer is established with OPED
+  assign debug = {29'b0, oped_egress, oped_ingress, oped_linkup};
+ 
 
 endmodule

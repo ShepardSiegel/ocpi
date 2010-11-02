@@ -142,6 +142,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Bool actMesgC = (dpControl==fConsActMesg);
   Bool actFlow  = (dpControl.role==ActFlow);
 
+  //TODO: Understand why psDwell=1 failed dmaTestBasic4 on 2010-11-02
+  Bit#(4) psDwell = 3; // Purposeful backend serialization "dwell" cycles [1~15] 
+
   //
   // FPactMesg - Fabric Producer Push DMA Sequence...
   //
@@ -293,7 +296,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       be:'1, hit:7'h1, sof:True, eof:True };
     outF.enq(w);
     $display("[%0d]: %m: dmaXmtTailEvent FPactMesg-Step7/7", $time);
-    postSeqDwell <= 15;
+    postSeqDwell <= psDwell;
   endrule
 
   // This rule used at the end of all Active transfers to purposefully insert a small amount of dwell time...
@@ -304,8 +307,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // 
   // Send Doorbells to tell the far side of our near buffer availability...
   rule dmaXmtDoorbell (actFlow && !tlpXmtBusy && postSeqDwell==0 && creditReady);
-    remStart     <= True;   // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
-    postSeqDwell <= 15;     // insert dwell cycles between sending events to avoid blocking other traffic
+    remStart     <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
+    postSeqDwell <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
     MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
     flowDiagCount <= flowDiagCount + 1;
     let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
@@ -464,7 +467,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       be:'1, hit:7'h1, sof:True, eof:True };
     outF.enq(w);
     $display("[%0d]: %m: dmaPullTailEvent FPactMesg-Step5/5", $time);
-    postSeqDwell <= 15;
+    postSeqDwell <= psDwell;
   endrule
 
 
