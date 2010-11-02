@@ -143,7 +143,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Bool actFlow  = (dpControl.role==ActFlow);
 
   //TODO: Understand why psDwell=1 failed dmaTestBasic4 on 2010-11-02
-  Bit#(4) psDwell = 3; // Purposeful backend serialization "dwell" cycles [1~15] 
+  Bit#(4) psDwell = 3; // Purposeful backend serialization "dwell" cycles [3~15] 
 
   //
   // FPactMesg - Fabric Producer Push DMA Sequence...
@@ -389,11 +389,10 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // Request the message from the far side fabric node...
   rule dmaPullRequestFarMesg (actMesgC &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpXmtBusy &&& !reqMesgInFlight &&& mesgLengthRemainPull!=0);
-    Bit#(13) spanToNextPage = 4096 - extend(fabMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
-    //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemainPull,4096)),maxReadReqSize),spanToNextPage);  // minimum of what we want and what we are allowed
-    Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPull,extend(maxReadReqSize))),spanToNextPage);            // minimum of what we want and what we are allowed
-    mesgLengthRemainPull  <= mesgLengthRemainPull - extend(thisRequestLength);                                          // decrement mesgLengthRemainPull at the source
-    fabMesgAccu <= fabMesgAccu + extend(thisRequestLength);                                                     // increment the fabric address accumulator
+    Bit#(13) spanToNextPage = 4096 - extend(fabMesgAccu[11:0]);                                                    // how far until we hit a PCIe 4K Page
+    Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPull,extend(maxReadReqSize))),spanToNextPage);   // minimum of what we want and what we are allowed
+    mesgLengthRemainPull  <= mesgLengthRemainPull - extend(thisRequestLength);                                     // decrement mesgLengthRemainPull at the source
+    fabMesgAccu <= fabMesgAccu + extend(thisRequestLength);                                                        // increment the fabric address accumulator
     reqMesgInFlight   <= True;  // Asserted while individual requests, with one or more (sub)completions, are in flight
     gotResponseHeader <= False;
     PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMesgAccu>>2), extend(dmaTag), truncate(thisRequestLength>>2));
