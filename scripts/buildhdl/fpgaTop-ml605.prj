@@ -97,7 +97,7 @@ verilog work "../../rtl/mkOCInf.v"
 
 verilog work "../../libsrc/hdl/ocpi/mkOCApp_scenario0.v"
 
-verilog work "../../rtl/mkCTop.v"
+verilog work "../../rtl/mkCTop4B.v"
 
 verilog work "../../libsrc/hdl/ocpi/mkFTopV6.v"
 verilog work "../../libsrc/hdl/ocpi/fpgaTop_v6.v"

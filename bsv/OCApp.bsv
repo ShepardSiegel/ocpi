@@ -16,25 +16,61 @@ import GetPut::*;
 import ClientServer::*;
 import Connectable::*;
 
-// nWci - number of Wci Worker Control Links
-// nWmi - number of WMI Interfaces
+// nWci   - number of Wci Worker Control Links
+// nWmi   - number of WMI Interfaces
+// nWmemi - number of WMI Interfaces
+// ndw    - number of 4B DWORDs in WSI and WMI datapaths
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
-interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
+interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi, numeric type ndw);
   interface Vector#(nWci,WciOcp_Es#(20)) wci_s;
-  interface WmiEM4B                      wmiM0;
-  interface WmiEM4B                      wmiM1;
-  interface WmemiEM16B                   wmemiM;
-  interface WsiES4B                      wsi_s_adc;
-  interface WsiEM4B                      wsi_m_dac;
+  interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiM0;  
+  interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiM1;  
+  interface WmemiEM16B                                      wmemiM;
+  interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)      wsi_s_adc;   
+  interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)      wsi_m_dac;  
 endinterface
 
-module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
+module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi,ndw))
+  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)),    // by shep
+    Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))));                          // by bsc output
 
   // Instance the workers in this application container...
-  SMAdapter4BIfc    appW2    <-  mkSMAdapter4B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  DelayWorker4BIfc  appW3    <-  mkDelayWorker4B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  SMAdapter4BIfc    appW4    <-  mkSMAdapter4B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+
+  // Here we do this manually (yuck!), because we had the desire to implement discrete worker RTL modules with synth bounds...
+  /*
+  case (valueOf(ndw))
+  1:
+    begin
+      SMAdapter4BIfc    appW2    <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+      DelayWorker4BIfc  appW3    <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+      SMAdapter4BIfc    appW4    <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+    end
+  2:
+    begin
+      SMAdapter8BIfc    appW2    <-  mkSMAdapter8B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+      DelayWorker8BIfc  appW3    <-  mkDelayWorker8B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+      SMAdapter8BIfc    appW4    <-  mkSMAdapter8B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+    end
+  4:
+    begin
+      SMAdapter16BIfc   appW2    <-  mkSMAdapter16B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+      DelayWorker16BIfc appW3    <-  mkDelayWorker16B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+      SMAdapter16BIfc   appW4    <-  mkSMAdapter16B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+    end
+  8:
+    begin
+      SMAdapter32BIfc   appW2    <-  mkSMAdapter32B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+      DelayWorker32BIfc appW3    <-  mkDelayWorker32B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+      SMAdapter32BIfc   appW4    <-  mkSMAdapter32B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+    end
+  endcase
+  */
+
+  // Here we show instancing the underlying polymorhic modules directly (nice!)...
+  SMAdapterIfc  #(ndw) appW2   <-  mkSMAdapter   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  DelayWorkerIfc#(ndw) appW3   <-  mkDelayWorker (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapterIfc  #(ndw) appW4   <-  mkSMAdapter   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 
   // TODO: Use Default for tieOff...
   WciOcp_Es#(20) tieOff0  <- mkWciOcpSlaveENull;
@@ -72,11 +108,39 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
 endmodule : mkOCApp_poly
 
+// Synthesizeable, non-polymorphic modules that use the poly module above...
+
+typedef OCAppIfc#(Nwci_app,Nwmi,Nwmemi,1) OCApp4BIfc;
+(* synthesize *)
+module mkOCApp4B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCApp4BIfc);
+  OCApp4BIfc _a <- mkOCApp_poly(rst, hasDebugLogic); return _a;
+endmodule
+
+typedef OCAppIfc#(Nwci_app,Nwmi,Nwmemi,2) OCApp8BIfc;
+(* synthesize *)
+module mkOCApp8B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCApp8BIfc);
+  OCApp8BIfc _a <- mkOCApp_poly(rst, hasDebugLogic); return _a;
+endmodule
+
+typedef OCAppIfc#(Nwci_app,Nwmi,Nwmemi,4) OCApp16BIfc;
+(* synthesize *)
+module mkOCApp16B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCApp16BIfc);
+  OCApp16BIfc _a <- mkOCApp_poly(rst, hasDebugLogic); return _a;
+endmodule
+
+typedef OCAppIfc#(Nwci_app,Nwmi,Nwmemi,8) OCApp32BIfc;
+(* synthesize *)
+module mkOCApp32B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCApp32BIfc);
+  OCApp32BIfc _a <- mkOCApp_poly(rst, hasDebugLogic); return _a;
+endmodule
+
+// Original poly wrapper...
+/*
 (* synthesize *)
 module mkOCApp#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
-   (*hide*)
-   let _ifc <- mkOCApp_poly(rst, hasDebugLogic);
-   return _ifc;
+   (*hide*) let _ifc <- mkOCApp_poly(rst, hasDebugLogic); return _ifc;
 endmodule: mkOCApp
+*/
+
 
 endpackage: OCApp

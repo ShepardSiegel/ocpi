@@ -19,24 +19,27 @@ import Connectable::*;
 
 // nWci - number of Wci Worker Control Links
 // nWmi - number of WMI Interfaces
+// ndw    - number of 4B DWORDs in WSI and WMI datapaths
 // Using types, not numeric types, so this is not directly Polymorphic as in OCApp
 
-interface OCInfIfc#(type iNwci_ctop);
+interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
   interface Server#(PTW16,PTW16) server;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
-  interface Vector#(iNwci_ctop,WciOcp_Em#(20))  wci_m;
+  interface Vector#(nWci_ctop,WciOcp_Em#(20))  wci_m;
 
-  //interface Vector#(iNwmi,WmiES4B)           wmiS;
-  interface WmiES4B wmiS0;
-  interface WmiES4B wmiS1;
+  //interface Vector#(iNwmi,WmiES4B) wmiS;
+  //interface WmiES4B wmiS0;
+  //interface WmiES4B wmiS1;
+  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS0;  
+  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS1;  
 
   method    GPS64_t   cpNow;
   interface GPSIfc    gps;
 endinterface
 
-(*synthesize*)
-module mkOCInf#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci_ctop));
+module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci_ctop,ndw))
+  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)));
 
   OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst);                 // control plane
   TLPSMIfc        sm0  <- mkTLPSM(tagged Bar 0);      // server merge, fork away Bar 0
@@ -54,8 +57,8 @@ module mkOCInf#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci
   //TODO: The PCIe Configuration needs to be adjusted so that device functions with non-zero function number will be completed to!
 
   // The producer/consumer and passive/active roles are set by dataplane configuration properties...
-  OCDP4BIfc  dp0  <- mkOCDP4B(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-  OCDP4BIfc  dp1  <- mkOCDP4B(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
+  OCDPIfc#(ndw)  dp0  <- mkOCDP(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+  OCDPIfc#(ndw)  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
 
   // Infrastruture WCI slaves...
   mkConnection(vWci[13], dp0.wci_s);
@@ -100,6 +103,35 @@ module mkOCInf#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci
   interface wmiS0  = dp0.wmiS1;
   interface wmiS1  = dp1.wmiS1;
 
-endmodule : mkOCInf
+endmodule : mkOCInf_poly
+
+// Synthesizeable, non-polymorphic modules that use the poly module above...
+
+typedef OCInfIfc#(Nwci_ctop,1) OCInf4BIfc;
+(* synthesize *)
+module mkOCInf4B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInf4BIfc);
+  OCInf4BIfc _a <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst); return _a;
+endmodule
+
+typedef OCInfIfc#(Nwci_ctop,2) OCInf8BIfc;
+(* synthesize *)
+module mkOCInf8B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInf8BIfc);
+  OCInf8BIfc _a <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst); return _a;
+endmodule
+
+typedef OCInfIfc#(Nwci_ctop,4) OCInf16BIfc;
+(* synthesize *)
+module mkOCInf16B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInf16BIfc);
+  OCInf16BIfc _a <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst); return _a;
+endmodule
+
+typedef OCInfIfc#(Nwci_ctop,8) OCInf32BIfc;
+(* synthesize *)
+module mkOCInf32B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInf32BIfc);
+  OCInf32BIfc _a <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst); return _a;
+endmodule
+
+
+
 
 endpackage: OCInf

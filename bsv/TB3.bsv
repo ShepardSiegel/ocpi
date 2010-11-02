@@ -13,7 +13,7 @@ module mkTB3();
 
   Reg#(Bit#(16))  cycle      <- mkReg(0);
   PciId           pciDevice  = unpack('0);
-  CTopIfc         ctop       <- mkCTop(pciDevice);
+  CTop4BIfc       ctop       <- mkCTop4B(pciDevice);
   OCTGIfc         tg         <- mkOCTG_dmaFP;
   TLPCMIfc        cm0        <- mkTLPCM(tagged Bus 255);    // client merge, fork away Req to Bus 255
 

@@ -43,7 +43,7 @@ verilog work "../../libsrc/hdl/ocpi/xfft_v7_1.v"
 verilog work "../../rtl/mkPSD.v"
 verilog work "../../libsrc/hdl/ocpi/mkOCApp_scenario3b.v"
 
-verilog work "../../rtl/mkCTop.v"
+verilog work "../../rtl/mkCTop4B.v"
 verilog work "../../rtl/mkADCWorker.v"
 verilog work "../../rtl/mkDACWorker.v"
 verilog work "../../rtl/mkDramServerV5.v"

@@ -13,8 +13,8 @@ module mkTB6();
 
   Reg#(Bit#(16))    cycle      <- mkReg(0);
   OCTGIfc           tg         <- mkOCTG_dma2push;
-  CTopIfc           ct0        <- mkCTop(PciId{bus:0, dev:0, func:0 });
-  CTopIfc           ct1        <- mkCTop(PciId{bus:1, dev:0, func:0 });
+  CTop4BIfc         ct0        <- mkCTop4B(PciId{bus:0, dev:0, func:0 });
+  CTop4BIfc         ct1        <- mkCTop4B(PciId{bus:1, dev:0, func:0 });
   TLPClientNodeIfc  cn0        <- mkTLPClientNode(tagged Route RouteSub{addr:4'hF, bus:8'hFF});
   TLPServerNodeIfc  sn0        <- mkTLPServerNode(tagged Route RouteSub{addr:4'h0, bus:8'h0});
   TLPServerNodeIfc  sn1        <- mkTLPServerNode(tagged Route RouteSub{addr:4'h1, bus:8'h1});

@@ -44,9 +44,9 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clk
   InterruptControl pcie_irq       <- mkInterruptController(trn_clk, trn_rst_n,
                                      clocked_by trn_clk, reset_by trn_rst_n);
 
-  FIFO#(TLPData#(8))     fP2I  <- mkSizedFIFO(4,    clocked_by trn_clk, reset_by trn_rst_n);
-  FIFO#(TLPData#(8))     fI2P  <- mkSizedFIFO(4,    clocked_by trn_clk, reset_by trn_rst_n);
-  CTopIfc                ctop  <- mkCTop(pciDevice, clocked_by trn_clk, reset_by trn_rst_n);
+  FIFO#(TLPData#(8))     fP2I  <- mkSizedFIFO(4,      clocked_by trn_clk, reset_by trn_rst_n);
+  FIFO#(TLPData#(8))     fI2P  <- mkSizedFIFO(4,      clocked_by trn_clk, reset_by trn_rst_n);
+  CTop4BIfc              ctop  <- mkCTop4B(pciDevice, clocked_by trn_clk, reset_by trn_rst_n);
    
   mkConnection(pci0.trn_rx, toPut(fP2I)); 
   mkConnection(toGet(fI2P), pci0.trn_tx); 
