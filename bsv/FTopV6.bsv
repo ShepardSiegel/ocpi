@@ -114,14 +114,14 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
 
   // WSI...
   //WsiAdapter4B16BIfc adapt416 <- mkWsiAdapter4B16B( clocked_by trn2_clk, reset_by trn2_rst);
-  //mkConnection(gbe0.wsi_m,     adapt416.wsi_s);  // The WSI from gbe0-RX  to CTOP/APP
+  //mkConnection(gbe0.wsiM1,     adapt416.wsi_s);  // The WSI from gbe0-RX  to CTOP/APP
   //mkConnection(adapt416.wsi_m, ctop.wsi_s_adc);  // The WSI from gbe0-RX  to CTOP/APP
-  mkConnection(gbe0.wsiM1,     ctop.wsi_s_adc);
+  //mkConnection(gbe0.wsiM1,     ctop.wsi_s_adc);
 
   //WsiAdapter16B4BIfc adapt164 <- mkWsiAdapter16B4B( clocked_by trn2_clk, reset_by trn2_rst);
   //mkConnection(ctop.wsi_m_dac, adapt164.wsi_s);  // The WSI from CTOP/APP to gbe0-TX
   //mkConnection(adapt164.wsi_m,     gbe0.wsi_s);  // The WSI from CTOP/APP to gbe0-TX
-  mkConnection(ctop.wsi_m_dac,     gbe0.wsiS1);  // The WSI from CTOP/APP to gbe0-TX
+  //mkConnection(ctop.wsi_m_dac,     gbe0.wsiS1);  // The WSI from CTOP/APP to gbe0-TX
 
   // Wmemi...
   mkConnection(ctop.wmemiM, dram0.wmemiS);
