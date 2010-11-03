@@ -6,7 +6,7 @@ endif
 
 set buildTarget = $argv[1]
 set doXst       = 1  # Control if XST is run
-set doChipscope = 1  # Control if chipscope is inserted
+set doChipscope = 0  # Control if chipscope is inserted
 
 switch ($buildTarget)
   case alder:
@@ -38,6 +38,12 @@ switch ($buildTarget)
     set CSIN = csdef104_v5.cdc
     breaksw
   case tx240:
+    set PART = xc5vtx240t-ff1759-2
+    set PCIe = pcie-4243-v5-gtx-x8-125
+    set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
+    set CSIN = csdef103_v5.cdc
+  case net10:
     set PART = xc5vtx240t-ff1759-2
     set PCIe = pcie-4243-v5-gtx-x8-125
     set FFT  = fft-v5-4k-strm-nat

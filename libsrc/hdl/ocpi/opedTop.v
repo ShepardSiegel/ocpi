@@ -14,7 +14,15 @@ module opedTop(
   input  wire   [7:0] pcie_rxp,
   input  wire   [7:0] pcie_rxn,
 
-  output wire  [31:0] debug,           // See debug bit assigments below and in doc
+  output wire  [31:0] debug      // Debug Port Bitfields...
+  // debug[31:3] reserved        // For future use, will read as '0'
+  // debug[2]    oped_egress     // True when TL data is making egress to PCIe from OPED
+  // debug[1]    oped_ingress    // True when TL data is making ingress from PCIe to OPED
+  // debug[0]    oped_linkp      // True when the PCIe link-layer is established with OPED
+
+  //TODO: AXI ports to be added...
+
+  /*
 
   // Inward-Facing OPED signals, clock, resets for AXI ports...
   output wire         oped_clk125,     // OPED Clock Output (nominaly 125 MHz)
@@ -39,7 +47,7 @@ module opedTop(
   input  wire         wcim0_rvalid,    // (R) Read Response Channel..
   output wire         wcim0_rready,
   output wire  [31:0] wcim0_rdata, 
-  output wire  [ 1:0] wcim0_rresp 
+  output wire  [ 1:0] wcim0_rresp, 
  
   // WSI::AXI AXI4-Stream Master 0 WSI-M0...  
   output wire         wsim0_tvalid,    // (T) Stream Channel...
@@ -68,14 +76,30 @@ module opedTop(
   input  wire [ 15:0] wsis0ic_tdata,   // 4B (16b) Stream Info Channel
   input  wire [  3:0] wsis0ic_tstrb,
   input  wire         wsis0ic_tlast
+  */
 );
 
-  // Debug Port Bitfields...
-  // debug[31:3] reserved        // For future use, will read as '0'
-  // debug[2]    oped_egress     // True when TL data is making egress to PCIe from OPED
-  // debug[1]    oped_ingress    // True when TL data is making ingress from PCIe to OPED
-  // debug[0]    oped_linkp      // True when the PCIe link-layer is established with OPED
-  assign debug = {29'b0, oped_egress, oped_ingress, oped_linkup};
- 
+ // The implementation of module opedTop follows. This may be made opaque,
+ // black-boxed, etc, and should be of no concern to the average NETFPGA-10G user.
+ // The purpose is to provide some ligweight "impedence-matching" between the
+ // BSV compiler-generated mkOPED implementation. 
+ //
+ // Core Team: Shep owns this interface contract from this point down...
+
+  wire foo;
+
+  // Instance and connect mkOPED...
+  mkOPED moped(
+	  .pcie_clk_p      (pcie_clk_p),
+	  .pcie_clk_n      (pcie_clk_n),
+	  .pcie_reset_n    (pcie_reset_n),
+	  .pcie_rxp_i      (pcie_rxp),
+	  .pcie_rxn_i      (pcie_rxn),
+	  .pcie_txp        (pcie_txp),
+	  .pcie_txn        (pcie_txn),
+	  .debug           (debug),
+	  .trnClk          (oped_clk125),
+	  .CLK_GATE_trnClk (foo)
+);
 
 endmodule

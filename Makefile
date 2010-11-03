@@ -8,6 +8,7 @@ ITEST     ?= TB2
 ITEST7    ?= TB7
 ITEST8    ?= TB8
 ITEST10   ?= TB10
+OPED      ?= OPED
 RTEST5    ?= FTopV5
 RTESTS6   ?= FTopS6
 RTEST5a   ?= FTopV5_adc
@@ -228,6 +229,18 @@ verilog_s6: $(OBJ)
 		-p $(BSV):lib:+ \
 		$(BSV)/$(RTESTS6).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTESTS6).v
+
+######################################################################
+verilog_oped: $(OBJ)
+	
+	# compile to verilog backend for RTL
+	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/CompileTime.bsv
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSV):lib:+ \
+		$(BSV)/$(OPED).bsv
+	cp $(RTL)/mkOPED.v $(VLG_HDL)/mk$(OPED).v
 
 ######################################################################
 verilog_v5: $(OBJ)

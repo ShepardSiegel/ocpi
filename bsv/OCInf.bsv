@@ -26,14 +26,9 @@ interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
   interface Server#(PTW16,PTW16) server;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
-  interface Vector#(nWci_ctop,WciOcp_Em#(20))  wci_m;
-
-  //interface Vector#(iNwmi,WmiES4B) wmiS;
-  //interface WmiES4B wmiS0;
-  //interface WmiES4B wmiS1;
+  interface Vector#(nWci_ctop,WciOcp_Em#(20))               wci_m;
   interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS0;  
   interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS1;  
-
   method    GPS64_t   cpNow;
   interface GPSIfc    gps;
 endinterface
@@ -96,12 +91,10 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   method led      = cp.led;
   method switch   = cp.switch;
   method GPS64_t cpNow      = cp.cpNow;
-  interface GPSIfc  gps     = cp.gps;
-  interface Vector  wci_m   = take(vWci);
-
-  //interface Vector  wmiS    = vWmi;
-  interface wmiS0  = dp0.wmiS1;
-  interface wmiS1  = dp1.wmiS1;
+  interface GPSIfc   gps    = cp.gps;
+  interface Vector   wci_m  = take(vWci);
+  interface          wmiS0  = dp0.wmiS1;
+  interface          wmiS1  = dp1.wmiS1;
 
 endmodule : mkOCInf_poly
 
