@@ -299,7 +299,7 @@ verilog_v6: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
-		-D DEFINE_NDW=1 \
+		-D DEFINE_NDW=4 \
 		$(BSV)/$(RTEST6).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST6).v
 
