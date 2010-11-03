@@ -227,6 +227,7 @@ verilog_s6: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
+		-D DEFINE_NDW=1 \
 		$(BSV)/$(RTESTS6).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTESTS6).v
 
@@ -251,6 +252,7 @@ verilog_v5: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
+		-D DEFINE_NDW=1 \
 		$(BSV)/$(RTEST5).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5).v
 
@@ -263,6 +265,7 @@ verilog_v5a: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
+		-D DEFINE_NDW=1 \
 		$(BSV)/$(RTEST5a).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5a).v
 
@@ -275,6 +278,7 @@ verilog_v5m: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
+		-D DEFINE_NDW=1 \
 		$(BSV)/$(RTEST5m).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5m).v
 
@@ -287,6 +291,7 @@ verilog_v5g: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSV):lib:+ \
+		-D DEFINE_NDW=1 \
 		$(BSV)/$(RTEST5g).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5g).v
 
