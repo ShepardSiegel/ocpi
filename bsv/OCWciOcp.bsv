@@ -88,22 +88,22 @@ endinterface
 
 // Explicit OCP per-signal naming to purposefully to avoid data-structures and have explict OCP names...
 (* always_ready *)
-interface WciOcp_Em#(numeric type na);
+interface WciOcp_Em#(numeric type na);  // Master...
   (* prefix="", result="MCmd" *)           method Bit#(3)  mCmd;
   (* prefix="", result="MAddrSpace" *)     method Bit#(1)  mAddrSpace;
   (* prefix="", result="MByteEn" *)        method Bit#(4)  mByteEn;
   (* prefix="", result="MAddr" *)          method Bit#(na) mAddr;
   (* prefix="", result="MData" *)          method Bit#(32) mData;
-  (* prefix="", always_enabled *)          method Action   sResp         ((* port="SResp" *) Bit#(2)  arg_resp);
-  (* prefix="", always_enabled *)          method Action   sData         ((* port="SData" *) Bit#(32) arg_data);
+  (* prefix="", always_enabled *)          method Action   sResp        ((* port="SResp" *)       Bit#(2)  arg_resp);
+  (* prefix="", always_enabled *)          method Action   sData        ((* port="SData" *)       Bit#(32) arg_data);
   (* prefix="", enable="SThreadBusy" *)    method Action   sThreadBusy;
-  (* prefix="", always_enabled *)          method Action   sFlag         ((* port="SFlag"*)  Bit#(2)  arg_sFlag);
+  (* prefix="", always_enabled *)          method Action   sFlag        ((* port="SFlag"*)        Bit#(2)  arg_sFlag);
   (* prefix="", result="MFlag" *)          method Bit#(2)  mFlag;
   interface Reset mReset_n;
 endinterface
 
 (* always_ready *)
-interface WciOcp_Es#(numeric type na);
+interface WciOcp_Es#(numeric type na);  // Slave...
   (* prefix="", always_enabled *)          method Action   mCmd         ((* port="MCmd" *)        Bit#(3)  arg_cmd);
   (* prefix="", always_enabled *)          method Action   mAddrSpace   ((* port="MAddrSpace" *)  Bit#(1)  arg_addrSpace);
   (* prefix="", always_enabled *)          method Action   mByteEn      ((* port="MByteEn" *)     Bit#(4)  arg_byteEn);
@@ -113,7 +113,21 @@ interface WciOcp_Es#(numeric type na);
   (* prefix="", result="SData" *)          method Bit#(32) sData;
   (* prefix="", result="SThreadBusy"*)     method Bool     sThreadBusy;
   (* prefix="", result="SFlag"      *)     method Bit#(2)  sFlag;
-  (* prefix="", always_enabled *)          method Action   mFlag       ((* port="MFlag" *)       Bit#(2)  arg_mFlag);
+  (* prefix="", always_enabled *)          method Action   mFlag        ((* port="MFlag" *)       Bit#(2)  arg_mFlag);
+endinterface
+
+(* always_ready *)
+interface WciOcp_Eo#(numeric type na);  // Observer/Monitor...
+  (* prefix="", always_enabled *)          method Action   mCmd         ((* port="MCmd" *)        Bit#(3)  arg_cmd);
+  (* prefix="", always_enabled *)          method Action   mAddrSpace   ((* port="MAddrSpace" *)  Bit#(1)  arg_addrSpace);
+  (* prefix="", always_enabled *)          method Action   mByteEn      ((* port="MByteEn" *)     Bit#(4)  arg_byteEn);
+  (* prefix="", always_enabled *)          method Action   mAddr        ((* port="MAddr" *)       Bit#(na) arg_addr);
+  (* prefix="", always_enabled *)          method Action   mData        ((* port="MData" *)       Bit#(32) arg_data);
+  (* prefix="", always_enabled *)          method Action   sResp        ((* port="SResp" *)       Bit#(2)  arg_resp);
+  (* prefix="", always_enabled *)          method Action   sData        ((* port="SData" *)       Bit#(32) arg_data);
+  (* prefix="", enable="SThreadBusy" *)    method Action   sThreadBusy;
+  (* prefix="", always_enabled *)          method Action   sFlag        ((* port="SFlag"*)        Bit#(2)  arg_sFlag);
+  (* prefix="", always_enabled *)          method Action   mFlag        ((* port="MFlag" *)       Bit#(2)  arg_mFlag);
 endinterface
 
 //
@@ -1055,5 +1069,42 @@ instance TieOff#(WciOcp_s#(na));
   endmodule
 endinstance
 */
+
+
+interface WciOcpInitiatorIfc;
+  interface WciOcp_Em#(20) wciM0;
+endinterface
+
+(* synthesize, default_clock_osc="wciM0_Clk", default_reset="wciM0_MReset_n" *)
+module mkWciOcpInitiator (WciOcpInitiatorIfc);
+  WciOcpMasterIfc#(20) initiator <-mkWciOcpMaster;
+  // Add initiator behavior here...
+  WciOcp_Em#(20) wci_Em <- mkWciOcpMtoEm(initiator.mas);
+  interface WciOcp_Em wciM0 = wci_Em;
+endmodule
+
+interface WciOcpTargetIfc;
+  interface WciOcp_Es#(20) wciS0;
+endinterface
+
+(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
+module mkWciOcpTarget (WciOcpTargetIfc);
+  WciOcpSlaveIfc#(20) target <-mkWciOcpSlave;
+  // Add target behavior here...
+  WciOcp_Es#(20) wci_Es <- mkWciOcpStoES(target.slv);
+  interface WciOcp_Em wciS0 = wci_Es;
+endmodule
+
+interface WciOcpMonitorIfc;
+  interface WciOcp_Eo#(20) wciO0;
+endinterface
+
+(* synthesize, default_clock_osc="wciO0_Clk", default_reset="wciO0_MReset_n" *)
+module mkWciOcpMonitor (WciOcpMonitorIfc);
+  // Add monitor/observer behavior here...
+  interface WciOcp_Eo wciO0;
+  endinterface
+endmodule
+
 endpackage: OCWciOcp
 
