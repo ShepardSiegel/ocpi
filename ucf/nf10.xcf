@@ -1,4 +1,4 @@
-## OC1001-NETFPGA-10G 125 MHz XCF
+## OC1001-NETFPGA-10G 125 MHz XCF / NF10
 ##
 ## 2010-01-20 ssiegel Creation to convey 125 MHz core constraint to XST
 ## 2010-11-01 ssiegel Fork from tx240

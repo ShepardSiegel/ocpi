@@ -1,7 +1,7 @@
 set -xsthdpini ocpihdp_v5.ini
 run
--ifn fpgaTop-net10.prj
--uc net10.xcf
+-ifn fpgaTop-nf10.prj
+-uc nf10.xcf
 -ifmt mixed
 -ofn fpgaTop
 -ofmt NGC

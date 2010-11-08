@@ -14,4 +14,4 @@ verilog work "../../rtl/mkSMAdapter4B.v"
 
 verilog work "../../libsrc/hdl/ocpi/mkOPED.v"
 verilog work "../../libsrc/hdl/ocpi/opedTop.v"
-verilog work "../../libsrc/hdl/ocpi/fpgaTop_net10.v"
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_nf10.v"
