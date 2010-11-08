@@ -1,0 +1,5 @@
+verilog work ../../rtl/mkWciAxiInitiator.v
+verilog work ../../rtl/mkWciAxiTarget.v
+verilog work ../../rtl/mkWciAxiMonitor.v
+
+verilog work tb201.v

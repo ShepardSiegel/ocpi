@@ -1,0 +1,6 @@
+verilog work ../../rtl/mkWciOcpInitiator.v
+verilog work ../../rtl/mkWciOcpTarget.v
+verilog work ../../rtl/mkWciOcpMonitor.v
+
+verilog work tb200.v
+

@@ -99,7 +99,7 @@ interface WciOcp_Em#(numeric type na);  // Master...
   (* prefix="", enable="SThreadBusy" *)    method Action   sThreadBusy;
   (* prefix="", always_enabled *)          method Action   sFlag        ((* port="SFlag"*)        Bit#(2)  arg_sFlag);
   (* prefix="", result="MFlag" *)          method Bit#(2)  mFlag;
-  interface Reset mReset_n;
+  (* prefix="foo" *) interface Reset mReset_n;  // The per-worker reset source
 endinterface
 
 (* always_ready *)
@@ -592,192 +592,23 @@ module mkWciOcpMasterNull (WciOcpMasterIfc#(na)) provisos (Add#(a_,5,na));
 endmodule
 
 
-interface WciOcpXMasterIfc#(numeric type na);
-  method Action                req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be);
+interface WciOcpEMasterIfc#(numeric type na);
+  method Action                   req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be);
   method ActionValue#(WciOcpResp) resp; 
-  method Bool                  attn;
-  method Bool                  present;
-  interface WciOcp_Xm#(na)        mas;
+  method Bool                     attn;
+  method Bool                     present;
+  interface WciOcp_Em#(na)        mas;
 endinterface
 
-module mkWciOcpXMaster (WciOcpXMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
-  FIFOF#(WciOcpReq#(na))       reqF             <- mkSizedDFIFOF(1,wciOcpIdleRequest);
-  FIFOF#(WciOcpResp)           respF            <- mkSizedFIFOF(1);
-  Wire#(WciOcpResp)            wciResponse      <- mkWire;
-  PulseWire                    sThreadBusy_pw   <- mkPulseWire;
-  Reg#(Bool)                   sThreadBusy_d    <- mkReg(True);
-  Reg#(Bit#(2))                mFlagReg         <- mkReg(2'b10);  // big-endian
-  Reg#(Bool)                   respTimrAct      <- mkReg(False);
-  Reg#(Bit#(32))               respTimr         <- mkReg(0);
-  Reg#(Bit#(32))               wStatus          <- mkConfigRegU;
-  Reg#(Bool)                   wReset_n         <- mkReg(False);
-  Clock                        clk              <- exposeCurrentClock;
-  MakeResetIfc                 mReset           <- mkReset(16, True, clk);  // 16 Cycle OCP Reset Specification
-  Reg#(Bit#(5))                wTimeout         <- mkReg(5'h04);            // 16 Cycle default timeout 
-  Reg#(WCI_REQ)                reqPend          <- mkReg(None);             // type of request pending
-  Reg#(ReqTBits)               reqTO            <- mkReg(unpack(0));
-  Reg#(ReqTBits)               reqFAIL          <- mkReg(unpack(0));
-  Reg#(ReqTBits)               reqERR           <- mkReg(unpack(0));
-  Reg#(Bool)                   slvPresent       <- mkReg(False); 
-  Reg#(Bool)                   sfCap            <- mkReg(False); 
-  Reg#(Bool)                   sfCapSet         <- mkDReg(False); 
-  Reg#(Bool)                   sfCapClear       <- mkDReg(False); 
-  Reg#(Bool)                   busy             <- mkReg(False); 
-  Reg#(Maybe#(WCI_CONTROL_OP)) lastControlOp    <- mkReg(tagged Invalid);
-  Reg#(Maybe#(Bit#(32)))       lastConfigAddr   <- mkReg(tagged Invalid);
-  Reg#(Maybe#(Bit#(4)))        lastConfigBE     <- mkReg(tagged Invalid);
-  Reg#(Maybe#(Bool))           lastOpWrite      <- mkReg(tagged Invalid);
-
-  Bit#(32) toCount = 1<<wTimeout;
-
-  Bool respNULL = (wciResponse.resp==NULL);
-  Bool respDVA  = (wciResponse.resp==DVA);
-  Bool respFAIL = (wciResponse.resp==FAIL);
-  Bool respERR  = (wciResponse.resp==ERR);
-
-  rule workerReset (!wReset_n); mReset.assertReset; endrule
-
-  // Advance requests to the worker as long as sThreadBusy is deasserted...
-  rule sThreadBusy_reg; sThreadBusy_d <= sThreadBusy_pw; endrule
-  rule reqF_deq (!sThreadBusy_d && respNULL);
-    reqF.deq();   // deq method of DFIFO is always ready
-  endrule
-  // Startup respTimer as soon we have a real request, even if worker can't accept...
-  rule startTimer (reqF.notEmpty);
-    respTimrAct<=True; respTimr<=0; 
-  endrule
-
-  rule wrkBusy (busy);
-    if (respNULL) begin
-      if (respTimr<toCount) respTimr <= respTimr + 1;
-      else begin
-        case (reqPend)
-          CfgWt: begin reqTO.cfgWt<=True; $display("[%0d]: %m: WORKER CONFIG-WRITE TIMEOUT" , $time); end
-          CfgRd: begin reqTO.cfgRd<=True; $display("[%0d]: %m: WORKER CONFIG-READ  TIMEOUT" , $time); end
-          CtlOp: begin reqTO.ctlOp<=True; $display("[%0d]: %m: WORKER CONTROL-OP   TIMEOUT" , $time); end
-        endcase
-        respF.enq(wciOcpTimeoutResponse); respTimrAct<=False; respTimr<=0; busy<=False;
-      end
-    end else begin //non-null response...
-      if (respFAIL) begin
-        case (reqPend)
-          CfgWt: begin reqFAIL.cfgWt<=True; $display("[%0d]: %m: WORKER CONFIG-WRITE RESPONSE-FAIL" , $time); end
-          CfgRd: begin reqFAIL.cfgRd<=True; $display("[%0d]: %m: WORKER CONFIG-READ  RESPONSE-FAIL" , $time); end
-          CtlOp: begin reqFAIL.ctlOp<=True; $display("[%0d]: %m: WORKER CONTROL-OP   RESPONSE-FAIL" , $time); end
-        endcase
-      end else if (respERR) begin
-        case (reqPend)
-          CfgWt: begin reqERR.cfgWt<=True; $display("[%0d]: %m: WORKER CONFIG-WRITE RESPONSE-ERR" , $time); end
-          CfgRd: begin reqERR.cfgRd<=True; $display("[%0d]: %m: WORKER CONFIG-READ  RESPONSE-ERR" , $time); end
-          CtlOp: begin reqERR.ctlOp<=True; $display("[%0d]: %m: WORKER CONTROL-OP   RESPONSE-ERR" , $time); end
-        endcase
-      end
-      respF.enq(wciResponse); respTimrAct<=False; respTimr<=0; reqPend<=None; busy<=False;
-    end
-  endrule
-
-  rule updateStatus;
-    wStatus <= {4'b0, 
-               pack(fromMaybe(unpack(1'b1),  lastOpWrite)),     //TODO: Check me
-               pack(fromMaybe(unpack(3'b111),lastControlOp)),   //TODO: Check me
-               pack(fromMaybe(4'hF,  lastConfigBE)),
-               pack(isValid(lastOpWrite)),
-               pack(isValid(lastControlOp)),
-               pack(isValid(lastConfigBE)),
-               pack(isValid(lastConfigAddr)),
-               6'b0, pack(sfCap),
-               pack(reqTO.cfgWt),  pack(reqTO.cfgRd),  pack(reqTO.ctlOp),     // Timeout 
-               pack(reqFAIL.cfgWt),pack(reqFAIL.cfgRd),pack(reqFAIL.ctlOp),   // FAIL
-               pack(reqERR.cfgWt), pack(reqERR.cfgRd), pack(reqERR.ctlOp)};   // ERR 
-  endrule
-
-  rule sflagUpdate;
-    if (sfCapSet) begin
-      sfCap <= True;  //$display("[%0d]: %m: sfCap True ", $time);
-    end else if (sfCapClear) begin
-      sfCap <= False; //$display("[%0d]: %m: sfCap False", $time);
-    end
-  endrule
-
-  method Action req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be) if(!busy);
-    if (sp==Config) begin  // Configuration Space
-      if (!wReset_n) respF.enq(wciOcpResetResponse);
-      else begin
-        let r = WciOcpReq {cmd:write?WR:RD, addrSpace:'b1, addr:addr, data:wdata, byteEn:be};
-        lastConfigAddr <= tagged Valid(extend(addr));
-        lastConfigBE   <= tagged Valid(be);
-        lastOpWrite    <= tagged Valid(write);
-        reqPend <= write?CfgWt:CfgRd;
-        reqF.enq(r);
-        busy <= True;
-      end
-    end else if (sp==Control && (addr[15:5]=='0)) begin  // Control Operations first 8 locations...
-      $display("[%0d]: %m: WORKER CONTROL ARM..." , $time);
-      if (write) respF.enq(wciOcpErrorResponse);    //   Return Error Response for ANY ControlOp Writes
-      else begin                                 //   Otherwise process ControlOps normally...
-        if (!wReset_n) respF.enq(wciOcpResetResponse);
-        else begin
-          let r = WciOcpReq {cmd:RD, addrSpace:'b0, addr:extend({addr[4:2],2'b0}), data:wdata, byteEn:'1};
-          lastControlOp <= tagged Valid(unpack(addr[4:2]));
-          reqPend <= CtlOp; 
-          reqF.enq(r);
-          busy <= True;
-        end
-      end
-    end else begin // Control-Status (accessable while reset)
-      if (write) begin 
-        case (addr[5:2])
-          4'h9: begin
-            wReset_n <= unpack(wdata[31]);
-            wTimeout <= wdata[4:0];
-            if (wdata[9]=='1) sfCapClear <= True;
-            if (wdata[8]=='1) begin reqTO <= unpack(0); reqFAIL <= unpack(0); reqERR <= unpack(0); end
-          end
-        endcase
-        respF.enq(WciOcpResp{resp:DVA,data:'0});    // need to ack Control writes
-      end else begin
-        case (addr[5:2])
-          4'h8:    respF.enq(WciOcpResp{resp:DVA,data:wStatus});                      // FFE0
-          4'h9:    respF.enq(WciOcpResp{resp:DVA,data:{pack(wReset_n),'0,wTimeout}}); // FFE4
-          4'hA:    respF.enq(WciOcpResp{resp:DVA,data:fromMaybe('1,lastConfigAddr)}); // FFE8
-          default: respF.enq(WciOcpResp{resp:DVA,data:'0});
-        endcase
-      end
-    end
-  endmethod
-
-  method ActionValue#(WciOcpResp) resp;
-    let x = respF.first; respF.deq; return x;
-  endmethod
-
-  method Bool attn = (wStatus[15:0]!=0);
-  method Bool present = slvPresent;
-
-  interface WciOcp_Xm mas;
-    interface WciOcp_MasterReq_Ifc masterReq;
-      method OCP_CMD mCmd =   (reqF.notEmpty&&!sThreadBusy_d) ? reqF.first.cmd : IDLE ;
-      method    mAddrSpace =  reqF.first.addrSpace;
-      method    mByteEn    =  reqF.first.byteEn;
-      method    mAddr      =  reqF.first.addr;
-      method    mData      =  reqF.first.data ;
-      method Action  sThreadBusy = sThreadBusy_pw.send;
-    endinterface
-
-    interface WciOcp_MasterResp_Ifc masterResp;
-       method Action  putResponse (
-         OCP_RESP sResp,
-         Bit#(32) sData );
-         if (sResp!=NULL && respF.notFull) wciResponse._write(WciOcpResp { data:sData, resp:sResp });                                       
-       endmethod
-    endinterface
-
-    method Action  sFlag (Bit#(2) sf);
-      sfCapSet  <=unpack(sf[0]);
-      slvPresent<=unpack(sf[1]);
-    endmethod
-    method Bit#(2)  mFlag    = mFlagReg;
-    interface Reset mReset_n = mReset.new_rst;
-  endinterface 
+module mkWciOcpEMaster (WciOcpEMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
+  WciOcpMasterIfc#(na) _a <- mkWciOcpMaster;
+  WciOcp_Em#(na) wci_Em <- mkWciOcpMtoEm(_a.mas);
+  // Pass through all the interaces except for the expanded master...
+  method Action      req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be) = _a.req(sp,write,addr,wdata,be);
+  method ActionValue#(WciOcpResp) resp  = _a.resp;
+  method Bool        attn    = _a.attn;
+  method Bool        present = _a.present;
+  interface WciOcp_Em mas = wci_Em;
 endmodule
 
 
@@ -1075,7 +906,7 @@ interface WciOcpInitiatorIfc;
   interface WciOcp_Em#(20) wciM0;
 endinterface
 
-(* synthesize, default_clock_osc="wciM0_Clk", default_reset="wciM0_MReset_n" *)
+(* synthesize, reset_prefix="bar" *)
 module mkWciOcpInitiator (WciOcpInitiatorIfc);
   WciOcpMasterIfc#(20) initiator <-mkWciOcpMaster;
   // Add initiator behavior here...
