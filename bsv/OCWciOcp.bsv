@@ -99,7 +99,7 @@ interface WciOcp_Em#(numeric type na);  // Master...
   (* prefix="", enable="SThreadBusy" *)    method Action   sThreadBusy;
   (* prefix="", always_enabled *)          method Action   sFlag        ((* port="SFlag"*)        Bit#(2)  arg_sFlag);
   (* prefix="", result="MFlag" *)          method Bit#(2)  mFlag;
-  (* prefix="foo" *) interface Reset mReset_n;  // The per-worker reset source
+  (* prefix="" *) interface Reset mReset_n;  // The per-worker reset source
 endinterface
 
 (* always_ready *)
@@ -906,7 +906,8 @@ interface WciOcpInitiatorIfc;
   interface WciOcp_Em#(20) wciM0;
 endinterface
 
-(* synthesize, reset_prefix="bar" *)
+//(* synthesize, reset_prefix="bar" *)
+(* synthesize *)
 module mkWciOcpInitiator (WciOcpInitiatorIfc);
   WciOcpMasterIfc#(20) initiator <-mkWciOcpMaster;
   // Add initiator behavior here...

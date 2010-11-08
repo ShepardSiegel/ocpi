@@ -317,6 +317,7 @@ clean:
 	rm -fR $(OBJ) dump* *.sched bsv/*~ rtl/*~
 	rm -fR novas.rc nWaveLog schedule* vfastLog veriwell*
 	rm -fR isim.* fuse.log out out.* isim runsim runsim.*
+	rm -fR sim/isim/tb/isim
 	rm -fR sim/isim
 	rm -fR sim/isim.wdb 
 	rm -fR sim/my_sim.exe

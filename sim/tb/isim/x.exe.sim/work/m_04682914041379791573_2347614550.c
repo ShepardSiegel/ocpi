@@ -24,10 +24,10 @@
 static const char *ng0 = "/home/shep/projects/ocpi/sim/tb/tb200.v";
 static unsigned int ng1[] = {0U, 0U};
 static unsigned int ng2[] = {1U, 0U};
-static const char *ng3 = "reset asserted, RST_N=0";
+static const char *ng3 = "[%0d] %m: System Reset Asserted, RST_N=0";
 static int ng4[] = {0, 0};
 static int ng5[] = {1, 0};
-static const char *ng6 = "reset released, RST_N=1";
+static const char *ng6 = "[%0d] %m: System Reset Released, RST_N=1";
 
 
 
@@ -72,20 +72,21 @@ LAB6:    xsi_set_current_line(19, ng0);
 
 static void Initial_22_1(char *t0)
 {
-    char t7[8];
+    char t7[16];
+    char t8[8];
     char *t1;
     char *t2;
     char *t3;
     char *t4;
     char *t5;
     char *t6;
-    unsigned int t8;
     unsigned int t9;
     unsigned int t10;
     unsigned int t11;
     unsigned int t12;
-    char *t13;
+    unsigned int t13;
     char *t14;
+    char *t15;
 
 LAB0:    t1 = (t0 + 5120U);
     t2 = *((char **)t1);
@@ -116,8 +117,9 @@ LAB7:    xsi_set_current_line(25, ng0);
     t6 = (t0 + 3800);
     xsi_vlogvar_assign_value(t6, t5, 0, 0, 1);
     xsi_set_current_line(25, ng0);
-    t2 = (t0 + 280);
-    xsi_vlogfile_write(1, 0, 0, ng3, 1, t2);
+    t2 = xsi_vlog_time(t7, 1000.0000000000000, 1000.0000000000000);
+    t3 = (t0 + 280);
+    xsi_vlogfile_write(1, 0, 0, ng3, 2, t3, (char)118, t7, 64);
     xsi_set_current_line(26, ng0);
     xsi_set_current_line(26, ng0);
     t2 = ((char*)((ng4)));
@@ -129,15 +131,15 @@ LAB8:    t2 = (t0 + 3960);
     t4 = *((char **)t3);
     t5 = (t0 + 768);
     t6 = *((char **)t5);
-    memset(t7, 0, 8);
-    xsi_vlog_signed_less(t7, 32, t4, 32, t6, 32);
-    t5 = (t7 + 4);
-    t8 = *((unsigned int *)t5);
-    t9 = (~(t8));
-    t10 = *((unsigned int *)t7);
-    t11 = (t10 & t9);
-    t12 = (t11 != 0);
-    if (t12 > 0)
+    memset(t8, 0, 8);
+    xsi_vlog_signed_less(t8, 32, t4, 32, t6, 32);
+    t5 = (t8 + 4);
+    t9 = *((unsigned int *)t5);
+    t10 = (~(t9));
+    t11 = *((unsigned int *)t8);
+    t12 = (t11 & t10);
+    t13 = (t12 != 0);
+    if (t13 > 0)
         goto LAB9;
 
 LAB10:    xsi_set_current_line(27, ng0);
@@ -147,10 +149,10 @@ LAB10:    xsi_set_current_line(27, ng0);
     goto LAB1;
 
 LAB9:    xsi_set_current_line(26, ng0);
-    t13 = (t0 + 5688);
-    *((int *)t13) = 1;
-    t14 = (t0 + 5152);
-    *((char **)t14) = t13;
+    t14 = (t0 + 5688);
+    *((int *)t14) = 1;
+    t15 = (t0 + 5152);
+    *((char **)t15) = t14;
     *((char **)t1) = &&LAB11;
     goto LAB1;
 
@@ -159,10 +161,10 @@ LAB11:    xsi_set_current_line(26, ng0);
     t3 = (t2 + 56U);
     t4 = *((char **)t3);
     t5 = ((char*)((ng5)));
-    memset(t7, 0, 8);
-    xsi_vlog_signed_add(t7, 32, t4, 32, t5, 32);
+    memset(t8, 0, 8);
+    xsi_vlog_signed_add(t8, 32, t4, 32, t5, 32);
     t6 = (t0 + 3960);
-    xsi_vlogvar_assign_value(t6, t7, 0, 0, 32);
+    xsi_vlogvar_assign_value(t6, t8, 0, 0, 32);
     goto LAB8;
 
 LAB12:    xsi_set_current_line(27, ng0);
@@ -170,8 +172,9 @@ LAB12:    xsi_set_current_line(27, ng0);
     t4 = (t0 + 3800);
     xsi_vlogvar_assign_value(t4, t3, 0, 0, 1);
     xsi_set_current_line(27, ng0);
-    t2 = (t0 + 280);
-    xsi_vlogfile_write(1, 0, 0, ng6, 1, t2);
+    t2 = xsi_vlog_time(t7, 1000.0000000000000, 1000.0000000000000);
+    t3 = (t0 + 280);
+    xsi_vlogfile_write(1, 0, 0, ng6, 2, t3, (char)118, t7, 64);
     t2 = (t0 + 280);
     xsi_vlog_namedbase_popprocess(t2);
     goto LAB5;

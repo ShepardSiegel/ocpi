@@ -22,9 +22,9 @@ module tb200 ();
   initial begin: initblock
     integer i;
     localparam resetCycles = 16; 
-    #0 RST_N = 1'b0; $display("reset asserted, RST_N=0");
+    #0 RST_N = 1'b0; $display("[%0d] %m: System Reset Asserted, RST_N=0", $time);
     for (i=0;i<resetCycles;i=i+1) @(posedge CLK);
-    #0 RST_N = 1'b1; $display("reset released, RST_N=1");
+    #0 RST_N = 1'b1; $display("[%0d] %m: System Reset Released, RST_N=1", $time);
   end
 
   // WCI0_ WCI::OCP Wires to interconnect the BFM, DUT and Monitor...
@@ -41,13 +41,13 @@ module tb200 ();
   wire [1:0]  WCI0_SFlag;
   wire [1:0]  WCI0_MFlag;
 
-  assign WCI0_Clk      = CLK;     // Connect system clock to WCI0 Link
+  assign WCI0_Clk = CLK;     // Connect system clock to be the clock of the WCI0 M/S/O link
 
   mkWciOcpInitiator bfm (                     // Instance the BFM Initiator...
     .CLK                  (CLK),
     .RST_N                (RST_N),
 //  .wciM0_Clk            (WCI0_Clk),
-    .RST_N_wciM0_mReset_n (WCI0_MReset_n),
+    .RST_N_wciM0          (WCI0_MReset_n),    // WCI0_MReset_n is the reset source for this WCI0 link
     .wciM0_MCmd           (WCI0_MCmd),
     .wciM0_MAddrSpace     (WCI0_MAddrSpace),
     .wciM0_MByteEn        (WCI0_MByteEn),
