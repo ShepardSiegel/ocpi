@@ -28,7 +28,7 @@ module tb201 ();
   end
 
   // WCI0_ WCI::AXI Wires to interconnect the BFM, DUT and Monitor...
-  wire        WCI0_ACLK;
+  wire        WCI0_ACLK     = CLK;   // Connect system clock to WCI0 Link
   wire        WCI0_ARESETn;
   wire        WCI0_AWVALID;
   wire        WCI0_AWREADY;
@@ -49,8 +49,6 @@ module tb201 ();
   wire        WCI0_RREADY;
   wire [31:0] WCI0_RDATA;
   wire [1:0]  WCI0_RRESP;
-
-  assign WCI0_ACLK    = CLK;     // Connect system clock to WCI0 Link
 
   mkWciAxiInitiator bfm (           // Instance the BFM Initiator...
     .CLK                  (CLK),
@@ -102,7 +100,7 @@ module tb201 ();
     .wciS0_RRESP          (WCI0_RRESP)
   );
 
-  mkWciAxiMonitor monitor (         // Instance the Monitor/Observer...
+  mkWciAxiMonitor mon(                // Instance the Monitor/Observer...
     .wciO0_ACLK           (WCI0_ACLK),
     .wciO0_ARESETn        (WCI0_ARESETn),
     .wciO0_AWVALID        (WCI0_AWVALID),

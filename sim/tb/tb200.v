@@ -28,7 +28,7 @@ module tb200 ();
   end
 
   // WCI0_ WCI::OCP Wires to interconnect the BFM, DUT and Monitor...
-  wire        WCI0_Clk;
+  wire        WCI0_Clk = CLK;  // Connect system clock to be the clock of the WCI0 M/S/O link
   wire        WCI0_MReset_n;
   wire [2:0]  WCI0_MCmd;
   wire        WCI0_MAddrSpace;
@@ -40,8 +40,6 @@ module tb200 ();
   wire        WCI0_SThreadBusy;
   wire [1:0]  WCI0_SFlag;
   wire [1:0]  WCI0_MFlag;
-
-  assign WCI0_Clk = CLK;     // Connect system clock to be the clock of the WCI0 M/S/O link
 
   mkWciOcpInitiator bfm (                     // Instance the BFM Initiator...
     .CLK                  (CLK),
@@ -75,7 +73,7 @@ module tb200 ();
     .wciS0_MFlag          (WCI0_MFlag)
   );
 
-  mkWciOcpMonitor monitor (                   // Instance the Monitor/Observer...
+  mkWciOcpMonitor mon (                      // Instance the Monitor/Observer...
     .wciO0_Clk            (WCI0_Clk),
     .wciO0_MReset_n       (WCI0_MReset_n),
     .wciO0_MCmd           (WCI0_MCmd),

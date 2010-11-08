@@ -731,7 +731,6 @@ module mkWciOcpSlave (WciOcpSlaveIfc#(na));
   method Action ctlAck; ctlAckReg <= True; endmethod
 endmodule
 
-
 // WciOcpSlaveNull may be used to tie-off unused WciOcp_s ports...
 interface WciOcpSlaveNullIfc#(numeric type na);
   interface WciOcp_s#(na)        slv;
@@ -757,136 +756,31 @@ module mkWciOcpSlaveENull (WciOcp_Es#(na));
   return(wci_Es);
 endmodule
 
-
-
 interface WciOcpXSlaveIfc#(numeric type na);
   interface WciOcp_Xs#(na)       slv;
   interface Get#(WciOcpReq#(na)) reqGet;
   interface Put#(WciOcpResp)     respPut;
   method WciOcpReq#(na)          reqPeek;
-  method Bool                 configWrite;
-  method Bool                 configRead;
-  method Bool                 controlOp;
-  method Bool                 wrkReset;
-  method Action               drvSFlag();
-  method WCI_STATE            ctlState;     // expose the control state
-  method Bool                 isOperating;  // shorthand for ctlState==Operating
-  method WCI_CONTROL_OP       ctlOp;        // expose control Op edges; ready only when ctlOpActive
-  method Action               ctlAck;       // Acknowledge Current Control Operation
+  method Bool                    configWrite;
+  method Bool                    configRead;
+  method Bool                    controlOp;
+  method Bool                    wrkReset;
+  method Action                  drvSFlag();
+  method WCI_STATE               ctlState;     // expose the control state
+  method Bool                    isOperating;  // shorthand for ctlState==Operating
+  method WCI_CONTROL_OP          ctlOp;        // expose control Op edges; ready only when ctlOpActive
+  method Action                  ctlAck;       // Acknowledge Current Control Operation
 endinterface
 
-module mkWciOcpXSlave (WciOcpXSlaveIfc#(na));
-  Wire#(WciOcpReq#(na))            wciReq        <- mkWire;
-  FIFOLevelIfc#(WciOcpReq#(na),SRBsize)  reqF    <- mkFIFOLevel;
-  FIFOF#(WciOcpResp)               respF         <- mkDFIFOF(wciOcpIdleResponse);
-  Reg#(WCI_STATE)               cState           <- mkReg(Exists);  // current control state
-  Reg#(WCI_STATE)               nState           <- mkReg(Exists);  // next control state
-  Wire#(WCI_CONTROL_OP)         wEdge            <- mkWire;
-  Reg#(WCI_CONTROL_OP)          cEdge            <- mkReg(?);   // this control graph edge
-  Reg#(Bool)                    illegalEdge      <- mkReg(False);
-  PulseWire                     sThreadBusy_pw   <- mkPulseWire;
-  Reg#(Bool)                    sThreadBusy_d    <- mkReg(True);
-  Reg#(Bool)                    sFlagReg         <- mkDReg(False);
-  PulseWire                     wci_cfwr_pw      <- mkPulseWire;  // Config Write
-  PulseWire                     wci_cfrd_pw      <- mkPulseWire;  // Config Read
-  PulseWire                     wci_ctrl_pw      <- mkPulseWire;  // Control Op
-  Reg#(Bool)                    ctlOpActive      <- mkReg(False);
-  Reg#(Bool)                    ctlAckReg        <- mkDReg(False);
-  ReadOnly#(Bool)               isReset          <- isResetAsserted;
-  Reg#(Bool)                    errorSticky      <- mkReg(False);
-
-  // Schedule completions to have priority over new transactions...
-  (* descending_urgency = "ctl_op_complete, ctl_op_start, request_decode" *)
-
-  rule request_decode;
-   let wciReq = reqF.first;
-     if     (wciReq.addrSpace=='b1 && wciReq.cmd==WR) wci_cfwr_pw.send(); // Configuration Write
-     else if(wciReq.addrSpace=='b1 && wciReq.cmd==RD) wci_cfrd_pw.send(); // Configuration Read
-     else if(wciReq.addrSpace=='b0 && wciReq.cmd==RD) wci_ctrl_pw.send(); // Control Operation
-  endrule
-
-  rule sThreadBusy_reg; sThreadBusy_d <= sThreadBusy_pw; endrule
-  rule reqF_enq (wciReq.cmd!=IDLE);
-    if (reqF.notFull) reqF.enq(wciReq);
-    else errorSticky <= True;
-  endrule
-  rule respF_deq; respF.deq(); endrule
-
-  rule ctl_op_start (wci_ctrl_pw);
-     WCI_CONTROL_OP controlOp = unpack(reqF.first.addr[4:2]); reqF.deq;
-     wEdge <= controlOp; // for passing out the ctlOp value method
-     cEdge <= controlOp; // for sampling edge until completion
-     case (controlOp) matches
-       Initialize  : if (cState==Exists)     nState <= Initialized;                                 else illegalEdge<=True;
-       Start       : if (cState==Initialized||cState==Suspended)  nState <= Operating;              else illegalEdge<=True;
-       Stop        : if (cState==Operating)  nState <= Suspended;                                   else illegalEdge<=True;
-       Release     : if (cState==Suspended||cState==Operating||cState==Initialized) nState<=Exists; else illegalEdge<=True;
-       Test        : illegalEdge <= False;
-       BeforeQuery : illegalEdge <= False;  // for "atomic" ops
-       AfterConfig : illegalEdge <= False;  // for "atomic" ops
-       ReqAttn     : illegalEdge <= True;
-     endcase
-     ctlOpActive <= True;
-      $display("[%0d]: %m: WCI ControlOp: Starting-transition edge:%x from:%x", $time, pack(controlOp), pack(cState));
-  endrule
-
-  rule ctl_op_complete (ctlOpActive && ctlAckReg);
-    if (!illegalEdge) begin
-      cState <= nState;
-      respF.enq(wciRespToOcp(wciOKResponse));
-      $display("[%0d]: %m: WCI ControlOp: Completed-transition edge:%x from:%x to:%x", $time, pack(cEdge), pack(cState), pack(nState));
-      //$display("[%0d]: %m: WCI ControlOp: Completed transition (edge,from,to)", $time, fshow(cEdge), fshow(cState), fshow(nState));
-    end else begin
-      illegalEdge <= False;
-      respF.enq(wciRespToOcp(wciErrorResponse));
-      $display("[%0d]: %m: WCI ControlOp: ILLEGAL-EDGE Completed-transition edge:%x from:%x", $time, pack(cEdge), pack(cState));
-    end
-    ctlOpActive <= False;
-  endrule
-
-  interface WciOcp_Xs slv;
-    interface WciOcp_SlaveReq_Ifc  slaveReq;
-      method Action putRequest (
-        OCP_CMD   mCmd,
-        Bit#(1)   mAddrSpace,
-        Bit#(4)   mByteEn,
-        Bit#(na)  mAddr,
-        Bit#(32)  mData );
-        if (mCmd!=IDLE) wciReq._write(WciOcpReq {
-          cmd       : mCmd,
-          addrSpace : mAddrSpace,
-          byteEn    : mByteEn,
-          addr      : mAddr,
-          data      : mData });
-      endmethod
-      method sThreadBusy  = (reqF.isGreaterThan(valueOf(SRBsize)-2) || isReset);
-    endinterface
-
-    interface WciOcp_SlaveResp_Ifc slaveResp;
-      method OCP_RESP sResp =  respF.notEmpty ? respF.first.resp : NULL ;
-      method          sData =  respF.first.data ;
-    endinterface
-
-    method sFlag = {'1, pack(sFlagReg)};  // drive sFlag[1] to indicate worker present
-    method Action mFlag(Bit#(2) mf);    noAction; endmethod
-  endinterface
-
-  interface reqGet  = toGet(reqF);
-  interface respPut = toPut(respF);
-  method WciOcpReq#(na) reqPeek = reqF.first;
-  method Bool  configWrite   = wci_cfwr_pw; 
-  method Bool  configRead    = wci_cfrd_pw;
-  method Bool  controlOp     = wci_ctrl_pw;
-  method Bool  wrkReset      = isReset;
-  method Action drvSFlag(); sFlagReg<=True; endmethod
-
-  method ctlState    = cState;   // provide the current control state
-  method isOperating = (cState==Operating);
-  method ctlOp if (wci_ctrl_pw);  // ctlOp is only ready for one cycle, when it is issued
-    return(wEdge);
-  endmethod
-  method Action ctlAck; ctlAckReg <= True; endmethod
-endmodule
+//module mkWciOcpXSlave (WciOcpXSlaveIfc#(na));
+  //WciOcpSlaveIfc#(na) _a <- mkWciOcpSlave;
+  //TODO: Implement me as with the master...
+  //WciOcp_Em#(na) wci_Em <- mkWciOcpMtoEm(_a.mas);
+  // Pass through all the interaces except for the expanded slave...
+  //method Action      req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be) = _a.req(sp,write,addr,wdata,be);
+  //method ActionValue#(WciOcpResp) resp  = _a.resp;
+  //interface WciOcp_Em mas = wci_Em;
+//endmodule
 
 
 /* TODO: Write TieOff to replace Null
@@ -900,43 +794,6 @@ instance TieOff#(WciOcp_s#(na));
   endmodule
 endinstance
 */
-
-
-interface WciOcpInitiatorIfc;
-  interface WciOcp_Em#(20) wciM0;
-endinterface
-
-//(* synthesize, reset_prefix="bar" *)
-(* synthesize *)
-module mkWciOcpInitiator (WciOcpInitiatorIfc);
-  WciOcpMasterIfc#(20) initiator <-mkWciOcpMaster;
-  // Add initiator behavior here...
-  WciOcp_Em#(20) wci_Em <- mkWciOcpMtoEm(initiator.mas);
-  interface WciOcp_Em wciM0 = wci_Em;
-endmodule
-
-interface WciOcpTargetIfc;
-  interface WciOcp_Es#(20) wciS0;
-endinterface
-
-(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkWciOcpTarget (WciOcpTargetIfc);
-  WciOcpSlaveIfc#(20) target <-mkWciOcpSlave;
-  // Add target behavior here...
-  WciOcp_Es#(20) wci_Es <- mkWciOcpStoES(target.slv);
-  interface WciOcp_Em wciS0 = wci_Es;
-endmodule
-
-interface WciOcpMonitorIfc;
-  interface WciOcp_Eo#(20) wciO0;
-endinterface
-
-(* synthesize, default_clock_osc="wciO0_Clk", default_reset="wciO0_MReset_n" *)
-module mkWciOcpMonitor (WciOcpMonitorIfc);
-  // Add monitor/observer behavior here...
-  interface WciOcp_Eo wciO0;
-  endinterface
-endmodule
 
 endpackage: OCWciOcp
 
