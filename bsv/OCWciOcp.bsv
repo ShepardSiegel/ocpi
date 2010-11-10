@@ -386,7 +386,7 @@ endinstance
 
 
 //
-//
+// MASTER MASTER MASTER
 //
 
 
@@ -613,6 +613,11 @@ endmodule
 
 
 //
+// SLAVE SLAVE SLAVE
+//
+
+
+//
 // WciOcpSlave is convienience IP for OpenCPI that
 // wraps up the OCP-IP/WIP/WCI boilerplate that may be reused in each worker
 //
@@ -781,6 +786,78 @@ endinterface
   //method ActionValue#(WciOcpResp) resp  = _a.resp;
   //interface WciOcp_Em mas = wci_Em;
 //endmodule
+
+//
+// OBSERVER OBSERVER OBSERVER
+//
+
+/*
+interface WciOcp_Eo#(numeric type na);  // Observer/Monitor...
+  (* prefix="", always_enabled *)          method Action   mCmd         ((* port="MCmd" *)        Bit#(3)  arg_cmd);
+  (* prefix="", always_enabled *)          method Action   mAddrSpace   ((* port="MAddrSpace" *)  Bit#(1)  arg_addrSpace);
+  (* prefix="", always_enabled *)          method Action   mByteEn      ((* port="MByteEn" *)     Bit#(4)  arg_byteEn);
+  (* prefix="", always_enabled *)          method Action   mAddr        ((* port="MAddr" *)       Bit#(na) arg_addr);
+  (* prefix="", always_enabled *)          method Action   mData        ((* port="MData" *)       Bit#(32) arg_data);
+  (* prefix="", always_enabled *)          method Action   sResp        ((* port="SResp" *)       Bit#(2)  arg_resp);
+  (* prefix="", always_enabled *)          method Action   sData        ((* port="SData" *)       Bit#(32) arg_data);
+  (* prefix="", enable="SThreadBusy" *)    method Action   sThreadBusy;
+  (* prefix="", always_enabled *)          method Action   sFlag        ((* port="SFlag"*)        Bit#(2)  arg_sFlag);
+  (* prefix="", always_enabled *)          method Action   mFlag        ((* port="MFlag" *)       Bit#(2)  arg_mFlag);
+endinterface
+*/
+
+//
+// WciOcpObserver is convienience IP for OpenCPI that observes the WCI::OCP transactions
+//
+interface WciOcpObserverIfc#(numeric type na);
+  interface WciOcp_Eo#(na)       wci;
+endinterface
+
+module mkWciOcpObserver (WciOcpObserverIfc#(na));
+  // Register the observer inputs to minimze and equalize the obseerved link's loading...
+  Reg#(Bit#(3))    r_mCmd          <-  mkReg(0);
+  Reg#(Bit#(1))    r_mAddrSpace    <-  mkReg(0);
+  Reg#(Bit#(4))    r_mByteEn       <-  mkReg(0);
+  Reg#(Bit#(na))   r_mAddr         <-  mkReg(0);
+  Reg#(Bit#(32))   r_mData         <-  mkReg(0);
+  Reg#(Bit#(2))    r_sResp         <-  mkReg(0);
+  Reg#(Bit#(32))   r_sData         <-  mkReg(0);
+  Reg#(Bit#(1))    r_sThreadBusy   <-  mkDReg(0);
+  Reg#(Bit#(2))    r_sFlag         <-  mkReg(0);
+  Reg#(Bit#(2))    r_mFlag         <-  mkReg(0);
+
+  Reg#(Bit#(3))    r_mCmdD         <-  mkReg(0);
+
+  rule mCmd_state; r_mCmdD <= r_mCmd; endrule
+
+  rule cmd_start (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
+    $display("[%0d]: %m: WCI mcmd %0x", $time, pack(r_mCmd));
+  endrule
+
+  /*
+  Wire#(WciOcpReq#(na))            wciReq           <- mkWire;
+  Wire#(WciOcpResp)                wciResp          <- mkWire;
+  FIFOF#(WciOcpReq#(na))           reqF             <- mkFIFOF;
+  FIFOF#(WciOcpResp)               respF            <- mkFIFOF;
+  Reg#(Bit#(32))                   reqCount         <- mkReg(0);
+  Reg#(Bit#(32))                   respCount        <- mkReg(0);
+  ReadOnly#(Bool)                  isReset          <- isResetAsserted;
+  */
+
+  interface WciOcp_Eo wci;
+    method Action   mCmd         (Bit#(3)  arg_cmd);       r_mCmd       <= arg_cmd;       endmethod
+    method Action   mAddrSpace   (Bit#(1)  arg_addrSpace); r_mAddrSpace <= arg_addrSpace; endmethod
+    method Action   mByteEn      (Bit#(4)  arg_byteEn);    r_mByteEn    <= arg_byteEn;    endmethod
+    method Action   mAddr        (Bit#(na) arg_addr);      r_mAddr      <= arg_addr;      endmethod
+    method Action   mData        (Bit#(32) arg_data);      r_mData      <= arg_data;      endmethod
+    method Action   sResp        (Bit#(2)  arg_resp);      r_sResp      <= arg_resp;      endmethod
+    method Action   sData        (Bit#(32) arg_data);      r_sData      <= arg_data;      endmethod
+    method Action   sThreadBusy;                           r_sThreadBusy <= 1'b1;         endmethod
+    method Action   sFlag        (Bit#(2)  arg_sFlag);     r_sFlag      <= arg_sFlag;     endmethod
+    method Action   mFlag        (Bit#(2)  arg_mFlag);     r_mFlag      <= arg_mFlag;     endmethod
+  endinterface
+
+endmodule
 
 
 /* TODO: Write TieOff to replace Null

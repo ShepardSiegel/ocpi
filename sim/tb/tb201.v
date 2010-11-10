@@ -54,7 +54,7 @@ module tb201 ();
     .CLK                  (CLK),
     .RST_N                (RST_N),
     .wciM0_ACLK           (WCI0_ACLK),
-    .RST_N_wciM0_ARESETn  (WCI0_ARESETn),
+    .RST_N_wciM0_ARESETn  (WCI0_ARESETn),    // WCI0_MReset_n is the reset source for this WCI0 link
     .wciM0_AWVALID        (WCI0_AWVALID),
     .wciM0_AWREADY        (WCI0_AWREADY),
     .wciM0_AWADDR         (WCI0_AWADDR),

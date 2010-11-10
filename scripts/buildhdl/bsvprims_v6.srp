@@ -75,6 +75,8 @@ Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/
 Parsing module <SyncBit>.
 Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/BypassWire.v\" into library bsv
 Parsing module <BypassWire>.
+Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/BypassCrossingWire.v\" into library bsv
+Parsing module <BypassCrossingWire>.
 Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/ClockDiv.v\" into library bsv
 Parsing module <ClockDiv>.
 Analyzing Verilog file \"/home/shep/projects/ocpi/scripts/buildhdl/../../libsrc/hdl/bsv/ClockInverter.v\" into library bsv
@@ -259,12 +261,12 @@ Cross Clock Domains Report:
 
 
 Total REAL time to Xst completion: 4.00 secs
-Total CPU time to Xst completion: 3.95 secs
+Total CPU time to Xst completion: 3.91 secs
  
 --> 
 
 
-Total memory usage is 434228 kilobytes
+Total memory usage is 434160 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    0 (   0 filtered)

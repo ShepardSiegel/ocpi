@@ -8,6 +8,7 @@ import OCWci        ::*;
 import OCWciOcp     ::*;
 import OCWciOcpBfm  ::*;
 import OCWciAxi     ::*;
+import OCWciAxiBfm  ::*;
 import OCWsi        ::*;
 import OCWmi        ::*;
 import OCWmemi      ::*;

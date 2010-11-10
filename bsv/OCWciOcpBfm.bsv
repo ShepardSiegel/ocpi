@@ -115,9 +115,9 @@ endinterface
 
 (* synthesize, default_clock_osc="wciO0_Clk", default_reset="wciO0_MReset_n" *)
 module mkWciOcpMonitor (WciOcpMonitorIfc);
+  WciOcpObserverIfc#(20) observer <- mkWciOcpObserver;
   // Add monitor/observer behavior here...
-  interface WciOcp_Eo wciO0;
-  endinterface
+  interface WciOcp_Eo wciO0 = observer.wci;
 endmodule
 
 endpackage: OCWciOcpBfm

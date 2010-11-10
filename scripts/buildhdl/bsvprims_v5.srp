@@ -70,8 +70,10 @@ Compiling verilog file "../../libsrc/hdl/bsv/SyncBit.v" in library bsv
 Module <SyncFIFO> compiled
 Compiling verilog file "../../libsrc/hdl/bsv/BypassWire.v" in library bsv
 Module <SyncBit> compiled
-Compiling verilog file "../../libsrc/hdl/bsv/ClockDiv.v" in library bsv
+Compiling verilog file "../../libsrc/hdl/bsv/BypassCrossingWire.v" in library bsv
 Module <BypassWire> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ClockDiv.v" in library bsv
+Module <BypassCrossingWire> compiled
 Compiling verilog file "../../libsrc/hdl/bsv/ClockInverter.v" in library bsv
 Module <ClockDiv> compiled
 Compiling verilog file "../../libsrc/hdl/bsv/ResetEither.v" in library bsv
@@ -262,12 +264,12 @@ Delay:               3.606ns (Levels of Logic = 2)
 
 
 Total REAL time to Xst completion: 3.00 secs
-Total CPU time to Xst completion: 3.32 secs
+Total CPU time to Xst completion: 3.35 secs
  
 --> 
 
 
-Total memory usage is 415980 kilobytes
+Total memory usage is 415984 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    0 (   0 filtered)

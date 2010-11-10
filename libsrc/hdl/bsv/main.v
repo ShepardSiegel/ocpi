@@ -19,8 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Revision: 17872 $
-// $Date: 2009-09-18 14:32:56 +0000 (Fri, 18 Sep 2009) $
+// $Revision: 22233 $
+// $Date: 2010-10-09 13:26:19 +0000 (Sat, 09 Oct 2010) $
+
+`ifdef BSV_NO_MAIN_V
+`else
 
 `ifdef BSV_ASSIGNMENT_DELAY
 `else
@@ -37,9 +40,11 @@ module main();
    // reg CLK_GATE;
    reg RST_N;
    reg [31:0] cycle;
-   reg        do_dump;
+   reg        do_vcd;
+   reg        do_fsdb;
+   reg        do_fst;
    reg        do_cycles;
-      
+
    `TOP top(.CLK(CLK), /* .CLK_GATE(CLK_GATE), */ .RST_N(RST_N));
 
 // For Sce-Mi linkage, insert code here
@@ -56,28 +61,37 @@ module main();
 `else
  `define BSV_DUMP_TOP main
 `endif
-   
+
    initial begin
       // CLK_GATE = 1'b1;
       // CLK = 1'b0;    // This line will cause a neg edge of clk at t=0!
       // RST_N = 1'b0;  // This needs #0, to allow always blocks to wait
       cycle = 0;
 
-      do_dump = $test$plusargs("bscvcd") ;
+      do_vcd    = $test$plusargs("bscvcd") ;
+      do_fst    = $test$plusargs("bscfst") ;
+      do_fsdb   = $test$plusargs("bscfsdb") ;
       do_cycles = $test$plusargs("bsccycle") ;
 
-     
-      if (do_dump)
-        begin
 `ifdef BSC_FSDB
-           $fsdbDumpfile("dump.fsdb");
-           $fsdbDumpvars(`BSV_DUMP_LEVEL, `BSV_DUMP_TOP);
+      if (do_fsdb) begin
+         $fsdbDumpfile("dump.fsdb");
+         $fsdbDumpvars(`BSV_DUMP_LEVEL, `BSV_DUMP_TOP);
+      end
 `else
-           $dumpfile("dump.vcd");
-           // $dumpon; unneeded
-           $dumpvars(`BSV_DUMP_LEVEL, `BSV_DUMP_TOP);
+
+//      if (do_fst && ! do_vcd) begin
+//         $dumpfile("|vcd2fst -F -f dump.fst -");
+//         $dumpvars(`BSV_DUMP_LEVEL, `BSV_DUMP_TOP);
+//      end
+
+      if (do_vcd) begin
+         $dumpfile("dump.vcd");
+         $dumpvars(`BSV_DUMP_LEVEL, `BSV_DUMP_TOP);
+      end
+
 `endif
-        end
+
       #0
       RST_N = 1'b0;
       #1;
@@ -90,6 +104,7 @@ module main();
       //  $finish;
    end
 
+`ifndef NO_CLOCK // for cosim
    always
      begin
         #1
@@ -100,6 +115,10 @@ module main();
         CLK = 1'b0 ;
         #5;
         CLK = 1'b1 ;
-   end
+     end // always begin
+`endif //  `ifndef NO_CLOCK
+
 
 endmodule
+
+`endif
