@@ -4,12 +4,11 @@
 package OCWciAxiBfm;
 
 import OCWci::*;
-import OCWipAxi::*;
+import OCWciAxi::*;
 import OCWipDefs::*;
 
-import Bus::*;
 import Clocks::*;
-import ClientServer::*;
+import Connectable::*;
 import GetPut::*;
 import ConfigReg::*;
 import DefaultValue::*;
@@ -17,9 +16,9 @@ import DReg::*;
 import FIFO::*;	
 import FIFOF::*;	
 import FIFOLevel::*;	
-import SpecialFIFOs::*;
-import Connectable::*;
 import FShow::*;
+import SpecialFIFOs::*;
+import StmtFSM::*;
 import TieOff::*;
 
 interface WciAxiInitiatorIfc;
@@ -52,7 +51,7 @@ module mkWciAxiInitiator (WciAxiInitiatorIfc);
     started <= True;
   endrule
 
-  WciAxi_Em#(20) wci_Em <- mkWciAxiMtoEm(initiator.mas);
+  WciAxi_Em wci_Em <- mkWciAxiMtoEm(initiator.mas);
   interface WciAxi_Em wciM0 = wci_Em;
 endmodule
 

@@ -81,25 +81,25 @@ endinterface
 (* always_ready *)
 interface WciAxi_Em;
   (* prefix="", result="AWVALID" *)        method Bit#(1)  mAWVALID;     // (AW) Write Address Channel...
-  (* prefix="", enable="AWREADY" *)        method Bit#(1)  sAWREADY;
+  (* prefix="", enable="AWREADY" *)        method Action   sAWREADY;
   (* prefix="", result="AWADDR"  *)        method Bit#(32) mAWADDR;
   (* prefix="", result="AWPROT"  *)        method Bit#(3)  mAWPROT;
 
   (* prefix="", result="WVALID"  *)        method Bit#(1)  mWVALID;      // (W) Write Data Channel...
-  (* prefix="", enable="WREADY"  *)        method Bit#(1)  sWREADY;
+  (* prefix="", enable="WREADY"  *)        method Action   sWREADY;
   (* prefix="", result="WDATA"   *)        method Bit#(32) mWDATA;
   (* prefix="", result="WSTRB"   *)        method Bit#(4)  mWSTRB;
 
-  (* prefix="", enable="BVALID"  *)        method Bit#(1)  sBVALID;      // (B) Write Response Channel...
+  (* prefix="", enable="BVALID"  *)        method Action   sBVALID;      // (B) Write Response Channel...
   (* prefix="", result="BREADY"  *)        method Bit#(1)  mBREADY;
   (* prefix="", always_enabled   *)        method Action   sBRESP        ((* port="BRESP" *) Bit#(2)  arg_wresp);
 
   (* prefix="", result="ARVALID" *)        method Bit#(1)  mARVALID;     // (AR) Read Address Channel...
-  (* prefix="", enable="ARREADY" *)        method Bit#(1)  sARREADY;
+  (* prefix="", enable="ARREADY" *)        method Action   sARREADY;
   (* prefix="", result="ARADDR"  *)        method Bit#(32) mARADDR;
   (* prefix="", result="ARPROT"  *)        method Bit#(3)  mARPROT;
 
-  (* prefix="", enable="RVALID"  *)        method Bit#(1)  sRVALID;      // (R) Read Response Channel...
+  (* prefix="", enable="RVALID"  *)        method Action   sRVALID;      // (R) Read Response Channel...
   (* prefix="", result="RREADY"  *)        method Bit#(1)  mRREADY;
   (* prefix="", always_enabled   *)        method Action   sRDATA        ((* port="RDATA" *) Bit#(32) arg_rdata);
   (* prefix="", always_enabled   *)        method Action   sRRESP        ((* port="RRESP" *) Bit#(2)  arg_rresp);
@@ -109,27 +109,27 @@ endinterface
 
 (* always_ready *)
 interface WciAxi_Es;
-  (* prefix="", enable="AWVALID" *)        method Bit#(1)  mAWVALID;     // (AW) Write Address Channel...
+  (* prefix="", enable="AWVALID" *)        method Action   mAWVALID;     // (AW) Write Address Channel...
   (* prefix="", result="AWREADY" *)        method Bit#(1)  sAWREADY;
   (* prefix="", always_enabled   *)        method Action   mAWADDR       ((* port="AWADDR" *) Bit#(32) arg_waddr);
   (* prefix="", always_enabled   *)        method Action   mAWPROT       ((* port="AWPROT" *) Bit#(3)  arg_wprot);
 
-  (* prefix="", enable="WVALID"  *)        method Bit#(1)  mWVALID;      // (W) Write Data Channel...
+  (* prefix="", enable="WVALID"  *)        method Action   mWVALID;      // (W) Write Data Channel...
   (* prefix="", result="WREADY"  *)        method Bit#(1)  sWREADY;
   (* prefix="", always_enabled   *)        method Action   mWDATA        ((* port="WDATA" *) Bit#(32) arg_wdata);
   (* prefix="", always_enabled   *)        method Action   mWSTRB        ((* port="WSTRB" *) Bit#(4)  arg_wstrb);
 
   (* prefix="", result="BVALID"  *)        method Bit#(1)  sBVALID;      // (B) Write Response Channel...
-  (* prefix="", enable="BREADY"  *)        method Bit#(1)  mBREADY;
+  (* prefix="", enable="BREADY"  *)        method Action   mBREADY;
   (* prefix="", result="BRESP"   *)        method Bit#(2)  sBRESP;
 
-  (* prefix="", enable="ARVALID" *)        method Bit#(1)  mARVALID;     // (AR) Read Address Channel...
+  (* prefix="", enable="ARVALID" *)        method Action   mARVALID;     // (AR) Read Address Channel...
   (* prefix="", result="ARREADY" *)        method Bit#(1)  sARREADY;
   (* prefix="", always_enabled   *)        method Action   mARADDR       ((* port="ARADDR" *) Bit#(32) arg_raddr);
   (* prefix="", always_enabled   *)        method Action   mARPROT       ((* port="ARPROT" *) Bit#(3)  arg_rprot);
 
   (* prefix="", result="RVALID"  *)        method Bit#(1)  sRVALID;      // (R) Read Response Channel...
-  (* prefix="", enable="RREADY"  *)        method Bit#(1)  mRREADY;
+  (* prefix="", enable="RREADY"  *)        method Action   mRREADY;
   (* prefix="", result="RDATA"   *)        method Bit#(32) sRDATA;
   (* prefix="", result="RRESP"   *)        method Bit#(2)  sRRESP;
 endinterface
@@ -137,27 +137,27 @@ endinterface
 
 (* always_ready *)
 interface WciAxi_Eo;
-  (* prefix="", enable="AWVALID" *)        method Bit#(1)  mAWVALID;     // (AW) Write Address Channel...
-  (* prefix="", enable="AWREADY" *)        method Bit#(1)  sAWREADY;
+  (* prefix="", enable="AWVALID" *)        method Action   mAWVALID;     // (AW) Write Address Channel...
+  (* prefix="", enable="AWREADY" *)        method Action   sAWREADY;
   (* prefix="", always_enabled   *)        method Action   mAWADDR       ((* port="AWADDR" *) Bit#(32) arg_waddr);
   (* prefix="", always_enabled   *)        method Action   mAWPROT       ((* port="AWPROT" *) Bit#(3)  arg_wprot);
 
-  (* prefix="", enable="WVALID"  *)        method Bit#(1)  mWVALID;      // (W) Write Data Channel...
-  (* prefix="", enable="WREADY"  *)        method Bit#(1)  sWREADY;
+  (* prefix="", enable="WVALID"  *)        method Action   mWVALID;      // (W) Write Data Channel...
+  (* prefix="", enable="WREADY"  *)        method Action   sWREADY;
   (* prefix="", always_enabled   *)        method Action   mWDATA        ((* port="WDATA" *) Bit#(32) arg_wdata);
   (* prefix="", always_enabled   *)        method Action   mWSTRB        ((* port="WSTRB" *) Bit#(4)  arg_wstrb);
 
-  (* prefix="", enable="BVALID"  *)        method Bit#(1)  sBVALID;      // (B) Write Response Channel...
-  (* prefix="", enable="BREADY"  *)        method Bit#(1)  mBREADY;
+  (* prefix="", enable="BVALID"  *)        method Action   sBVALID;      // (B) Write Response Channel...
+  (* prefix="", enable="BREADY"  *)        method Action   mBREADY;
   (* prefix="", always_enabled   *)        method Action   sBRESP        ((* port="BRESP" *) Bit#(2)  arg_wresp);
 
-  (* prefix="", enable="ARVALID" *)        method Bit#(1)  mARVALID;     // (AR) Read Address Channel...
-  (* prefix="", enable="ARREADY" *)        method Bit#(1)  sARREADY;
+  (* prefix="", enable="ARVALID" *)        method Action   mARVALID;     // (AR) Read Address Channel...
+  (* prefix="", enable="ARREADY" *)        method Action   sARREADY;
   (* prefix="", always_enabled   *)        method Action   mARADDR       ((* port="ARADDR" *) Bit#(32) arg_raddr);
   (* prefix="", always_enabled   *)        method Action   mARPROT       ((* port="ARPROT" *) Bit#(3)  arg_rprot);
 
-  (* prefix="", result="RVALID"  *)        method Bit#(1)  sRVALID;      // (R) Read Response Channel...
-  (* prefix="", enable="RREADY"  *)        method Bit#(1)  mRREADY;
+  (* prefix="", result="RVALID"  *)        method Action   sRVALID;      // (R) Read Response Channel...
+  (* prefix="", enable="RREADY"  *)        method Action   mRREADY;
   (* prefix="", always_enabled   *)        method Action   sRDATA        ((* port="RDATA" *) Bit#(32) arg_rdata);
   (* prefix="", always_enabled   *)        method Action   sRRESP        ((* port="RRESP" *) Bit#(2)  arg_rresp);
 endinterface
@@ -172,6 +172,62 @@ instance Connectable#(WciAxi_m, WciAxi_s);
     mkConnection(s.rdResp, m.rdResp);
   endmodule
 endinstance
+
+
+
+
+
+// This permutation trasforms WciAxi_m to WciAxi_Em...
+module mkWciAxiMtoEm#(WciAxi_m arg) (WciAxi_Em);
+  Wire#(Bit#(2))   resp_w           <- mkDWire(0);
+  Wire#(Bit#(32))  respData_w       <- mkDWire(0);
+
+  rule doAlways;
+    WciAxiResp rsp = WciAxiResp { resp:unpack(resp_w), data:respData_w };
+    arg.put(rsp);
+  endrule
+
+  method         mCmd                = pack(arg.req.cmd);
+  method         mAddrSpace          = arg.req.addrSpace;
+  method         mByteEn             = arg.req.byteEn;
+  method         mAddr               = arg.req.addr;
+  method         mData               = arg.req.data;
+  method Action  sResp(in)           = resp_w._write(in);
+  method Action  sData(x)            = respData_w._write(x);
+  method Action  sThreadBusy         = arg.sThreadBusy;
+  method Action  sFlag (Bit#(2) sf)  = arg.sFlag(sf);
+  method         mFlag               = arg.mFlag;
+
+  method Bit#(1)  mAWVALID;
+  method Action   sAWREADY;
+  method Bit#(32) mAWADDR;
+  method Bit#(3)  mAWPROT;
+
+  method Bit#(1)  mWVALID;
+  method Action   sWREADY;
+  method Bit#(32) mWDATA;
+  method Bit#(4)  mWSTRB;
+
+  method Action   sBVALID;
+  method Bit#(1)  mBREADY;
+  method Action   sBRESP        ((* port="BRESP" *) Bit#(2)  arg_wresp);
+
+  method Bit#(1)  mARVALID;
+  method Action   sARREADY;
+  method Bit#(32) mARADDR;
+  method Bit#(3)  mARPROT;
+
+  method Action   sRVALID;
+  method Bit#(1)  mRREADY;
+  method Action   sRDATA        ((* port="RDATA" *) Bit#(32) arg_rdata);
+  method Action   sRRESP        ((* port="RRESP" *) Bit#(2)  arg_rresp);
+
+  interface      mReset_n            = arg.mReset_n;
+
+endmodule
+
+
+
 
 
 
@@ -279,49 +335,6 @@ module mkWciAxiSlave (WciAxiSlaveIfc);
     interface Client wciTarg   = Client {request:toGet(reqF), response:toPut(respF)};   
     method Action    attention = noAction;
     method Action    present   = noAction;
-  endinterface
-endmodule
-
-
-// Initiatior, Target, and Monitor/Observer...
-
-interface WciAxiInitiatorIfc;
-  interface WciAxi_Em wciM0;
-endinterface
-
-/*
-(* synthesize, default_clock_osc="wciM0_Clk", default_reset="wciM0_MReset_n" *)
-module mkWciAxiInitiator (WciAxiInitiatorIfc);
-  WciAxiMasterIfc initiator <-mkWciAxiMaster;
-  // Add initiator behavior here...
-  //WciAxi_Em wci_Em <- mkWciAxiMtoEm(initiator.mas);
-  interface WciAxi_Em wciM0;
-  endinterface
-endmodule
-*/
-
-
-interface WciAxiTargetIfc;
-  interface WciAxi_Es wciS0;
-endinterface
-
-(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkWciAxiTarget (WciAxiTargetIfc);
-  WciAxiSlaveIfc target <-mkWciAxiSlave;
-  // Add target behavior here...
-  //WciAxi_Es wci_Es <- mkWciAxiStoES(target.slv);
-  interface WciAxi_Es wciS0;
-  endinterface
-endmodule
-
-interface WciAxiMonitorIfc;
-  interface WciAxi_Eo wciO0;
-endinterface
-
-(* synthesize, default_clock_osc="wciO0_Clk", default_reset="wciO0_MReset_n" *)
-module mkWciAxiMonitor (WciAxiMonitorIfc);
-  // Add monitor/observer behavior here...
-  interface WciAxi_Eo wciO0;
   endinterface
 endmodule
 
