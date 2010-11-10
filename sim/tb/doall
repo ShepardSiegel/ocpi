@@ -1,0 +1,4 @@
+fuse -prj bsvprims.prj foo
+fuse -prj tb200.prj tb200
+./x.exe -tclbatch simcmds.tcl
+gtkwave --dump=dump.vcd --save=tb200.sav &

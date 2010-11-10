@@ -174,8 +174,7 @@ instance Connectable#(WciAxi_m, WciAxi_s);
 endinstance
 
 
-
-
+/*
 
 // This permutation trasforms WciAxi_m to WciAxi_Em...
 module mkWciAxiMtoEm#(WciAxi_m arg) (WciAxi_Em);
@@ -198,6 +197,32 @@ module mkWciAxiMtoEm#(WciAxi_m arg) (WciAxi_Em);
   method Action  sFlag (Bit#(2) sf)  = arg.sFlag(sf);
   method         mFlag               = arg.mFlag;
 
+  method          mAWVALID
+  method Action   sAWREADY
+  method          mAWADDR
+  method          mAWPROT
+  method          mWVALID
+  method Action   sWREADY
+  method          mWDATA
+  method          mWSTRB
+  method Action   sBVALID
+  method          mBREADY
+  method Action   sBRESP(br)
+  method          mARVALID
+  method Action   sARREADY
+  method          mARADDR
+  method          mARPROT
+  method Action   sRVALID
+  method          mRREADY
+  method Action   sRDATA(rd)
+  method Action   sRRESP
+  interface       mReset_n      = arg.mReset_n;
+
+endmodule
+
+*/
+
+/*
   method Bit#(1)  mAWVALID;
   method Action   sAWREADY;
   method Bit#(32) mAWADDR;
@@ -221,10 +246,8 @@ module mkWciAxiMtoEm#(WciAxi_m arg) (WciAxi_Em);
   method Bit#(1)  mRREADY;
   method Action   sRDATA        ((* port="RDATA" *) Bit#(32) arg_rdata);
   method Action   sRRESP        ((* port="RRESP" *) Bit#(2)  arg_rresp);
+*/
 
-  interface      mReset_n            = arg.mReset_n;
-
-endmodule
 
 
 

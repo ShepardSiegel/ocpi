@@ -1,0 +1,31 @@
+[timestart] 0
+[size] 1717 879
+[pos] -1 -1
+*-19.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb200.
+[treeopen] tb200.bfm.
+[treeopen] tb200.dut.
+@28
+tb200.CLK
+tb200.RST_N
+tb200.WCI0_Clk
+tb200.WCI0_MAddrSpace
+@22
+#{tb200.WCI0_MAddr[19:0]} tb200.WCI0_MAddr[19] tb200.WCI0_MAddr[18] tb200.WCI0_MAddr[17] tb200.WCI0_MAddr[16] tb200.WCI0_MAddr[15] tb200.WCI0_MAddr[14] tb200.WCI0_MAddr[13] tb200.WCI0_MAddr[12] tb200.WCI0_MAddr[11] tb200.WCI0_MAddr[10] tb200.WCI0_MAddr[9] tb200.WCI0_MAddr[8] tb200.WCI0_MAddr[7] tb200.WCI0_MAddr[6] tb200.WCI0_MAddr[5] tb200.WCI0_MAddr[4] tb200.WCI0_MAddr[3] tb200.WCI0_MAddr[2] tb200.WCI0_MAddr[1] tb200.WCI0_MAddr[0]
+#{tb200.WCI0_MByteEn[3:0]} tb200.WCI0_MByteEn[3] tb200.WCI0_MByteEn[2] tb200.WCI0_MByteEn[1] tb200.WCI0_MByteEn[0]
+@28
+#{tb200.WCI0_MCmd[2:0]} tb200.WCI0_MCmd[2] tb200.WCI0_MCmd[1] tb200.WCI0_MCmd[0]
+@22
+#{tb200.WCI0_MData[31:0]} tb200.WCI0_MData[31] tb200.WCI0_MData[30] tb200.WCI0_MData[29] tb200.WCI0_MData[28] tb200.WCI0_MData[27] tb200.WCI0_MData[26] tb200.WCI0_MData[25] tb200.WCI0_MData[24] tb200.WCI0_MData[23] tb200.WCI0_MData[22] tb200.WCI0_MData[21] tb200.WCI0_MData[20] tb200.WCI0_MData[19] tb200.WCI0_MData[18] tb200.WCI0_MData[17] tb200.WCI0_MData[16] tb200.WCI0_MData[15] tb200.WCI0_MData[14] tb200.WCI0_MData[13] tb200.WCI0_MData[12] tb200.WCI0_MData[11] tb200.WCI0_MData[10] tb200.WCI0_MData[9] tb200.WCI0_MData[8] tb200.WCI0_MData[7] tb200.WCI0_MData[6] tb200.WCI0_MData[5] tb200.WCI0_MData[4] tb200.WCI0_MData[3] tb200.WCI0_MData[2] tb200.WCI0_MData[1] tb200.WCI0_MData[0]
+@28
+#{tb200.WCI0_MFlag[1:0]} tb200.WCI0_MFlag[1] tb200.WCI0_MFlag[0]
+tb200.WCI0_MReset_n
+@22
+#{tb200.WCI0_SData[31:0]} tb200.WCI0_SData[31] tb200.WCI0_SData[30] tb200.WCI0_SData[29] tb200.WCI0_SData[28] tb200.WCI0_SData[27] tb200.WCI0_SData[26] tb200.WCI0_SData[25] tb200.WCI0_SData[24] tb200.WCI0_SData[23] tb200.WCI0_SData[22] tb200.WCI0_SData[21] tb200.WCI0_SData[20] tb200.WCI0_SData[19] tb200.WCI0_SData[18] tb200.WCI0_SData[17] tb200.WCI0_SData[16] tb200.WCI0_SData[15] tb200.WCI0_SData[14] tb200.WCI0_SData[13] tb200.WCI0_SData[12] tb200.WCI0_SData[11] tb200.WCI0_SData[10] tb200.WCI0_SData[9] tb200.WCI0_SData[8] tb200.WCI0_SData[7] tb200.WCI0_SData[6] tb200.WCI0_SData[5] tb200.WCI0_SData[4] tb200.WCI0_SData[3] tb200.WCI0_SData[2] tb200.WCI0_SData[1] tb200.WCI0_SData[0]
+@28
+#{tb200.WCI0_SFlag[1:0]} tb200.WCI0_SFlag[1] tb200.WCI0_SFlag[0]
+#{tb200.WCI0_SResp[1:0]} tb200.WCI0_SResp[1] tb200.WCI0_SResp[0]
+@29
+tb200.WCI0_SThreadBusy
+[pattern_trace] 1
+[pattern_trace] 0

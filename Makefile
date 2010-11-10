@@ -314,6 +314,7 @@ $(OBJ):
 ######################################################################
 clean:
 	du -s
+	sim/tb/cleanall
 	rm -fR $(OBJ) dump* *.sched bsv/*~ rtl/*~
 	rm -fR novas.rc nWaveLog schedule* vfastLog veriwell*
 	rm -fR isim.* fuse.log out out.* isim runsim runsim.*

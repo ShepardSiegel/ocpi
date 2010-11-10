@@ -25,6 +25,7 @@ interface WciAxiInitiatorIfc;
   interface WciAxi_Em wciM0;
 endinterface
 
+/*
 (* synthesize *)
 module mkWciAxiInitiator (WciAxiInitiatorIfc);
   WciAxiMasterIfc      initiator <- mkWciAxiMaster;
@@ -54,7 +55,7 @@ module mkWciAxiInitiator (WciAxiInitiatorIfc);
   WciAxi_Em wci_Em <- mkWciAxiMtoEm(initiator.mas);
   interface WciAxi_Em wciM0 = wci_Em;
 endmodule
-
+*/
 
 
 interface WciAxiTargetIfc;
