@@ -6,13 +6,13 @@ import GetPut::*;
 import Vector::*;
 
 interface WsiAdapter4B16BIfc;
-  interface WsiES4B     wsiS1;
-  interface WsiEM16B    wsiM1;
+  interface WsiES4B     wsiS0;
+  interface WsiEM16B    wsiM0;
 endinterface 
 
 interface WsiAdapter16B4BIfc;
-  interface WsiES16B    wsiS1;
-  interface WsiEM4B     wsiM1;
+  interface WsiES16B    wsiS0;
+  interface WsiEM4B     wsiM0;
 endinterface 
 
 
@@ -65,8 +65,8 @@ rule doRequestEgress (isFull);
 endrule
 
   WsiES4B wsi_Es <- mkWsiStoES(wsiS.slv); 
-  interface Wsi_Es wsiS1 = wsi_Es;
-  interface Wsi_Em wsiM1 = toWsiEM(wsiM.mas);
+  interface Wsi_Es wsiS0 = wsi_Es;
+  interface Wsi_Em wsiM0 = toWsiEM(wsiM.mas);
 endmodule
 
 
@@ -115,6 +115,6 @@ rule doRequestEgress (!isEmpty);
 endrule
 
   WsiES16B wsi_Es <- mkWsiStoES(wsiS.slv); 
-  interface Wsi_Es wsiS1 = wsi_Es;
-  interface Wsi_Em wsiM1 = toWsiEM(wsiM.mas);
+  interface Wsi_Es wsiS0 = wsi_Es;
+  interface Wsi_Em wsiM0 = toWsiEM(wsiM.mas);
 endmodule

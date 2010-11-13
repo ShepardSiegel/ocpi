@@ -41,6 +41,7 @@ module tb200 ();
   wire [1:0]  WCI0_SFlag;
   wire [1:0]  WCI0_MFlag;
 
+
   mkWciOcpInitiator bfm (                     // Instance the BFM Initiator...
     .CLK                  (CLK),
     .RST_N                (RST_N),
@@ -58,7 +59,7 @@ module tb200 ();
     .wciM0_MFlag          (WCI0_MFlag)
   );
 
-  mkWciOcpTarget dut (                        // Instance the DUT Target...
+  mkWciOcpTarget wut (                        // Instance the "Worker Under Test" (WUT) target
     .wciS0_Clk            (WCI0_Clk),
     .wciS0_MReset_n       (WCI0_MReset_n),
     .wciS0_MCmd           (WCI0_MCmd),
@@ -74,8 +75,10 @@ module tb200 ();
   );
 
   mkWciOcpMonitor mon (                      // Instance the Monitor/Observer...
-    .wciO0_Clk            (WCI0_Clk),
-    .wciO0_MReset_n       (WCI0_MReset_n),
+    .CLK                  (CLK),
+    .RST_N                (RST_N),
+    .CLK_wci_clk          (WCI0_Clk),
+    .RST_N_wci_rstn       (WCI0_MReset_n),
     .wciO0_MCmd           (WCI0_MCmd),
     .wciO0_MAddrSpace     (WCI0_MAddrSpace),
     .wciO0_MByteEn        (WCI0_MByteEn),

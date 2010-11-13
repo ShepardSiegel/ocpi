@@ -6,6 +6,7 @@ package OCWciOcpBfm;
 import OCWci::*;
 import OCWciOcp::*;
 import OCWipDefs::*;
+import ProtocolMonitor::*;
 
 import Clocks::*;
 import Connectable::*;
@@ -111,13 +112,24 @@ endmodule
 
 interface WciOcpMonitorIfc;
   interface WciOcp_Eo#(20) wciO0;
+  interface Put#(PMEM)     pmem; 
 endinterface
 
-(* synthesize, default_clock_osc="wciO0_Clk", default_reset="wciO0_MReset_n" *)
-module mkWciOcpMonitor (WciOcpMonitorIfc);
+(* synthesize *)
+//module mkWciOcpMonitor#(Clock wci_clk, Reset wci_rstn) (WciOcpMonitorIfc);
+module mkWciOcpMonitor#(Bit#(8) monId)  (WciOcpMonitorIfc);
   WciOcpObserverIfc#(20) observer <- mkWciOcpObserver;
+  PMEMGenIfc             pmemgen  <- mkPMEMGen(monId);
+
   // Add monitor/observer behavior here...
+  rule event_cmd (observer.eventCmd); pmemgen.sendEvent(Event0DW (PMWCI0DW{eType:8'h69}));  endrule
+
+  rule foop2;
+    $display("[%0d]: %m: foop2", $time);
+  endrule
+
   interface WciOcp_Eo wciO0 = observer.wci;
+  interface Put       pmem  = pmemgen.pmem; 
 endmodule
 
 endpackage: OCWciOcpBfm

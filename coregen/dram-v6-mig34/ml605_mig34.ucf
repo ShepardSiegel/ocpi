@@ -10,105 +10,176 @@
 
 CONFIG PART = XC6VLX240T-FF1156-1 ;
 
-NET  "sys0_clkp"     LOC = J9 | IOSTANDARD = LVDS_25;
-NET  "sys0_clkn"     LOC = H9 | IOSTANDARD = LVDS_25;
-NET  "sys1_clkp"     LOC = H6;
-NET  "sys1_clkn"     LOC = H5;
-NET  "pci0_clkp"      LOC = V6;  # 250 MHz from U9
-NET  "pci0_clkn"      LOC = V5;
+NET "sys0_clkp" IOSTANDARD = LVDS_25;
+NET "ftop/sys0_clkp" LOC = J9;
+NET "sys0_clkn" IOSTANDARD = LVDS_25;
+NET "ftop/sys0_clkn" LOC = H9;
+NET "sys1_clkp" LOC = H6;
+NET "sys1_clkn" LOC = H5;
+# 250 MHz from U9
+NET "pci0_clkp" LOC = V6;
+NET "pci0_clkn" LOC = V5;
 #NET  "pci0_clkp"     LOC = P6;  # 100 MHz from U14 Jitter Attenuator
 #NET  "pci0_clkn"     LOC = P5;
 #NET "pci0_clkp"      LOC = AA3; # Direct PCI edge 100 MHz
 #NET "pci0_clkn"      LOC = AA4;
 
-INST "ftop/pci0_clk"  LOC = IBUFDS_GTXE1_X0Y4;  # 250 MHz Receiver from U9  ICS874001
+# 250 MHz Receiver from U9  ICS874001
+INST "ftop/pci0_clk" LOC = IBUFDS_GTXE1_X0Y4;
 #INST "ftop/pci0_clk" LOC = IBUFDS_GTXE1_X0Y6;  # 100 MHz Receiver from U14 ICS854104
 #INST "ftop/pci0_clk" LOC = IBUFDS_GTXE1_X0Y7;  # Direct PCI edge 100 MHz
 
-NET  "pci0_reset_n"  LOC = AE13 | IOSTANDARD = LVCMOS25 | PULLUP | NODELAY;
+NET "pci0_reset_n" NODELAY = "TRUE";
+NET "pci0_reset_n" IOSTANDARD = LVCMOS25;
+NET "pci0_reset_n" PULLUP;
+NET "ftop/pci0_reset_n" LOC = AE13;
 
-INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_block_i"                   LOC = PCIE_X0Y1;
+INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_block_i" LOC = PCIE_X0Y1;
 INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y15;
 INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y14;
 INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y13;
 INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
 
 # Timing Constraints...
-NET "sys0_clkp"      TNM_NET = "SYS0CLK";  # 200 MHz sys0 XO
+# 200 MHz sys0 XO
+NET "sys0_clkp" TNM_NET = "SYS0CLK";
 TIMESPEC "TS_SYS0CLK" = PERIOD "SYS0CLK"     200 MHz HIGH 50 % ;
+TIMESPEC TS_SYS0CLK = PERIOD "SYS0CLK" 200 MHz HIGH 50 %;
 
-NET "pci0_clkp" TNM_NET = "PCICLK" ;
-NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/clk_125" TNM_NET = "CLK_125" ;
-NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/clk_250" TNM_NET = "CLK_250" ;
+NET "pci0_clkp" TNM_NET = "PCICLK";
+NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/clk_125" TNM_NET = "CLK_125";
+NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/clk_250" TNM_NET = "CLK_250";
 TIMESPEC "TS_PCICLK"   = PERIOD "PCICLK"  250 MHz HIGH 50 % ;
+TIMESPEC TS_PCICLK = PERIOD "PCICLK" 250 MHz HIGH 50 %;
 TIMESPEC "TS_CLK_125"  = PERIOD "CLK_125" TS_PCICLK/2 HIGH 50 % PRIORITY 100 ;
+TIMESPEC TS_CLK_125 = PERIOD "CLK_125" TS_PCICLK / 2 HIGH 50 % PRIORITY 100;
 TIMESPEC "TS_CLK_250"  = PERIOD "CLK_250" TS_PCICLK*1 HIGH 50 % PRIORITY 1;
-NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/sel_lnk_rate_d" TIG ;
-PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR"          TIG ;
-PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR"              TIG ;
-PIN "ftop/pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+TIMESPEC TS_CLK_250 = PERIOD "CLK_250" TS_PCICLK * 1 HIGH 50 % PRIORITY 1;
+NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/sel_lnk_rate_d" TIG;
+PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG;
+PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG;
+PIN "ftop/pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG;
 #TIMESPEC "TS_RESETN" = FROM FFS(*) TO FFS(trn_reset_n_i) 8 ns;
 
 # LEDs and Switches...
-NET "led[0]"    LOC = AC22   | IOSTANDARD = "LVCMOS25"; ## User D0
-NET "led[1]"    LOC = AC24   | IOSTANDARD = "LVCMOS25"; ## User D1
-NET "led[2]"    LOC = AE22   | IOSTANDARD = "LVCMOS25"; ## User D2
-NET "led[3]"    LOC = AE23   | IOSTANDARD = "LVCMOS25"; ## User D3
-NET "led[4]"    LOC = AB23   | IOSTANDARD = "LVCMOS25"; ## User D4
-NET "led[5]"    LOC = AG23   | IOSTANDARD = "LVCMOS25"; ## User D5
-NET "led[6]"    LOC = AE24   | IOSTANDARD = "LVCMOS25"; ## User D6
-NET "led[7]"    LOC = AD24   | IOSTANDARD = "LVCMOS25"; ## User D7
-NET "led[8]"    LOC = AP24   | IOSTANDARD = "LVCMOS25"; ## User Center
-NET "led[9]"    LOC = AE21   | IOSTANDARD = "LVCMOS25"; ## User East
-NET "led[10]"   LOC = AH27   | IOSTANDARD = "LVCMOS25"; ## User North
-NET "led[11]"   LOC = AH28   | IOSTANDARD = "LVCMOS25"; ## User South
-NET "led[12]"   LOC = AD21   | IOSTANDARD = "LVCMOS25"; ## User West
+## User D0
+NET "led[0]" IOSTANDARD = LVCMOS25;
+NET "led[0]" LOC = AC22;
+## User D1
+NET "led[1]" IOSTANDARD = LVCMOS25;
+NET "led[1]" LOC = AC24;
+## User D2
+NET "led[2]" IOSTANDARD = LVCMOS25;
+NET "led[2]" LOC = AE22;
+## User D3
+NET "led[3]" IOSTANDARD = LVCMOS25;
+NET "led[3]" LOC = AE23;
+## User D4
+NET "led[4]" IOSTANDARD = LVCMOS25;
+NET "led[4]" LOC = AB23;
+## User D5
+NET "led[5]" IOSTANDARD = LVCMOS25;
+NET "led[5]" LOC = AG23;
+## User D6
+NET "led[6]" IOSTANDARD = LVCMOS25;
+NET "led[6]" LOC = AE24;
+## User D7
+NET "led[7]" IOSTANDARD = LVCMOS25;
+NET "led[7]" LOC = AD24;
+## User Center
+NET "led[8]" IOSTANDARD = LVCMOS25;
+NET "led[8]" LOC = AP24;
+## User East
+NET "led[9]" IOSTANDARD = LVCMOS25;
+NET "led[9]" LOC = AE21;
+## User North
+NET "led[10]" IOSTANDARD = LVCMOS25;
+NET "led[10]" LOC = AH27;
+## User South
+NET "led[11]" IOSTANDARD = LVCMOS25;
+NET "led[11]" LOC = AH28;
+## User West
+NET "led[12]" IOSTANDARD = LVCMOS25;
+NET "led[12]" LOC = AD21;
 #NET "pb_sw[0]"  LOC = G26    | IOSTANDARD = "LVCMOS25"; ## User Center
 #NET "pb_sw[1]"  LOC = G17    | IOSTANDARD = "LVCMOS25"; ## User East
 #NET "pb_sw[2]"  LOC = A19    | IOSTANDARD = "LVCMOS25"; ## User North
 #NET "pb_sw[3]"  LOC = A18    | IOSTANDARD = "LVCMOS25"; ## User South
 #NET "pb_sw[4]"  LOC = H17    | IOSTANDARD = "LVCMOS25"; ## User West
 
-NET  "ppsExtIn"  LOC = H30  | IOSTANDARD = "LVCMOS25"; #FMC LPC H8 on J63
-NET  "ppsOut"    LOC = AD20 | IOSTANDARD = "LVCMOS25"; #FMC HPC H8 on J64
+#FMC LPC H8 on J63
+NET "ppsExtIn" IOSTANDARD = LVCMOS25;
+NET "ppsExtIn" LOC = H30;
+#FMC HPC H8 on J64
+NET "ppsOut" IOSTANDARD = LVCMOS25;
+NET "ppsOut" LOC = AD20;
 
-PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
-PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;
-PIN "ftop/pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG;
+PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG;
+PIN "ftop/pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG;
 
-INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/*" AREA_GROUP = "AG_pcie0" ;
-AREA_GROUP "AG_pcie0" RANGE = SLICE_X136Y147:SLICE_X155Y120 ;
+INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i" AREA_GROUP = "AG_pcie0_1";
+AREA_GROUP "AG_pcie0_1" RANGE=SLICE_X136Y120:SLICE_X155Y147;
 
 ## GbE GMII...
-NET "gmii_txd[0]"     LOC = "AM11"; ## 18 on U80
-NET "gmii_txd[1]"     LOC = "AL11"; ## 19 on U80
-NET "gmii_txd[2]"     LOC = "AG10"; ## 20 on U80
-NET "gmii_txd[3]"     LOC = "AG11"; ## 24 on U80
-NET "gmii_txd[4]"     LOC = "AL10"; ## 25 on U80
-NET "gmii_txd[5]"     LOC = "AM10"; ## 26 on U80
-NET "gmii_txd[6]"     LOC = "AE11"; ## 28 on U80
-NET "gmii_txd[7]"     LOC = "AF11"; ## 29 on U80
-NET "gmii_tx_en"      LOC = "AJ10"; ## 16 on U80
-NET "gmii_tx_er"      LOC = "AH10"; ## 13 on U80
-NET "gmii_tx_clk"     LOC = "AD12"; ## 10 on U80
-NET "gmii_rxd[0]"     LOC = "AN13"; ## 3 on U80
-NET "gmii_rxd[1]"     LOC = "AF14"; ## 128 on U80
-NET "gmii_rxd[2]"     LOC = "AE14"; ## 126 on U80
-NET "gmii_rxd[3]"     LOC = "AN12"; ## 125 on U80
-NET "gmii_rxd[4]"     LOC = "AM12"; ## 124 on U80
-NET "gmii_rxd[5]"     LOC = "AD11"; ## 123 on U80
-NET "gmii_rxd[6]"     LOC = "AC12"; ## 121 on U80
-NET "gmii_rxd[7]"     LOC = "AC13"; ## 120 on U80
-NET "gmii_rx_dv"      LOC = "AM13"; ## 4 on U80
-NET "gmii_rx_er"      LOC = "AG12"; ## 9 on U80
-NET "gmii_rx_clk"     LOC = "AP11"; ## 7 on U80
-NET "gmii_COL"        LOC = "AK13"; ## 114 on U80
-NET "gmii_CRS"        LOC = "AL13"; ## 115 on U80
-NET "gmii_INT"        LOC = "AH14"; ## 32 on U80
-NET "gmii_MDC"        LOC = "AP14"; ## 35 on U80
-NET "gmii_MDIO"       LOC = "AN14"; ## 33 on U80
-NET "gmii_RESET"      LOC = "AH13"; ## 36 on U80
-NET "gmii_TXC_GTXCLK" LOC = "AH12"; ## 14 on U80
+## 18 on U80
+NET "gmii_txd[0]" LOC = AM11;
+## 19 on U80
+NET "gmii_txd[1]" LOC = AL11;
+## 20 on U80
+NET "gmii_txd[2]" LOC = AG10;
+## 24 on U80
+NET "gmii_txd[3]" LOC = AG11;
+## 25 on U80
+NET "gmii_txd[4]" LOC = AL10;
+## 26 on U80
+NET "gmii_txd[5]" LOC = AM10;
+## 28 on U80
+NET "gmii_txd[6]" LOC = AE11;
+## 29 on U80
+NET "gmii_txd[7]" LOC = AF11;
+## 16 on U80
+NET "gmii_tx_en" LOC = AJ10;
+## 13 on U80
+NET "gmii_tx_er" LOC = AH10;
+## 10 on U80
+NET "gmii_tx_clk" LOC = AD12;
+## 3 on U80
+NET "gmii_rxd[0]" LOC = AN13;
+## 128 on U80
+NET "gmii_rxd[1]" LOC = AF14;
+## 126 on U80
+NET "gmii_rxd[2]" LOC = AE14;
+## 125 on U80
+NET "gmii_rxd[3]" LOC = AN12;
+## 124 on U80
+NET "gmii_rxd[4]" LOC = AM12;
+## 123 on U80
+NET "gmii_rxd[5]" LOC = AD11;
+## 121 on U80
+NET "gmii_rxd[6]" LOC = AC12;
+## 120 on U80
+NET "gmii_rxd[7]" LOC = AC13;
+## 4 on U80
+NET "gmii_rx_dv" LOC = AM13;
+## 9 on U80
+NET "gmii_rx_er" LOC = AG12;
+## 7 on U80
+NET "gmii_rx_clk" LOC = AP11;
+NET "gmii_COL"        LOC = "AK13";
+## 114 on U80
+NET "gmii_CRS"        LOC = "AL13";
+## 115 on U80
+NET "gmii_INT"        LOC = "AH14";
+## 32 on U80
+NET "gmii_MDC"        LOC = "AP14";
+## 35 on U80
+NET "gmii_MDIO"       LOC = "AN14";
+## 33 on U80
+NET "gmii_RESET"      LOC = "AH13";
+## 36 on U80
+NET "gmii_TXC_GTXCLK" LOC = "AH12";
+## 14 on U80
 
 
 # ADC...
@@ -391,8 +462,8 @@ NET "gmii_TXC_GTXCLK" LOC = "AH12"; ## 14 on U80
 #INST "ftop/dram0/memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_init/u_ff_phy_init_data_sel" TNM = "TNM_PHY_INIT_SEL";
 #TIMESPEC "TS_MC_PHY_INIT_SEL" = FROM "TNM_PHY_INIT_SEL" TO FFS = "TS_sys_clk"*8;
 
-disable = reg_sr_o;
-disable = reg_sr_r;
+DISABLE = reg_sr_o;
+DISABLE = reg_sr_r;
 
 # Temporary workaround to prevent tools from performing timing analysis on
 # ck_p/ck_n feedback path through the MMCM to the MMCM.LOCK signal (which in
@@ -418,17 +489,101 @@ disable = reg_sr_r;
 # I/O STANDARDS
 ################################################################################
 
-NET  "ddr3_dq[*]"                               IOSTANDARD = SSTL15_T_DCI;
-NET  "ddr3_addr[*]"                             IOSTANDARD = SSTL15;
-NET  "ddr3_ba[*]"                               IOSTANDARD = SSTL15;
-NET  "ddr3_ras_n"                               IOSTANDARD = SSTL15;
-NET  "ddr3_cas_n"                               IOSTANDARD = SSTL15;
-NET  "ddr3_we_n"                                IOSTANDARD = SSTL15;
-NET  "ddr3_reset_n"                             IOSTANDARD = SSTL15;
-NET  "ddr3_cs_n[*]"                             IOSTANDARD = SSTL15;
-NET  "ddr3_odt[*]"                              IOSTANDARD = SSTL15;
-NET  "ddr3_cke[*]"                              IOSTANDARD = SSTL15;
-NET  "ddr3_dm[*]"                               IOSTANDARD = SSTL15;
+NET "ddr3_dq[0]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[10]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[11]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[12]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[13]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[14]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[15]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[16]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[17]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[18]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[19]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[1]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[20]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[21]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[22]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[23]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[24]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[25]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[26]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[27]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[28]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[29]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[2]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[30]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[31]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[32]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[33]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[34]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[35]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[36]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[37]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[38]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[39]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[3]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[40]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[41]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[42]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[43]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[44]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[45]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[46]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[47]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[48]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[49]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[4]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[50]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[51]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[52]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[53]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[54]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[55]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[56]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[57]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[58]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[59]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[5]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[60]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[61]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[62]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[63]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[6]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[7]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[8]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_dq[9]" IOSTANDARD = SSTL15_T_DCI;
+NET "ddr3_addr[0]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[10]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[11]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[12]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[1]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[2]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[3]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[4]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[5]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[6]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[7]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[8]" IOSTANDARD = SSTL15;
+NET "ddr3_addr[9]" IOSTANDARD = SSTL15;
+NET "ddr3_ba[0]" IOSTANDARD = SSTL15;
+NET "ddr3_ba[1]" IOSTANDARD = SSTL15;
+NET "ddr3_ba[2]" IOSTANDARD = SSTL15;
+NET "ddr3_ras_n" IOSTANDARD = SSTL15;
+NET "ddr3_cas_n" IOSTANDARD = SSTL15;
+NET "ddr3_we_n" IOSTANDARD = SSTL15;
+NET "ddr3_reset_n" IOSTANDARD = SSTL15;
+NET "ddr3_cs_n[0]" IOSTANDARD = SSTL15;
+NET "ddr3_odt[0]" IOSTANDARD = SSTL15;
+NET "ddr3_cke[0]" IOSTANDARD = SSTL15;
+NET "ddr3_dm[0]" IOSTANDARD = SSTL15;
+NET "ddr3_dm[1]" IOSTANDARD = SSTL15;
+NET "ddr3_dm[2]" IOSTANDARD = SSTL15;
+NET "ddr3_dm[3]" IOSTANDARD = SSTL15;
+NET "ddr3_dm[4]" IOSTANDARD = SSTL15;
+NET "ddr3_dm[5]" IOSTANDARD = SSTL15;
+NET "ddr3_dm[6]" IOSTANDARD = SSTL15;
+NET "ddr3_dm[7]" IOSTANDARD = SSTL15;
 
 ## ML605 200 MHz LVDS oscillator - single input clock design (2.5V bank)
 ##FIXMESS NET  "sys_clk_p"                                IOSTANDARD = LVDS_25;
@@ -437,13 +592,27 @@ NET  "ddr3_dm[*]"                               IOSTANDARD = SSTL15;
 ## ML605 CPU_RESET switch (1.5V bank)
 ##NOTUSED NET  "sys_rst"           IOSTANDARD = SSTL15;   
 
-NET  "ddr3_dqs_p[*]"                            IOSTANDARD = DIFF_SSTL15_T_DCI;
-NET  "ddr3_dqs_n[*]"                            IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_p[0]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_p[1]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_p[2]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_p[3]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_p[4]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_p[5]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_p[6]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_p[7]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_n[0]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_n[1]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_n[2]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_n[3]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_n[4]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_n[5]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_n[6]" IOSTANDARD = DIFF_SSTL15_T_DCI;
+NET "ddr3_dqs_n[7]" IOSTANDARD = DIFF_SSTL15_T_DCI;
 #SPOFFORD
 #NET  "ddr3_ck_p[*]"                             IOSTANDARD = DIFF_SSTL15_T_DCI;
 #NET  "ddr3_ck_n[*]"                             IOSTANDARD = DIFF_SSTL15_T_DCI;
-NET  "ddr3_ck_p[*]"                             IOSTANDARD = DIFF_SSTL15;
-NET  "ddr3_ck_n[*]"                             IOSTANDARD = DIFF_SSTL15;
+NET "ddr3_ck_p[0]" IOSTANDARD = DIFF_SSTL15;
+NET "ddr3_ck_n[0]" IOSTANDARD = DIFF_SSTL15;
 
 ################################################################################
 ## DCI_CASCADING
@@ -455,8 +624,6 @@ NET  "ddr3_ck_n[*]"                             IOSTANDARD = DIFF_SSTL15;
 ##      Bank 25 and Bank 35 do not have DCI support ( = DCI slaves)
 ###############################################################################
  
- CONFIG DCI_CASCADE = "26 25";
- CONFIG DCI_CASCADE = "36 35";
 
 ##################################################################################
 # Location Constraints
@@ -472,143 +639,143 @@ NET  "ddr3_ck_n[*]"                             IOSTANDARD = DIFF_SSTL15;
 ## 3 data bytes:
 #############################################
 ## Data Byte 0
-NET "ddr3_dq[0]"     LOC = "J11";          
-NET "ddr3_dq[1]"     LOC = "E13";          
-NET "ddr3_dq[2]"     LOC = "F13";          
-NET "ddr3_dq[3]"     LOC = "K11";          
-NET "ddr3_dq[4]"     LOC = "L11";          
-NET "ddr3_dq[5]"     LOC = "K13";          
-NET "ddr3_dq[6]"     LOC = "K12";          
-NET "ddr3_dq[7]"     LOC = "D11";  
-NET "ddr3_dm[0]"     LOC = "E11";
-NET "ddr3_dqs_p[0]"  LOC = "D12";     
-NET "ddr3_dqs_n[0]"  LOC = "E12";
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[0].u_iob_dq/ddr_dq" LOC = J11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[1].u_iob_dq/ddr_dq" LOC = E13;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[2].u_iob_dq/ddr_dq" LOC = F13;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[3].u_iob_dq/ddr_dq" LOC = K11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[4].u_iob_dq/ddr_dq" LOC = L11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[5].u_iob_dq/ddr_dq" LOC = K13;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[6].u_iob_dq/ddr_dq" LOC = K12;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[7].u_iob_dq/ddr_dq" LOC = D11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dm_inst.gen_dm[0].u_phy_dm_iob/ddr_dm" LOC = E11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[0].u_phy_dqs_iob/ddr_dqs_p" LOC = D12;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[0].u_phy_dqs_iob/ddr_dqs_n" LOC = E12;
 ## Data Byte 1
-NET  "ddr3_dq[8]"    LOC = "M13";          
-NET  "ddr3_dq[9]"    LOC = "J14";          
-NET  "ddr3_dq[10]"   LOC = "B13";          
-NET  "ddr3_dq[11]"   LOC = "B12";          
-NET  "ddr3_dq[12]"   LOC = "G10";          
-NET  "ddr3_dq[13]"   LOC = "M11";          
-NET  "ddr3_dq[14]"   LOC = "C12";          
-NET  "ddr3_dq[15]"   LOC = "A11";
-NET  "ddr3_dm[1]"    LOC = "B11";
-NET  "ddr3_dqs_p[1]" LOC = "H12";          
-NET  "ddr3_dqs_n[1]" LOC = "J12";
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[8].u_iob_dq/ddr_dq" LOC = M13;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[9].u_iob_dq/ddr_dq" LOC = J14;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[10].u_iob_dq/ddr_dq" LOC = B13;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[11].u_iob_dq/ddr_dq" LOC = B12;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[12].u_iob_dq/ddr_dq" LOC = G10;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[13].u_iob_dq/ddr_dq" LOC = M11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[14].u_iob_dq/ddr_dq" LOC = C12;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[15].u_iob_dq/ddr_dq" LOC = A11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dm_inst.gen_dm[1].u_phy_dm_iob/ddr_dm" LOC = B11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[1].u_phy_dqs_iob/ddr_dqs_p" LOC = H12;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[1].u_phy_dqs_iob/ddr_dqs_n" LOC = J12;
 ## Data Byte 2
-NET  "ddr3_dq[16]"   LOC = "G11";          
-NET  "ddr3_dq[17]"   LOC = "F11";          
-NET  "ddr3_dq[18]"   LOC = "D14";          
-NET  "ddr3_dq[19]"   LOC = "C14";          
-NET  "ddr3_dq[20]"   LOC = "G12";          
-NET  "ddr3_dq[21]"   LOC = "G13";          
-NET  "ddr3_dq[22]"   LOC = "F14";          
-NET  "ddr3_dq[23]"   LOC = "H14"; 
-NET  "ddr3_dm[2]"    LOC = "E14";
-NET  "ddr3_dqs_p[2]" LOC = "A13";          
-NET  "ddr3_dqs_n[2]" LOC = "A14";
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[16].u_iob_dq/ddr_dq" LOC = G11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[17].u_iob_dq/ddr_dq" LOC = F11;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[18].u_iob_dq/ddr_dq" LOC = D14;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[19].u_iob_dq/ddr_dq" LOC = C14;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[20].u_iob_dq/ddr_dq" LOC = G12;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[21].u_iob_dq/ddr_dq" LOC = G13;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[22].u_iob_dq/ddr_dq" LOC = F14;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[23].u_iob_dq/ddr_dq" LOC = H14;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dm_inst.gen_dm[2].u_phy_dm_iob/ddr_dm" LOC = E14;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[2].u_phy_dqs_iob/ddr_dqs_p" LOC = A13;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[2].u_phy_dqs_iob/ddr_dqs_n" LOC = A14;
 #############################################
 ## Bank 26 DDR3 SODIMM I/F pin assignments 
 ## 2 data bytes:
 #############################################       
 ## Data Byte 3
-NET  "ddr3_dq[24]"   LOC = "C19";
-NET  "ddr3_dq[25]"   LOC = "G20";          
-NET  "ddr3_dq[26]"   LOC = "E19";          
-NET  "ddr3_dq[27]"   LOC = "F20";          
-NET  "ddr3_dq[28]"   LOC = "A20";          
-NET  "ddr3_dq[29]"   LOC = "A21";          
-NET  "ddr3_dq[30]"   LOC = "E22";          
-NET  "ddr3_dq[31]"   LOC = "E23";
-NET  "ddr3_dm[3]"    LOC = "D19";
-NET  "ddr3_dqs_p[3]" LOC = "H19";          
-NET  "ddr3_dqs_n[3]" LOC = "H20";
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[24].u_iob_dq/ddr_dq" LOC = C19;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[25].u_iob_dq/ddr_dq" LOC = G20;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[26].u_iob_dq/ddr_dq" LOC = E19;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[27].u_iob_dq/ddr_dq" LOC = F20;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[28].u_iob_dq/ddr_dq" LOC = A20;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[29].u_iob_dq/ddr_dq" LOC = A21;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[30].u_iob_dq/ddr_dq" LOC = E22;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[31].u_iob_dq/ddr_dq" LOC = E23;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dm_inst.gen_dm[3].u_phy_dm_iob/ddr_dm" LOC = D19;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[3].u_phy_dqs_iob/ddr_dqs_p" LOC = H19;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[3].u_phy_dqs_iob/ddr_dqs_n" LOC = H20;
 ## Data Byte 4
-NET  "ddr3_dq[32]"   LOC = "G21";          
-NET  "ddr3_dq[33]"   LOC = "B21";          
-NET  "ddr3_dq[34]"   LOC = "A23";          
-NET  "ddr3_dq[35]"   LOC = "A24";          
-NET  "ddr3_dq[36]"   LOC = "C20";          
-NET  "ddr3_dq[37]"   LOC = "D20";          
-NET  "ddr3_dq[38]"   LOC = "J20";          
-NET  "ddr3_dq[39]"   LOC = "G22";
-NET  "ddr3_dm[4]"    LOC = "B22";
-NET  "ddr3_dqs_p[4]" LOC = "B23";          
-NET  "ddr3_dqs_n[4]" LOC = "C23";
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[32].u_iob_dq/ddr_dq" LOC = G21;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[33].u_iob_dq/ddr_dq" LOC = B21;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[34].u_iob_dq/ddr_dq" LOC = A23;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[35].u_iob_dq/ddr_dq" LOC = A24;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[36].u_iob_dq/ddr_dq" LOC = C20;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[37].u_iob_dq/ddr_dq" LOC = D20;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[38].u_iob_dq/ddr_dq" LOC = J20;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[39].u_iob_dq/ddr_dq" LOC = G22;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dm_inst.gen_dm[4].u_phy_dm_iob/ddr_dm" LOC = B22;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[4].u_phy_dqs_iob/ddr_dqs_p" LOC = B23;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[4].u_phy_dqs_iob/ddr_dqs_n" LOC = C23;
 #############################################
 ## Bank 24 DDR3 SODIMM I/F pin assignments 
 ## 3 data bytes:
 #############################################
 ## Data Byte 5
-NET  "ddr3_dq[40]"   LOC = "D26";          
-NET  "ddr3_dq[41]"   LOC = "F26";          
-NET  "ddr3_dq[42]"   LOC = "B26";          
-NET  "ddr3_dq[43]"   LOC = "E26";          
-NET  "ddr3_dq[44]"   LOC = "C24";          
-NET  "ddr3_dq[45]"   LOC = "D25";          
-NET  "ddr3_dq[46]"   LOC = "D27";          
-NET  "ddr3_dq[47]"   LOC = "C25";
-NET  "ddr3_dm[5]"    LOC = "A26";
-NET  "ddr3_dqs_p[5]" LOC = "B25";          
-NET  "ddr3_dqs_n[5]" LOC = "A25";
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[40].u_iob_dq/ddr_dq" LOC = D26;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[41].u_iob_dq/ddr_dq" LOC = F26;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[42].u_iob_dq/ddr_dq" LOC = B26;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[43].u_iob_dq/ddr_dq" LOC = E26;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[44].u_iob_dq/ddr_dq" LOC = C24;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[45].u_iob_dq/ddr_dq" LOC = D25;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[46].u_iob_dq/ddr_dq" LOC = D27;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[47].u_iob_dq/ddr_dq" LOC = C25;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dm_inst.gen_dm[5].u_phy_dm_iob/ddr_dm" LOC = A26;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[5].u_phy_dqs_iob/ddr_dqs_p" LOC = B25;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[5].u_phy_dqs_iob/ddr_dqs_n" LOC = A25;
 ## Data Byte 6
-NET  "ddr3_dq[48]"   LOC = "C27";          
-NET  "ddr3_dq[49]"   LOC = "B28";          
-NET  "ddr3_dq[50]"   LOC = "D29";          
-NET  "ddr3_dq[51]"   LOC = "B27";          
-NET  "ddr3_dq[52]"   LOC = "G27";          
-NET  "ddr3_dq[53]"   LOC = "A28";          
-NET  "ddr3_dq[54]"   LOC = "E24";          
-NET  "ddr3_dq[55]"   LOC = "G25";
-NET  "ddr3_dm[6]"    LOC = "A29";
-NET  "ddr3_dqs_p[6]" LOC = "H27";          
-NET  "ddr3_dqs_n[6]" LOC = "G28";
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[48].u_iob_dq/ddr_dq" LOC = C27;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[49].u_iob_dq/ddr_dq" LOC = B28;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[50].u_iob_dq/ddr_dq" LOC = D29;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[51].u_iob_dq/ddr_dq" LOC = B27;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[52].u_iob_dq/ddr_dq" LOC = G27;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[53].u_iob_dq/ddr_dq" LOC = A28;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[54].u_iob_dq/ddr_dq" LOC = E24;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[55].u_iob_dq/ddr_dq" LOC = G25;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dm_inst.gen_dm[6].u_phy_dm_iob/ddr_dm" LOC = A29;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[6].u_phy_dqs_iob/ddr_dqs_p" LOC = H27;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[6].u_phy_dqs_iob/ddr_dqs_n" LOC = G28;
 ## Data Byte 7
-NET  "ddr3_dq[56]"   LOC = "F28";          
-NET  "ddr3_dq[57]"   LOC = "B31";          
-NET  "ddr3_dq[58]"   LOC = "H29";          
-NET  "ddr3_dq[59]"   LOC = "H28";          
-NET  "ddr3_dq[60]"   LOC = "B30";          
-NET  "ddr3_dq[61]"   LOC = "A30";          
-NET  "ddr3_dq[62]"   LOC = "E29";          
-NET  "ddr3_dq[63]"   LOC = "F29";
-NET  "ddr3_dm[7]"    LOC = "A31";
-NET  "ddr3_dqs_p[7]" LOC = "C30";          
-NET  "ddr3_dqs_n[7]" LOC = "D30";
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[56].u_iob_dq/ddr_dq" LOC = F28;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[57].u_iob_dq/ddr_dq" LOC = B31;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[58].u_iob_dq/ddr_dq" LOC = H29;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[59].u_iob_dq/ddr_dq" LOC = H28;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[60].u_iob_dq/ddr_dq" LOC = B30;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[61].u_iob_dq/ddr_dq" LOC = A30;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[62].u_iob_dq/ddr_dq" LOC = E29;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dq[63].u_iob_dq/ddr_dq" LOC = F29;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dm_inst.gen_dm[7].u_phy_dm_iob/ddr_dm" LOC = A31;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[7].u_phy_dqs_iob/ddr_dqs_p" LOC = C30;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_data_io/gen_dqs[7].u_phy_dqs_iob/ddr_dqs_n" LOC = D30;
 #############################################
 ## Bank 36 DDR3 SODIMM I/F pin assignments
 ## Address and Control:
 #############################################
 ## Addresses: (LOCS for 512MB SODIMM only)
 ##
-NET "ddr3_addr[12]"  LOC = "H15"; 
-NET "ddr3_addr[11]"  LOC = "M15"; 
-NET "ddr3_addr[10]"  LOC = "M16"; 
-NET "ddr3_addr[9]"   LOC = "F15"; 
-NET "ddr3_addr[8]"   LOC = "G15"; 
-NET "ddr3_addr[7]"   LOC = "B15"; 
-NET "ddr3_addr[6]"   LOC = "A15"; 
-NET "ddr3_addr[5]"   LOC = "J17"; 
-NET "ddr3_addr[4]"   LOC = "D16"; 
-NET "ddr3_addr[3]"   LOC = "E16"; 
-NET "ddr3_addr[2]"   LOC = "B16";  
-NET "ddr3_addr[1]"   LOC = "A16"; 
-NET "ddr3_addr[0]"   LOC = "L14"; 
+NET "ddr3_addr[12]" LOC = H15;
+NET "ddr3_addr[11]" LOC = M15;
+NET "ddr3_addr[10]" LOC = M16;
+NET "ddr3_addr[9]" LOC = F15;
+NET "ddr3_addr[8]" LOC = G15;
+NET "ddr3_addr[7]" LOC = B15;
+NET "ddr3_addr[6]" LOC = A15;
+NET "ddr3_addr[5]" LOC = J17;
+NET "ddr3_addr[4]" LOC = D16;
+NET "ddr3_addr[3]" LOC = E16;
+NET "ddr3_addr[2]" LOC = B16;
+NET "ddr3_addr[1]" LOC = A16;
+NET "ddr3_addr[0]" LOC = L14;
 ## Bank addresses:
-NET "ddr3_ba[2]"     LOC = "L15"; 
-NET "ddr3_ba[1]"     LOC = "J19"; 
-NET "ddr3_ba[0]"     LOC = "K19"; 
+NET "ddr3_ba[2]" LOC = L15;
+NET "ddr3_ba[1]" LOC = J19;
+NET "ddr3_ba[0]" LOC = K19;
 ## Controls:
-NET "ddr3_ras_n"     LOC = "L19"; 
-NET "ddr3_cas_n"     LOC = "C17"; 
-NET "ddr3_we_n" 	   LOC = "B17"; 
-NET "ddr3_reset_n"   LOC = "E18"; 
-NET "ddr3_cs_n[0]"   LOC = "K18"; 
-NET "ddr3_odt[0]"    LOC = "F18"; 
-NET "ddr3_cke[0]"    LOC = "M18"; 
+NET "ddr3_ras_n" LOC = L19;
+NET "ddr3_cas_n" LOC = C17;
+NET "ddr3_we_n" LOC = B17;
+NET "ddr3_reset_n" LOC = E18;
+NET "ddr3_cs_n[0]" LOC = K18;
+NET "ddr3_odt[0]" LOC = F18;
+NET "ddr3_cke[0]" LOC = M18;
 ## FPGA differential clock output (400 MHz):
-NET "ddr3_ck_p[0]"   LOC = "G18"; 
-NET "ddr3_ck_n[0]"   LOC = "H18"; 
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_clock_io/gen_ck[0].u_phy_ck_iob/ddr_ck_p" LOC = G18;
+NET "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_clock_io/gen_ck[0].u_phy_ck_iob/ddr_ck_n" LOC = H18;
 ##
 #########################################################
 ###  ML605 clocks and system reset inputs and GPIO LEDS
@@ -655,14 +822,14 @@ NET "ddr3_ck_n[0]"   LOC = "H18";
 ######################################################################################
 
 # CLK_RSYNC[0]: Site M12
-INST "*/u_phy_rdclk_gen/gen_loop_col0.u_oserdes_rsync"  LOC = "OLOGIC_X2Y139";
-INST "*/u_phy_rdclk_gen/gen_loop_col0.u_odelay_rsync"   LOC = "IODELAY_X2Y139";
-INST "*/u_phy_rdclk_gen/gen_loop_col0.u_bufr_rsync"     LOC = "BUFR_X2Y6";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_loop_col0.u_oserdes_rsync" LOC = OLOGIC_X2Y139;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_loop_col0.u_odelay_rsync" LOC = IODELAY_X2Y139;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_loop_col0.u_bufr_rsync" LOC = BUFR_X2Y6;
 
 # CLK_RSYNC[1]: Site C29
-INST "*/u_phy_rdclk_gen/gen_loop_col1.u_oserdes_rsync"  LOC = "OLOGIC_X1Y139";
-INST "*/u_phy_rdclk_gen/gen_loop_col1.u_odelay_rsync"   LOC = "IODELAY_X1Y139";
-INST "*/u_phy_rdclk_gen/gen_loop_col1.u_bufr_rsync"     LOC = "BUFR_X1Y6";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_loop_col1.u_oserdes_rsync" LOC = OLOGIC_X1Y139;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_loop_col1.u_odelay_rsync" LOC = IODELAY_X1Y139;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_loop_col1.u_bufr_rsync" LOC = BUFR_X1Y6;
 
 ##################################################################################################
 ##The logic of this pin is used internally to drive a BUFIO for the byte group. Any clock       ##
@@ -678,36 +845,36 @@ INST "*/u_phy_rdclk_gen/gen_loop_col1.u_bufr_rsync"     LOC = "BUFR_X1Y6";
 ######################################################################################
 
 # DQS[0]: Site C13
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[0].u_oserdes_cpt"  LOC = "OLOGIC_X2Y137";
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[0].u_odelay_cpt"   LOC = "IODELAY_X2Y137";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[0].u_oserdes_cpt" LOC = OLOGIC_X2Y137;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[0].u_odelay_cpt" LOC = IODELAY_X2Y137;
 
 # DQS[1]: Site L13
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[1].u_oserdes_cpt"  LOC = "OLOGIC_X2Y141";
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[1].u_odelay_cpt"   LOC = "IODELAY_X2Y141";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[1].u_oserdes_cpt" LOC = OLOGIC_X2Y141;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[1].u_odelay_cpt" LOC = IODELAY_X2Y141;
 
 # DQS[2]: Site K14
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[2].u_oserdes_cpt"  LOC = "OLOGIC_X2Y143";
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[2].u_odelay_cpt"   LOC = "IODELAY_X2Y143";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[2].u_oserdes_cpt" LOC = OLOGIC_X2Y143;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[2].u_odelay_cpt" LOC = IODELAY_X2Y143;
 
 # DQS[3]: Site F21
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[3].u_oserdes_cpt"  LOC = "OLOGIC_X1Y179";
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[3].u_odelay_cpt"   LOC = "IODELAY_X1Y179";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[3].u_oserdes_cpt" LOC = OLOGIC_X1Y179;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[3].u_odelay_cpt" LOC = IODELAY_X1Y179;
 
 # DQS[4]: Site B20
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[4].u_oserdes_cpt"  LOC = "OLOGIC_X1Y181";
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[4].u_odelay_cpt"   LOC = "IODELAY_X1Y181";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[4].u_oserdes_cpt" LOC = OLOGIC_X1Y181;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[4].u_odelay_cpt" LOC = IODELAY_X1Y181;
 
 # DQS[5]: Site F25  
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[5].u_oserdes_cpt"  LOC = "OLOGIC_X1Y137";
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[5].u_odelay_cpt"   LOC = "IODELAY_X1Y137";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[5].u_oserdes_cpt" LOC = OLOGIC_X1Y137;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[5].u_odelay_cpt" LOC = IODELAY_X1Y137;
 
 # DQS[6]: Site C28
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[6].u_oserdes_cpt"  LOC = "OLOGIC_X1Y141";
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[6].u_odelay_cpt"   LOC = "IODELAY_X1Y141";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[6].u_oserdes_cpt" LOC = OLOGIC_X1Y141;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[6].u_odelay_cpt" LOC = IODELAY_X1Y141;
 
 # DQS[7]: Site D24
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[7].u_oserdes_cpt"  LOC = "OLOGIC_X1Y143";
-INST "*/u_phy_rdclk_gen/gen_ck_cpt[7].u_odelay_cpt"   LOC = "IODELAY_X1Y143";
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[7].u_oserdes_cpt" LOC = OLOGIC_X1Y143;
+INST "ftop/dram0/memc_memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/gen_ck_cpt[7].u_odelay_cpt" LOC = IODELAY_X1Y143;
 
 #########################################################################################
 ## The output clock phase monitor must be on a pin that is within +/- 1 bank vertically##
@@ -729,55 +896,101 @@ INST "*/gen_enable_ocb_mon.u_phy_ocb_mon_top/u_oserdes_ocb_mon" LOC = "OLOGIC_X2
 ######################################################################################
 
 # prepended ftop/dram0/memc/
-INST "ftop/dram0/memc/u_infrastructure/u_mmcm_adv"      LOC = "MMCM_ADV_X0Y9"; #Banks 16, 26, 36
-INST "ftop/dram0/memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/u_mmcm_clk_base" LOC = "MMCM_ADV_X0Y8"; #Banks 16, 26, 36
+INST "ftop/dram0/memc/u_infrastructure/u_mmcm_adv"      LOC = "MMCM_ADV_X0Y9";
+#Banks 16, 26, 36
+INST "ftop/dram0/memc/u_memc_ui_top/u_mem_intfc/phy_top0/u_phy_read/u_phy_rdclk_gen/u_mmcm_clk_base" LOC = "MMCM_ADV_X0Y8";
+#Banks 16, 26, 36
 
 
 
 # Flash...
-NET "flash_addr[0]"          LOC = "AL8";    ## 29 on U4, A1 on U27
-NET "flash_addr[1]"          LOC = "AK8";    ## 25 on U4, B1 on U27
-NET "flash_addr[2]"          LOC = "AC9";    ## 24 on U4, C1 on U27
-NET "flash_addr[3]"          LOC = "AD10";   ## 23 on U4, D1 on U27
-NET "flash_addr[4]"          LOC = "C8";     ## 22 on U4, D2 on U27
-NET "flash_addr[5]"          LOC = "B8";     ## 21 on U4, A2 on U27
-NET "flash_addr[6]"          LOC = "E9";     ## 20 on U4, C2 on U27
-NET "flash_addr[7]"          LOC = "E8";     ## 19 on U4, A3 on U27
-NET "flash_addr[8]"          LOC = "A8";     ## 8  on U4, B3 on U27
-NET "flash_addr[9]"          LOC = "A9";     ## 7  on U4, C3 on U27
-NET "flash_addr[10]"         LOC = "D9";     ## 6  on U4, D3 on U27
-NET "flash_addr[11]"         LOC = "C9";     ## 5  on U4, C4 on U27
-NET "flash_addr[12]"         LOC = "D10";    ## 4  on U4, A5 on U27
-NET "flash_addr[13]"         LOC = "C10";    ## 3  on U4, B5 on U27
-NET "flash_addr[14]"         LOC = "F10";    ## 2  on U4, C5 on U27
-NET "flash_addr[15]"         LOC = "F9";     ## 1  on U4, D7 on U27
-NET "flash_addr[16]"         LOC = "AH8";    ## 55 on U4, D8 on U27
-NET "flash_addr[17]"         LOC = "AG8";    ## 18 on U4, A7 on U27
-NET "flash_addr[18]"         LOC = "AP9";    ## 17 on U4, B7 on U27
-NET "flash_addr[19]"         LOC = "AN9";    ## 16 on U4, C7 on U27
-NET "flash_addr[20]"         LOC = "AF10";   ## 11 on U4, C8 on U27
-NET "flash_addr[21]"         LOC = "AF9";    ## 10 on U4, A8 on U27
-NET "flash_addr[22]"         LOC = "AL9";    ## 9  on U4, G1 on U27
-NET "flash_addr[23]"         LOC = "AA23";   ## 26 on U4
-NET "flash_io_dq[0]"         LOC = "AF24";   ## 34 on U4, F2 on U27
-NET "flash_io_dq[1]"         LOC = "AF25";   ## 36 on U4, E2 on U27
-NET "flash_io_dq[2]"         LOC = "W24";    ## 39 on U4, G3 on U27
-NET "flash_io_dq[3]"         LOC = "V24";    ## 41 on U4, E4 on U27
-NET "flash_io_dq[4]"         LOC = "H24";    ## 47 on U4, E5 on U27
-NET "flash_io_dq[5]"         LOC = "H25";    ## 49 on U4, G5 on U27
-NET "flash_io_dq[6]"         LOC = "P24";    ## 51 on U4, G6 on U27
-NET "flash_io_dq[7]"         LOC = "R24";    ## 53 on U4, H7 on U27
-NET "flash_io_dq[8]"         LOC = "G23";    ## 35 on U4, E1 on U27
-NET "flash_io_dq[9]"         LOC = "H23";    ## 37 on U4, E3 on U27
-NET "flash_io_dq[10]"        LOC = "N24";    ## 40 on U4, F3 on U27
-NET "flash_io_dq[11]"        LOC = "N23";    ## 42 on U4, F4 on U27
-NET "flash_io_dq[12]"        LOC = "F23";    ## 48 on U4, F5 on U27
-NET "flash_io_dq[13]"        LOC = "F24";    ## 50 on U4, H5 on U27
-NET "flash_io_dq[14]"        LOC = "L24";    ## 52 on U4, G7 on U27
-NET "flash_io_dq[15]"        LOC = "M23";    ## 54 on U4, E7 on U27
-NET "flash_wait"             LOC = "J26";    ## 56 on U4
-NET "flash_we_n"             LOC = "AF23";   ## 14 on U4, G8 on U27
-NET "flash_oe_n"             LOC = "AA24";   ## 32 on U4, F8 on U27
-NET "flash_ce_n"             LOC = "Y24";    ## 30 on U4, B4 on U27 (U10 and switch S2.2 setting select either U4 or U27)
+## 29 on U4, A1 on U27
+NET "flash_addr[0]" LOC = AL8;
+## 25 on U4, B1 on U27
+NET "flash_addr[1]" LOC = AK8;
+## 24 on U4, C1 on U27
+NET "flash_addr[2]" LOC = AC9;
+## 23 on U4, D1 on U27
+NET "flash_addr[3]" LOC = AD10;
+## 22 on U4, D2 on U27
+NET "flash_addr[4]" LOC = C8;
+## 21 on U4, A2 on U27
+NET "flash_addr[5]" LOC = B8;
+## 20 on U4, C2 on U27
+NET "flash_addr[6]" LOC = E9;
+## 19 on U4, A3 on U27
+NET "flash_addr[7]" LOC = E8;
+## 8  on U4, B3 on U27
+NET "flash_addr[8]" LOC = A8;
+## 7  on U4, C3 on U27
+NET "flash_addr[9]" LOC = A9;
+## 6  on U4, D3 on U27
+NET "flash_addr[10]" LOC = D9;
+## 5  on U4, C4 on U27
+NET "flash_addr[11]" LOC = C9;
+## 4  on U4, A5 on U27
+NET "flash_addr[12]" LOC = D10;
+## 3  on U4, B5 on U27
+NET "flash_addr[13]" LOC = C10;
+## 2  on U4, C5 on U27
+NET "flash_addr[14]" LOC = F10;
+## 1  on U4, D7 on U27
+NET "flash_addr[15]" LOC = F9;
+## 55 on U4, D8 on U27
+NET "flash_addr[16]" LOC = AH8;
+## 18 on U4, A7 on U27
+NET "flash_addr[17]" LOC = AG8;
+## 17 on U4, B7 on U27
+NET "flash_addr[18]" LOC = AP9;
+## 16 on U4, C7 on U27
+NET "flash_addr[19]" LOC = AN9;
+## 11 on U4, C8 on U27
+NET "flash_addr[20]" LOC = AF10;
+## 10 on U4, A8 on U27
+NET "flash_addr[21]" LOC = AF9;
+## 9  on U4, G1 on U27
+NET "flash_addr[22]" LOC = AL9;
+## 26 on U4
+NET "flash_addr[23]" LOC = AA23;
+## 34 on U4, F2 on U27
+NET "ftop/flash0/flashC_tsd/IO[0]" LOC = AF24;
+## 36 on U4, E2 on U27
+NET "ftop/flash0/flashC_tsd/IO[1]" LOC = AF25;
+## 39 on U4, G3 on U27
+NET "ftop/flash0/flashC_tsd/IO[2]" LOC = W24;
+## 41 on U4, E4 on U27
+NET "ftop/flash0/flashC_tsd/IO[3]" LOC = V24;
+## 47 on U4, E5 on U27
+NET "ftop/flash0/flashC_tsd/IO[4]" LOC = H24;
+## 49 on U4, G5 on U27
+NET "ftop/flash0/flashC_tsd/IO[5]" LOC = H25;
+## 51 on U4, G6 on U27
+NET "ftop/flash0/flashC_tsd/IO[6]" LOC = P24;
+## 53 on U4, H7 on U27
+NET "ftop/flash0/flashC_tsd/IO[7]" LOC = R24;
+## 35 on U4, E1 on U27
+NET "ftop/flash0/flashC_tsd/IO[8]" LOC = G23;
+## 37 on U4, E3 on U27
+NET "ftop/flash0/flashC_tsd/IO[9]" LOC = H23;
+## 40 on U4, F3 on U27
+NET "ftop/flash0/flashC_tsd/IO[10]" LOC = N24;
+## 42 on U4, F4 on U27
+NET "ftop/flash0/flashC_tsd/IO[11]" LOC = N23;
+## 48 on U4, F5 on U27
+NET "ftop/flash0/flashC_tsd/IO[12]" LOC = F23;
+## 50 on U4, H5 on U27
+NET "ftop/flash0/flashC_tsd/IO[13]" LOC = F24;
+## 52 on U4, G7 on U27
+NET "ftop/flash0/flashC_tsd/IO[14]" LOC = L24;
+## 54 on U4, E7 on U27
+NET "ftop/flash0/flashC_tsd/IO[15]" LOC = M23;
+## 56 on U4
+NET "flash_wait" LOC = J26;
+## 14 on U4, G8 on U27
+NET "flash_we_n" LOC = AF23;
+## 32 on U4, F8 on U27
+NET "flash_oe_n" LOC = AA24;
+## 30 on U4, B4 on U27 (U10 and switch S2.2 setting select either U4 or U27)
+NET "flash_ce_n" LOC = Y24;
 #NET "FPGA_CCLK"                     LOC = "K8";     ##           F1 on U27
 #NET "PLATFLASH_L_B"                 LOC = "AC23";   ##           H1 on U27

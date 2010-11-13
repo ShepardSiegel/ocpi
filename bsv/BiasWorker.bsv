@@ -11,8 +11,8 @@ typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface BiasWorkerIfc#(numeric type ndw);
   interface WciOcp_Es#(NwciAddr)                        wciS0;    // Worker Control and Configuration 
-  interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS1;    // WSI-S Stream Input
-  interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM1;    // WSI-M Stream Output
+  interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
+  interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM0;    // WSI-M Stream Output
 endinterface 
 
 module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
@@ -89,8 +89,8 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
 
   // Interfaces provided...
   interface wciS0 = wci_Es;
-  interface wsiS1 = wsi_Es;                     // And use it here
-  interface wsiM1 = toWsiEM(wsiM.mas);
+  interface wsiS0 = wsi_Es;                     // And use it here
+  interface wsiM0 = toWsiEM(wsiM.mas);
 
 endmodule: mkBiasWorker
 

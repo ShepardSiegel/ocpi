@@ -8,6 +8,7 @@ ITEST     ?= TB2
 ITEST7    ?= TB7
 ITEST8    ?= TB8
 ITEST10   ?= TB10
+ITEST11   ?= TB11
 OPED      ?= OPED
 RTEST5    ?= FTopV5
 RTESTS6   ?= FTopS6
@@ -171,6 +172,24 @@ isim10: $(OBJ)
 		$(BSV)/$(ITEST10).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST10) -o runsim
+	./runsim 
+
+	# create verilog executable
+	#cd $(OBJ) && bsc -vsim modelsim -keep-fires -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
+
+######################################################################
+isim11: $(OBJ)
+
+	# compile to verilog backend for ISim
+	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/CompileTime.bsv
+	bsc -u -verilog -elab \
+		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSV):lib:+ \
+		$(BSV)/$(ITEST11).bsv
+
+	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST11) -o runsim
 	./runsim 
 
 	# create verilog executable

@@ -58,12 +58,12 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   vWci[7] = appW7.wciS0;
 
   // Connect co-located WSI ports...
-  mkConnection(appW2.wsiM1, appW5.wsiS0);  // W2 SMAdapter0  WSI-M1 feeding W5 WsiSplitter WSI-S0
-  mkConnection(appW5.wsiM0, appW3.wsiS1);  // W5 WsiSplitter WSI-M0 feeding W3 DelayWorker WSI-S1
+  mkConnection(appW2.wsiM0, appW5.wsiS0);  // W2 SMAdapter0  WSI-M0 feeding W5 WsiSplitter WSI-S0
+  mkConnection(appW5.wsiM0, appW3.wsiS0);  // W5 WsiSplitter WSI-M0 feeding W3 DelayWorker WSI-S0
   mkConnection(appW5.wsiM1, appW6.wsiS0);  // W5 WsiSplitter WSI-M1 feeding W6 FrameGate   WSI-S0
   mkConnection(appW6.wsiM0, appW7.wsiS0);  // W6 FrameGate   WSI-M0 feeding W7 PSD         WSI-S0
-  mkConnection(appW7.wsiM0, appW2.wsiS1);  // W7 PSD         WSI-M0 feeding W2 SMAdapter0  WSI-S1
-  mkConnection(appW3.wsiM1, appW4.wsiS1);  // W3 DelayWorker WSI-M1 feeding W4 SMAdapter1  WSI-S1
+  mkConnection(appW7.wsiM0, appW2.wsiS0);  // W7 PSD         WSI-M0 feeding W2 SMAdapter0  WSI-S0
+  mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 DelayWorker WSI-M0 feeding W4 SMAdapter1  WSI-S0
 
   interface wci_s     = vWci;
 
@@ -75,7 +75,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   interface wmemiM    = appW3.wmemiM;  // W3 DelayWroker Wmemi connect
 
   interface wsi_s_adc = appW5.wsiS1;  // The ADC data to the   W5 WsiSplitter WSI-S1 Slave Port
-  interface wsi_m_dac = appW4.wsiM1;  // The DAC data from the W4 SMAdapter   WSI-M1 Master Port
+  interface wsi_m_dac = appW4.wsiM0;  // The DAC data from the W4 SMAdapter   WSI-M0 Master Port
 
 endmodule : mkOCApp_poly
 

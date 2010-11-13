@@ -130,6 +130,26 @@ interface WciOcp_Eo#(numeric type na);  // Observer/Monitor...
   (* prefix="", always_enabled *)          method Action   mFlag        ((* port="MFlag" *)       Bit#(2)  arg_mFlag);
 endinterface
 
+typeclass ConnectableMSO#(type a, type b, type c); // Master-Slave-Observer Connectable...
+  module mkConnectionMSO#(a m, b s, c o) (Empty);
+endtypeclass
+
+instance ConnectableMSO#( WciOcp_Em#(na), WciOcp_Es#(na), WciOcp_Eo#(na) );
+  module mkConnectionMSO#(WciOcp_Em#(na) master, WciOcp_Es#(na) slave, WciOcp_Eo#(na) observer) (Empty);
+    rule mCmdConnect;    slave.mCmd(master.mCmd);                 observer.mCmd(master.mCmd);              endrule 
+    rule mAddrSConnect;  slave.mAddrSpace(master.mAddrSpace);     observer.mAddrSpace(master.mAddrSpace);  endrule 
+    rule mBEConnect;     slave.mByteEn(master.mByteEn);           observer.mByteEn(master.mByteEn);        endrule 
+    rule mAddrConnect;   slave.mAddr(master.mAddr);               observer.mAddr(master.mAddr);            endrule 
+    rule mDataConnect;   slave.mData(master.mData);               observer.mData(master.mData);            endrule 
+    rule sRespConnect;   master.sResp(slave.sResp);               observer.sResp(slave.sResp);             endrule 
+    rule sDataConnect;   master.sData(slave.sData);               observer.sData(slave.sData);             endrule
+    rule stbConnect      (slave.sThreadBusy); master.sThreadBusy; observer.sThreadBusy;                    endrule
+    rule sFlagConnect;   master.sFlag(slave.sFlag);               observer.sFlag(slave.sFlag);             endrule
+    rule mFlagConnect;   slave.mFlag(master.mFlag);               observer.mFlag(master.mFlag);            endrule
+  endmodule
+endinstance
+   
+
 //
 // The Four Connectable M/S instances..
 // Connect a Explicitly-named master to a Explicitly-named slave...
@@ -811,6 +831,7 @@ endinterface
 //
 interface WciOcpObserverIfc#(numeric type na);
   interface WciOcp_Eo#(na)       wci;
+  method Bool                    eventCmd;
 endinterface
 
 module mkWciOcpObserver (WciOcpObserverIfc#(na));
@@ -827,11 +848,17 @@ module mkWciOcpObserver (WciOcpObserverIfc#(na));
   Reg#(Bit#(2))    r_mFlag         <-  mkReg(0);
 
   Reg#(Bit#(3))    r_mCmdD         <-  mkReg(0);
+  Reg#(Bool)       eCmd            <-  mkDReg(False);
 
   rule mCmd_state; r_mCmdD <= r_mCmd; endrule
 
   rule cmd_start (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
     $display("[%0d]: %m: WCI mcmd %0x", $time, pack(r_mCmd));
+    eCmd <= True;
+  endrule
+
+  rule foop;
+    $display("[%0d]: %m: foop", $time);
   endrule
 
   /*
@@ -856,6 +883,7 @@ module mkWciOcpObserver (WciOcpObserverIfc#(na));
     method Action   sFlag        (Bit#(2)  arg_sFlag);     r_sFlag      <= arg_sFlag;     endmethod
     method Action   mFlag        (Bit#(2)  arg_mFlag);     r_mFlag      <= arg_mFlag;     endmethod
   endinterface
+  method Bool eventCmd = eCmd;
 
 endmodule
 

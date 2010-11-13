@@ -15,7 +15,7 @@ typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 typedef enum {DDCPass, DDCEnable, DDCSpare2, DDCSpare3} DDCMode deriving (Bits, Eq);  // DDC mode bits in ddcCtrl[1:0]
 
 interface DDCWorkerIfc;
-  interface WciOcp_Es#(NwciAddr)        wciS0;    // Worker Control and Configuration 
+  interface WciOcp_Es#(NwciAddr)     wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,32,4,8,0)     wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,32,4,8,0)     wsiM0;    // WSI-M Stream Output
 endinterface 

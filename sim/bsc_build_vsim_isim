@@ -147,8 +147,6 @@ VSIM_PATH_FLAGS="$BSC_VERILOG_DIRS -sourcelibext .v"
 
 # generate a fuse .prj script
 TEMPFILE=`mktemp -t fuse.prj.XXXXXX` || exit 1
-##ssiegel added compiling glbl.v to work_dir
-echo "Verilog $work_dir $XILINX/verilog/src/glbl.v" >> $TEMPFILE
 for file in $BSC_VERILOG_FILES; do
     abs_file=`readlink -m "$file"`
     echo "Verilog $work_dir $abs_file" >> $TEMPFILE
@@ -165,12 +163,7 @@ if [ "$VERBOSE" = "yes" ]; then
 else
   FUSE_VERBOSE="-v 0"
 fi
-##was
-#fuse $FUSE_VERBOSE -o $BSC_SIM_EXECUTABLE.isim -prj $TEMPFILE $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS -d TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS -t $work_dir.main $BSC_VERILOG_OPTS
-##ssiegel added -L unisims_ver
-##ssiegel added $work_dir.glbl
-##ssiegel remove obsolete -t
-fuse $FUSE_VERBOSE -o $BSC_SIM_EXECUTABLE.isim -prj $TEMPFILE $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS -d TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS $work_dir.main $work_dir.glbl $BSC_VERILOG_OPTS -L unisims_ver
+fuse $FUSE_VERBOSE -o $BSC_SIM_EXECUTABLE.isim -prj $TEMPFILE $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS -d TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS -t $work_dir.main $BSC_VERILOG_OPTS
 status=$?
 if [ "$status" != "0" ]; then
   echo "ERROR: cannot compile HDL files" >&2
@@ -178,14 +171,14 @@ if [ "$status" != "0" ]; then
 fi
 
 # create a TCL command file to run the simulation
-##ssiegel-added wave add, VCD dumping
-#echo "set timescale 1ps/1ps" > $BSC_SIM_EXECUTABLE.isim.tcl
+#echo "run all" > $BSC_SIM_EXECUTABLE.isim.tcl
 echo "wave add -r /"                >   $BSC_SIM_EXECUTABLE.isim.tcl
 echo "vcd dumpfile dump.vcd"        >>  $BSC_SIM_EXECUTABLE.isim.tcl
 echo "vcd dumpvars -m /main -l 0"   >>  $BSC_SIM_EXECUTABLE.isim.tcl
 echo "vcd dumpon"                   >>  $BSC_SIM_EXECUTABLE.isim.tcl
 echo "run all"                      >>  $BSC_SIM_EXECUTABLE.isim.tcl
 echo "vcd flush"                    >>  $BSC_SIM_EXECUTABLE.isim.tcl
+
 
 # create a "simulator executable" shell script
 rm -f $BSC_SIM_EXECUTABLE

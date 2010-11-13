@@ -19,8 +19,8 @@ interface GbeWorkerIfc;
   interface WciOcp_s#(20) wci_rx;             // WCI
   interface WciOcp_s#(20) wci_tx;             // WCI
   interface Wti_s#(64) wti_s;                 // WTI
-  interface Wsi_Em#(12,32,4,8,0) wsiM1;       // WSI Rx Packet Stream
-  interface Wsi_Es#(12,32,4,8,0) wsiS1;       // WSI Tx Packet Stream
+  interface Wsi_Em#(12,32,4,8,0) wsiM0;       // WSI Rx Packet Stream
+  interface Wsi_Es#(12,32,4,8,0) wsiS0;       // WSI Tx Packet Stream
 
   interface GMII  gmii;    // The GMII link
   interface Reset mrst_n;  // GMII associated Reset
@@ -110,8 +110,8 @@ endrule
   interface WciOcp_s  wci_rx = wciRx.slv;
   interface WciOcp_s  wci_tx = wciTx.slv;
   interface Wti_s  wti_s  = wti.slv;
-  interface Wsi_Em wsiM1  = toWsiEM(wsiM.mas);
-  interface Wsi_Es wsiS1  = wsi_Es;
+  interface Wsi_Em wsiM0  = toWsiEM(wsiM.mas);
+  interface Wsi_Es wsiS0  = wsi_Es;
   interface        gmii   = emac.gmii;
   interface        mrst_n = emac.mrst_n;
   interface        rxclk  = emac.rxclk;

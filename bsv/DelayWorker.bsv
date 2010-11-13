@@ -20,8 +20,8 @@ typedef 23 Ndag;     // Number of bits in the delay address generator log2 of 16
 
 interface DelayWorkerIfc#(numeric type ndw);
   interface WciOcp_Es#(NwciAddr)                        wciS0;    // Worker Control and Configuration 
-  interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS1;    // WSI-S Stream Input
-  interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM1;    // WSI-M Stream Output
+  interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
+  interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM0;    // WSI-M Stream Output
   interface WmemiEM16B                                  wmemiM;   // WMI Memory
 endinterface 
 
@@ -447,8 +447,8 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
   WmemiEM16B              wmemi_Em  <- mkWmemiMtoEm(wmemi.mas);
 
   interface wciS0  = wci_Es;
-  interface wsiS1  = wsi_Es;
-  interface wsiM1  = toWsiEM(wsiM.mas);
+  interface wsiS0  = wsi_Es;
+  interface wsiM0  = toWsiEM(wsiM.mas);
   interface wmemiM = wmemi_Em;
 endmodule
 

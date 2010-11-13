@@ -24,7 +24,7 @@ import XilinxExtra::*;
 interface ADCWorkerIfc;
   interface WciOcp_s#(20) wci_s;              // WCI
   interface Wti_s#(64) wti_s;                 // WTI
-  interface Wsi_Em#(12,32,4,8,0) wsiM1;       // WSI ADC Master
+  interface Wsi_Em#(12,32,4,8,0) wsiM0;       // WSI ADC Master
   (* prefix = "" *) interface AD9512Ifc adx;  // AD AD9512 Clock Driver
   interface Ads6149Ifc adc0;                  // TI ADS6149 ADC0
   interface Ads6149Ifc adc1;                  // TI ADS6149 ADC1
@@ -204,7 +204,7 @@ endrule
 
   interface WciOcp_s wci_s   = wci.slv;
   interface Wti_s wti_s      = wti.slv;
-  interface Wsi_m wsiM1      = toWsiEM(wsiM.mas);
+  interface Wsi_m wsiM0      = toWsiEM(wsiM.mas);
   interface AD9512Ifc  adx   = spiClk.adx;
   interface Ads6149Ifc adc0  = adcCore0.adc;
   interface Ads6149Ifc adc1  = adcCore1.adc;

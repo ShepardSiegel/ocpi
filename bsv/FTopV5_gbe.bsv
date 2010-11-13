@@ -82,8 +82,8 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   mkConnection(tcGbe0.wti_m, gbe0.wti_s); 
 
   // WSI...
-  mkConnection(gbe0.wsiM1, ctop.wsi_s_adc);  // The WSI from gbe0-RX  to CTOP/APP
-  mkConnection(ctop.wsi_m_dac, gbe0.wsiS1);  // The WSI from CTOP/APP to gbe0-TX
+  mkConnection(gbe0.wsiM0, ctop.wsi_s_adc);  // The WSI from gbe0-RX  to CTOP/APP
+  mkConnection(ctop.wsi_m_dac, gbe0.wsiS0);  // The WSI from CTOP/APP to gbe0-TX
 
   // Interfaces and Methods provided...
   interface pcie     = pci0.pcie;

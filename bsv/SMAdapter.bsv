@@ -18,8 +18,8 @@ import GetPut::*;
 interface SMAdapterIfc#(numeric type ndw);
   interface WciOcp_Es#(20)                                 wciS0;
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmiM;
-  interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiM1;
-  interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiS1;
+  interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiM0;
+  interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiS0;
 endinterface 
 
 module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapterIfc#(ndw))
@@ -329,8 +329,8 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
   interface wciS0 = wci_Es;
   interface wmiM  = wmi_Em;
-  interface wsiM1 = toWsiEM(wsiM.mas); 
-  interface wsiS1 = wsi_Es;
+  interface wsiM0 = toWsiEM(wsiM.mas); 
+  interface wsiS0 = wsi_Es;
 
 endmodule
 

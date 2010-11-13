@@ -22,7 +22,7 @@ import XilinxExtra::*;
 interface DACWorkerIfc;
   interface WciOcp_s#(20) wci_s;              // WCI
   interface Wti_s#(64) wti_s;                 // WTI
-  interface Wsi_Es#(12,32,4,8,0) wsiS1;       // WSI DAC Slave
+  interface Wsi_Es#(12,32,4,8,0) wsiS0;       // WSI DAC Slave
   interface P_Max19692Ifc dac0;               // Maxim 19662
 endinterface 
 
@@ -196,7 +196,7 @@ endrule
 
   interface WciOcp_s wci_s = wci.slv;
   interface Wti_s    wti_s = wti.slv;
-  interface Wsi_s    wsiS1 = wsi_Es;
+  interface Wsi_s    wsiS0 = wsi_Es;
   interface Max19692Ifc dac0 = dacCore0.dac;
 endmodule
 
