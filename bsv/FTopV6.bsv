@@ -75,12 +75,11 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   FIFO#(TLPData#(8))              fI2P    <- mkSizedFIFO(4,    clocked_by trn_clk, reset_by trn_rst  );
 
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by trn2_clk, reset_by trn2_rst);
-  case (NDW_global)
-    1: CTopIfc#(1) ctop <- mkCTop4B (pciDevice, sys0_clk, sys0_rst, clocked_by trn2_clk, reset_by trn2_rst);
-    2: CTopIfc#(2) ctop <- mkCTop8B (pciDevice, sys0_clk, sys0_rst, clocked_by trn2_clk, reset_by trn2_rst);
-    4: CTopIfc#(4) ctop <- mkCTop16B(pciDevice, sys0_clk, sys0_rst, clocked_by trn2_clk, reset_by trn2_rst);
-    8: CTopIfc#(8) ctop <- mkCTop32B(pciDevice, sys0_clk, sys0_rst, clocked_by trn2_clk, reset_by trn2_rst);
-  endcase
+`define USE_NDW1
+`ifdef USE_NDW1
+  CTop4BIfc ctop <- mkCTop4B(pciDevice, sys0_clk, sys0_rst, clocked_by trn2_clk, reset_by trn2_rst);
+`endif
+
 
   // Inbound  PCIe (8B@250MHz) -> CTOP (16B@125MHz)
   mkConnection(pci0.trn_rx,  toPut(fP2I),          clocked_by trn_clk,  reset_by trn_rst);  // 8B      250 MHz

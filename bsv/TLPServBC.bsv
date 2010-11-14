@@ -80,13 +80,17 @@ typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b
 
 module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciOcpSlaveIfc#(20) wci) (TLPServBCIfc);
 
-  Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
+  // TODO: Implement and test *registered* SRLFIFO for "best of both worlds"
+  //Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
+  Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives
+
   FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(MemReqPacket)     mReqF                <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
 //FIFOF#(MemRespPacket)    mRespF               <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(MemRespPacket)    mRespF               <- mkFIFOF; // Use mkFIFOF for mRespF as mkSRLFIFO has 2-level long c->q on a critical path through rule dmaPushResponseBody
   FIFOF#(ReadReq)          readReq              <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
+  FIFOF#(Bit#(0))          tailEventF           <- mkFIFOF;
 
   Reg#(Bool)               inIgnorePkt          <- mkRegU;
   Reg#(Bit#(10))           outDwRemain          <- mkRegU;
@@ -290,13 +294,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     xmtMetaInFlight <= False;
     tlpMetaSent     <= False;
     fabMeta         <= (Invalid);
-    MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
-    let w = PTW16 {
-      data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)},
-      be:'1, hit:7'h1, sof:True, eof:True };
-    outF.enq(w);
+    postSeqDwell    <= psDwell;
+    tailEventF.enq(0'b0); // Send a generic tail event
     $display("[%0d]: %m: dmaXmtTailEvent FPactMesg-Step7/7", $time);
-    postSeqDwell <= psDwell;
   endrule
 
   // This rule used at the end of all Active transfers to purposefully insert a small amount of dwell time...
@@ -307,12 +307,10 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // 
   // Send Doorbells to tell the far side of our near buffer availability...
   rule dmaXmtDoorbell (actFlow && !tlpXmtBusy && postSeqDwell==0 && creditReady);
-    remStart     <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
-    postSeqDwell <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
-    MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
+    remStart      <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
+    postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
     flowDiagCount <= flowDiagCount + 1;
-    let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
-    outF.enq(w);
+    tailEventF.enq(0'b0); // Send a generic tail event
     $display("[%0d]: %m: dmaXmtDoorbell FC/FPactFlow-Step1/1", $time);
   endrule
 
@@ -320,7 +318,6 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     CompletionHdr ch = unpack(t.data[127:32]);
     return(tagm==ch.tag && ch.requesterID==rid);
   endfunction 
-
 
   //
   // FCactMesg - Fabric Consumer Message Pull Sequence...
@@ -460,15 +457,20 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     remDone         <= True;  // Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
     dmaDoTailEvent  <= False;
     fabMeta         <= (Invalid);
-    MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
-    let w = PTW16 {
-      data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)},
-      be:'1, hit:7'h1, sof:True, eof:True };
-    outF.enq(w);
+    postSeqDwell    <= psDwell;
+    tailEventF.enq(0'b0); // Send a generic tail event
     $display("[%0d]: %m: dmaPullTailEvent FPactMesg-Step5/5", $time);
-    postSeqDwell <= psDwell;
   endrule
 
+
+  // Generic TailEvent Sender (Used at end of push, pull, and for flow signal to fabFlowAddr)...
+  rule dmaTailEventSender;
+    tailEventF.deq;
+    MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
+    let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
+    outF.enq(w);
+    $display("[%0d]: %m: dmaTailEventSender - generic", $time);
+  endrule
 
 
   rule tlpRcv (!reqMetaInFlight && !reqMesgInFlight && !reqMetaBodyInFlight); // TODO: Replace these guards with monitors

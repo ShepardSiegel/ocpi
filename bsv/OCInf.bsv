@@ -34,7 +34,8 @@ interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
 endinterface
 
 module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci_ctop,ndw))
-  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)));
+  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)),
+    NumAlias#(ndw,1) ); // by joe
 
   OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst);                 // control plane
   TLPSMIfc        sm0  <- mkTLPSM(tagged Bar 0);      // server merge, fork away Bar 0
@@ -53,19 +54,12 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
 
   // The producer/consumer and passive/active roles are set by dataplane configuration properties...
   //OCDPIfc#(ndw)  dp0  <- mkOCDP(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-  case (NDW_global)
-    1: OCDPIfc#(1)  dp0  <- mkOCDP4B (insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-    2: OCDPIfc#(2)  dp0  <- mkOCDP8B (insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-    4: OCDPIfc#(4)  dp0  <- mkOCDP16B(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-    8: OCDPIfc#(8)  dp0  <- mkOCDP32B(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-  endcase
   //OCDPIfc#(ndw)  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
-  case (NDW_global)
-    1: OCDPIfc#(1)  dp1  <- mkOCDP4B (insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric consumer in example app)
-    2: OCDPIfc#(2)  dp1  <- mkOCDP8B (insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric consumer in example app)
-    4: OCDPIfc#(4)  dp1  <- mkOCDP16B(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric consumer in example app)
-    8: OCDPIfc#(8)  dp1  <- mkOCDP32B(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric consumer in example app)
-  endcase
+`define USE_NDW1
+`ifdef USE_NDW1
+  OCDP4BIfc  dp0  <- mkOCDP(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+  OCDP4BIfc  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
+`endif
 
   // Infrastruture WCI slaves...
   mkConnection(vWci[13], dp0.wci_s);
@@ -112,31 +106,31 @@ endmodule : mkOCInf_poly
 
 // Synthesizeable, non-polymorphic modules that use the poly module above...
 
+`ifdef USE_NDW1
 typedef OCInfIfc#(Nwci_ctop,1) OCInf4BIfc;
 (* synthesize *)
 module mkOCInf4B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInf4BIfc);
   OCInf4BIfc _a <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst); return _a;
 endmodule
-
+`elsif USE_NDW2
 typedef OCInfIfc#(Nwci_ctop,2) OCInf8BIfc;
 (* synthesize *)
 module mkOCInf8B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInf8BIfc);
   OCInf8BIfc _a <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst); return _a;
 endmodule
-
+`elsif USE_NDW4
 typedef OCInfIfc#(Nwci_ctop,4) OCInf16BIfc;
 (* synthesize *)
 module mkOCInf16B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInf16BIfc);
   OCInf16BIfc _a <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst); return _a;
 endmodule
-
+`elsif USE_NDW8
 typedef OCInfIfc#(Nwci_ctop,8) OCInf32BIfc;
 (* synthesize *)
 module mkOCInf32B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInf32BIfc);
   OCInf32BIfc _a <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst); return _a;
 endmodule
-
-
+`endif
 
 
 endpackage: OCInf

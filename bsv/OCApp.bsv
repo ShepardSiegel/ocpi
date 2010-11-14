@@ -5,6 +5,8 @@ package OCApp;
 
 import OCWip::*;
 
+`define USE_NDW1
+
 import DelayWorker::*;
 import SMAdapter::*;
 import Config::*;
@@ -33,12 +35,31 @@ endinterface
 
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi,ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)),    // by shep
-    Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))));                          // by bsc output
+    Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))),                          // by bsc output
+    NumAlias#(ndw,1) ); // by joe
+
 
   // Instance the workers in this application container...
 
+`define USE_NDW1
+`ifdef USE_NDW1
+  SMAdapter4BIfc   appW2   <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  DelayWorker4BIfc appW3   <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapter4BIfc   appW4   <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`endif
+
+  // 'PLAN A': This compiles and functions; but does not allows us to have synthesis bounds at each worker as required...
+  // Here we show instancing the underlying polymorhic modules directly (nice!)...
+  /*
+  SMAdapterIfc  #(ndw) appW2   <-  mkSMAdapter   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  DelayWorkerIfc#(ndw) appW3   <-  mkDelayWorker (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapterIfc  #(ndw) appW4   <-  mkSMAdapter   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+  */
+
+  // 'PLAN B': This doesn't work, because bsc doesn't get to choose across the case arms until too late...
   // Here we do this manually (yuck!), because we had the desire to implement discrete worker RTL modules with synth bounds...
-  case (NDW_global)
+  /*
+  case (iNDW_global)
   1:
     begin
       SMAdapter4BIfc    appW2    <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
@@ -64,12 +85,28 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
       SMAdapter32BIfc   appW4    <-  mkSMAdapter32B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
     end
   endcase
+  */
 
-  // Here we show instancing the underlying polymorhic modules directly (nice!)...
+  // 'PLAN C': This satisfies the compiler at first. but can't tell bsc what ndw is...
+  // Here we use (super-yuck) `defines...
   /*
-  SMAdapterIfc  #(ndw) appW2   <-  mkSMAdapter   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  DelayWorkerIfc#(ndw) appW3   <-  mkDelayWorker (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  SMAdapterIfc  #(ndw) appW4   <-  mkSMAdapter   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`ifdef USE_NDW1
+      SMAdapter4BIfc    appW2    <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+      DelayWorker4BIfc  appW3    <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+      SMAdapter4BIfc    appW4    <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`elsif USE_NDW2
+      SMAdapter8BIfc    appW2    <-  mkSMAdapter8B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+      DelayWorker8BIfc  appW3    <-  mkDelayWorker8B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+      SMAdapter8BIfc    appW4    <-  mkSMAdapter8B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`elsif USE_NDW4
+      SMAdapter16BIfc   appW2    <-  mkSMAdapter16B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+      DelayWorker16BIfc appW3    <-  mkDelayWorker16B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+      SMAdapter16BIfc   appW4    <-  mkSMAdapter16B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`elsif USE_NDW8
+      SMAdapter32BIfc   appW2    <-  mkSMAdapter32B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+      DelayWorker32BIfc appW3    <-  mkDelayWorker32B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+      SMAdapter32BIfc   appW4    <-  mkSMAdapter32B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`endif
   */
 
   // TODO: Use Default for tieOff...
@@ -110,29 +147,32 @@ endmodule : mkOCApp_poly
 
 // Synthesizeable, non-polymorphic modules that use the poly module above...
 
+`ifdef USE_NDW1
 typedef OCAppIfc#(Nwci_app,Nwmi,Nwmemi,1) OCApp4BIfc;
 (* synthesize *)
 module mkOCApp4B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCApp4BIfc);
   OCApp4BIfc _a <- mkOCApp_poly(rst, hasDebugLogic); return _a;
 endmodule
-
+`elsif USE_NDW2
 typedef OCAppIfc#(Nwci_app,Nwmi,Nwmemi,2) OCApp8BIfc;
 (* synthesize *)
 module mkOCApp8B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCApp8BIfc);
   OCApp8BIfc _a <- mkOCApp_poly(rst, hasDebugLogic); return _a;
 endmodule
-
+`elsif USE_NDW4
 typedef OCAppIfc#(Nwci_app,Nwmi,Nwmemi,4) OCApp16BIfc;
 (* synthesize *)
 module mkOCApp16B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCApp16BIfc);
   OCApp16BIfc _a <- mkOCApp_poly(rst, hasDebugLogic); return _a;
 endmodule
-
+`elsif USE_NDW8
 typedef OCAppIfc#(Nwci_app,Nwmi,Nwmemi,8) OCApp32BIfc;
 (* synthesize *)
 module mkOCApp32B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCApp32BIfc);
   OCApp32BIfc _a <- mkOCApp_poly(rst, hasDebugLogic); return _a;
 endmodule
+`endif
+
 
 // Original poly wrapper...
 /*

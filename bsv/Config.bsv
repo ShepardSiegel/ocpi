@@ -7,8 +7,10 @@ package Config;
 
 `ifdef DEFINE_NDW
 `else
-`define DEFINE_NDW=1
+`define DEFINE_NDW 1
 `endif
+
+`define USE_NDW1
 
   typedef `DEFINE_NDW NDW_global;
   Integer iNDW_global = valueOf(NDW_global);

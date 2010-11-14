@@ -62,8 +62,10 @@ Compiling verilog file "../../libsrc/hdl/bsv/RevertReg.v" in library bsv
 Module <SizedFIFO> compiled
 Compiling verilog file "../../libsrc/hdl/bsv/FIFO2.v" in library bsv
 Module <RevertReg> compiled
-Compiling verilog file "../../libsrc/hdl/bsv/FIFO1.v" in library bsv
+Compiling verilog file "../../libsrc/hdl/bsv/FIFO20.v" in library bsv
 Module <FIFO2> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/FIFO1.v" in library bsv
+Module <FIFO20> compiled
 Compiling verilog file "../../libsrc/hdl/bsv/SyncFIFO.v" in library bsv
 Module <FIFO1> compiled
 Compiling verilog file "../../libsrc/hdl/bsv/SyncBit.v" in library bsv
@@ -263,13 +265,13 @@ Delay:               3.606ns (Levels of Logic = 2)
 =========================================================================
 
 
-Total REAL time to Xst completion: 3.00 secs
+Total REAL time to Xst completion: 4.00 secs
 Total CPU time to Xst completion: 3.35 secs
  
 --> 
 
 
-Total memory usage is 415984 kilobytes
+Total memory usage is 415996 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    0 (   0 filtered)
