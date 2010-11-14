@@ -38,8 +38,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   // Instance the workers in this application container...
 
   // Here we do this manually (yuck!), because we had the desire to implement discrete worker RTL modules with synth bounds...
-  /*
-  case (valueOf(ndw))
+  case (NDW_global)
   1:
     begin
       SMAdapter4BIfc    appW2    <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
@@ -65,12 +64,13 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
       SMAdapter32BIfc   appW4    <-  mkSMAdapter32B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
     end
   endcase
-  */
 
   // Here we show instancing the underlying polymorhic modules directly (nice!)...
+  /*
   SMAdapterIfc  #(ndw) appW2   <-  mkSMAdapter   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
   DelayWorkerIfc#(ndw) appW3   <-  mkDelayWorker (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapterIfc  #(ndw) appW4   <-  mkSMAdapter   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+  */
 
   // TODO: Use Default for tieOff...
   WciOcp_Es#(20) tieOff0  <- mkWciOcpSlaveENull;

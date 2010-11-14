@@ -52,8 +52,20 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   //TODO: The PCIe Configuration needs to be adjusted so that device functions with non-zero function number will be completed to!
 
   // The producer/consumer and passive/active roles are set by dataplane configuration properties...
-  OCDPIfc#(ndw)  dp0  <- mkOCDP(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-  OCDPIfc#(ndw)  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
+  //OCDPIfc#(ndw)  dp0  <- mkOCDP(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+  case (NDW_global)
+    1: OCDPIfc#(1)  dp0  <- mkOCDP4B (insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+    2: OCDPIfc#(2)  dp0  <- mkOCDP8B (insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+    4: OCDPIfc#(4)  dp0  <- mkOCDP16B(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+    8: OCDPIfc#(8)  dp0  <- mkOCDP32B(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
+  endcase
+  //OCDPIfc#(ndw)  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
+  case (NDW_global)
+    1: OCDPIfc#(1)  dp1  <- mkOCDP4B (insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric consumer in example app)
+    2: OCDPIfc#(2)  dp1  <- mkOCDP8B (insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric consumer in example app)
+    4: OCDPIfc#(4)  dp1  <- mkOCDP16B(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric consumer in example app)
+    8: OCDPIfc#(8)  dp1  <- mkOCDP32B(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric consumer in example app)
+  endcase
 
   // Infrastruture WCI slaves...
   mkConnection(vWci[13], dp0.wci_s);

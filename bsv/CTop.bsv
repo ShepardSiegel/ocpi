@@ -39,10 +39,25 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
 
   Bool hasDebugLogic = True;
 
-  OCInfIfc#(Nwci_ctop,ndw) inf <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+  //OCInfIfc#(Nwci_ctop,ndw) inf <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+  case (NDW_global)
+    1: OCInfIfc#(Nwci_ctop,1) inf <- mkOCInf4B (pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+    2: OCInfIfc#(Nwci_ctop,2) inf <- mkOCInf8B (pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+    4: OCInfIfc#(Nwci_ctop,4) inf <- mkOCInf16B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+    8: OCInfIfc#(Nwci_ctop,8) inf <- mkOCInf32B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+  endcase
+
   Vector#(iNwci_ctop, Reset) resetVec = newVector;                                   // Vector of WCI Resets
   for (Integer i=0; i<iNwci_app; i=i+1) resetVec[i] = inf.wci_m[i].mReset_n;         // Reset Vector for the Application
-  OCAppIfc#(Nwci_app,Nwmi,Nwmemi,ndw) app  <- mkOCApp_poly(resetVec,hasDebugLogic);  // Instance the Application
+
+  //OCAppIfc#(Nwci_app,Nwmi,Nwmemi,ndw) app  <- mkOCApp_poly(resetVec,hasDebugLogic);  // Instance the Application
+  case (NDW_global)
+    1: OCAppIfc#(Nwci_app,Nwmi,Nwmemi,1) app  <- mkOCApp4B (resetVec,hasDebugLogic);  // Instance the Application
+    2: OCAppIfc#(Nwci_app,Nwmi,Nwmemi,2) app  <- mkOCApp8B (resetVec,hasDebugLogic);  // Instance the Application
+    4: OCAppIfc#(Nwci_app,Nwmi,Nwmemi,4) app  <- mkOCApp16B(resetVec,hasDebugLogic);  // Instance the Application
+    8: OCAppIfc#(Nwci_app,Nwmi,Nwmemi,8) app  <- mkOCApp32B(resetVec,hasDebugLogic);  // Instance the Application
+  endcase
+
   for (Integer i=0; i<iNwci_app; i=i+1) mkConnection(inf.wci_m[i], app.wci_s[i]);    // Connect WCI between INF/APP
   Vector#(Nwci_ftop, WciOcp_Em#(20)) wci_c2f = takeAt(iNwci_app, inf.wci_m);         // Take the unused WCI for FTop
 

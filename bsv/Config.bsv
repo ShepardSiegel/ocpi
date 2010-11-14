@@ -4,6 +4,14 @@
 package Config;
 
   // Global
+
+`ifdef DEFINE_NDW
+`else
+`define DEFINE_NDW=1
+`endif
+
+  typedef `DEFINE_NDW NDW_global;
+  Integer iNDW_global = valueOf(NDW_global);
   
   // Number of Bytes in the dataplane
   typedef 16 NB_dataplane;
