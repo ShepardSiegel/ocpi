@@ -112,7 +112,7 @@ endmodule
 
 interface WciOcpMonitorIfc;
   interface WciOcp_Eo#(20) wciO0;
-  interface Put#(PMEM)     pmem; 
+  interface Get#(PMEM)     pmem; 
 endinterface
 
 (* synthesize *)
@@ -122,14 +122,13 @@ module mkWciOcpMonitor#(Bit#(8) monId)  (WciOcpMonitorIfc);
   PMEMGenIfc             pmemgen  <- mkPMEMGen(monId);
 
   // Add monitor/observer behavior here...
-  rule event_cmd (observer.eventCmd); pmemgen.sendEvent(Event0DW (PMWCI0DW{eType:8'h69}));  endrule
-
-  rule foop2;
-    $display("[%0d]: %m: foop2", $time);
+  rule event_cmd (observer.eventCmd); 
+    $display("[%0d]: %m: event_cmd ", $time);
+    pmemgen.sendEvent(Event0DW (PMWCI0DW{eType:8'h69}));
   endrule
 
   interface WciOcp_Eo wciO0 = observer.wci;
-  interface Put       pmem  = pmemgen.pmem; 
+  interface Get       pmem  = pmemgen.pmem; 
 endmodule
 
 endpackage: OCWciOcpBfm

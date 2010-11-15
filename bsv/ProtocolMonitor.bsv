@@ -54,8 +54,10 @@ typedef union tagged {
 } PMWCIEvent deriving (Bits);
 
 
+// PMEM Generator...
+
 interface PMEMGenIfc;
-  interface Put#(PMEM) pmem;               // The protocol-monitor message produced
+  interface Get#(PMEM) pmem;               // The protocol-monitor message produced
   method Action sendEvent (PMWCIEvent e);  // The event we wish to send
 endinterface
 
@@ -77,6 +79,7 @@ module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
     let h = PMEMHeader {srcID:srcID, eType:0, srcTag:srcTag, length:len};
     pmemF.enq(Header (h));
     srcTag <= srcTag + 1;
+    $display("[%0d]: %m: gen_messsage_head", $time);
   endrule
 
   rule gen_message_body (messageInEgress);  // This rule will fire 0 or more times for each event...
@@ -89,16 +92,42 @@ module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
     pmemF.enq(Body (d));
     dwRemain <= dwRemain - 1;
     if(dwRemain==1) evF.deq;
+    $display("[%0d]: %m: gen_messsage_body", $time);
   endrule
 
-  rule foop4;
-    $display("[%0d]: %m: foop4", $time);
-  endrule
-
-
-  interface Put pmem = toPut(pmemF);             // provide Put from pmemF
+  interface Get pmem = toGet(pmemF);             // provide Put from pmemF
   method Action sendEvent (PMWCIEvent e) = evF.enq(e);  // capture envent in evF
 endmodule
 
+
+// PMEM Monitor...
+
+interface PMEMMonitorIfc;
+  interface Put#(PMEM) pmem;               // The protocol-monitor message monitored
+endinterface
+
+module mkPMEMMonitor (PMEMMonitorIfc);
+  FIFOF#(PMEM)       pmemF       <- mkFIFOF;   // PMEM message input
+  Reg#(PMEMHeader)   pmh         <- mkRegU;
+  Reg#(Bit#(8))      dwRemain    <- mkRegU;
+  Reg#(Bit#(32))     eventCount  <- mkReg(0);
+
+  rule get_message_head (pmemF.first matches tagged Header .h);
+    pmh <= h;
+    dwRemain <= h.length - 1;
+    pmemF.deq;
+    if(h.length==1) eventCount <= eventCount + 1;
+    $display("[%0d]: %m: Event Header srcId:%0x eType:%0x srcTag:%0x length:%0x", $time, h.srcID, h.eType, h.srcTag, h.length);
+  endrule
+
+  rule gen_message_body (pmemF.first matches tagged Body .b);
+    pmemF.deq;
+    dwRemain <= dwRemain - 1;
+    if(dwRemain==1) eventCount <= eventCount + 1;
+    $display("[%0d]: %m: Event Body dwRemain:%0x data:%0x ", $time, dwRemain, b);
+  endrule
+
+  interface Put pmem = toPut(pmemF);
+endmodule
 
 endpackage: ProtocolMonitor

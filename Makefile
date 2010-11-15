@@ -205,7 +205,7 @@ isim11: $(OBJ)
 verilog_scenario0: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S0).bsv
-	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S0).v
+	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S0).v
 
 verilog_scenario0_16: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \

@@ -70,10 +70,10 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 endmodule : mkOCApp_poly
 
 (* synthesize *)
-module mkOCApp#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
+module mkOCApp4B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
    (*hide*)
    let _ifc <- mkOCApp_poly(rst, hasDebugLogic);
    return _ifc;
-endmodule: mkOCApp
+endmodule: mkOCApp4B
 
 endpackage: OCApp

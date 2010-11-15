@@ -857,10 +857,6 @@ module mkWciOcpObserver (WciOcpObserverIfc#(na));
     eCmd <= True;
   endrule
 
-  rule foop;
-    $display("[%0d]: %m: foop", $time);
-  endrule
-
   /*
   Wire#(WciOcpReq#(na))            wciReq           <- mkWire;
   Wire#(WciOcpResp)                wciResp          <- mkWire;

@@ -3,6 +3,7 @@
 
 import OCWip::*;
 import BiasWorker::*;
+import ProtocolMonitor::*;
 
 import Connectable::*;
 import GetPut::*;
@@ -34,6 +35,9 @@ module mkTB11();
   Reg#(Bit#(32))              dstDataOut     <- mkReg(0);       // DWORD ordinal count
 
   WciOcpMonitorIfc            wciMon         <- mkWciOcpMonitor(8'h42); // monId=h42
+  PMEMMonitorIfc              pmemMon        <- mkPMEMMonitor;
+
+  mkConnection(wciMon.pmem, pmemMon.pmem);
 
   // Connect the PSD DUT's three interfaces...
   WciOcp_Em#(20) wci_Em <- mkWciOcpMtoEm(wci.mas);     // Convert the conventional to explicit 
@@ -70,10 +74,10 @@ module mkTB11();
     action let r <- wci.resp; endaction
 
     testOperating <= True;
-    dstUnrollCnt  <= 2048;
+    dstUnrollCnt  <= 32;
     enWsiChecker  <= True;
 
-    srcUnrollCnt  <= 2048;
+    srcUnrollCnt  <= 32;
     enWsiSource   <= True;
   endseq;
   FSM  wciSeqFsm  <- mkFSM(wciSeq);
@@ -90,17 +94,12 @@ module mkTB11();
     wsiM.operate();
   endrule
 
-  rule foop3;
-    $display("[%0d]: %m: foop3", $time);
-  endrule
-
-
   // WSI Interaction
   // Producer Stream...
   rule wsi_source (enWsiSource);
     Bool lastWord  = (srcUnrollCnt == 1);
     Bit#(8) opcode = 0;
-    Bit#(16) wsiBurstLength = 2048; // in Words (4B)
+    Bit#(16) wsiBurstLength = 32; // in Words (4B)
 
     if (srcMesgCount < 1)
       wsiM.reqPut.put (WsiReq    {cmd  : WR ,
@@ -151,8 +150,8 @@ module mkTB11();
     simCycle <= simCycle + 1;
   endrule
 
-  rule terminate (simCycle==20000);
-    $display("[%0d]: %m: mkTB10 termination", $time);
+  rule terminate (simCycle==1000);
+    $display("[%0d]: %m: mkTB11 termination", $time);
     $finish;
   endrule
 
