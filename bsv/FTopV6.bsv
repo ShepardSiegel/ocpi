@@ -15,7 +15,7 @@ import WsiAdapter        ::*;
 import XilinxExtra       ::*;
 
 // BSV Imports...
-import AlignedFIFOs      ::*;
+import AlignedFIFOs_eco  ::*;
 import Clocks            ::*;
 import ClientServer      ::*;
 import Connectable       ::*;
