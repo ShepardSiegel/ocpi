@@ -122,9 +122,10 @@ module mkWciOcpMonitor#(Bit#(8) monId)  (WciOcpMonitorIfc);
   PMEMGenIfc             pmemgen  <- mkPMEMGen(monId);
 
   // Add monitor/observer behavior here...
-  rule event_cmd (observer.eventCmd); 
-    $display("[%0d]: %m: event_cmd ", $time);
-    pmemgen.sendEvent(Event0DW (PMWCI0DW{eType:8'h69}));
+  rule event_cmd;
+    let e <- observer.seen.get;
+    pmemgen.sendEvent(e);
+    //$display("[%0d]: %m: event seen", $time);
   endrule
 
   interface WciOcp_Eo wciO0 = observer.wci;

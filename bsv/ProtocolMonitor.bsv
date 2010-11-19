@@ -70,16 +70,17 @@ module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
   Bool messageInEgress = (dwRemain!=0);
 
   rule gen_message_head (!messageInEgress);  // This rule will fire exactly once for each event...
-    Bit#(8) len = 0;
+    Bit#(8) len  = 0;
+    Bit#(8) eTyp = ?;
     case (evF.first) matches
-      tagged Event0DW .e0: begin len=1; dwRemain<=0; evF.deq; end
-      tagged Event1DW .e1: begin len=2; dwRemain<=1;          end
-      tagged Event2DW .e2: begin len=3; dwRemain<=2;          end
+      tagged Event0DW .e0: begin len=1; dwRemain<=0; evF.deq; eTyp=e0.eType; end
+      tagged Event1DW .e1: begin len=2; dwRemain<=1;          eTyp=e1.eType; end
+      tagged Event2DW .e2: begin len=3; dwRemain<=2;          eTyp=e2.eType; end
     endcase
-    let h = PMEMHeader {srcID:srcID, eType:0, srcTag:srcTag, length:len};
+    let h = PMEMHeader {srcID:srcID, eType:eTyp, srcTag:srcTag, length:len};
     pmemF.enq(Header (h));
     srcTag <= srcTag + 1;
-    $display("[%0d]: %m: gen_messsage_head", $time);
+    //$display("[%0d]: %m: gen_messsage_head", $time);
   endrule
 
   rule gen_message_body (messageInEgress);  // This rule will fire 0 or more times for each event...
@@ -87,12 +88,12 @@ module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
     case (evF.first) matches
       tagged Event0DW .e0: $display("Error");
       tagged Event1DW .e1: d=e1.data0;
-      tagged Event2DW .e2: d=(dwRemain==1)?e2.data0:e2.data1;
+      tagged Event2DW .e2: d=(dwRemain==1)?e2.data1:e2.data0;
     endcase
     pmemF.enq(Body (d));
     dwRemain <= dwRemain - 1;
     if(dwRemain==1) evF.deq;
-    $display("[%0d]: %m: gen_messsage_body", $time);
+    //$display("[%0d]: %m: gen_messsage_body", $time);
   endrule
 
   interface Get pmem = toGet(pmemF);             // provide Put from pmemF
@@ -117,14 +118,14 @@ module mkPMEMMonitor (PMEMMonitorIfc);
     dwRemain <= h.length - 1;
     pmemF.deq;
     if(h.length==1) eventCount <= eventCount + 1;
-    $display("[%0d]: %m: Event Header srcId:%0x eType:%0x srcTag:%0x length:%0x", $time, h.srcID, h.eType, h.srcTag, h.length);
+    $display("[%0d]: %m: PMEM MONITOR Event %0d Header srcId:%0x eType:%0x srcTag:%0x length:%0x", $time, eventCount, h.srcID, h.eType, h.srcTag, h.length);
   endrule
 
   rule gen_message_body (pmemF.first matches tagged Body .b);
     pmemF.deq;
     dwRemain <= dwRemain - 1;
     if(dwRemain==1) eventCount <= eventCount + 1;
-    $display("[%0d]: %m: Event Body dwRemain:%0x data:%0x ", $time, dwRemain, b);
+    $display("[%0d]: %m: PMEM MONITOR Event %0d Body dwRemain:%0x data:%0x ", $time, eventCount, dwRemain, b);
   endrule
 
   interface Put pmem = toPut(pmemF);

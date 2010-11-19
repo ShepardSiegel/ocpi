@@ -5,6 +5,7 @@ package OCWciOcp;
 
 import OCWci::*;
 import OCWipDefs::*;
+import ProtocolMonitor::*;
 
 import Clocks::*;
 import GetPut::*;
@@ -831,30 +832,45 @@ endinterface
 //
 interface WciOcpObserverIfc#(numeric type na);
   interface WciOcp_Eo#(na)       wci;
-  method Bool                    eventCmd;
+  interface Get#(PMWCIEvent)     seen;
 endinterface
 
-module mkWciOcpObserver (WciOcpObserverIfc#(na));
+module mkWciOcpObserver (WciOcpObserverIfc#(na)) provisos(Add#(a_,na,32));
   // Register the observer inputs to minimze and equalize the obseerved link's loading...
-  Reg#(Bit#(3))    r_mCmd          <-  mkReg(0);
-  Reg#(Bit#(1))    r_mAddrSpace    <-  mkReg(0);
-  Reg#(Bit#(4))    r_mByteEn       <-  mkReg(0);
-  Reg#(Bit#(na))   r_mAddr         <-  mkReg(0);
-  Reg#(Bit#(32))   r_mData         <-  mkReg(0);
-  Reg#(Bit#(2))    r_sResp         <-  mkReg(0);
-  Reg#(Bit#(32))   r_sData         <-  mkReg(0);
-  Reg#(Bit#(1))    r_sThreadBusy   <-  mkDReg(0);
-  Reg#(Bit#(2))    r_sFlag         <-  mkReg(0);
-  Reg#(Bit#(2))    r_mFlag         <-  mkReg(0);
+  Reg#(Bit#(3))     r_mCmd          <-  mkReg(0);
+  Reg#(Bit#(1))     r_mAddrSpace    <-  mkReg(0);
+  Reg#(Bit#(4))     r_mByteEn       <-  mkReg(0);
+  Reg#(Bit#(na))    r_mAddr         <-  mkReg(0);
+  Reg#(Bit#(32))    r_mData         <-  mkReg(0);
+  Reg#(Bit#(2))     r_sResp         <-  mkReg(0);
+  Reg#(Bit#(32))    r_sData         <-  mkReg(0);
+  Reg#(Bit#(1))     r_sThreadBusy   <-  mkDReg(0);
+  Reg#(Bit#(2))     r_sFlag         <-  mkReg(0);
+  Reg#(Bit#(2))     r_mFlag         <-  mkReg(0);
 
-  Reg#(Bit#(3))    r_mCmdD         <-  mkReg(0);
-  Reg#(Bool)       eCmd            <-  mkDReg(False);
+  FIFO#(PMWCIEvent) evF             <-  mkFIFO;
+  Reg#(Bit#(3))     r_mCmdD         <-  mkReg(0);
+  Reg#(Bit#(2))     r_sRespD        <-  mkReg(0);
+  Reg#(Bool)        readInFlight    <-  mkReg(False);
 
-  rule mCmd_state; r_mCmdD <= r_mCmd; endrule
+  rule mCmd_state;  r_mCmdD  <= r_mCmd;  endrule
+  rule sResp_state; r_sRespD <= r_sResp; endrule
 
-  rule cmd_start (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
-    $display("[%0d]: %m: WCI mcmd %0x", $time, pack(r_mCmd));
-    eCmd <= True;
+  rule request_detected (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
+    case (unpack(r_mCmd))
+      WR : evF.enq(Event2DW (PMWCI2DW{eType:{4'h2,r_mByteEn}, data0:extend(r_mAddr), data1:r_mData}));
+      RD : evF.enq(Event1DW (PMWCI1DW{eType: 8'h30,           data0:extend(r_mAddr)               }));
+    endcase
+    readInFlight <= (unpack(r_mCmd)==RD);
+    //$display("[%0d]: %m: WCI request code %0x", $time, pack(r_mCmd));
+  endrule
+
+  rule response_detected (r_sRespD==pack(NULL) && r_sResp!=pack(NULL)); 
+    case (unpack(r_sResp))
+      DVA  : evF.enq(Event1DW (PMWCI1DW{eType:readInFlight?8'h32:8'h31,data0:extend(r_sData)}));
+    endcase
+    readInFlight <= False;
+    //$display("[%0d]: %m: WCI response code %0x", $time, pack(r_sResp));
   endrule
 
   /*
@@ -879,8 +895,7 @@ module mkWciOcpObserver (WciOcpObserverIfc#(na));
     method Action   sFlag        (Bit#(2)  arg_sFlag);     r_sFlag      <= arg_sFlag;     endmethod
     method Action   mFlag        (Bit#(2)  arg_mFlag);     r_mFlag      <= arg_mFlag;     endmethod
   endinterface
-  method Bool eventCmd = eCmd;
-
+  interface Get seen = toGet(evF); // Get what we've "seen" from the event FIFO
 endmodule
 
 

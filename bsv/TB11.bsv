@@ -62,7 +62,7 @@ module mkTB11();
     action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Write Dataplane Config Properties...", $time);
-    wci.req(Config, True, 20'h00_0004, 32'h0000_0002, 'hF);                     // biasCtrl
+    wci.req(Config, True, 20'h00_0004, 32'h0000_AAA2, 'hF);
     action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Read Dataplane Config Properties...", $time);
