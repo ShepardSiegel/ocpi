@@ -4,6 +4,7 @@
 package OCApp;
 
 import OCWip::*;
+//import ProtocolMonitor::*;
 
 `define USE_NDW1
 
@@ -38,6 +39,11 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
     Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))),                          // by bsc output
     NumAlias#(ndw,1) ); // by joe
 
+  /*
+  WciOcpMonitorIfc            wciMonW3         <- mkWciOcpMonitor(8'h42); // monId=h42
+  PMEMMonitorIfc              pmemMonW3        <- mkPMEMMonitor;
+  mkConnection(wciMonW3.pmem, pmemMonW3.pmem);  // Connect the wciMon to an event monitor
+  */
 
   // Instance the workers in this application container...
 
@@ -122,6 +128,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   vWci[1] = tieOff1;
   vWci[2] = appW2.wciS0;
   vWci[3] = appW3.wciS0;
+  //mkConnectionMSO(wciM3,  appW3.wciS0, wciMonW3.wciO0);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
   vWci[4] = appW4.wciS0;
   vWci[5] = tieOff5;
   vWci[6] = tieOff6;

@@ -8,11 +8,12 @@ import DramServer        ::*;
 import Ethernet          ::*;
 import FlashWorker       ::*;
 import GbeWorker         ::*;
-import ICAPWorker         ::*;
+import ICAPWorker        ::*;
 import OCWip             ::*;
 import TimeService       ::*;
 import WsiAdapter        ::*;
 import XilinxExtra       ::*;
+import ProtocolMonitor   ::*;
 
 // BSV Imports...
 import AlignedFIFOs_eco  ::*;
@@ -99,14 +100,23 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
 
   Vector#(Nwci_ftop,WciOcp_Em#(20)) vWci = ctop.wci_m;  // expose WCI from CTop
 
+
   // FTop Level board-specific workers..
   ICAPWorkerIfc    icap     <- mkICAPWorker(True,True,                      clocked_by trn2_clk, reset_by(vWci[0].mReset_n));
   FlashWorkerIfc   flash0   <- mkFlashWorker(                               clocked_by trn2_clk, reset_by(vWci[1].mReset_n));
   GbeWorkerIfc     gbe0     <- mkGbeWorker(gmii_rx_clk, sys1_clk, sys1_rst, clocked_by trn2_clk, reset_by(vWci[2].mReset_n));
   DramServerIfc    dram0    <- mkDramServer(sys0_clk, sys0_rst,             clocked_by trn2_clk, reset_by(vWci[4].mReset_n));
 
+  WciOcpMonitorIfc            wciMonW8         <- mkWciOcpMonitor(8'h42, clocked_by trn2_clk); // monId=h42
+  PMEMMonitorIfc              pmemMonW8        <- mkPMEMMonitor(clocked_by trn2_clk);
+  mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by trn2_clk);  // Connect the wciMon to an event monitor
+
+  
+  WciOcp_Es#(NwciAddr) icapwci_Es <- mkWciOcpStoES(icap.wci_s, clocked_by trn2_clk);
+
   // WCI...
-  mkConnection(vWci[0], icap.wci_s);    // worker 8
+  //mkConnection(vWci[0], icap.wci_s);    // worker 8
+  mkConnectionMSO(vWci[0],  icapwci_Es, wciMonW8.wciO0, clocked_by trn2_clk);
   mkConnection(vWci[1], flash0.wci_s);  // worker 9
   mkConnection(vWci[2], gbe0.wci_rx);   // worker 10 
   mkConnection(vWci[3], gbe0.wci_tx);   // worker 11

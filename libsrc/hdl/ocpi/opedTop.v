@@ -2,6 +2,7 @@
 // Copyright (c) 2010 Atomic Rules LLC, ALL RIGHTS RESERVED
 // 2010-10-31 ssiegel Creation with WCI::AXI only
 // 2010-11-02 ssiegel Made debug a 32b vector
+// 2010-11-22 ssiegel Minor noodling
 
 module opedTop(
  
@@ -86,7 +87,7 @@ module opedTop(
  //
  // Core Team: Shep owns this interface contract from this point down...
 
-  wire foo;
+  wire unused_1;
 
   // Instance and connect mkOPED...
   mkOPED moped(
@@ -99,7 +100,7 @@ module opedTop(
 	  .pcie_txn        (pcie_txn),
 	  .debug           (debug),
 	  .trnClk          (oped_clk125),
-	  .CLK_GATE_trnClk (foo)
+	  .CLK_GATE_trnClk (unused_1)
 );
 
 endmodule

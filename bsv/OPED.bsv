@@ -1,6 +1,8 @@
 // OPED.bsv - OpenCPI PCIe Endpoint w/ DMA
 // Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
+import CTop              ::*;
+
 import Clocks            ::*;
 import Connectable       ::*;
 import GetPut            ::*;
@@ -40,17 +42,14 @@ module mkOPED#(Clock pcie_clk_p, Clock pcie_clk_n)(OPEDIfc);
   mkConnection(pci.cfg_irq, pci_irq.pcie_irq);
   mkTieOff(pci.cfg); mkTieOff(pci.cfg_err);
 
-  FIFO#(TLPData#(8))     fP2I  <- mkSizedFIFO(4,    clocked_by trn_clk, reset_by trn_rst_n);
-  FIFO#(TLPData#(8))     fI2P  <- mkSizedFIFO(4,    clocked_by trn_clk, reset_by trn_rst_n);
-  mkConnection(pci.trn_rx, toPut(fP2I));  // Adapt 8B PCIe to 16B uNoC
-  mkConnection(toGet(fI2P), pci.trn_tx);  // Adapt 16B uNoC to 8B PCIe
+  FIFO#(TLPData#(8))     fP2I  <- mkSizedFIFO(4,                          clocked_by trn_clk, reset_by trn_rst_n);
+  FIFO#(TLPData#(8))     fI2P  <- mkSizedFIFO(4,                          clocked_by trn_clk, reset_by trn_rst_n);
+  CTop4BIfc              ctop  <- mkCTop4B(pciDevice, trn_clk, trn_rst_n, clocked_by trn_clk, reset_by trn_rst_n);
 
-  //CTop4BIfc              ctop  <- mkCTop4B(pciDevice, sys0_clk, sys0_rst, clocked_by trn_clk, reset_by trn_rst_n);
-  //mkConnection(toGet(fP2I), ctop.server.request,    clocked_by trn_clk, reset_by trn_rst_n); 
-  //mkConnection(ctop.server.response, toPut(fI2P),   clocked_by trn_clk, reset_by trn_rst_n); 
-
-  //TODO: Place infrastucure IP here!
-
+  mkConnection(pci.trn_rx, toPut(fP2I));  // Adapt 8B PCIe to 16B uNoC...
+  mkConnection(toGet(fP2I), ctop.server.request, clocked_by trn_clk, reset_by trn_rst_n); 
+  mkConnection(toGet(fI2P), pci.trn_tx);  // Adapt 16B uNoC to 8B PCIe...
+  mkConnection(ctop.server.response, toPut(fI2P),clocked_by trn_clk, reset_by trn_rst_n); 
 
   interface pcie    = pci.pcie;
   method    debug   = extend(pack(pciLinkUp));

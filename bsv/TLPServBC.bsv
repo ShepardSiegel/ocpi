@@ -316,7 +316,12 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   function Bool tagCompletionMatch(PciId rid, Bit#(8) tagm, PTW16 t);
     CompletionHdr ch = unpack(t.data[127:32]);
-    return(tagm==ch.tag && ch.requesterID==rid);
+    //FIXME: Testing Only!!!
+    // The return(True) tactic helps timing by removing the tag and rid comparisons
+    // But it introduces a race condition where an inbound request could advance as a completion!
+    //
+    //return(tagm==ch.tag && ch.requesterID==rid);
+    return(True); // TODO: restore comparison and split inbound requests from completions
   endfunction 
 
   //
