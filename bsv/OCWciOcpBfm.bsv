@@ -111,13 +111,13 @@ module mkWciOcpTarget (WciOcpTargetIfc);
 endmodule
 
 interface WciOcpMonitorIfc;
-  interface WciOcp_Eo#(20) wciO0;
+  interface WciOcp_Eo#(20) observe;
   interface Get#(PMEM)     pmem; 
 endinterface
 
 (* synthesize *)
 //module mkWciOcpMonitor#(Clock wci_clk, Reset wci_rstn) (WciOcpMonitorIfc);
-module mkWciOcpMonitor#(Bit#(8) monId)  (WciOcpMonitorIfc);
+module mkWciOcpMonitor#(parameter Bit#(8) monId)  (WciOcpMonitorIfc);
   WciOcpObserverIfc#(20) observer <- mkWciOcpObserver;
   PMEMGenIfc             pmemgen  <- mkPMEMGen(monId);
 
@@ -128,8 +128,8 @@ module mkWciOcpMonitor#(Bit#(8) monId)  (WciOcpMonitorIfc);
     //$display("[%0d]: %m: event seen", $time);
   endrule
 
-  interface WciOcp_Eo wciO0 = observer.wci;
-  interface Get       pmem  = pmemgen.pmem; 
+  interface WciOcp_Eo observe  = observer.wci;
+  interface Get       pmem     = pmemgen.pmem; 
 endmodule
 
 

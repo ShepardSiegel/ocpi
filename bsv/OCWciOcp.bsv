@@ -129,6 +129,7 @@ interface WciOcp_Eo#(numeric type na);  // Observer/Monitor...
   (* prefix="", enable="SThreadBusy" *)    method Action   sThreadBusy;
   (* prefix="", always_enabled *)          method Action   sFlag        ((* port="SFlag"*)        Bit#(2)  arg_sFlag);
   (* prefix="", always_enabled *)          method Action   mFlag        ((* port="MFlag" *)       Bit#(2)  arg_mFlag);
+  (* prefix="", always_enabled *)          method Action   mResetn      ((* port="MReset_n" *)    Bit#(1)  arg_mResetn);
 endinterface
 
 typeclass ConnectableMSO#(type a, type b, type c); // Master-Slave-Observer Connectable...
@@ -147,6 +148,10 @@ instance ConnectableMSO#( WciOcp_Em#(na), WciOcp_Es#(na), WciOcp_Eo#(na) );
     rule stbConnect      (slave.sThreadBusy); master.sThreadBusy; observer.sThreadBusy;                    endrule
     rule sFlagConnect;   master.sFlag(slave.sFlag);               observer.sFlag(slave.sFlag);             endrule
     rule mFlagConnect;   slave.mFlag(master.mFlag);               observer.mFlag(master.mFlag);            endrule
+
+    ReadOnly#(Bool) isMReset <- isResetAsserted(reset_by master.mReset_n);
+    rule mResetConnect;                                           observer.mResetn(pack(!isMReset));       endrule
+
   endmodule
 endinstance
    
@@ -551,6 +556,7 @@ module mkWciOcpMaster (WciOcpMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na
       if (write) begin 
         case (addr[5:2])
           4'h9: begin
+            //$display("[%0d]: %m: WCI-Master Control-Staus Write rst/time9 wdata:%0x ", $time, wdata);
             wReset_n <= unpack(wdata[31]);
             wTimeout <= wdata[4:0];
             if (wdata[9]=='1) sfCapClear <= True;
@@ -847,19 +853,22 @@ module mkWciOcpObserver (WciOcpObserverIfc#(na)) provisos(Add#(a_,na,32));
   Reg#(Bit#(1))     r_sThreadBusy   <-  mkDReg(0);
   Reg#(Bit#(2))     r_sFlag         <-  mkReg(0);
   Reg#(Bit#(2))     r_mFlag         <-  mkReg(0);
+  Reg#(Bit#(1))     r_mResetn       <-  mkReg(0);
 
   FIFO#(PMWCIEvent) evF             <-  mkFIFO;
   Reg#(Bit#(3))     r_mCmdD         <-  mkReg(0);
   Reg#(Bit#(2))     r_sRespD        <-  mkReg(0);
   Reg#(Bool)        readInFlight    <-  mkReg(False);
+  Reg#(Bit#(1))     r_mResetnD      <-  mkReg(0);
 
-  rule mCmd_state;  r_mCmdD  <= r_mCmd;  endrule
-  rule sResp_state; r_sRespD <= r_sResp; endrule
+  rule mCmd_state;    r_mCmdD    <= r_mCmd;    endrule
+  rule sResp_state;   r_sRespD   <= r_sResp;   endrule
+  rule mResetn_state; r_mResetnD <= r_mResetn; endrule
 
   rule request_detected (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
     case (unpack(r_mCmd))
-      WR : evF.enq(Event2DW (PMWCI2DW{eType:{4'h2,r_mByteEn}, data0:extend(r_mAddr), data1:r_mData}));
-      RD : evF.enq(Event1DW (PMWCI1DW{eType: 8'h30,           data0:extend(r_mAddr)               }));
+      WR : evF.enq(Event2DW (PMWCI2DW{eType:pmNibble(PMEV_WRITE_REQUEST,r_mByteEn), data0:extend(r_mAddr), data1:r_mData}));
+      RD : evF.enq(Event1DW (PMWCI1DW{eType:PMEV_READ_REQUEST, data0:extend(r_mAddr)}));
     endcase
     readInFlight <= (unpack(r_mCmd)==RD);
     //$display("[%0d]: %m: WCI request code %0x", $time, pack(r_mCmd));
@@ -867,10 +876,20 @@ module mkWciOcpObserver (WciOcpObserverIfc#(na)) provisos(Add#(a_,na,32));
 
   rule response_detected (r_sRespD==pack(NULL) && r_sResp!=pack(NULL)); 
     case (unpack(r_sResp))
-      DVA  : evF.enq(Event1DW (PMWCI1DW{eType:readInFlight?8'h32:8'h31,data0:extend(r_sData)}));
+      DVA  : evF.enq(Event1DW (PMWCI1DW{eType:readInFlight?PMEV_READ_RESPONSE:PMEV_WRITE_RESPONSE,data0:extend(r_sData)}));
     endcase
     readInFlight <= False;
     //$display("[%0d]: %m: WCI response code %0x", $time, pack(r_sResp));
+  endrule
+
+  rule reset_changed (unpack(r_mResetnD ^ r_mResetn));
+    if (unpack(r_mResetn)) begin
+      evF.enq(Event0DW (PMWCI0DW{eType:PMEV_UNRESET}));
+      $display("[%0d]: %m: WCI reset DE-ASSERTED", $time);
+    end else begin
+      evF.enq(Event0DW (PMWCI0DW{eType:PMEV_RESET}));
+      $display("[%0d]: %m: WCI reset IS-ASSERTED", $time);
+    end
   endrule
 
   /*
@@ -894,6 +913,7 @@ module mkWciOcpObserver (WciOcpObserverIfc#(na)) provisos(Add#(a_,na,32));
     method Action   sThreadBusy;                           r_sThreadBusy <= 1'b1;         endmethod
     method Action   sFlag        (Bit#(2)  arg_sFlag);     r_sFlag      <= arg_sFlag;     endmethod
     method Action   mFlag        (Bit#(2)  arg_mFlag);     r_mFlag      <= arg_mFlag;     endmethod
+    method Action   mResetn      (Bit#(1)  arg_mResetn);   r_mResetn    <= arg_mResetn;   endmethod
   endinterface
   interface Get seen = toGet(evF); // Get what we've "seen" from the event FIFO
 endmodule

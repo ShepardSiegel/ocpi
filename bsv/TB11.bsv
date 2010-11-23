@@ -40,11 +40,11 @@ module mkTB11();
   mkConnection(wciMon.pmem, pmemMon.pmem);                   // Connect the wciMon to an event monitor
 
   // Connect the PSD DUT's three interfaces...
-  WciOcp_Em#(20) wci_Em <- mkWciOcpMtoEm(wci.mas);           // Convert the conventional to explicit 
-  mkConnectionMSO(wci_Em,  biasWorker.wciS0, wciMon.wciO0);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
-  mkConnection(toWsiEM(wsiM.mas), biasWorker.wsiS0);         // Connect the Source wsiM to the biasWorker wsi-S input
-  Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);       // Convert the conventional to explicit 
-  mkConnection(biasWorker.wsiM0,  wsi_Es);                   // Connect the biasWorker wsi-M output to the Sinc wsiS
+  WciOcp_Em#(20) wci_Em <- mkWciOcpMtoEm(wci.mas);             // Convert the conventional to explicit 
+  mkConnectionMSO(wci_Em,  biasWorker.wciS0, wciMon.observe);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
+  mkConnection(toWsiEM(wsiM.mas), biasWorker.wsiS0);           // Connect the Source wsiM to the biasWorker wsi-S input
+  Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);         // Convert the conventional to explicit 
+  mkConnection(biasWorker.wsiM0,  wsi_Es);                     // Connect the biasWorker wsi-M output to the Sinc wsiS
 
   // WCI Interaction
   // A sequence of control-configuration operartions to be performed...

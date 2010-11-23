@@ -19,12 +19,89 @@ import TieOff::*;
 
 // Common to all Protocol Monitors...
 
+typedef enum {
+  PMEV_NONE           = 0,
+  PMEV_UNRESET        = 1,
+  PMEV_RESET          = 2,
+  PMEV_UNATTENTION    = 3,
+  PMEV_ATTENTION      = 4, 
+  PMEV_UNTERMINATE    = 5,
+  PMEV_TERMINATE      = 6,
+  PMEV_TIMEOUT        = 7,
+  PMEV_INITIALIZE     = 8,
+  PMEV_START          = 9,
+  PMEV_STOP           = 10,
+  PMEV_RELEASE        = 11,
+  PMEV_TEST           = 12,
+  PMEV_BEFORE_QUERY   = 13,
+  PMEV_AFTER_CONFIG   = 14,
+  PMEV_WRITE_REQUEST  = 8'h10,
+  PMEV_READ_REQUEST   = 8'h20,
+  PMEV_WRITE_RESPONSE = 8'h30,
+  PMEV_READ_RESPONSE  = 8'h40,
+  PMEV_REQUEST_ERROR  = 8'h80,
+  PMEV_RESPONSE_ERROR = 8'h90,
+  PMEV_XACTION_ERROR  = 8'hA0,
+  PMEV_PAD            = 255
+ } PMEvent deriving (Bits, Eq);
+
+ function PMEvent pmNibble(PMEvent pme, Bit#(4) nibble);
+   return(unpack(pack(pme)+extend(nibble)));
+ endfunction
+
+ /*
+instance FShow#(PMEvent);
+  function Fmt fshow (PMEvent pme);
+    case (pme)
+      PMEV_NONE            : return fshow("None ");
+      PMEV_UNRESET         : return fshow("UnReset ");
+      PMEV_RESET           : return fshow("Reset ");
+      PMEV_UNATTENTION     : return fshow("UnAttention ");
+      PMEV_ATTENTION       : return fshow("Attention ");
+      PMEV_UNTERMINATE     : return fshow("UnTerminate ");
+      PMEV_TERMINATE       : return fshow("Terminate ");
+      PMEV_TIMEOUT         : return fshow("Timeout ");
+      PMEV_INITIALIZE      : return fshow("Initialize ");
+      PMEV_START           : return fshow("Start ");
+      PMEV_STOP            : return fshow("Stop ");
+      PMEV_RELEASE         : return fshow("Release ");
+      PMEV_TEST            : return fshow("Test ");
+      PMEV_BEFORE_QUERY    : return fshow("BeforeQuery ");
+      PMEV_AFTER_CONFIG    : return fshow("AfterConfig ");
+      PMEV_WRITE_REQUEST   : return fshow("WriteRequest ");
+      PMEV_READ_REQUEST    : return fshow("ReadRequest ");
+      PMEV_WRITE_RESPONSE  : return fshow("WriteResponse ");
+      PMEV_READ_RESPONSE   : return fshow("ReadResponse ");
+      PMEV_REQUEST_ERROR   : return fshow("RequestError ");
+      PMEV_RESPONSE_ERROR  : return fshow("ResponseError ");
+      PMEV_XACTION_ERROR   : return fshow("TransactionError ");
+      PMEV_PAD             : return fshow("Pad ");
+    endcase
+  endfunction
+endinstance
+*/
+
 typedef struct {    // Protocol Monitor Event Message (PMEM) Header
   Bit#(8) srcID;    // Source Indentifier of Protocol Monitor
-  Bit#(8) eType;    // Event Type
+  PMEvent eType;    // Event Type
   Bit#(8) srcTag;   // Source Event Tag
   Bit#(8) length;   // Length in DWORDs of PMEM, including this DWORD header
 } PMEMHeader deriving (Bits, Eq);
+
+/*
+function Fmt fshowHead(PMEMHeader val);
+  return ($format("PMEM_HEADER ")
+    +
+    fshow(val.eType)
+    +
+    $format("srcID:(%0x) ",  val.srcID)
+    +
+    $format("srcTag:(%0x) ", val.srcTag)
+    +
+    $format("length:(%0x) ", val.length));
+endfunction
+*/
+
 
 typedef union tagged {
   PMEMHeader Header;
@@ -33,16 +110,16 @@ typedef union tagged {
 
 // Specific to the WCI Protocol Monitor...
 typedef struct {
-  Bit#(8)  eType;
+  PMEvent  eType;
 } PMWCI0DW deriving (Bits);
 
 typedef struct {
-  Bit#(8)  eType;
+  PMEvent  eType;
   Bit#(32) data0;
 } PMWCI1DW deriving (Bits);
 
 typedef struct {
-  Bit#(8)  eType;
+  PMEvent  eType;
   Bit#(32) data0;
   Bit#(32) data1;
 } PMWCI2DW deriving (Bits);
@@ -71,7 +148,7 @@ module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
 
   rule gen_message_head (!messageInEgress);  // This rule will fire exactly once for each event...
     Bit#(8) len  = 0;
-    Bit#(8) eTyp = ?;
+    PMEvent eTyp = ?;
     case (evF.first) matches
       tagged Event0DW .e0: begin len=1; dwRemain<=0; evF.deq; eTyp=e0.eType; end
       tagged Event1DW .e1: begin len=2; dwRemain<=1;          eTyp=e1.eType; end
@@ -118,7 +195,8 @@ module mkPMEMMonitor (PMEMMonitorIfc);
     dwRemain <= h.length - 1;
     pmemF.deq;
     if(h.length==1) eventCount <= eventCount + 1;
-    $display("[%0d]: %m: PMEM MONITOR Event %0d Header srcId:%0x eType:%0x srcTag:%0x length:%0x", $time, eventCount, h.srcID, h.eType, h.srcTag, h.length);
+    //$display("PMEM event %m: ", fshow(h.eType));
+    $display("[%0d]: %m: PMEM MONITOR Event %0d srcId:%0x srcTag:%0x length:%0x", $time, eventCount, h.srcID, h.srcTag, h.length);
   endrule
 
   rule gen_message_body (pmemF.first matches tagged Body .b);
