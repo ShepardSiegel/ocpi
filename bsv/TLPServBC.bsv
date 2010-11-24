@@ -78,7 +78,7 @@ typedef union tagged {
 
 typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b is optional; 11b with phantom-tags stealing 3b device num
 
-module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciOcpSlaveIfc#(20) wci) (TLPServBCIfc);
+module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciOcpSlaveIfc#(20) wci, Bool hasPush, Bool hasPull) (TLPServBCIfc);
 
   // TODO: Implement and test *registered* SRLFIFO for "best of both worlds"
   //Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
@@ -155,7 +155,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //(* descending_urgency = "dmaXmtTailEvent, dmaXmtMetaBody, dmaXmtMetaHead, dmaPushResponseBody, dmaPushResponseHeader, dmaPushRequestMesg, dmaResponseNearMetaBody, dmaResponseNearMetaHead, dmaRequestNearMeta" *)
 
   // Request the metadata for the remote-facing ready buffer...
-  rule dmaRequestNearMeta (actMesgP && !tlpRcvBusy && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
+  rule dmaRequestNearMeta (hasPush && actMesgP && !tlpRcvBusy && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
     remStart        <= True;  // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
     ReadReq rreq = ReadReq {
@@ -173,14 +173,14 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Accept the first DW metadata back... 
-  rule dmaResponseNearMetaHead (actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==Metadata);
+  rule dmaResponseNearMetaHead (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==Metadata);
     mRespF.deq;
     mesgLengthRemainPush <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
     $display("[%0d]: %m: dmaResponseNearMetaHead FPactMesg-Step2a/7 mesgLength:%0x", $time, byteSwap(rres.data));
   endrule
 
   // Accept the remaining metadata back and then commit to MesgMeta format..
-  rule dmaResponseNearMetaBody (actMesgP &&& mRespF.first matches tagged ReadBody .rres &&& rres.role==Metadata);
+  rule dmaResponseNearMetaBody (hasPush && actMesgP &&& mRespF.first matches tagged ReadBody .rres &&& rres.role==Metadata);
     mRespF.deq;
     Vector#(4, DWord) vWords = reverse(unpack(rres.data));
     Bit#(32) opcode   = byteSwap(vWords[0]);
@@ -203,7 +203,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Request the message from the remote-facing ready buffer...
   // Inhibit this rule while tlpRcvBusy with other rem buffer access...
   // If needed, make multiple requests until the full extent of the message is traversed, as signalled by mesgLengthRemainPush==0...
-  rule dmaPushRequestMesg (actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0);
+  rule dmaPushRequestMesg (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0);
     Bit#(13) spanToNextPage = 4096 - extend(srcMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
     //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemainPush,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
     Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPush,extend(maxPayloadSize))),spanToNextPage);  // minimum of what we want and what we are allowed 
@@ -226,7 +226,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transform the local read response header to a PCIe posted write request header for push DMA...
-  rule dmaPushResponseHeader (actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==DMASrc);
+  rule dmaPushResponseHeader (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==DMASrc);
     mRespF.deq;
     Bool onlyBeatInSegment = (rres.dwLength==1);
     Bool lastSegmentInMesg = (rres.tag==8'h01); 
@@ -244,7 +244,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // continue the transformation for the local-read to fabric-write payload body...
-  rule dmaPushResponseBody (actMesgP &&& mRespF.first matches tagged ReadBody .rbody &&& rbody.role==DMASrc);
+  rule dmaPushResponseBody (hasPush && actMesgP &&& mRespF.first matches tagged ReadBody .rbody &&& rbody.role==DMASrc);
     mRespF.deq;
     Bool lastBeatInSegment = (outDwRemain <= 4);
     Bool lastSegmentInMesg = (rbody.tag==8'h01); 
@@ -262,7 +262,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transmit the Metadata header...
-  rule dmaXmtMetaHead (actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && !xmtMetaInFlight && xmtMetaOK);
+  rule dmaXmtMetaHead (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && !xmtMetaInFlight && xmtMetaOK);
     xmtMetaInFlight <= True;
     tlpXmtBusy      <= True;
     doXmtMetaBody   <= True;
@@ -276,7 +276,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // and then the Metadata body...
-  rule dmaXmtMetaBody (actMesgP &&& fabMeta matches tagged Valid .meta &&& doXmtMetaBody);
+  rule dmaXmtMetaBody (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& doXmtMetaBody);
     remDone         <= True;  // Indicate to buffer-management remote move done (tail event doesn't care about mesg/meta state)
     doXmtMetaBody   <= False;
     tlpXmtBusy      <= False;
@@ -290,7 +290,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transmit the DMA-PUSH TailEvent...
-  rule dmaXmtTailEvent (actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && tlpMetaSent && postSeqDwell==0);
+  rule dmaXmtTailEvent (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && tlpMetaSent && postSeqDwell==0);
     xmtMetaInFlight <= False;
     tlpMetaSent     <= False;
     fabMeta         <= (Invalid);
@@ -333,7 +333,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // (* descending_urgency = "dmaPullTailEvent, dmaPullResponseBody, dmaPullResponseHeader, dmaPullResponseHeaderTag, dmaPullRequestFarMesg, dmaRespBodyFarMeta, dmaRespHeadFarMeta, dmaRequestFarMeta" *)
 
   // Request the metadata from the far-side fabric node...
-  rule dmaRequestFarMeta (actMesgC && !tlpXmtBusy && !reqMetaInFlight && !reqMetaBodyInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
+  rule dmaRequestFarMeta (hasPull && actMesgC && !tlpXmtBusy && !reqMetaInFlight && !reqMetaBodyInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
     remStart        <= True;  // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
     // TODO: request needs the correct function number to facilitate completion routing (see comments in OCInf.bsv)
@@ -345,7 +345,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Receive the first 1DW metadata back in the completion header...
-  rule dmaRespHeadFarMeta (actMesgC && reqMetaInFlight && !tlpRcvBusy && tagCompletionMatch(pciDevice,extend(dmaReqTag),inF.first) );
+  rule dmaRespHeadFarMeta (hasPull && actMesgC && reqMetaInFlight && !tlpRcvBusy && tagCompletionMatch(pciDevice,extend(dmaReqTag),inF.first) );
     PTW16 pw = inF.first;
     Ptw16Hdr p = unpack(pw.data);
     reqMetaInFlight     <= False;
@@ -365,7 +365,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Receive the remaining 3DW metadata back in the completion body...
-  rule dmaRespBodyFarMeta (actMesgC && reqMetaBodyInFlight && !tlpRcvBusy );
+  rule dmaRespBodyFarMeta (hasPull && actMesgC && reqMetaBodyInFlight && !tlpRcvBusy );
     PTW16 pw = inF.first;
     Ptw16Hdr p = unpack(pw.data);
     reqMetaBodyInFlight <= False;
@@ -390,7 +390,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //   Policy includes: i) Do not exceed (typ 512B) Maximum Read Request Size; ii) Do not cross 4KB (10b) DW bounds.
 
   // Request the message from the far side fabric node...
-  rule dmaPullRequestFarMesg (actMesgC &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpXmtBusy &&& !reqMesgInFlight &&& mesgLengthRemainPull!=0);
+  rule dmaPullRequestFarMesg (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpXmtBusy &&& !reqMesgInFlight &&& mesgLengthRemainPull!=0);
     Bit#(13) spanToNextPage = 4096 - extend(fabMesgAccu[11:0]);                                                    // how far until we hit a PCIe 4K Page
     Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPull,extend(maxReadReqSize))),spanToNextPage);   // minimum of what we want and what we are allowed
     mesgLengthRemainPull  <= mesgLengthRemainPull - extend(thisRequestLength);                                     // decrement mesgLengthRemainPull at the source
@@ -405,7 +405,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     $display("[%0d]: %m: dmaPullRequestFarMesg FCactMesg-Step3/5", $time);
   endrule
 
-  rule dmaPullResponseHeaderTag (actMesgC); pullTagMatch <= tagCompletionMatch(pciDevice,extend(dmaReqTag),inF.first); endrule
+  rule dmaPullResponseHeaderTag (hasPull && actMesgC); pullTagMatch <= tagCompletionMatch(pciDevice,extend(dmaReqTag),inF.first); endrule
 
   function Action updatePullState(Bool endOfSubCompletion, Bool endOfReqCompletion);
    action
@@ -417,7 +417,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endfunction
 
   // Process the response header of the completion message from the far fabric node...
-  rule dmaPullResponseHeader (actMesgC &&& fabMeta matches tagged Valid .meta &&& reqMesgInFlight &&& !tlpRcvBusy &&& pullTagMatch &&& !gotResponseHeader);
+  rule dmaPullResponseHeader (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& reqMesgInFlight &&& !tlpRcvBusy &&& pullTagMatch &&& !gotResponseHeader);
     PTW16 pw = inF.first;
     inF.deq;
     Ptw16Hdr p = unpack(pw.data);
@@ -441,7 +441,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // continue accepting the completion payload (if any) and placing in memory...
-  rule dmaPullResponseBody (actMesgC &&& fabMeta matches tagged Valid .meta &&& reqMesgInFlight &&& gotResponseHeader);
+  rule dmaPullResponseBody (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& reqMesgInFlight &&& gotResponseHeader);
     PTW16 pw = inF.first;
     inF.deq;
     MemReqPacket pkt = WriteData(pw.data); //16B Data still in PCI/NBO format
@@ -458,7 +458,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // We use the target-side "mesgComplReceived" accumulating to the full message length as the barrier-sync for the tail event.
 
   // Transmit the DMA-PULL TailEvent...
-  rule dmaPullTailEvent (actMesgC &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived==truncate(meta.length)));
+  rule dmaPullTailEvent (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived==truncate(meta.length)));
     remDone         <= True;  // Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
     dmaDoTailEvent  <= False;
     fabMeta         <= (Invalid);

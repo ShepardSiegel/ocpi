@@ -32,7 +32,7 @@ interface OCDPIfc#(numeric type ndw);
   interface Server#(PTW16,PTW16) server;   // facing the infrastructure (remote)
 endinterface
 
-module mkOCDP#(PciId pciDevice) (OCDPIfc#(ndw))
+module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)));
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;          // Width in Bytes
@@ -49,9 +49,9 @@ module mkOCDP#(PciId pciDevice) (OCDPIfc#(ndw))
 
   WciOcpSlaveIfc#(20) wci  <- mkWciOcpSlave;
   WtiSlaveIfc#(64)    wti  <- mkWtiSlave;
-  TLPServBCIfc        tlp  <- mkTLPServBC(bramsA,pciDevice,wci); // The TLP to Memory adaptation
-  WmiServBCIfc#(ndw)  wmi  <- mkWmiServBC(bramsB);               // The ndw-Byte WMI to Memory adaptation
-  FabPCIfc            bml  <- mkFabPC(wci);                      // Buffer Management Logic
+  TLPServBCIfc        tlp  <- mkTLPServBC(bramsA,pciDevice,wci,hasPush,hasPull); // The TLP to Memory adaptation
+  WmiServBCIfc#(ndw)  wmi  <- mkWmiServBC(bramsB);                               // The ndw-Byte WMI to Memory adaptation
+  FabPCIfc            bml  <- mkFabPC(wci);                                      // Buffer Management Logic
 
   mkConnection(bml.lcl, wmi.bufq);       // Buffer Managment signals with local  WMI
   mkConnection(bml.rem, tlp.bufq);       // Buffer Managment signals with remote TLP
@@ -147,26 +147,26 @@ endmodule
 
 typedef OCDPIfc#(1) OCDP4BIfc;
 (* synthesize *)
-module mkOCDP4B#(PciId pciDevice) (OCDP4BIfc);
-  OCDP4BIfc _a <- mkOCDP(pciDevice); return _a;
+module mkOCDP4B#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDP4BIfc);
+  OCDP4BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull); return _a;
 endmodule
 
 typedef OCDPIfc#(2) OCDP8BIfc;
 (* synthesize *)
-module mkOCDP8B#(PciId pciDevice) (OCDP8BIfc);
-  OCDP8BIfc _a <- mkOCDP(pciDevice); return _a;
+module mkOCDP8B#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDP8BIfc);
+  OCDP8BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull); return _a;
 endmodule
 
 typedef OCDPIfc#(4) OCDP16BIfc;
 (* synthesize *)
-module mkOCDP16B#(PciId pciDevice) (OCDP16BIfc);
-  OCDP16BIfc _a <- mkOCDP(pciDevice); return _a;
+module mkOCDP16B#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDP16BIfc);
+  OCDP16BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull); return _a;
 endmodule
 
 typedef OCDPIfc#(8) OCDP32BIfc;
 (* synthesize *)
-module mkOCDP32B#(PciId pciDevice) (OCDP32BIfc);
-  OCDP32BIfc _a <- mkOCDP(pciDevice); return _a;
+module mkOCDP32B#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDP32BIfc);
+  OCDP32BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull); return _a;
 endmodule
 
 endpackage: OCDP

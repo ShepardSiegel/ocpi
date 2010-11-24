@@ -57,8 +57,8 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   //OCDPIfc#(ndw)  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
 `define USE_NDW1
 `ifdef USE_NDW1
-  OCDP4BIfc  dp0  <- mkOCDP(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
-  OCDP4BIfc  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
+  OCDP4BIfc  dp0  <- mkOCDP(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
+  OCDP4BIfc  dp1  <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
 `endif
 
   // Infrastruture WCI slaves...

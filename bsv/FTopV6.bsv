@@ -116,7 +116,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
 
   // WCI...
   //mkConnection(vWci[0], icap.wci_s);    // worker 8
-  mkConnectionMSO(vWci[0],  icapwci_Es, wciMonW8.wciO0, clocked_by trn2_clk);
+  mkConnectionMSO(vWci[0],  icapwci_Es, wciMonW8.observe, clocked_by trn2_clk);
   mkConnection(vWci[1], flash0.wci_s);  // worker 9
   mkConnection(vWci[2], gbe0.wci_rx);   // worker 10 
   mkConnection(vWci[3], gbe0.wci_tx);   // worker 11
