@@ -7,6 +7,7 @@
 ## 2010-02-05 Move from PCIe Gen1 to Gen2 (250 MHz pci0 clk)
 ## 2010-03-04 GbE signals added
 ## 2010-03-12 DDR3 DRAM signals added
+## 2010-11-25 Moved ppsOut to ML605 J57 SMA Connector
 
 CONFIG PART = XC6VLX240T-FF1156-1 ;
 
@@ -70,7 +71,9 @@ NET "led[12]"   LOC = AD21   | IOSTANDARD = "LVCMOS25"; ## User West
 #NET "pb_sw[4]"  LOC = H17    | IOSTANDARD = "LVCMOS25"; ## User West
 
 NET  "ppsExtIn"  LOC = H30  | IOSTANDARD = "LVCMOS25"; #FMC LPC H8 on J63
-NET  "ppsOut"    LOC = AD20 | IOSTANDARD = "LVCMOS25"; #FMC HPC H8 on J64
+#NET  "ppsOut"    LOC = AD20 | IOSTANDARD = "LVCMOS25"; #FMC HPC H8 on J64
+NET  "ppsOut"    LOC = V34 | IOSTANDARD = "LVCMOS25"; #ML605 Board J57 (user_sma_gpio_p)
+#NET  "xxxx"    LOC = W34 | IOSTANDARD = "LVCMOS25"; #ML605 Board J56 (user_sma_gpio_n)
 
 PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
 PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;
