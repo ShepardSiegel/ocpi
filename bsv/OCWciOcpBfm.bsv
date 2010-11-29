@@ -112,7 +112,7 @@ endmodule
 
 interface WciOcpMonitorIfc;
   interface WciOcp_Eo#(20) observe;
-  interface Get#(PMEM)     pmem; 
+  interface Get#(PMEMF)     pmem; 
 endinterface
 
 (* synthesize *)

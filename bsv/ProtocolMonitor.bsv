@@ -56,10 +56,15 @@ typedef struct {    // Protocol Monitor Event Message (PMEM) Header
   Bit#(8) length;   // Length in DWORDs of PMEM, including this DWORD header
 } PMEMHeader deriving (Bits, Eq);
 
-typedef union tagged {
-  PMEMHeader Header;
-  Bit#(32)   Body;
+typedef union tagged { 
+  PMEMHeader Header; 
+  Bit#(32)   Body; 
 } PMEM deriving (Bits);
+
+typedef struct {
+  Bool eof;        // Explicit EOF indication
+  PMEM pmem;       // Header or Body of PMEM
+} PMEMF deriving (Bits);
 
 // Specific to the WCI Protocol Monitor...
 typedef struct {
@@ -132,12 +137,12 @@ endinstance
 // PMEM Generator...
 
 interface PMEMGenIfc;
-  interface Get#(PMEM) pmem;               // The protocol-monitor message produced
-  method Action sendEvent (PMWCIEvent e);  // The event we wish to send
+  interface Get#(PMEMF) pmem;               // The protocol-monitor message produced
+  method Action sendEvent (PMWCIEvent e);   // The event we wish to send
 endinterface
 
 module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
-  FIFOF#(PMEM)       pmemF     <- mkFIFOF;   // PMEM message output 
+  FIFOF#(PMEMF)      pmemF     <- mkFIFOF;   // PMEMF message output 
   FIFOF#(PMWCIEvent) evF       <- mkFIFOF;   // event input
   Reg#(Bit#(8))      srcTag    <- mkReg(0);  // 8b rolling count
   Reg#(Bit#(2))      dwRemain  <- mkReg(0);  // Remaining number of DWORDs to send this event
@@ -153,7 +158,7 @@ module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
       tagged Event2DW .e2: begin len=3; dwRemain<=2;          eTyp=e2.eType; end
     endcase
     let h = PMEMHeader {srcID:srcID, eType:eTyp, srcTag:srcTag, length:len};
-    pmemF.enq(Header (h));
+    pmemF.enq(PMEMF{eof:(len==1), pmem:Header (h)});
     srcTag <= srcTag + 1;
     //$display("[%0d]: %m: gen_messsage_head", $time);
   endrule
@@ -165,7 +170,7 @@ module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
       tagged Event1DW .e1: d=e1.data0;
       tagged Event2DW .e2: d=(dwRemain==1)?e2.data1:e2.data0;
     endcase
-    pmemF.enq(Body (d));
+    pmemF.enq(PMEMF{eof:(dwRemain==1),pmem:Body (d)});
     dwRemain <= dwRemain - 1;
     if(dwRemain==1) evF.deq;
     //$display("[%0d]: %m: gen_messsage_body", $time);
@@ -179,28 +184,33 @@ endmodule
 // PMEM Monitor...
 
 interface PMEMMonitorIfc;
-  interface Put#(PMEM) pmem;               // The protocol-monitor message monitored
+  interface Put#(PMEMF) pmem;               // The protocol-monitor message monitored
 endinterface
 
 module mkPMEMMonitor (PMEMMonitorIfc);
-  FIFOF#(PMEM)       pmemF       <- mkFIFOF;   // PMEM message input
+  FIFOF#(PMEMF)      pmemF       <- mkFIFOF;   // PMEMF message input
   Reg#(PMEMHeader)   pmh         <- mkRegU;
   Reg#(Bit#(8))      dwRemain    <- mkRegU;
   Reg#(Bit#(32))     eventCount  <- mkReg(0);
 
-  rule get_message_head (pmemF.first matches tagged Header .h);
+  rule get_message_head (pmemF.first.pmem matches tagged Header .h);
     pmh <= h;
     dwRemain <= h.length - 1;
     pmemF.deq;
-    if(h.length==1) eventCount <= eventCount + 1;
+    if (h.length==1) begin 
+      eventCount <= eventCount + 1;
+      if (!pmemF.first.eof) $display("[%0d]: %m PMEM HEAD EOF ERROR", $time);
+    end
     $display("[%0d]: %m PMEM event: ", $time, fshow(h));
-    //$display("[%0d]: %m: PMEM MONITOR Event %0d srcId:%0x srcTag:%0x length:%0x", $time, eventCount, h.srcID, h.srcTag, h.length);
   endrule
 
-  rule gen_message_body (pmemF.first matches tagged Body .b);
+  rule gen_message_body (pmemF.first.pmem matches tagged Body .b);
     pmemF.deq;
     dwRemain <= dwRemain - 1;
-    if(dwRemain==1) eventCount <= eventCount + 1;
+    if(dwRemain==1) begin
+      eventCount <= eventCount + 1;
+      if (!pmemF.first.eof) $display("[%0d]: %m PMEM BODY EOF ERROR", $time);
+    end
     $display("[%0d]: %m: PMEM MONITOR Event %0d Body dwRemain:%0x data:%0x ", $time, eventCount, dwRemain, b);
   endrule
 
