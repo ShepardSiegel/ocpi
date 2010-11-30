@@ -143,7 +143,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
 
   // Interfaces and Methods provided...
   interface pcie     = pci0.pcie;
-  method    led      = {8'b10100000, pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciLinkUp)}; //13 leds are on active high on ML605
+  method    led      = {7'b1010000, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciLinkUp)}; //13 leds are on active high on ML605
   interface gps      = ctop.gps;
   interface flash    = flash0.flash;
   interface dram     = dram0.dram;

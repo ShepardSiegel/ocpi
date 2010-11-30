@@ -187,6 +187,7 @@ interface PMEMMonitorIfc;
   interface Put#(PMEMF) pmem;   // The protocol-monitor message monitored
   method Bool head;         
   method Bool body;         
+  method Bool grab;         
 endinterface
 
 module mkPMEMMonitor (PMEMMonitorIfc);
@@ -196,9 +197,12 @@ module mkPMEMMonitor (PMEMMonitorIfc);
   Reg#(Bit#(32))     eventCount  <- mkReg(0);
   Reg#(Bool)         pmHead      <- mkDReg(False);
   Reg#(Bool)         pmBody      <- mkDReg(False);
+  Reg#(Bool)         pmGrab      <- mkDReg(False);
 
   rule get_message_head (pmemF.first.pmem matches tagged Header .h);
     pmh <= h;
+    pmGrab <= unpack(parity(pack(pmh)));  // Just look across all header bits
+
     pmemF.deq;
     pmHead <= True;
     dwRemain <= h.length - 1;
@@ -223,6 +227,7 @@ module mkPMEMMonitor (PMEMMonitorIfc);
   interface Put pmem = toPut(pmemF);
   method Bool head = pmHead;         
   method Bool body = pmBody;         
+  method Bool grab = pmGrab;         
 endmodule
 
 endpackage: ProtocolMonitor
