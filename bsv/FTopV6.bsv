@@ -107,16 +107,16 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   GbeWorkerIfc     gbe0     <- mkGbeWorker(gmii_rx_clk, sys1_clk, sys1_rst, clocked_by trn2_clk, reset_by(vWci[2].mReset_n));
   DramServerIfc    dram0    <- mkDramServer(sys0_clk, sys0_rst,             clocked_by trn2_clk, reset_by(vWci[4].mReset_n));
 
-  WciOcpMonitorIfc            wciMonW8         <- mkWciOcpMonitor(8'h42, clocked_by trn2_clk); // monId=h42
-  PMEMMonitorIfc              pmemMonW8        <- mkPMEMMonitor(clocked_by trn2_clk);
-  mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by trn2_clk);  // Connect the wciMon to an event monitor
+  WciOcpMonitorIfc            wciMonW8         <- mkWciOcpMonitor(8'h42, clocked_by trn2_clk, reset_by trn2_rst); // monId=h42
+  PMEMMonitorIfc              pmemMonW8        <- mkPMEMMonitor(         clocked_by trn2_clk, reset_by trn2_rst);
+  mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by trn2_clk, reset_by trn2_rst);  // Connect the wciMon to an event monitor
 
   
-  WciOcp_Es#(NwciAddr) icapwci_Es <- mkWciOcpStoES(icap.wci_s, clocked_by trn2_clk);
+  WciOcp_Es#(NwciAddr) icapwci_Es <- mkWciOcpStoES(icap.wci_s, clocked_by trn2_clk, reset_by trn2_rst);
 
   // WCI...
   //mkConnection(vWci[0], icap.wci_s);    // worker 8
-  mkConnectionMSO(vWci[0],  icapwci_Es, wciMonW8.observe, clocked_by trn2_clk);
+  mkConnectionMSO(vWci[0],  icapwci_Es, wciMonW8.observe, clocked_by trn2_clk, reset_by trn2_rst);
   mkConnection(vWci[1], flash0.wci_s);  // worker 9
   mkConnection(vWci[2], gbe0.wci_rx);   // worker 10 
   mkConnection(vWci[3], gbe0.wci_tx);   // worker 11
@@ -143,7 +143,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
 
   // Interfaces and Methods provided...
   interface pcie     = pci0.pcie;
-  method    led      = {10'b1010000000, infLed, pack(pciLinkUp)}; //13 leds are on active high on ML605
+  method    led      = {8'b10100000, pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciLinkUp)}; //13 leds are on active high on ML605
   interface gps      = ctop.gps;
   interface flash    = flash0.flash;
   interface dram     = dram0.dram;

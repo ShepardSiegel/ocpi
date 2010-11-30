@@ -116,7 +116,6 @@ interface WciOcpMonitorIfc;
 endinterface
 
 (* synthesize *)
-//module mkWciOcpMonitor#(Clock wci_clk, Reset wci_rstn) (WciOcpMonitorIfc);
 module mkWciOcpMonitor#(parameter Bit#(8) monId)  (WciOcpMonitorIfc);
   WciOcpObserverIfc#(20) observer <- mkWciOcpObserver;
   PMEMGenIfc             pmemgen  <- mkPMEMGen(monId);

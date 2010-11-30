@@ -184,7 +184,9 @@ endmodule
 // PMEM Monitor...
 
 interface PMEMMonitorIfc;
-  interface Put#(PMEMF) pmem;               // The protocol-monitor message monitored
+  interface Put#(PMEMF) pmem;   // The protocol-monitor message monitored
+  method Bool head;         
+  method Bool body;         
 endinterface
 
 module mkPMEMMonitor (PMEMMonitorIfc);
@@ -192,11 +194,14 @@ module mkPMEMMonitor (PMEMMonitorIfc);
   Reg#(PMEMHeader)   pmh         <- mkRegU;
   Reg#(Bit#(8))      dwRemain    <- mkRegU;
   Reg#(Bit#(32))     eventCount  <- mkReg(0);
+  Reg#(Bool)         pmHead      <- mkDReg(False);
+  Reg#(Bool)         pmBody      <- mkDReg(False);
 
   rule get_message_head (pmemF.first.pmem matches tagged Header .h);
     pmh <= h;
-    dwRemain <= h.length - 1;
     pmemF.deq;
+    pmHead <= True;
+    dwRemain <= h.length - 1;
     if (h.length==1) begin 
       eventCount <= eventCount + 1;
       if (!pmemF.first.eof) $display("[%0d]: %m PMEM HEAD EOF ERROR", $time);
@@ -206,6 +211,7 @@ module mkPMEMMonitor (PMEMMonitorIfc);
 
   rule gen_message_body (pmemF.first.pmem matches tagged Body .b);
     pmemF.deq;
+    pmBody <= True;
     dwRemain <= dwRemain - 1;
     if(dwRemain==1) begin
       eventCount <= eventCount + 1;
@@ -215,6 +221,8 @@ module mkPMEMMonitor (PMEMMonitorIfc);
   endrule
 
   interface Put pmem = toPut(pmemF);
+  method Bool head = pmHead;         
+  method Bool body = pmBody;         
 endmodule
 
 endpackage: ProtocolMonitor
