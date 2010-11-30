@@ -3,6 +3,7 @@ ssiegel 2010-06-10 Created
 ssiegel 2010-07-26 ISE 12.2 Updates
 ssiegel 2010-09-17 Included LICENSE.TXT
 ssiegel 2010-11-22 Added to FAQ
+ssiegel 2010-11-29 Touched README
 
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
@@ -96,6 +97,5 @@ OpenCPI website: www.opencpi.org
   "I want to learn more about Bluespec SystemVerilog (BSV), where do I start?"
      The e-Book "Bluespec by Example is a good place...  (bsv_by_example.pdf)
      http://www.bluespec.com/forum/viewtopic.php?p=827#827
-
 
 
