@@ -4,6 +4,7 @@
 package ProtocolMonitor;
 
 import OCWipDefs::*;
+import OCWsi::*;
 
 import Clocks::*;
 import Connectable::*;
@@ -181,6 +182,73 @@ module mkPMEMGen#(parameter Bit#(8) srcID)  (PMEMGenIfc);
 endmodule
 
 
+interface PMEMGenWsiIfc;
+  interface Wsi_Em#(12,32,4,8,0)  pmem;     // The protocol-monitor message produced (in WSI format)
+  method Action sendEvent (PMWCIEvent e);   // The event we wish to send
+endinterface
+
+module mkPMEMGenWsi#(parameter Bit#(8) srcID)  (PMEMGenWsiIfc);
+  FIFOF#(PMEMF)      pmemF     <- mkFIFOF;   // PMEMF message output 
+  FIFOF#(PMWCIEvent) evF       <- mkFIFOF;   // event input
+  Reg#(Bit#(8))      srcTag    <- mkReg(0);  // 8b rolling count
+  Reg#(Bit#(2))      dwRemain  <- mkReg(0);  // Remaining number of DWORDs to send this event
+
+  WsiMasterIfc#(12,32,4,8,0)   wsiM      <- mkWsiMaster;
+
+  Bool messageInEgress = (dwRemain!=0);
+
+  rule operate; wsiM.operate(); endrule
+
+  rule gen_message_head (!messageInEgress);  // This rule will fire exactly once for each event...
+    Bit#(8) len  = 0;
+    PMEvent eTyp = ?;
+    case (evF.first) matches
+      tagged Event0DW .e0: begin len=1; dwRemain<=0; evF.deq; eTyp=e0.eType; end
+      tagged Event1DW .e1: begin len=2; dwRemain<=1;          eTyp=e1.eType; end
+      tagged Event2DW .e2: begin len=3; dwRemain<=2;          eTyp=e2.eType; end
+    endcase
+    let h = PMEMHeader {srcID:srcID, eType:eTyp, srcTag:srcTag, length:len};
+    srcTag <= srcTag + 1;
+    //$display("[%0d]: %m: gen_messsage_head", $time);
+    //pmemF.enq(PMEMF{eof:(len==1), pmem:Header (h)});
+    wsiM.reqPut.put (WsiReq    {cmd  : WR ,
+                             reqLast : (len==1),
+                             reqInfo : 0,
+                        burstPrecise : False,
+                         burstLength : extend(len),
+                               data  : pack(h),
+                             byteEn  : '1,
+                           dataInfo  : '0 });
+  endrule
+
+  rule gen_message_body (messageInEgress);  // This rule will fire 0 or more times for each event...
+    Bit#(32) d = 0;
+    case (evF.first) matches
+      tagged Event0DW .e0: $display("Error");
+      tagged Event1DW .e1: d=e1.data0;
+      tagged Event2DW .e2: d=(dwRemain==1)?e2.data1:e2.data0;
+    endcase
+    dwRemain <= dwRemain - 1;
+    if(dwRemain==1) evF.deq;
+    //$display("[%0d]: %m: gen_messsage_body", $time);
+    //pmemF.enq(PMEMF{eof:(dwRemain==1),pmem:Body (d)});
+    wsiM.reqPut.put (WsiReq    {cmd  : WR ,
+                             reqLast : (dwRemain==1),
+                             reqInfo : 0,
+                        burstPrecise : False,
+                         burstLength : extend(dwRemain),
+                               data  : pack(d),
+                             byteEn  : '1,
+                           dataInfo  : '0 });
+  endrule
+
+  interface Wsi_Em pmem = toWsiEM(wsiM.mas); 
+  method Action sendEvent (PMWCIEvent e) = evF.enq(e);  // capture envent in evF
+endmodule
+
+
+
+
 // PMEM Monitor...
 
 interface PMEMMonitorIfc;
@@ -229,5 +297,73 @@ module mkPMEMMonitor (PMEMMonitorIfc);
   method Bool body = pmBody;         
   method Bool grab = pmGrab;         
 endmodule
+
+
+interface PMEMMonitorWsiIfc;
+  interface Wsi_Es#(12,32,4,8,0)  pmem;     // The protocol-monitor message produced (in WSI format)
+  method Bool head;         
+  method Bool body;         
+  method Bool grab;         
+endinterface
+
+module mkPMEMMonitorWsi (PMEMMonitorWsiIfc);
+  FIFOF#(PMEMF)      pmemF       <- mkFIFOF;   // PMEMF message input
+  Reg#(PMEMHeader)   pmh         <- mkRegU;
+  Reg#(Bit#(8))      dwRemain    <- mkRegU;
+  Reg#(Bit#(32))     eventCount  <- mkReg(0);
+  Reg#(Bool)         pmHead      <- mkDReg(False);
+  Reg#(Bool)         pmBody      <- mkDReg(False);
+  Reg#(Bool)         pmGrab      <- mkDReg(False);
+
+  WsiSlaveIfc#(12,32,4,8,0)  wsiS  <- mkWsiSlave;
+  Reg#(Bool)         msgActive   <- mkReg(False);
+
+  rule operate; wsiS.operate(); endrule
+
+  rule chomp;
+    WsiReq#(12,32,4,8,0) w <- wsiS.reqGet.get;  // ActionValue Get
+    if (!msgActive) begin // Header
+      pmemF.enq(PMEMF{eof:w.reqLast, pmem:Header (unpack(w.data))});
+      PMEMHeader h =  unpack(w.data);
+    end else begin        // Body
+      pmemF.enq(PMEMF{eof:w.reqLast,pmem:Body (w.data)});
+    end
+    msgActive <= !w.reqLast;
+  endrule
+
+
+  rule get_message_head (pmemF.first.pmem matches tagged Header .h);
+    pmh <= h;
+    pmGrab <= unpack(parity(pack(pmh)));  // Just look across all header bits
+
+    pmemF.deq;
+    pmHead <= True;
+    dwRemain <= h.length - 1;
+    if (h.length==1) begin 
+      eventCount <= eventCount + 1;
+      if (!pmemF.first.eof) $display("[%0d]: %m PMEM HEAD EOF ERROR", $time);
+    end
+    $display("[%0d]: %m PMEM event: ", $time, fshow(h));
+  endrule
+
+  rule gen_message_body (pmemF.first.pmem matches tagged Body .b);
+    pmemF.deq;
+    pmBody <= True;
+    dwRemain <= dwRemain - 1;
+    if(dwRemain==1) begin
+      eventCount <= eventCount + 1;
+      if (!pmemF.first.eof) $display("[%0d]: %m PMEM BODY EOF ERROR", $time);
+    end
+    $display("[%0d]: %m: PMEM MONITOR Event %0d Body dwRemain:%0x data:%0x ", $time, eventCount, dwRemain, b);
+  endrule
+
+  Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);
+
+  interface Wsi_Es pmem = wsi_Es;     // The protocol-monitor message produced (in WSI format)
+  method Bool      head = pmHead;         
+  method Bool      body = pmBody;         
+  method Bool      grab = pmGrab;         
+endmodule
+
 
 endpackage: ProtocolMonitor

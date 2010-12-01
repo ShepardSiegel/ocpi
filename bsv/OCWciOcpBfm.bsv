@@ -4,6 +4,7 @@
 package OCWciOcpBfm;
 
 import OCWci::*;
+import OCWsi::*;
 import OCWciOcp::*;
 import OCWipDefs::*;
 import ProtocolMonitor::*;
@@ -110,15 +111,16 @@ module mkWciOcpTarget (WciOcpTargetIfc);
   interface WciOcp_Em wciS0 = wci_Es;
 endmodule
 
+
 interface WciOcpMonitorIfc;
-  interface WciOcp_Eo#(20) observe;
-  interface Get#(PMEMF)     pmem; 
+  interface WciOcp_Eo#(20)        observe;
+  interface Wsi_Em#(12,32,4,8,0)  pmem;
 endinterface
 
 (* synthesize *)
 module mkWciOcpMonitor#(parameter Bit#(8) monId)  (WciOcpMonitorIfc);
   WciOcpObserverIfc#(20) observer <- mkWciOcpObserver;
-  PMEMGenIfc             pmemgen  <- mkPMEMGen(monId);
+  PMEMGenWsiIfc          pmemgen  <- mkPMEMGenWsi(monId);
 
   // Add monitor/observer behavior here...
   rule event_cmd;

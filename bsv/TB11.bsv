@@ -35,7 +35,7 @@ module mkTB11();
   Reg#(Bit#(32))              dstDataOut     <- mkReg(0);       // DWORD ordinal count
 
   WciOcpMonitorIfc            wciMon         <- mkWciOcpMonitor(8'h42); // monId=h42
-  PMEMMonitorIfc              pmemMon        <- mkPMEMMonitor;
+  PMEMMonitorWsiIfc           pmemMon        <- mkPMEMMonitorWsi;
 
   mkConnection(wciMon.pmem, pmemMon.pmem);                   // Connect the wciMon to an event monitor
 
