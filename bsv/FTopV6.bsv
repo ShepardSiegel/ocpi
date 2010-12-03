@@ -108,7 +108,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   DramServerIfc    dram0    <- mkDramServer(sys0_clk, sys0_rst,             clocked_by trn2_clk, reset_by(vWci[4].mReset_n));
 
   WciOcpMonitorIfc            wciMonW8         <- mkWciOcpMonitor(8'h42, clocked_by trn2_clk, reset_by trn2_rst); // monId=h42
-  PMEMMonitorIfc              pmemMonW8        <- mkPMEMMonitor(         clocked_by trn2_clk, reset_by trn2_rst);
+  PMEMMonitorWsiIfc           pmemMonW8        <- mkPMEMMonitorWsi(      clocked_by trn2_clk, reset_by trn2_rst);
   mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by trn2_clk, reset_by trn2_rst);  // Connect the wciMon to an event monitor
 
   
