@@ -1,0 +1,2 @@
+verilog work "../libsrc/hdl/ocpi/fpgaTop_nf10.v"
+verilog work "../libsrc/hdl/ocpi/OPED.v"

@@ -1,0 +1,13 @@
+run 
+-p xc6vlx240t-ff1156-1
+-ifn oped.prj
+-ifmt mixed
+-ofn oped.ngc  
+-bufg 0
+-top fpgaTop
+-opt_mode SPEED
+-opt_level 2
+-keep_hierarchy yes
+-rtlview yes
+-use_sync_reset yes
+-uc oped.xcf

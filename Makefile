@@ -341,6 +341,13 @@ clean:
 	rm -fR sim/isim
 	rm -fR sim/isim.wdb 
 	rm -fR sim/my_sim.exe
+	rm -fR synth/*.ngc
+	rm -fR synth/*.xrpt
+	rm -fR synth/*.srp
+	rm -fR synth/*.ngr
+	rm -fR synth/*.lso
+	rm -fR synth/xst
+	rm -fR synth/_xmsgs
 	rm -fR info obj
 	rm -fR `find . -name \*~`
 	rm -fR bin/*.log
