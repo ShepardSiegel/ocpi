@@ -65,7 +65,7 @@ always@(posedge ACLK) begin
 end
 
 // Instance and connect the OPED component just as it will be instanced in nf10...
- OPED opedTop (
+ OPED oped (
   .PCIE_CLK_P        (pcie_clk_p),
   .PCIE_CLK_N        (pcie_clk_n),
   .PCIE_RESET_N      (pcie_reset_n),

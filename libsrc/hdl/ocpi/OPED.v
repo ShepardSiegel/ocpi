@@ -66,4 +66,64 @@ module OPED (
   output [31:0]  DEBUG                // 32b of OPED debug information
 );
 
+
+// The code that follows is the "impedance-matching" to the underlying OPED core logic
+// This code, and the the submodules it instantiates, are intended to be functionally opaque
+// Here we instance mkOPED, which is the name of the BSV OPED implementation.
+// Alternate, future OPED implementations may be adapted and placed here, if desired.
+// This adaptation layer may be removed at a later date when it is clear it is not needed
+
+ mkOPED oped (
+  .pcie_clk_p        (PCIE_CLK_P),
+  .pcie_clk_n        (PCIE_CLK_N),
+  .pcie_reset_n      (PCIE_RESET_N),
+  .pcie_rxp          (PCIE_RXP),
+  .pcie_rxn          (PCIE_RXN),
+  .pcie_txp          (PCIE_TXP),
+  .pcie_txn          (PCIE_TXN),
+  .trnClk            (ACLK),
+  .CLK_GATE_trnClk   (),
+  /*
+  .ARESETN           (ARESETN),
+  .M_AXI_AWADDR      (M_AXI_AWADDR),
+  .M_AXI_AWPROT      (M_AXI_AWPROT),
+  .M_AXI_AWVALID     (M_AXI_AWVALID),
+  .M_AXI_AWREADY     (M_AXI_AWREADY),
+  .M_AXI_WDATA       (M_AXI_WDATA),
+  .M_AXI_WSTRB       (M_AXI_WSTRB),
+  .M_AXI_WVALID      (M_AXI_WVALID),
+  .M_AXI_WREADY      (M_AXI_WREADY),
+  .M_AXI_BRESP       (M_AXI_BRESP),
+  .M_AXI_BVALID      (M_AXI_BVALID),
+  .M_AXI_BREADY      (M_AXI_BREADY),
+  .M_AXI_ARADDR      (M_AXI_ARADDR),
+  .M_AXI_ARPROT      (M_AXI_ARPROT),
+  .M_AXI_ARVALID     (M_AXI_ARVALID),
+  .M_AXI_ARREADY     (M_AXI_ARREADY),
+  .M_AXI_RDATA       (M_AXI_RDATA),
+  .M_AXI_RRESP       (M_AXI_RRESP),
+  .M_AXI_RVALID      (M_AXI_RVALID),
+  .M_AXI_RREADY      (M_AXI_RREADY),
+  .M_AXIS_DAT_TDATA  (M_AXIS_DAT_TDATA),
+  .M_AXIS_DAT_TVALID (M_AXIS_DAT_TVALID),
+  .M_AXIS_DAT_TSTRB  (M_AXIS_DAT_TSTRB),
+  .M_AXIS_DAT_TLAST  (M_AXIS_DAT_TLAST),
+  .M_AXIS_DAT_TREADY (M_AXIS_DAT_TREADY),
+  .M_AXIS_LEN_TDATA  (M_AXIS_LEN_TDATA),
+  .M_AXIS_SPT_TDATA  (M_AXIS_SPT_TDATA),
+  .M_AXIS_DPT_TDATA  (M_AXIS_DPT_TDATA),
+  .M_AXIS_ERR_TDATA  (M_AXIS_ERR_TDATA),
+  .S_AXIS_DAT_TDATA  (S_AXIS_DAT_TDATA),
+  .S_AXIS_DAT_TVALID (S_AXIS_DAT_TVALID),
+  .S_AXIS_DAT_TSTRB  (S_AXIS_DAT_TSTRB),
+  .S_AXIS_DAT_TLAST  (S_AXIS_DAT_TLAST),
+  .S_AXIS_DAT_TREADY (S_AXIS_DAT_TREADY),
+  .S_AXIS_LEN_TDATA  (S_AXIS_LEN_TDATA),
+  .S_AXIS_SPT_TDATA  (S_AXIS_SPT_TDATA),
+  .S_AXIS_DPT_TDATA  (S_AXIS_DPT_TDATA),
+  .S_AXIS_ERR_TDATA  (S_AXIS_ERR_TDATA),
+  */
+  .debug             (DEBUG)
+);
+
 endmodule : OPED
