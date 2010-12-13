@@ -9,6 +9,9 @@
 // + The M_AXIS group is the AXI4-Stream channel providing ingress data from PCIe->FPGA
 // + The S_AXIS group is the AXI4-Stream channel supplying egress  data from FPGA->PCIe
 // + The DEBUG signals contain up to 32 "interesting" bits of status
+//
+// The {LEN/SPT/DPT/ERR} signas, although lockstep with DAT, have their own TVALIDs
+// See the nf10 doc for details about their behavior and timing
 
 module OPED (
                                       // PCIE Endpoint Connections...
@@ -49,9 +52,13 @@ module OPED (
   output         M_AXIS_DAT_TLAST,
   input          M_AXIS_DAT_TREADY,
   output [15:0]  M_AXIS_LEN_TDATA,    // LEN (Length)           - lockstep with DAT_TDATA
+  output         M_AXIS_LEN_TVALID,
   output [7:0]   M_AXIS_SPT_TDATA,    // SPT (Source Port)      - lockstep with DAT_TDATA
+  output         M_AXIS_SPT_TVALID,
   output [7:0]   M_AXIS_DPT_TDATA,    // DPT (Destination Port) - lockstep with DAT_TDATA
+  output         M_AXIS_DPT_TVALID,
   output         M_AXIS_ERR_TDATA,    // ERR (Error)            - lockstep with DAT_TDATA
+  output         M_AXIS_ERR_TVALID,
 
   input  [255:0] S_AXIS_DAT_TDATA,    // AXI4-Stream (Egress to PCIe) Slave-Consumer...
   input          S_AXIS_DAT_TVALID,
@@ -59,9 +66,13 @@ module OPED (
   input          S_AXIS_DAT_TLAST,
   output         S_AXIS_DAT_TREADY,
   input  [15:0]  S_AXIS_LEN_TDATA,    // LEN (Length)           - lockstep with DAT_TDATA
+  input          S_AXIS_LEN_TVALID,
   input  [7:0]   S_AXIS_SPT_TDATA,    // SPT (Source Port)      - lockstep with DAT_TDATA
+  input          S_AXIS_SPT_TVALID,
   input  [7:0]   S_AXIS_DPT_TDATA,    // DPT (Destination Port) - lockstep with DAT_TDATA
+  input          S_AXIS_DPT_TVALID,
   input          S_AXIS_ERR_TDATA,    // ERR (Error)            - lockstep with DAT_TDATA
+  input          S_AXIS_ERR_TVALID,
 
   output [31:0]  DEBUG                // 32b of OPED debug information
 );
@@ -110,18 +121,26 @@ module OPED (
   .M_AXIS_DAT_TLAST  (M_AXIS_DAT_TLAST),
   .M_AXIS_DAT_TREADY (M_AXIS_DAT_TREADY),
   .M_AXIS_LEN_TDATA  (M_AXIS_LEN_TDATA),
+  .M_AXIS_LEN_TVALID (M_AXIS_LEN_TVALID),
   .M_AXIS_SPT_TDATA  (M_AXIS_SPT_TDATA),
+  .M_AXIS_SPT_TVALID (M_AXIS_SPT_TVALID),
   .M_AXIS_DPT_TDATA  (M_AXIS_DPT_TDATA),
+  .M_AXIS_DPT_TVALID (M_AXIS_DPT_TVALID),
   .M_AXIS_ERR_TDATA  (M_AXIS_ERR_TDATA),
+  .M_AXIS_ERR_TVALID (M_AXIS_ERR_TVALID),
   .S_AXIS_DAT_TDATA  (S_AXIS_DAT_TDATA),
   .S_AXIS_DAT_TVALID (S_AXIS_DAT_TVALID),
   .S_AXIS_DAT_TSTRB  (S_AXIS_DAT_TSTRB),
   .S_AXIS_DAT_TLAST  (S_AXIS_DAT_TLAST),
   .S_AXIS_DAT_TREADY (S_AXIS_DAT_TREADY),
   .S_AXIS_LEN_TDATA  (S_AXIS_LEN_TDATA),
+  .S_AXIS_LEN_TVALID (S_AXIS_LEN_TVALID),
   .S_AXIS_SPT_TDATA  (S_AXIS_SPT_TDATA),
+  .S_AXIS_SPT_TVALID (S_AXIS_SPT_TVALID),
   .S_AXIS_DPT_TDATA  (S_AXIS_DPT_TDATA),
+  .S_AXIS_DPT_TVALID (S_AXIS_DPT_TVALID),
   .S_AXIS_ERR_TDATA  (S_AXIS_ERR_TDATA),
+  .S_AXIS_ERR_TVALID (S_AXIS_ERR_TVALID),
   */
   .debug             (DEBUG)
 );
