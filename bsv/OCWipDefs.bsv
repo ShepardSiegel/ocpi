@@ -3,6 +3,8 @@
 
 package OCWipDefs;
 
+import Connectable::*;
+
 // Specify the depth of Slave-Request buffer...
 typedef 3 SRBsize; // 3 is the minimum required to support the latency of pipelined SThreadBusy
 
@@ -63,6 +65,11 @@ typedef struct {          // -Description--
   Bit#(32) iMesgCount;    // rolling count of imprecise messages completed  (counts on reqLast)
   Bit#(32) tBusyCount;    // rolling count of ThreadBusy while linkReady    (indication of how much "backpressure")
 } WipDataPortExtendedStatus deriving (Bits, Eq);
+
+// ConnectableMSO is used across multiple profiles and protocols...
+typeclass ConnectableMSO#(type a, type b, type c); // Master-Slave-Observer Connectable...
+  module mkConnectionMSO#(a m, b s, c o) (Empty);
+endtypeclass
 
 
 //TODO: Move this convienience function somewhere more appropriate...

@@ -8,6 +8,7 @@ import OCWip::*;
 import BiasWorker::*;
 import SMAdapter::*;
 import Config::*;
+import ProtocolMonitor::*;
 
 import Clocks::*;
 import FIFO::*;
@@ -54,8 +55,14 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   vWci[6] = tieOff6;
   vWci[7] = tieOff7;
 
+  // Protocol Monitor IPs...
+  WsiOcpMonitorIfc             wsiMonW23         <- mkWsiOcpMonitor(8'h52);
+  PMEMMonitorWsiIfc            pmemMonW23        <- mkPMEMMonitorWsi;
+  mkConnection(wciMonW23.pmem, pmemMonW23.pmem);
+
   // Connect co-located WSI ports...
-  mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
+  //mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
+  mkConnectionMSO(appW2.wsiM0, appW3.wsiS0, wsiMon23.observe);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
   mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 BiasWorker WSI-M0 feeding W4 SMAdapter WSI-S0
 
   interface wci_s     = vWci;

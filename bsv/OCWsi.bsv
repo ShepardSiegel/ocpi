@@ -134,6 +134,37 @@ interface Wsi_Es#(numeric type nb, numeric type nd, numeric type ng, numeric typ
   (* prefix="", enable="MReset_n"*)       method Action   mReset_n;
 endinterface
 
+(* always_ready *)
+interface Wsi_Eo#(numeric type nb, numeric type nd, numeric type ng, numeric type nh, numeric type ni);
+  (* prefix="", always_enabled *)         method Action   mCmd         ((* port="MCmd" *)         Bit#(3)  arg_cmd);
+  (* prefix="", enable="MReqLast" *)      method Action   mReqLast;
+  (* prefix="", enable="MBurstPrecise" *) method Action   mBurstPrecise;
+  (* prefix="", always_enabled *)         method Action   mBurstLength ((* port="MBurstLength" *) Bit#(nb) arg_burstLength);
+  (* prefix="", always_enabled *)         method Action   mData        ((* port="MData" *)        Bit#(nd) arg_data);
+  (* prefix="", always_enabled *)         method Action   mByteEn      ((* port="MByteEn" *)      Bit#(ng) arg_byteEn);
+  (* prefix="", always_enabled *)         method Action   mReqInfo     ((* port="MReqInfo" *)     Bit#(nh) arg_reqInfo);
+  (* prefix="", always_enabled *)         method Action   mDataInfo    ((* port="MDataInfo" *)    Bit#(ni) arg_dataInfo);
+  (* prefix="", enable="SThreadBusy" *)   method Action   sThreadBusy;
+  (* prefix="", enable="SReset_n"*)       method Action   sReset_n;
+  (* prefix="", enable="MReset_n"*)       method Action   mReset_n;
+endinterface
+
+// The WSI instance of ConnectableMSO...
+instance ConnectableMSO#( Wsi_Em#(nb,nd,ng,nh,ni), Wsi_Es#(nb,nd,ng,nh,ni), Wsi_Eo#(nb,nd,ng,nh,ni) );
+  module mkConnectionMSO#(Wsi_Em#(nb,nd,ng,nh,ni) master, Wsi_Es#(nb,nd,ng,nh,ni) slave, Wsi_Eo#(nb,nd,ng,nh,ni) observer) (Empty);
+    rule mCmdConnect;    slave.mCmd(master.mCmd);                      observer.mCmd(master.mCmd);                  endrule 
+    rule mReqLConnect    (master.mReqLast);      slave.mReqLast;       observer.mReqLast;                           endrule
+    rule mBrstPConnect   (master.mBurstPrecise); slave.mBurstPrecise;  observer.mBurstPrecise;                      endrule
+    rule mBLenConnect;   slave.mBurstLength(master.mBurstLength);      observer.mBurstLength(master.mBurstLength);  endrule 
+    rule mDataConnect;   slave.mData(master.mData);                    observer.mData(master.mData);                endrule 
+    rule mBEConnect;     slave.mByteEn(master.mByteEn);                observer.mByteEn(master.mByteEn);            endrule 
+    rule mReqIConnect;   slave.mReqInfo(master.mReqInfo);              observer.mReqInfo(master.mReqInfo);          endrule 
+    rule mDatIConnect;   slave.mDataInfo(master.mDataInfo);            observer.mDataInfo(master.mDataInfo);        endrule 
+    rule stbConnect      (slave.sThreadBusy);    master.sThreadBusy;   observer.sThreadBusy;                        endrule
+    rule mResetConnect   (master.mReset_n);      slave.mReset_n;       observer.mReset_n;                           endrule
+    rule sResetConnect   (slave.sReset_n);       master.sReset_n;      observer.sReset_n;                           endrule
+  endmodule
+endinstance
 
 //
 // The Four Connectable M/S instances..

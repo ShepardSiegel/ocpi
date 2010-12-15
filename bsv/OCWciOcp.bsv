@@ -132,10 +132,7 @@ interface WciOcp_Eo#(numeric type na);  // Observer/Monitor...
   (* prefix="", always_enabled *)          method Action   mResetn      ((* port="MReset_n" *)    Bit#(1)  arg_mResetn);
 endinterface
 
-typeclass ConnectableMSO#(type a, type b, type c); // Master-Slave-Observer Connectable...
-  module mkConnectionMSO#(a m, b s, c o) (Empty);
-endtypeclass
-
+// The Wci-Ocp instance of ConnectableMSO...
 instance ConnectableMSO#( WciOcp_Em#(na), WciOcp_Es#(na), WciOcp_Eo#(na) );
   module mkConnectionMSO#(WciOcp_Em#(na) master, WciOcp_Es#(na) slave, WciOcp_Eo#(na) observer) (Empty);
     rule mCmdConnect;    slave.mCmd(master.mCmd);                 observer.mCmd(master.mCmd);              endrule 
@@ -148,13 +145,10 @@ instance ConnectableMSO#( WciOcp_Em#(na), WciOcp_Es#(na), WciOcp_Eo#(na) );
     rule stbConnect      (slave.sThreadBusy); master.sThreadBusy; observer.sThreadBusy;                    endrule
     rule sFlagConnect;   master.sFlag(slave.sFlag);               observer.sFlag(slave.sFlag);             endrule
     rule mFlagConnect;   slave.mFlag(master.mFlag);               observer.mFlag(master.mFlag);            endrule
-
     ReadOnly#(Bool) isMReset <- isResetAsserted(reset_by master.mReset_n);
     rule mResetConnect;                                           observer.mResetn(pack(!isMReset));       endrule
-
   endmodule
 endinstance
-   
 
 //
 // The Four Connectable M/S instances..
