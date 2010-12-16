@@ -126,7 +126,7 @@ OBUFDS#() OBUFDS_ppsout(.O(dac0_syncOutp), .OB(dac0_syncOutn), .I(ppsOut));
   .dac0_dacRz        (dac0_dacRz),
   .dac0_dacCal       (dac0_dacCal),
 
-  .adx_adx_sclkn     (adx_sclk),
+  .adx_sclkn         (adx_sclk),
   .adx_csb           (adx_csb),
   .adx_sdo           (adx_sdo),
   .adx_sdi_arg       (adx_sdi),
