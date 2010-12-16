@@ -82,7 +82,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // TODO: Implement and test *registered* SRLFIFO for "best of both worlds"
   //Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
-  Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives
+  Bool useSRL = True; // Set to False to get faster c->q and su on FIFO primitives
 
   FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;

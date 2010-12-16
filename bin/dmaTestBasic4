@@ -7,8 +7,8 @@ SLOT4_BAR0=0xDE000000
 SLOT4_BAR1=0xDFFF0000
 
 echo "admin probe "
-sudo ./swctl $SLOT4_BAR0 $SLOT3_BAR1 settime
-sudo ./swctl $SLOT4_BAR0 $SLOT3_BAR1 admin
+sudo ./swctl $SLOT4_BAR0 $SLOT4_BAR1 settime
+sudo ./swctl $SLOT4_BAR0 $SLOT4_BAR1 admin
 
 #./testDMA "p f m" "3" "0 4112 8176" "100" $*
 ./testDMA "p f m" "3" "0 4096 8192" "100" $*
