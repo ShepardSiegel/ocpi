@@ -80,6 +80,8 @@ while [ $# -gt 0 ]; do
     BSC_VERILOG_FILES="$BSC_VERILOG_FILES $1"
   elif [ "${1%%.V}" != "$1" ]; then
     BSC_VERILOG_FILES="$BSC_VERILOG_FILES $1"
+  elif [ "${1%%.sv}" != "$1" ]; then
+    BSC_VERILOG_FILES="$BSC_VERILOG_FILES $1"
   elif [ "${1%%.vhd}" != "$1" ]; then
     BSC_VHDL_FILES="$BSC_VHDL_FILES $1"
   elif [ "${1%%.vhdl}" != "$1" ]; then
@@ -155,15 +157,23 @@ for file in $BSC_VHDL_FILES; do
     abs_file=`readlink -m "$file"`
     echo "VHDL    $work_dir $abs_file" >> $TEMPFILE
 done
+# add glbl.v so that UNISIM models work
+if [ -r $XILINX/verilog/src/glbl.v ]; then
+    abs_file=`readlink -m "$XILINX/verilog/src/glbl.v"`
+    echo "Verilog $work_dir $abs_file" >> $TEMPFILE
+    UNISIM_FLAGS="-L unisims_ver -t $work_dir.glbl"
+else
+    UNISIM_FLAGS=""
+fi
 
 # run fuse to build a simulation executable
 if [ "$VERBOSE" = "yes" ]; then
   FUSE_VERBOSE="-v 2"
-  echo "exec: fuse $FUSE_VERBOSE -o $BSC_SIM_EXECUTABLE.isim -prj $TEMPFILE $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS -d TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS -t $work_dir.main $BSC_VERILOG_OPTS"
+  echo "exec: fuse $FUSE_VERBOSE -o $BSC_SIM_EXECUTABLE.isim -prj $TEMPFILE $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS -d TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS $UNISIM_FLAGS -t $work_dir.main $BSC_VERILOG_OPTS"
 else
   FUSE_VERBOSE="-v 0"
 fi
-fuse $FUSE_VERBOSE -o $BSC_SIM_EXECUTABLE.isim -prj $TEMPFILE $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS -d TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS -t $work_dir.main $BSC_VERILOG_OPTS
+fuse $FUSE_VERBOSE -o $BSC_SIM_EXECUTABLE.isim -prj $TEMPFILE $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS -d TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS $UNISIM_FLAGS -t $work_dir.main $BSC_VERILOG_OPTS
 status=$?
 if [ "$status" != "0" ]; then
   echo "ERROR: cannot compile HDL files" >&2
@@ -172,6 +182,7 @@ fi
 
 # create a TCL command file to run the simulation
 #echo "run all" > $BSC_SIM_EXECUTABLE.isim.tcl
+# ssiegel - commented out above and added five extra so that dump.vcd is created *and* all the design state...
 echo "wave add -r /"                >   $BSC_SIM_EXECUTABLE.isim.tcl
 echo "vcd dumpfile dump.vcd"        >>  $BSC_SIM_EXECUTABLE.isim.tcl
 echo "vcd dumpvars -m /main -l 0"   >>  $BSC_SIM_EXECUTABLE.isim.tcl

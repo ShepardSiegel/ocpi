@@ -365,5 +365,80 @@ module mkPMEMMonitorWsi (PMEMMonitorWsiIfc);
   method Bool      grab = pmGrab;         
 endmodule
 
+//
+// WsiObserver is convienience IP that observes WSI transactions
+//
+interface WsiObserverIfc#(numeric type nb, numeric type nd, numeric type ng, numeric type nh, numeric type ni);
+  interface Wsi_Eo#(nb,nd,ng,nh,ni) wsi;
+  interface Get#(PMWCIEvent)       seen;
+endinterface
+/*
+module mkWsiObserver (WsiObserverIfc#(nb,nd,ng,nh,ni));
+  // Register the observer inputs to minimze and equalize the obseerved link's loading...
+  Reg#(Bit#(3))     r_mCmd          <-  mkReg(0);
+  Reg#(Bit#(1))     r_mReqLast      <-  mkReg(0);
+  Reg#(Bit#(1))     r_mBurstPrecise <-  mkReg(0);
+  Reg#(Bit#(nb))    r_mBurstLength  <-  mkReg(0);
+  Reg#(Bit#(nd))    r_mData         <-  mkReg(0);
+  Reg#(Bit#(ng))    r_mByteEn       <-  mkReg(0);
+  Reg#(Bit#(nh))    r_mReqInfo      <-  mkReg(0);
+  Reg#(Bit#(ni))    r_mDataInfo     <-  mkReg(0);
+  Reg#(Bit#(1))     r_sThreadBusy   <-  mkReg(0);
+  Reg#(Bit#(1))     r_sReset_n      <-  mkReg(0);
+  Reg#(Bit#(1))     r_mReset_n      <-  mkReg(0);
+
+  FIFO#(PMWCIEvent) evF             <-  mkFIFO;
+  Reg#(Bit#(3))     r_mCmdD         <-  mkReg(0);
+  Reg#(Bit#(2))     r_sRespD        <-  mkReg(0);
+  Reg#(Bool)        readInFlight    <-  mkReg(False);
+  Reg#(Bit#(1))     r_mResetnD      <-  mkReg(0);
+
+  rule mCmd_state;    r_mCmdD    <= r_mCmd;    endrule
+  rule sResp_state;   r_sRespD   <= r_sResp;   endrule
+  rule mResetn_state; r_mResetnD <= r_mResetn; endrule
+
+  rule request_detected (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
+    case (unpack(r_mCmd))
+      WR : evF.enq(Event2DW (PMWCI2DW{eType:pmNibble(PMEV_WRITE_REQUEST,r_mByteEn), data0:extend(r_mAddr), data1:r_mData}));
+      RD : evF.enq(Event1DW (PMWCI1DW{eType:PMEV_READ_REQUEST, data0:extend(r_mAddr)}));
+    endcase
+    readInFlight <= (unpack(r_mCmd)==RD);
+    //$display("[%0d]: %m: WCI request code %0x", $time, pack(r_mCmd));
+  endrule
+
+  rule response_detected (r_sRespD==pack(NULL) && r_sResp!=pack(NULL)); 
+    case (unpack(r_sResp))
+      DVA  : evF.enq(Event1DW (PMWCI1DW{eType:readInFlight?PMEV_READ_RESPONSE:PMEV_WRITE_RESPONSE,data0:extend(r_sData)}));
+    endcase
+    readInFlight <= False;
+    //$display("[%0d]: %m: WCI response code %0x", $time, pack(r_sResp));
+  endrule
+
+  rule reset_changed (unpack(r_mResetnD ^ r_mResetn));
+    if (unpack(r_mResetn)) begin
+      evF.enq(Event0DW (PMWCI0DW{eType:PMEV_UNRESET}));
+      $display("[%0d]: %m: WCI reset DE-ASSERTED", $time);
+    end else begin
+      evF.enq(Event0DW (PMWCI0DW{eType:PMEV_RESET}));
+      $display("[%0d]: %m: WCI reset IS-ASSERTED", $time);
+    end
+  endrule
+
+  interface Wsi_Eo wci;
+    method Action   mCmd           (Bit#(3)  arg_cmd);          r_mCmd          <= arg_cmd;          endmethod
+    method Action   mReqLast;                                   r_mReqLast      <= 1'b1;             endmethod
+    method Action   mBurstPrecise;                              r_mBurstPrecise <= 1'b1;             endmethod
+    method Action   mBurstLength   (Bit#(nb) arg_mBurstLength); r_mBurstLength  <= arg_mBurstLength; endmethod
+    method Action   mData          (Bit#(nd) arg_data);         r_mData         <= arg_data;         endmethod
+    method Action   mByteEn        (Bit#(ng) arg_byteEn);       r_mByteEn       <= arg_byteEn;       endmethod
+    method Action   mReqInfo       (Bit#(nh) arg_mReqInfo);     r_mReqInfo      <= arg_mReqInfo;     endmethod
+    method Action   mDataInfo      (Bit#(ni) arg_mDataInfo);    r_mDataInfo     <= arg_mDataInfo;    endmethod
+    method Action   sThreadBusy;                                r_sThreadBusy   <= 1'b1;             endmethod
+    method Action   sReset_n;                                   r_sReset_n      <= 1'b1;             endmethod
+    method Action   mReset_n;                                   r_mReset_n      <= 1'b1;             endmethod
+  endinterface
+  interface Get seen = toGet(evF); // Get what we've "seen" from the event FIFO
+endmodule
+*/
 
 endpackage: ProtocolMonitor
