@@ -99,3 +99,5 @@ OpenCPI website: www.opencpi.org
      http://www.bluespec.com/forum/viewtopic.php?p=827#827
 
 
+10. Notes
+2010-12-16 ML605 testOK, but some issue (same) with SX95T and ML555 (multiple changed in flight?)
