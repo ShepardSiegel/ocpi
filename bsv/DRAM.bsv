@@ -6,6 +6,8 @@ package DRAM;
 import Clocks            ::*;
 import Vector            ::*;
 import GetPut            ::*;
+import Gray ::*;
+import GrayCounter ::*;
 import ClientServer      ::*;
 import Connectable       ::*;
 import BRAM              ::*;
@@ -14,8 +16,6 @@ import FIFOF             ::*;
 import SpecialFIFOs      ::*;
 import XilinxCells       :: *;
 
-import MyGray ::*;
-import MyGrayCounter ::*;
 import SRLFIFO ::*;
 import XilinxExtra :: *;
 

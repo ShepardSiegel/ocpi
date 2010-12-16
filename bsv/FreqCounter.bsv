@@ -3,7 +3,7 @@
 
 import Clocks      ::*;
 import DReg        ::*;
-import MyGrayCounter :: *;
+import GrayCounter :: *;
 
 interface FreqCounterIfc#(numeric type n);
   method Action    pulse;

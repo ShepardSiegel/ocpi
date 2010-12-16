@@ -7,6 +7,8 @@ package Ethernet;
 import Clocks            ::*;
 import Vector            ::*;
 import GetPut            ::*;
+import Gray ::*;
+import GrayCounter ::*;
 import ClientServer      ::*;
 import Connectable       ::*;
 import BRAM              ::*;
@@ -14,8 +16,6 @@ import FIFO              ::*;
 import SpecialFIFOs      ::*;
 import XilinxCells       :: *;
 
-import MyGray ::*;
-import MyGrayCounter ::*;
 import XilinxExtra :: *;
 
 // Types...
