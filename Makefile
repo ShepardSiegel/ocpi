@@ -19,6 +19,10 @@ RTEST6    ?= FTopV6
 OBJ       ?= obj
 RTL       ?= rtl
 BSV       ?= bsv
+BSVTST    ?= bsv/tst
+BSVAPP    ?= bsv/app
+BSVTOP    ?= bsv/top
+BSVDIRS   ?= ./bsv/app:./bsv/axi:./bsv/dev:./bsv/inf:./bsv/prm:./bsv/top:./bsv/tst:./bsv/utl:./bsv/wip:./bsv/wrk
 
 OCAPP_S0    ?= OCApp_scenario0
 OCAPP_S0_16 ?= OCApp_scenario0_16
@@ -62,8 +66,8 @@ bsim: $(OBJ)
 	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(BTEST).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(BTEST).bsv
 
 	# create bluesim executable
 	bsc -sim -keep-fires -keep-inlined-boundaries \
@@ -82,8 +86,8 @@ bsim7: $(OBJ)
 	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(BTEST7).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(BTEST7).bsv
 
 	# create bluesim executable
 	bsc -sim -keep-fires -keep-inlined-boundaries \
@@ -102,8 +106,8 @@ bsim8: $(OBJ)
 	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(BTEST8).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(BTEST8).bsv
 
 	# create bluesim executable
 	bsc -sim -keep-fires -keep-inlined-boundaries \
@@ -123,8 +127,8 @@ isim: $(OBJ)
 		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(ITEST).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(ITEST).bsv
 	
 	bsc -vsim isim -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST) -o runsim
 	./runsim 
@@ -138,8 +142,8 @@ isim7: $(OBJ)
 		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(ITEST7).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(ITEST7).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST7) -o runsim
 	./runsim 
@@ -153,8 +157,8 @@ isim8: $(OBJ)
 		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(ITEST8).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(ITEST8).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST8) -o runsim
 	./runsim 
@@ -168,8 +172,8 @@ isim10: $(OBJ)
 		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(ITEST10).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(ITEST10).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST10) -o runsim
 	./runsim 
@@ -186,8 +190,8 @@ isim11: $(OBJ)
 		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(ITEST11).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(ITEST11).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST11) -o runsim
 	./runsim 
@@ -204,37 +208,37 @@ isim11: $(OBJ)
 ######################################################################
 verilog_scenario0: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S0).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S0).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S0).v
 
 verilog_scenario0_16: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S0_16).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S0_16).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S0_16).v
 
 verilog_scenario1: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S1).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S1).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S1).v
 
 verilog_scenario2: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S2).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S2).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S2).v
 
 verilog_scenario3a: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S3a).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S3a).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S3a).v
 
 verilog_scenario3b: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S3b).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S3b).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S3b).v
 
 verilog_scenario4: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSV):lib:+ $(BSV)/$(OCAPP_S4).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S4).bsv
 	cp $(RTL)/mkOCApp.v $(VLG_HDL)/mk$(OCAPP_S4).v
 
 ######################################################################
@@ -245,9 +249,9 @@ verilog_s6: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
+		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSV)/$(RTESTS6).bsv
+		$(BSVTOP)/$(RTESTS6).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTESTS6).v
 
 ######################################################################
@@ -258,8 +262,8 @@ verilog_oped: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
-		$(BSV)/$(OPED).bsv
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTOP)/$(OPED).bsv
 	cp $(RTL)/mkOPED.v $(VLG_HDL)/mk$(OPED).v
 
 ######################################################################
@@ -270,9 +274,9 @@ verilog_v5: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
+		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSV)/$(RTEST5).bsv
+		$(BSVTOP)/$(RTEST5).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5).v
 
 ######################################################################
@@ -283,9 +287,9 @@ verilog_v5a: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
+		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSV)/$(RTEST5a).bsv
+		$(BSVTOP)/$(RTEST5a).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5a).v
 
 ######################################################################
@@ -296,9 +300,9 @@ verilog_v5m: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
+		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSV)/$(RTEST5m).bsv
+		$(BSVTOP)/$(RTEST5m).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5m).v
 
 ######################################################################
@@ -309,9 +313,9 @@ verilog_v5g: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
+		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSV)/$(RTEST5g).bsv
+		$(BSVTOP)/$(RTEST5g).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5g).v
 
 ######################################################################
@@ -322,9 +326,9 @@ verilog_v6: $(OBJ)
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSV):lib:+ \
+		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSV)/$(RTEST6).bsv
+		$(BSVTOP)/$(RTEST6).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST6).v
 
 $(OBJ):

@@ -1,0 +1,13 @@
+BSV Source Files for OpenCPI
+This directory is split into these ten sub-directories:
+
+ app - Applications, OpenCPI notion of collections of Workers
+ axi - AXI, AXI bridges
+ dev - Devices, code that reflects low-level devices, also importBVI to wrap Verilog devices
+ inf - Infrastructure, OpenCPI Infrastructure IP
+ prm - Primatives, circuits that can be resued among modules, also importBVI of Verilog prims
+ top - Top, FTop level of OpenCPI, typically board-specific module just under fpgaTop
+ tst - Test, testbenches and support
+ utl - Utilities, code that can be reused with few, if any, technology or module depenedencies
+ wip - Worker Interface Profiles, WIPs are OCP-specific for now
+ wrk - Workers, OpenCPI IP cores used to compose applications, includes device workers

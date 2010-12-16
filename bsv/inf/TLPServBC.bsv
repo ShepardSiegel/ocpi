@@ -82,7 +82,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // TODO: Implement and test *registered* SRLFIFO for "best of both worlds"
   //Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
-  Bool useSRL = True; // Set to False to get faster c->q and su on FIFO primitives
+  Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives
 
   FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
@@ -147,7 +147,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Bool actFlow  = (dpControl.role==ActFlow);
 
   //TODO: Understand why psDwell=1 failed dmaTestBasic4 on 2010-11-02
-  Bit#(4) psDwell = 3; // Purposeful backend serialization "dwell" cycles [3~15] 
+  //TODO: Clear suspicon that 3 caused issues on ML555 and SX95 (but not ML605 and XUPV5) 2010-12-16
+  Bit#(4) psDwell = 15; // Purposeful backend serialization "dwell" cycles [3~15] 
 
   //
   // FPactMesg - Fabric Producer Push DMA Sequence...
