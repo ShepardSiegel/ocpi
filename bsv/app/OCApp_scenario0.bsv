@@ -34,7 +34,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
   // Instance the workers in this application container...
   SMAdapter4BIfc    appW2    <-  mkSMAdapter4B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  BiasWorker4BIfc   appW3    <-  mkBiasWorker   (              hasDebugLogic, reset_by(rst[3])); // Bias ahead of first SMAdapter
+  BiasWorker4BIfc   appW3    <-  mkBiasWorker4B (              hasDebugLogic, reset_by(rst[3])); // Bias ahead of first SMAdapter
   SMAdapter4BIfc    appW4    <-  mkSMAdapter4B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 
   // TODO: Use Default for tieOff...
@@ -59,11 +59,11 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 // WsiOcpMonitorIfc             wsiMonW23         <- mkWsiOcpMonitor(8'h52);
 // PMEMMonitorWsiIfc            pmemMonW23        <- mkPMEMMonitorWsi;
 // mkConnection(wciMonW23.pmem, pmemMonW23.pmem);
+//mkConnectionMSO(appW2.wsiM0, appW3.wsiS0, wsiMon23.observe);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
 
   // Connect co-located WSI ports...
-  mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
-//mkConnectionMSO(appW2.wsiM0, appW3.wsiS0, wsiMon23.observe);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
-  mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 BiasWorker WSI-M0 feeding W4 SMAdapter WSI-S0
+  mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2 SMAdapter  WSI-M0 feeding W3 BiasWorker WSI-S0
+  mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 BiasWorker WSI-M0 feeding W4 SMAdapter  WSI-S0
 
   interface wci_s     = vWci;
 

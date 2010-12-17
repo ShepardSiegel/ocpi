@@ -15,9 +15,10 @@ package Config;
   typedef `DEFINE_NDW NDW_global;
   Integer iNDW_global = valueOf(NDW_global);
   
+  //TODO: Remove
   // Number of Bytes in the dataplane
-  typedef 16 NB_dataplane;
-  Integer iNB_dataplane = valueOf(NB_dataplane);
+  //typedef 16 NB_dataplane;
+  //Integer iNB_dataplane = valueOf(NB_dataplane);
 
   // WCI...
 

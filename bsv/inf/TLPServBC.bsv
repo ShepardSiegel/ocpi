@@ -147,8 +147,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Bool actFlow  = (dpControl.role==ActFlow);
 
   //TODO: Understand why psDwell=1 failed dmaTestBasic4 on 2010-11-02
-  //TODO: Clear suspicon that 3 caused issues on ML555 and SX95 (but not ML605 and XUPV5) 2010-12-16
-  Bit#(4) psDwell = 15; // Purposeful backend serialization "dwell" cycles [3~15] 
+  Bit#(4) psDwell = 3; // Purposeful backend serialization "dwell" cycles [3~15] 
 
   //
   // FPactMesg - Fabric Producer Push DMA Sequence...
