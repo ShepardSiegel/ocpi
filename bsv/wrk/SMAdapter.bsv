@@ -25,8 +25,8 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
     Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8)))))))
   );
 
-  // Set this True for higher WMI->WSI throughput; False for lower area...
-  Bool hasDeepResponseBuffer = False;
+  // Set this True for possibly higher WMI to WSI throughput; False for possibly lower area...
+  Bool hasDeepResponseBuffer = True;
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
@@ -311,7 +311,7 @@ endrule
 
 
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
-  fabRespCredit.load(hasDeepResponseBuffer?1023:15);  // sized to the WMI Response to WSI Master Buffering
+  fabRespCredit.load(hasDeepResponseBuffer?1024:16);  // sized to the WMI Response to WSI Master Buffering
   mesgCount <= 0;
   thisMesg  <= unpack(32'hFEFE_FFFE);
   lastMesg  <= unpack(32'hFEFE_FFFE);
