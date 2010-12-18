@@ -295,7 +295,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     tlpMetaSent     <= False;
     fabMeta         <= (Invalid);
     postSeqDwell    <= psDwell;
-    tailEventF.enq(0'b0); // Send a generic tail event
+    tailEventF.enq(?);  // Send a generic tail event
     $display("[%0d]: %m: dmaXmtTailEvent FPactMesg-Step7/7", $time);
   endrule
 
@@ -310,7 +310,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     remStart      <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
     postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
     flowDiagCount <= flowDiagCount + 1;
-    tailEventF.enq(0'b0); // Send a generic tail event
+    tailEventF.enq(?);  // Send a generic tail event
     $display("[%0d]: %m: dmaXmtDoorbell FC/FPactFlow-Step1/1", $time);
   endrule
 
@@ -320,8 +320,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     // The return(True) tactic helps timing by removing the tag and rid comparisons
     // But it introduces a race condition where an inbound request could advance as a completion!
     //
-    //return(tagm==ch.tag && ch.requesterID==rid);
-    return(True); // TODO: restore comparison and split inbound requests from completions
+    return(tagm==ch.tag && ch.requesterID==rid);
+    //return(True); // TODO: restore comparison and split inbound requests from completions
   endfunction 
 
   //
@@ -463,7 +463,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     dmaDoTailEvent  <= False;
     fabMeta         <= (Invalid);
     postSeqDwell    <= psDwell;
-    tailEventF.enq(0'b0); // Send a generic tail event
+    tailEventF.enq(?);  // Send a generic tail event
     $display("[%0d]: %m: dmaPullTailEvent FPactMesg-Step5/5", $time);
   endrule
 
