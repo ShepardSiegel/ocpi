@@ -9,6 +9,7 @@
 ## 2010-03-12 DDR3 DRAM signals added
 ## 2010-11-25 Moved ppsOut   to ML605 J57 SMA Connector
 ## 2010-11-29 Moved ppsExtIn to ML605 J56 SMA Connector
+## 2010-12-19 pci core path changed
 
 CONFIG PART = XC6VLX240T-FF1156-1 ;
 
@@ -23,32 +24,32 @@ NET  "pci0_clkn"      LOC = V5;
 #NET "pci0_clkp"      LOC = AA3; # Direct PCI edge 100 MHz
 #NET "pci0_clkn"      LOC = AA4;
 
-INST "ftop/pci0_clk"  LOC = IBUFDS_GTXE1_X0Y4;  # 250 MHz Receiver from U9  ICS874001
+INST "ftop/pciw_pci0_clk"  LOC = IBUFDS_GTXE1_X0Y4;  # 250 MHz Receiver from U9  ICS874001
 #INST "ftop/pci0_clk" LOC = IBUFDS_GTXE1_X0Y6;  # 100 MHz Receiver from U14 ICS854104
 #INST "ftop/pci0_clk" LOC = IBUFDS_GTXE1_X0Y7;  # Direct PCI edge 100 MHz
 
 NET  "pci0_reset_n"  LOC = AE13 | IOSTANDARD = LVCMOS25 | PULLUP | NODELAY;
 
-INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_block_i"                   LOC = PCIE_X0Y1;
-INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y15;
-INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y14;
-INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y13;
-INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_2_0_i/pcie_block_i"                   LOC = PCIE_X0Y1;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y15;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y14;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y13;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
 
 # Timing Constraints...
 NET "sys0_clkp"      TNM_NET = "SYS0CLK";  # 200 MHz sys0 XO
 TIMESPEC "TS_SYS0CLK" = PERIOD "SYS0CLK"     200 MHz HIGH 50 % ;
 
 NET "pci0_clkp" TNM_NET = "PCICLK" ;
-NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/clk_125" TNM_NET = "CLK_125" ;
-NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/clk_250" TNM_NET = "CLK_250" ;
+NET "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/clk_125" TNM_NET = "CLK_125" ;
+NET "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/clk_250" TNM_NET = "CLK_250" ;
 TIMESPEC "TS_PCICLK"   = PERIOD "PCICLK"  250 MHz HIGH 50 % ;
 TIMESPEC "TS_CLK_125"  = PERIOD "CLK_125" TS_PCICLK/2 HIGH 50 % PRIORITY 100 ;
 TIMESPEC "TS_CLK_250"  = PERIOD "CLK_250" TS_PCICLK*1 HIGH 50 % PRIORITY 1;
-NET "ftop/pci0_pcie_ep/ep/pcie_clocking_i/sel_lnk_rate_d" TIG ;
-PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR"          TIG ;
-PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR"              TIG ;
-PIN "ftop/pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+NET "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/sel_lnk_rate_d" TIG ;
+PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_int_i.CLR"          TIG ;
+PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_i.CLR"              TIG ;
+PIN "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
 #TIMESPEC "TS_RESETN" = FROM FFS(*) TO FFS(trn_reset_n_i) 8 ns;
 
 # LEDs and Switches...
@@ -76,11 +77,11 @@ NET "led[12]"   LOC = AD21   | IOSTANDARD = "LVCMOS25"; ## User West
 NET  "ppsOut"     LOC = V34 | IOSTANDARD = "LVCMOS25"; #ML605 Board J57 (user_sma_gpio_p)
 NET  "ppsExtIn"   LOC = W34 | IOSTANDARD = "LVCMOS25"; #ML605 Board J56 (user_sma_gpio_n)
 
-PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
-PIN "ftop/pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;
-PIN "ftop/pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
+PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;
+PIN "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
 
-INST "ftop/pci0_pcie_ep/ep/pcie_2_0_i/*" AREA_GROUP = "AG_pcie0" ;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_2_0_i/*" AREA_GROUP = "AG_pcie0" ;
 AREA_GROUP "AG_pcie0" RANGE = SLICE_X136Y147:SLICE_X155Y120 ;
 
 ## GbE GMII...
