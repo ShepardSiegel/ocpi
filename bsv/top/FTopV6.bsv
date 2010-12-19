@@ -32,14 +32,15 @@ import XilinxCells       ::*;
 
 interface FTopIfc;
   interface PCIE_EXP#(4)           pcie;
+  interface Clock                  p125clk;
+  interface Reset                  p125rst;
   (*always_ready*) method Bit#(13) led;
   interface GPSIfc                 gps;
   interface DDR3_64                dram;
   interface FLASH_IO#(24,16)       flash;
-  interface Clock                  trn2Clk;
-  interface GMII                   gmii;     // The GMII link
-  interface Reset                  mrst_n;   // GMII associated Reset
   interface Clock                  rxclk;    // GMII assocaited Clock
+  interface Reset                  mrst_n;   // GMII associated Reset
+  interface GMII                   gmii;     // The GMII link
 endinterface: FTopIfc
 
 (* synthesize, no_default_clock, clock_prefix="", reset_prefix="pci0_reset_n" *)
@@ -47,7 +48,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
                Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
                Clock pci0_clkp, Clock pci0_clkn)(FTopIfc);
 
-  PCIEwrapIfc      pciw       <- mkPCIEwrapV6(pci0_clkp, pci0_clkn);  // Instance the wrapped, technology-specific PCIE core
+  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrapV6(pci0_clkp, pci0_clkn);  // Instance the wrapped, technology-specific PCIE core
   Clock            p125Clk    =  pciw.pClk; // Nominal 125 MHz
   Reset            p125Rst    =  pciw.pRst; // Reset for pClk domain
   Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
@@ -99,14 +100,16 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   mkConnection(ctop.wmemiM, dram0.wmemiS);
 
   // Interfaces and Methods provided...
-  interface pcie     = pciw.pcie;
-  method    led      = {7'b1010000, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
-  interface gps      = ctop.gps;
-  interface flash    = flash0.flash;
-  interface dram     = dram0.dram;
-  interface trn2Clk  = p125Clk ;
-  interface gmii     = gbe0.gmii;
-  interface mrst_n   = gbe0.mrst_n;
-  interface rxclk    = gbe0.rxclk;
+  interface PCI_EXP  pcie    = pciw.pcie;
+  interface Clock    p125clk = p125Clk;
+  interface Reset    p125rst = p125Rst;
+  method  led   =
+    {7'b1010000, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
+  interface GPSIfc   gps     = ctop.gps;
+  interface FLASH_IO flash   = flash0.flash;
+  interface DDR3_64  dram    = dram0.dram;
+  interface Clock    rxclk   = gbe0.rxclk;
+  interface Reset    mrst_n  = gbe0.mrst_n;
+  interface GMII     gmii    = gbe0.gmii;
 endmodule: mkFTop
 

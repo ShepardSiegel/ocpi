@@ -22,31 +22,31 @@ import Vector            ::*;
 import XilinxCells       ::*;
 
 // The PCIEwrapIfc is expected to remain constant across a range of technology-specific implemenatations...
-interface PCIEwrapIfc;
-  interface PCIE_EXP#(4)          pcie;    // fabric-facing PCIe SERDES signals
+interface PCIEwrapIfc#(numeric type lanes);
+  interface PCIE_EXP#(lanes)      pcie;    // fabric-facing PCIe SERDES signals
                                            // FPGA-user-facing interfaces...
   interface Clock                 pClk;    // PCIe-derived clock (nominally 125 MHz, regardless of PCIe core)
   interface Reset                 pRst;    // PCIe-derived reset (Reset in the domain of the above Clock)
   interface Client#(PTW16,PTW16)  client;  // The PCIe client - normally connected to infrastructure uNoC
   (* always_ready *) method Bool  linkUp;  // True when the pcie link is up
-  (* always_ready *) method PciId device;  // PCIe device-id (16b 3-tuple)
+  (* always_ready *) method PciId device;  // PCIe device-id (16b bus/dev/fun 3-tuple)
 endinterface: PCIEwrapIfc
 
 // This Xilinx V6 specifc implementation takes 8B/250MHz interface and converts it to 16B/125MHz...
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
-module mkPCIEwrapV6#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc);
-  Clock                pci0_clk    <- mkClockIBUFDS_GTXE1(True, pci0_clkp, pci0_clkn);
-  Reset                pci0_rst    <- mkResetIBUF;   // Instance the PCIe Reset IBUF here
-  PCIExpressV6#(4)     pci0        <- mkPCIExpressEndpointV6(?,clocked_by pci0_clk,reset_by pci0_rst);
-  Clock                p250clk     =  pci0.trn.clk;  // 250 MHz (the div/1 clock from the pcie core)
-  Reset                p250rst     <- mkAsyncReset(1, pci0.trn.reset_n, p250clk);
-  Clock                p125clk     =  pci0.trn.clk2; // 125 MHz (the div/2 clock from the pcie core)
-  Reset                p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
-                                   // Place LinkUp and pciDevice in p125clk domain
-  Bool                 pLinkUp     =  pci0.trn.link_up;
-  SyncBitIfc#(Bit#(1)) pciLinkUp   <- mkSyncBit(p250clk, p250rst, p125clk);  // single-bit synchronizer 250 to 125 MHz
-  PciId                pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
-  Reg#(PciId)          pciDevice   <- mkSyncReg(unpack(0), p250clk, p250rst, p125clk); // multi-bit sync 250 to 125 MHz
+module mkPCIEwrapV6#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
+  Clock                 pci0_clk    <- mkClockIBUFDS_GTXE1(True, pci0_clkp, pci0_clkn);
+  Reset                 pci0_rst    <- mkResetIBUF;   // Instance the PCIe Reset IBUF here
+  PCIExpressV6#(lanes)  pci0        <- mkPCIExpressEndpointV6(?,clocked_by pci0_clk,reset_by pci0_rst);
+  Clock                 p250clk     =  pci0.trn.clk;  // 250 MHz (the div/1 clock from the pcie core)
+  Reset                 p250rst     <- mkAsyncReset(1, pci0.trn.reset_n, p250clk);
+  Clock                 p125clk     =  pci0.trn.clk2; // 125 MHz (the div/2 clock from the pcie core)
+  Reset                 p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
+                                      // Place LinkUp and pciDevice in p125clk domain
+  Bool                  pLinkUp     =  pci0.trn.link_up;
+  SyncBitIfc#(Bit#(1))  pciLinkUp   <- mkSyncBit(p250clk, p250rst, p125clk);  // single-bit synchronizer 250 to 125 MHz
+  PciId                 pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
+  Reg#(PciId)           pciDevice   <- mkSyncReg(unpack(0), p250clk, p250rst, p125clk); // multi-bit sync 250 to 125 MHz
 
   (* fire_when_enabled, no_implicit_conditions *) rule send_pciLinkup; pciLinkUp.send(pack(pLinkUp)); endrule 
   (* fire_when_enabled *) rule capture_pciDevice; pciDevice <= pciDev;  endrule 
@@ -86,29 +86,19 @@ module mkPCIEwrapV6#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc);
 endmodule: mkPCIEwrapV6
 
 
-interface PCIEwrapV5Ifc;
-  interface PCIE_EXP#(8)          pcie;    // fabric-facing PCIe SERDES signals
-                                           // FPGA-user-facing interfaces...
-  interface Clock                 pClk;    // PCIe-derived clock (nominally 125 MHz, regardless of PCIe core)
-  interface Reset                 pRst;    // PCIe-derived reset (Reset in the domain of the above Clock)
-  interface Client#(PTW16,PTW16)  client;  // The PCIe client - normally connected to infrastructure uNoC
-  (* always_ready *) method Bool  linkUp;  // True when the pcie link is up
-  (* always_ready *) method PciId device;  // PCIe device-id (16b 3-tuple)
-endinterface: PCIEwrapV5Ifc
-
 // This Xilinx V5 specifc implementation takes 8B/125MHz interface and converts it to 16B/125MHz...
 // This implemenation is IMBALANCED as the PCIe side is 1 GB/S to the uNoC side of 2 GB/S
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
-module mkPCIEwrapV5#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapV5Ifc);
-  Clock             pci0_clk    <- mkClockIBUFDS(pci0_clkp, pci0_clkn);
-  Reset             pci0_rst    <- mkResetIBUF;
-  PCIExpress#(8)    pci0        <- mkPCIExpressEndpoint(?,clocked_by pci0_clk,reset_by pci0_rst);
-  Clock             p125clk     =  pci0.trn.clk2; // 125 MHz
-  Reset             p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
-  Bool              pLinkUp     =  pci0.trn.link_up;
-  Reg#(Bool)        pciLinkUp   <- mkReg(False);
-  PciId             pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
-  Reg#(PciId)       pciDevice   <- mkReg(unpack(0));
+module mkPCIEwrapV5#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
+  Clock               pci0_clk    <- mkClockIBUFDS(pci0_clkp, pci0_clkn);
+  Reset               pci0_rst    <- mkResetIBUF;
+  PCIExpress#(lanes)  pci0        <- mkPCIExpressEndpoint(?,clocked_by pci0_clk,reset_by pci0_rst);
+  Clock               p125clk     =  pci0.trn.clk2; // 125 MHz
+  Reset               p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
+  Bool                pLinkUp     =  pci0.trn.link_up;
+  Reg#(Bool)          pciLinkUp   <- mkReg(False);
+  PciId               pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
+  Reg#(PciId)         pciDevice   <- mkReg(unpack(0));
 
   rule write_pciLinkup; pciLinkUp <= pLinkUp; endrule
   rule write_pciDevice; pciDevice <= pciDev;  endrule 
