@@ -130,7 +130,7 @@ isim: $(OBJ)
 		$(BSVTST)/$(ITEST).bsv
 	
 	bsc -vsim isim -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST) -o runsim
-	./runsim 
+	./runsim -testplusarg bsvvcd
 
 ######################################################################
 isim7: $(OBJ)
@@ -145,7 +145,7 @@ isim7: $(OBJ)
 		$(BSVTST)/$(ITEST7).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST7) -o runsim
-	./runsim 
+	./runsim -testplusarg bsvvcd
 
 ######################################################################
 isim8: $(OBJ)
@@ -160,7 +160,7 @@ isim8: $(OBJ)
 		$(BSVTST)/$(ITEST8).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST8) -o runsim
-	./runsim 
+	./runsim -testplusarg bsvvcd
 
 ######################################################################
 isim10: $(OBJ)
@@ -175,10 +175,7 @@ isim10: $(OBJ)
 		$(BSVTST)/$(ITEST10).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST10) -o runsim
-	./runsim 
-
-	# create verilog executable
-	#cd $(OBJ) && bsc -vsim modelsim -keep-fires -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
+	./runsim -testplusarg bsvvcd
 
 ######################################################################
 isim11: $(OBJ)
@@ -193,7 +190,7 @@ isim11: $(OBJ)
 		$(BSVTST)/$(ITEST11).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST11) -o runsim
-	./runsim 
+	./runsim -testplusarg bsvvcd
 
 	# create verilog executable
 	#cd $(OBJ) && bsc -vsim modelsim -keep-fires -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
@@ -239,7 +236,7 @@ verilog_scenario4: $(OBJ)
 verilog_s6: $(OBJ)
 	
 	# compile to verilog backend for RTL
-	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
@@ -277,7 +274,7 @@ verilog_v5: $(OBJ)
 verilog_v5a: $(OBJ)
 	
 	# compile to verilog backend for RTL
-	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
@@ -290,7 +287,7 @@ verilog_v5a: $(OBJ)
 verilog_v5m: $(OBJ)
 	
 	# compile to verilog backend for RTL
-	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
@@ -303,7 +300,7 @@ verilog_v5m: $(OBJ)
 verilog_v5g: $(OBJ)
 	
 	# compile to verilog backend for RTL
-	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
@@ -316,7 +313,7 @@ verilog_v5g: $(OBJ)
 verilog_v6: $(OBJ)
 
 	# compile to verilog backend for RTL
-	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
