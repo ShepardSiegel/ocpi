@@ -36,7 +36,7 @@ endinterface: PCIEwrapIfc
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
 module mkPCIEwrapV6#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
   Clock                 pci0_clk    <- mkClockIBUFDS_GTXE1(True, pci0_clkp, pci0_clkn);
-  Reset                 pci0_rst    <- mkResetIBUF;   // Instance the PCIe Reset IBUF here
+  Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
   PCIExpressV6#(lanes)  pci0        <- mkPCIExpressEndpointV6(?,clocked_by pci0_clk,reset_by pci0_rst);
   Clock                 p250clk     =  pci0.trn.clk;  // 250 MHz (the div/1 clock from the pcie core)
   Reset                 p250rst     <- mkAsyncReset(1, pci0.trn.reset_n, p250clk);
@@ -74,9 +74,9 @@ module mkPCIEwrapV6#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) prov
   mkTieOff(pci0.cfg_err);
 
   // Interfaces and Methods provided...
-  interface pcie     = pci0.pcie;
-  interface pClk     = p125clk ;
-  interface pRst     = p125rst ;
+  interface PCI_EXP pcie     = pci0.pcie;
+  interface Clock   pClk     = p125clk ;
+  interface Reset   pRst     = p125rst ;
   interface Client client;
     interface request  = toGet(p2iAF); // 16B-125MHz requests  towards uNoC infrastructre
     interface response = toPut(i2pAF); // 16B-125MHz responses towards PCIe fabric
@@ -90,18 +90,19 @@ endmodule: mkPCIEwrapV6
 // This implemenation is IMBALANCED as the PCIe side is 1 GB/S to the uNoC side of 2 GB/S
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
 module mkPCIEwrapV5#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
-  Clock               pci0_clk    <- mkClockIBUFDS(pci0_clkp, pci0_clkn);
-  Reset               pci0_rst    <- mkResetIBUF;
-  PCIExpress#(lanes)  pci0        <- mkPCIExpressEndpoint(?,clocked_by pci0_clk,reset_by pci0_rst);
-  Clock               p125clk     =  pci0.trn.clk2; // 125 MHz
-  Reset               p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
-  Bool                pLinkUp     =  pci0.trn.link_up;
-  Reg#(Bool)          pciLinkUp   <- mkReg(False);
-  PciId               pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
-  Reg#(PciId)         pciDevice   <- mkReg(unpack(0));
+  Clock                 pci0_clk    <- mkClockIBUFDS(pci0_clkp, pci0_clkn);
+  Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
+  PCIExpress#(lanes)    pci0        <- mkPCIExpressEndpoint(?,clocked_by pci0_clk,reset_by pci0_rst);
+  Clock                 p125clk     =  pci0.trn.clk2; // 125 MHz
+  Reset                 p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
+                                       // Place LinkUp and pciDevice in p125clk domain
+  Bool                  pLinkUp     =  pci0.trn.link_up;
+  SyncBitIfc#(Bit#(1))  pciLinkUp   <- mkSyncBit(p125clk, p125rst, p125clk);  // single-bit synchronizer 125 to 125 MHz
+  PciId                 pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
+  Reg#(PciId)           pciDevice   <- mkSyncReg(unpack(0), p125clk, p125rst, p125clk); // multi-bit sync 125 to 125 MHz
 
-  rule write_pciLinkup; pciLinkUp <= pLinkUp; endrule
-  rule write_pciDevice; pciDevice <= pciDev;  endrule 
+  (* fire_when_enabled, no_implicit_conditions *) rule send_pciLinkup; pciLinkUp.send(pack(pLinkUp)); endrule 
+  (* fire_when_enabled *) rule capture_pciDevice; pciDevice <= pciDev;  endrule 
 
   InterruptControl pcie_irq   <- mkInterruptController(p125clk, p125rst, clocked_by p125clk, reset_by p125rst);
   ClockInvToBoolIfc preEdge   <- vMkClockInvToBool(p125clk , clocked_by p125clk, reset_by p125rst);  //true when trn2 will rise on next edge
@@ -119,14 +120,14 @@ module mkPCIEwrapV5#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) prov
   mkTieOff(pci0.cfg_err);
 
   // Interfaces and Methods provided...
-  interface pcie     = pci0.pcie;
-  interface pClk     = p125clk ;
-  interface pRst     = p125rst ;
+  interface PCI_EXP pcie     = pci0.pcie;
+  interface Clock   pClk     = p125clk ;
+  interface Reset   pRst     = p125rst ;
   interface Client client;
     interface request  = toGet(uP2IF); // 16B-125MHz requests  towards uNoC infrastructre
     interface response = toPut(uI2PF); // 16B-125MHz responses towards PCIe fabric
   endinterface
-  method Bool  linkUp = pciLinkUp;
+  method Bool  linkUp = unpack(pciLinkUp.read);
   method PciId device = pciDevice;
 endmodule: mkPCIEwrapV5
 

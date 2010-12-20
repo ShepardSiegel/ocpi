@@ -17,7 +17,6 @@ import ProtocolMonitor   ::*;
 import PCIEwrap          ::*;
 
 // BSV Imports...
-import AlignedFIFOs_eco  ::*;
 import Clocks            ::*;
 import ClientServer      ::*;
 import Connectable       ::*;
