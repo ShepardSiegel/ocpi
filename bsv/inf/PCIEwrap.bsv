@@ -32,6 +32,18 @@ interface PCIEwrapIfc#(numeric type lanes);
   (* always_ready *) method PciId device;  // PCIe device-id (16b bus/dev/fun 3-tuple)
 endinterface: PCIEwrapIfc
 
+// The PCIE wrapping instances are diverse implementations providing the same interface.
+// Here we select which implementation from the family String...
+module mkPCIEwrap#(String family, Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
+  PCIEwrapIfc#(lanes) _a;
+  case (family)
+    "V5"    : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn);
+    "V6"    : _a  <- mkPCIEwrapV6(pci0_clkp, pci0_clkn);
+    default : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn);
+  endcase
+  return _a;
+endmodule
+
 // This Xilinx V6 specifc implementation takes 8B/250MHz interface and converts it to 16B/125MHz...
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
 module mkPCIEwrapV6#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));

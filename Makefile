@@ -22,6 +22,7 @@ BSV       ?= bsv
 BSVTST    ?= bsv/tst
 BSVAPP    ?= bsv/app
 BSVTOP    ?= bsv/top
+BSVINF    ?= bsv/inf
 BSVDIRS   ?= ./bsv/app:./bsv/axi:./bsv/dev:./bsv/inf:./bsv/prm:./bsv/top:./bsv/tst:./bsv/utl:./bsv/wip:./bsv/wrk
 
 OCAPP_S0    ?= OCApp_scenario0
@@ -254,8 +255,8 @@ verilog_oped: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		$(BSVTOP)/$(OPED).bsv
-	cp $(RTL)/mkOPED.v $(VLG_HDL)/mk$(OPED).v
+		$(BSVINF)/$(OPED).bsv
+	#cp $(RTL)/mkOPEDv5.v $(VLG_HDL)/mk$(OPED).v
 
 ######################################################################
 verilog_v5: $(OBJ)
