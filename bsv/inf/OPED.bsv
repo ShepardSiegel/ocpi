@@ -34,17 +34,22 @@ endinterface: OPEDIfc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="" *)
 module mkOPEDv6#(Clock pci0_clkp, Clock pci0_clkn) (OPEDIfc#(4));
-  OPEDIfc#(4) _a <- mkOPEDw(pci0_clkp,pci0_clkn); return _a;
+  OPEDIfc#(4) _a <- mkOPED(pci0_clkp,pci0_clkn); return _a;
+endmodule
+
+(* synthesize, no_default_clock, no_default_reset, clock_prefix="" *)
+module mkOPEDv5#(Clock pci0_clkp, Clock pci0_clkn) (OPEDIfc#(8));
+  OPEDIfc#(8) _a <- mkOPED(pci0_clkp,pci0_clkn); return _a;
 endmodule
 
 // This top-level wrapper module has no default clock or reset...
-module mkOPEDw#(Clock pci0_clkp, Clock pci0_clkn)(OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
-  PCIEwrapIfc#(lanes) pciw  <- mkPCIEwrapV6(pci0_clkp, pci0_clkn);  // Instance the technology-specific PCIE core
+module mkOPED#(Clock pci0_clkp, Clock pci0_clkn)(OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
+  PCIEwrapIfc#(lanes) pciw  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn);  // Instance the technology-specific PCIE core
   Clock p125Clk = pciw.pClk;
   Reset p125Rst = pciw.pRst;
 
-  // This is the body of mkOPED, which enjoys having the default 125 MHz Clock and Reset provided...
-  module mkOPED (OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
+  // This is the inner body of mkOPED, which enjoys having the default 125 MHz Clock and Reset provided...
+  module mkOPED_inner (OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
     Reg#(PciId)          pciDevice  <- mkReg(unpack(0));
     (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
     UNoCIfc              noc        <- mkUNoC;                              // uNoC Network-on-Chip
@@ -65,9 +70,9 @@ module mkOPEDw#(Clock pci0_clkp, Clock pci0_clkn)(OPEDIfc#(lanes)) provisos(Add#
     interface Clock    p125clk = pciw.pClk;
     interface Reset    p125rst = pciw.pRst;
     method Bit#(32)    debug   = extend(pack(pciw.linkUp));
- endmodule: mkOPED
+  endmodule: mkOPED_inner
 
-  OPEDIfc#(lanes) _b  <- mkOPED(clocked_by p125Clk, reset_by p125Rst); // Instantiate mkOPED
-  return _b;
-endmodule: mkOPEDw
+  OPEDIfc#(lanes) _b  <- mkOPED_inner(clocked_by p125Clk, reset_by p125Rst); return _b; // Instance wrapped inner module
+
+endmodule: mkOPED
 
