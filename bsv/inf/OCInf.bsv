@@ -3,12 +3,13 @@
 
 package OCInf;
 
+import Config::*;
 import OCWip::*;
 import OCCP::*;
 import OCDP::*;
 import TimeService::*;
 import TLPMF::*;
-import Config::*;
+import UNoC::*;
 
 import PCIE::*;
 import FIFO::*;
@@ -37,11 +38,8 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)),
     NumAlias#(ndw,1) ); // by joe
 
-  OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst);                 // control plane
-  TLPSMIfc        sm0  <- mkTLPSM(tagged Bar 0);      // server merge, fork away Bar 0
-  TLPSMIfc        sm1  <- mkTLPSM(tagged Bar64 BarSub64{bar:1,top32K:0,func:0}); // server merge, fork Bar1 bot32K, function 0 (works by default)
-  TLPSMIfc        sm2  <- mkTLPSM(tagged Bar64 BarSub64{bar:1,top32K:1,func:1}); // server merge, fork Bar1 top32K, function 1 (see TODO below)
-  Reg#(UInt#(8))  chompCnt <- mkReg(0);               // fall-through chomp count
+  OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst); // control plane
+  UNoCIfc         noc  <- mkUNoC;                                // uNoC Netword-on-Chip
 
   // Intercept the highest-numbered WCI for infrastructure control and properties...
   Vector#(15,WciOcp_Em#(20)) vWci;
@@ -61,6 +59,11 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   OCDP4BIfc  dp1  <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
 `endif
 
+  // uNoC connections...
+  mkConnection(noc.cp,  cp.server);   // uNoC to Control Plane
+  mkConnection(noc.dp0, dp0.server);  // uNoC to Data Plane 0
+  mkConnection(noc.dp1, dp1.server);  // uNoC to Data Plane 1
+
   // Infrastruture WCI slaves...
   mkConnection(vWci[13], dp0.wci_s);
   mkConnection(vWci[14], dp1.wci_s);
@@ -75,25 +78,12 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   mkConnection(itc0.wti_m, dp0.wti_s);   // DP0 Time Client WTI-M -> WTI-S 
   mkConnection(itc1.wti_m, dp1.wti_s);   // DP1 Time Client WTI-M -> WTI-S 
 
-  // Infrastruture NoC...
-  mkConnection(sm0.c0,    cp.server);    // sm0 cp attach
-  mkConnection(sm0.c1,    sm1.s);        // sm0 sm1 link
-  mkConnection(sm1.c0,    dp0.server);   // sm1 dp0 attach
-  mkConnection(sm1.c1,    sm2.s);        // sm1 sm2 link
-  mkConnection(sm2.c0,    dp1.server);   // sm1 dp0 attach
-
-  rule chomp_rogue;
-    PTW16 x <- sm2.c1.request.get;
-    if (chompCnt < maxBound) chompCnt <= chompCnt + 1;
-    $display("[%0d]: %m: UNHANDLED TLP chompCnt:%0x", $time, chompCnt);
-  endrule
-
   // Collect the various data-plane WMI masters and provide a vector...
   //Vector#(2,WmiES4B) vWmi;
   //vWmi[0] = dp0.wmiS1;
   //vWmi[1] = dp1.wmiS1;
 
-  interface Server server = sm0.s;
+  interface Server server = noc.fab;
   method led      = cp.led;
   method switch   = cp.switch;
   method GPS64_t cpNow      = cp.cpNow;
