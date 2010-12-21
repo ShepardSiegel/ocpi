@@ -34,22 +34,22 @@ endinterface: PCIEwrapIfc
 
 // The PCIE wrapping instances are diverse implementations providing the same interface.
 // Here we select which implementation from the family String...
-module mkPCIEwrap#(String family, Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
+module mkPCIEwrap#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
   PCIEwrapIfc#(lanes) _a;
   case (family)
-    "V5"    : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn);
-    "V6"    : _a  <- mkPCIEwrapV6(pci0_clkp, pci0_clkn);
-    default : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn);
+    "V5"    : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);
+    "V6"    : _a  <- mkPCIEwrapV6(pci0_clkp, pci0_clkn, pci0_rstn);
+    default : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);
   endcase
   return _a;
 endmodule
 
 // This Xilinx V6 specifc implementation takes 8B/250MHz interface and converts it to 16B/125MHz...
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
-module mkPCIEwrapV6#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
+module mkPCIEwrapV6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
   Clock                 pci0_clk    <- mkClockIBUFDS_GTXE1(True, pci0_clkp, pci0_clkn);
-  Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
-  PCIExpressV6#(lanes)  pci0        <- mkPCIExpressEndpointV6(?,clocked_by pci0_clk,reset_by pci0_rst);
+  //Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
+  PCIExpressV6#(lanes)  pci0        <- mkPCIExpressEndpointV6(?,clocked_by pci0_clk,reset_by pci0_rstn);
   Clock                 p250clk     =  pci0.trn.clk;  // 250 MHz (the div/1 clock from the pcie core)
   Reset                 p250rst     <- mkAsyncReset(1, pci0.trn.reset_n, p250clk);
   Clock                 p125clk     =  pci0.trn.clk2; // 125 MHz (the div/2 clock from the pcie core)
@@ -101,10 +101,10 @@ endmodule: mkPCIEwrapV6
 // This Xilinx V5 specifc implementation takes 8B/125MHz interface and converts it to 16B/125MHz...
 // This implemenation is IMBALANCED as the PCIe side is 1 GB/S to the uNoC side of 2 GB/S
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
-module mkPCIEwrapV5#(Clock pci0_clkp, Clock pci0_clkn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
+module mkPCIEwrapV5#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
   Clock                 pci0_clk    <- mkClockIBUFDS(pci0_clkp, pci0_clkn);
-  Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
-  PCIExpress#(lanes)    pci0        <- mkPCIExpressEndpoint(?,clocked_by pci0_clk,reset_by pci0_rst);
+  //Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
+  PCIExpress#(lanes)    pci0        <- mkPCIExpressEndpoint(?,clocked_by pci0_clk,reset_by pci0_rstn);
   Clock                 p125clk     =  pci0.trn.clk; // 125 MHz as configured by coregen xco
   Reset                 p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
 

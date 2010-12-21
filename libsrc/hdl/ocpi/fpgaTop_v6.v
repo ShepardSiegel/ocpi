@@ -76,7 +76,7 @@ module fpgaTop(
 
   .pci0_clkp         (pci0_clkp),
   .pci0_clkn         (pci0_clkn),
-  .pci0_reset_n      (pci0_reset_n),
+  .pci0_rstn         (pci0_reset_n),
   .pcie_rxp_i        (pci_exp_rxp),
   .pcie_rxn_i        (pci_exp_rxn),
   .pcie_txp          (pci_exp_txp),

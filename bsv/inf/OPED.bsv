@@ -31,18 +31,18 @@ interface OPEDIfc#(numeric type lanes);
 endinterface: OPEDIfc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="" *)
-module mkOPEDv5#(Clock pci0_clkp, Clock pci0_clkn) (OPEDIfc#(8));
-  OPEDIfc#(8) _a <- mkOPED("V5",pci0_clkp,pci0_clkn); return _a;
+module mkOPEDv5#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (OPEDIfc#(8));
+  OPEDIfc#(8) _a <- mkOPED("V5",pci0_clkp,pci0_clkn,pci0_rstn); return _a;
 endmodule
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="" *)
-module mkOPEDv6#(Clock pci0_clkp, Clock pci0_clkn) (OPEDIfc#(4));
-  OPEDIfc#(4) _a <- mkOPED("V6",pci0_clkp,pci0_clkn); return _a;
+module mkOPEDv6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (OPEDIfc#(4));
+  OPEDIfc#(4) _a <- mkOPED("V6",pci0_clkp,pci0_clkn,pci0_rstn); return _a;
 endmodule
 
 // This top-level wrapper module has no default clock or reset...
-module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn)(OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
-  PCIEwrapIfc#(lanes) pciw  <- mkPCIEwrap(family,pci0_clkp, pci0_clkn);
+module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
+  PCIEwrapIfc#(lanes) pciw  <- mkPCIEwrap(family,pci0_clkp, pci0_clkn, pci0_rstn);
   Clock p125Clk = pciw.pClk;
   Reset p125Rst = pciw.pRst;
 

@@ -68,7 +68,7 @@ end
  OPED oped (
   .PCIE_CLK_P        (pcie_clk_p),
   .PCIE_CLK_N        (pcie_clk_n),
-  .PCIE_RESET_N      (pcie_reset_n),
+  .PCIE_RSTN         (pcie_reset_n),
   .PCIE_RXP          (pcie_rxp),
   .PCIE_RXN          (pcie_rxn),
   .PCIE_TXP          (pcie_txp),

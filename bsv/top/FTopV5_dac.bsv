@@ -24,8 +24,8 @@ interface FTopIfc;
   interface Max19692Ifc dac0;
 endinterface: FTopIfc
 
-(* synthesize, no_default_clock, clock_prefix="", reset_prefix="pci0_reset_n" *)
-module mkFTop#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clkn, Clock dac_clkp, Clock dac_clkn)(FTopIfc);
+(* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
+module mkFTop#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn, Clock dac_clkp, Clock dac_clkn)(FTopIfc);
   Clock            sys0_clk  <- mkClockIBUFDS(sys0_clkp, sys0_clkn);
   Clock            pci0_clk  <- mkClockIBUFDS(pci0_clkp, pci0_clkn);
   Reset            pci0_rst  <- mkResetIBUF;
