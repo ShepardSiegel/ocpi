@@ -30,10 +30,10 @@ interface FTopIfc;
   interface Clock  rxclk;   // GMII assocaited Clock
 endinterface: FTopIfc
 
-(* synthesize, no_default_clock, clock_prefix="", reset_prefix="pci0_reset_n" *)
+(* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
 module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
                Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
-               Clock pci0_clkp, Clock pci0_clkn) (FTopIfc);
+               Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (FTopIfc);
   Clock            pci0_clk  <- mkClockIBUFDS(pci0_clkp, pci0_clkn);
   Reset            pci0_rst  <- mkResetIBUF;
   PCIExpress#(8)   pci0      <- mkPCIExpressEndpoint(?,clocked_by pci0_clk, reset_by pci0_rst);
