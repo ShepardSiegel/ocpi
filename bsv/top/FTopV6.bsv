@@ -42,14 +42,15 @@ interface FTopIfc;
   interface GMII                   gmii;     // The GMII link
 endinterface: FTopIfc
 
-(* synthesize, no_default_clock, clock_prefix="", reset_prefix="pci0_reset_n" *)
+(* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
 module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
                Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
-               Clock pci0_clkp, Clock pci0_clkn)(FTopIfc);
+               Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTopIfc);
 
-  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("V6",pci0_clkp, pci0_clkn);  // Instance the wrapped, technology-specific PCIE core
-  Clock            p125Clk    =  pciw.pClk; // Nominal 125 MHz
-  Reset            p125Rst    =  pciw.pRst; // Reset for pClk domain
+  // Instance the wrapped, technology-specific PCIE core...
+  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("V6",pci0_clkp, pci0_clkn, pci0_rstn);
+  Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
+  Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
   Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
 
   Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn); // Non-PCIe clocks and resets used...
