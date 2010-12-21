@@ -10,7 +10,6 @@ import PCIEwrap          ::*;
 import TimeService       ::*;
 import TLPMF             ::*;
 import UNoC              ::*;
-import XilinxExtra       ::*;
 
 // BSV Imports...
 import Clocks            ::*;
@@ -19,16 +18,15 @@ import Connectable       ::*;
 import DefaultValue      ::*;
 import FIFO              ::*;
 import GetPut            ::*;
-import PCIE              ::*;
-import PCIEInterrupt     ::*;
-import TieOff            ::*;
 import Vector            ::*;
-import XilinxCells       ::*;
 
 interface OPEDIfc#(numeric type lanes);
   interface PCIE_EXP#(lanes)       pcie;
   interface Clock                  p125clk;
   interface Reset                  p125rst;
+  interface A4LMIfc                axi4m;
+  //TODO: A4-Stream-Master
+  //TODO: A4-Stream-Slave
   (*always_ready*) method Bit#(32) debug;
 endinterface: OPEDIfc
 
@@ -53,13 +51,15 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn)(OPEDIfc#(lanes))
     Reg#(PciId)          pciDevice  <- mkReg(unpack(0));
     (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
     UNoCIfc              noc        <- mkUNoC;                              // uNoC Network-on-Chip
-    OCCPIfc#(Nwcit)      cp         <- mkOCCP(pciDevice, p125Clk, p125Rst); // control plane
+    OCCPIfc#(Nwcit)      cp         <- mkOCCP(pciDevice, p125Clk, p125Rst); // Control Plane
 
     Vector#(15,WciOcp_Em#(20)) vWci; vWci = cp.wci_Vm; // splay apart the individual Reset signals from the Control Plane
     Vector#(15, Reset) rst = newVector; for (Integer i=0; i<15; i=i+1) rst[i] = vWci[i].mReset_n;
 
-    OCDP4BIfc dp0 <- mkOCDP(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // data-plane fabric consumer PULL Only
-    OCDP4BIfc dp1 <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // data-plane fabric producer PUSH Only
+    WCIS2AXI4MIfc  wci2axi <- mkWCIS2A4LM(True,reset_by rst[0]); // W1: WCI to AXI4-Lite Bridge
+    mkConnection(vWci[0], wci2axi.wciS0);                        // Connect the WCI to W1, the wci2axi bridge
+    OCDP4BIfc dp0 <- mkOCDP(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // W14: data-plane fabric consumer PULL Only
+    OCDP4BIfc dp1 <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // W15: data-plane fabric producer PUSH Only
 
     mkConnection(pciw.client, noc.fab);   // PCIe to uNoC
     mkConnection(noc.cp,    cp.server);   // uNoC to Control Plane
@@ -69,10 +69,10 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn)(OPEDIfc#(lanes))
     interface PCI_EXP  pcie    = pciw.pcie;
     interface Clock    p125clk = pciw.pClk;
     interface Reset    p125rst = pciw.pRst;
+    interface A4LMIfc  axi4m   = wci2axi.axiM0;
     method Bit#(32)    debug   = extend(pack(pciw.linkUp));
   endmodule: mkOPED_inner
 
   OPEDIfc#(lanes) _b  <- mkOPED_inner(clocked_by p125Clk, reset_by p125Rst); return _b; // Instance wrapped inner module
 
 endmodule: mkOPED
-

@@ -21,7 +21,7 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkWCIS2A4LM#(parameter Bool hasDebugLogic) (WCIS2A4LMIfc);
 
-  WciOcpSlaveIfc #(20)         wci         <- mkWciOcpSlave;
+  WciOcpSlaveIfc #(20)      wci         <- mkWciOcpSlave;
   BusSender#(A4LAddrCmd)    a4wrAddr    <- mkBusSender(aAddrCmdDflt);
   BusSender#(A4LWrData)     a4wrData    <- mkBusSender(aWrDataDflt);
   BusReceiver#(A4LWrResp)   a4wrResp    <- mkBusReceiver;
