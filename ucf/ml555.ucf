@@ -18,27 +18,27 @@ NET  "sfp1_clkp"     LOC = H4;  # 125 MHz X0 to MGT_REFCLK
 NET  "sfp1_clkn"     LOC = H3;
 NET  "pci0_clkp"     LOC = Y4;  # From PCIe edge
 NET  "pci0_clkn"     LOC = Y3;
-INST "ftop/pci0_clk" DIFF_TERM = "TRUE";
-NET  "pci0_reset_n"  LOC = AE14 | IOSTANDARD = "LVCMOS25" | PULLUP | NODELAY;
+INST "ftop/pciw_pci0_clk" DIFF_TERM = "TRUE";
+NET  "pci0_rstn"     LOC = AE14 | IOSTANDARD = "LVCMOS25" | PULLUP | NODELAY;
 
 # try xil:3210 ocpi:2130 ocpi has less negative slack in PCIe BPEP
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[0].GT_i" LOC = GTP_DUAL_X0Y2; 
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[2].GT_i" LOC = GTP_DUAL_X0Y1;
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[4].GT_i" LOC = GTP_DUAL_X0Y3;
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[6].GT_i" LOC = GTP_DUAL_X0Y0;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[0].GT_i" LOC = GTP_DUAL_X0Y2; 
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[2].GT_i" LOC = GTP_DUAL_X0Y1;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[4].GT_i" LOC = GTP_DUAL_X0Y3;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[6].GT_i" LOC = GTP_DUAL_X0Y0;
 
 # BlockRAM placement...
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X1Y9 ;
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X1Y8 ;
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X1Y7 ;
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X1Y6 ;
-INST "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_retry/generate_sdp.ram_sdp_inst"      LOC = RAMB36_X1Y5 ;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X1Y9 ;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X1Y8 ;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X1Y7 ;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X1Y6 ;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_retry/generate_sdp.ram_sdp_inst"      LOC = RAMB36_X1Y5 ;
 
 # Timing critical placements...
 
 # Timing Constraints...
-NET "ftop/pci0_clk_O" PERIOD = 10ns;
-NET "ftop/pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/gt_refclk_out[0]" TNM_NET = "PCI0CLK";
+NET "ftop/pciw_pci0_clk_O" PERIOD = 10ns;
+NET "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/gt_refclk_out[0]" TNM_NET = "PCI0CLK";
 TIMESPEC "TS_PCI0CLK"  = PERIOD "PCI0CLK" 100.00 MHz HIGH 50 % ;
 
 # LEDs and Switches...

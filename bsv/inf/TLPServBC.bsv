@@ -81,8 +81,8 @@ typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b
 module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciOcpSlaveIfc#(20) wci, Bool hasPush, Bool hasPull) (TLPServBCIfc);
 
   // TODO: Implement and test *registered* SRLFIFO for "best of both worlds"
-  //Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
-  Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives
+  Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
+  //Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives
 
   FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
@@ -139,7 +139,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bit#(17))           mesgLengthRemainPull <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path) (for Pull Logic)
   Reg#(Bit#(17))           mesgComplReceived    <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
   Reg#(Bit#(13))           maxPayloadSize       <- mkReg(128);  // 128B Typical - Must not exceed 4096B
-  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(4096); // 512B Typical - Must not exceed 4096B
+  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(512);  // 512B Typical - Must not exceed 4096B
   Reg#(Bit#(32))           flowDiagCount        <- mkReg(0);
 
   Bool actMesgP = (dpControl==fProdActMesg);
@@ -147,7 +147,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Bool actFlow  = (dpControl.role==ActFlow);
 
   //TODO: Understand why psDwell=1 failed dmaTestBasic4 on 2010-11-02
-  Bit#(4) psDwell = 3; // Purposeful backend serialization "dwell" cycles [3~15] 
+  Bit#(4) psDwell = 15; // Purposeful backend serialization "dwell" cycles [3~15] 
 
   //
   // FPactMesg - Fabric Producer Push DMA Sequence...
@@ -320,8 +320,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     // The return(True) tactic helps timing by removing the tag and rid comparisons
     // But it introduces a race condition where an inbound request could advance as a completion!
     //
-    //return(tagm==ch.tag && ch.requesterID==rid);
-    return(True); // TODO: restore comparison and split inbound requests from completions
+    return(tagm==ch.tag && ch.requesterID==rid);
+    //return(True); // TODO: restore comparison and split inbound requests from completions
   endfunction 
 
   //
