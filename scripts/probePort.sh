@@ -1,8 +1,10 @@
 #!/bin/sh
-/opt/Xilinx/11.1/ISE/bin/lin64/impact -batch <<FOO 2> /dev/null | grep chain
+lsusb | grep Xilinx
+$XILINX/bin/lin64/impact -batch <<FOO 2> /dev/null | grep chain
 setMode -bs
 setCable -port $1
 Identify
 closeCable
 Exit
 FOO
+rm _impactbatch.log
