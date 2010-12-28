@@ -114,7 +114,7 @@ function Action completeSpiResponse(Bit#(8) arg);
  action
   spiResp  <= arg;
   if (splitReadInFlight) begin
-    wci.respPut.put(WciResp{resp:OK, data:extend(arg)});
+    wci.respPut.put(WciResp{resp:DVA data:extend(arg)});
     splitReadInFlight <= False;
   end
  endaction
@@ -178,7 +178,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
      'b11 : begin spiClk.req.put  (SpiReq{rdCmd:True, addr:wciReq.addr[9:2], wdata:'0}); splitRead=True; end
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   if (!splitRead) wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
+   if (!splitRead) wci.respPut.put(WciResp{resp:DVA data:rdat}); // read response
    else splitReadInFlight <= True;
 endrule
 

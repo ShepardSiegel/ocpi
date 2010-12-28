@@ -94,7 +94,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      $time, wciReq.addr, wciReq.byteEn, rdat);
-   if (allowResponse) wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
+   if (allowResponse) wci.respPut.put(WciResp{resp:DVA data:rdat}); // read response
 endrule
 
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize);

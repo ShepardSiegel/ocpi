@@ -160,7 +160,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
        endcase
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   if (!splitRead) wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
+   if (!splitRead) wci.respPut.put(WciResp{resp:DVA data:rdat}); // read response
    else splitReadInFlight <= True;
 endrule
 

@@ -306,7 +306,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      //$time, wciReq.addr, wciReq.byteEn, rdat);
-   wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
+   wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
 endrule
 
 
@@ -322,7 +322,7 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  Wci_Es#(20)                                 wci_Es <- mkWciStoES(wci.slv); 
+  Wci_Es#(20)                                    wci_Es <- mkWciStoES(wci.slv); 
   Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsi_Es <- mkWsiStoES(wsiS.slv);
   Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Em <- mkWmiMtoEm(wmi.mas);
 

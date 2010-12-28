@@ -118,7 +118,7 @@ module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);
-     wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
+     wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
   endrule
 
   rule assignControl;

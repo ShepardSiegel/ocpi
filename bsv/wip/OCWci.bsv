@@ -7,13 +7,25 @@
 
 package OCWci;
 
+import OCWipDefs::*;
+import OCWsi::*;
+import ProtocolMonitor::*;
+
 import Clocks::*;
 import ClientServer::*;
-import GetPut::*;
-import DefaultValue::*;
 import Connectable::*;
+import ConfigReg::*;
+import DefaultValue::*;
+import DReg::*;
+import FIFO::*;
+import FIFOF::*;
+import FIFOLevel::*;
 import FShow::*;
+import GetPut::*;
+import SpecialFIFOs::*;
+import StmtFSM::*;
 import TieOff::*;
+
 
 // WIP::WCI Attributes...
 typedef struct {
@@ -97,20 +109,10 @@ typedef struct {
   WCI_RESP resp;          // WCI Response
 } WciRaw deriving (Bits, Eq);
 
-typedef struct {
-  WCI_RESP resp;          // WCI Response
-  Bit#(32) data;          // One DWord
-} WciResp deriving (Bits, Eq);
-
 typedef union tagged {
   WciRaw     RawResponse;
   WciResp    ReadResponse;
 } WciResponse deriving (Bits);
-
-WciResp wciOKResponse      = WciResp{resp:OK,      data:32'hC0DE_4201}; // OK
-WciResp wciErrorResponse   = WciResp{resp:Error,   data:32'hC0DE_4202}; // Error
-WciResp wciTimeoutResponse = WciResp{resp:Timeout, data:32'hC0DE_4203}; // Timeout
-WciResp wciResetResponse   = WciResp{resp:OK,      data:32'hC0DE_4204}; // Reset
 
 function WciRequest wciConfigWrite(Bit#(32) addr, Bit#(32) data, Bit#(4) be);
   let configReq = WciConfigReq {req:Write, be:be, addr:addr, data:data};
@@ -134,33 +136,6 @@ interface WciTarget;                             // WCI Target, Protocol Indepen
   method Action                      present;    // True to signal present
 endinterface
 
-endpackage: OCWci
-
-// OCWci.bsv - OpenCPI Worker Control Interface (WCI::OCP)
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
-
-package OCWci;
-
-import OCWci::*;
-import OCWipDefs::*;
-import ProtocolMonitor::*;
-
-import Clocks::*;
-import GetPut::*;
-import ConfigReg::*;
-import DefaultValue::*;
-import DReg::*;
-import FIFO::*;	
-import FIFOF::*;	
-import FIFOLevel::*;	
-import SpecialFIFOs::*;
-import Connectable::*;
-import FShow::*;
-import TieOff::*;
-
-
-// WCI::OCP Specific...
-
 typedef struct {
   OCP_CMD  cmd;           // OCP Command (non-Idle qualifies group)
   Bit#(1)  addrSpace;     // 0=Control; 1=Configuration
@@ -180,31 +155,6 @@ WciResp     wciOKResponse      = WciResp{resp:DVA,data:32'hC0DE_4201}; // Ok
 WciResp     wciErrorResponse   = WciResp{resp:ERR,data:32'hC0DE_4202}; // Error
 WciResp     wciTimeoutResponse = WciResp{resp:DVA,data:32'hC0DE_4203}; // Timeout
 WciResp     wciResetResponse   = WciResp{resp:DVA,data:32'hC0DE_4204}; // Reset
-
-function WciResp wciRespToOcp (WciResp gen);  // To convert a generic WCI response to OCP
-  WciResp o = ?;
-  case (gen.resp)
-    OK      : o.resp = DVA;
-    Error   : o.resp = ERR;
-    Timeout : o.resp = FAIL;
-    Rsvd3   : o.resp = ERR;
-  endcase
-  o.data = gen.data; 
-  return(o);
-endfunction
-
-function WciResp wciRespFromOcp (WciResp ocp);  // To convert to OCP from generic
-  WciResp g = ?;
-  case (ocp.resp)
-    NULL  : g.resp = OK;
-    DVA   : g.resp = OK;
-    FAIL  : g.resp = OK;
-    ERR   : g.resp = Error;
-  endcase
-  g.data = ocp.data; 
-  return(g);
-endfunction
-
 
 (* always_ready *)
 interface Wci_m#(numeric type na);
@@ -781,10 +731,10 @@ endmodule
 // wraps up the OCP-IP/WIP/WCI boilerplate that may be reused in each worker
 //
 interface WciSlaveIfc#(numeric type na);
-  interface Wci_s#(na)        slv;
-  interface Get#(WciReq#(na)) reqGet;
+  interface Wci_s#(na)           slv;
+  interface Get#(WciReq#(na))    reqGet;
   interface Put#(WciResp)        respPut;
-  method WciReq#(na)          reqPeek;
+  method WciReq#(na)             reqPeek;
   method Bool                    configWrite;
   method Bool                    configRead;
   method Bool                    controlOp;
@@ -799,9 +749,9 @@ interface WciSlaveIfc#(numeric type na);
 endinterface
 
 module mkWciSlave (WciSlaveIfc#(na));
-  Wire#(WciReq#(na))            wciReq           <- mkWire;
-  FIFOLevelIfc#(WciReq#(na),3)  reqF             <- mkGFIFOLevel(True, False, True);
-  FIFOF#(WciResp)               respF            <- mkDFIFOF(wciIdleResponse);
+  Wire#(WciReq#(na))               wciReq           <- mkWire;
+  FIFOLevelIfc#(WciReq#(na),3)     reqF             <- mkGFIFOLevel(True, False, True);
+  FIFOF#(WciResp)                  respF            <- mkDFIFOF(wciIdleResponse);
   Reg#(WCI_STATE)                  cState           <- mkReg(Exists);  // current control state
   Reg#(WCI_STATE)                  nState           <- mkReg(Exists);  // next control state
   Wire#(WCI_CONTROL_OP)            wEdge            <- mkWire;
@@ -852,12 +802,12 @@ module mkWciSlave (WciSlaveIfc#(na));
   rule ctl_op_complete (ctlOpActive && ctlAckReg);
     if (!illegalEdge) begin
       cState <= nState;
-      respF.enq(wciRespToOcp(wciOKResponse));
+      respF.enq(wciOKResponse);
       $display("[%0d]: %m: WCI ControlOp: Completed-transition edge:%x from:%x to:%x", $time, pack(cEdge), pack(cState), pack(nState));
       //$display("[%0d]: %m: WCI ControlOp: Completed transition (edge,from,to)", $time, fshow(cEdge), fshow(cState), fshow(nState));
     end else begin
       illegalEdge <= False;
-      respF.enq(wciRespToOcp(wciErrorResponse));
+      respF.enq(wciErrorResponse);
       $display("[%0d]: %m: WCI ControlOp: ILLEGAL-EDGE Completed-transition edge:%x from:%x", $time, pack(cEdge), pack(cState));
     end
     ctlOpActive <= False;
@@ -875,7 +825,7 @@ module mkWciSlave (WciSlaveIfc#(na));
   //interface respPut = toPut(respF);
   interface Put respPut;
     method Action put(WciResp g);
-    respF.enq(wciRespToOcp(g));
+    respF.enq(g);
     endmethod
   endinterface
   method WciReq#(na) reqPeek = reqF.first;
@@ -1024,16 +974,6 @@ module mkWciObserver (WciObserverIfc#(na)) provisos(Add#(a_,na,32));
     end
   endrule
 
-  /*
-  Wire#(WciReq#(na))            wciReq           <- mkWire;
-  Wire#(WciResp)                wciResp          <- mkWire;
-  FIFOF#(WciReq#(na))           reqF             <- mkFIFOF;
-  FIFOF#(WciResp)               respF            <- mkFIFOF;
-  Reg#(Bit#(32))                   reqCount         <- mkReg(0);
-  Reg#(Bit#(32))                   respCount        <- mkReg(0);
-  ReadOnly#(Bool)                  isReset          <- isResetAsserted;
-  */
-
   interface Wci_Eo wci;
     method Action   mCmd         (Bit#(3)  arg_cmd);       r_mCmd       <= arg_cmd;       endmethod
     method Action   mAddrSpace   (Bit#(1)  arg_addrSpace); r_mAddrSpace <= arg_addrSpace; endmethod
@@ -1051,44 +991,7 @@ module mkWciObserver (WciObserverIfc#(na)) provisos(Add#(a_,na,32));
 endmodule
 
 
-/* TODO: Write TieOff to replace Null
-instance TieOff#(Wci_s#(na));
-  module mkTieOff#(Wci_s#(na) ifc) (Empty);
-    rule tieOffSomething;
-      ifc.sThreadBusy(True);
-      ifc.resp(wciIdleResponse);
-      ifc.sFlag(2'b00);
-    endrule
-  endmodule
-endinstance
-*/
-
-endpackage: OCWci
-
-// OCWciBfm.bsv - OpenCPI Worker Control Interface (WCI::OCP) Bus Functional Models
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
-
-package OCWciBfm;
-
-import OCWci::*;
-import OCWsi::*;
-import OCWci::*;
-import OCWipDefs::*;
-import ProtocolMonitor::*;
-
-import Clocks::*;
-import Connectable::*;
-import GetPut::*;
-import ConfigReg::*;
-import DefaultValue::*;
-import DReg::*;
-import FIFO::*;	
-import FIFOF::*;	
-import FIFOLevel::*;	
-import FShow::*;
-import SpecialFIFOs::*;
-import StmtFSM::*;
-import TieOff::*;
+// A WCI BFM Initiator...
 
 interface WciInitiatorIfc;
   interface Wci_Em#(20) wciM0;
@@ -1127,13 +1030,15 @@ module mkWciInitiator (WciInitiatorIfc);
 endmodule
 
 
+// A WCI BFM Target...
+
 interface WciTargetIfc;
   interface Wci_Es#(20) wciS0;
 endinterface
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkWciTarget (WciTargetIfc);
-  WciSlaveIfc#(20) target       <-mkWciSlave;
+  WciSlaveIfc#(20)    target       <- mkWciSlave;
   Reg#(Bool)          operating    <- mkReg(False);
   Reg#(Bit#(32))      biasValue    <- mkRegU;          // storage for the biasValue
   Reg#(Bit#(32))      controlReg   <- mkRegU;          // storage for the controlReg
@@ -1161,7 +1066,7 @@ module mkWciTarget (WciTargetIfc);
        'h04 : rdat = pack(controlReg);
      endcase
      $display("[%0d]: %m: WCI TARGET CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, targetReq.addr, targetReq.byteEn, rdat);
-     target.respPut.put(WciResp{resp:OK, data:rdat}); // read response
+     target.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
   endrule
   
   rule target_ctrl_EiI (target.ctlState==Exists && target.ctlOp==Initialize);
@@ -1172,7 +1077,6 @@ module mkWciTarget (WciTargetIfc);
 
   rule target_ctrl_IsO (target.ctlState==Initialized && target.ctlOp==Start); target.ctlAck; endrule
   rule target_ctrl_OrE (target.isOperating && target.ctlOp==Release); target.ctlAck; endrule
-
 
   Wci_Es#(20) wci_Es <- mkWciStoES(target.slv);
   interface Wci_Em wciS0 = wci_Es;
@@ -1187,7 +1091,7 @@ endinterface
 (* synthesize *)
 module mkWciMonitor#(parameter Bit#(8) monId)  (WciMonitorIfc);
   WciObserverIfc#(20) observer <- mkWciObserver;
-  PMEMGenWsiIfc          pmemgen  <- mkPMEMGenWsi(monId);
+  PMEMGenWsiIfc       pmemgen  <- mkPMEMGenWsi(monId);
 
   // Add monitor/observer behavior here...
   rule event_cmd;
@@ -1200,5 +1104,4 @@ module mkWciMonitor#(parameter Bit#(8) monId)  (WciMonitorIfc);
   interface Get       pmem     = pmemgen.pmem; 
 endmodule
 
-
-endpackage: OCWciBfm
+endpackage: OCWci

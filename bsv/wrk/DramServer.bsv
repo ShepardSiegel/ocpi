@@ -178,7 +178,7 @@ endrule
     for(Integer i=0;i<4;i=i+1) rdReg[i] <= rdVect[i];
     if (splitReadInFlight) begin
       let p = splaF.first; splaF.deq();
-      wci.respPut.put(WciResp{resp:OK, data:rdVect[p]}); // put the correct 4B DW from 16B return
+      wci.respPut.put(WciResp{resp:DVA data:rdVect[p]}); // put the correct 4B DW from 16B return
       splitReadInFlight <= False;
     end
     respCount <= respCount + 1;
@@ -249,7 +249,7 @@ endrule
        splitRead = True;
     end
      //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-     if (!splitRead)wci.respPut.put(WciResp{resp:OK, data:rdat}); // read response
+     if (!splitRead)wci.respPut.put(WciResp{resp:DVA data:rdat}); // read response
      else splitReadInFlight <= True;
   endrule
 
