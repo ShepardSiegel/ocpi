@@ -6,10 +6,13 @@ import Config            ::*;
 import OCWip             ::*;
 import OCCP              ::*;
 import OCDP              ::*;
+import PCIE              ::*;
 import PCIEwrap          ::*;
 import TimeService       ::*;
 import TLPMF             ::*;
 import UNoC              ::*;
+import ARAXI4L           ::*;
+import WCIS2AL4M         ::*;
 
 // BSV Imports...
 import Clocks            ::*;
@@ -56,7 +59,7 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     Vector#(15,WciOcp_Em#(20)) vWci; vWci = cp.wci_Vm; // splay apart the individual Reset signals from the Control Plane
     Vector#(15, Reset) rst = newVector; for (Integer i=0; i<15; i=i+1) rst[i] = vWci[i].mReset_n;
 
-    WCIS2AXI4MIfc  wci2axi <- mkWCIS2A4LM(True,reset_by rst[0]); // W1: WCI to AXI4-Lite Bridge
+    WCIS2A4LMIfc  wci2axi <- mkWCIS2A4LM(True,reset_by rst[0]); // W1: WCI to AXI4-Lite Bridge
     mkConnection(vWci[0], wci2axi.wciS0);                        // Connect the WCI to W1, the wci2axi bridge
     OCDP4BIfc dp0 <- mkOCDP(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // W14: data-plane fabric consumer PULL Only
     OCDP4BIfc dp1 <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // W15: data-plane fabric producer PUSH Only

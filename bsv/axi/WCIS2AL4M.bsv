@@ -35,7 +35,7 @@ module mkWCIS2A4LM#(parameter Bool hasDebugLogic) (WCIS2A4LMIfc);
 
 rule wci_cfwr (wci.configWrite && !wrInFlight); // WCI Configuration Property Writes...
   let wciReq <- wci.reqGet.get;
-  a4wrAddr.in.enq(A4LAddrCmd{addr:wciReq.addr, prot:aProtDflt});
+  a4wrAddr.in.enq(A4LAddrCmd{addr:extend(wciReq.addr), prot:aProtDflt});
   a4wrData.in.enq(A4LWrData {strb:wciReq.byteEn, data:wciReq.data});
   $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
   wrInFlight <= True;
@@ -52,7 +52,7 @@ endrule
 
 rule wci_cfrd (wci.configRead && !rdInFlight);  // WCI Configuration Property Reads...
   let wciReq <- wci.reqGet.get;
-  a4rdAddr.in.enq(A4LAddrCmd{addr:wciReq.addr, prot:aProtDflt});
+  a4rdAddr.in.enq(A4LAddrCmd{addr:extend(wciReq.addr), prot:aProtDflt});
   rdInFlight <= True;
   $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x",$time, wciReq.addr, wciReq.byteEn);
 endrule
