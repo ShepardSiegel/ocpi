@@ -4,7 +4,7 @@ ssiegel 2010-07-26 ISE 12.2 Updates
 ssiegel 2010-09-17 Included LICENSE.TXT
 ssiegel 2010-11-22 Added to FAQ
 ssiegel 2010-11-29 Touched README
-ssiegel 2010-12-28 AXI *removed* from WIP. "WCI" now implies OCP
+ssiegel 2010-12-28 AXI *removed* from WIP. "WIP" (WCI,WSI,WMI,etc.) now implies OCP
 
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
