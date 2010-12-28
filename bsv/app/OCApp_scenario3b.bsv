@@ -24,7 +24,7 @@ import Connectable::*;
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
-  interface Vector#(nWci,WciOcp_Es#(20)) wci_s;
+  interface Vector#(nWci,Wci_Es#(20)) wci_s;
   interface WmiEM4B                      wmiM0;
   interface WmiEM4B                      wmiM1;
   interface WmemiEM16B                   wmemiM;
@@ -43,11 +43,11 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   PSDIfc              appW7    <-  mkPSD               (32'h00000000, hasDebugLogic, reset_by(rst[7])); // PSD
 
   // TODO: Use Default for tieOff...
-  WciOcp_Es#(20) tieOff0  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff1  <- mkWciOcpSlaveENull;
+  Wci_Es#(20) tieOff0  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff1  <- mkWciSlaveENull;
 
   // Connect each worker to its WCI...
-  Vector#(nWci,WciOcp_Es#(20)) vWci;
+  Vector#(nWci,Wci_Es#(20)) vWci;
   vWci[0] = tieOff0;
   vWci[1] = tieOff1;
   vWci[2] = appW2.wciS0;

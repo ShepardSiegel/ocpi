@@ -15,7 +15,7 @@ import StmtFSM::*;
 module mkTB11();
 
   Reg#(Bit#(16))              simCycle       <- mkReg(0);       // simulation cycle counter
-  WciOcpMasterIfc#(20)        wci            <- mkWciOcpMaster; // WCI-OCP-Master convienenice logic
+  WciMasterIfc#(20)           wci            <- mkWciMaster;    // WCI-OCP-Master convienenice logic
   WsiMasterIfc#(12,32,4,8,0)  wsiM           <- mkWsiMaster;    // WSI-OCP-Master convienenice logic
   WsiSlaveIfc #(12,32,4,8,0)  wsiS           <- mkWsiSlave;     // WSI-OCP-Slave  convienenice logic
 
@@ -40,7 +40,7 @@ module mkTB11();
   mkConnection(wciMon.pmem, pmemMon.pmem);                   // Connect the wciMon to an event monitor
 
   // Connect the PSD DUT's three interfaces...
-  WciOcp_Em#(20) wci_Em <- mkWciOcpMtoEm(wci.mas);             // Convert the conventional to explicit 
+  Wci_Em#(20) wci_Em <- mkWciMtoEm(wci.mas);             // Convert the conventional to explicit 
   mkConnectionMSO(wci_Em,  biasWorker.wciS0, wciMon.observe);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
   mkConnection(toWsiEM(wsiM.mas), biasWorker.wsiS0);           // Connect the Source wsiM to the biasWorker wsi-S input
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);         // Convert the conventional to explicit 

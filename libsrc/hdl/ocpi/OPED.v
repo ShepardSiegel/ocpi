@@ -84,18 +84,17 @@ module OPED (
 // Alternate, future OPED implementations may be adapted and placed here, if desired.
 // This adaptation layer may be removed at a later date when it is clear it is not needed
 
- mkOPED oped (
-  .pcie_clk_p        (PCIE_CLK_P),
-  .pcie_clk_n        (PCIE_CLK_N),
-  .pcie_reset_n      (PCIE_RESET_N),
-  .pcie_rxp          (PCIE_RXP),
-  .pcie_rxn          (PCIE_RXN),
+ mkOPEDv5 oped (
+  .pci0_clkp         (PCIE_CLK_P),
+  .pci0_clkn         (PCIE_CLK_N),
+  .RST_N_pci0_rstn   (PCIE_RESET_N),
+  .pcie_rxp_i        (PCIE_RXP),
+  .pcie_rxn_i        (PCIE_RXN),
   .pcie_txp          (PCIE_TXP),
   .pcie_txn          (PCIE_TXN),
-  .trnClk            (ACLK),
-  .CLK_GATE_trnClk   (),
-  /*
-  .ARESETN           (ARESETN),
+  .p125clk           (ACLK),
+  .CLK_GATE_p125clk  (),
+  .RST_N_p125rst     (ARESETN),
   .M_AXI_AWADDR      (M_AXI_AWADDR),
   .M_AXI_AWPROT      (M_AXI_AWPROT),
   .M_AXI_AWVALID     (M_AXI_AWVALID),
@@ -115,6 +114,7 @@ module OPED (
   .M_AXI_RRESP       (M_AXI_RRESP),
   .M_AXI_RVALID      (M_AXI_RVALID),
   .M_AXI_RREADY      (M_AXI_RREADY),
+  /*
   .M_AXIS_DAT_TDATA  (M_AXIS_DAT_TDATA),
   .M_AXIS_DAT_TVALID (M_AXIS_DAT_TVALID),
   .M_AXIS_DAT_TSTRB  (M_AXIS_DAT_TSTRB),

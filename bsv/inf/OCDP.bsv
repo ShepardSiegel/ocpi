@@ -26,7 +26,7 @@ import ClientServer::*;
 import DefaultValue::*;
 
 interface OCDPIfc#(numeric type ndw);
-  interface WciOcp_Es#(20)       wci_s;    // Control and Configuration
+  interface Wci_Es#(20)       wci_s;    // Control and Configuration
   interface Wti_s#(64)           wti_s;    // Worker Time Interface (for timestamping)
   interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS1; // facing the application  (local)
   interface Server#(PTW16,PTW16) server;   // facing the infrastructure (remote)
@@ -47,7 +47,7 @@ module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
   Vector#(4, BRAMServer#(DPBufHWAddr, DWord)) bramsA = genWith(getPortA);
   Vector#(4, BRAMServer#(DPBufHWAddr, DWord)) bramsB = genWith(getPortB);
 
-  WciOcpSlaveIfc#(20) wci  <- mkWciOcpSlave;
+  WciSlaveIfc#(20) wci  <- mkWciSlave;
   WtiSlaveIfc#(64)    wti  <- mkWtiSlave;
   TLPServBCIfc        tlp  <- mkTLPServBC(bramsA,pciDevice,wci,hasPush,hasPull); // The TLP to Memory adaptation
   WmiServBCIfc#(ndw)  wmi  <- mkWmiServBC(bramsB);                               // The ndw-Byte WMI to Memory adaptation
@@ -131,7 +131,7 @@ module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
 
   mkConnection(wti.now, wmi.now); // Pass the WTI Time data down to the WmiServBC
 
-  WciOcp_Es#(20) wci_Es <- mkWciOcpStoES(wci.slv);
+  Wci_Es#(20) wci_Es <- mkWciStoES(wci.slv);
   Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Es <- mkWmiStoES(wmi.wmi_s);
 
   // Control Op logic pushed down into OCBufQ

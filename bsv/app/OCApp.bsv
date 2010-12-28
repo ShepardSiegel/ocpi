@@ -26,7 +26,7 @@ import Connectable::*;
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi, numeric type ndw);
-  interface Vector#(nWci,WciOcp_Es#(20)) wci_s;
+  interface Vector#(nWci,Wci_Es#(20))                       wci_s;
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiM0;  
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiM1;  
   interface WmemiEM16B                                      wmemiM;
@@ -40,7 +40,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
     NumAlias#(ndw,1) ); // by joe
 
   /*
-  WciOcpMonitorIfc            wciMonW3         <- mkWciOcpMonitor(8'h42); // monId=h42
+  WciMonitorIfc            wciMonW3         <- mkWciMonitor(8'h42); // monId=h42
   PMEMMonitorIfc              pmemMonW3        <- mkPMEMMonitor;
   mkConnection(wciMonW3.pmem, pmemMonW3.pmem);  // Connect the wciMon to an event monitor
   */
@@ -116,14 +116,14 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   */
 
   // TODO: Use Default for tieOff...
-  WciOcp_Es#(20) tieOff0  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff1  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff5  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff6  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff7  <- mkWciOcpSlaveENull;
+  Wci_Es#(20) tieOff0  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff1  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff5  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff6  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff7  <- mkWciSlaveENull;
 
   // Connect each worker to its WCI...
-  Vector#(nWci,WciOcp_Es#(20)) vWci;
+  Vector#(nWci,Wci_Es#(20)) vWci;
   vWci[0] = tieOff0;
   vWci[1] = tieOff1;
   vWci[2] = appW2.wciS0;

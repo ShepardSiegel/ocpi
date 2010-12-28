@@ -16,8 +16,8 @@ import XilinxCells::*;
 import XilinxExtra::*;
 
 interface GbeWorkerIfc;
-  interface WciOcp_s#(20) wci_rx;             // WCI
-  interface WciOcp_s#(20) wci_tx;             // WCI
+  interface Wci_s#(20) wci_rx;             // WCI
+  interface Wci_s#(20) wci_tx;             // WCI
   interface Wti_s#(64) wti_s;                 // WTI
   interface Wsi_Em#(12,32,4,8,0) wsiM0;       // WSI Rx Packet Stream
   interface Wsi_Es#(12,32,4,8,0) wsiS0;       // WSI Tx Packet Stream
@@ -30,8 +30,8 @@ endinterface
 (* synthesize *)
 module mkGbeWorker#(Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeWorkerIfc);
 
-  WciOcpSlaveIfc#(20)         wciRx        <-  mkWciOcpSlave; 
-  WciOcpSlaveIfc#(20)         wciTx        <-  mkWciOcpSlave; 
+  WciSlaveIfc#(20)         wciRx        <-  mkWciSlave; 
+  WciSlaveIfc#(20)         wciTx        <-  mkWciSlave; 
   WtiSlaveIfc#(64)            wti          <-  mkWtiSlave(clocked_by sys1_clk, reset_by sys1_rst); 
   WsiMasterIfc#(12,32,4,8,0)  wsiM         <-  mkWsiMaster; 
   WsiSlaveIfc #(12,32,4,8,0)  wsiS         <-  mkWsiSlave;
@@ -107,8 +107,8 @@ endrule
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);
 
   // Interfaces and Methods provided...
-  interface WciOcp_s  wci_rx = wciRx.slv;
-  interface WciOcp_s  wci_tx = wciTx.slv;
+  interface Wci_s  wci_rx = wciRx.slv;
+  interface Wci_s  wci_tx = wciTx.slv;
   interface Wti_s  wti_s  = wti.slv;
   interface Wsi_Em wsiM0  = toWsiEM(wsiM.mas);
   interface Wsi_Es wsiS0  = wsi_Es;

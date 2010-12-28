@@ -20,7 +20,7 @@ export DRAMV5::*;
 export DramServerV5::*;
 
 interface DramServerV5Ifc;
-  interface WciOcp_s#(20)  wci_s;   // Worker Control and Configuration
+  interface Wci_s#(20)  wci_s;   // Worker Control and Configuration
   interface DDR2_32        dram;    // The interface to the DRAM pins
   interface WmemiES16B     wmemiS;  // The Wmemi slave interface provided to the application
 endinterface
@@ -31,7 +31,7 @@ typedef 8 DqsPerDqs;
 (*synthesize*)
 module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys1_rst) (DramServerV5Ifc);
 
-  WciOcpSlaveIfc#(20)              wci                        <- mkWciOcpSlave;
+  WciSlaveIfc#(20)              wci                        <- mkWciSlave;
   DramControllerUiV5Ifc            memc                       <- mkDramControllerV5Ui(sys0_clk, sys0_rst, sys1_clk);
   WmemiSlaveIfc#(36,12,128,16)     wmemi                      <- mkWmemiSlave; 
   Reg#(Bit#(32))                   dramCtrl                   <- mkReg(0);
@@ -255,7 +255,7 @@ endrule
 
   WmemiES16B wmemi_Es <- mkWmemiStoES(wmemi.slv);
 
-  interface WciOcp_s    wci_s   = wci.slv;
+  interface Wci_s    wci_s   = wci.slv;
   interface DDR3_64     dram    = memc.dram; 
   interface WmemiES16B  wmemiS  = wmemi_Es;
 

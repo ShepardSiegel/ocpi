@@ -15,7 +15,7 @@ import StmtFSM::*;
 module mkTB12();
 
   Reg#(Bit#(16))              simCycle       <- mkReg(0);        // simulation cycle counter
-  WciOcpEMasterIfc#(20)       wci            <- mkWciOcpEMaster; // WCI-OCP-Master convienenice logic
+  WciEMasterIfc#(20)          wci            <- mkWciEMaster; // WCI-OCP-Master convienenice logic
   WsiMasterIfc#(12,32,4,8,0)  wsiM           <- mkWsiMaster;     // WSI-OCP-Master convienenice logic
   WsiSlaveIfc #(12,32,4,8,0)  wsiS           <- mkWsiSlave;      // WSI-OCP-Slave  convienenice logic
 
@@ -34,7 +34,7 @@ module mkTB12();
   Reg#(Bit#(16))              dstUnrollCnt   <- mkReg(0);       // Message Positions to go
   Reg#(Bit#(32))              dstDataOut     <- mkReg(0);       // DWORD ordinal count
 
-  WciOcpMonitorIfc            wciMon         <- mkWciOcpMonitor(8'h42); // monId=h42
+  WciMonitorIfc               wciMon         <- mkWciMonitor(8'h42); // monId=h42
   PMEMMonitorWsiIfc           pmemMon        <- mkPMEMMonitorWsi;
 
   mkConnection(wciMon.pmem, pmemMon.pmem);                   // Connect the wciMon to an event monitor

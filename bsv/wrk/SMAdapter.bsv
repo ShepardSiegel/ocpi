@@ -14,7 +14,7 @@ import SRLFIFO::*;
 import GetPut::*;
 
 interface SMAdapterIfc#(numeric type ndw);
-  interface WciOcp_Es#(20)                                 wciS0;
+  interface Wci_Es#(20)                                 wciS0;
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmiM;
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiM0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiS0;
@@ -31,7 +31,7 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
 
-  WciOcpSlaveIfc#(20)            wci               <- mkWciOcpSlave;
+  WciSlaveIfc#(20)            wci               <- mkWciSlave;
   WmiMasterIfc#(14,12,nd,0,TMul#(ndw,4),32) wmi    <- mkWmiMaster;
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WsiSlaveIfc #(12,nd,nbe,8,0)   wsiS              <- mkWsiSlave;
@@ -322,7 +322,7 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  WciOcp_Es#(20)                                 wci_Es <- mkWciOcpStoES(wci.slv); 
+  Wci_Es#(20)                                 wci_Es <- mkWciStoES(wci.slv); 
   Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsi_Es <- mkWsiStoES(wsiS.slv);
   Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Em <- mkWmiMtoEm(wmi.mas);
 

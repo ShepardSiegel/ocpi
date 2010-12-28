@@ -9,12 +9,12 @@ import FIFOF::*;
 import SpecialFIFOs::*;
 
 interface GCDWorkerIfc;
-  interface WciOcp_s#(20) wci_s;
+  interface Wci_s#(20) wci_s;
 endinterface 
 
 (* synthesize *)
 module mkGCDWorker#(Bit#(4) ordinalId) (GCDWorkerIfc);
-  WciOcpSlaveIfc#(20)     wci        <- mkWciOcpSlave;
+  WciSlaveIfc#(20)     wci        <- mkWciSlave;
   Reg#(Bit#(32))          r0         <- mkReg(0);
   Reg#(Bit#(32))          r4         <- mkReg(0);
   Reg#(Bit#(8))           b18        <- mkReg(8'h18);
@@ -111,6 +111,6 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);
   wci.ctlAck;
 endrule
 
-  interface WciOcp_s wci_s = wci.slv;
+  interface Wci_s wci_s = wci.slv;
 endmodule
 

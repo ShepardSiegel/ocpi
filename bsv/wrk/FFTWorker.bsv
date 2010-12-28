@@ -19,7 +19,7 @@ typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 typedef enum {PsdPass, PsdPrecise, PsdFFT, PsdSpare} FFTMode deriving (Bits, Eq);  // FFT mode bits in fftCtrl[1:0]
 
 interface FFTWorkerIfc;
-  interface WciOcp_Es#(NwciAddr)     wciS0;    // Worker Control and Configuration 
+  interface Wci_Es#(NwciAddr)     wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,32,4,8,0)     wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,32,4,8,0)     wsiM0;    // WSI-M Stream Output
 endinterface 
@@ -27,7 +27,7 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkFFTWorker#(parameter Bit#(32) fftCtrlInit, parameter Bool hasDebugLogic) (FFTWorkerIfc);
 
-  WciOcpSlaveIfc #(NwciAddr)         wci         <- mkWciOcpSlave;
+  WciSlaveIfc #(NwciAddr)         wci         <- mkWciSlave;
   WsiSlaveIfc #(12,32,4,8,0)         wsiS        <- mkWsiSlave;
   WsiToPreciseGPIfc#(1)              w2p         <- mkWsiToPreciseGP;
   WsiMasterIfc#(12,32,4,8,0)         wsiM        <- mkWsiMaster;
@@ -137,7 +137,7 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  WciOcp_Es#(NwciAddr)     wci_Es    <- mkWciOcpStoES(wci.slv); 
+  Wci_Es#(NwciAddr)     wci_Es    <- mkWciStoES(wci.slv); 
   Wsi_Es#(12,32,4,8,0)     wsi_Es    <- mkWsiStoES(wsiS.slv);
 
   interface wciS0  = wci_Es;

@@ -74,7 +74,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Reference
   Clock           dac_clk   <- mkClockIBUFDS(dac_clkp, dac_clkn);
   Reset           dac_rst   <- mkAsyncReset(1, pciLinkReset, dac_clk);
 
-  Vector#(Nwci_ftop,WciOcp_Em#(20)) vWci = ctop.wci_m;
+  Vector#(Nwci_ftop,Wci_Em#(20)) vWci = ctop.wci_m;
 
   //TODO: Way of using well-known names instead of array index for reset, etc, on vWci[]
 
@@ -84,8 +84,8 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Reference
   DramServerV5Ifc  dram0   <-  mkDramServerV5(sys0_clk, sys0_rst, sys1_clk, sys1_rst,                    clocked_by trn_clk, reset_by(vWci[4].mReset_n));
 
   // WCI...
-  WciOcpSlaveNullIfc#(20) tieOff0  <- mkWciOcpSlaveNull;
-  WciOcpSlaveNullIfc#(20) tieOff1  <- mkWciOcpSlaveNull;
+  WciSlaveNullIfc#(20) tieOff0  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(20) tieOff1  <- mkWciSlaveNull;
   mkConnection(vWci[0], tieOff0.slv);   // worker 8
   mkConnection(vWci[1], tieOff1.slv);   // worker 9
   mkConnection(vWci[2], adcW10.wci_s);  // worker 10  

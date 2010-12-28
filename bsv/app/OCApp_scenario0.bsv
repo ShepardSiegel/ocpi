@@ -22,12 +22,12 @@ import Connectable::*;
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
-  interface Vector#(nWci,WciOcp_Es#(20)) wci_s;
-  interface WmiEM4B                      wmiM0;
-  interface WmiEM4B                      wmiM1;
-  interface WmemiEM16B                   wmemiM;
-  interface WsiES4B                      wsi_s_adc;
-  interface WsiEM4B                      wsi_m_dac;
+  interface Vector#(nWci,Wci_Es#(20)) wci_s;
+  interface WmiEM4B                   wmiM0;
+  interface WmiEM4B                   wmiM1;
+  interface WmemiEM16B                wmemiM;
+  interface WsiES4B                   wsi_s_adc;
+  interface WsiEM4B                   wsi_m_dac;
 endinterface
 
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
@@ -38,14 +38,14 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   SMAdapter4BIfc    appW4    <-  mkSMAdapter4B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 
   // TODO: Use Default for tieOff...
-  WciOcp_Es#(20) tieOff0  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff1  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff5  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff6  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff7  <- mkWciOcpSlaveENull;
+  Wci_Es#(20) tieOff0  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff1  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff5  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff6  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff7  <- mkWciSlaveENull;
 
   // Connect each worker to its WCI...
-  Vector#(nWci,WciOcp_Es#(20)) vWci;
+  Vector#(nWci,Wci_Es#(20)) vWci;
   vWci[0] = tieOff0;
   vWci[1] = tieOff1;
   vWci[2] = appW2.wciS0;
@@ -56,7 +56,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   vWci[7] = tieOff7;
 
 // Protocol Monitor IPs...
-// WsiOcpMonitorIfc             wsiMonW23         <- mkWsiOcpMonitor(8'h52);
+// WsiMonitorIfc             wsiMonW23         <- mkWsiMonitor(8'h52);
 // PMEMMonitorWsiIfc            pmemMonW23        <- mkPMEMMonitorWsi;
 // mkConnection(wciMonW23.pmem, pmemMonW23.pmem);
 //mkConnectionMSO(appW2.wsiM0, appW3.wsiS0, wsiMon23.observe);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0

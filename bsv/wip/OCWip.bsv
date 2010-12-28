@@ -5,10 +5,6 @@ package OCWip;
 
 import OCWipDefs    ::*;
 import OCWci        ::*;
-import OCWciOcp     ::*;
-import OCWciOcpBfm  ::*;
-//import OCWciAxi     ::*;
-//import OCWciAxiBfm  ::*;
 import OCWsi        ::*;
 import OCWmi        ::*;
 import OCWmemi      ::*;
@@ -16,9 +12,6 @@ import OCWti        ::*;
 
 export OCWipDefs    ::*;
 export OCWci        ::*;
-export OCWciOcp     ::*;
-export OCWciOcpBfm  ::*;
-//export OCWciAxi     ::*;
 export OCWsi        ::*;
 export OCWmi        ::*;
 export OCWmemi      ::*;

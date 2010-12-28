@@ -6,7 +6,7 @@ import GetPut::*;
 import Vector::*;
 
 interface WsiRouterIfc#(numeric type ndw, numeric type nd);
-  interface WciOcp_s#(20)           wci_s;
+  interface Wci_s#(20)           wci_s;
   interface Wsi_s#(12,nd,4,8,1)     wsi_s;
   interface Wsi_m#(12,nd,4,8,1)     wsi_m0;
   interface Wsi_m#(12,nd,4,8,1)     wsi_m1;
@@ -17,7 +17,7 @@ module mkWsiRouter (WsiRouterIfc#(ndw,nd))
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2; // Width in Bytes
 
-  WciOcpSlaveIfc#(20)          wci           <- mkWciOcpSlave;
+  WciSlaveIfc#(20)          wci           <- mkWciSlave;
   WsiSlaveIfc #(12,nd,4,8,1)   wsiS          <- mkWsiSlave;
   WsiMasterIfc#(12,nd,4,8,1)   wsiM0         <- mkWsiMaster;
   WsiMasterIfc#(12,nd,4,8,1)   wsiM1         <- mkWsiMaster;
@@ -71,7 +71,7 @@ endrule
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  interface WciOcp_s wci_s  = wci.slv;
+  interface Wci_s wci_s  = wci.slv;
   interface Wsi_s wsi_s  = wsiS.slv;
   interface Wsi_m wsi_m0 = wsiM0.mas;
   interface Wsi_m wsi_m1 = wsiM1.mas;

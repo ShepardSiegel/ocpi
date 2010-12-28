@@ -39,7 +39,7 @@ interface OCCPIfc#(numeric type nWci);
   interface Server#(PTW16,PTW16) server;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
-  interface Vector#(nWci,WciOcp_Em#(20)) wci_Vm;
+  interface Vector#(nWci,Wci_Em#(20)) wci_Vm;
   method GPS64_t cpNow;
   interface GPSIfc gps;
 endinterface
@@ -72,12 +72,12 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   TimeServerIfc     timeServ     <- mkTimeServer(defaultValue, sys0_clk, sys0_rst); // Instance the Time Server
   Reg#(GPS64_t)     deltaTime    <- mkReg(0.0);
 
-  function makeWciOcpMaster (Integer i);
-    //return (i<5||i>12) ? mkWciOcpMaster : mkWciOcpMasterNull;  // only instance the 7 (0:4,13:14) we need
-    //return (i<6||i>9) ? mkWciOcpMaster : mkWciOcpMasterNull;  // only instance the 11 (0:5,10:14)  we need
-    return  mkWciOcpMaster; // all get WCI masters
+  function makeWciMaster (Integer i);
+    //return (i<5||i>12) ? mkWciMaster : mkWciMasterNull;  // only instance the 7 (0:4,13:14) we need
+    //return (i<6||i>9) ? mkWciMaster : mkWciMasterNull;  // only instance the 11 (0:5,10:14)  we need
+    return  mkWciMaster; // all get WCI masters
   endfunction
-  Vector#(Nwcit,WciOcpMasterIfc#(20)) wci <- genWithM(makeWciOcpMaster);  
+  Vector#(Nwcit,WciMasterIfc#(20)) wci <- genWithM(makeWciMaster);  
 
   Bit#(Nwcit)  wrkAttn;
   for (Integer i=0; i<iNwcit; i=i+1) wrkAttn[i]    = pack(wci[i].attn);
@@ -217,14 +217,14 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
     dispatched <= False;
   endrule
 
-  function WciOcp_m#(20) get_wci_Em (WciOcpMasterIfc#(20) i) = i.mas;
+  function Wci_m#(20) get_wci_Em (WciMasterIfc#(20) i) = i.mas;
 
 
-  function makeWciOcpExpander (Integer i);
-    return  mkWciOcpMtoEm(wci[i].mas); 
+  function makeWciExpander (Integer i);
+    return  mkWciMtoEm(wci[i].mas); 
   endfunction
-  Vector#(Nwcit,WciOcp_Em#(20)) wci_Emv <- genWithM(makeWciOcpExpander);  
-  //WciOcp_Em#(20)          wci_Em <- mkWciOcpMtoEm(wci.mas); 
+  Vector#(Nwcit,Wci_Em#(20)) wci_Emv <- genWithM(makeWciExpander);  
+  //Wci_Em#(20)          wci_Em <- mkWciMtoEm(wci.mas); 
 
   interface Server server = tlp.server;
   method GPS64_t cpNow = timeServ.gpsTime;

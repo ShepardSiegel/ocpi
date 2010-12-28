@@ -21,7 +21,7 @@ import Connectable::*;
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
-  interface Vector#(nWci,WciOcp_Es#(20)) wci_s;
+  interface Vector#(nWci,Wci_Es#(20)) wci_s;
   interface WmiEM4B                      wmiM0;
   interface WmiEM4B                      wmiM1;
   interface WmemiEM16B                   wmemiM;
@@ -37,14 +37,14 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   SMAdapter4BIfc    appW4    <-  mkSMAdapter4B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 
   // TODO: Use Default for tieOff...
-  WciOcp_Es#(20) tieOff0  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff1  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff5  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff6  <- mkWciOcpSlaveENull;
-  WciOcp_Es#(20) tieOff7  <- mkWciOcpSlaveENull;
+  Wci_Es#(20) tieOff0  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff1  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff5  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff6  <- mkWciSlaveENull;
+  Wci_Es#(20) tieOff7  <- mkWciSlaveENull;
 
   // Connect each worker to its WCI...
-  Vector#(nWci,WciOcp_Es#(20)) vWci;
+  Vector#(nWci,Wci_Es#(20)) vWci;
   vWci[0] = tieOff0;
   vWci[1] = tieOff1;
   vWci[2] = appW2.wciS0;

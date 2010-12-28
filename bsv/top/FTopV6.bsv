@@ -69,7 +69,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
 
   ReadOnly#(Bit#(2)) infLed    <- mkNullCrossingWire(noClock, ctop.led);
 
-  Vector#(Nwci_ftop,WciOcp_Em#(20)) vWci = ctop.wci_m;  // expose WCI from CTop
+  Vector#(Nwci_ftop,Wci_Em#(20)) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level board-specific workers..
   ICAPWorkerIfc    icap     <- mkICAPWorker(True,True,                      clocked_by p125Clk , reset_by(vWci[0].mReset_n));
@@ -77,11 +77,11 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   GbeWorkerIfc     gbe0     <- mkGbeWorker(gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
   DramServerIfc    dram0    <- mkDramServer(sys0_clk, sys0_rst,             clocked_by p125Clk , reset_by(vWci[4].mReset_n));
 
-  WciOcpMonitorIfc            wciMonW8         <- mkWciOcpMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
+  WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
   PMEMMonitorWsiIfc           pmemMonW8        <- mkPMEMMonitorWsi(      clocked_by p125Clk , reset_by p125Rst );
   mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by p125Clk , reset_by p125Rst );  // Connect the wciMon to an event monitor
   
-  WciOcp_Es#(NwciAddr) icapwci_Es <- mkWciOcpStoES(icap.wci_s, clocked_by p125Clk , reset_by p125Rst );
+  Wci_Es#(NwciAddr) icapwci_Es <- mkWciStoES(icap.wci_s, clocked_by p125Clk , reset_by p125Rst );
 
   // WCI...
   //mkConnection(vWci[0], icap.wci_s);    // worker 8

@@ -22,7 +22,7 @@ import XilinxCells::*;
 import XilinxExtra::*;
 
 interface ADCWorkerIfc;
-  interface WciOcp_s#(20) wci_s;              // WCI
+  interface Wci_s#(20) wci_s;              // WCI
   interface Wti_s#(64) wti_s;                 // WTI
   interface Wsi_Em#(12,32,4,8,0) wsiM0;       // WSI ADC Master
   (* prefix = "" *) interface AD9512Ifc adx;  // AD AD9512 Clock Driver
@@ -34,7 +34,7 @@ endinterface
 
 (* synthesize *)
 module mkADCWorker#(Clock sys0_clk, Reset sys0_rst, Clock adc_clk, Clock adc0_clk, Clock adc1_clk, Reset adcx_rst) (ADCWorkerIfc);
-  WciOcpSlaveIfc#(20)  wci                <-  mkWciOcpSlave;               // WCI
+  WciSlaveIfc#(20)  wci                <-  mkWciSlave;               // WCI
   Reg#(Bool)           sFlagState         <-  mkReg(False);             // Worker Attention
   Reg#(Bool)           splitReadInFlight  <-  mkReg(False);             // Asserted for Split Reads
   Reg#(Bool)           initOpInFlight     <-  mkReg(False);             // Asserted While Init-ing
@@ -202,7 +202,7 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);
   wci.ctlAck;
 endrule
 
-  interface WciOcp_s wci_s   = wci.slv;
+  interface Wci_s wci_s   = wci.slv;
   interface Wti_s wti_s      = wti.slv;
   interface Wsi_m wsiM0      = toWsiEM(wsiM.mas);
   interface AD9512Ifc  adx   = spiClk.adx;
