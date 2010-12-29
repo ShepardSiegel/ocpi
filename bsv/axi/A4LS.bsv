@@ -6,8 +6,8 @@ import ARAXI4L::*;
 import Bus::*;	
 import FIFO::*;	
 
-(* synthesize *)
-module mkA4LS#(parameter Bool hasDebugLogic) (A4LSIfc);
+(* synthesize, default_clock_osc="ACLK", default_reset="ARESETN" *)
+module mkA4LS#(parameter Bool hasDebugLogic) (A4L_Es);
 
   BusReceiver#(A4LAddrCmd)   a4wrAddr     <- mkBusReceiver;
   BusReceiver#(A4LWrData)    a4wrData     <- mkBusReceiver;
@@ -20,7 +20,6 @@ module mkA4LS#(parameter Bool hasDebugLogic) (A4LSIfc);
   Reg#(Bit#(8))              b19          <- mkReg(8'h19);
   Reg#(Bit#(8))              b1A          <- mkReg(8'h1A);
   Reg#(Bit#(8))              b1B          <- mkReg(8'h1B);
-
 
 rule a4l_cfwr; // AXI4-Lite Configuration Property Writes...
   let wa = a4wrAddr.out.first; a4wrAddr.out.deq;
@@ -39,13 +38,13 @@ rule a4l_cfwr; // AXI4-Lite Configuration Property Writes...
   $display("[%0d]: %m: AXI4-LITE CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wa.addr, wd.strb, wd.data);
 endrule
 
-
 rule a4l_cfrd;  // AXI4-=Lite Configuration Property Reads...
   let ra = a4rdAddr.out.first; a4rdAddr.out.deq;
   Bit#(32) rdat = 0;
   case (ra.addr[7:0]) matches
     'h00 : rdat = pack(r0);
     'h04 : rdat = pack(r4);
+    'h10 : rdat = 32'hF00DFACE;
     'h18 : rdat = {b1B,b1A,b19,b18};
   endcase
   a4rdResp.in.enq(A4LRdResp{data:rdat,resp:OKAY});
@@ -53,12 +52,10 @@ rule a4l_cfrd;  // AXI4-=Lite Configuration Property Reads...
   $display("[%0d]: %m: AXI4-LITE CONFIG READ RESPOSNE Data:%0x",$time, rdat);
 endrule
 
-  //interface A4LSIfc;
-    interface BusRecv wrAddr = a4wrAddr.in;
-    interface BusRecv wrData = a4wrData.in;
-    interface BusSend wrResp = a4wrResp.out;
-    interface BusRecv rdAddr = a4rdAddr.in;
-    interface BusSend rdResp = a4rdResp.out;
-  //endinterface
-
+  A4L_Es a4ls <- mkA4StoEs(A4LSIfc {wrAddr:a4wrAddr.in,
+                                    wrData:a4wrData.in,
+                                    wrResp:a4wrResp.out,
+                                    rdAddr:a4rdAddr.in,
+                                    rdResp:a4rdResp.out} );
+  return(a4ls);  // return the expanded interface
 endmodule

@@ -11,4 +11,6 @@ verilog work "../../rtl/mkWCIS2A4LM.v"
 verilog work "../../rtl/mkOPEDv5.v"
 verilog work "../../libsrc/hdl/ocpi/OPED.v"
 
+verilog work "../../rtl/mkA4LS.v"
+
 verilog work "../../libsrc/hdl/ocpi/fpgaTop_nf10.v"

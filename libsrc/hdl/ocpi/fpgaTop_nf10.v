@@ -115,33 +115,34 @@ end
   .DEBUG             (debug_oped)
 );
 
-/*
 
 // Instance and connect a simple AXI4-Lite Slave Device...
 // TODO: This module will be replaced with the nf10 "control plane"
- AXISLAVE axiSlave (
-  .ACLK              (ACLK),
-  .ARESETN           (ARESETN),
-  .S_AXI_AWADDR      (M_AXI_AWADDR),
-  .S_AXI_AWPROT      (M_AXI_AWPROT),
-  .S_AXI_AWVALID     (M_AXI_AWVALID),
-  .S_AXI_AWREADY     (M_AXI_AWREADY),
-  .S_AXI_WDATA       (M_AXI_WDATA),
-  .S_AXI_WSTRB       (M_AXI_WSTRB),
-  .S_AXI_WVALID      (M_AXI_WVALID),
-  .S_AXI_WREADY      (M_AXI_WREADY),
-  .S_AXI_BRESP       (M_AXI_BRESP),
-  .S_AXI_BVALID      (M_AXI_BVALID),
-  .S_AXI_BREADY      (M_AXI_BREADY),
-  .S_AXI_ARADDR      (M_AXI_ARADDR),
-  .S_AXI_ARPROT      (M_AXI_ARPROT),
-  .S_AXI_ARVALID     (M_AXI_ARVALID),
-  .S_AXI_ARREADY     (M_AXI_ARREADY),
-  .S_AXI_RDATA       (M_AXI_RDATA),
-  .S_AXI_RRESP       (M_AXI_RRESP),
-  .S_AXI_RVALID      (M_AXI_RVALID),
-  .S_AXI_RREADY      (M_AXI_RREADY)
+ mkA4LS axiSlave (
+  .ACLK        (ACLK),
+  .ARESETN     (ARESETN),
+  .AWADDR      (M_AXI_AWADDR),
+  .AWPROT      (M_AXI_AWPROT),
+  .AWVALID     (M_AXI_AWVALID),
+  .AWREADY     (M_AXI_AWREADY),
+  .WDATA       (M_AXI_WDATA),
+  .WSTRB       (M_AXI_WSTRB),
+  .WVALID      (M_AXI_WVALID),
+  .WREADY      (M_AXI_WREADY),
+  .BRESP       (M_AXI_BRESP),
+  .BVALID      (M_AXI_BVALID),
+  .BREADY      (M_AXI_BREADY),
+  .ARADDR      (M_AXI_ARADDR),
+  .ARPROT      (M_AXI_ARPROT),
+  .ARVALID     (M_AXI_ARVALID),
+  .ARREADY     (M_AXI_ARREADY),
+  .RDATA       (M_AXI_RDATA),
+  .RRESP       (M_AXI_RRESP),
+  .RVALID      (M_AXI_RVALID),
+  .RREADY      (M_AXI_RREADY)
 );
+
+/*
 
 // Instance and connect a loopback core from the ingress to the egress...
 // TODO: This module will be replaced with the nf10 "data plane"

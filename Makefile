@@ -11,6 +11,7 @@ ITEST10   ?= TB10
 ITEST11   ?= TB11
 ITEST12   ?= TB12
 OPED      ?= OPED
+A4LS      ?= A4LS
 RTEST5    ?= FTopV5
 RTESTS6   ?= FTopS6
 RTEST5a   ?= FTopV5_adc
@@ -24,6 +25,7 @@ BSVTST    ?= bsv/tst
 BSVAPP    ?= bsv/app
 BSVTOP    ?= bsv/top
 BSVINF    ?= bsv/inf
+BSVAXI    ?= bsv/axi
 BSVDIRS   ?= ./bsv/app:./bsv/axi:./bsv/dev:./bsv/inf:./bsv/prm:./bsv/top:./bsv/tst:./bsv/utl:./bsv/wip:./bsv/wrk
 
 OCAPP_S0    ?= OCApp_scenario0
@@ -273,6 +275,17 @@ verilog_oped: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		$(BSVINF)/$(OPED).bsv
 	#cp $(RTL)/mkOPEDv5.v $(VLG_HDL)/mk$(OPED).v
+
+######################################################################
+verilog_a4ls: $(OBJ)
+	
+	# compile to verilog backend for RTL
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		$(BSVAXI)/$(A4LS).bsv
 
 ######################################################################
 verilog_v5: $(OBJ)

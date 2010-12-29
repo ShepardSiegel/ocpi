@@ -29,7 +29,7 @@ typedef enum {OKAY, EXOKAY, SLVERR, DECERR} A4Resp deriving (Bits, Eq);  // Used
 
 typedef struct {   // Used for both the Write- and Read- Address channels...
   A4Prot    prot;
-  Bit#(20)  addr;
+  Bit#(32)  addr;
 } A4LAddrCmd deriving (Bits, Eq);  
 A4LAddrCmd  aAddrCmdDflt = A4LAddrCmd{addr:'0,prot:aProtDflt}; 
 
@@ -163,6 +163,12 @@ interface A4L_Eo;  // AXI4-Lite Explicit Observer
 endinterface
 
 
+// The following modules are used to adapt between an aggregated version of the interface, and a version
+// where the individual signal have been separated out. This is useful for modules which must provide the
+// "explict" versions of the interface. These modules are practically functions, their stateless, but use
+// DWires to provide the needed conflict freeness...
+
+// Master to Explicit Master
 // This module transforms a A4LMIfc to a signal-explicit A4L_Em...
 module mkA4MtoEm#(A4LMIfc arg) (A4L_Em);
   Wire#(Bool)      wrAddrRdy_w      <- mkDWire(False);
@@ -187,7 +193,7 @@ module mkA4MtoEm#(A4LMIfc arg) (A4L_Em);
 
   method Bit#(1)  mAWVALID = pack(arg.wrAddr.valid);
   method Action   sAWREADY = wrAddrRdy_w._write(True);
-  method Bit#(32) mAWADDR  = extend(arg.wrAddr.data.addr);  // zero fill the MSBs
+  method Bit#(32) mAWADDR  = arg.wrAddr.data.addr;
   method Bit#(3)  mAWPROT  = pack(arg.wrAddr.data.prot);   
 
   method Bit#(1)  mWVALID  = pack(arg.wrData.valid);
@@ -201,7 +207,7 @@ module mkA4MtoEm#(A4LMIfc arg) (A4L_Em);
 
   method Bit#(1)  mARVALID = pack(arg.rdAddr.valid);
   method Action   sARREADY = rdAddrRdy_w._write(True);
-  method Bit#(32) mARADDR  = extend(arg.rdAddr.data.addr);  // zero fill the MSBs
+  method Bit#(32) mARADDR  = arg.rdAddr.data.addr;
   method Bit#(3)  mARPROT  = pack(arg.rdAddr.data.prot);   
 
   method Action   sRVALID  = rdRespVal_w._write(True);
@@ -209,5 +215,84 @@ module mkA4MtoEm#(A4LMIfc arg) (A4L_Em);
   method Action   sRDATA   (Bit#(32) arg_rdata) = rdData_w._write(arg_rdata);
   method Action   sRRESP   (Bit#(2)  arg_rresp) = rdResp_w._write(arg_rresp);
 endmodule
+
+// Slave to Explicit Slave
+// This module transforms a A4LSIfc to a signal-explicit A4L_Es...
+module mkA4StoEs#(A4LSIfc arg) (A4L_Es);
+  Wire#(Bool)      wrAddrVal_w      <- mkDWire(False);
+  Wire#(Bool)      wrDataVal_w      <- mkDWire(False);
+  Wire#(Bool)      wrRespRdy_w      <- mkDWire(False);
+  Wire#(Bool)      rdAddrVal_w      <- mkDWire(False);
+  Wire#(Bool)      rdRespRdy_w      <- mkDWire(False);
+  Wire#(Bit#(32))  wrAddr_w         <- mkDWire(0);
+  Wire#(Bit#(3))   wrProt_w         <- mkDWire(0);
+  Wire#(Bit#(32))  wrData_w         <- mkDWire(0);
+  Wire#(Bit#(4))   wrStrb_w         <- mkDWire(0);
+  Wire#(Bit#(32))  rdAddr_w         <- mkDWire(0);
+  Wire#(Bit#(3))   rdProt_w         <- mkDWire(0);
+
+  // This rule wires the individual Action inputs back onto their respective BusSend and BusRecv channels...
+  (* no_implicit_conditions, fire_when_enabled *) rule doAlways (True);
+    arg.wrAddr.valid(wrAddrVal_w);
+    arg.wrData.valid(wrDataVal_w);
+    arg.wrResp.ready(wrRespRdy_w);
+    arg.rdAddr.valid(rdAddrVal_w);
+    arg.rdResp.ready(rdRespRdy_w);
+    arg.wrAddr.data(A4LAddrCmd{addr:wrAddr_w, prot:unpack(wrProt_w)});
+    arg.wrData.data(A4LWrData {data:wrData_w, strb:wrStrb_w});
+    arg.rdAddr.data(A4LAddrCmd{addr:rdAddr_w, prot:unpack(rdProt_w)});
+  endrule
+
+  method Action   mAWVALID = wrAddrVal_w._write(True);
+  method Bit#(1)  sAWREADY = pack(arg.wrAddr.ready);
+  method Action   mAWADDR    (Bit#(32) arg_waddr) = wrAddr_w._write(arg_waddr);
+  method Action   mAWPROT    (Bit#(3)  arg_wprot) = wrProt_w._write(arg_wprot);
+
+  method Action   mWVALID  = wrDataVal_w._write(True);
+  method Bit#(1)  sWREADY  = pack(arg.wrData.ready);
+  method Action   mWDATA     (Bit#(32) arg_wdata) = wrData_w._write(arg_wdata);
+  method Action   mWSTRB     (Bit#(4)  arg_wstrb) = wrStrb_w._write(arg_wstrb);
+
+  method Bit#(1)  sBVALID  = pack(arg.wrResp.valid);
+  method Action   mBREADY  = wrRespRdy_w._write(True);
+  method Bit#(2)  sBRESP   = pack(arg.wrResp.data);
+
+  method Action   mARVALID = rdAddrVal_w._write(True);
+  method Bit#(1)  sARREADY = pack(arg.rdAddr.ready);
+  method Action   mARADDR   (Bit#(32) arg_raddr) = rdAddr_w._write(arg_raddr);
+  method Action   mARPROT   (Bit#(3)  arg_rprot) = rdProt_w._write(arg_rprot);
+
+  method Bit#(1)  sRVALID  = pack(arg.rdResp.valid);
+  method Action   mRREADY  = rdRespRdy_w._write(True);
+  method Bit#(32) sRDATA   = pack(arg.rdResp.data.data);
+  method Bit#(2)  sRRESP   = pack(arg.rdResp.data.resp);
+endmodule
+
+instance Connectable#(A4L_Em, A4L_Es);
+  module mkConnection#(A4L_Em m, A4L_Es s) (Empty);
+    (* no_implicit_conditions, fire_when_enabled *) rule doAlways (True);
+      if (unpack(m.mAWVALID)) s.mAWVALID;
+      if (unpack(s.sAWREADY)) m.sAWREADY;
+      s.mAWADDR(m.mAWADDR);
+      s.mAWPROT(m.mAWPROT);
+      if (unpack(m.mWVALID)) s.mWVALID;
+      if (unpack(s.sWREADY)) m.sWREADY;
+      s.mWDATA(m.mWDATA);
+      s.mWSTRB(m.mWSTRB);
+      if (unpack(s.sBVALID)) m.sBVALID;
+      if (unpack(m.mBREADY)) s.mBREADY;
+      m.sBRESP(s.sBRESP);
+      if (unpack(m.mARVALID)) s.mARVALID;
+      if (unpack(s.sARREADY)) m.sARREADY;
+      s.mARADDR(m.mARADDR);
+      s.mARPROT(m.mARPROT);
+      if (unpack(s.sRVALID)) m.sRVALID;
+      if (unpack(m.mRREADY)) s.mRREADY;
+      m.sRDATA(s.sRDATA);
+      m.sRRESP(s.sRRESP);
+    endrule
+  endmodule
+endinstance
+
 
 endpackage: ARAXI4L
