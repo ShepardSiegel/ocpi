@@ -1,11 +1,12 @@
-## LX330T Generic UCF
+## LX330T Generic UCF - "Illite"
 ## Shepard Siegel for Atomic Rules LLC
 ## 2009-11-16 oc1001
+## 2010-05-05 pinout tweak
 
 CONFIG PART = 5vlx330tff1738-2;
 
-NET  "sys0_clkp"      LOC = J16;
-NET  "sys0_clkn"      LOC = J17;
+NET  "sys0_clkp"      LOC = J16 | IOSTANDARD="LVDS_25" | PULLUP;
+NET  "sys0_clkn"      LOC = J15 | IOSTANDARD="LVDS_25" | PULLUP;
 
 NET  "pci0_clkp"      LOC = AD4;
 NET  "pci0_clkn"      LOC = AD3;

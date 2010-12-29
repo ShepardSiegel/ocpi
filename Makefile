@@ -407,35 +407,25 @@ alder:
 	mv build/tmp-alder build/alder-`date +%Y%m%d_%H%M`
 	echo alder Build complete
 
-sx95t:
+shist:
 	mkdir -p build
-	rm -rf build/tmp-sx95t
-	cp -r $(BUILD_HDL) build/tmp-sx95t
-	cp ucf/sx95t.ucf build/tmp-sx95t
-	cp ucf/sx95t.xcf build/tmp-sx95t
-	cd build/tmp-sx95t; ./build_fpgaTop sx95t
-	mv build/tmp-sx95t build/sx95t-`date +%Y%m%d_%H%M`
-	echo sx95t Build complete
+	rm -rf build/tmp-shist
+	cp -r $(BUILD_HDL) build/tmp-shist
+	cp ucf/shist.ucf build/tmp-shist
+	cp ucf/shist.xcf build/tmp-shist
+	cd build/tmp-shist; ./build_fpgaTop shist
+	mv build/tmp-shist build/shist-`date +%Y%m%d_%H%M`
+	echo shist Build complete
 
-lx330:
+illite:
 	mkdir -p build
-	rm -rf build/tmp-lx330
-	cp -r $(BUILD_HDL) build/tmp-lx330
-	cp ucf/lx330.ucf build/tmp-lx330
-	cp ucf/lx330.xcf build/tmp-lx330
-	cd build/tmp-lx330; ./build_fpgaTop lx330
-	mv build/tmp-lx330 build/lx330-`date +%Y%m%d_%H%M`
-	echo lx330 Build complete
-
-tx240:
-	mkdir -p build
-	rm -rf build/tmp-tx240
-	cp -r $(BUILD_HDL) build/tmp-tx240
-	cp ucf/tx240.ucf build/tmp-tx240
-	cp ucf/tx240.xcf build/tmp-tx240
-	cd build/tmp-tx240; ./build_fpgaTop tx240
-	mv build/tmp-tx240 build/tx240-`date +%Y%m%d_%H%M`
-	echo tx240 Build complete
+	rm -rf build/tmp-illite
+	cp -r $(BUILD_HDL) build/tmp-illite
+	cp ucf/illite.ucf build/tmp-illite
+	cp ucf/illite.xcf build/tmp-illite
+	cd build/tmp-illite; ./build_fpgaTop illite
+	mv build/tmp-illite build/illite-`date +%Y%m%d_%H%M`
+	echo illite Build complete
 
 nf10:
 	mkdir -p build
@@ -447,15 +437,15 @@ nf10:
 	mv build/tmp-nf10 build/nf10-`date +%Y%m%d_%H%M`
 	echo nf10 Build complete
 
-fx130:
+biotite:
 	mkdir -p build
-	rm -rf build/tmp-fx130
-	cp -r $(BUILD_HDL) build/tmp-fx130
-	cp ucf/fx130.ucf build/tmp-fx130
-	cp ucf/fx130.xcf build/tmp-fx130
-	cd build/tmp-fx130; ./build_fpgaTop fx130
-	mv build/tmp-fx130 build/fx130-`date +%Y%m%d_%H%M`
-	echo fx130 Build complete
+	rm -rf build/tmp-biotite
+	cp -r $(BUILD_HDL) build/tmp-biotite
+	cp ucf/biotite.ucf build/tmp-biotite
+	cp ucf/biotite.xcf build/tmp-biotite
+	cd build/tmp-biotite; ./build_fpgaTop biotite
+	mv build/tmp-biotite build/biotite-`date +%Y%m%d_%H%M`
+	echo biotite Build complete
 
 ml605:
 	mkdir -p build
@@ -483,9 +473,9 @@ build_all:
 	make ml555
 	make xupv5
 	make alder
-	make sx95t
-	make lx330
-	make fx130
+	make shist
+	make illite
+	make biotite
 	make verilog_v6
 	make ml605
 	make sp605

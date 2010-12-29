@@ -1,6 +1,5 @@
-## OC1001-TX240 125 MHz XCF
-##
-## 2010-01-20 ssiegel Creation to convey 125 MHz core constraint to XST
+## FX330 - "Biotite"
+## Shepard Siegel for Atomic Rules LLC
 
 # Timing Constraints...
 NET "ftop/pci0_pcie_ep/trn_clk" TNM_NET = "TRNCLK";

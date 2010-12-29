@@ -1,4 +1,4 @@
-// fpgaTop_sx95t.v
+// fpgaTop_sx95t.v - "shist"
 
 module fpgaTop(
   input  wire        sys0_clkp,     // sys0 Clock +

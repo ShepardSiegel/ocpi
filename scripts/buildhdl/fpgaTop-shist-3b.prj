@@ -35,6 +35,7 @@ verilog work "../../rtl/mkPktMerge.v"
 verilog work "../../rtl/mkOCCP.v"
 verilog work "../../rtl/mkOCDP4B.v"
 verilog work "../../rtl/mkOCInf4B.v"
+verilog work "../../rtl/mkOCApp4B.v"
 
 verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkDelayWorker4B.v"
@@ -50,4 +51,4 @@ verilog work "../../rtl/mkDACWorker.v"
 verilog work "../../rtl/mkDramServerV5.v"
 
 verilog work "../../libsrc/hdl/ocpi/mkFTopV5_adc.v"
-verilog work "../../libsrc/hdl/ocpi/fpgaTop_sx95t.v"
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_shist.v"

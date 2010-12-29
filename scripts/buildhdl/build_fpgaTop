@@ -31,19 +31,13 @@ switch ($buildTarget)
     set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef100_v5.cdc
     breaksw
-  case sx95t:
+  case shist:
     set PART = xc5vsx95t-ff1136-2
     set PCIe = pcie-4243-v5-gtp-x8-125
     set FFT  = fft-v5-4k-strm-nat
     set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef104_v5.cdc
     breaksw
-  case tx240:
-    set PART = xc5vtx240t-ff1759-2
-    set PCIe = pcie-4243-v5-gtx-x8-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
-    set CSIN = csdef103_v5.cdc
   case nf10:
     set PART = xc5vtx240t-ff1759-2
     set PCIe = pcie-4243-v5-gtx-x8-125
@@ -51,7 +45,7 @@ switch ($buildTarget)
     set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef103_v5.cdc
     breaksw
-  case lx330:
+  case illite:
     set PART = xc5vlx330t-ff1738-2
     set PCIe = pcie-4243-v5-gtp-x8-125
     set FFT  = fft-v5-4k-strm-nat
