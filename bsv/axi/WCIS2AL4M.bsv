@@ -14,14 +14,14 @@ import FIFOF::*;
 import GetPut::*;
 
 interface WCIS2A4LMIfc;
-  interface WciOcp_Es#(20) wciS0;
-  interface A4LMIfc        axiM0;
+  interface Wci_Es#(20) wciS0;
+  interface A4LMIfc     axiM0;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkWCIS2A4LM#(parameter Bool hasDebugLogic) (WCIS2A4LMIfc);
 
-  WciOcpSlaveIfc #(20)      wci         <- mkWciOcpSlave;
+  WciSlaveIfc#(20)          wci         <- mkWciSlave;
   BusSender#(A4LAddrCmd)    a4wrAddr    <- mkBusSender(aAddrCmdDflt);
   BusSender#(A4LWrData)     a4wrData    <- mkBusSender(aWrDataDflt);
   BusReceiver#(A4LWrResp)   a4wrResp    <- mkBusReceiver;
@@ -61,7 +61,7 @@ rule wci_cfird_resp (rdInFlight);
   let ar = a4rdResp.out.first;
   //TODO: look at AXI read response code
   a4rdResp.out.deq;
-  wci.respPut.put(WciResp{resp:OK, data:ar.data}); // read response
+  wci.respPut.put(WciResp{resp:DVA, data:ar.data}); // read response
   rdInFlight <= False;
   $display("[%0d]: %m: WCI CONFIG READ RESPOSNE Data:%0x",$time, ar.data);
 endrule
@@ -70,7 +70,7 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; e
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);         wci.ctlAck; endrule
 
-  WciOcp_Es#(20) wci_Es <- mkWciOcpStoES(wci.slv); 
+  Wci_Es#(20) wci_Es <- mkWciStoES(wci.slv); 
 
   interface wciS0 = wci_Es;
   interface A4LMIfc axiM0;

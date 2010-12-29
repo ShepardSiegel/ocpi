@@ -8,9 +8,9 @@
 // This level is the top level of the nf10 FPGA, this is a stand-in for the real NETFPGA-10G top...
 
 module fpgaTop (
-  input  wire        pcie_clk_p,     // PCIe Clock +
-  input  wire        pcie_clk_n,     // PCIe Clock -
-  input  wire        pcie_reset_n,   // PCIe Reset
+  input  wire        pcie_clkp,      // PCIe Clock +
+  input  wire        pcie_clkn,      // PCIe Clock -
+  input  wire        pcie_rstn,      // PCIe Reset
   input  wire [7:0]  pcie_rxp,       // PCIe lanes...
   input  wire [7:0]  pcie_rxn,
   output wire [7:0]  pcie_txp,
@@ -66,9 +66,9 @@ end
 
 // Instance and connect the OPED component just as it will be instanced in nf10...
  OPED oped (
-  .PCIE_CLK_P        (pcie_clk_p),
-  .PCIE_CLK_N        (pcie_clk_n),
-  .PCIE_RSTN         (pcie_reset_n),
+  .PCIE_CLKP         (pcie_clkp),
+  .PCIE_CLKN         (pcie_clkn),
+  .PCIE_RSTN         (pcie_rstn),
   .PCIE_RXP          (pcie_rxp),
   .PCIE_RXN          (pcie_rxn),
   .PCIE_TXP          (pcie_txp),
@@ -114,6 +114,8 @@ end
   .S_AXIS_ERR_TDATA  (S_AXIS_ERR_TDATA),
   .DEBUG             (debug_oped)
 );
+
+/*
 
 // Instance and connect a simple AXI4-Lite Slave Device...
 // TODO: This module will be replaced with the nf10 "control plane"
@@ -166,4 +168,6 @@ end
   .M_AXIS_ERR_TDATA  (S_AXIS_ERR_TDATA)
 );
 
-endmodule: fpgaTop
+*/
+
+endmodule

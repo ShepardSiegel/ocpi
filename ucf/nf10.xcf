@@ -5,5 +5,5 @@
 ## 2010-11-02 ssiegel First build 
 
 # Timing Constraints...
-NET "oped/moped/pci_pcie_ep/trn_clk" TNM_NET = "TRNCLK";
+NET "oped/oped/pciw_pci0_pcie_ep/trn_clk" TNM_NET = "TRNCLK";
 TIMESPEC "TS_TRNCLK"  = PERIOD "TRNCLK" 125.00 MHz HIGH 50 % ;

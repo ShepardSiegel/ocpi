@@ -15,9 +15,9 @@
 
 module OPED (
                                       // PCIE Endpoint Connections...
-  input          PCIE_CLK_P, 
-  input          PCIE_CLK_N,
-  input          PCIE_RESET_N,
+  input          PCIE_CLKP, 
+  input          PCIE_CLKN,
+  input          PCIE_RSTN,
   input  [7:0]   PCIE_RXP,
   input  [7:0]   PCIE_RXN,
   output [7:0]   PCIE_TXP,
@@ -81,13 +81,13 @@ module OPED (
 // The code that follows is the "impedance-matching" to the underlying OPED core logic
 // This code, and the the submodules it instantiates, are intended to be functionally opaque
 // Here we instance mkOPED, which is the name of the BSV OPED implementation.
-// Alternate, future OPED implementations may be adapted and placed here, if desired.
+// Alternately, future OPED implementations may be adapted and placed here, if desired.
 // This adaptation layer may be removed at a later date when it is clear it is not needed
 
  mkOPEDv5 oped (
-  .pci0_clkp         (PCIE_CLK_P),
-  .pci0_clkn         (PCIE_CLK_N),
-  .RST_N_pci0_rstn   (PCIE_RESET_N),
+  .pci0_clkp         (PCIE_CLKP),
+  .pci0_clkn         (PCIE_CLKN),
+  .RST_N_pci0_rstn   (PCIE_RSTN),
   .pcie_rxp_i        (PCIE_RXP),
   .pcie_rxn_i        (PCIE_RXN),
   .pcie_txp          (PCIE_TXP),
@@ -95,25 +95,25 @@ module OPED (
   .p125clk           (ACLK),
   .CLK_GATE_p125clk  (),
   .RST_N_p125rst     (ARESETN),
-  .M_AXI_AWADDR      (M_AXI_AWADDR),
-  .M_AXI_AWPROT      (M_AXI_AWPROT),
-  .M_AXI_AWVALID     (M_AXI_AWVALID),
-  .M_AXI_AWREADY     (M_AXI_AWREADY),
-  .M_AXI_WDATA       (M_AXI_WDATA),
-  .M_AXI_WSTRB       (M_AXI_WSTRB),
-  .M_AXI_WVALID      (M_AXI_WVALID),
-  .M_AXI_WREADY      (M_AXI_WREADY),
-  .M_AXI_BRESP       (M_AXI_BRESP),
-  .M_AXI_BVALID      (M_AXI_BVALID),
-  .M_AXI_BREADY      (M_AXI_BREADY),
-  .M_AXI_ARADDR      (M_AXI_ARADDR),
-  .M_AXI_ARPROT      (M_AXI_ARPROT),
-  .M_AXI_ARVALID     (M_AXI_ARVALID),
-  .M_AXI_ARREADY     (M_AXI_ARREADY),
-  .M_AXI_RDATA       (M_AXI_RDATA),
-  .M_AXI_RRESP       (M_AXI_RRESP),
-  .M_AXI_RVALID      (M_AXI_RVALID),
-  .M_AXI_RREADY      (M_AXI_RREADY),
+  .axi4m_AWADDR      (M_AXI_AWADDR),
+  .axi4m_AWPROT      (M_AXI_AWPROT),
+  .axi4m_AWVALID     (M_AXI_AWVALID),
+  .axi4m_AWREADY     (M_AXI_AWREADY),
+  .axi4m_WDATA       (M_AXI_WDATA),
+  .axi4m_WSTRB       (M_AXI_WSTRB),
+  .axi4m_WVALID      (M_AXI_WVALID),
+  .axi4m_WREADY      (M_AXI_WREADY),
+  .axi4m_BRESP       (M_AXI_BRESP),
+  .axi4m_BVALID      (M_AXI_BVALID),
+  .axi4m_BREADY      (M_AXI_BREADY),
+  .axi4m_ARADDR      (M_AXI_ARADDR),
+  .axi4m_ARPROT      (M_AXI_ARPROT),
+  .axi4m_ARVALID     (M_AXI_ARVALID),
+  .axi4m_ARREADY     (M_AXI_ARREADY),
+  .axi4m_RDATA       (M_AXI_RDATA),
+  .axi4m_RRESP       (M_AXI_RRESP),
+  .axi4m_RVALID      (M_AXI_RVALID),
+  .axi4m_RREADY      (M_AXI_RREADY),
   /*
   .M_AXIS_DAT_TDATA  (M_AXIS_DAT_TDATA),
   .M_AXIS_DAT_TVALID (M_AXIS_DAT_TVALID),
@@ -145,4 +145,4 @@ module OPED (
   .debug             (DEBUG)
 );
 
-endmodule : OPED
+endmodule
