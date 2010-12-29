@@ -14,10 +14,10 @@ import GetPut::*;
 (* always_ready, always_enabled *)
 interface ICAP;
    method Bit#(32)   configOut;
-   method Bit#(1)    busy;
+   method Bool       busy;
    method Action     configIn(Bit#(32) i);
-   method Action     rdwrb(Bit#(1) i);       // Read, Active-Low For Write
-   method Action     csb(Bit#(1) i);         // Active-Low Chip Select
+   method Action     rdwrb(Bool i);     // True Read, False For Write
+   method Action     csb(Bool i);       // False for Chip Select
 endinterface: ICAP
 
 import "BVI" ICAP_VIRTEX5 =
@@ -88,10 +88,10 @@ module mkICAP (ICAPIfc);
 
   // Rank of pipeline regsiters surrounds ICAP for FUD about sync timing paramaters...
   rule drive_icap_control;
-    icap.csb    (pack(!icapCs));
-    icap.rdwrb   (pack(icapRd));
+    icap.csb         (!icapCs);
+    icap.rdwrb        (icapRd);
     icap.configIn     (icapIn);
-    icapBusy <= unpack(icap.busy);
+    icapBusy <=       (icap.busy);
     icapOut  <=        icap.configOut;
   endrule
 
@@ -122,6 +122,5 @@ module mkICAP (ICAPIfc);
   method Bit#(32) dwOutCount = outCount;
 
 endmodule
-
 
 endpackage: ICAP

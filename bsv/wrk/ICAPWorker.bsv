@@ -21,13 +21,13 @@ import Vector::*;
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface ICAPWorkerIfc;
-  interface Wci_s#(NwciAddr)                           wci_s;    // Worker Control and Configuration 
+  interface Wci_s#(NwciAddr)  wci_s;    // Worker Control and Configuration 
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICAPWorkerIfc);
 
-  WciSlaveIfc#(NwciAddr)   wci         <- mkWciSlave;
+  WciSlaveIfc#(NwciAddr)      wci         <- mkWciSlave;
   Reg#(Bit#(32))              icapCtrl    <- mkReg(0);
   Reg#(Bit#(32))              dwWritten   <- mkReg(0);
   Reg#(Bit#(32))              dwRead      <- mkReg(0);
