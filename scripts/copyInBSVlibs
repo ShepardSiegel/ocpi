@@ -4,7 +4,7 @@ set srcdir=$BLUESPECDIR/Verilog
 set dstdir=$OCPI_DIR/libsrc/hdl/bsv
 #set dstdir=../../opencpi/opencpi/hdl/prims/bsv
 
-foreach i ( BRAM1BE.v BRAM1.v BRAM2.v BypassWire.v BypassCrossingWire.v FIFO1.v FIFO2.v FIFO20.v MakeResetA.v RevertReg.v SizedFIFO.v SyncBit.v SyncFIFO.v SyncResetA.v ResetInverter.v ClockDiv.v ResetEither.v SyncReset0.v ResetToBool.v ClockInverter.v SyncRegister.v SyncHandshake.v SyncPulse.v TriState.v )
+foreach i ( BRAM1BE.v BRAM1.v BRAM2.v BypassWire.v BypassCrossingWire.v FIFO1.v FIFO10.v FIFO2.v FIFO20.v MakeResetA.v RevertReg.v SizedFIFO.v SyncBit.v SyncFIFO.v SyncResetA.v ResetInverter.v ClockDiv.v ResetEither.v SyncReset0.v ResetToBool.v ClockInverter.v SyncRegister.v SyncHandshake.v SyncPulse.v TriState.v )
   set srcfile=$srcdir/$i
   set dstfile=$dstdir/$i
   if (-e $srcfile && -e $dstfile) then
