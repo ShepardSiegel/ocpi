@@ -1,84 +1,67 @@
 // WCI2A4LM.bsv
 // Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import Accum::*;
+// This bridge enforces a serialization rule allowing only a single access in-flight at a time.
+// It does so with the token FIFO of depth 1. Any configuration read or write access takes the token,
+// any response gives the token back. The implicit conditions around the token guard the rules.
+
 import ARAXI4L::*;
 import OCWip::*;
 
-import Alias::*;
-import Bus::*;
-import Connectable::*;
-import DReg::*;
 import FIFO::*;	
-import FIFOF::*;	
 import GetPut::*;
 
 interface WCIS2A4LMIfc;
-  interface Wci_Es#(20) wciS0;
-  interface A4LMIfc     axiM0;
+  interface Wci_Es#(20) wciS0;  // WCI Slave
+  interface A4LMIfc     axiM0;  // AXI4-Lite Master
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkWCIS2A4LM#(parameter Bool hasDebugLogic) (WCIS2A4LMIfc);
+  WciSlaveIfc#(20)  wci     <- mkWciSlave;     // The WIP::WCI Slave Interface
+  A4LMasterIfc      a4l     <- mkA4LMaster;    // The AXI4-Lite Master Interface
+  FIFO#(Bit#(0))    token   <- mkFIFO1;        // Token to allow only one access in flight
 
-  WciSlaveIfc#(20)          wci         <- mkWciSlave;
-  BusSender#(A4LAddrCmd)    a4wrAddr    <- mkBusSender(aAddrCmdDflt);
-  BusSender#(A4LWrData)     a4wrData    <- mkBusSender(aWrDataDflt);
-  BusReceiver#(A4LWrResp)   a4wrResp    <- mkBusReceiver;
-  BusSender#(A4LAddrCmd)    a4rdAddr    <- mkBusSender(aAddrCmdDflt);
-  BusReceiver#(A4LRdResp)   a4rdResp    <- mkBusReceiver;
-  Reg#(Bool)                wrInFlight  <- mkReg(False);
-  Reg#(Bool)                rdInFlight  <- mkReg(False);
-
-(* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
+(* descending_urgency = "wci_ctl_op_complete,wci_ctl_op_start,wci_cfwr,wci_cfrd,wci_cfwr_resp,wci_cfrd_resp" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
-rule wci_cfwr (wci.configWrite && !wrInFlight); // WCI Configuration Property Writes...
+rule wci_cfwr (wci.configWrite); // WCI Configuration Property Write...
   let wciReq <- wci.reqGet.get;
-  a4wrAddr.in.enq(A4LAddrCmd{addr:extend(wciReq.addr), prot:aProtDflt});
-  a4wrData.in.enq(A4LWrData {strb:wciReq.byteEn, data:wciReq.data});
+  a4l.f.wrAddr.enq(A4LAddrCmd{addr:extend(wciReq.addr), prot:aProtDflt});
+  a4l.f.wrData.enq(A4LWrData {strb:wciReq.byteEn, data:wciReq.data});
+  token.enq(?);
   $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
-  wrInFlight <= True;
 endrule
 
-rule wci_cfwr_resp (wrInFlight);
-  let aw = a4wrResp.out.first;
-  //TODO: look at AXI write response code
-  a4wrResp.out.deq;
+rule wci_cfwr_resp;  // AXI Response from Configuration Write...
+  let aw = a4l.f.wrResp.first; //TODO: look at AXI write response code (assume OKAY for now)
+  a4l.f.wrResp.deq;
   wci.respPut.put(wciOKResponse); // write response
-  wrInFlight <= False;
+  token.deq;
   $display("[%0d]: %m: WCI CONFIG WRITE RESPOSNE",$time);
 endrule
 
-rule wci_cfrd (wci.configRead && !rdInFlight);  // WCI Configuration Property Reads...
+rule wci_cfrd (wci.configRead);  // WCI Configuration Property Read...
   let wciReq <- wci.reqGet.get;
-  a4rdAddr.in.enq(A4LAddrCmd{addr:extend(wciReq.addr), prot:aProtDflt});
-  rdInFlight <= True;
+  a4l.f.rdAddr.enq(A4LAddrCmd{addr:extend(wciReq.addr), prot:aProtDflt});
+  token.enq(?);
   $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x",$time, wciReq.addr, wciReq.byteEn);
 endrule
 
-rule wci_cfird_resp (rdInFlight);
-  let ar = a4rdResp.out.first;
-  //TODO: look at AXI read response code
-  a4rdResp.out.deq;
+rule wci_cfrd_resp;  // AXI Response from Configuration Read...
+  let ar = a4l.f.rdResp.first; //TODO: look at AXI read response code (assume OKAY for now)
+  a4l.f.rdResp.deq;
   wci.respPut.put(WciResp{resp:DVA, data:ar.data}); // read response
-  rdInFlight <= False;
+  token.deq;
   $display("[%0d]: %m: WCI CONFIG READ RESPOSNE Data:%0x",$time, ar.data);
 endrule
 
+// Since this bridge is a "worker", need to respect the WIP::WCI control operation disipline..
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);         wci.ctlAck; endrule
 
   Wci_Es#(20) wci_Es <- mkWciStoES(wci.slv); 
-
   interface wciS0 = wci_Es;
-  interface A4LMIfc axiM0;
-    interface BusSend wrAddr = a4wrAddr.out;
-    interface BusSend wrData = a4wrData.out;
-    interface BusRecv wrResp = a4wrResp.in;
-    interface BusSend rdAddr = a4rdAddr.out;
-    interface BusRecv rdResp = a4rdResp.in;
-  endinterface
-
+  interface A4LMIfc axiM0 = a4l.a4lm;
 endmodule

@@ -294,5 +294,73 @@ instance Connectable#(A4L_Em, A4L_Es);
   endmodule
 endinstance
 
+// Convienience IP...
+// These two modules encapsulate the five channels used for each AXI4-Lite Master and Slave attachement
+// They replace five explict Bus Sender/Receivers with a single module and the same methods
+// They allow AXI4-Lite Masters and Slaves FIFO methods on each of the primative channels
+
+interface A4LChannels;
+  interface FIFO#(A4LAddrCmd) wrAddr;
+  interface FIFO#(A4LWrData)  wrData;
+  interface FIFO#(A4LWrResp)  wrResp;
+  interface FIFO#(A4LAddrCmd) rdAddr;
+  interface FIFO#(A4LRdResp)  rdResp;
+endinterface
+
+interface A4LMasterIfc;
+  interface A4LMIfc     a4lm;
+  interface A4LChannels f;
+endinterface
+
+interface A4LSlaveIfc;
+  interface A4LSIfc     a4ls;
+  interface A4LChannels f;
+endinterface
+
+module mkA4LMaster (A4LMasterIfc);
+  BusSender#(A4LAddrCmd)    a4wrAddr    <- mkBusSender(aAddrCmdDflt);
+  BusSender#(A4LWrData)     a4wrData    <- mkBusSender(aWrDataDflt);
+  BusReceiver#(A4LWrResp)   a4wrResp    <- mkBusReceiver;
+  BusSender#(A4LAddrCmd)    a4rdAddr    <- mkBusSender(aAddrCmdDflt);
+  BusReceiver#(A4LRdResp)   a4rdResp    <- mkBusReceiver;
+
+  interface A4LMIfc a4lm;
+    interface BusSend wrAddr = a4wrAddr.out;
+    interface BusSend wrData = a4wrData.out;
+    interface BusRecv wrResp = a4wrResp.in;
+    interface BusSend rdAddr = a4rdAddr.out;
+    interface BusRecv rdResp = a4rdResp.in;
+  endinterface
+  interface A4LChannels f;
+    interface FIFO wrAddr = a4wrAddr.in;
+    interface FIFO wrData = a4wrData.in;
+    interface FIFO wrResp = a4wrResp.out;
+    interface FIFO rdAddr = a4rdAddr.in;
+    interface FIFO rdResp = a4rdResp.out;
+  endinterface
+endmodule
+
+module mkA4LSlave (A4LSlaveIfc);
+  BusReceiver#(A4LAddrCmd)    a4wrAddr    <- mkBusReceiver;
+  BusReceiver#(A4LWrData)     a4wrData    <- mkBusReceiver;
+  BusSender#(A4LWrResp)       a4wrResp    <- mkBusSender(aWrRespDflt);
+  BusReceiver#(A4LAddrCmd)    a4rdAddr    <- mkBusReceiver;
+  BusSender#(A4LRdResp)       a4rdResp    <- mkBusSender(aRdRespDflt);
+
+  interface A4LSIfc a4ls;
+    interface BusRecv wrAddr = a4wrAddr.in;
+    interface BusRecv wrData = a4wrData.in;
+    interface BusSend wrResp = a4wrResp.out;
+    interface BusRecv rdAddr = a4rdAddr.in;
+    interface BusSend rdResp = a4rdResp.out;
+  endinterface
+  interface A4LChannels f;
+    interface FIFO wrAddr = a4wrAddr.out;
+    interface FIFO wrData = a4wrData.out;
+    interface FIFO wrResp = a4wrResp.in;
+    interface FIFO rdAddr = a4rdAddr.out;
+    interface FIFO rdResp = a4rdResp.in;
+  endinterface
+endmodule
 
 endpackage: ARAXI4L

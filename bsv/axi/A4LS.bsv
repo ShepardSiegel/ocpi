@@ -2,29 +2,22 @@
 // Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import ARAXI4L::*;
-
-import Bus::*;	
 import FIFO::*;	
 
 (* synthesize, default_clock_osc="ACLK", default_reset="ARESETN" *)
 module mkA4LS#(parameter Bool hasDebugLogic) (A4L_Es);
-
-  BusReceiver#(A4LAddrCmd)   a4wrAddr     <- mkBusReceiver;
-  BusReceiver#(A4LWrData)    a4wrData     <- mkBusReceiver;
-  BusSender#(A4LWrResp)      a4wrResp     <- mkBusSender(aWrRespDflt);
-  BusReceiver#(A4LAddrCmd)   a4rdAddr     <- mkBusReceiver;
-  BusSender#(A4LRdResp)      a4rdResp     <- mkBusSender(aRdRespDflt);
-  Reg#(Bit#(32))             r0           <- mkReg(0);
-  Reg#(Bit#(32))             r4           <- mkReg(0);
-  Reg#(Bit#(8))              b18          <- mkReg(8'h18);
-  Reg#(Bit#(8))              b19          <- mkReg(8'h19);
-  Reg#(Bit#(8))              b1A          <- mkReg(8'h1A);
-  Reg#(Bit#(8))              b1B          <- mkReg(8'h1B);
+  A4LSlaveIfc     a4l   <- mkA4LSlave;     // The AXI4-Lite Slave Interface
+  Reg#(Bit#(32))  r0    <- mkReg(0);       // Some regsiters for testing...
+  Reg#(Bit#(32))  r4    <- mkReg(0);
+  Reg#(Bit#(8))   b18   <- mkReg(8'h18);
+  Reg#(Bit#(8))   b19   <- mkReg(8'h19);
+  Reg#(Bit#(8))   b1A   <- mkReg(8'h1A);
+  Reg#(Bit#(8))   b1B   <- mkReg(8'h1B);
 
 rule a4l_cfwr; // AXI4-Lite Configuration Property Writes...
-  let wa = a4wrAddr.out.first; a4wrAddr.out.deq;
-  let wd = a4wrData.out.first; a4wrData.out.deq;
-  case (wa.addr[7:0]) matches
+  let wa = a4l.f.wrAddr.first; a4l.f.wrAddr.deq;  // Get the write address
+  let wd = a4l.f.wrData.first; a4l.f.wrData.deq;  // Get the write data
+  case (wa.addr[7:0]) matches                     // Take some action with it...
     'h00 : r0  <= unpack(wd.data);
     'h04 : r4  <= unpack(wd.data);
     'h18 : begin
@@ -34,28 +27,24 @@ rule a4l_cfwr; // AXI4-Lite Configuration Property Writes...
         if (wd.strb[3]==1) b1B <=wd.data[31:24];
       end
   endcase
-  a4wrResp.in.enq(A4LWrResp{resp:OKAY});
+  a4l.f.wrResp.enq(A4LWrResp{resp:OKAY});         // Acknowledge the write
   $display("[%0d]: %m: AXI4-LITE CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wa.addr, wd.strb, wd.data);
 endrule
 
 rule a4l_cfrd;  // AXI4-=Lite Configuration Property Reads...
-  let ra = a4rdAddr.out.first; a4rdAddr.out.deq;
-  Bit#(32) rdat = 0;
-  case (ra.addr[7:0]) matches
-    'h00 : rdat = pack(r0);
-    'h04 : rdat = pack(r4);
-    'h10 : rdat = 32'hF00DFACE;
-    'h18 : rdat = {b1B,b1A,b19,b18};
+  let ra = a4l.f.rdAddr.first; a4l.f.rdAddr.deq;    // Get the read address
+  Bit#(32) rdat = ?;                                
+  case (ra.addr[7:0]) matches                     
+    'h00 : rdat = pack(r0);           // return r0
+    'h04 : rdat = pack(r4);           // return r4
+    'h10 : rdat = 32'hF00DFACE;       // return a constant
+    'h18 : rdat = {b1B,b1A,b19,b18};  // return little-endian
   endcase
-  a4rdResp.in.enq(A4LRdResp{data:rdat,resp:OKAY});
+  a4l.f.rdResp.enq(A4LRdResp{data:rdat,resp:OKAY}); // Return the read data
   $display("[%0d]: %m: AXI4-LITE CONFIG READ Addr:%0x",$time, ra.addr);
   $display("[%0d]: %m: AXI4-LITE CONFIG READ RESPOSNE Data:%0x",$time, rdat);
 endrule
 
-  A4L_Es a4ls <- mkA4StoEs(A4LSIfc {wrAddr:a4wrAddr.in,
-                                    wrData:a4wrData.in,
-                                    wrResp:a4wrResp.out,
-                                    rdAddr:a4rdAddr.in,
-                                    rdResp:a4rdResp.out} );
-  return(a4ls);  // return the expanded interface
+  A4L_Es a4ls <- mkA4StoEs(a4l.a4ls); // return the expanded interface...
+  return(a4ls); 
 endmodule
