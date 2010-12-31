@@ -14,7 +14,7 @@ import SRLFIFO::*;
 import GetPut::*;
 
 interface SMAdapterIfc#(numeric type ndw);
-  interface Wci_Es#(20)                                 wciS0;
+  interface Wci_Es#(20)                                    wciS0;
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmiM;
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiM0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiS0;

@@ -70,7 +70,7 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
        'h38 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.tBusyCount);
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-     wci.respPut.put(WciResp{resp:DVA data:rdat}); // read response
+     wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
   endrule
   
   // This rule contains the operations that take place in the Exists->Initialized control edge...

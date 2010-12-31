@@ -13,6 +13,8 @@ import TLPMF             ::*;
 import UNoC              ::*;
 import ARAXI4L           ::*;
 import WCIS2AL4M         ::*;
+import SMAdapter         ::*;
+import BiasWorker        ::*;
 
 // BSV Imports...
 import Clocks            ::*;
@@ -48,6 +50,7 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
   PCIEwrapIfc#(lanes) pciw  <- mkPCIEwrap(family,pci0_clkp, pci0_clkn, pci0_rstn);
   Clock p125Clk = pciw.pClk;
   Reset p125Rst = pciw.pRst;
+  Bool hasDebugLogic = True;
 
   // This is the inner body of mkOPED, which enjoys having the default 125 MHz Clock and Reset provided...
   module mkOPED_inner (OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
@@ -59,15 +62,31 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     Vector#(15,Wci_Em#(20)) vWci; vWci = cp.wci_Vm; // splay apart the individual Reset signals from the Control Plane
     Vector#(15, Reset) rst = newVector; for (Integer i=0; i<15; i=i+1) rst[i] = vWci[i].mReset_n;
 
-    WCIS2A4LMIfc  wci2axi <- mkWCIS2A4LM(True,reset_by rst[0]); // W1: WCI to AXI4-Lite Bridge
-    mkConnection(vWci[0], wci2axi.wciS0);                       // Connect the WCI to W1, the wci2axi bridge
-    OCDP4BIfc dp0 <- mkOCDP(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // W14: data-plane fabric consumer PULL Only
-    OCDP4BIfc dp1 <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // W15: data-plane fabric producer PUSH Only
+    WCIS2A4LMIfc  wci2axi <- mkWCIS2A4LM(hasDebugLogic,reset_by rst[0]);           // W0: WCI to AXI4-Lite Bridge
+    mkConnection(vWci[0], wci2axi.wciS0);                                          // Connect the WCI to W0, the wci2axi bridge
+    OCDP4BIfc dp0 <- mkOCDP(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // W13: data-plane fabric consumer PULL Only
+    OCDP4BIfc dp1 <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // W14: data-plane fabric producer PUSH Only
+    mkConnection(vWci[13], dp0.wci_s);
+    mkConnection(vWci[14], dp1.wci_s);
 
     mkConnection(pciw.client, noc.fab);   // PCIe to uNoC
     mkConnection(noc.cp,    cp.server);   // uNoC to Control Plane
     mkConnection(noc.dp0,   dp0.server);  // uNoC to Data Plane 0
     mkConnection(noc.dp1,   dp1.server);  // uNoC to Data Plane 1
+
+    //TODO: For now, instance the usual SMAdapater->BiasWorker->SMAdapter to allow DMA streaming and loopback testing
+    //At a later date, this will be hooked up to the AXI4-Stream Interfaces
+    SMAdapter4BIfc  appW2  <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by rst[2]); // W2: Read WMI to WSI-M 
+    BiasWorker4BIfc appW3  <-  mkBiasWorker4B  (              hasDebugLogic, reset_by rst[3]); // W3: Delay ahead of first SMAdapter
+    SMAdapter4BIfc  appW4  <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by rst[4]); // W4: WSI-S to WMI Write
+    mkConnection(vWci[2], appW2.wciS0);
+    mkConnection(vWci[3], appW3.wciS0);
+    mkConnection(vWci[4], appW4.wciS0);
+
+    mkConnection(appW2.wmiM,  dp0.wmiS0);    // W2<->DP0
+    mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
+    mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 BiasWorker WSI-M0 feeding W4 SMAdapter WSI-S0
+    mkConnection(appW4.wmiM,  dp1.wmiS0);    // W4<->DP1
 
     A4L_Em a4lm <- mkA4MtoEm(wci2axi.axiM0); // Expand the 5 concise AXI BusSend/Recv channels to explicit signals
 

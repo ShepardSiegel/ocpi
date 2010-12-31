@@ -28,8 +28,8 @@ interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
   interface Vector#(nWci_ctop,Wci_Em#(20))               wci_m;
-  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS0;  
-  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS1;  
+  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiDP0;  
+  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiDP1;  
   method    GPS64_t   cpNow;
   interface GPSIfc    gps;
 endinterface
@@ -80,8 +80,8 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
 
   // Collect the various data-plane WMI masters and provide a vector...
   //Vector#(2,WmiES4B) vWmi;
-  //vWmi[0] = dp0.wmiS1;
-  //vWmi[1] = dp1.wmiS1;
+  //vWmi[0] = dp0.wmiS0;
+  //vWmi[1] = dp1.wmiS0;
 
   interface Server server = noc.fab;
   method led      = cp.led;
@@ -89,8 +89,8 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   method GPS64_t cpNow      = cp.cpNow;
   interface GPSIfc   gps    = cp.gps;
   interface Vector   wci_m  = take(vWci);
-  interface          wmiS0  = dp0.wmiS1;
-  interface          wmiS1  = dp1.wmiS1;
+  interface          wmiDP0 = dp0.wmiS0;
+  interface          wmiDP1 = dp1.wmiS0;
 
 endmodule : mkOCInf_poly
 

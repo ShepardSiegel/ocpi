@@ -26,9 +26,9 @@ import ClientServer::*;
 import DefaultValue::*;
 
 interface OCDPIfc#(numeric type ndw);
-  interface Wci_Es#(20)       wci_s;    // Control and Configuration
+  interface Wci_Es#(20)          wci_s;    // Control and Configuration
   interface Wti_s#(64)           wti_s;    // Worker Time Interface (for timestamping)
-  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS1; // facing the application  (local)
+  interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS0; // facing the application  (local)
   interface Server#(PTW16,PTW16) server;   // facing the infrastructure (remote)
 endinterface
 
@@ -137,7 +137,7 @@ module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
   // Control Op logic pushed down into OCBufQ
   interface wci_s  = wci_Es;      // Provide the WCI interface
   interface wti_s  = wti.slv;     // Provide the WTI interface 
-  interface wmiS1  = wmi_Es;      // Provide the WMI interface
+  interface wmiS0  = wmi_Es;      // Provide the WMI interface
   interface server = tlp.server;  // Provide the TLP interface
 
 endmodule

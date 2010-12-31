@@ -9,8 +9,12 @@ verilog work "../../rtl/mkPktMerge.v"
 verilog work "../../rtl/mkOCCP.v"
 verilog work "../../rtl/mkWCIS2A4LM.v"
 verilog work "../../rtl/mkOPEDv5.v"
+verilog work "../../rtl/mkSMAdapter4B.v"
+verilog work "../../rtl/mkBiasWorker4B.v"
 verilog work "../../libsrc/hdl/ocpi/OPED.v"
 
+
 verilog work "../../rtl/mkA4LS.v"
+verilog work "../../libsrc/hdl/ocpi/AXIS_LOOPBACK.v"
 
 verilog work "../../libsrc/hdl/ocpi/fpgaTop_nf10.v"

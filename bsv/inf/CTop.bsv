@@ -57,8 +57,8 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   Vector#(Nwci_ftop, Wci_Em#(20)) wci_c2f = takeAt(iNwci_app, inf.wci_m);         // Take the unused WCI for FTop
 
   // WMI interfaces between App(masters) to Inf(Slaves)...
-  mkConnection(app.wmiM0, inf.wmiS0);
-  mkConnection(app.wmiM1, inf.wmiS1);
+  mkConnection(app.wmiM0, inf.wmiDP0);
+  mkConnection(app.wmiM1, inf.wmiDP1);
 
   interface Server server     = inf.server;  // Pass the sever interface provided by OCInf straight through
   method led                  = inf.led;

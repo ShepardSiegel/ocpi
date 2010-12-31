@@ -142,11 +142,9 @@ end
   .RREADY      (M_AXI_RREADY)
 );
 
-/*
-
 // Instance and connect a loopback core from the ingress to the egress...
 // TODO: This module will be replaced with the nf10 "data plane"
- AXILOOPBACK axiLoopback (
+ AXIS_LOOPBACK axisLoopback (
   .ACLK              (ACLK),
   .ARESETN           (ARESETN),
   .S_AXIS_DAT_TDATA  (M_AXIS_DAT_TDATA),
@@ -169,6 +167,5 @@ end
   .M_AXIS_ERR_TDATA  (S_AXIS_ERR_TDATA)
 );
 
-*/
 
 endmodule
