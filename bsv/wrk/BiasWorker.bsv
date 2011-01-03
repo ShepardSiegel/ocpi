@@ -21,7 +21,7 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;          // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));    // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc#(NwciAddr)     wci          <- mkWciSlave;   // WCI-Slave  convienenice logic
+  WciSlaveIfc#(NwciAddr)        wci          <- mkWciSlave;      // WCI-Slave  convienenice logic
   WsiSlaveIfc #(12,nd,nbe,8,0)  wsiS         <- mkWsiSlave;      // WSI-Slave  convienenice logic
   WsiMasterIfc#(12,nd,nbe,8,0)  wsiM         <- mkWsiMaster;     // WSI-Master convienenice logic
   Reg#(Bit#(32))                biasValue    <- mkRegU;          // storage for the biasValue
@@ -83,13 +83,12 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
   rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; endrule
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-
-  Wci_Es#(NwciAddr)   wci_Es <- mkWciStoES(wci.slv);  // Convert the conventional to explicit 
-  Wsi_Es#(12,nd,nbe,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);    // Convert the conventional to explicit 
+  Wci_Es#(NwciAddr)      wci_Es <- mkWciStoES(wci.slv);   // Convert the conventional to explicit 
+  Wsi_Es#(12,nd,nbe,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);  // Convert the conventional to explicit 
 
   // Interfaces provided...
   interface wciS0 = wci_Es;
-  interface wsiS0 = wsi_Es;                     // And use it here
+  interface wsiS0 = wsi_Es;
   interface wsiM0 = toWsiEM(wsiM.mas);
 
 endmodule: mkBiasWorker
