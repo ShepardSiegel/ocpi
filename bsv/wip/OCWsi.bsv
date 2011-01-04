@@ -4,6 +4,7 @@
 package OCWsi;
 
 import OCWipDefs::*;
+import OCPMDefs::*;
 
 import Clocks::*;
 import DefaultValue::*;
@@ -502,5 +503,83 @@ module mkWsiSlave (WsiSlaveIfc#(nb,nd,ng,nh,ni));
     method Action mReset_n = peerIsReady._write(True);
   endinterface
 endmodule
+
+//
+// WSI OBSERVER...
+//
+
+/*
+interface Wsi_Eo#(numeric type nb, numeric type nd, numeric type ng, numeric type nh, numeric type ni);
+  (* prefix="", always_enabled *)         method Action   mCmd         ((* port="MCmd" *)         Bit#(3)  arg_cmd);
+  (* prefix="", enable="MReqLast" *)      method Action   mReqLast;
+  (* prefix="", enable="MBurstPrecise" *) method Action   mBurstPrecise;
+  (* prefix="", always_enabled *)         method Action   mBurstLength ((* port="MBurstLength" *) Bit#(nb) arg_burstLength);
+  (* prefix="", always_enabled *)         method Action   mData        ((* port="MData" *)        Bit#(nd) arg_data);
+  (* prefix="", always_enabled *)         method Action   mByteEn      ((* port="MByteEn" *)      Bit#(ng) arg_byteEn);
+  (* prefix="", always_enabled *)         method Action   mReqInfo     ((* port="MReqInfo" *)     Bit#(nh) arg_reqInfo);
+  (* prefix="", always_enabled *)         method Action   mDataInfo    ((* port="MDataInfo" *)    Bit#(ni) arg_dataInfo);
+  (* prefix="", enable="SThreadBusy" *)   method Action   sThreadBusy;
+  (* prefix="", enable="SReset_n"*)       method Action   sReset_n;
+  (* prefix="", enable="MReset_n"*)       method Action   mReset_n;
+endinterface
+*/
+
+//
+// WsiObserver is convienience IP for OpenCPI that observes the WSI transactions
+//
+interface WsiObserverIfc#(numeric type nb, numeric type nd, numeric type ng, numeric type nh, numeric type ni);
+  interface Wsi_Eo#(nb,nd,ng,nh,ni)  wsi;
+  interface Get#(PMEM)               seen;
+endinterface
+
+module mkWciObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Add#(ng,0,4));
+  // Register the observer inputs to minimze and equalize the obseerved link's loading...
+  Reg#(Bit#(3))      r_mCmd          <-   mkReg(0);
+  Reg#(Bit#(1))      r_mReqLast      <-   mkDReg(0);
+  Reg#(Bit#(1))      r_mBurstPrecise <-   mkDReg(0);
+  Reg#(Bit#(nb))     r_mBurstLength  <-   mkReg(0);
+  Reg#(Bit#(nd))     r_mData         <-   mkReg(0);
+  Reg#(Bit#(ng))     r_mByteEn       <-   mkReg(0);
+  Reg#(Bit#(nh))     r_mReqInfo      <-   mkReg(0);
+  Reg#(Bit#(ni))     r_mDataInfo     <-   mkReg(0);
+  Reg#(Bit#(1))      r_sThreadBusy   <-   mkDReg(0);
+  Reg#(Bit#(1))      r_sReset_n      <-   mkDReg(0);
+  Reg#(Bit#(1))      r_mReset_n      <-   mkDReg(0);
+
+  FIFO#(PMEM)        evF             <-  mkFIFO;
+  Reg#(Bit#(3))      r_mCmdD         <-  mkReg(0);
+  Reg#(Bit#(1))      r_sResetnD      <-  mkReg(0);
+  Reg#(Bit#(1))      r_mResetnD      <-  mkReg(0);
+
+  // For observing temporal changes
+  (* fire_when_enabled, no_implicit_conditions *) rule doAlways (True);
+    r_mCmdD    <= r_mCmd;
+    r_sResetnD <= r_sReset_n;
+    r_mResetnD <= r_mReset_n;
+  endrule
+
+  rule request_detected (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
+    case (unpack(r_mCmd))
+      WR : evF.enq(PMEM_2DW (PM_2DW{eType:pmNibble(PMEV_WRITE_REQUEST,r_mByteEn), data0:r_mData}));
+    endcase
+    //$display("[%0d]: %m: WSI request code %0x", $time, pack(r_mCmd));
+  endrule
+
+  interface Wsi_Eo wsi;
+    method Action   mCmd         (Bit#(3)  arg_cmd);          r_mCmd           <= arg_cmd;         endmethod
+    method Action   mReqLast;                                 r_mReqLast       <= 1'b1;            endmethod
+    method Action   mBurstPrecise;                            r_mBurstPrecise  <= 1'b1;            endmethod
+    method Action   mBurstLength (Bit#(nb) arg_burstLength);  r_mBurstLength   <= arg_burstLength; endmethod
+    method Action   mData        (Bit#(nd) arg_data);         r_mData          <= arg_data;        endmethod
+    method Action   mByteEn      (Bit#(ng) arg_byteEn);       r_mByteEn        <= arg_byteEn;      endmethod
+    method Action   mReqInfo     (Bit#(nh) arg_reqInfo);      r_mReqInfo       <= arg_reqInfo;     endmethod
+    method Action   mDataInfo    (Bit#(ni) arg_datInfo);      r_mDataInfo      <= arg_datInfo;     endmethod
+    method Action   sThreadBusy;                              r_sThreadBusy    <= 1'b1;            endmethod
+    method Action   sReset_n;                                 r_sReset_n       <= 1'b1;            endmethod
+    method Action   mReset_n;                                 r_mReset_n       <= 1'b1;            endmethod
+  endinterface
+  interface Get seen = toGet(evF); // Get what we've "seen" from the event FIFO
+endmodule
+
 
 endpackage: OCWsi

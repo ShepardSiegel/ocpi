@@ -34,13 +34,13 @@ module mkTB11();
   Reg#(Bit#(16))              dstUnrollCnt   <- mkReg(0);       // Message Positions to go
   Reg#(Bit#(32))              dstDataOut     <- mkReg(0);       // DWORD ordinal count
 
-  WciOcpMonitorIfc            wciMon         <- mkWciOcpMonitor(8'h42); // monId=h42
-  PMEMMonitorWsiIfc           pmemMon        <- mkPMEMMonitorWsi;
+  WciMonitorIfc               wciMon         <- mkWciMonitor(8'h42); // monId=h42
+  PMEMMonitorIfc              pmemMon        <- mkPMEMMonitor;
 
-  mkConnection(wciMon.pmem, pmemMon.pmem);                   // Connect the wciMon to an event monitor
+  mkConnection(wciMon.pmem, pmemMon.pmem);                     // Connect the wciMon to an event monitor
 
   // Connect the PSD DUT's three interfaces...
-  Wci_Em#(20) wci_Em <- mkWciMtoEm(wci.mas);             // Convert the conventional to explicit 
+  Wci_Em#(20) wci_Em <- mkWciMtoEm(wci.mas);                   // Convert the conventional to explicit 
   mkConnectionMSO(wci_Em,  biasWorker.wciS0, wciMon.observe);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
   mkConnection(toWsiEM(wsiM.mas), biasWorker.wsiS0);           // Connect the Source wsiM to the biasWorker wsi-S input
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);         // Convert the conventional to explicit 

@@ -14,10 +14,10 @@ import StmtFSM::*;
 (* synthesize *)
 module mkTB12();
 
-  Reg#(Bit#(16))              simCycle       <- mkReg(0);        // simulation cycle counter
-  WciEMasterIfc#(20)          wci            <- mkWciEMaster; // WCI-OCP-Master convienenice logic
-  WsiMasterIfc#(12,32,4,8,0)  wsiM           <- mkWsiMaster;     // WSI-OCP-Master convienenice logic
-  WsiSlaveIfc #(12,32,4,8,0)  wsiS           <- mkWsiSlave;      // WSI-OCP-Slave  convienenice logic
+  Reg#(Bit#(16))              simCycle       <- mkReg(0);       // simulation cycle counter
+  WciEMasterIfc#(20)          wci            <- mkWciEMaster;   // WCI-OCP-Master convienenice logic
+  WsiMasterIfc#(12,32,4,8,0)  wsiM           <- mkWsiMaster;    // WSI-OCP-Master convienenice logic
+  WsiSlaveIfc #(12,32,4,8,0)  wsiS           <- mkWsiSlave;     // WSI-OCP-Slave  convienenice logic
 
   // It is each WCI master's job to generate for each WCI M-S pairing a mReset_n signal that can reset each worker
   // We send that reset in on the "reset_by" line to reset all state associated with worker module...
@@ -37,7 +37,7 @@ module mkTB12();
   WciMonitorIfc               wciMon         <- mkWciMonitor(8'h42); // monId=h42
   PMEMMonitorWsiIfc           pmemMon        <- mkPMEMMonitorWsi;
 
-  mkConnection(wciMon.pmem, pmemMon.pmem);                   // Connect the wciMon to an event monitor
+  mkConnection(wciMon.pmem, pmemMon.pmem);                     // Connect the wciMon to an event monitor
 
   // Connect the DUT's three interfaces...
   mkConnectionMSO(wci.mas, biasWorker.wciS0, wciMon.observe);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
@@ -131,8 +131,8 @@ module mkTB12();
 
     Bit#(32) dataGot = w.data;
 
-    //Bit#(32) dataExp = dstDataOut;
-    //if (dataGot != dataExp) $display("[%0d]: %m: wsi_checker MISMATCH: exp:%0x got:%0x srcMesgCount:%0x", $time, dataExp, dataGot, dstMesgCount);
+    Bit#(32) dataExp = dstDataOut;
+    if (dataGot != dataExp) $display("[%0d]: %m: wsi_checker MISMATCH: exp:%0x got:%0x srcMesgCount:%0x", $time, dataExp, dataGot, dstMesgCount);
 
     $display("[%0d]: %m: Consumer wordbin:%0d %04x, wordbin:%0d %04x", $time, dstDataOut, dataGot[15:0], dstDataOut+1, dataGot[31:16]);
 

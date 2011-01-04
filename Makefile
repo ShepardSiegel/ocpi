@@ -209,7 +209,7 @@ isim12: $(OBJ)
 		$(BSVTST)/$(ITEST12).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST12) -o runsim
-	./runsim -testplusarg bsvvcd
+	./runsim -testplusarg bscvcd
 
 	# create verilog executable
 	#cd $(OBJ) && bsc -vsim modelsim -keep-fires -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v

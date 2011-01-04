@@ -89,7 +89,7 @@ rule wci_cfrd (wciRx.configRead); // WCI Configuration Property Reads...
      'h1C : rdat = wsiS.extStatus.iMesgCount;
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   wciRx.respPut.put(WciResp{resp:DVA data:rdat}); // read response
+   wciRx.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
 endrule
 
 rule wci_ctrl_EiI (wciRx.ctlState==Exists && wciRx.ctlOp==Initialize);

@@ -8,6 +8,7 @@
 package OCWci;
 
 import OCWipDefs::*;
+import OCPMDefs::*;
 import OCWsi::*;
 import ProtocolMonitor::*;
 
@@ -897,11 +898,11 @@ endinterface
 //endmodule
 
 //
-// OBSERVER OBSERVER OBSERVER
+// WCI OBSERVER...
 //
 
 /*
-interface Wci_Eo#(numeric type na);  // Observer/Monitor...
+interface Wci_Eo#(numeric type na);  // WCI Observer/Monitor...
   (* prefix="", always_enabled *)          method Action   mCmd         ((* port="MCmd" *)        Bit#(3)  arg_cmd);
   (* prefix="", always_enabled *)          method Action   mAddrSpace   ((* port="MAddrSpace" *)  Bit#(1)  arg_addrSpace);
   (* prefix="", always_enabled *)          method Action   mByteEn      ((* port="MByteEn" *)     Bit#(4)  arg_byteEn);
@@ -916,11 +917,11 @@ endinterface
 */
 
 //
-// WciObserver is convienience IP for OpenCPI that observes the WCI::OCP transactions
+// WciObserver is convienience IP for OpenCPI that observes the WCI transactions
 //
 interface WciObserverIfc#(numeric type na);
-  interface Wci_Eo#(na)       wci;
-  interface Get#(PMWCIEvent)     seen;
+  interface Wci_Eo#(na)   wci;
+  interface Get#(PMEM)    seen;
 endinterface
 
 module mkWciObserver (WciObserverIfc#(na)) provisos(Add#(a_,na,32));
@@ -937,7 +938,7 @@ module mkWciObserver (WciObserverIfc#(na)) provisos(Add#(a_,na,32));
   Reg#(Bit#(2))     r_mFlag         <-  mkReg(0);
   Reg#(Bit#(1))     r_mResetn       <-  mkReg(0);
 
-  FIFO#(PMWCIEvent) evF             <-  mkFIFO;
+  FIFO#(PMEM)       evF             <-  mkFIFO;
   Reg#(Bit#(3))     r_mCmdD         <-  mkReg(0);
   Reg#(Bit#(2))     r_sRespD        <-  mkReg(0);
   Reg#(Bool)        readInFlight    <-  mkReg(False);
@@ -949,8 +950,8 @@ module mkWciObserver (WciObserverIfc#(na)) provisos(Add#(a_,na,32));
 
   rule request_detected (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
     case (unpack(r_mCmd))
-      WR : evF.enq(Event2DW (PMWCI2DW{eType:pmNibble(PMEV_WRITE_REQUEST,r_mByteEn), data0:extend(r_mAddr), data1:r_mData}));
-      RD : evF.enq(Event1DW (PMWCI1DW{eType:PMEV_READ_REQUEST, data0:extend(r_mAddr)}));
+      WR : evF.enq(PMEM_3DW (PM_3DW{eType:pmNibble(PMEV_WRITE_REQUEST,r_mByteEn), data0:extend(r_mAddr), data1:r_mData}));
+      RD : evF.enq(PMEM_2DW (PM_2DW{eType:PMEV_READ_REQUEST, data0:extend(r_mAddr)}));
     endcase
     readInFlight <= (unpack(r_mCmd)==RD);
     //$display("[%0d]: %m: WCI request code %0x", $time, pack(r_mCmd));
@@ -958,7 +959,7 @@ module mkWciObserver (WciObserverIfc#(na)) provisos(Add#(a_,na,32));
 
   rule response_detected (r_sRespD==pack(NULL) && r_sResp!=pack(NULL)); 
     case (unpack(r_sResp))
-      DVA  : evF.enq(Event1DW (PMWCI1DW{eType:readInFlight?PMEV_READ_RESPONSE:PMEV_WRITE_RESPONSE,data0:extend(r_sData)}));
+      DVA  : evF.enq(PMEM_2DW (PM_2DW{eType:readInFlight?PMEV_READ_RESPONSE:PMEV_WRITE_RESPONSE,data0:extend(r_sData)}));
     endcase
     readInFlight <= False;
     //$display("[%0d]: %m: WCI response code %0x", $time, pack(r_sResp));
@@ -966,10 +967,10 @@ module mkWciObserver (WciObserverIfc#(na)) provisos(Add#(a_,na,32));
 
   rule reset_changed (unpack(r_mResetnD ^ r_mResetn));
     if (unpack(r_mResetn)) begin
-      evF.enq(Event0DW (PMWCI0DW{eType:PMEV_UNRESET}));
+      evF.enq(PMEM_1DW (PM_1DW{eType:PMEV_UNRESET}));
       $display("[%0d]: %m: WCI reset DE-ASSERTED", $time);
     end else begin
-      evF.enq(Event0DW (PMWCI0DW{eType:PMEV_RESET}));
+      evF.enq(PMEM_1DW (PM_1DW{eType:PMEV_RESET}));
       $display("[%0d]: %m: WCI reset IS-ASSERTED", $time);
     end
   endrule
@@ -1084,24 +1085,19 @@ endmodule
 
 
 interface WciMonitorIfc;
-  interface Wci_Eo#(20)        observe;
-  interface Wsi_Em#(12,32,4,8,0)  pmem;
+  interface Wci_Eo#(20)  observe;
+  interface WsiEM4B      pmem;
 endinterface
 
 (* synthesize *)
 module mkWciMonitor#(parameter Bit#(8) monId)  (WciMonitorIfc);
   WciObserverIfc#(20) observer <- mkWciObserver;
-  PMEMGenWsiIfc       pmemgen  <- mkPMEMGenWsi(monId);
+  PMEMSendIfc         pmsender <- mkPMEMSend(monId);
 
-  // Add monitor/observer behavior here...
-  rule event_cmd;
-    let e <- observer.seen.get;
-    pmemgen.sendEvent(e);
-    //$display("[%0d]: %m: event seen", $time);
-  endrule
+  mkConnection(observer.seen.get, pmsender.seen.put);
 
   interface Wci_Eo observe  = observer.wci;
-  interface Get       pmem     = pmemgen.pmem; 
+  interface Get     pmem    = pmsender.pmem; 
 endmodule
 
 endpackage: OCWci
