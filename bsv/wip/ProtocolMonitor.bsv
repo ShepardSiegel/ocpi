@@ -109,19 +109,19 @@ module mkPMEMMonitor (PMEMMonitorIfc);
     msgActive <= !w.reqLast; 
   endrule
 
-  rule get_message_head_dw (pmemF.first.pm matches tagged Header .h);
+  rule get_message_head_dw (pmemF.first matches .g &&& g.pm matches tagged Header .h);
     pmh <= h;
     pmGrab <= unpack(parity(pack(pmh)));  // grab looks across all header bits (keeps datapath from dissolving)
     pmemF.deq;
     pmHead <= True;
-    if (pmemF.first.eom) eventCount <= eventCount + 1;
+    if (g.eom) eventCount <= eventCount + 1;
     $display("[%0d]: %m PMEM event: ", $time, fshow(h));
   endrule
 
-  rule gen_message_body_dw (pmemF.first.pm matches tagged Body .b);
+  rule gen_message_body_dw (pmemF.first matches .g &&& g.pm matches tagged Body .b);
     pmemF.deq;
     pmBody <= True;
-    if (pmemF.first.eom) eventCount <= eventCount + 1;
+    if (g.eom) eventCount <= eventCount + 1;
     $display("[%0d]: %m: PMEM MONITOR Event %0d,  Body data:%0x ", $time, eventCount, b);
   endrule
 
