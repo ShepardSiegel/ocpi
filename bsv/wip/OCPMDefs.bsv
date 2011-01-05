@@ -42,6 +42,16 @@ typedef struct {    // Protocol Monitor Event Message (PMEM) Header
   Bit#(8) info;     // Event-Specific Info
 } PMEMHeader deriving (Bits, Eq);
 
+typedef union tagged {
+  PMEMHeader Header;
+  Bit#(32)   Body;
+} PMEMHB deriving (Bits);
+
+typedef struct {
+  Bool   eom;
+  PMEMHB pm;
+} PMEMF deriving (Bits);
+
 typedef struct {
   PMEvent  eType;
 } PM_1DW deriving (Bits);

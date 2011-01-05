@@ -21,6 +21,8 @@ import TieOff::*;
 
 
 // PMEM Sender...
+// The mkPMEMSend module accepts data from its "seen" Interface, which may be 1 or more DWORDs wide/long.
+// It then serializes that information onto a ubiquitious WsiEM4B link.
 
 interface PMEMSendIfc;
   interface WsiEM4B     pmem;  // The protocol-monitor message sent on WSI
@@ -39,19 +41,19 @@ module mkPMEMSend#(parameter Bit#(8) srcID)  (PMEMSendIfc);
   rule serialize_message;
     let m = evF.first; 
     Bit#(3) len  = 0;
+    Bit#(8) inf  = 0;
     PMEvent eTyp = ?;
     Bit#(32) d0  = ?;
     Bit#(32) d1  = ?;
     case (m) matches
-      tagged PMEM_1DW  .e0: begin len=1; eTyp=e0.eType; end
-      tagged PMEM_2DW  .e1: begin len=2; eTyp=e1.eType; d0=e1.data0;              end
-      tagged PMEM_3DW  .e2: begin len=3; eTyp=e2.eType; d0=e2.data0; d1=e2.data1; end
-      tagged PMEM_NDWH .e3: begin len=7; eTyp=e3.eType; end
-      tagged PMEM_NDWB .e4: begin len=7;                end
-      tagged PMEM_NDWT .e5: begin len=7;                end
+      tagged PMEM_1DW  .e0: begin len=1; inf=1; eTyp=e0.eType; end
+      tagged PMEM_2DW  .e1: begin len=2; inf=2; eTyp=e1.eType; d0=e1.data0;              end
+      tagged PMEM_3DW  .e2: begin len=3; inf=3; eTyp=e2.eType; d0=e2.data0; d1=e2.data1; end
+      tagged PMEM_NDWH .e3: begin len=7; inf=4; eTyp=e3.eType; end
+      tagged PMEM_NDWB .e4: begin len=7; inf=5;                end
+      tagged PMEM_NDWT .e5: begin len=7; inf=6;                end
     endcase
-    srcTag <= srcTag + 1;
-    let h = PMEMHeader {srcID:srcID, eType:eTyp, srcTag:srcTag, info:0};
+    let h = PMEMHeader {srcID:srcID, eType:eTyp, srcTag:srcTag, info:inf};
     Bool eom = (idx==len);
     wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                              reqLast : (eom),
@@ -65,7 +67,10 @@ module mkPMEMSend#(parameter Bit#(8) srcID)  (PMEMSendIfc);
                                        endcase,
                              byteEn  : '1,
                            dataInfo  : '0 });
-    if (eom) evF.deq;
+    if (eom) begin
+      evF.deq;
+      srcTag <= srcTag + 1;
+    end
     idx <= eom ? 1 : idx+1;
   endrule
 
@@ -75,7 +80,8 @@ endmodule
 
 
 // PMEM Monitor...
-/*
+// The mkPMEMMonitor module accepts WSI stream data on a WsiES4B link. This could be from one or more PMEM Senders.
+// It "unwinds" the Protocol Monitor Event Message, recovering the PMEM semantics that were encoded for transmission on WSI 4B.
 
 interface PMEMMonitorIfc;
   interface WsiES4B  pmem;
@@ -85,54 +91,38 @@ interface PMEMMonitorIfc;
 endinterface
 
 module mkPMEMMonitor (PMEMMonitorIfc);
-  FIFOF#(PMEMF)      pmemF       <- mkFIFOF;   // PMEMF message input
+  WsiSlaveIfc#(12,32,4,8,0)  wsiS  <- mkWsiSlave;
+  Reg#(Bool)         msgActive   <- mkReg(False);
   Reg#(PMEMHeader)   pmh         <- mkRegU;
-  Reg#(Bit#(8))      dwRemain    <- mkRegU;
+  FIFOF#(PMEMF)      pmemF       <- mkFIFOF;  
   Reg#(Bit#(32))     eventCount  <- mkReg(0);
   Reg#(Bool)         pmHead      <- mkDReg(False);
   Reg#(Bool)         pmBody      <- mkDReg(False);
-  Reg#(Bool)         pmGrab      <- mkDReg(False);
-
-  WsiSlaveIfc#(12,32,4,8,0)  wsiS  <- mkWsiSlave;
-  Reg#(Bool)         msgActive   <- mkReg(False);
+  Reg#(Bool)         pmGrab      <- mkRegU;
 
   rule operate; wsiS.operate(); endrule
 
-  rule chomp;
+  rule chomp_wsi;
     WsiReq#(12,32,4,8,0) w <- wsiS.reqGet.get;  // ActionValue Get
-    if (!msgActive) begin // Header
-      pmemF.enq(PMEMF{eof:w.reqLast, pmem:Header (unpack(w.data))});
-      PMEMHeader h =  unpack(w.data);
-    end else begin        // Body
-      pmemF.enq(PMEMF{eof:w.reqLast,pmem:Body (w.data)});
-    end
-    msgActive <= !w.reqLast;
+    if (!msgActive) pmemF.enq(PMEMF {eom:w.reqLast, pm:(Header (unpack(w.data)))});
+    else            pmemF.enq(PMEMF {eom:w.reqLast, pm:(Body          (w.data))});
+    msgActive <= !w.reqLast; 
   endrule
 
-
-  rule get_message_head (pmemF.first.pmem matches tagged Header .h);
+  rule get_message_head_dw (pmemF.first.pm matches tagged Header .h);
     pmh <= h;
-    pmGrab <= unpack(parity(pack(pmh)));  // Just look across all header bits
-
+    pmGrab <= unpack(parity(pack(pmh)));  // grab looks across all header bits (keeps datapath from dissolving)
     pmemF.deq;
     pmHead <= True;
-    dwRemain <= h.length - 1;
-    if (h.length==1) begin 
-      eventCount <= eventCount + 1;
-      if (!pmemF.first.eof) $display("[%0d]: %m PMEM HEAD EOF ERROR", $time);
-    end
+    if (pmemF.first.eom) eventCount <= eventCount + 1;
     $display("[%0d]: %m PMEM event: ", $time, fshow(h));
   endrule
 
-  rule gen_message_body (pmemF.first.pmem matches tagged Body .b);
+  rule gen_message_body_dw (pmemF.first.pm matches tagged Body .b);
     pmemF.deq;
     pmBody <= True;
-    dwRemain <= dwRemain - 1;
-    if(dwRemain==1) begin
-      eventCount <= eventCount + 1;
-      if (!pmemF.first.eof) $display("[%0d]: %m PMEM BODY EOF ERROR", $time);
-    end
-    $display("[%0d]: %m: PMEM MONITOR Event %0d Body dwRemain:%0x data:%0x ", $time, eventCount, dwRemain, b);
+    if (pmemF.first.eom) eventCount <= eventCount + 1;
+    $display("[%0d]: %m: PMEM MONITOR Event %0d,  Body data:%0x ", $time, eventCount, b);
   endrule
 
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);
@@ -142,7 +132,5 @@ module mkPMEMMonitor (PMEMMonitorIfc);
   method Bool      body = pmBody;         
   method Bool      grab = pmGrab;         
 endmodule
-*/
-
 
 endpackage: ProtocolMonitor
