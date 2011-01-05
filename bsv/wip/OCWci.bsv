@@ -8,9 +8,9 @@
 package OCWci;
 
 import OCWipDefs::*;
-import OCPMDefs::*;
 import OCWsi::*;
-import ProtocolMonitor::*;
+import OCPMDefs::*;
+//import ProtocolMonitor::*;
 
 import Clocks::*;
 import ClientServer::*;
@@ -1081,23 +1081,6 @@ module mkWciTarget (WciTargetIfc);
 
   Wci_Es#(20) wci_Es <- mkWciStoES(target.slv);
   interface Wci_Em wciS0 = wci_Es;
-endmodule
-
-
-interface WciMonitorIfc;
-  interface Wci_Eo#(20)  observe;
-  interface WsiEM4B      pmem;
-endinterface
-
-(* synthesize *)
-module mkWciMonitor#(parameter Bit#(8) monId)  (WciMonitorIfc);
-  WciObserverIfc#(20) observer <- mkWciObserver;
-  PMEMSendIfc         pmsender <- mkPMEMSend(monId);
-
-  mkConnection(observer.seen.get, pmsender.seen.put);
-
-  interface Wci_Eo observe  = observer.wci;
-  interface Get     pmem    = pmsender.pmem; 
 endmodule
 
 endpackage: OCWci

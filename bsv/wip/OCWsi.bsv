@@ -6,6 +6,7 @@ package OCWsi;
 import OCWipDefs::*;
 import OCPMDefs::*;
 
+
 import Clocks::*;
 import DefaultValue::*;
 import GetPut::*;
@@ -532,7 +533,7 @@ interface WsiObserverIfc#(numeric type nb, numeric type nd, numeric type ng, num
   interface Get#(PMEM)               seen;
 endinterface
 
-module mkWciObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Add#(ng,0,4));
+module mkWsiObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Add#(ng,0,4));
   // Register the observer inputs to minimze and equalize the obseerved link's loading...
   Reg#(Bit#(3))      r_mCmd          <-   mkReg(0);
   Reg#(Bit#(1))      r_mReqLast      <-   mkDReg(0);
@@ -580,6 +581,5 @@ module mkWciObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Ad
   endinterface
   interface Get seen = toGet(evF); // Get what we've "seen" from the event FIFO
 endmodule
-
 
 endpackage: OCWsi

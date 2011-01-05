@@ -5,6 +5,7 @@ package ProtocolMonitor;
 
 import OCWipDefs::*;
 import OCPMDefs::*;
+import OCWci::*;
 import OCWsi::*;
 
 import Clocks::*;
@@ -115,14 +116,14 @@ module mkPMEMMonitor (PMEMMonitorIfc);
     pmemF.deq;
     pmHead <= True;
     if (g.eom) eventCount <= eventCount + 1;
-    $display("[%0d]: %m PMEM event: ", $time, fshow(h));
+    $display("[%0d]: %m: PMEM HEAD: ", $time, fshow(h));
   endrule
 
   rule gen_message_body_dw (pmemF.first matches .g &&& g.pm matches tagged Body .b);
     pmemF.deq;
     pmBody <= True;
     if (g.eom) eventCount <= eventCount + 1;
-    $display("[%0d]: %m: PMEM MONITOR Event %0d,  Body data:%0x ", $time, eventCount, b);
+    $display("[%0d]: %m: PMEM BODY: srcId:%x srcTag:%x, Event Count:%d. Body Data:%0x ", $time, pmh.srcID, pmh.srcTag, eventCount, b);
   endrule
 
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);
@@ -132,5 +133,43 @@ module mkPMEMMonitor (PMEMMonitorIfc);
   method Bool      body = pmBody;         
   method Bool      grab = pmGrab;         
 endmodule
+
+
+// The WciMonitor encapsulates the WCI Observer and PMEMSender...
+interface WciMonitorIfc;
+  interface Wci_Eo#(20)  observe;
+  interface WsiEM4B      pmem;
+endinterface
+
+(* synthesize *)
+module mkWciMonitor#(parameter Bit#(8) monId)  (WciMonitorIfc);
+  WciObserverIfc#(20) observer <- mkWciObserver;
+  PMEMSendIfc         pmsender <- mkPMEMSend(monId);
+
+  mkConnection(observer.seen.get, pmsender.seen.put);
+
+  interface Wci_Eo observe  = observer.wci;
+  interface Get     pmem    = pmsender.pmem; 
+endmodule
+
+
+// The WsiMonitor encapsulates the WSI Observer and PMEMSender...
+interface WsiMonitorIfc#(numeric type nb, numeric type nd, numeric type ng, numeric type nh, numeric type ni);
+  interface Wsi_Eo#(nb,nd,ng,nh,ni)  observe;
+  interface WsiEM4B                  pmem;
+endinterface
+
+//(* synthesize *)
+module mkWsiMonitor#(parameter Bit#(8) monId)  (WsiMonitorIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Add#(ng,0,4));
+  WsiObserverIfc#(nb,nd,ng,nh,ni) observer <- mkWsiObserver;
+  PMEMSendIfc                     pmsender <- mkPMEMSend(monId);
+
+  mkConnection(observer.seen.get, pmsender.seen.put);
+
+  interface Wsi_Eo  observe  = observer.wsi;
+  interface Get     pmem     = pmsender.pmem; 
+endmodule
+
+
 
 endpackage: ProtocolMonitor

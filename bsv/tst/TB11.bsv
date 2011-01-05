@@ -35,14 +35,17 @@ module mkTB11();
   Reg#(Bit#(32))              dstDataOut     <- mkReg(0);       // DWORD ordinal count
 
   WciMonitorIfc               wciMon         <- mkWciMonitor(8'h42); // monId=h42
-  PMEMMonitorIfc              pmemMon        <- mkPMEMMonitor;
+  PMEMMonitorIfc              pmemMon0       <- mkPMEMMonitor;
+  mkConnection(wciMon.pmem, pmemMon0.pmem);   // Connect the wciMon to an event monitor
 
-  mkConnection(wciMon.pmem, pmemMon.pmem);                     // Connect the wciMon to an event monitor
+  WsiMonitorIfc#(12,32,4,8,0) wsiMon         <- mkWsiMonitor(8'h52); // monId=h42
+  PMEMMonitorIfc              pmemMon1       <- mkPMEMMonitor;
+  mkConnection(wsiMon.pmem, pmemMon1.pmem);   // Connect the wciMon to an event monitor
 
   // Connect the PSD DUT's three interfaces...
   Wci_Em#(20) wci_Em <- mkWciMtoEm(wci.mas);                   // Convert the conventional to explicit 
   mkConnectionMSO(wci_Em,  biasWorker.wciS0, wciMon.observe);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
-  mkConnection(toWsiEM(wsiM.mas), biasWorker.wsiS0);           // Connect the Source wsiM to the biasWorker wsi-S input
+  mkConnectionMSO(toWsiEM(wsiM.mas), biasWorker.wsiS0, wsiMon.observe); // Connect the Source wsiM to the biasWorker wsi-S input
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);         // Convert the conventional to explicit 
   mkConnection(biasWorker.wsiM0,  wsi_Es);                     // Connect the biasWorker wsi-M output to the Sinc wsiS
 
