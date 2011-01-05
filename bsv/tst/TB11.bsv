@@ -38,16 +38,20 @@ module mkTB11();
   PMEMMonitorIfc              pmemMon0       <- mkPMEMMonitor;
   mkConnection(wciMon.pmem, pmemMon0.pmem);   // Connect the wciMon to an event monitor
 
-  WsiMonitorIfc#(12,32,4,8,0) wsiMon         <- mkWsiMonitor(8'h52); // monId=h42
+  WsiMonitorIfc#(12,32,4,8,0) wsiMon1        <- mkWsiMonitor(8'h52); // monId=h52
   PMEMMonitorIfc              pmemMon1       <- mkPMEMMonitor;
-  mkConnection(wsiMon.pmem, pmemMon1.pmem);   // Connect the wciMon to an event monitor
+  mkConnection(wsiMon1.pmem, pmemMon1.pmem);   // Connect the wciMon to an event monitor
+
+  WsiMonitorIfc#(12,32,4,8,0) wsiMon2        <- mkWsiMonitor(8'h62); // monId=h62
+  PMEMMonitorIfc              pmemMon2       <- mkPMEMMonitor;
+  mkConnection(wsiMon2.pmem, pmemMon2.pmem);   // Connect the wciMon to an event monitor
 
   // Connect the PSD DUT's three interfaces...
   Wci_Em#(20) wci_Em <- mkWciMtoEm(wci.mas);                   // Convert the conventional to explicit 
   mkConnectionMSO(wci_Em,  biasWorker.wciS0, wciMon.observe);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
-  mkConnectionMSO(toWsiEM(wsiM.mas), biasWorker.wsiS0, wsiMon.observe); // Connect the Source wsiM to the biasWorker wsi-S input
+  mkConnectionMSO(toWsiEM(wsiM.mas), biasWorker.wsiS0, wsiMon1.observe); // Connect the Source wsiM to the biasWorker wsi-S input
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);         // Convert the conventional to explicit 
-  mkConnection(biasWorker.wsiM0,  wsi_Es);                     // Connect the biasWorker wsi-M output to the Sinc wsiS
+  mkConnectionMSO(biasWorker.wsiM0,  wsi_Es, wsiMon2.observe);           // Connect the biasWorker wsi-M output to the Sinc wsiS
 
   // WCI Interaction
   // A sequence of control-configuration operartions to be performed...
@@ -104,7 +108,7 @@ module mkTB11();
     Bit#(8) opcode = 0;
     Bit#(16) wsiBurstLength = 16; // in Words (4B)
 
-    if (srcMesgCount < 2)
+    if (srcMesgCount < 3)
       wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                                reqLast : lastWord,
                                reqInfo : opcode,
@@ -119,7 +123,7 @@ module mkTB11();
     srcDataOut  <= srcDataOut  + 1;
     if (lastWord) begin
       srcMesgCount <= srcMesgCount + 1;
-      $display("[%0d]: %m: wsi_source: End of WSI Producer Egress: srcMesgCount:%0x opcode:%0x", $time, srcMesgCount, opcode);
+      $display("[%0d]: %m: wsi_source: End of WSI Producer: srcMesgCount:%0x opcode:%0x", $time, srcMesgCount, opcode);
     end
     srcUnrollCnt <= (lastWord) ? wsiBurstLength : srcUnrollCnt - 1;
   endrule
@@ -128,7 +132,8 @@ module mkTB11();
   // Consume Stream...
   rule wsi_checker (enWsiChecker);
     Bit#(8) opcode = wsiS.reqPeek.reqInfo;
-    Bit#(16) wsiBurstLength =  extend(wsiS.reqPeek.burstLength);
+    //Bit#(16) wsiBurstLength =  extend(wsiS.reqPeek.burstLength);
+    Bit#(16) wsiBurstLength = 16; // in Words (4B)
     Bit#(16) mesgLengthB    =  wsiBurstLength<<2;
     Bool lastWord  = (dstUnrollCnt == 1);
     WsiReq#(12,32,4,8,0) w <- wsiS.reqGet.get;
@@ -143,7 +148,7 @@ module mkTB11();
     dstDataOut  <= dstDataOut  + 2;
     if (lastWord) begin
       dstMesgCount <= dstMesgCount + 1;
-      $display("[%0d]: %m: wsi_source: End of WSI Consumer Ingress: dstMesgCount:%0x opcode:%0x", $time, dstMesgCount, opcode);
+      $display("[%0d]: %m: wsi_checker: End of WSI Consumer: dstMesgCount:%0x opcode:%0x", $time, dstMesgCount, opcode);
     end
     dstUnrollCnt <= (lastWord) ? wsiBurstLength : dstUnrollCnt - 1;
   endrule
