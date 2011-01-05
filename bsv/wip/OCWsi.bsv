@@ -509,22 +509,6 @@ endmodule
 // WSI OBSERVER...
 //
 
-/*
-interface Wsi_Eo#(numeric type nb, numeric type nd, numeric type ng, numeric type nh, numeric type ni);
-  (* prefix="", always_enabled *)         method Action   mCmd         ((* port="MCmd" *)         Bit#(3)  arg_cmd);
-  (* prefix="", enable="MReqLast" *)      method Action   mReqLast;
-  (* prefix="", enable="MBurstPrecise" *) method Action   mBurstPrecise;
-  (* prefix="", always_enabled *)         method Action   mBurstLength ((* port="MBurstLength" *) Bit#(nb) arg_burstLength);
-  (* prefix="", always_enabled *)         method Action   mData        ((* port="MData" *)        Bit#(nd) arg_data);
-  (* prefix="", always_enabled *)         method Action   mByteEn      ((* port="MByteEn" *)      Bit#(ng) arg_byteEn);
-  (* prefix="", always_enabled *)         method Action   mReqInfo     ((* port="MReqInfo" *)     Bit#(nh) arg_reqInfo);
-  (* prefix="", always_enabled *)         method Action   mDataInfo    ((* port="MDataInfo" *)    Bit#(ni) arg_dataInfo);
-  (* prefix="", enable="SThreadBusy" *)   method Action   sThreadBusy;
-  (* prefix="", enable="SReset_n"*)       method Action   sReset_n;
-  (* prefix="", enable="MReset_n"*)       method Action   mReset_n;
-endinterface
-*/
-
 //
 // WsiObserver is convienience IP for OpenCPI that observes the WSI transactions
 //
@@ -547,23 +531,36 @@ module mkWsiObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Ad
   Reg#(Bit#(1))      r_sReset_n      <-   mkDReg(0);
   Reg#(Bit#(1))      r_mReset_n      <-   mkDReg(0);
 
-  FIFO#(PMEM)        evF             <-  mkFIFO;
-  Reg#(Bit#(3))      r_mCmdD         <-  mkReg(0);
-  Reg#(Bit#(1))      r_sResetnD      <-  mkReg(0);
-  Reg#(Bit#(1))      r_mResetnD      <-  mkReg(0);
+  FIFO#(PMEM)        evF             <-   mkFIFO;
+  Reg#(Bit#(3))      r_mCmdD         <-   mkReg(0);
+  Reg#(Bit#(1))      r_sResetnD      <-   mkReg(0);
+  Reg#(Bit#(1))      r_mResetnD      <-   mkReg(0);
+
+  BoolEdgeIfc        e_sThreadBusy   <-   mkBoolEdge(unpack(r_sThreadBusy));
 
   // For observing temporal changes
   (* fire_when_enabled, no_implicit_conditions *) rule doAlways (True);
-    r_mCmdD    <= r_mCmd;
-    r_sResetnD <= r_sReset_n;
-    r_mResetnD <= r_mReset_n;
+    r_mCmdD        <= r_mCmd;
+    r_sResetnD     <= r_sReset_n;
+    r_mResetnD     <= r_mReset_n;
   endrule
 
   rule request_detected (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
     case (unpack(r_mCmd))
       WR : evF.enq(PMEM_2DW (PM_2DW{eType:pmNibble(PMEV_WRITE_REQUEST,r_mByteEn), data0:r_mData}));
     endcase
-    //$display("[%0d]: %m: WSI request code %0x", $time, pack(r_mCmd));
+  endrule
+
+  rule reqlast_detected (unpack(r_mReqLast)); 
+    evF.enq(PMEM_2DW (PM_2DW{eType:PMEV_REQLAST_ASSERT, data0:r_mData}));
+  endrule
+
+  rule backpressure_leading_detected (e_sThreadBusy.rising); 
+    evF.enq(PMEM_1DW (PM_1DW{eType:PMEV_BPRESSURE_ASSERT}));
+  endrule
+
+  rule backpressure_trailing_detected (e_sThreadBusy.falling); 
+    evF.enq(PMEM_1DW (PM_1DW{eType:PMEV_BPRESSURE_DEASSERT}));
   endrule
 
   interface Wsi_Eo wsi;

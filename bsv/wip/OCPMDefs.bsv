@@ -6,29 +6,32 @@ package OCPMDefs;
 import FShow::*;
 
 typedef enum {
-  PMEV_NONE           = 0,
-  PMEV_UNRESET        = 1,
-  PMEV_RESET          = 2,
-  PMEV_UNATTENTION    = 3,
-  PMEV_ATTENTION      = 4, 
-  PMEV_UNTERMINATE    = 5,
-  PMEV_TERMINATE      = 6,
-  PMEV_TIMEOUT        = 7,
-  PMEV_INITIALIZE     = 8,
-  PMEV_START          = 9,
-  PMEV_STOP           = 10,
-  PMEV_RELEASE        = 11,
-  PMEV_TEST           = 12,
-  PMEV_BEFORE_QUERY   = 13,
-  PMEV_AFTER_CONFIG   = 14,
-  PMEV_WRITE_REQUEST  = 8'h10,
-  PMEV_READ_REQUEST   = 8'h20,
-  PMEV_WRITE_RESPONSE = 8'h30,
-  PMEV_READ_RESPONSE  = 8'h40,
-  PMEV_REQUEST_ERROR  = 8'h80,
-  PMEV_RESPONSE_ERROR = 8'h90,
-  PMEV_XACTION_ERROR  = 8'hA0,
-  PMEV_PAD            = 255
+  PMEV_NONE               = 0,
+  PMEV_UNRESET            = 1,
+  PMEV_RESET              = 2,
+  PMEV_UNATTENTION        = 3,
+  PMEV_ATTENTION          = 4, 
+  PMEV_UNTERMINATE        = 5,
+  PMEV_TERMINATE          = 6,
+  PMEV_TIMEOUT            = 7,
+  PMEV_INITIALIZE         = 8,
+  PMEV_START              = 9,
+  PMEV_STOP               = 10,
+  PMEV_RELEASE            = 11,
+  PMEV_TEST               = 12,
+  PMEV_BEFORE_QUERY       = 13,
+  PMEV_AFTER_CONFIG       = 14,
+  PMEV_WRITE_REQUEST      = 8'h10,
+  PMEV_READ_REQUEST       = 8'h20,
+  PMEV_WRITE_RESPONSE     = 8'h30,
+  PMEV_READ_RESPONSE      = 8'h40,
+  PMEV_REQLAST_ASSERT     = 8'h50,
+  PMEV_BPRESSURE_ASSERT   = 8'h60,
+  PMEV_BPRESSURE_DEASSERT = 8'h61,
+  PMEV_REQUEST_ERROR      = 8'h80,
+  PMEV_RESPONSE_ERROR     = 8'h90,
+  PMEV_XACTION_ERROR      = 8'hA0,
+  PMEV_PAD                = 255
  } PMEvent deriving (Bits, Eq);
 
  function PMEvent pmNibble(PMEvent pme, Bit#(4) nibble);
@@ -97,29 +100,32 @@ typedef union tagged {
 instance FShow#(PMEvent);
   function Fmt fshow (PMEvent pme);
     case (pme)
-      PMEV_NONE            : return fshow("---None             ");
-      PMEV_UNRESET         : return fshow("---UnReset          ");
-      PMEV_RESET           : return fshow("---Reset            ");
-      PMEV_UNATTENTION     : return fshow("---UnAttention      ");
-      PMEV_ATTENTION       : return fshow("---Attention        ");
-      PMEV_UNTERMINATE     : return fshow("---UnTerminate      ");
-      PMEV_TERMINATE       : return fshow("---Terminate        ");
-      PMEV_TIMEOUT         : return fshow("---Timeout          ");
-      PMEV_INITIALIZE      : return fshow("---Initialize       ");
-      PMEV_START           : return fshow("---Start            ");
-      PMEV_STOP            : return fshow("---Stop             ");
-      PMEV_RELEASE         : return fshow("---Release          ");
-      PMEV_TEST            : return fshow("---Test             ");
-      PMEV_BEFORE_QUERY    : return fshow("---BeforeQuery      ");
-      PMEV_AFTER_CONFIG    : return fshow("---AfterConfig      ");
-      PMEV_WRITE_REQUEST   : return fshow("---WriteRequest     ");
-      PMEV_READ_REQUEST    : return fshow("---ReadRequest      ");
-      PMEV_WRITE_RESPONSE  : return fshow("---WriteResponse    ");
-      PMEV_READ_RESPONSE   : return fshow("---ReadResponse     ");
-      PMEV_REQUEST_ERROR   : return fshow("---RequestError     ");
-      PMEV_RESPONSE_ERROR  : return fshow("---ResponseError    ");
-      PMEV_XACTION_ERROR   : return fshow("---TransactionError ");
-      PMEV_PAD             : return fshow("---Pad              ");
+      PMEV_NONE                : return fshow("---None              ");
+      PMEV_UNRESET             : return fshow("---UnReset           ");
+      PMEV_RESET               : return fshow("---Reset             ");
+      PMEV_UNATTENTION         : return fshow("---UnAttention       ");
+      PMEV_ATTENTION           : return fshow("---Attention         ");
+      PMEV_UNTERMINATE         : return fshow("---UnTerminate       ");
+      PMEV_TERMINATE           : return fshow("---Terminate         ");
+      PMEV_TIMEOUT             : return fshow("---Timeout           ");
+      PMEV_INITIALIZE          : return fshow("---Initialize        ");
+      PMEV_START               : return fshow("---Start             ");
+      PMEV_STOP                : return fshow("---Stop              ");
+      PMEV_RELEASE             : return fshow("---Release           ");
+      PMEV_TEST                : return fshow("---Test              ");
+      PMEV_BEFORE_QUERY        : return fshow("---BeforeQuery       ");
+      PMEV_AFTER_CONFIG        : return fshow("---AfterConfig       ");
+      PMEV_WRITE_REQUEST       : return fshow("---WriteRequest      ");
+      PMEV_READ_REQUEST        : return fshow("---ReadRequest       ");
+      PMEV_WRITE_RESPONSE      : return fshow("---WriteResponse     ");
+      PMEV_READ_RESPONSE       : return fshow("---ReadResponse      ");
+      PMEV_REQLAST_ASSERT      : return fshow("---ReqLastAsserted   ");
+      PMEV_BPRESSURE_ASSERT    : return fshow("---BPressureAssert   ");
+      PMEV_BPRESSURE_DEASSERT  : return fshow("---BPressureDeassert ");
+      PMEV_REQUEST_ERROR       : return fshow("---RequestError      ");
+      PMEV_RESPONSE_ERROR      : return fshow("---ResponseError     ");
+      PMEV_XACTION_ERROR       : return fshow("---TransactionError  ");
+      PMEV_PAD                 : return fshow("---Pad               ");
     endcase
   endfunction
 endinstance

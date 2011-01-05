@@ -135,6 +135,9 @@ module mkPMEMMonitor (PMEMMonitorIfc);
 endmodule
 
 
+// Now come the Wxx Monitors which encapsulate the Wxx-specific observer, and the PMEM Sender above...
+
+
 // The WciMonitor encapsulates the WCI Observer and PMEMSender...
 interface WciMonitorIfc;
   interface Wci_Eo#(20)  observe;

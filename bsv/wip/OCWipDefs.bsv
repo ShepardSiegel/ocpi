@@ -84,4 +84,18 @@ function Get#(a) fifofToGet (FIFOF#(a) f);
  endinterface);
 endfunction: fifofToGet
 
+interface BoolEdgeIfc;
+  method Bool changing;
+  method Bool rising;
+  method Bool falling;
+endinterface
+
+module mkBoolEdge#(Bool src) (BoolEdgeIfc);
+  Reg#(Bool) srcD <- mkRegU;
+  rule doAlways; srcD <= src; endrule
+  method Bool changing =  src !=  srcD;
+  method Bool rising   =  src && !srcD;
+  method Bool falling  = !src &&  srcD;
+endmodule
+
 endpackage: OCWipDefs

@@ -77,10 +77,10 @@ module mkTB11();
     action let r <- wci.resp; endaction
 
     testOperating <= True;
-    dstUnrollCnt  <= 32;
+    dstUnrollCnt  <= 16;
     enWsiChecker  <= True;
 
-    srcUnrollCnt  <= 32;
+    srcUnrollCnt  <= 16;
     enWsiSource   <= True;
   endseq;
   FSM  wciSeqFsm  <- mkFSM(wciSeq);
@@ -102,9 +102,9 @@ module mkTB11();
   rule wsi_source (enWsiSource);
     Bool lastWord  = (srcUnrollCnt == 1);
     Bit#(8) opcode = 0;
-    Bit#(16) wsiBurstLength = 32; // in Words (4B)
+    Bit#(16) wsiBurstLength = 16; // in Words (4B)
 
-    if (srcMesgCount < 1)
+    if (srcMesgCount < 2)
       wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                                reqLast : lastWord,
                                reqInfo : opcode,
