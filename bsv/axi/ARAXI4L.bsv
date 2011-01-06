@@ -1,5 +1,5 @@
 // ARAXI4L Atomic Rules - AXI4-Lite Implementation
-// Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package ARAXI4L;
 

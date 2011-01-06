@@ -1,7 +1,7 @@
-// A4LS.bsv
-// Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// A4LS.bsv - A Basic AXI4-Lite Slave
+// Copyright (c) 2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import ARAXI4L::*;
+import ARAXI4L::*;  
 import FIFO::*;	
 
 (* synthesize, default_clock_osc="ACLK", default_reset="ARESETN" *)

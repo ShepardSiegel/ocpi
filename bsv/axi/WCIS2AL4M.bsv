@@ -1,5 +1,5 @@
-// WCI2A4LM.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// WCI2A4LM.bsv - OCP::WIP::WCI Slave bridged to AXI4-Lite Master
+// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // This bridge enforces a serialization rule allowing only a single access in-flight at a time.
 // It does so with the token FIFO of depth 1. Any configuration read or write access takes the token,
