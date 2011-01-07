@@ -10,14 +10,15 @@ import Bus::*;
 import FIFO::*;	
 import GetPut::*;
 
+// The modules below adapt between WSI and AXI-Stream (AXIS)
+// They use the established WSI convienience IP mkWsi{Master|Slave}, 
+// bit implement "in-place" the AXIfication, as the AXI spec can be volatile.
+// At some point, the AXI side could be moved to a mkAXIStream{Master|Slave} convienience IP.
+// For now, it is right here.
+
 interface WSItoAXIS32BIfc;
   interface WsiES32B  wsi;  // WSI-Slave 
   interface A4SEM32B  axi;  // AXI4-Stream Master
-endinterface 
-
-interface AXIStoWSI32BIfc;
-  interface A4SES32B  axi;  // AXI4-Stream Slave 
-  interface WsiEM32B  wsi;  // WSI-Master
 endinterface 
 
 (* synthesize *)
@@ -43,12 +44,18 @@ module mkWSItoAXIS32B (WSItoAXIS32BIfc);
   interface A4SEM32B  axi = axi_Em;
 endmodule
 
+
+interface AXIStoWSI32BIfc;
+  interface A4SES32B  axi;  // AXI4-Stream Slave 
+  interface WsiEM32B  wsi;  // WSI-Master
+endinterface 
+
 (* synthesize *)
 module mkAXIStoWSI32B (AXIStoWSI32BIfc);
   BusReceiver#(A4Stream#(256,32,0))  a4ss  <- mkBusReceiver;
   WsiMasterIfc#(12,256,32,8,0)       wsiM  <- mkWsiMaster;
 
-  A4StreamSIfc#(256,32,0) axisS = A4StreamSIfc { strm : a4ss.in};  // Place strm sub-interface in axisM interface
+  A4StreamSIfc#(256,32,0) axisS = A4StreamSIfc { strm : a4ss.in};  // Place strm sub-interface in axisS interface
 
   rule operate_action; wsiM.operate(); endrule
 
