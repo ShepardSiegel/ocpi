@@ -28,6 +28,20 @@ import Vector::*;
 // tg - number of bits in strobe
 // th - number of bits in keep
 
+// AXI4-S (AXIS) type synonyms...
+typedef A4Stream#(32, 4, 0) A4S4B;
+typedef A4Stream#(64, 8, 0) A4S8B;
+typedef A4Stream#(128,16,0) A4S16B;
+typedef A4Stream#(256,32,0) A4S32B;
+typedef A4S_Em#  (32, 4, 0) A4SEM4B;
+typedef A4S_Es#  (32, 4, 0) A4SES4B;
+typedef A4S_Em#  (64, 8, 0) A4SEM8B;
+typedef A4S_Es#  (64, 8, 0) A4SES8B;
+typedef A4S_Em#  (128,16,0) A4SEM16B;
+typedef A4S_Es#  (128,16,0) A4SES16B;
+typedef A4S_Em#  (256,32,0) A4SEM32B;
+typedef A4S_Es#  (256,32,0) A4SES32B;
+
 typedef struct {
   Bit#(td)  data;
   Bit#(tg)  strb;
@@ -71,7 +85,7 @@ interface A4S_Es;  // AXI4-Stream Explicit Slave
   (* prefix="", always_enabled  *)    method Action   mTDATA     ((* port="TDATA" *) Bit#(td) arg_data);
   (* prefix="", always_enabled  *)    method Action   mTSTRB     ((* port="TSTRB" *) Bit#(tg) arg_strb);
   (* prefix="", always_enabled  *)    method Action   mTKEEP     ((* port="TKEEP" *) Bit#(th) arg_keep);
-  (* prefix="", enable="TLAST" *)     method Action   mTLAST;
+  (* prefix="", enable="TLAST"  *)    method Action   mTLAST;
 endinterface
 
 (* always_ready *)
@@ -81,7 +95,7 @@ interface A4S_Eo;  // AXI4-Stream Explicit Observer
   (* prefix="", always_enabled  *)    method Action   mTDATA     ((* port="TDATA" *) Bit#(td) arg_data);
   (* prefix="", always_enabled  *)    method Action   mTSTRB     ((* port="TSTRB" *) Bit#(tg) arg_strb);
   (* prefix="", always_enabled  *)    method Action   mTKEEP     ((* port="TKEEP" *) Bit#(th) arg_keep);
-  (* prefix="", enable="TLAST" *)     method Action   mTLAST;
+  (* prefix="", enable="TLAST"  *)    method Action   mTLAST;
 endinterface
 
 
@@ -100,7 +114,7 @@ module mkA4StreamMtoEm#(A4StreamMIfc arg) (A4S_Em);
     arg.strm.ready(mTRdy_w);
   endrule
 
-  method Bit#(1)  mTVALID = pack(arg.wrAddr.valid);
+  method Bit#(1)  mTVALID = pack(arg.strm.valid);
   method Action   sTREADY = mTRdy_w._write(True);
   method Bit#(td) mTDATA  = arg.strm.data;
   method Bit#(tg) mTSTRB  = arg.strm.strb;
@@ -110,149 +124,39 @@ endmodule
 
 // Slave to Explicit Slave
 // This module transforms a A4StreamSIfc to a signal-explicit A4S_Es...
-module mkA4StoEs#(A4StreamSIfc arg) (A4S_Es);
-  Wire#(Bool)      wrAddrVal_w      <- mkDWire(False);
-  Wire#(Bool)      wrDataVal_w      <- mkDWire(False);
-  Wire#(Bool)      wrRespRdy_w      <- mkDWire(False);
-  Wire#(Bool)      rdAddrVal_w      <- mkDWire(False);
-  Wire#(Bool)      rdRespRdy_w      <- mkDWire(False);
-  Wire#(Bit#(32))  wrAddr_w         <- mkDWire(0);
-  Wire#(Bit#(3))   wrProt_w         <- mkDWire(0);
-  Wire#(Bit#(32))  wrData_w         <- mkDWire(0);
-  Wire#(Bit#(4))   wrStrb_w         <- mkDWire(0);
-  Wire#(Bit#(32))  rdAddr_w         <- mkDWire(0);
-  Wire#(Bit#(3))   rdProt_w         <- mkDWire(0);
+module mkA4StreamStoEs#(A4StreamSIfc arg) (A4S_Es);
+  Wire#(Bool)      mTVal_w    <- mkDWire(False);
+  Wire#(Bool)      mTLast_w   <- mkDWire(False);
+  Wire#(Bit#(td)   mTData_w   <- mkDWire(0);
+  Wire#(Bit#(tg))  mTStrb_w   <- mkDWire(0);
+  Wire#(Bit#(th))  mTKeep_w   <- mkDWire(0);
 
   // This rule wires the individual Action inputs back onto their respective BusSend and BusRecv channels...
   (* no_implicit_conditions, fire_when_enabled *) rule doAlways (True);
-    arg.wrAddr.valid(wrAddrVal_w);
-    arg.wrData.valid(wrDataVal_w);
-    arg.wrResp.ready(wrRespRdy_w);
-    arg.rdAddr.valid(rdAddrVal_w);
-    arg.rdResp.ready(rdRespRdy_w);
-    arg.wrAddr.data(A4LAddrCmd{addr:wrAddr_w, prot:unpack(wrProt_w)});
-    arg.wrData.data(A4LWrData {data:wrData_w, strb:wrStrb_w});
-    arg.rdAddr.data(A4LAddrCmd{addr:rdAddr_w, prot:unpack(rdProt_w)});
+    arg.strm.valid(mTVal_w);
+    arg.strm.data(A4Stream{data:mTData_w, strb:mTStrb_w, keep:mTKeep_w, last:mTLast_w});
   endrule
 
-  method Action   mAWVALID = wrAddrVal_w._write(True);
-  method Bit#(1)  sAWREADY = pack(arg.wrAddr.ready);
-  method Action   mAWADDR    (Bit#(32) arg_waddr) = wrAddr_w._write(arg_waddr);
-  method Action   mAWPROT    (Bit#(3)  arg_wprot) = wrProt_w._write(arg_wprot);
+  method Action   mTVALID  = mTVal_w._write(True);
+  method Bit#(1)  sTREADY  = pack(arg.strm.valid);
+  method Action   mTDATA   (Bit#(td) arg_data) = mTData_w._write(arg_data);  
+  method Action   mTSTRB   (Bit#(tg) arg_strb) = mTStrb_w._write(arg_strb);  
+  method Action   mTKEEP   (Bit#(th) arg_keep) = mTKeep_w._write(arg_keep);  
+  method Action   mTLAST  = mTLast_w._write(True);
 
-  method Action   mWVALID  = wrDataVal_w._write(True);
-  method Bit#(1)  sWREADY  = pack(arg.wrData.ready);
-  method Action   mWDATA     (Bit#(32) arg_wdata) = wrData_w._write(arg_wdata);
-  method Action   mWSTRB     (Bit#(4)  arg_wstrb) = wrStrb_w._write(arg_wstrb);
-
-  method Bit#(1)  sBVALID  = pack(arg.wrResp.valid);
-  method Action   mBREADY  = wrRespRdy_w._write(True);
-  method Bit#(2)  sBRESP   = pack(arg.wrResp.data);
-
-  method Action   mARVALID = rdAddrVal_w._write(True);
-  method Bit#(1)  sARREADY = pack(arg.rdAddr.ready);
-  method Action   mARADDR   (Bit#(32) arg_raddr) = rdAddr_w._write(arg_raddr);
-  method Action   mARPROT   (Bit#(3)  arg_rprot) = rdProt_w._write(arg_rprot);
-
-  method Bit#(1)  sRVALID  = pack(arg.rdResp.valid);
-  method Action   mRREADY  = rdRespRdy_w._write(True);
-  method Bit#(32) sRDATA   = pack(arg.rdResp.data.data);
-  method Bit#(2)  sRRESP   = pack(arg.rdResp.data.resp);
 endmodule
 
-instance Connectable#(A4L_Em, A4L_Es);
-  module mkConnection#(A4L_Em m, A4L_Es s) (Empty);
+instance Connectable#(A4S_Em, A4S_Es);
+  module mkConnection#(A4S_Em m, A4S_Es s) (Empty);
     (* no_implicit_conditions, fire_when_enabled *) rule doAlways (True);
-      if (unpack(m.mAWVALID)) s.mAWVALID;
-      if (unpack(s.sAWREADY)) m.sAWREADY;
-      s.mAWADDR(m.mAWADDR);
-      s.mAWPROT(m.mAWPROT);
-      if (unpack(m.mWVALID)) s.mWVALID;
-      if (unpack(s.sWREADY)) m.sWREADY;
-      s.mWDATA(m.mWDATA);
-      s.mWSTRB(m.mWSTRB);
-      if (unpack(s.sBVALID)) m.sBVALID;
-      if (unpack(m.mBREADY)) s.mBREADY;
-      m.sBRESP(s.sBRESP);
-      if (unpack(m.mARVALID)) s.mARVALID;
-      if (unpack(s.sARREADY)) m.sARREADY;
-      s.mARADDR(m.mARADDR);
-      s.mARPROT(m.mARPROT);
-      if (unpack(s.sRVALID)) m.sRVALID;
-      if (unpack(m.mRREADY)) s.mRREADY;
-      m.sRDATA(s.sRDATA);
-      m.sRRESP(s.sRRESP);
+      if (unpack(m.mTVALID)) s.mTVALID;
+      if (unpack(s.sTREADY)) m.sTREADY;
+      s.mTDATA(m.mTDATA);
+      s.mTSTRB(m.mTSTRB);
+      s.mTKEEP(m.mTKEEP);
+      if (unpack(m.mTLAST)) s.mTLAST;
     endrule
   endmodule
 endinstance
-
-// Convienience IP...
-// These two modules encapsulate the five channels used for each AXI4-Lite Master and Slave attachement
-// They replace five explict Bus Sender/Receivers with a single module and the same methods
-// They allow AXI4-Lite Masters and Slaves FIFO methods on each of the primative channels
-
-interface A4LChannels;
-  interface FIFO#(A4LAddrCmd) wrAddr;
-  interface FIFO#(A4LWrData)  wrData;
-  interface FIFO#(A4LWrResp)  wrResp;
-  interface FIFO#(A4LAddrCmd) rdAddr;
-  interface FIFO#(A4LRdResp)  rdResp;
-endinterface
-
-interface A4LMasterIfc;
-  interface A4LMIfc     a4lm;
-  interface A4LChannels f;
-endinterface
-
-interface A4LSlaveIfc;
-  interface A4LSIfc     a4ls;
-  interface A4LChannels f;
-endinterface
-
-module mkA4LMaster (A4LMasterIfc);
-  BusSender#(A4LAddrCmd)    a4wrAddr    <- mkBusSender(aAddrCmdDflt);
-  BusSender#(A4LWrData)     a4wrData    <- mkBusSender(aWrDataDflt);
-  BusReceiver#(A4LWrResp)   a4wrResp    <- mkBusReceiver;
-  BusSender#(A4LAddrCmd)    a4rdAddr    <- mkBusSender(aAddrCmdDflt);
-  BusReceiver#(A4LRdResp)   a4rdResp    <- mkBusReceiver;
-
-  interface A4LMIfc a4lm;
-    interface BusSend wrAddr = a4wrAddr.out;
-    interface BusSend wrData = a4wrData.out;
-    interface BusRecv wrResp = a4wrResp.in;
-    interface BusSend rdAddr = a4rdAddr.out;
-    interface BusRecv rdResp = a4rdResp.in;
-  endinterface
-  interface A4LChannels f;
-    interface FIFO wrAddr = a4wrAddr.in;
-    interface FIFO wrData = a4wrData.in;
-    interface FIFO wrResp = a4wrResp.out;
-    interface FIFO rdAddr = a4rdAddr.in;
-    interface FIFO rdResp = a4rdResp.out;
-  endinterface
-endmodule
-
-module mkA4LSlave (A4LSlaveIfc);
-  BusReceiver#(A4LAddrCmd)    a4wrAddr    <- mkBusReceiver;
-  BusReceiver#(A4LWrData)     a4wrData    <- mkBusReceiver;
-  BusSender#(A4LWrResp)       a4wrResp    <- mkBusSender(aWrRespDflt);
-  BusReceiver#(A4LAddrCmd)    a4rdAddr    <- mkBusReceiver;
-  BusSender#(A4LRdResp)       a4rdResp    <- mkBusSender(aRdRespDflt);
-
-  interface A4LSIfc a4ls;
-    interface BusRecv wrAddr = a4wrAddr.in;
-    interface BusRecv wrData = a4wrData.in;
-    interface BusSend wrResp = a4wrResp.out;
-    interface BusRecv rdAddr = a4rdAddr.in;
-    interface BusSend rdResp = a4rdResp.out;
-  endinterface
-  interface A4LChannels f;
-    interface FIFO wrAddr = a4wrAddr.out;
-    interface FIFO wrData = a4wrData.out;
-    interface FIFO wrResp = a4wrResp.in;
-    interface FIFO rdAddr = a4rdAddr.out;
-    interface FIFO rdResp = a4rdResp.in;
-  endinterface
-endmodule
 
 endpackage: ARAXI4S
