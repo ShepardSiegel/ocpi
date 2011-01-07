@@ -1,5 +1,5 @@
 // OCCP.bsv
-// Copyright (c) 2009 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package OCCP;
 
@@ -42,6 +42,7 @@ interface OCCPIfc#(numeric type nWci);
   interface Vector#(nWci,Wci_Em#(20)) wci_Vm;
   method GPS64_t cpNow;
   interface GPSIfc gps;
+  //method Bit#(512) uuid;
 endinterface
 
 typedef union tagged {
