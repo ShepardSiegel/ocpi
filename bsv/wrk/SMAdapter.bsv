@@ -31,7 +31,7 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc#(20)            wci               <- mkWciSlave;
+  WciSlaveIfc#(20)               wci               <- mkWciSlave;
   WmiMasterIfc#(14,12,nd,0,TMul#(ndw,4),32) wmi    <- mkWmiMaster;
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WsiSlaveIfc #(12,nd,nbe,8,0)   wsiS              <- mkWsiSlave;

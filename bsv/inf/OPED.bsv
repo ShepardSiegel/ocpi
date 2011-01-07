@@ -13,6 +13,8 @@ import TLPMF             ::*;
 import UNoC              ::*;
 import ARAXI4L           ::*;
 import WCIS2AL4M         ::*;
+import ARAXI4S           ::*;
+import WSIAXIS           ::*;
 import SMAdapter         ::*;
 import BiasWorker        ::*;
 
@@ -29,9 +31,9 @@ interface OPEDIfc#(numeric type lanes);
   interface PCIE_EXP#(lanes)       pcie;
   interface Clock                  p125clk;
   interface Reset                  p125rst;
-  interface A4L_Em                 axi4m;
-  //TODO: A4-Stream-Master
-  //TODO: A4-Stream-Slave
+  interface A4L_Em                 axi4m;    // The AXI4-Lite Master
+  interface A4SEM32B               axisM;    // The AXI-4-Stream Master
+  interface A4SES32B               axisS;    // The AXI-4-Stream Slave
   (*always_ready*) method Bit#(32) debug;
 endinterface: OPEDIfc
 

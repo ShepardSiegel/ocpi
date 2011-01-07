@@ -48,20 +48,20 @@ typedef struct {
   Bit#(th)  keep;
   Bool      last;
 } A4Stream#(numeric type td, numeric type tg, numeric type th) deriving (Bits, Eq);  
-A4Stream  aStrmDflt = A4Stream{data:0,strb:0,keep:0,last:False};
+A4Stream#(td,tg,th)  aStrmDflt = A4Stream{data:0,strb:0,keep:0,last:False};
 
 (* always_ready, always_enabled *)
-interface A4StreamMIfc;
-  interface BusSend#(A4Stream) strm;
+interface A4StreamMIfc#(numeric type td, numeric type tg, numeric type th);
+  interface BusSend#(A4Stream#(td,tg,th)) strm;
 endinterface
 
 (* always_ready, always_enabled *)
-interface A4StreamSIfc;
-  interface BusRecv#(A4Stream) strm;
+interface A4StreamSIfc#(numeric type td, numeric type tg, numeric type th);
+  interface BusRecv#(A4Stream#(td,tg,th)) strm;
 endinterface
 
-instance Connectable#(A4StreamMIfc, A4StreamSIfc);
-  module mkConnection#(A4StreamMIfc m, A4StreamSIfc s) (Empty);
+instance Connectable#(A4StreamMIfc#(td,tg,th), A4StreamSIfc#(td,tg,th));
+  module mkConnection#(A4StreamMIfc#(td,tg,th) m, A4StreamSIfc#(td,tg,th) s) (Empty);
     mkConnection(m.strm, s.strm);
   endmodule
 endinstance
@@ -69,17 +69,17 @@ endinstance
 // Explicit AXI per-signal naming to purposefully to avoid data-structures and have explict AXI names...
 
 (* always_ready *)
-interface A4S_Em;  // AXI4-Stream Explicit Master
+interface A4S_Em#(numeric type td, numeric type tg, numeric type th);  // AXI4-Stream Explicit Master
   (* prefix="", result="TVALID" *)    method Bit#(1)  mTVALID;   
   (* prefix="", enable="TREADY" *)    method Action   sTREADY;
   (* prefix="", result="TDATA"  *)    method Bit#(td) mTDATA;
   (* prefix="", result="TSTRB"  *)    method Bit#(tg) mTSTRB;
-  (* prefix="", result="TKEEP"  *)    method Bit#(th) mKEEP;
+  (* prefix="", result="TKEEP"  *)    method Bit#(th) mTKEEP;
   (* prefix="", result="TLAST"  *)    method Bit#(1)  mTLAST;   
 endinterface
 
 (* always_ready *)
-interface A4S_Es;  // AXI4-Stream Explicit Slave
+interface A4S_Es#(numeric type td, numeric type tg, numeric type th);  // AXI4-Stream Explicit Slave
   (* prefix="", enable="TVALID" *)    method Action   mTVALID;
   (* prefix="", result="TREADY" *)    method Bit#(1)  sTREADY;
   (* prefix="", always_enabled  *)    method Action   mTDATA     ((* port="TDATA" *) Bit#(td) arg_data);
@@ -89,7 +89,7 @@ interface A4S_Es;  // AXI4-Stream Explicit Slave
 endinterface
 
 (* always_ready *)
-interface A4S_Eo;  // AXI4-Stream Explicit Observer
+interface A4S_Eo#(numeric type td, numeric type tg, numeric type th);  // AXI4-Stream Explicit Observer
   (* prefix="", enable="TVALID" *)    method Action   mTVALID;
   (* prefix="", enable="TREADY" *)    method Action   sTREADY;
   (* prefix="", always_enabled  *)    method Action   mTDATA     ((* port="TDATA" *) Bit#(td) arg_data);
@@ -106,7 +106,7 @@ endinterface
 
 // Master to Explicit Master
 // This module transforms a A4StreamMIfc to a signal-explicit A4L_Em...
-module mkA4StreamMtoEm#(A4StreamMIfc arg) (A4S_Em);
+module mkA4StreamMtoEm#(A4StreamMIfc#(td,tg,th) arg) (A4S_Em#(td,tg,th));
   Wire#(Bool)      mTRdy_w      <- mkDWire(False);
 
   // This rule wires the individual Action inputs back onto their respective BusSend and BusRecv channels...
@@ -116,18 +116,18 @@ module mkA4StreamMtoEm#(A4StreamMIfc arg) (A4S_Em);
 
   method Bit#(1)  mTVALID = pack(arg.strm.valid);
   method Action   sTREADY = mTRdy_w._write(True);
-  method Bit#(td) mTDATA  = arg.strm.data;
-  method Bit#(tg) mTSTRB  = arg.strm.strb;
-  method Bit#(th) mTKEEP  = arg.strm.keep;
-  method Bit#(1)  mTLAST  = pack(arg.strm.last);
+  method Bit#(td) mTDATA  = arg.strm.data.data;
+  method Bit#(tg) mTSTRB  = arg.strm.data.strb;
+  method Bit#(th) mTKEEP  = arg.strm.data.keep;
+  method Bit#(1)  mTLAST  = pack(arg.strm.data.last);
 endmodule
 
 // Slave to Explicit Slave
 // This module transforms a A4StreamSIfc to a signal-explicit A4S_Es...
-module mkA4StreamStoEs#(A4StreamSIfc arg) (A4S_Es);
+module mkA4StreamStoEs#(A4StreamSIfc#(td,tg,th) arg) (A4S_Es#(td,tg,th));
   Wire#(Bool)      mTVal_w    <- mkDWire(False);
   Wire#(Bool)      mTLast_w   <- mkDWire(False);
-  Wire#(Bit#(td)   mTData_w   <- mkDWire(0);
+  Wire#(Bit#(td))  mTData_w   <- mkDWire(0);
   Wire#(Bit#(tg))  mTStrb_w   <- mkDWire(0);
   Wire#(Bit#(th))  mTKeep_w   <- mkDWire(0);
 
@@ -138,7 +138,7 @@ module mkA4StreamStoEs#(A4StreamSIfc arg) (A4S_Es);
   endrule
 
   method Action   mTVALID  = mTVal_w._write(True);
-  method Bit#(1)  sTREADY  = pack(arg.strm.valid);
+  method Bit#(1)  sTREADY  = pack(arg.strm.ready);
   method Action   mTDATA   (Bit#(td) arg_data) = mTData_w._write(arg_data);  
   method Action   mTSTRB   (Bit#(tg) arg_strb) = mTStrb_w._write(arg_strb);  
   method Action   mTKEEP   (Bit#(th) arg_keep) = mTKeep_w._write(arg_keep);  
@@ -146,8 +146,8 @@ module mkA4StreamStoEs#(A4StreamSIfc arg) (A4S_Es);
 
 endmodule
 
-instance Connectable#(A4S_Em, A4S_Es);
-  module mkConnection#(A4S_Em m, A4S_Es s) (Empty);
+instance Connectable#(A4S_Em#(td,tg,th), A4S_Es#(td,tg,th));
+  module mkConnection#(A4S_Em#(td,tg,th) m, A4S_Es#(td,tg,th) s) (Empty);
     (* no_implicit_conditions, fire_when_enabled *) rule doAlways (True);
       if (unpack(m.mTVALID)) s.mTVALID;
       if (unpack(s.sTREADY)) m.sTREADY;
