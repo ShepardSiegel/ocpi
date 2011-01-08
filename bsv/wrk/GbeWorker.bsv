@@ -16,11 +16,11 @@ import XilinxCells::*;
 import XilinxExtra::*;
 
 interface GbeWorkerIfc;
-  interface Wci_s#(20) wci_rx;             // WCI
-  interface Wci_s#(20) wci_tx;             // WCI
-  interface Wti_s#(64) wti_s;                 // WTI
-  interface Wsi_Em#(12,32,4,8,0) wsiM0;       // WSI Rx Packet Stream
-  interface Wsi_Es#(12,32,4,8,0) wsiS0;       // WSI Tx Packet Stream
+  interface WciES                wci_rx;   // WCI
+  interface WciES                wci_tx;   // WCI
+  interface Wti_s#(64)           wti_s;    // WTI
+  interface Wsi_Em#(12,32,4,8,0) wsiM0;    // WSI Rx Packet Stream
+  interface Wsi_Es#(12,32,4,8,0) wsiS0;    // WSI Tx Packet Stream
 
   interface GMII  gmii;    // The GMII link
   interface Reset mrst_n;  // GMII associated Reset
@@ -30,8 +30,8 @@ endinterface
 (* synthesize *)
 module mkGbeWorker#(Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeWorkerIfc);
 
-  WciSlaveIfc#(20)         wciRx        <-  mkWciSlave; 
-  WciSlaveIfc#(20)         wciTx        <-  mkWciSlave; 
+  WciESlaveIfc                wciRx        <-  mkWciESlave; 
+  WciESlaveIfc                wciTx        <-  mkWciESlave; 
   WtiSlaveIfc#(64)            wti          <-  mkWtiSlave(clocked_by sys1_clk, reset_by sys1_rst); 
   WsiMasterIfc#(12,32,4,8,0)  wsiM         <-  mkWsiMaster; 
   WsiSlaveIfc #(12,32,4,8,0)  wsiS         <-  mkWsiSlave;
@@ -64,7 +64,7 @@ module mkGbeWorker#(Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeWorke
 
 
 
-(* descending_urgency = "wci_ctrl_EiI, wciRx_ctl_op_start, wci_cfwr, wci_cfrd" *)
+(* descending_urgency = "wci_ctrl_EiI, wciRx_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
 rule wci_cfwr (wciRx.configWrite); // WCI Configuration Property Writes...

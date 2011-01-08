@@ -20,7 +20,7 @@ import XilinxCells::*;
 import XilinxExtra::*;
 
 interface DACWorkerIfc;
-  interface Wci_s#(20) wci_s;              // WCI
+  interface WciES      wci_s;                 // WCI
   interface Wti_s#(64) wti_s;                 // WTI
   interface Wsi_Es#(12,32,4,8,0) wsiS0;       // WSI DAC Slave
   interface P_Max19692Ifc dac0;               // Maxim 19662
@@ -28,7 +28,7 @@ endinterface
 
 (* synthesize *)
 module mkDACWorker#(Clock dac_clk, Reset dac_rst) (DACWorkerIfc);
-  WciSlaveIfc#(20)         wci                 <-  mkWciSlave;               // WCI
+  WciESlaveIfc                wci                 <-  mkWciESlave;              // WCI
   WtiSlaveIfc#(64)            wti                 <-  mkWtiSlave(clocked_by dac_clk, reset_by dac_rst); 
   Reg#(Bool)                  sFlagState          <-  mkReg(False);             // Worker Attention
   Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);             // Split WCI Read
@@ -121,7 +121,7 @@ endrule
 rule updateSflag (sFlagState); action wci.drvSFlag; endaction endrule
 rule do_operating (wci.isOperating); endrule
 
-(* descending_urgency = "wci_ctl_op_complete, wci_ctrl_EiI, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
+(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctrl_EiI, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
@@ -194,7 +194,7 @@ endrule
 
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv); // Convert the conventional to explicit 
 
-  interface Wci_s wci_s = wci.slv;
+  interface Wci_s    wci_s = wci.slv;
   interface Wti_s    wti_s = wti.slv;
   interface Wsi_s    wsiS0 = wsi_Es;
   interface Max19692Ifc dac0 = dacCore0.dac;

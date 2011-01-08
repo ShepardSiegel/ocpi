@@ -20,7 +20,7 @@ export DRAM::*;
 export DramServer::*;
 
 interface DramServerIfc;
-  interface Wci_s#(20) wci_s;   // Worker Control and Configuration
+  interface WciES         wci_s;   // Worker Control and Configuration
   interface DDR3_64       dram;    // The interface to the DRAM pins
   interface WmemiES16B    wmemiS;  // The Wmemi slave interface provided to the application
 endinterface
@@ -30,7 +30,7 @@ typedef 8 DqsWidth;
 (*synthesize*)
 module mkDramServer#(Clock sys0_clk, Reset sys0_rst) (DramServerIfc);
 
-  WciSlaveIfc#(20)              wci                        <- mkWciSlave;
+  WciESlaveIfc                     wci                        <- mkWciESlave;
   DramControllerUiIfc              memc                       <- mkDramControllerUi(sys0_clk, sys0_clk);
   WmemiSlaveIfc#(36,12,128,16)     wmemi                      <- mkWmemiSlave; 
   Reg#(Bit#(32))                   dramCtrl                   <- mkReg(0);
@@ -169,7 +169,7 @@ endrule
     endaction
   endfunction
 
-  (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd, advance_response" *)
+  (* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd, advance_response" *)
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE, advance_response" *)
 
   rule advance_response (!wci.configWrite && wmemiReadInFlight==0);
@@ -265,7 +265,7 @@ endrule
 
   WmemiES16B wmemi_Es <- mkWmemiStoES(wmemi.slv);
 
-  interface Wci_s    wci_s   = wci.slv;
+  interface WciES       wci_s   = wci.slv;
   interface DDR3_64     dram    = memc.dram; 
   interface WmemiES16B  wmemiS  = wmemi_Es;
 

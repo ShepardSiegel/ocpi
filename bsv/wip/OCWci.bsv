@@ -10,7 +10,6 @@ package OCWci;
 import OCWipDefs::*;
 import OCWsi::*;
 import OCPMDefs::*;
-//import ProtocolMonitor::*;
 
 import Clocks::*;
 import ClientServer::*;
@@ -92,7 +91,6 @@ instance FShow#(WCI_STATE);
   endfunction
 endinstance
 
-//WCI::{OCP|AXI} Agnostic... 
 
 typedef struct {
   WCI_CONFIG_REQ req;     // WCI Configuration Request Operation Type
@@ -136,6 +134,18 @@ interface WciTarget;                             // WCI Target, Protocol Indepen
   method Action                      attention;  // True to signal attention
   method Action                      present;    // True to signal present
 endinterface
+
+// Worker Control Interface (WCI)...
+//
+// na - number of bits in the Byte address
+
+// observation: The use of 20b (1MB) address space is not a WIP requirement, but rather a specification
+// of the of one control-plane implementaton (e.g. 15 workers with 1MB in a 16MB BAR). It has evolved as a
+// ad-hoc standard, and so these Type synonyms are used here for convienience...
+typedef Wci_m#(20)  WciM;
+typedef Wci_s#(20)  WciS;
+typedef Wci_Em#(20) WciEM;
+typedef Wci_Es#(20) WciES;
 
 typedef struct {
   OCP_CMD  cmd;           // OCP Command (non-Idle qualifies group)
@@ -896,6 +906,47 @@ endinterface
   //method ActionValue#(WciResp) resp  = _a.resp;
   //interface Wci_Em mas = wci_Em;
 //endmodule
+
+interface WciESlaveIfc;
+  interface WciES                slv;
+  interface Get#(WciReq#(20))    reqGet;
+  interface Put#(WciResp)        respPut;
+  method WciReq#(20)             reqPeek;
+  method Bool                    configWrite;
+  method Bool                    configRead;
+  method Bool                    controlOp;
+  method Bool                    wrkReset;
+  method Action                  drvSFlag();
+  method WCI_STATE               ctlState;      // expose the control state
+  method Bool                    isInitialized; // shorthand for ctlState==Initialized
+  method Bool                    isOperating;   // shorthand for ctlState==Operating
+  method Bool                    isSuspended;   // shorthand for ctlState==Suspended
+  method WCI_CONTROL_OP          ctlOp;         // expose control Op edges; ready only when ctlOpActive
+  method Action                  ctlAck;        // Acknowledge Current Control Operation
+endinterface
+
+module mkWciESlave (WciESlaveIfc);
+  WciSlaveIfc#(20) wslv   <- mkWciSlave;
+  WciES            wci_Es <- mkWciStoES(wslv.slv);   // Logic to go from concise to explicit
+  
+  // What we are doing here is returning the wslv interface, but we have to intercept *just* the first, slv, sub-interface...
+  interface WciEs       slv            = wci_Es;        // This is the only interface/method replaced
+  interface Get         reqGet         = wslv.reqGet;   // The rest of the interface/methods pass through...
+  interface Put         respPut        = wslv.respPut;
+  method WciReq#(20)    reqPeek        = wslv.reqPeek;
+  method Bool           configWrite    = wslv.configWrite;
+  method Bool           configRead     = wslv.configRead;
+  method Bool           controlOp      = wslv.controlOp;
+  method Bool           wrkReset       = wslv.wrkReset;
+  method Action         drvSFlag()     = wslv.drvSFlag();
+  method WCI_STATE      ctlState       = wslv.ctlState; 
+  method Bool           isInitialized  = wslv.isInitialized;
+  method Bool           isOperating    = wslv.isOperating; 
+  method Bool           isSuspended    = wslv.isSuspended; 
+  method WCI_CONTROL_OP ctlOp          = wslv.ctlOp; 
+  method Action         ctlAck         = wslv.ctlAck; 
+endmodule
+
 
 //
 // WCI OBSERVER...

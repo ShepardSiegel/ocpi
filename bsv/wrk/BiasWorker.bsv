@@ -10,7 +10,7 @@ import Vector::*;
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface BiasWorkerIfc#(numeric type ndw);
-  interface Wci_Es#(NwciAddr)                        wciS0;    // Worker Control and Configuration 
+  interface WciES                                       wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM0;    // WSI-M Stream Output
 endinterface 
@@ -21,7 +21,7 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;          // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));    // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc#(NwciAddr)        wci          <- mkWciSlave;      // WCI-Slave  convienenice logic
+  WciESlaveIfc                  wci          <- mkWciESlave;     // WCI-Slave  convienenice logic
   WsiSlaveIfc #(12,nd,nbe,8,0)  wsiS         <- mkWsiSlave;      // WSI-Slave  convienenice logic
   WsiMasterIfc#(12,nd,nbe,8,0)  wsiM         <- mkWsiMaster;     // WSI-Master convienenice logic
   Reg#(Bit#(32))                biasValue    <- mkRegU;          // storage for the biasValue
@@ -42,7 +42,7 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
 
   // Control and Configuration operations...
   
-  (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
+  (* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
   
   rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
@@ -83,11 +83,10 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
   rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; endrule
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  Wci_Es#(NwciAddr)      wci_Es <- mkWciStoES(wci.slv);   // Convert the conventional to explicit 
   Wsi_Es#(12,nd,nbe,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);  // Convert the conventional to explicit 
 
   // Interfaces provided...
-  interface wciS0 = wci_Es;
+  interface wciS0 = wci.slv;
   interface wsiS0 = wsi_Es;
   interface wsiM0 = toWsiEM(wsiM.mas);
 

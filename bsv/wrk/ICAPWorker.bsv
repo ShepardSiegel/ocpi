@@ -21,13 +21,13 @@ import Vector::*;
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface ICAPWorkerIfc;
-  interface Wci_s#(NwciAddr)  wci_s;    // Worker Control and Configuration 
+  interface WciES wci_s;  // Worker Control and Configuration 
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICAPWorkerIfc);
 
-  WciSlaveIfc#(NwciAddr)      wci         <- mkWciSlave;
+  WciESlaveIfc                wci         <- mkWciESlave;
   Reg#(Bit#(32))              icapCtrl    <- mkReg(0);
   Reg#(Bit#(32))              dwWritten   <- mkReg(0);
   Reg#(Bit#(32))              dwRead      <- mkReg(0);
@@ -73,7 +73,7 @@ module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICA
 
 Bit#(32) icapStatus = extend({pack(coutF.notEmpty), pack(readICAP), pack(writeICAP)});
 
-(* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
+(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...

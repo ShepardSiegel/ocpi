@@ -19,7 +19,7 @@ typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 typedef 23 Ndag;     // Number of bits in the delay address generator log2 of 16B words entries (e.g. 23=8M*16B = 128MB)
 
 interface DelayWorkerIfc#(numeric type ndw);
-  interface Wci_Es#(NwciAddr)                        wciS0;    // Worker Control and Configuration 
+  interface WciES                                       wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM0;    // WSI-M Stream Output
   interface WmemiEM16B                                  wmemiM;   // WMI Memory
@@ -31,7 +31,7 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc#(NwciAddr)      wci               <- mkWciSlave;
+  WciESlaveIfc                   wci               <- mkWciESlave;
   WsiSlaveIfc #(12,nd,nbe,8,0)   wsiS              <- mkWsiSlave;
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM              <- mkWsiMaster;
   WmemiMasterIfc#(36,12,128,16)  wmemi             <- mkWmemiMaster;
@@ -375,7 +375,7 @@ endrule
     pack(wide16Fc.notFull), pack(wide16Fc.notEmpty)};
 
 
-(* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
+(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
@@ -442,11 +442,10 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  Wci_Es#(NwciAddr)    wci_Es    <- mkWciStoES(wci.slv); 
   Wsi_Es#(12,nd,nbe,8,0)  wsi_Es    <- mkWsiStoES(wsiS.slv);
   WmemiEM16B              wmemi_Em  <- mkWmemiMtoEm(wmemi.mas);
 
-  interface wciS0  = wci_Es;
+  interface wciS0  = wci.slv;
   interface wsiS0  = wsi_Es;
   interface wsiM0  = toWsiEM(wsiM.mas);
   interface wmemiM = wmemi_Em;

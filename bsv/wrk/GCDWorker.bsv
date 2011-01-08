@@ -9,12 +9,12 @@ import FIFOF::*;
 import SpecialFIFOs::*;
 
 interface GCDWorkerIfc;
-  interface Wci_s#(20) wci_s;
+  interface WciES wci_s;
 endinterface 
 
 (* synthesize *)
 module mkGCDWorker#(Bit#(4) ordinalId) (GCDWorkerIfc);
-  WciSlaveIfc#(20)     wci        <- mkWciSlave;
+  WciESlaveIfc            wci        <- mkWciESlave;
   Reg#(Bit#(32))          r0         <- mkReg(0);
   Reg#(Bit#(32))          r4         <- mkReg(0);
   Reg#(Bit#(8))           b18        <- mkReg(8'h18);
@@ -50,7 +50,7 @@ module mkGCDWorker#(Bit#(4) ordinalId) (GCDWorkerIfc);
   endrule
 
 
-(* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
+(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...

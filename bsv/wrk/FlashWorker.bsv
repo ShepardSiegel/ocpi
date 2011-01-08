@@ -19,14 +19,14 @@ export Flash::*;
 export FlashWorker::*;
 
 interface FlashWorkerIfc;
-  interface Wci_s#(20)    wci_s;    // Worker Control and Configuration
+  interface WciES            wci_s;    // Worker Control and Configuration
   interface FLASH_IO#(24,16) flash;    // The interface to the Flash pins
 endinterface
 
 (*synthesize*)
 module mkFlashWorker (FlashWorkerIfc);
 
-  WciSlaveIfc#(20)          wci         <- mkWciSlave;
+  WciESlaveIfc                 wci         <- mkWciESlave;
   FlashControllerIfc#(24,16)   flashC      <- mkFlashController;
   Reg#(Bit#(32))               flashCtrl   <- mkReg(0);
   Reg#(Bit#(32))               aReg        <- mkReg(0);
@@ -36,7 +36,7 @@ module mkFlashWorker (FlashWorkerIfc);
 
   Bit#(32) flashStatus = extend({1'b1, pack(flashC.user.waitBit)});
 
-  (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd, advance_response" *)
+  (* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd, advance_response" *)
   (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE, advance_response" *)
 
   rule advance_response (!wci.configWrite);
@@ -90,8 +90,8 @@ module mkFlashWorker (FlashWorkerIfc);
   rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  interface Wci_s   wci_s   = wci.slv;
-  interface FLASH      flash   = flashC.flash; 
+  interface Wci_s     wci_s   = wci.slv;
+  interface FLASH     flash   = flashC.flash; 
 
 endmodule : mkFlashWorker
 
