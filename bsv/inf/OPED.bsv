@@ -89,12 +89,19 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 BiasWorker WSI-M0 feeding W4 SMAdapter WSI-S0
     mkConnection(appW4.wmiM,  dp1.wmiS0);    // W4<->DP1
 
+    WSItoAXIS32BIfc wsi2axis <- mkWSItoAXIS32B; 
+    AXIStoWSI32BIfc axis2wsi <- mkAXIStoWSI32B;
+    // We need to add the width adaaption, then connect these to the SMAdapers instead...
+    mkConnection(axis2wsi.wsi, wsi2axis.wsi); // TODO: Temporary internal loopback of external AXIS path (to connect logic)
+
     A4L_Em a4lm <- mkA4MtoEm(wci2axi.axiM0); // Expand the 5 concise AXI BusSend/Recv channels to explicit signals
 
     interface PCI_EXP  pcie    = pciw.pcie;
     interface Clock    p125clk = pciw.pClk;
     interface Reset    p125rst = pciw.pRst;
     interface A4L_Em   axi4m   = a4lm;
+    interface A4SEM32B axisM   = wsi2axis.axi;
+    interface A4SES32B axisS   = axis2wsi.axi;
     method Bit#(32)    debug   = extend(pack(pciw.linkUp));
   endmodule: mkOPED_inner
 

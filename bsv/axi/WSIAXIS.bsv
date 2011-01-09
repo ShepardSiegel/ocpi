@@ -60,14 +60,15 @@ module mkAXIStoWSI32B (AXIStoWSI32BIfc);
   rule operate_action; wsiM.operate(); endrule
 
   rule advance_data;
-    Bool eom = False;
+    let a = a4ss.out.first; 
+    a4ss.out.deq;
     wsiM.reqPut.put( WsiReq {   cmd  : WR,
-                             reqLast : eom,
+                             reqLast : a.last,
                              reqInfo : 0,
                         burstPrecise : False,
-                         burstLength : (eom) ? 1 : '1,
-                               data  : 0, //x.data,
-                             byteEn  : 0, //x.byteEn,
+                         burstLength : (a.last) ? 1 : '1,
+                               data  : a.data,
+                             byteEn  : a.strb,
                            dataInfo  : '0 });
   endrule
 
