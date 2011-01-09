@@ -11,6 +11,9 @@ verilog work "../../rtl/mkWCIS2A4LM.v"
 verilog work "../../rtl/mkOPEDv5.v"
 verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkBiasWorker4B.v"
+
+verilog work "../../rtl/mkAXIStoWSI32B.v"
+verilog work "../../rtl/mkWSItoAXIS32B.v"
 verilog work "../../libsrc/hdl/ocpi/OPED.v"
 
 
