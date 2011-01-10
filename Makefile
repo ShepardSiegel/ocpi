@@ -223,32 +223,32 @@ isim12: $(OBJ)
 ######################################################################
 verilog_scenario0: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S0).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S0).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S0).v
 
 verilog_scenario1: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S1).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S1).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S1).v
 
 verilog_scenario2: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S2).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S2).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S2).v
 
 verilog_scenario3a: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S3a).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3a).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S3a).v
 
 verilog_scenario3b: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S3b).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3b).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S3b).v
 
 verilog_scenario4: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S4).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S4).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S4).v
 
 ######################################################################
@@ -261,7 +261,7 @@ verilog_s6: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSVTOP)/$(RTESTS6).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(RTESTS6).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTESTS6).v
 
 ######################################################################
@@ -273,7 +273,7 @@ verilog_oped: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		$(BSVINF)/$(OPED).bsv
+		-verilog-filter basicinout $(BSVINF)/$(OPED).bsv
 	#cp $(RTL)/mkOPEDv5.v $(VLG_HDL)/mk$(OPED).v
 
 ######################################################################
@@ -285,7 +285,7 @@ verilog_a4ls: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		$(BSVAXI)/$(A4LS).bsv
+		-verilog-filter basicinout $(BSVAXI)/$(A4LS).bsv
 
 ######################################################################
 verilog_v5: $(OBJ)
@@ -297,7 +297,7 @@ verilog_v5: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSVTOP)/$(RTEST5).bsv >& bsc_build.log
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST5).bsv >& bsc_build.log
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5).v
 
 ######################################################################
@@ -310,7 +310,7 @@ verilog_v5a: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSVTOP)/$(RTEST5a).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST5a).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5a).v
 
 ######################################################################
@@ -323,7 +323,7 @@ verilog_v5m: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSVTOP)/$(RTEST5m).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST5m).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5m).v
 
 ######################################################################
@@ -336,7 +336,7 @@ verilog_v5g: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSVTOP)/$(RTEST5g).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST5g).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5g).v
 
 ######################################################################
@@ -349,7 +349,7 @@ verilog_v6: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		$(BSVTOP)/$(RTEST6).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST6).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST6).v
 
 $(OBJ):
