@@ -66,14 +66,14 @@ bsim: $(OBJ)
 
 	# compile to bluesim backend
 	echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
-	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		$(BSVTST)/$(BTEST).bsv
 
 	# create bluesim executable
-	bsc -sim -keep-fires -keep-inlined-boundaries \
+	bsc -sim -keep-inlined-boundaries \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-o $(OBJ)/mk$(BTEST).bexe -e mk$(BTEST) $(OBJ)/*.ba
 
@@ -86,14 +86,14 @@ bsim7: $(OBJ)
 
 	# compile to bluesim backend
 	echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
-	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		$(BSVTST)/$(BTEST7).bsv
 
 	# create bluesim executable
-	bsc -sim -keep-fires -keep-inlined-boundaries \
+	bsc -sim -keep-inlined-boundaries \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-o $(OBJ)/mk$(BTEST7).bexe -e mk$(BTEST7) $(OBJ)/*.ba
 
@@ -106,14 +106,14 @@ bsim8: $(OBJ)
 
 	# compile to bluesim backend
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
-	bsc -u -sim -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		$(BSVTST)/$(BTEST8).bsv
 
 	# create bluesim executable
-	bsc -sim -keep-fires -keep-inlined-boundaries \
+	bsc -sim -keep-inlined-boundaries \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-o $(OBJ)/mk$(BTEST8).bexe -e mk$(BTEST8) $(OBJ)/*.ba
 
@@ -127,7 +127,7 @@ isim: $(OBJ)
 	# compile to verilog backend for ISim
 	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab \
-		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -142,7 +142,7 @@ isim7: $(OBJ)
 	# compile to verilog backend for ISim
 	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab \
-		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -157,7 +157,7 @@ isim8: $(OBJ)
 	# compile to verilog backend for ISim
 	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab \
-		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -172,7 +172,7 @@ isim10: $(OBJ)
 	# compile to verilog backend for ISim
 	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab \
-		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -187,7 +187,7 @@ isim11: $(OBJ)
 	# compile to verilog backend for ISim
 	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab \
-		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -202,7 +202,7 @@ isim12: $(OBJ)
 	# compile to verilog backend for ISim
 	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab \
-		-keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -212,7 +212,7 @@ isim12: $(OBJ)
 	./runsim -testplusarg bscvcd
 
 	# create verilog executable
-	#cd $(OBJ) && bsc -vsim modelsim -keep-fires -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
+	#cd $(OBJ) && bsc -vsim modelsim -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
 
 	# run verilog
 	#cd $(OBJ) && mk$(ITEST).vexe > mk$(ITEST).runlog
@@ -222,32 +222,32 @@ isim12: $(OBJ)
 
 ######################################################################
 verilog_scenario0: $(OBJ)
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S0).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S0).v
 
 verilog_scenario1: $(OBJ)
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S1).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S1).v
 
 verilog_scenario2: $(OBJ)
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S2).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S2).v
 
 verilog_scenario3a: $(OBJ)
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S3a).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S3a).v
 
 verilog_scenario3b: $(OBJ)
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S3b).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S3b).v
 
 verilog_scenario4: $(OBJ)
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ $(BSVAPP)/$(OCAPP_S4).bsv
 	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S4).v
 
@@ -256,7 +256,7 @@ verilog_s6: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -269,7 +269,7 @@ verilog_oped: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -281,7 +281,7 @@ verilog_a4ls: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -292,7 +292,7 @@ verilog_v5: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -305,7 +305,7 @@ verilog_v5a: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -318,7 +318,7 @@ verilog_v5m: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -331,7 +331,7 @@ verilog_v5g: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
@@ -344,7 +344,7 @@ verilog_v6: $(OBJ)
 
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab -keep-fires -keep-inlined-boundaries -no-warn-action-shadowing \
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
