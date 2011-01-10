@@ -27,7 +27,7 @@ interface GbeWorkerIfc;
   interface Clock rxclk;   // GMII assocaited Clock
 endinterface 
 
-(* synthesize *)
+(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkGbeWorker#(Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeWorkerIfc);
 
   WciESlaveIfc                wciRx        <-  mkWciESlave; 

@@ -23,7 +23,7 @@ interface FlashWorkerIfc;
   interface FLASH_IO#(24,16) flash;    // The interface to the Flash pins
 endinterface
 
-(*synthesize*)
+(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkFlashWorker (FlashWorkerIfc);
 
   WciESlaveIfc                 wci         <- mkWciESlave;

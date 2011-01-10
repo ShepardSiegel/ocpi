@@ -28,7 +28,7 @@ endinterface
 typedef 4 DqsWidth;
 typedef 8 DqsPerDqs;
 
-(*synthesize*)
+(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys1_rst) (DramServerV5Ifc);
 
   WciESlaveIfc                     wci                        <- mkWciESlave;
