@@ -52,11 +52,11 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
   // Connect each worker to its WCI...
   Vector#(nWci,Wci_s#(20)) vWci;
-  vWci[0] = gcdW0.wci_s;
-  vWci[1] = gcdW1.wci_s;
-  vWci[2] = wmiW2.wci_s;
-  vWci[3] = wmiW3.wci_s;
-  vWci[4] = wmiW4.wci_s;
+  vWci[0] = gcdW0.wciS0;
+  vWci[1] = gcdW1.wciS0;
+  vWci[2] = wmiW2.wciS0;
+  vWci[3] = wmiW3.wciS0;
+  vWci[4] = wmiW4.wciS0;
 
   vWci[5]  = tieOff5.slv;
   vWci[6]  = tieOff6.slv;

@@ -21,7 +21,7 @@ import Vector::*;
 typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
 
 interface ICAPWorkerIfc;
-  interface WciES wci_s;  // Worker Control and Configuration 
+  interface WciES wciS0;  // Worker Control and Configuration 
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
@@ -109,5 +109,5 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  interface Wci_s wci_s  = wci.slv;
+  interface Wci_s wciS0  = wci.slv;
 endmodule

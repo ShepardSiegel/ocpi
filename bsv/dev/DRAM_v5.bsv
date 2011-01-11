@@ -1,7 +1,7 @@
 // DRAMV5.bsv - BSV code to provide DRAM functionality
 // Copyright (c) 2010  Atomic Rules LCC ALL RIGHTS RESERVED
 
-package DRAMV5;
+package DRAM_v5;
 
 import Clocks            ::*;
 import Vector            ::*;
@@ -384,4 +384,4 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   method Bit#(16) reqCount = requestCount;
 endmodule: mkDramControllerV5Ui
 
-endpackage: DRAMV5
+endpackage: DRAM_v5

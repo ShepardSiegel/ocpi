@@ -19,7 +19,7 @@ export Flash::*;
 export FlashWorker::*;
 
 interface FlashWorkerIfc;
-  interface WciES            wci_s;    // Worker Control and Configuration
+  interface WciES            wciS0;    // Worker Control and Configuration
   interface FLASH_IO#(24,16) flash;    // The interface to the Flash pins
 endinterface
 
@@ -90,7 +90,7 @@ module mkFlashWorker (FlashWorkerIfc);
   rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  interface Wci_s     wci_s   = wci.slv;
+  interface Wci_s     wciS0   = wci.slv;
   interface FLASH     flash   = flashC.flash; 
 
 endmodule : mkFlashWorker

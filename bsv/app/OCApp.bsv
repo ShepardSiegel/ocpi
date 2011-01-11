@@ -141,8 +141,8 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   interface wci_s     = vWci;
 
   // Connect appropriate workers to their WMI...
-  interface wmiM0     = appW2.wmiM;
-  interface wmiM1     = appW4.wmiM;
+  interface wmiM0     = appW2.wmiM0;
+  interface wmiM1     = appW4.wmiM0;
 
   // Connect appropriate workers to their Wmemi...
   interface wmemiM    = appW3.wmemiM;  // W3 DelayWroker Wmemi connect

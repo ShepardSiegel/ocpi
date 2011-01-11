@@ -9,7 +9,7 @@ import FIFOF::*;
 import SpecialFIFOs::*;
 
 interface GCDWorkerIfc;
-  interface WciES wci_s;
+  interface WciES wciS0;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
@@ -111,6 +111,6 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);
   wci.ctlAck;
 endrule
 
-  interface Wci_s wci_s = wci.slv;
+  interface Wci_s wciS0 = wci.slv;
 endmodule
 

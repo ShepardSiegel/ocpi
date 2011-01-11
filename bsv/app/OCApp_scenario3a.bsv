@@ -23,7 +23,7 @@ import Connectable::*;
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
-  interface Vector#(nWci,Wci_Es#(20)) wci_s;
+  interface Vector#(nWci,Wci_Es#(20))    wci_s;
   interface WmiEM4B                      wmiM0;
   interface WmiEM4B                      wmiM1;
   interface WmemiEM16B                   wmemiM;

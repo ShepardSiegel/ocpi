@@ -31,7 +31,7 @@ verilog work "../../rtl/mkBiasWorker4B.v"
 verilog work "../../rtl/mkGbeWorker.v"
 verilog work "../../rtl/mkICAPWorker.v"
 verilog work "../../rtl/mkFlashWorker.v"
-verilog work "../../rtl/mkDramServer.v"
+verilog work "../../rtl/mkDramServer_v6.v"
 
 
 verilog work "../../coregen/dram-v6-mig34/mig_v3_4/user_design/rtl/controller/arb_mux.v"

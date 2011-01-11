@@ -1,17 +1,17 @@
 // FTopV5_adc.bsv
 // Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import CTop        ::*;
-import DramServerV5::*;
-import AD9512      ::*;
-import TI6149      ::*;
-import ADCWorker   ::*;
-import DACWorker   ::*;
-import Max19692    ::*;
-import OCWip       ::*;
-import Config      ::*;
-import WsiAdapter  ::*;
-import TimeService ::*;
+import CTop         ::*;
+import DramServer_v5::*;
+import AD9512       ::*;
+import TI6149       ::*;
+import ADCWorker    ::*;
+import DACWorker    ::*;
+import Max19692     ::*;
+import OCWip        ::*;
+import Config       ::*;
+import WsiAdapter   ::*;
+import TimeService  ::*;
 
 import Vector            ::*;
 import Clocks            ::*;
@@ -118,8 +118,8 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Reference
   //FIXME-m1 TimeClientIfc  tcW11  <- mkTimeClient(sys0_clk, sys0_rst, dac_clk,  dac_rst);                  // DAC Time Client
   //FIXME-m1 mkConnection(ctop.cpNow, tcW10.gpsTime);  // ADC Infrastructure Server/Client Connection
   //FIXME-m1 mkConnection(ctop.cpNow, tcW11.gpsTime);  // DAC Infrastructure Server/Client Connection
-  //FIXME-m1 mkConnection(tcW10.wti_m, adcW10.wti_s);  // Time Client WTI-M -> WTI-S ADC
-  //FIXME-m1 mkConnection(tcW11.wti_m, dacW11.wti_s);  // Time Client WTI-M -> WTI-S DAC
+  //FIXME-m1 mkConnection(tcW10.wti_m, adcW10.wtiS0);  // Time Client WTI-M -> WTI-S ADC
+  //FIXME-m1 mkConnection(tcW11.wti_m, dacW11.wtiS0);  // Time Client WTI-M -> WTI-S DAC
 
   // WSI...
   //WsiAdapter4B16BIfc adapt416 <- mkWsiAdapter4B16B( clocked_by trn_clk, reset_by trn_rst);

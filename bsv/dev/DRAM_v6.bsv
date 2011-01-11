@@ -1,7 +1,7 @@
-// DRAM.bsv - BSV code to provide DRAM functionality
+// DRAM_v6.bsv - BSV code to provide DRAM functionality
 // Copyright (c) 2010  Atomic Rules LCC ALL RIGHTS RESERVED
 
-package DRAM;
+package DRAM_v6;
 
 import Clocks            ::*;
 import Vector            ::*;
@@ -372,4 +372,4 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
   method Bit#(16) reqCount = requestCount;
 endmodule: mkDramControllerUi
 
-endpackage: DRAM
+endpackage: DRAM_v6

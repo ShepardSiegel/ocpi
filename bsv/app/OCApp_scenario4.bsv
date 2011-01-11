@@ -22,11 +22,11 @@ import Connectable::*;
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
   interface Vector#(nWci,Wci_Es#(20)) wci_s;
-  interface WmiEM4B                      wmiM0;
-  interface WmiEM4B                      wmiM1;
-  interface WmemiEM16B                   wmemiM;
-  interface WsiES4B                      wsi_s_adc;
-  interface WsiEM4B                      wsi_m_dac;
+  interface WmiEM4B                   wmiM0;
+  interface WmiEM4B                   wmiM1;
+  interface WmemiEM16B                wmemiM;
+  interface WsiES4B                   wsi_s_adc;
+  interface WsiEM4B                   wsi_m_dac;
 endinterface
 
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));

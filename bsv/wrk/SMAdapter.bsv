@@ -15,7 +15,7 @@ import GetPut::*;
 
 interface SMAdapterIfc#(numeric type ndw);
   interface WciES                                          wciS0;
-  interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmiM;
+  interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmiM0;
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiM0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)     wsiS0;
 endinterface 
@@ -326,7 +326,7 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
   Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Em <- mkWmiMtoEm(wmi.mas);
 
   interface wciS0 = wci.slv;
-  interface wmiM  = wmi_Em;
+  interface wmiM0 = wmi_Em;
   interface wsiM0 = toWsiEM(wsiM.mas); 
   interface wsiS0 = wsi_Es;
 

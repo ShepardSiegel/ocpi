@@ -1,11 +1,11 @@
-// DramServerV5.bsv
+// DramServer_v6.bsv
 // Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-package DramServerV5;
+package DramServer_v6;
 
 import Accum::*;
 import OCWip::*;
-import DRAMV5::*;
+import DRAM_v6::*;
 import Config::*;
 import SRLFIFO ::*;
 
@@ -16,23 +16,22 @@ import FIFOF::*;
 import Vector::*;
 import GetPut::*;
 
-export DRAMV5::*;
-export DramServerV5::*;
+export DRAM_v6::*;
+export DramServer_v6::*;
 
-interface DramServerV5Ifc;
-  interface WciES          wci_s;   // Worker Control and Configuration
-  interface DDR2_32        dram;    // The interface to the DRAM pins
-  interface WmemiES16B     wmemiS;  // The Wmemi slave interface provided to the application
+interface DramServer_v6Ifc;
+  interface WciES         wciS0;    // Worker Control and Configuration
+  interface WmemiES16B    wmemiS0;  // The Wmemi slave interface provided to the application
+  interface DDR3_64       dram;     // The interface to the DRAM pins
 endinterface
 
-typedef 4 DqsWidth;
-typedef 8 DqsPerDqs;
+typedef 8 DqsWidth;
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys1_rst) (DramServerV5Ifc);
+module mkDramServer_v6#(Clock sys0_clk, Reset sys0_rst) (DramServer_v6Ifc);
 
   WciESlaveIfc                     wci                        <- mkWciESlave;
-  DramControllerUiV5Ifc            memc                       <- mkDramControllerV5Ui(sys0_clk, sys0_rst, sys1_clk);
+  DramControllerUiIfc              memc                       <- mkDramControllerUi(sys0_clk, sys0_clk);
   WmemiSlaveIfc#(36,12,128,16)     wmemi                      <- mkWmemiSlave; 
   Reg#(Bit#(32))                   dramCtrl                   <- mkReg(0);
   Clock                            uclk                       =  memc.uclk;
@@ -49,14 +48,22 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
   Reg#(Bool)                       splitReadInFlight          <- mkReg(False); 
   FIFOF#(Bit#(2))                  splaF                      <- mkSRLFIFO(4);
 
-  Reg#(Bit#(4))                    dbg_calib_done             <- mkSyncRegToCC(0, uclk, urst_n);
-  Reg#(Bit#(4))                    dbg_calib_err              <- mkSyncRegToCC(0, uclk, urst_n);
-  Reg#(Bit#(TMul#(6,DqsWidth)))    dbg_calib_dq_tap_cnt       <- mkSyncRegToCC(0, uclk, urst_n);
-  Reg#(Bit#(TMul#(6,DqsWidth)))    dbg_calib_dqs_tap_cnt      <- mkSyncRegToCC(0, uclk, urst_n);
-  Reg#(Bit#(TMul#(6,DqsWidth)))    dbg_calib_gate_tap_cnt     <- mkSyncRegToCC(0, uclk, urst_n);
-  Reg#(Bit#(DqsWidth))             dbg_calib_rd_data_sel      <- mkSyncRegToCC(0, uclk, urst_n);
-  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_calib_rden_delay       <- mkSyncRegToCC(0, uclk, urst_n);
-  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_calib_gate_delay       <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(DqsWidth))             dbg_wl_dqs_inverted        <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(2,DqsWidth)))    dbg_wr_calib_clk_delay     <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_wl_odelay_dqs_tap_cnt  <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_wl_odelay_dq_tap_cnt   <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(2))                    dbg_rdlvl_done             <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(2))                    dbg_rdlvl_err              <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_cpt_tap_cnt            <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_cpt_first_edge_cnt     <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_cpt_second_edge_cnt    <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(3,DqsWidth)))    dbg_rd_bitslip_cnt         <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(2,DqsWidth)))    dbg_rd_clkdly_cnt          <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(5))                    dbg_rd_active_dly          <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_dqs_p_tap_cnt          <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_dqs_n_tap_cnt          <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_dq_tap_cnt             <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(TMul#(4,DqsWidth)))    dbg_rddata                 <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(16))                   requestCount               <- mkSyncRegToCC(0, uclk, urst_n);
 
   Reg#(Bit#(16))                   pReg                       <- mkReg(0);
@@ -65,17 +72,16 @@ module mkDramServerV5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys
   Vector#(4,Reg#(Bit#(32)))        rdReg                      <- replicateM(mkReg(0));
 
   SyncFIFOIfc#(DramReq16B)         lreqF                      <- mkSyncFIFOFromCC(2, uclk);
-  SyncFIFOIfc#(Bit#(128))          lrespF                     <- mkSyncFIFOToCC  (5, uclk, urst_n);
+  SyncFIFOIfc#(Bit#(128))          lrespF                     <- mkSyncFIFOToCC  (2, uclk, urst_n);
 
   Accumulator2Ifc#(Int#(8))        wmemiReadInFlight          <- mkAccumulator2;
   Reg#(Bit#(32))                   wmemiWrReq                 <- mkReg(0);
   Reg#(Bit#(32))                   wmemiRdReq                 <- mkReg(0);
   Reg#(Bit#(32))                   wmemiRdResp                <- mkReg(0);
 
-rule operating_actions (wci.isOperating);
-  wmemi.operate();
-endrule
-
+  rule operating_actions (wci.isOperating);
+     wmemi.operate();
+  endrule
 
   rule update_memIsReset;   memIsResetCC.send(pack(memIsReset)); endrule
   rule update_initComplete; initComplete.send(pack(memc.usr.initComplete)); endrule
@@ -84,37 +90,45 @@ endrule
   rule update_firBeat;      firBeat.send(pack(memc.usr.firBeat)); endrule
   rule update_secBeat;      secBeat.send(pack(memc.usr.secBeat)); endrule
 
-  rule update_debug;
-    dbg_calib_done             <= memc.dbg.calib_done;
-    dbg_calib_err              <= memc.dbg.calib_err;
-    dbg_calib_dq_tap_cnt       <= memc.dbg.calib_dq_tap_cnt;
-    dbg_calib_dqs_tap_cnt      <= memc.dbg.calib_dqs_tap_cnt;
-    dbg_calib_gate_tap_cnt     <= memc.dbg.calib_gate_tap_cnt;
-    dbg_calib_rd_data_sel      <= memc.dbg.calib_rd_data_sel;
-    dbg_calib_rden_delay       <= memc.dbg.calib_rden_delay;
-    dbg_calib_gate_delay       <= memc.dbg.calib_gate_delay;
-    requestCount               <= memc.reqCount;
+  //(* no_implicit_conditions, fire_when_enabled *)
+  rule update_debug (True);
+     dbg_wl_dqs_inverted       <= memc.dbg.wl_dqs_inverted;
+     dbg_wr_calib_clk_delay    <= memc.dbg.wr_calib_clk_delay;
+     dbg_wl_odelay_dqs_tap_cnt <= memc.dbg.wl_odelay_dqs_tap_cnt;
+     dbg_wl_odelay_dq_tap_cnt  <= memc.dbg.wl_odelay_dq_tap_cnt;
+     dbg_rdlvl_done            <= memc.dbg.rdlvl_done;
+     dbg_rdlvl_err             <= memc.dbg.rdlvl_err;
+     dbg_cpt_tap_cnt           <= memc.dbg.cpt_tap_cnt;
+     dbg_cpt_first_edge_cnt    <= memc.dbg.cpt_first_edge_cnt;
+     dbg_cpt_second_edge_cnt   <= memc.dbg.cpt_second_edge_cnt;
+     dbg_rd_bitslip_cnt        <= memc.dbg.rd_bitslip_cnt;
+     dbg_rd_clkdly_cnt         <= memc.dbg.rd_clkdly_cnt;
+     dbg_rd_active_dly         <= memc.dbg.rd_active_dly;
+     dbg_dqs_p_tap_cnt         <= memc.dbg.dqs_p_tap_cnt;
+     dbg_dqs_n_tap_cnt         <= memc.dbg.dqs_n_tap_cnt;
+     dbg_dq_tap_cnt            <= memc.dbg.dq_tap_cnt;
+     dbg_rddata                <= memc.dbg.rddata;
+     requestCount              <= memc.reqCount;
   endrule
 
   rule debug_update;
-    memc.dbg.idel_up_all(0);
-    memc.dbg.idel_down_all(0);
-    memc.dbg.sel_all_idel_dq(0);
-    memc.dbg.sel_idel_dq(0);
-    memc.dbg.idel_up_dq(0);
-    memc.dbg.idel_down_dq(0);
-    memc.dbg.sel_all_idel_dqs(0);
-    memc.dbg.sel_idel_dqs(0);
-    memc.dbg.idel_up_dqs(0);
-    memc.dbg.idel_down_dqs(0);
-    memc.dbg.sel_all_idel_gate(0);
-    memc.dbg.sel_idel_gate(0);
-    memc.dbg.idel_up_gate(0);
-    memc.dbg.idel_down_gate(0);
+    memc.dbg.pd_off(0);
+    memc.dbg.pd_maintain_off(0);
+    memc.dbg.pd_maintain_0_only(0);
+    memc.dbg.ocb_mon_off(0);
+    memc.dbg.inc_cpt(0);
+    memc.dbg.dec_cpt(0);
+    memc.dbg.inc_rd_dqs(0);
+    memc.dbg.dec_rd_dqs(0);
+    memc.dbg.inc_dec_sel(0);
   endrule
 
   mkConnection(toGet(lreqF), memc.usr.request);
   mkConnection(memc.usr.response, toPut(lrespF));
+
+  Bit#(32) dramStatus = extend({respCount, 
+    2'h0, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read});
+  //      5                  4             3             2             1             0
 
 
 // Connection to the Wmemi...
@@ -137,13 +151,8 @@ rule getResponse (wmemiReadInFlight>0);
   wmemi.respd(rsp, True);
   wmemiRdResp <= wmemiRdResp + 1;
 endrule
-
-
-
-  Bit#(32) dramStatus = {16'hFEED, respCount, 
-    2'h0, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read};
-  //      5                  4             3             2             1             0
-
+   
+   
   function Action writeDram4B(Bit#(32) addr, Bit#(4) be, Bit#(32) wdata);
     action
       Vector#(4, Bit#(4))  vbe  = replicate(4'h0);
@@ -169,7 +178,7 @@ endrule
     for(Integer i=0;i<4;i=i+1) rdReg[i] <= rdVect[i];
     if (splitReadInFlight) begin
       let p = splaF.first; splaF.deq();
-      wci.respPut.put(WciResp{resp:DVA data:rdVect[p]}); // put the correct 4B DW from 16B return
+      wci.respPut.put(WciResp{resp:DVA, data:rdVect[p]}); // put the correct 4B DW from 16B return
       splitReadInFlight <= False;
     end
     respCount <= respCount + 1;
@@ -193,9 +202,10 @@ endrule
        'h88 : rdReg[2]  <= wciReq.data;
        'h8C : rdReg[3]  <= wciReq.data;
      endcase
-     end else begin
+   end else begin
        writeDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}), 4'hF, wciReq.data);
-     end
+   end
+     //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
      wci.respPut.put(wciOKResponse); // write response
   endrule
 
@@ -206,26 +216,25 @@ endrule
      case (wciReq.addr[7:0]) matches
        'h00 : rdat = dramStatus;
        'h04 : rdat = pack(dramCtrl);
-       'h08 : rdat = extend(dbg_calib_done);
-       'h0C : rdat = extend(dbg_calib_err);
-       'h10 : rdat = extend(dbg_calib_dq_tap_cnt);
-       'h14 : rdat = extend(dbg_calib_dqs_tap_cnt);
-       'h18 : rdat = extend(dbg_calib_gate_tap_cnt);
-       'h1C : rdat = extend(dbg_calib_rd_data_sel);
-       'h20 : rdat = extend(dbg_calib_rden_delay);
-       'h24 : rdat = extend(dbg_calib_gate_delay);
-       'h28 : rdat = 32'hC0DEBABE;
-       'h2C : rdat = wmemiWrReq;
-       'h30 : rdat = wmemiRdReq;
-       'h34 : rdat = wmemiRdResp;
-       'h38 : rdat = extend(pack(wmemi.status));
-       'h3C : rdat = extend(pack(wmemiReadInFlight));
-       'h40 : rdat = 0;
-       'h44 : rdat = 0;
+       'h08 : rdat = extend(dbg_wl_dqs_inverted);
+       'h0C : rdat = extend(dbg_wr_calib_clk_delay);
+       'h10 : rdat = truncate(dbg_wl_odelay_dqs_tap_cnt);
+       'h14 : rdat = truncate(dbg_wl_odelay_dq_tap_cnt);
+       'h18 : rdat = extend(dbg_rdlvl_done);
+       'h1C : rdat = extend(dbg_rdlvl_err);
+       'h20 : rdat = truncate(dbg_cpt_tap_cnt );
+       'h24 : rdat = truncate(dbg_cpt_first_edge_cnt);
+       'h28 : rdat = truncate(dbg_cpt_second_edge_cnt);
+       'h2C : rdat = extend(dbg_rd_bitslip_cnt);
+       'h30 : rdat = extend(dbg_rd_clkdly_cnt);
+       'h34 : rdat = extend(dbg_rd_active_dly);
+       'h38 : rdat = truncate(dbg_dqs_p_tap_cnt);
+       'h3C : rdat = truncate(dbg_dqs_n_tap_cnt);
+       'h40 : rdat = truncate(dbg_dq_tap_cnt);
+       'h44 : rdat = (dbg_rddata);
        'h48 : rdat = extend(requestCount);
-       'h4C : rdat = 0;
-       'h50 : rdat = extend(pReg); // page reg
-       'h5C : rdat = extend(mReg); // mask Reg
+       'h50 : rdat = extend(pReg);
+       'h5C : rdat = extend(mReg);
        'h60 : rdat = wdReg[0];
        'h64 : rdat = wdReg[1];
        'h68 : rdat = wdReg[2];
@@ -234,12 +243,13 @@ endrule
        'h84 : rdat = rdReg[1];
        'h88 : rdat = rdReg[2];
        'h8C : rdat = rdReg[3];
-     endcase
-     end else begin
+      endcase
+    end else begin
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));
        splitRead = True;
-     end
-     if (!splitRead)wci.respPut.put(WciResp{resp:DVA data:rdat}); // read response
+    end
+     //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
+     if (!splitRead)wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
      else splitReadInFlight <= True;
   endrule
 
@@ -255,11 +265,11 @@ endrule
 
   WmemiES16B wmemi_Es <- mkWmemiStoES(wmemi.slv);
 
-  interface Wci_s       wci_s   = wci.slv;
-  interface DDR3_64     dram    = memc.dram; 
-  interface WmemiES16B  wmemiS  = wmemi_Es;
+  interface WciES       wciS0    = wci.slv;
+  interface WmemiES16B  wmemiS0  = wmemi_Es;
+  interface DDR3_64     dram     = memc.dram; 
 
-endmodule : mkDramServerV5
+endmodule : mkDramServer_v6
 
-endpackage : DramServerV5
+endpackage : DramServer_v6
 

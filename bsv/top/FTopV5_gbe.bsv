@@ -79,7 +79,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   // WTI...
   TimeClientIfc  tcGbe0  <- mkTimeClient(sys0_clk, sys0_rst, sys1_clk, sys1_rst); 
   mkConnection(ctop.cpNow, tcGbe0.gpsTime); 
-  mkConnection(tcGbe0.wti_m, gbe0.wti_s); 
+  mkConnection(tcGbe0.wti_m, gbe0.wtiS0); 
 
   // WSI...
   mkConnection(gbe0.wsiM0, ctop.wsi_s_adc);  // The WSI from gbe0-RX  to CTOP/APP

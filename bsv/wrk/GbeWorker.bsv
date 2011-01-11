@@ -16,9 +16,9 @@ import XilinxCells::*;
 import XilinxExtra::*;
 
 interface GbeWorkerIfc;
-  interface WciES                wci_rx;   // WCI
-  interface WciES                wci_tx;   // WCI
-  interface Wti_s#(64)           wti_s;    // WTI
+  interface WciES                wciS0;    // WCI
+  interface WciES                wciS1;    // WCI
+  interface Wti_s#(64)           wtiS0;    // WTI
   interface Wsi_Em#(12,32,4,8,0) wsiM0;    // WSI Rx Packet Stream
   interface Wsi_Es#(12,32,4,8,0) wsiS0;    // WSI Tx Packet Stream
 
@@ -107,9 +107,9 @@ endrule
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);
 
   // Interfaces and Methods provided...
-  interface Wci_s  wci_rx = wciRx.slv;
-  interface Wci_s  wci_tx = wciTx.slv;
-  interface Wti_s  wti_s  = wti.slv;
+  interface Wci_s  wciS0  = wciRx.slv;
+  interface Wci_s  wciS1  = wciTx.slv;
+  interface Wti_s  wtiS0  = wti.slv;
   interface Wsi_Em wsiM0  = toWsiEM(wsiM.mas);
   interface Wsi_Es wsiS0  = wsi_Es;
   interface        gmii   = emac.gmii;
