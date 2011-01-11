@@ -31,7 +31,7 @@ verilog work "../../rtl/mkTLPSM.v"
 verilog work "../../rtl/mkTLPCM.v"
 verilog work "../../rtl/mkPktFork.v"
 verilog work "../../rtl/mkPktMerge.v"
-
+verilog work "../../rtl/mkUUID.v"
 verilog work "../../rtl/mkOCCP.v"
 verilog work "../../rtl/mkOCDP4B.v"
 verilog work "../../rtl/mkOCInf4B.v"

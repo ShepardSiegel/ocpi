@@ -32,7 +32,12 @@ typedef struct {
     deltaTimeLS,
     refPerPPS,
     buf4C,
-    buf50; 
+    buf50,buf54,buf58,buf5C,
+    buf60,buf64,buf68,buf6C,
+    buf70,buf74,buf78,
+    numDPMemRegions,
+    dpInfo[16],
+    uuid[16];
 } OCCP_Admin;
 
 typedef struct {
@@ -50,6 +55,13 @@ typedef struct {
     config_addr,
     pad[5];
 } OCCP_WorkerControl;
+
+typedef struct {
+  uint32_t
+    bar,      // The PCIe BAR this memory belongs to
+    offset,   // The Offset into the BAR in 4KB pages
+    size;     // The Size of the BAR in 4KB pages
+ } OCDPMemRegionDescriptor;
 
 #define OCCP_WORKER_CONFIG_SIZE (1<<20)
 #define OCCP_WORKER_CONTROL_SIZE (1<<16)
@@ -235,7 +247,7 @@ atoi_any(char *arg, uint8_t *sizep)
  static int
 admin(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *d)
 {
-  uint32_t i, j;
+  uint32_t i, j, k;
   time_t epochtime, nowtime;
   struct tm *etime, *ntime;
   static union {
@@ -284,6 +296,15 @@ admin(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
   printf(" deltaTimeMS:  0x%08x\n", p->admin.deltaTimeMS);
   printf(" deltaTimeLS:  0x%08x\n", p->admin.deltaTimeLS);
   printf(" refPerPPS:    0x%08x (%d)\n", p->admin.refPerPPS, p->admin.refPerPPS);
+  printf(" numDPMemReg:  0x%08x (%d)\n", p->admin.numDPMemRegions, p->admin.numDPMemRegions);
+  if (p->admin.numDPMemRegions < 16) 
+    for (k=0; k<p->admin.numDPMemRegions; k++)
+      printf(" DP%2d:      0x%08x\n", k, p->admin.dpInfo[k]);
+
+  // Print out the 64B 16DW UUID in little-endian looking format...
+  for (k=0;k<16;k+=4)
+    printf(" UUID[%2d:%2d]: 0x%08x 0x%08x 0x%08x 0x%08x\n",
+        k+3, k, p->admin.uuid[k+3], p->admin.uuid[k+2], p->admin.uuid[k+1], p->admin.uuid[k]);
 
   return 0;
 }

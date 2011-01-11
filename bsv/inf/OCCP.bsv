@@ -37,12 +37,12 @@ DPMemRegion dpMemRegion1 = DPMemRegion {bar:1, offset:8, size:8};  // Bar 1, Off
 //
 interface OCCPIfc#(numeric type nWci);
   interface Server#(PTW16,PTW16) server;
-  (* always_ready *)                 method Bit#(2) led;
-  (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
   interface Vector#(nWci,Wci_Em#(20)) wci_Vm;
   method GPS64_t cpNow;
   interface GPSIfc gps;
-  //method Bit#(512) uuid;
+  (* always_ready *)                 method Bit#(2) led;
+  (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
+  (* always_ready, always_enabled *) method Action  uuid   (Bit#(512) arg);
 endinterface
 
 typedef union tagged {
@@ -73,6 +73,8 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   TimeServerIfc     timeServ     <- mkTimeServer(defaultValue, sys0_clk, sys0_rst); // Instance the Time Server
   Reg#(GPS64_t)     deltaTime    <- mkReg(0.0);
 
+  Wire#(Vector#(16, Bit#(32))) uuidV <- mkWire; // uuid as a Vector of 16 32b DWORDs
+
   function makeWciMaster (Integer i);
     //return (i<5||i>12) ? mkWciMaster : mkWciMasterNull;  // only instance the 7 (0:4,13:14) we need
     //return (i<6||i>9) ? mkWciMaster : mkWciMasterNull;  // only instance the 11 (0:5,10:14)  we need
@@ -89,6 +91,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   DWord cpRevision  = 32'h0000_0001;
   DWord cpBirthday  = compileTime;
   DWord cpStatus    = extend(pack(rogueTLP));
+
 
   function Action setAdminReg(Bit#(8) bAddr, DWord wd);
   action
@@ -123,6 +126,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   endfunction
 
   function Maybe#(DWord) getAdminReg(Bit#(8) bAddr);
+    Bit#(6) dwAddr = truncate(bAddr>>2);
     case (bAddr)
       'h00 : return Valid(32'h_4F_70_65_6E);          // Open
       'h04 : return Valid(32'h_43_50_49_00);          // CPI
@@ -149,6 +153,11 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
       'h7C : return Valid(32'd2);
       'h80 : return Valid(pack(dpMemRegion0));  
       'h84 : return Valid(pack(dpMemRegion1));  
+
+      'hC0,'hC4,'hC8,'hCC,'hD0,'hD4,'hD8,'hDC,'hE0,'hE4,'hE8,'hEC,'hF0,'hF4,'hF8,'hFC : begin 
+         Bit#(4) dwIdx = truncate(dwAddr);
+         return Valid(pack(uuidV[dwIdx]));
+       end
 
       default: return Invalid;
     endcase
@@ -230,10 +239,11 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   interface Server server = tlp.server;
   method GPS64_t cpNow = timeServ.gpsTime;
   interface GPSIfc gps = timeServ.gps;
-  method led       = scratch24[1:0];
-  method Action  switch (Bit#(3) x); switch_d <= x; endmethod
   //interface Vector wci_Em = map(get_wci_Em, wci);
   interface Vector wci_Vm = wci_Emv;
+  method led       = scratch24[1:0];
+  method Action  switch (Bit#(3) x);     switch_d <= x;         endmethod
+  method Action  uuid   (Bit#(512) arg); uuidV <= unpack(arg);  endmethod
 
 endmodule: mkOCCP
 endpackage: OCCP

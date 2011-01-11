@@ -29,7 +29,7 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi, n
   interface Vector#(nWci,Wci_Es#(20))                       wci_s;
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiM0;  
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiM1;  
-  interface WmemiEM16B                                      wmemiM;
+  interface WmemiEM16B                                      wmemiM0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)      wsi_s_adc;   
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)      wsi_m_dac;  
 endinterface
@@ -145,10 +145,10 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   interface wmiM1     = appW4.wmiM0;
 
   // Connect appropriate workers to their Wmemi...
-  interface wmemiM    = appW3.wmemiM;  // W3 DelayWroker Wmemi connect
+  interface wmemiM0   = appW3.wmemiM0;  // W3 DelayWroker Wmemi connect
 
-  interface wsi_s_adc = appW2.wsiS0;  // The ADC data to the   W2 SMAdapter WSI-S0 Slave Port
-  interface wsi_m_dac = appW4.wsiM0;  // The DAC data from the W4 SMAdapter WSI-M0 Master Port
+  interface wsi_s_adc = appW2.wsiS0;    // The ADC data to the   W2 SMAdapter WSI-S0 Slave Port
+  interface wsi_m_dac = appW4.wsiM0;    // The DAC data from the W4 SMAdapter WSI-M0 Master Port
 
 endmodule : mkOCApp_poly
 

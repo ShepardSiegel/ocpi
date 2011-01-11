@@ -297,7 +297,7 @@ verilog_v5: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST5).bsv >& bsc_build.log
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST5).bsv
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5).v
 
 ######################################################################
@@ -323,7 +323,7 @@ verilog_v5m: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST5m).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST5m).bsv >& bsc_build.log
 	cp $(RTL)/mkFTop.v $(VLG_HDL)/mk$(RTEST5m).v
 
 ######################################################################

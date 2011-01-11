@@ -10,6 +10,7 @@ import OCDP::*;
 import TimeService::*;
 import TLPMF::*;
 import UNoC::*;
+import UUID::*;
 
 import PCIE::*;
 import FIFO::*;
@@ -39,6 +40,9 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
     NumAlias#(ndw,1) ); // by joe
 
   OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst); // control plane
+  UUIDIfc         id   <- mkUUID;
+  rule assign_id; cp.uuid(id.uuid); endrule
+
   UNoCIfc         noc  <- mkUNoC;                                // uNoC Netword-on-Chip
 
   // Intercept the highest-numbered WCI for infrastructure control and properties...

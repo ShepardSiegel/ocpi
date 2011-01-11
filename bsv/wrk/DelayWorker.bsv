@@ -22,7 +22,7 @@ interface DelayWorkerIfc#(numeric type ndw);
   interface WciES                                       wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM0;    // WSI-M Stream Output
-  interface WmemiEM16B                                  wmemiM;   // WMI Memory
+  interface WmemiEM16B                                  wmemiM0;  // WMI Memory
 endinterface 
 
 module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLogic) (DelayWorkerIfc#(ndw))
@@ -445,10 +445,10 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
   Wsi_Es#(12,nd,nbe,8,0)  wsi_Es    <- mkWsiStoES(wsiS.slv);
   WmemiEM16B              wmemi_Em  <- mkWmemiMtoEm(wmemi.mas);
 
-  interface wciS0  = wci.slv;
-  interface wsiS0  = wsi_Es;
-  interface wsiM0  = toWsiEM(wsiM.mas);
-  interface wmemiM = wmemi_Em;
+  interface wciS0   = wci.slv;
+  interface wsiS0   = wsi_Es;
+  interface wsiM0   = toWsiEM(wsiM.mas);
+  interface wmemiM0 = wmemi_Em;
 endmodule
 
 // Synthesizeable, non-polymorphic modules that use the poly module above...
