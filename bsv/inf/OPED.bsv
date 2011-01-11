@@ -84,10 +84,10 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(vWci[3], appW3.wciS0);
     mkConnection(vWci[4], appW4.wciS0);
 
-    mkConnection(appW2.wmiM,  dp0.wmiS0);    // W2<->DP0
+    mkConnection(appW2.wmiM0, dp0.wmiS0);    // W2<->DP0
     mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
     mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 BiasWorker WSI-M0 feeding W4 SMAdapter WSI-S0
-    mkConnection(appW4.wmiM,  dp1.wmiS0);    // W4<->DP1
+    mkConnection(appW4.wmiM0, dp1.wmiS0);    // W4<->DP1
 
     WSItoAXIS32BIfc wsi2axis <- mkWSItoAXIS32B; 
     AXIStoWSI32BIfc axis2wsi <- mkAXIStoWSI32B;
