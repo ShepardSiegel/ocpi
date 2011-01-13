@@ -112,7 +112,7 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Reference
   mkConnection(ctop.wsi_m_dac, dacW11.wsiS0);
 
   // Wmemi...
-  mkConnection(ctop.wmemiM, dram0.wmemiS0);
+  mkConnection(ctop.wmemiM0, dram0.wmemiS0);
 
   // Interfaces and Methods provided...
   interface pcie   = pciw.pcie;
