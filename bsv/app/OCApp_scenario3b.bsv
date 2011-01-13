@@ -68,11 +68,11 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   interface wci_s     = vWci;
 
   // Connect appropriate workers to their WMI...
-  interface wmiM0     = appW2.wmiM;
-  interface wmiM1     = appW4.wmiM;
+  interface wmiM0     = appW2.wmiM0;
+  interface wmiM1     = appW4.wmiM0;
 
   // Connect appropriate workers to their Wmemi...
-  interface wmemiM    = appW3.wmemiM;  // W3 DelayWroker Wmemi connect
+  interface wmemiM    = appW3.wmemiM0;  // W3 DelayWroker Wmemi connect
 
   interface wsi_s_adc = appW5.wsiS1;  // The ADC data to the   W5 WsiSplitter WSI-S1 Slave Port
   interface wsi_m_dac = appW4.wsiM0;  // The DAC data from the W4 SMAdapter   WSI-M0 Master Port
