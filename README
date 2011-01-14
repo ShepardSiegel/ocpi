@@ -5,6 +5,7 @@ ssiegel 2010-09-17 Included LICENSE.TXT
 ssiegel 2010-11-22 Added to FAQ
 ssiegel 2010-11-29 Touched README
 ssiegel 2010-12-28 AXI *removed* from WIP. "WIP" (WCI,WSI,WMI,etc.) now implies OCP
+ssiegel 2011-01-14 Board Targets become platforms 
 
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
@@ -12,6 +13,7 @@ OpenCPI website: www.opencpi.org
 
 1. Getting Started
   Browse the documentation at $(OCPI_DIR)/doc
+  When you see a sub-dir named "pen", that is a "holding-pen" for files that may be depricated
 
   To build a bitstream, first make sure the appropriate tools are installed
     e.g. Install Xilinx ISE 12.x to build Xilinx bitstreams
@@ -35,16 +37,18 @@ OpenCPI website: www.opencpi.org
 
   From $(OCPI_DIR) say
     $ make <target>
-  where <target> is one of
+  where <target> is one of these platform names..
      ml555
      alder
-     sx95t
+     shist
      xupv5
-     fx130
-     tx240
-     lx330
+     biotite
+     nf10
+     illite
      ml605
      sp605
+     alcy4
+     htgs4
 
   Make will copy files into $(OCPI_DIR)/build/tmp-<target> and run the vendor tools. When the build sucessfully completes, the build/tmp-<target> directory will be remaned build/<target>-<timestamp>
 

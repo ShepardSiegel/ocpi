@@ -17,7 +17,6 @@ verilog work "../../rtl/mkAXIStoWSI32B.v"
 verilog work "../../rtl/mkWSItoAXIS32B.v"
 verilog work "../../libsrc/hdl/ocpi/OPED.v"
 
-
 verilog work "../../rtl/mkA4LS.v"
 verilog work "../../libsrc/hdl/ocpi/AXIS_LOOPBACK.v"
 

@@ -1,11 +1,11 @@
-// fpgaTop_s6.v - ssiegel 2010-03-30
+// fpgaTop_illite.v - ssiegel 2009-03-17
 
 module fpgaTop(
   input  wire        sys0_clkp,     // sys0 Clock +
   input  wire        sys0_clkn,     // sys0 Clock -
   input  wire        pci0_clkp,     // PCIe Clock +
   input  wire        pci0_clkn,     // PCIe Clock -
-  input  wire        pci0_reset_n,  // PCIe Reset
+  input  wire        pci0_rstn,     // PCIe Reset
   output wire [7:0]  pci_exp_txp,   // PCIe lanes...
   output wire [7:0]  pci_exp_txn,
   input  wire [7:0]  pci_exp_rxp,
@@ -16,12 +16,12 @@ module fpgaTop(
 );
 
 // Instance and connect mkFTop...
- mkFTop ftop(
+ mkFTop_illite ftop(
   .sys0_clkp         (sys0_clkp),
   .sys0_clkn         (sys0_clkn),
   .pci0_clkp         (pci0_clkp),
   .pci0_clkn         (pci0_clkn),
-  .pci0_rstn         (pci0_reset_n),
+  .pci0_rstn         (pci0_rstn),
   .pcie_rxp_i        (pci_exp_rxp),
   .pcie_rxn_i        (pci_exp_rxn),
   .pcie_txp          (pci_exp_txp),

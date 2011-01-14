@@ -16,5 +16,6 @@ verilog work "../../rtl/mkOCInf.v"
 verilog work "../../rtl/mkOCApp.v"
 verilog work "../../rtl/mkCTop4B.v"
 
-verilog work "../../libsrc/hdl/ocpi/mkFTopS6.v"
-verilog work "../../libsrc/hdl/ocpi/fpgaTop_s6.v"
+verilog work "../../rtl/mkFTop_sp605.v"
+
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_sp605.v"

@@ -1,4 +1,4 @@
-// FTopV6.bsv
+// FTop_ml605.bsv
 // Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
@@ -29,7 +29,7 @@ import PCIEInterrupt     ::*;
 import Vector            ::*;
 import XilinxCells       ::*;
 
-interface FTopIfc;
+interface FTop_ml605Ifc;
   interface PCIE_EXP#(4)           pcie;
   interface Clock                  p125clk;
   interface Reset                  p125rst;
@@ -40,12 +40,12 @@ interface FTopIfc;
   interface Clock                  rxclk;    // GMII assocaited Clock
   interface Reset                  mrst_n;   // GMII associated Reset
   interface GMII                   gmii;     // The GMII link
-endinterface: FTopIfc
+endinterface: FTop_ml605Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
-               Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
-               Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTopIfc);
+module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
+                     Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
+                     Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTop_ml605Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
   PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("V6",pci0_clkp, pci0_clkn, pci0_rstn);
@@ -109,5 +109,5 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn,
   interface Clock    rxclk   = gbe0.rxclk;
   interface Reset    mrst_n  = gbe0.mrst_n;
   interface GMII     gmii    = gbe0.gmii;
-endmodule: mkFTop
+endmodule: mkFTop_ml605
 

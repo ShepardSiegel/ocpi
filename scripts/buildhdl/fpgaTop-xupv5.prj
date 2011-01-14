@@ -18,5 +18,6 @@ verilog work "../../libsrc/hdl/ocpi/mkOCApp_scenario0.v"
 
 verilog work "../../rtl/mkCTop4B.v"
 
-verilog work "../../libsrc/hdl/ocpi/mkFTopV5.v"
-verilog work "../../libsrc/hdl/ocpi/fpgaTop_v5.v"
+verilog work "../../rtl/mkFTop_xupv5.v"
+
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_xupv5.v"

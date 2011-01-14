@@ -1,4 +1,4 @@
-// FTopV5.bsv
+// FTop_ml555.bsv
 // Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import CTop              ::*;
@@ -15,16 +15,16 @@ import GetPut            ::*;
 import TieOff            ::*;
 import XilinxCells       ::*;
 
-interface FTopIfc;
+interface FTop_ml555Ifc;
   interface PCIE_EXP#(8)          pcie;
   interface Clock                 p125clk;
   interface Reset                 p125rst;
   (*always_ready*) method Bit#(3) led;
   interface GPSIfc                gps;
-endinterface: FTopIfc
+endinterface: FTop_ml555Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTopIfc);
+module mkFTop_ml555#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTop_ml555Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
   PCIEwrapIfc#(8)  pciw       <- mkPCIEwrap("V5",pci0_clkp, pci0_clkn, pci0_rstn);
@@ -45,4 +45,4 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clk
   method    Bit#(3)  led     = ~{infLed, pack(pciw.linkUp)}; //leds are on when active-low
   interface GPSIfc   gps     = ctop.gps;
 
-endmodule: mkFTop
+endmodule: mkFTop_ml555

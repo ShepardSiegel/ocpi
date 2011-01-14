@@ -100,5 +100,6 @@ verilog work "../../rtl/mkCTop4B.v"
 
 verilog work "../../rtl/mkWciMonitor.v"
 
-verilog work "../../libsrc/hdl/ocpi/mkFTopV6.v"
-verilog work "../../libsrc/hdl/ocpi/fpgaTop_v6.v"
+verilog work "../../rtl/mkFTop_ml605.v"
+
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_ml605.v"

@@ -1,4 +1,4 @@
-// fpgaTop_sx95t.v - "shist"
+// fpgaTop_shist.v - "shist"
 
 module fpgaTop(
   input  wire        sys0_clkp,     // sys0 Clock +
@@ -88,7 +88,7 @@ IBUFDS#() IBUFDS_ppsin (.O(ppsIn),  .I(dac0_syncInp),   .IB(dac0_syncInn));
 OBUFDS#() OBUFDS_ppsout(.O(dac0_syncOutp), .OB(dac0_syncOutn), .I(ppsOut)); 
 
 // Instance and connect mkFTop...
- mkFTop ftop(
+ mkFTop_shist ftop(
   .sys0_clkp         (sys0_clkp),
   .sys0_clkn         (sys0_clkn),
   .sys1_clkp         (sys1_clkp),

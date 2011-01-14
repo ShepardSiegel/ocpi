@@ -1,4 +1,4 @@
-// FTopS6.bsv
+// FTop_sp605.bsv
 // Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import CTop              ::*;
@@ -16,15 +16,15 @@ import PCIE              ::*;
 import PCIEInterrupt     ::*;
 import ClientServer      ::*;
 
-interface FTopIfc;
+interface FTop_sp605Ifc;
   interface PCIE_EXP#(8) pcie;
   (* always_ready *) method Bit#(3) led;
   interface GPSIfc gps;
   interface Clock  trnClk; 
-endinterface: FTopIfc
+endinterface: FTop_sp605Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTopIfc);
+module mkFTop_sp605#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTop_sp605Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
   PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("S6",pci0_clkp, pci0_clkn, pci0_rstn);
@@ -46,5 +46,5 @@ module mkFTop#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci0_clk
   method    led      = ~{infLed, pack(pciLinkUp)}; //leds are on when active-low
   interface gps    = ctop.gps;
   interface trnClk = trn_clk;
-endmodule: mkFTop
+endmodule: mkFTop_sp605
 

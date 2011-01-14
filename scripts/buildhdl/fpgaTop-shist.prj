@@ -49,5 +49,6 @@ verilog work "../../rtl/mkADCWorker.v"
 verilog work "../../rtl/mkDACWorker.v"
 verilog work "../../rtl/mkDramServer_v5.v"
 
-verilog work "../../libsrc/hdl/ocpi/mkFTopV5_adc.v"
+verilog work "../../rtl/mkFTop_shist.v"
+
 verilog work "../../libsrc/hdl/ocpi/fpgaTop_shist.v"
