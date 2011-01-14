@@ -1,0 +1,14 @@
+#!/bin/sh
+# Script for testing AXI4L Bridge and A4LS
+
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 wreset 0
+./swctl 0xF1000000 0xF2FF0000 wunreset 0
+./swctl 0xF1000000 0xF2FF0000 wop 0 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 0 start
+./swctl 0xF1000000 0xF2FF0000 wread 0 0x0 5
+echo write then read back...
+./swctl 0xF1000000 0xF2FF0000 wwrite 0 0x0 0x10000055
+./swctl 0xF1000000 0xF2FF0000 wwrite 0 0x4 0x200000AA
+./swctl 0xF1000000 0xF2FF0000 wread 0 0x0 2

@@ -221,15 +221,6 @@ isim12: $(OBJ)
 	#@ if !(grep -c PASSED $(OBJ)/mk$(ITEST).runlog) then exit 2; fi
 
 ######################################################################
-verilog_scenario_all: $(OBJ)
-	make verilog_scenario0
-	make verilog_scenario1
-	make verilog_scenario2
-	make verilog_scenario3a
-	make verilog_scenario3b
-	make verilog_scenario4
-	echo done
-
 verilog_scenario0: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S0).bsv

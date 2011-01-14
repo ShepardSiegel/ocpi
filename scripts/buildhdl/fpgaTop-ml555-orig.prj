@@ -1,5 +1,6 @@
 verilog work "../../libsrc/hdl/ocpi/arSRLFIFO.v"
 verilog work "../../libsrc/hdl/ocpi/xilinx_v5_pcie_wrapper.v"
+
 verilog work "../../coregen/pcie-4243-v5-gtp-x8-125/pci_exp_8_lane_64b_ep.v
 
 verilog work "../../rtl/mkTLPSM.v"
@@ -8,17 +9,14 @@ verilog work "../../rtl/mkPktFork.v"
 verilog work "../../rtl/mkPktMerge.v"
 verilog work "../../rtl/mkUUID.v"
 verilog work "../../rtl/mkOCCP.v"
-verilog work "../../rtl/mkWCIS2A4LM.v"
-verilog work "../../rtl/mkOPEDv5.v"
+verilog work "../../rtl/mkOCDP4B.v"
+verilog work "../../rtl/mkOCInf4B.v"
 
-verilog work "../../rtl/mkA4LS.v"
 verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkBiasWorker4B.v"
-verilog work "../../rtl/mkAXIStoWSI32B.v"
-verilog work "../../rtl/mkWSItoAXIS32B.v"
+verilog work "../../libsrc/hdl/ocpi/mkOCApp_scenario0.v"
 
-verilog work "../../libsrc/hdl/ocpi/OPED.v"
+verilog work "../../rtl/mkCTop4B.v"
 
-verilog work "../../libsrc/hdl/ocpi/AXIS_LOOPBACK.v"
-
-verilog work "../../libsrc/hdl/ocpi/fpgaTop_nf10.v"
+verilog work "../../libsrc/hdl/ocpi/mkFTopV5.v"
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_v5.v"
