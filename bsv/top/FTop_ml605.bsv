@@ -95,7 +95,7 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   mkConnection(tcGbe0.wti_m, gbe0.wtiS0); 
 
   // Wmemi...
-  mkConnection(ctop.wmemiM, dram0.wmemiS0);
+  mkConnection(ctop.wmemiM0, dram0.wmemiS0);
 
   // Interfaces and Methods provided...
   interface PCI_EXP  pcie    = pciw.pcie;

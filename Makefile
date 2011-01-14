@@ -13,9 +13,10 @@ ITEST12   ?= TB12
 OPED      ?= OPED
 A4LS      ?= A4LS
 RTEST5    ?= FTop_ml555
-RTESTS6   ?= FTop_sp605
 RTEST5a   ?= FTop_shist
+RTEST5n   ?= FTop_nf10
 RTEST6    ?= FTop_ml605
+RTESTS6   ?= FTop_sp605
 OBJ       ?= obj
 RTL       ?= rtl
 BSV       ?= bsv
@@ -222,32 +223,32 @@ isim12: $(OBJ)
 verilog_scenario0: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S0).bsv
-	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S0).v
+	mv $(RTL)/mkOCApp4B.v $(RTL)/mk$(OCAPP_S0).v
 
 verilog_scenario1: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S1).bsv
-	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S1).v
+	mv $(RTL)/mkOCApp4B.v $(RTL)/mk$(OCAPP_S1).v
 
 verilog_scenario2: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S2).bsv
-	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S2).v
+	mv $(RTL)/mkOCApp4B.v $(RTL)/mk$(OCAPP_S2).v
 
 verilog_scenario3a: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3a).bsv
-	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S3a).v
+	mv $(RTL)/mkOCApp4B.v $(RTL)/mk$(OCAPP_S3a).v
 
 verilog_scenario3b: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3b).bsv
-	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S3b).v
+	mv $(RTL)/mkOCApp4B.v $(RTL)/mk$(OCAPP_S3b).v
 
 verilog_scenario4: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S4).bsv
-	cp $(RTL)/mkOCApp4B.v $(VLG_HDL)/mk$(OCAPP_S4).v
+	mv $(RTL)/mkOCApp4B.v $(RTL)/mk$(OCAPP_S4).v
 
 ######################################################################
 verilog_sp605: $(OBJ)
@@ -284,10 +285,10 @@ verilog_a4ls: $(OBJ)
 		-verilog-filter basicinout $(BSVAXI)/$(A4LS).bsv
 
 ######################################################################
-verilog_ml555: $(OBJ)
+platform_ml555: $(OBJ)
 	
 	# compile to verilog backend for RTL
-	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
@@ -296,7 +297,7 @@ verilog_ml555: $(OBJ)
 		-verilog-filter basicinout $(BSVTOP)/$(RTEST5).bsv
 
 ######################################################################
-verilog_shist: $(OBJ)
+platform_shist: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
@@ -309,7 +310,20 @@ verilog_shist: $(OBJ)
 
 
 ######################################################################
-verilog_ml605: $(OBJ)
+platform_nf10: $(OBJ)
+	
+	# compile to verilog backend for RTL
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D DEFINE_NDW=1 \
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST5n).bsv
+
+
+######################################################################
+platform_ml605: $(OBJ)
 
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv

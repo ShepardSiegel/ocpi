@@ -84,7 +84,7 @@ module OPED (
 // Alternately, future OPED implementations may be adapted and placed here, if desired.
 // This adaptation layer may be removed at a later date when it is clear it is not needed
 
- mkOPEDv5 oped (
+ mkOPED_v5 oped (
   .pci0_clkp         (PCIE_CLKP),
   .pci0_clkn         (PCIE_CLKN),
   .RST_N_pci0_rstn   (PCIE_RSTN),

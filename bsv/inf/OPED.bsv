@@ -37,12 +37,12 @@ interface OPEDIfc#(numeric type lanes);
 endinterface: OPEDIfc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="" *)
-module mkOPEDv5#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (OPEDIfc#(8));
+module mkOPED_v5#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (OPEDIfc#(8));
   OPEDIfc#(8) _a <- mkOPED("V5",pci0_clkp,pci0_clkn,pci0_rstn); return _a;
 endmodule
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="" *)
-module mkOPEDv6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (OPEDIfc#(4));
+module mkOPED_v6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (OPEDIfc#(4));
   OPEDIfc#(4) _a <- mkOPED("V6",pci0_clkp,pci0_clkn,pci0_rstn); return _a;
 endmodule
 

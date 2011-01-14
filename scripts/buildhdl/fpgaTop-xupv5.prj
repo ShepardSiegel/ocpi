@@ -14,7 +14,7 @@ verilog work "../../rtl/mkOCInf4B.v"
 
 verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkBiasWorker4B.v"
-verilog work "../../libsrc/hdl/ocpi/mkOCApp_scenario0.v"
+verilog work "../../rtl/mkOCApp4B_scenario0.v"
 
 verilog work "../../rtl/mkCTop4B.v"
 
