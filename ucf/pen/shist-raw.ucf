@@ -1,0 +1,54 @@
+## SX95T Generic UCF - "Shist"
+## Shepard Siegel for Atomic Rules LLC
+## 2009-03-17 oc1001
+## 2009-05-11 changes for PCIe BPEP v1.10
+## 2009-08-01 SX95 changes
+## 2009-10-22 Speed change to -2 confirmed
+## 2009-10-28 Adjusted placement for PCIe GTPs and BRAMs
+## 2009-10-29 Adjust OCDP physical placements DP0 under, DP1 over PCIe
+## 2009-12-29 Added generic ADC pinouts
+## 2010-01-08 Added constraints for source-synchronous inputs
+## 2010-01-09 Added ADC paramaters for TI ADS6149 and ADS6249
+## 2010-01-19 Added DAC Constraints
+## 2010-03-01 Added DAC SyncIn (SI1) for routing to GPS-PPS Input
+## 2010-05-10 Added DRAM MIG32 Pins
+## 2010-05-14 Fixed typo in 300MHz sys1 
+## 2010-12-21 Cloned full UCF in sx95t-full.ucf
+
+CONFIG PART = XC5VSX95T-FF1136-2 ;
+
+NET  "sys0_clkp"   LOC = J16 | IOSTANDARD = "LVPECL_25";
+NET  "sys0_clkn"   LOC = J17 | IOSTANDARD = "LVPECL_25";
+NET  "pci0_clkp"   LOC = AF4;
+NET  "pci0_clkn"   LOC = AF3;
+INST "ftop/pciw_pci0_clk"  DIFF_TERM = "TRUE";
+NET  "pci0_rstn"   LOC = AG12 | IOSTANDARD = "LVTTL" | PULLUP | NODELAY;  #3.3V
+
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[0].GT_i" LOC = GTP_DUAL_X0Y3; 
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[2].GT_i" LOC = GTP_DUAL_X0Y2;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[4].GT_i" LOC = GTP_DUAL_X0Y1;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[6].GT_i" LOC = GTP_DUAL_X0Y0;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_retry/generate_sdp.ram_sdp_inst"      LOC = RAMB36_X6Y12;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X6Y11;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X6Y10;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X6Y9;
+INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X6Y8;
+
+# Timing Constraints...
+NET "ftop/sys0_clk_O1" PERIOD = 5ns;
+NET "ftop/sys0_clk_O1" TNM_NET = "SYS0_CLK";
+TIMESPEC "TS_SYS0_CLK"  = PERIOD "SYS0_CLK" 200.00 MHz HIGH 50 % ;
+
+NET "ftop/pciw_pci0_clk_O" PERIOD = 10ns;
+NET "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/gt_refclk_out[0]" TNM_NET = "PCI0CLK";
+TIMESPEC "TS_PCI0CLK"  = PERIOD "PCI0CLK" 100.00 MHz HIGH 50 % ;
+
+# LEDs and Switches...
+NET "led[0]"    LOC = AH7   | IOSTANDARD = "LVCMOS25"; ## User  D1
+NET "led[1]"    LOC = AK7   | IOSTANDARD = "LVCMOS25"; ## User  D2
+NET "led[2]"    LOC = AK6   | IOSTANDARD = "LVCMOS25"; ## User  D3
+#
+# RPL Time Service Signals..
+#NET  "ppsExtIn"  LOC = AG7 | IOSTANDARD = "LVCMOS25" | PULLUP | NODELAY;
+NET  "ppsOut"    LOC = AD6 | IOSTANDARD = "LVCMOS25"; 
+

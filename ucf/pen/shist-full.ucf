@@ -23,7 +23,7 @@ NET  "sys1_clkn"      LOC = K19 | IOSTANDARD = "LVPECL_25";
 NET  "pci0_clkp"      LOC = AF4;
 NET  "pci0_clkn"      LOC = AF3;
 INST "ftop/pciw_pci0_clk"  DIFF_TERM = "TRUE";
-NET  "pci0_reset_n"   LOC = AG12 | IOSTANDARD = "LVTTL" | PULLUP | NODELAY;  #3.3V
+NET  "pci0_rstn"      LOC = AG12 | IOSTANDARD = "LVTTL" | PULLUP | NODELAY;  #3.3V
 
 INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[0].GT_i" LOC = GTP_DUAL_X0Y3; 
 INST "ftop/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[2].GT_i" LOC = GTP_DUAL_X0Y2;
