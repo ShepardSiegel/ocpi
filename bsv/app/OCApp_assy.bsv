@@ -26,7 +26,7 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
   interface Vector#(nWci,Wci_Es#(20)) wci_s;
   interface WmiEM4B                   wmiM0;
   interface WmiEM4B                   wmiM1;
-  interface WmemiEM16B                wmemiM;
+  interface WmemiEM16B                wmemiM0;
   interface WsiES4B                   wsi_s_adc;
   interface WsiEM4B                   wsi_m_dac;
 endinterface
@@ -50,7 +50,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   interface wci_s     = vWci;
   interface wmiM0     = assy.i_FC;
   interface wmiM1     = assy.i_FP;
-  interface wmemiM    = assy.i_wmemi0;
+  interface wmemiM0   = assy.i_wmemi0;
   interface wsi_s_adc = assy.i_adc;
   interface wsi_m_dac = assy.i_dac;
 

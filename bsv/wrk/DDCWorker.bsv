@@ -100,7 +100,7 @@ endrule
     let resp <- ddc.getApb.get;  // AMBA3 provides responses for both write and read, we only support read here
     if (splitWriteInFlight) splitWriteInFlight <= False;
     if (splitReadInFlight)  splitReadInFlight  <= False;
-    wci.respPut.put(resp.isError ? wciErrorResponse : (splitWriteInFlight) ? wciOKResponse : WciResp{resp:DVA data:resp.data});
+    wci.respPut.put(resp.isError ? wciErrorResponse : (splitWriteInFlight) ? wciOKResponse : WciResp{resp:DVA, data:resp.data});
     if (resp.isError) ambaErrCnt  <= ambaErrCnt  + 1;
     else              ambaRespCnt <= ambaRespCnt + 1;
   endrule
@@ -149,7 +149,7 @@ endrule
      splitRead = True;
    end
      //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", //$time, wciReq.addr, wciReq.byteEn, rdat);
-     if (!splitRead) wci.respPut.put(WciResp{resp:DVA data:rdat}); // read response
+     if (!splitRead) wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
      else splitReadInFlight <= True;
   endrule
   
@@ -163,7 +163,7 @@ endrule
   
   Wsi_Es#(12,32,4,8,0)     wsi_Es    <- mkWsiStoES(wsiS.slv);
 
-  interface wciS0  = wci.slv
+  interface wciS0  = wci.slv;
   interface wsiS0  = wsi_Es;
   interface wsiM0 = toWsiEM(wsiM.mas); 
 endmodule
