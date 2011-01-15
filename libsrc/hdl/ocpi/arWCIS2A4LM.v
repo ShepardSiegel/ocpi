@@ -3,6 +3,7 @@
 //
 // 2010-09-12 Module declaration in Verilog
 // 2010-09-14 20b, 1MB Address Window on both sides of bridge
+// 2011-01-15 Switch to 32b 4GB address
 
 module arWCI2A4LM (
   input          bridge_Clk,
@@ -11,7 +12,7 @@ module arWCI2A4LM (
   input  [2:0]   wciS0_MCmd,            // WCI Slave...
   input  [0:0]   wciS0_MAddrSpace,      // MAddrSpace[0]: 0=Control ; 1=Configuration
   input  [3:0]   wciS0_MByteEn,
-  input  [19:0]  wciS0_MAddr,           // 20b 1MB Address Space
+  input  [31:0]  wciS0_MAddr,           // 32b 4GB Address Space
   input  [31:0]  wciS0_MData,
   output [1:0]   wciS0_SResp,
   output [31:0]  wciS0_SData,
@@ -21,7 +22,7 @@ module arWCI2A4LM (
 
   output         axiM0_AWVALID,         // AXI4-Lite Write-Address channel...
   input          axiM0_AWREADY,
-  output [19:0]  axiM0_AWADDR,          // 20b 1MB Address Space
+  output [31:0]  axiM0_AWADDR,          // 32b 4GB Address Space
   output [2:0]   axiM0_AWPROT,
   output         axiM0_WVALID,          // AXI4-Lite Write-Data channel...
   input          axiM0_WREADY,
@@ -32,7 +33,7 @@ module arWCI2A4LM (
   input  [1:0]   axiM0_BRESP,
   output         axiM0_ARVALID,         // AXI4-Lite Read-Address channel...
   input          axiM0_ARREADY,
-  output [19:0]  axiM0_ARADDR,          // 20b 1MB Address Space
+  output [31:0]  axiM0_ARADDR,          // 32b 4GB Address Space
   output [2:0]   axiM0_ARPROT,          // ARPROT[2]: 0=Data/Configuration ; 1=Instruction/Control
   input          axiM0_RVALID,          // AXI4-Lite Read-Data channel...
   output         axiM0_RREADY,
@@ -40,10 +41,10 @@ module arWCI2A4LM (
   input  [1:0]   axiM0_RRESP
 );
 
-wire[22:0] axiM0_wrAddr_data =       {axiM0_AWPROT, axiM0_AWADDR};
+wire[34:0] axiM0_wrAddr_data =       {axiM0_AWPROT, axiM0_AWADDR};
 wire[35:0] axiM0_wrData_data =       {axiM0_WSTRB,  axiM0_WDATA};
 wire[1:0]  axiM0_wrResp_data_value = {axiM0_BRESP};
-wire[22:0] axiM0_rdAddr_data =       {axiM0_ARPROT, axiM0_ARADDR};
+wire[34:0] axiM0_rdAddr_data =       {axiM0_ARPROT, axiM0_ARADDR};
 wire[33:0] axiM0_rdResp_data_value = {axiM0_RRESP,  axiM0_RDATA};
 
 // Instance the BSV module...

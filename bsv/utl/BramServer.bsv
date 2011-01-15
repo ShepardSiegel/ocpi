@@ -87,7 +87,7 @@ module mkBramServer (BramServerIfc);
   endrule
 
 
-  //Wci_Es#(20) wci_Es   <- mkWciStoES(wci.slv);
+  //Wci_Es#(32) wci_Es   <- mkWciStoES(wci.slv);
   WmemiES16B  wmemi_Es <- mkWmemiStoES(wmemi.slv);
 
   //interface             wci_s   = wci_Es; 

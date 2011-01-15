@@ -12,13 +12,13 @@ import FIFO::*;
 import GetPut::*;
 
 interface WCIS2A4LMIfc;
-  interface Wci_Es#(20) wciS0;  // WCI Slave
-  interface A4LMIfc     axiM0;  // AXI4-Lite Master
+  interface WciES    wciS0;  // WCI Slave
+  interface A4LMIfc  axiM0;  // AXI4-Lite Master
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkWCIS2A4LM#(parameter Bool hasDebugLogic) (WCIS2A4LMIfc);
-  WciSlaveIfc#(20)  wci     <- mkWciSlave;     // The WIP::WCI Slave Interface
+  WciSlaveIfc#(32)  wci     <- mkWciSlave;     // The WIP::WCI Slave Interface
   A4LMasterIfc      a4l     <- mkA4LMaster;    // The AXI4-Lite Master Interface
   FIFO#(Bit#(0))    token   <- mkFIFO1;        // Token to allow only one access in flight
 
@@ -27,7 +27,7 @@ module mkWCIS2A4LM#(parameter Bool hasDebugLogic) (WCIS2A4LMIfc);
 
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Write...
   let wciReq <- wci.reqGet.get;
-  a4l.f.wrAddr.enq(A4LAddrCmd{addr:extend(wciReq.addr), prot:aProtDflt});
+  a4l.f.wrAddr.enq(A4LAddrCmd{addr:wciReq.addr, prot:aProtDflt});
   a4l.f.wrData.enq(A4LWrData {strb:wciReq.byteEn, data:wciReq.data});
   token.enq(?);
   $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
@@ -43,7 +43,7 @@ endrule
 
 rule wci_cfrd (wci.configRead);  // WCI Configuration Property Read...
   let wciReq <- wci.reqGet.get;
-  a4l.f.rdAddr.enq(A4LAddrCmd{addr:extend(wciReq.addr), prot:aProtDflt});
+  a4l.f.rdAddr.enq(A4LAddrCmd{addr:wciReq.addr, prot:aProtDflt});
   token.enq(?);
   $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x",$time, wciReq.addr, wciReq.byteEn);
 endrule
@@ -61,7 +61,7 @@ rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; e
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);         wci.ctlAck; endrule
 
-  Wci_Es#(20) wci_Es <- mkWciStoES(wci.slv); 
+  WciES wci_Es <- mkWciStoES(wci.slv); 
   interface wciS0 = wci_Es;
   interface A4LMIfc axiM0 = a4l.a4lm;
 endmodule

@@ -37,9 +37,9 @@ DPMemRegion dpMemRegion1 = DPMemRegion {bar:1, offset:8, size:8};  // Bar 1, Off
 //
 interface OCCPIfc#(numeric type nWci);
   interface Server#(PTW16,PTW16) server;
-  interface Vector#(nWci,Wci_Em#(20)) wci_Vm;
-  method GPS64_t cpNow;
-  interface GPSIfc gps;
+  interface Vector#(nWci,WciEM)  wci_Vm;
+  method    GPS64_t   cpNow;
+  interface GPSIfc    gps;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
   (* always_ready, always_enabled *) method Action  uuid   (Bit#(512) arg);
@@ -80,7 +80,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
     //return (i<6||i>9) ? mkWciMaster : mkWciMasterNull;  // only instance the 11 (0:5,10:14)  we need
     return  mkWciMaster; // all get WCI masters
   endfunction
-  Vector#(Nwcit,WciMasterIfc#(20)) wci <- genWithM(makeWciMaster);  
+  Vector#(Nwcit,WciMasterIfc#(20,32)) wci <- genWithM(makeWciMaster);  
 
   Bit#(Nwcit)  wrkAttn;
   for (Integer i=0; i<iNwcit; i=i+1) wrkAttn[i]    = pack(wci[i].attn);
@@ -227,14 +227,12 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
     dispatched <= False;
   endrule
 
-  function Wci_m#(20) get_wci_Em (WciMasterIfc#(20) i) = i.mas;
-
+  function Wci_m#(32) get_wci_Em (WciMasterIfc#(20,32) i) = i.mas;
 
   function makeWciExpander (Integer i);
     return  mkWciMtoEm(wci[i].mas); 
   endfunction
-  Vector#(Nwcit,Wci_Em#(20)) wci_Emv <- genWithM(makeWciExpander);  
-  //Wci_Em#(20)          wci_Em <- mkWciMtoEm(wci.mas); 
+  Vector#(Nwcit,WciEM) wci_Emv <- genWithM(makeWciExpander);  
 
   interface Server server = tlp.server;
   method GPS64_t cpNow = timeServ.gpsTime;

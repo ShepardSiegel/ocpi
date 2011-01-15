@@ -23,7 +23,7 @@ import Connectable::*;
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi);
-  interface Vector#(nWci,Wci_s#(20))  wci_s;
+  interface Vector#(nWci,WciS)        wci_s;
   interface Vector#(nWmi,WmiM4B)      wmi_m;
   interface Wsi_s#(12,32,4,8,1)       wsi_s_adc;  //nd=32 not poly
 endinterface
@@ -39,19 +39,19 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   FPAdapter4BIfc  wmiW4     <-  mkFPAdapter4B (                      reset_by(rst[4]));
 
 
-  WciSlaveNullIfc#(20) tieOff5  <- mkWciSlaveNull;
-  WciSlaveNullIfc#(20) tieOff6  <- mkWciSlaveNull;
-  WciSlaveNullIfc#(20) tieOff7  <- mkWciSlaveNull;
-  WciSlaveNullIfc#(20) tieOff8  <- mkWciSlaveNull;
-  WciSlaveNullIfc#(20) tieOff9  <- mkWciSlaveNull;
-  WciSlaveNullIfc#(20) tieOff10 <- mkWciSlaveNull;
-  //WciSlaveNullIfc#(20) tieOff11 <- mkWciSlaveNull;
-  //WciSlaveNullIfc#(20) tieOff12 <- mkWciSlaveNull;
-  //WciSlaveNullIfc#(20) tieOff13 <- mkWciSlaveNull;
-  //WciSlaveNullIfc#(20) tieOff14 <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff5  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff6  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff7  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff8  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff9  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff10 <- mkWciSlaveNull;
+  //WciSlaveNullIfc#(32) tieOff11 <- mkWciSlaveNull;
+  //WciSlaveNullIfc#(32) tieOff12 <- mkWciSlaveNull;
+  //WciSlaveNullIfc#(32) tieOff13 <- mkWciSlaveNull;
+  //WciSlaveNullIfc#(32) tieOff14 <- mkWciSlaveNull;
 
   // Connect each worker to its WCI...
-  Vector#(nWci,Wci_s#(20)) vWci;
+  Vector#(nWci,WciS) vWci;
   vWci[0] = gcdW0.wciS0;
   vWci[1] = gcdW1.wciS0;
   vWci[2] = wmiW2.wciS0;

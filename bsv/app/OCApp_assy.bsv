@@ -23,12 +23,12 @@ import Connectable::*;
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
-  interface Vector#(nWci,Wci_Es#(20)) wci_s;
-  interface WmiEM4B                   wmiM0;
-  interface WmiEM4B                   wmiM1;
-  interface WmemiEM16B                wmemiM0;
-  interface WsiES4B                   wsi_s_adc;
-  interface WsiEM4B                   wsi_m_dac;
+  interface Vector#(nWci,WciES) wci_s;
+  interface WmiEM4B             wmiM0;
+  interface WmiEM4B             wmiM1;
+  interface WmemiEM16B          wmemiM0;
+  interface WsiES4B             wsi_s_adc;
+  interface WsiEM4B             wsi_m_dac;
 endinterface
 
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
@@ -42,7 +42,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   VdelayAssyIfc assy <- mkdelayAssy(wciClk, wciRst);
 
   // Connect each worker to its WCI...
-  Vector#(nWci,Wci_Es#(20)) vWci = ?;
+  Vector#(nWci,WciES) vWci = ?;
   vWci[2] = assy.i_wci1;
   vWci[3] = assy.i_wci0;
   vWci[4] = assy.i_wci2;

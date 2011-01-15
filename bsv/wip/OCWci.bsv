@@ -137,15 +137,26 @@ endinterface
 
 // Worker Control Interface (WCI)...
 //
-// na - number of bits in the Byte address
+// npa - the number of PAGED  address bits pre-pended to the nda to form the full address
+// nda - the number of DIRECT address bits directly provided by the fabric (e.g. 20b for a 1 MB Page)
+// na  - total number of bits in the COMPOSITE Byte address
+/*
+    33222222222211111111110000000000
+    10987654321098765432109876543210
+    |<--npa--->|                         PAGED
+                |<-----nda-------->|     DIRECT
+    |<--------na------------------>|     COMPOSITE
+*/
 
-// observation: The use of 20b (1MB) address space is not a WIP requirement, but rather a specification
-// of the of one control-plane implementaton (e.g. 15 workers with 1MB in a 16MB BAR). It has evolved as a
-// ad-hoc standard, and so these Type synonyms are used here for convienience...
-typedef Wci_m#(20)  WciM;
-typedef Wci_s#(20)  WciS;
-typedef Wci_Em#(20) WciEM;
-typedef Wci_Es#(20) WciES;
+// observation: The use of 32b (4GB) address space is not a WIP requirement, but rather a specification
+// of the of one control-plane implementaton (e.g. 15 workers each with 4GB address space addressed as
+// 15 1MB flat-maps, with the MSB's supploied by the conntrol planes pageWindow regsiter)
+// 32b (4GB) per worker has evolved as a ad-hoc standard, and so these Type synonyms are used here for convienience...
+typedef Wci_m#(32)  WciM;
+typedef Wci_s#(32)  WciS;
+typedef Wci_Em#(32) WciEM;
+typedef Wci_Es#(32) WciES;
+typedef Wci_Eo#(32) WciEO;
 
 typedef struct {
   OCP_CMD  cmd;           // OCP Command (non-Idle qualifies group)
@@ -513,18 +524,24 @@ endinstance
 // WciMaster is convienience IP for OpenCPI that
 // wraps up some OCP-IP/WIP/WCI boilerplate that may be used to talk to workers
 //
-interface WciMasterIfc#(numeric type na);
-  method Action                   req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be);
+interface WciMasterIfc#(numeric type nda, numeric type na);
+  method Action                req (WCI_SPACE sp, Bool write, Bit#(nda) addr, Bit#(32) wdata, Bit#(4) be);
   method ActionValue#(WciResp) resp; 
-  method Bool                     attn;
-  method Bool                     present;
+  method Bool                  attn;
+  method Bool                  present;
   interface Wci_m#(na)         mas;
 endinterface
 
-module mkWciMaster (WciMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
-  FIFOF#(WciReq#(na))       reqF             <- mkSizedDFIFOF(1,wciIdleRequest);
-  FIFOF#(WciResp)           respF            <- mkSizedFIFOF(1);
-  Wire#(WciResp)            wciResponse      <- mkWire;
+module mkWciMaster (WciMasterIfc#(nda,na)) provisos (
+    Add#(a_,5,nda),       // Insist that there are at least 5 address bits in nda to allow control ops
+    Add#(b_,nda,32),      // Compiler suggestion
+    Add#(c_,npa,32),      // Compiler suggestion
+    Add#(d_,5,na),        // Compiler suggestion
+    Add#(npa,nda,na));    // Express that npa+nda=na
+
+  FIFOF#(WciReq#(na))          reqF             <- mkSizedDFIFOF(1,wciIdleRequest);
+  FIFOF#(WciResp)              respF            <- mkSizedFIFOF(1);
+  Wire#(WciResp)               wciResponse      <- mkWire;
   PulseWire                    sThreadBusy_pw   <- mkPulseWire;
   Reg#(Bool)                   sThreadBusy_d    <- mkReg(True);
   Reg#(Bit#(2))                mFlagReg         <- mkReg(2'b10);  // big-endian
@@ -548,6 +565,7 @@ module mkWciMaster (WciMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
   Reg#(Maybe#(Bit#(32)))       lastConfigAddr   <- mkReg(tagged Invalid);
   Reg#(Maybe#(Bit#(4)))        lastConfigBE     <- mkReg(tagged Invalid);
   Reg#(Maybe#(Bool))           lastOpWrite      <- mkReg(tagged Invalid);
+  Reg#(Bit#(npa))              pageWindow       <- mkReg(0);      
 
   Bit#(32) toCount = 1<<wTimeout;
 
@@ -620,11 +638,12 @@ module mkWciMaster (WciMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
     end
   endrule
 
-  method Action req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be) if(!busy);
+  method Action req (WCI_SPACE sp, Bool write, Bit#(nda) addr, Bit#(32) wdata, Bit#(4) be) if(!busy);
+    Bit#(na) wciAddr = {pageWindow,addr}; // Concatenate pageWindow#(npa) with the direct addr#(nda)
     if (sp==Config) begin  // Configuration Space
       if (!wReset_n) respF.enq(wciResetResponse);
       else begin
-        let r = WciReq {cmd:write?WR:RD, addrSpace:'b1, addr:addr, data:wdata, byteEn:be};
+        let r = WciReq {cmd:write?WR:RD, addrSpace:'b1, addr:wciAddr, data:wdata, byteEn:be};
         lastConfigAddr <= tagged Valid(extend(addr));
         lastConfigBE   <= tagged Valid(be);
         lastOpWrite    <= tagged Valid(write);
@@ -648,12 +667,15 @@ module mkWciMaster (WciMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
     end else begin // Control-Status (accessable while reset)
       if (write) begin 
         case (addr[5:2])
-          4'h9: begin
+          4'h9: begin  // Worker Control Byte Offset 0x24...
             //$display("[%0d]: %m: WCI-Master Control-Staus Write rst/time9 wdata:%0x ", $time, wdata);
             wReset_n <= unpack(wdata[31]);
             wTimeout <= wdata[4:0];
             if (wdata[9]=='1) sfCapClear <= True;
             if (wdata[8]=='1) begin reqTO <= unpack(0); reqFAIL <= unpack(0); reqERR <= unpack(0); end
+          end
+          4'hC: begin // Worker Control Byte Offset 0x30...
+            pageWindow <= truncate(wdata);  // Write the pageWindow register
           end
         endcase
         respF.enq(WciResp{resp:DVA,data:'0});    // need to ack Control writes
@@ -662,6 +684,7 @@ module mkWciMaster (WciMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
           4'h8:    respF.enq(WciResp{resp:DVA,data:wStatus});                      // FFE0
           4'h9:    respF.enq(WciResp{resp:DVA,data:{pack(wReset_n),'0,wTimeout}}); // FFE4
           4'hA:    respF.enq(WciResp{resp:DVA,data:fromMaybe('1,lastConfigAddr)}); // FFE8
+          4'hC:    respF.enq(WciResp{resp:DVA,data:extend(pageWindow)}); //0x30               FFEC
           default: respF.enq(WciResp{resp:DVA,data:'0});
         endcase
       end
@@ -689,11 +712,11 @@ module mkWciMaster (WciMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
 endmodule
 
 // Null version..
-module mkWciMasterNull (WciMasterIfc#(na)) provisos (Add#(a_,5,na));
+module mkWciMasterNull (WciMasterIfc#(nda,na)) provisos (Add#(a_,5,na));
   Clock          clk     <- exposeCurrentClock;
   MakeResetIfc   mReset  <- mkReset(1, True, clk);
 
-  method Action req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be);
+  method Action req (WCI_SPACE sp, Bool write, Bit#(nda) addr, Bit#(32) wdata, Bit#(4) be);
     noAction;
   endmethod
   method ActionValue#(WciResp) resp;
@@ -703,28 +726,28 @@ module mkWciMasterNull (WciMasterIfc#(na)) provisos (Add#(a_,5,na));
   method Bool present = False;
   interface Wci_m mas;
     method WciReq#(na) req = wciIdleRequest;
-    method Action  put(WciResp wciResp); noAction; endmethod
-    method Action  sThreadBusy; noAction; endmethod
-    method Action  sFlag (Bit#(2) sf); noAction; endmethod
+    method Action   put(WciResp wciResp); noAction; endmethod
+    method Action   sThreadBusy; noAction; endmethod
+    method Action   sFlag (Bit#(2) sf); noAction; endmethod
     method Bit#(2)  mFlag    = 2'b00;
     interface Reset mReset_n = mReset.new_rst;
   endinterface 
 endmodule
 
 
-interface WciEMasterIfc#(numeric type na);
-  method Action                   req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be);
-  method ActionValue#(WciResp) resp; 
-  method Bool                     attn;
-  method Bool                     present;
-  interface Wci_Em#(na)        mas;
+interface WciEMasterIfc#(numeric type nda, numeric type na);
+  method Action                 req (WCI_SPACE sp, Bool write, Bit#(nda) addr, Bit#(32) wdata, Bit#(4) be);
+  method ActionValue#(WciResp)  resp; 
+  method Bool                   attn;
+  method Bool                   present;
+  interface Wci_Em#(na)         mas;
 endinterface
 
-module mkWciEMaster (WciEMasterIfc#(na)) provisos (Add#(a_,5,na), Add#(b_,na,32));
-  WciMasterIfc#(na) _a <- mkWciMaster;
+module mkWciEMaster (WciEMasterIfc#(nda,na)) provisos (Add#(a_,5,na), Add#(b_,na,32), Add#(c_,5,nda), Add#(d_,nda,32), Add#(e_,npa,32), Add#(npa,nda,na));
+  WciMasterIfc#(nda,na) _a <- mkWciMaster;
   Wci_Em#(na) wci_Em <- mkWciMtoEm(_a.mas);
   // Pass through all the interaces except for the expanded master...
-  method Action      req (WCI_SPACE sp, Bool write, Bit#(na) addr, Bit#(32) wdata, Bit#(4) be) = _a.req(sp,write,addr,wdata,be);
+  method Action      req (WCI_SPACE sp, Bool write, Bit#(nda) addr, Bit#(32) wdata, Bit#(4) be) = _a.req(sp,write,addr,wdata,be);
   method ActionValue#(WciResp) resp  = _a.resp;
   method Bool        attn    = _a.attn;
   method Bool        present = _a.present;
@@ -909,9 +932,9 @@ endinterface
 
 interface WciESlaveIfc;
   interface WciES                slv;
-  interface Get#(WciReq#(20))    reqGet;
+  interface Get#(WciReq#(32))    reqGet;
   interface Put#(WciResp)        respPut;
-  method WciReq#(20)             reqPeek;
+  method WciReq#(32)             reqPeek;
   method Bool                    configWrite;
   method Bool                    configRead;
   method Bool                    controlOp;
@@ -926,14 +949,14 @@ interface WciESlaveIfc;
 endinterface
 
 module mkWciESlave (WciESlaveIfc);
-  WciSlaveIfc#(20) wslv   <- mkWciSlave;
+  WciSlaveIfc#(32) wslv   <- mkWciSlave;
   WciES            wci_Es <- mkWciStoES(wslv.slv);   // Logic to go from concise to explicit
   
   // What we are doing here is returning the wslv interface, but we have to intercept *just* the first, slv, sub-interface...
   interface WciEs       slv            = wci_Es;        // This is the only interface/method replaced
   interface Get         reqGet         = wslv.reqGet;   // The rest of the interface/methods pass through...
   interface Put         respPut        = wslv.respPut;
-  method WciReq#(20)    reqPeek        = wslv.reqPeek;
+  method WciReq#(32)    reqPeek        = wslv.reqPeek;
   method Bool           configWrite    = wslv.configWrite;
   method Bool           configRead     = wslv.configRead;
   method Bool           controlOp      = wslv.controlOp;
@@ -1046,13 +1069,13 @@ endmodule
 // A WCI BFM Initiator...
 
 interface WciInitiatorIfc;
-  interface Wci_Em#(20) wciM0;
+  interface WciEM wciM0;
 endinterface
 
 //(* synthesize, reset_prefix="bar" *)
 (* synthesize *)
 module mkWciInitiator (WciInitiatorIfc);
-  WciMasterIfc#(20) initiator <- mkWciMaster;
+  WciMasterIfc#(20,32) initiator <- mkWciMaster;
   Reg#(Bool)           started   <- mkReg(False);
   // Add initiator behavior here...
   //WciResp resp = ?;
@@ -1077,7 +1100,7 @@ module mkWciInitiator (WciInitiatorIfc);
     started <= True;
   endrule
 
-  Wci_Em#(20) wci_Em <- mkWciMtoEm(initiator.mas);
+  WciEM wci_Em <- mkWciMtoEm(initiator.mas);
   interface Wci_Em wciM0 = wci_Em;
 endmodule
 
@@ -1085,12 +1108,12 @@ endmodule
 // A WCI BFM Target...
 
 interface WciTargetIfc;
-  interface Wci_Es#(20) wciS0;
+  interface WciES wciS0;
 endinterface
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkWciTarget (WciTargetIfc);
-  WciSlaveIfc#(20)    target       <- mkWciSlave;
+  WciSlaveIfc#(32)    target       <- mkWciSlave;
   Reg#(Bool)          operating    <- mkReg(False);
   Reg#(Bit#(32))      biasValue    <- mkRegU;          // storage for the biasValue
   Reg#(Bit#(32))      controlReg   <- mkRegU;          // storage for the controlReg
@@ -1130,7 +1153,7 @@ module mkWciTarget (WciTargetIfc);
   rule target_ctrl_IsO (target.ctlState==Initialized && target.ctlOp==Start); target.ctlAck; endrule
   rule target_ctrl_OrE (target.isOperating && target.ctlOp==Release); target.ctlAck; endrule
 
-  Wci_Es#(20) wci_Es <- mkWciStoES(target.slv);
+  WciES wci_Es <- mkWciStoES(target.slv);
   interface Wci_Em wciS0 = wci_Es;
 endmodule
 

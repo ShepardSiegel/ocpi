@@ -140,13 +140,13 @@ endmodule
 
 // The WciMonitor encapsulates the WCI Observer and PMEMSender...
 interface WciMonitorIfc;
-  interface Wci_Eo#(20)  observe;
-  interface WsiEM4B      pmem;
+  interface WciEO    observe;
+  interface WsiEM4B  pmem;
 endinterface
 
 (* synthesize *)
 module mkWciMonitor#(parameter Bit#(8) monId)  (WciMonitorIfc);
-  WciObserverIfc#(20) observer <- mkWciObserver;
+  WciObserverIfc#(32) observer <- mkWciObserver;
   PMEMSendIfc         pmsender <- mkPMEMSend(monId);
 
   mkConnection(observer.seen.get, pmsender.seen.put);

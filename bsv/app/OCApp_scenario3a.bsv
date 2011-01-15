@@ -23,12 +23,12 @@ import Connectable::*;
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
 interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
-  interface Vector#(nWci,Wci_Es#(20))    wci_s;
-  interface WmiEM4B                      wmiM0;
-  interface WmiEM4B                      wmiM1;
-  interface WmemiEM16B                   wmemiM0;
-  interface WsiES4B                      wsi_s_adc;
-  interface WsiEM4B                      wsi_m_dac;
+  interface Vector#(nWci,WciES)  wci_s;
+  interface WmiEM4B              wmiM0;
+  interface WmiEM4B              wmiM1;
+  interface WmemiEM16B           wmemiM0;
+  interface WsiES4B              wsi_s_adc;
+  interface WsiEM4B              wsi_m_dac;
 endinterface
 
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
@@ -41,12 +41,12 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   FrameGate4BIfc      appW6    <-  mkFrameGate4B       (32'h00000000, hasDebugLogic, reset_by(rst[6])); // FrameGate
 
   // TODO: Use Default for tieOff...
-  Wci_Es#(20) tieOff0  <- mkWciSlaveENull;
-  Wci_Es#(20) tieOff1  <- mkWciSlaveENull;
-  Wci_Es#(20) tieOff7  <- mkWciSlaveENull;
+  WciES tieOff0  <- mkWciSlaveENull;
+  WciES tieOff1  <- mkWciSlaveENull;
+  WciES tieOff7  <- mkWciSlaveENull;
 
   // Connect each worker to its WCI...
-  Vector#(nWci,Wci_Es#(20)) vWci;
+  Vector#(nWci,WciES) vWci;
   vWci[0] = tieOff0;
   vWci[1] = tieOff1;
   vWci[2] = appW2.wciS0;

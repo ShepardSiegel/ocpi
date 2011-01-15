@@ -7,10 +7,8 @@ import Alias::*;
 import Connectable::*;
 import GetPut::*;
 
-typedef 20 NwciAddr; // Implementer chosen number of WCI address byte bits
-
 interface FrameGateIfc#(numeric type ndw);
-  interface Wci_Es#(NwciAddr)                           wciS0;    // Worker Control and Configuration 
+  interface WciES                                       wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM0;    // WSI-M Stream Output
 endinterface 
@@ -21,7 +19,7 @@ module mkFrameGate#(parameter Bit#(32) fgCtrlInit, parameter Bool hasDebugLogic)
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;        // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));  // Shift amount between Bytes and ndw-wide Words
 
-  WciSlaveIfc #(NwciAddr)        wci                <- mkWciSlave;
+  WciSlaveIfc#(32)               wci                <- mkWciSlave;
   WsiSlaveIfc #(12,nd,nbe,8,0)   wsiS               <- mkWsiSlave;
   WsiMasterIfc#(12,nd,nbe,8,0)   wsiM               <- mkWsiMaster;
   Reg#(Bit#(32))                 frameGateCtrl      <- mkReg(fgCtrlInit);
@@ -109,7 +107,7 @@ endrule
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
 rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
-  Wci_Es#(NwciAddr)    wci_Es    <- mkWciStoES(wci.slv); 
+  WciES                   wci_Es    <- mkWciStoES(wci.slv); 
   Wsi_Es#(12,nd,nbe,8,0)  wsi_Es    <- mkWsiStoES(wsiS.slv);
 
   interface wciS0  = wci_Es;

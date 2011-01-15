@@ -28,7 +28,7 @@ interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
   interface Server#(PTW16,PTW16) server;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
-  interface Vector#(nWci_ctop,Wci_Em#(20))               wci_m;
+  interface Vector#(nWci_ctop,WciEM)                        wci_m;
   interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiDP0;  
   interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiDP1;  
   method    GPS64_t   cpNow;
@@ -46,7 +46,7 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   UNoCIfc         noc  <- mkUNoC;                                // uNoC Netword-on-Chip
 
   // Intercept the highest-numbered WCI for infrastructure control and properties...
-  Vector#(15,Wci_Em#(20)) vWci;
+  Vector#(15,WciEM) vWci;
   vWci = cp.wci_Vm;
   // Pull out the resets so we can use them to reset infrastructure IPs...
   Vector#(15, Reset) rst = newVector;
