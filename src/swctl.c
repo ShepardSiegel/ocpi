@@ -53,7 +53,9 @@ typedef struct {
     status,
     control,
     config_addr,
-    pad[5];
+    stickyClear,
+    pageWindow,
+    pad[3];
 } OCCP_WorkerControl;
 
 typedef struct {
@@ -112,7 +114,7 @@ typedef struct {
 
 
 typedef int func(volatile OCCP_Space *, char **, volatile OCCP_WorkerControl *, volatile uint8_t *, volatile OCDP_Space *);
-static func admin, wdump, wread, wwrite, wadmin, settime, deltatime, wop, wwctl, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset;
+static func admin, wdump, wread, wwrite, wadmin, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset;
 
 typedef struct {
   char *name;
@@ -121,23 +123,24 @@ typedef struct {
 } OCCP_Command;
 
 static OCCP_Command commands[] = {
-  {"admin", admin},	// dump admin
-  {"wdump", wdump, 1},  // dump worker controls
-  {"wread", wread, 1},  // read worker config
-  {"wwrite", wwrite, 1},// write worker config
-  {"wadmin", wadmin},   // write admin space
-  {"settime", settime}, // set the FPGA to system time
-  {"deltatime", deltatime}, // Measure the difference of FPGA-Host (+ means FPGA leading)
-  {"wop", wop, 1},      // do control op
-  {"wwctl", wwctl, 1},  // write worker control register
-  {"dtest", dtest, 1},     // Perform test on data memory
-  {"smtest", smtest, 1},   // Perform test on SelectMAP ICAP 
-  {"dmeta", dmeta},     // Dump metadata
-  {"dpnd", dpnd}, // Pull without copying data
-  {"dread", dread}, // Dump some data plane
-  {"dwrite", dwrite}, // Write some data plane
+  {"admin", admin},	         // dump admin
+  {"wdump", wdump, 1},       // dump worker controls
+  {"wread", wread, 1},       // read worker config
+  {"wwrite", wwrite, 1},     // write worker config
+  {"wadmin", wadmin},        // write admin space
+  {"settime", settime},      // set the FPGA to system time
+  {"deltatime", deltatime},  // Measure the difference of FPGA-Host (+ means FPGA leading)
+  {"wop", wop, 1},           // do control op
+  {"wwctl", wwctl, 1},       // write worker control register
+  {"wwpage", wwpage, 1},     // write worker pageWindow register
+  {"dtest", dtest, 1},       // Perform test on data memory
+  {"smtest", smtest, 1},     // Perform test on SelectMAP ICAP 
+  {"dmeta", dmeta},          // Dump metadata
+  {"dpnd", dpnd},            // Pull without copying data
+  {"dread", dread},          // Dump some data plane
+  {"dwrite", dwrite},        // Write some data plane
   {"wunreset", wunreset, 1}, // deassert reset for worker
-  {"wreset", wreset, 1}, // assert reset for worker
+  {"wreset", wreset, 1},     // assert reset for worker
   {0}
 };
 
@@ -636,6 +639,18 @@ wwctl(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
   *p32 = val;
   return 0;
 }
+
+static int
+wwpage(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  unsigned val = atoi_any(*ap, 0);
+  uint32_t *p32 = (uint32_t *)&w->pageWindow;
+  printf("Worker %ld, pageWindow register value: 0x%x\n", (OCCP_WorkerControlSpace *)w - p->control, val);
+  
+  *p32 = val;
+  return 0;
+}
+
 static int
 wunreset(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
 {
@@ -646,6 +661,7 @@ wunreset(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, vola
   *p32 = val | 0x80000000;
   return 0;
 }
+
 static int
 wreset(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
 {
@@ -664,6 +680,7 @@ wdump(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
   printf(" Status:     0x%08x\n", w->status);
   printf(" Control:    0x%08x\n", w->control);
   printf(" ConfigAddr: 0x%08x\n", w->config_addr);
+  printf(" pageWindow: 0x%08x\n", w->pageWindow);
   return 0;
 }
 

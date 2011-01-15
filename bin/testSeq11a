@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/sh 
 # Script for testing AXI4L Bridge and A4LS
+# Goes beyond testSeq11 to test the pageWindow address capability
 
 ./swctl 0xF1000000 0xF2FF0000 settime
 ./swctl 0xF1000000 0xF2FF0000 admin
@@ -15,3 +16,12 @@ echo write then read back...
 ./swctl 0xF1000000 0xF2FF0000 wread 0 0x0 10
 
 ./swctl 0xF1000000 0xF2FF0000 wdump 0 
+
+echo now lets set the two MSB of a 32b Address space 
+./swctl 0xF1000000 0xF2FF0000 wwpage 0 0xC00
+./swctl 0xF1000000 0xF2FF0000 wdump 0 
+
+echo now lets write up hi
+./swctl 0xF1000000 0xF2FF0000 wwrite 0 0x4 0x30000033
+
+./swctl 0xF1000000 0xF2FF0000 wread 0 0x0 10
