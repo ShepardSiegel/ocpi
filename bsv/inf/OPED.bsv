@@ -60,7 +60,7 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     UNoCIfc              noc        <- mkUNoC;                              // uNoC Network-on-Chip
     OCCPIfc#(Nwcit)      cp         <- mkOCCP(pciDevice, p125Clk, p125Rst); // Control Plane
 
-    Vector#(15,Wci_Em#(20)) vWci; vWci = cp.wci_Vm; // splay apart the individual Reset signals from the Control Plane
+    Vector#(15,WciEM) vWci; vWci = cp.wci_Vm; // splay apart the individual Reset signals from the Control Plane
     Vector#(15, Reset) rst = newVector; for (Integer i=0; i<15; i=i+1) rst[i] = vWci[i].mReset_n;
 
     WCIS2A4LMIfc  wci2axi <- mkWCIS2A4LM(hasDebugLogic,reset_by rst[0]);           // W0: WCI to AXI4-Lite Bridge

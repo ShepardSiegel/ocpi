@@ -6,7 +6,7 @@ import OCWip::*;
 import GetPut::*;
 
 interface WsiSplitter2x2Ifc#(numeric type ndw);
-  interface Wci_ES                                       wciS0;
+  interface WciES                                        wciS0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiS0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiS1;
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)   wsiM0;

@@ -15,7 +15,7 @@ import StmtFSM::*;
 module mkTB12();
 
   Reg#(Bit#(16))              simCycle       <- mkReg(0);       // simulation cycle counter
-  WciEMasterIfc#(20)          wci            <- mkWciEMaster;   // WCI-OCP-Master convienenice logic
+  WciEMasterIfc#(20,32)       wci            <- mkWciEMaster;   // WCI-OCP-Master convienenice logic
   WsiMasterIfc#(12,32,4,8,0)  wsiM           <- mkWsiMaster;    // WSI-OCP-Master convienenice logic
   WsiSlaveIfc #(12,32,4,8,0)  wsiS           <- mkWsiSlave;     // WSI-OCP-Slave  convienenice logic
 
