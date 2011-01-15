@@ -382,6 +382,16 @@ ml555:
 	mv build/tmp-ml555 build/ml555-`date +%Y%m%d_%H%M`
 	echo ml555 Build complete
 
+ml555nf:
+	mkdir -p build
+	rm -rf build/tmp-ml555nf
+	cp -r $(BUILD_HDL) build/tmp-ml555nf
+	cp ucf/ml555nf.ucf build/tmp-ml555nf
+	cp ucf/ml555nf.xcf build/tmp-ml555nf
+	cd build/tmp-ml555nf; ./build_fpgaTop ml555nf
+	mv build/tmp-ml555nf build/ml555nf-`date +%Y%m%d_%H%M`
+	echo ml555nf Build complete
+
 xupv5:
 	mkdir -p build
 	rm -rf build/tmp-xupv5

@@ -24,6 +24,13 @@ switch ($buildTarget)
     set DDC  = ddc-4243-4ch-v5
     set CSIN = csdef101_v5.cdc
     breaksw
+  case ml555nf:
+    set PART = xc5vlx50t-ff1136-1
+    set PCIe = pcie-4243-v5-gtp-x8-125
+    set FFT  = fft-v5-4k-strm-nat
+    set DDC  = ddc-4243-4ch-v5
+    set CSIN = csdef101_v5.cdc
+    breaksw
   case xupv5:
     set PART = xc5vlx110t-ff1136-1
     set PCIe = pcie-4243-v5-gtp-x1-125
