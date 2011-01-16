@@ -15,6 +15,7 @@ A4LS      ?= A4LS
 RTEST5    ?= FTop_ml555
 RTEST5a   ?= FTop_shist
 RTEST5n   ?= FTop_nf10
+RTEST5x   ?= FTop_xupv5
 RTEST6    ?= FTop_ml605
 RTESTS6   ?= FTop_sp605
 OBJ       ?= obj
@@ -320,6 +321,19 @@ platform_nf10: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
 		-verilog-filter basicinout $(BSVTOP)/$(RTEST5n).bsv
+
+
+######################################################################
+platform_xupv5: $(OBJ)
+	
+	# compile to verilog backend for RTL
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D DEFINE_NDW=1 \
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST5x).bsv
 
 
 ######################################################################
