@@ -1,0 +1,14 @@
+README - app
+
+SCENARIOS
+The use of "scenarios" dates back to the OpenCPI JCREW work in the summer of CY2010
+"scenarios" in this respect were plug-in moduels for OCApp that all had the same signature
+Their use is deprecated, but they remain on for legacy.
+
+Scenario Function
+0        SMA/Bias/SMA   (W2,W3,W4)
+1        SMA/Delay/SMA  (W2,W3,W4)
+2        SMA/DDC/SMA    (W2,W3,W4)
+3a       SMA/Delay/SMA + Splitter/FrameGate      (W2,W3,W4 + W5,W6)
+3b       SMA/Delay/SMA + Splitter/FrameGate/PSD  (W2,W3,W4 + W5,W6,W7)
+4        SMA/PSD/SMA    (W2,W3,W4)
