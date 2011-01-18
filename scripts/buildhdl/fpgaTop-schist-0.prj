@@ -18,6 +18,6 @@ verilog work "../../rtl/mkOCApp4B_scenario0.v"
 
 verilog work "../../rtl/mkCTop4B.v"
 
-verilog work "../../rtl/mkFTop_shist.v"
+verilog work "../../rtl/mkFTop_schist.v"
 
-verilog work "../../libsrc/hdl/ocpi/fpgaTop_shist.v"
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_schist.v"

@@ -13,7 +13,7 @@ ITEST12   ?= TB12
 OPED      ?= OPED
 A4LS      ?= A4LS
 RTEST5    ?= FTop_ml555
-RTEST5a   ?= FTop_shist
+RTEST5a   ?= FTop_schist
 RTEST5n   ?= FTop_nf10
 RTEST5x   ?= FTop_xupv5
 RTEST6    ?= FTop_ml605
@@ -298,7 +298,7 @@ platform_ml555: $(OBJ)
 		-verilog-filter basicinout $(BSVTOP)/$(RTEST5).bsv
 
 ######################################################################
-platform_shist: $(OBJ)
+platform_schist: $(OBJ)
 	
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
@@ -426,15 +426,15 @@ alder:
 	mv build/tmp-alder build/alder-`date +%Y%m%d_%H%M`
 	echo alder Build complete
 
-shist:
+schist:
 	mkdir -p build
-	rm -rf build/tmp-shist
-	cp -r $(BUILD_HDL) build/tmp-shist
-	cp ucf/shist.ucf build/tmp-shist
-	cp ucf/shist.xcf build/tmp-shist
-	cd build/tmp-shist; ./build_fpgaTop shist
-	mv build/tmp-shist build/shist-`date +%Y%m%d_%H%M`
-	echo shist Build complete
+	rm -rf build/tmp-schist
+	cp -r $(BUILD_HDL) build/tmp-schist
+	cp ucf/schist.ucf build/tmp-schist
+	cp ucf/schist.xcf build/tmp-schist
+	cd build/tmp-schist; ./build_fpgaTop schist
+	mv build/tmp-schist build/schist-`date +%Y%m%d_%H%M`
+	echo schist Build complete
 
 illite:
 	mkdir -p build
@@ -492,7 +492,7 @@ build_all:
 	make ml555
 	make xupv5
 	make alder
-	make shist
+	make schist
 	make illite
 	make biotite
 	make verilog_v6

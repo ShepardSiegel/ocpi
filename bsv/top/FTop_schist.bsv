@@ -1,4 +1,4 @@
-// FTop_shist.bsv
+// FTop_schist.bsv
 // Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import CTop         ::*;
@@ -26,7 +26,7 @@ import PCIE              ::*;
 import PCIEInterrupt     ::*;
 import ClientServer      ::*;
 
-interface FTop_shistIfc;
+interface FTop_schistIfc;
   interface PCIE_EXP#(8) pcie;
   (* always_ready *) method Bit#(3) led;
   interface P_Max19692Ifc dac0;                 // DAC0 Maxim-19692
@@ -36,16 +36,16 @@ interface FTop_shistIfc;
   interface GPSIfc     gps;                     // GPS Interface
   interface DDR2_32    dram;                    // DDR2 32b DRAM 
   interface Clock      trnClk; 
-endinterface: FTop_shistIfc
+endinterface: FTop_schistIfc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_shist#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Reference
+module mkFTop_schist#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Reference
                      Clock sys1_clkp, Clock sys1_clkn,  // 300 MHz Reference
                      Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn,  // PCIe clock
                      Clock dac_clkp,  Clock dac_clkn, 
                      Clock adc_clkp,  Clock adc_clkn,
                      Clock adc0_clkp, Clock adc0_clkn,
-                     Clock adc1_clkp, Clock adc1_clkn)(FTop_shistIfc);
+                     Clock adc1_clkp, Clock adc1_clkn)(FTop_schistIfc);
 
   // Instance the wrapped, technology-specific PCIE core...
   PCIEwrapIfc#(8)  pciw       <- mkPCIEwrap("V5",pci0_clkp, pci0_clkn, pci0_rstn);
@@ -124,4 +124,4 @@ module mkFTop_shist#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Reference
   interface adc1   = adcW10.adc1;
   interface dac0   = dacW11.dac0;
   interface trnClk = p125Clk;
-endmodule: mkFTop_shist
+endmodule: mkFTop_schist

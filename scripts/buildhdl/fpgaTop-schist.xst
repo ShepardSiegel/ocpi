@@ -1,7 +1,7 @@
 set -xsthdpini ocpihdp_v5.ini
 run
--ifn fpgaTop-shist.prj
--uc shist.xcf
+-ifn fpgaTop-schist.prj
+-uc schist.xcf
 -ifmt mixed
 -ofn fpgaTop
 -ofmt NGC
