@@ -134,7 +134,7 @@ isim: $(OBJ)
 		$(BSVTST)/$(ITEST).bsv
 	
 	bsc -vsim isim -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST) -o runsim
-	./runsim -testplusarg bsvvcd
+	./runsim -testplusarg bscvcd
 
 ######################################################################
 isim7: $(OBJ)
@@ -149,7 +149,7 @@ isim7: $(OBJ)
 		$(BSVTST)/$(ITEST7).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST7) -o runsim
-	./runsim -testplusarg bsvvcd
+	./runsim -testplusarg bscvcd
 
 ######################################################################
 isim8: $(OBJ)
@@ -164,7 +164,7 @@ isim8: $(OBJ)
 		$(BSVTST)/$(ITEST8).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST8) -o runsim
-	./runsim -testplusarg bsvvcd
+	./runsim -testplusarg bscvcd
 
 ######################################################################
 isim10: $(OBJ)
@@ -179,7 +179,7 @@ isim10: $(OBJ)
 		$(BSVTST)/$(ITEST10).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST10) -o runsim
-	./runsim -testplusarg bsvvcd
+	./runsim -testplusarg bscvcd
 
 ######################################################################
 isim11: $(OBJ)
@@ -194,7 +194,7 @@ isim11: $(OBJ)
 		$(BSVTST)/$(ITEST11).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST11) -o runsim
-	./runsim -testplusarg bsvvcd
+	./runsim -testplusarg bscvcd
 
 ######################################################################
 isim12: $(OBJ)
