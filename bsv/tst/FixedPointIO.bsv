@@ -92,11 +92,3 @@ provisos ( Add#(TAdd#(i,f),_xxx,31)
 endfunction
 
 endpackage
-ActionValue#(mfp) reader = fxptReadFile;
-      Vector#( TMul#(n,2), mfp)  mdoubles <- replicateM(reader);
-
-      Bool valid = all (isValid, mdoubles);
-      if (valid) begin
-         Vector#(TMul#(n,2), fp) doubles = map (fromMaybe(0), mdoubles);
-         res = tagged Valid (mapPairs (cmplx
-                                      ,error("Sho
