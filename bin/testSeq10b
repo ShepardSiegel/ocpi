@@ -1,0 +1,10 @@
+#!/bin/sh
+
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+./swctl 0xF1000000 0xF2FF0000 wreset 8
+./swctl 0xF1000000 0xF2FF0000 wunreset 8
+./swctl 0xF1000000 0xF2FF0000 wop 8 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 8 start
+./swctl 0xF1000000 0xF2FF0000 smtest 8 0 0
+
