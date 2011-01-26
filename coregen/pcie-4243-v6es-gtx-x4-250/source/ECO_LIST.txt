@@ -1,0 +1,21 @@
+ECO_LIST
+2011-01-24 ssiegel drp_clk
+
+// These two files were edited to provide the 125 MHz drp_clk available in later cores...
+-rw-rw-r--. 1 shep shep 51157 Jan 26 17:51 v6_pcie_v1_3.v
+-rw-rw-r--. 1 shep shep 11129 Jan 26 17:51 pcie_clocking_v6.v
+
+// Unchnaged from Coregen 1.3(rev2) in ISE 12.4
+-rw-rw-r--. 1 shep shep  9523 Jan 26 16:59 gtx_rx_valid_filter_v6.v
+-rw-rw-r--. 1 shep shep 17327 Jan 26 16:59 gtx_tx_sync_rate_v6.v
+-rw-rw-r--. 1 shep shep 23828 Jan 26 16:59 gtx_wrapper_v6.v
+-rw-rw-r--. 1 shep shep 79954 Jan 26 16:59 pcie_2_0_v6.v
+-rw-rw-r--. 1 shep shep  8375 Jan 26 16:59 pcie_brams_v6.v
+-rw-rw-r--. 1 shep shep  5824 Jan 26 16:59 pcie_bram_top_v6.v
+-rw-rw-r--. 1 shep shep 11174 Jan 26 16:59 pcie_bram_v6.v
+-rw-rw-r--. 1 shep shep 23025 Jan 26 16:59 pcie_gtx_v6.v
+-rw-rw-r--. 1 shep shep 12442 Jan 26 16:59 pcie_pipe_lane_v6.v
+-rw-rw-r--. 1 shep shep  7476 Jan 26 16:59 pcie_pipe_misc_v6.v
+-rw-rw-r--. 1 shep shep 39014 Jan 26 16:59 pcie_pipe_v6.v
+-rw-rw-r--. 1 shep shep  3948 Jan 26 16:59 pcie_reset_delay_v6.v
+-rw-rw-r--. 1 shep shep  5447 Jan 26 16:59 pcie_upconfig_fix_3451_v6.v

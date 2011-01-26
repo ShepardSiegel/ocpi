@@ -61,7 +61,7 @@ switch ($buildTarget)
     breaksw
   case ml605
     set PART = xc6vlx240t-ff1156-1
-    set PCIe = pcie-4243-v6-x4-250
+    set PCIe = pcie-4243-v6es-gtx-x4-250
     set FFT  = fft-v5-4k-strm-nat
     set DDC  = ddc-4243-4ch-v5
     set CSIN = ml605_1102.cdc

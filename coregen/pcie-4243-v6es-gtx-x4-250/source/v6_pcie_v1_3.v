@@ -341,6 +341,7 @@ module v6_pcie_v1_3 # (
   output                                        trn_clk,
   output                                        trn_reset_n,
   output                                        trn_lnk_up_n,
+  output                                        drp_clk,             // trn_clk (250 MHz) divided by two (125 MHz)
 
   // Tx
   output  [5:0]                                 trn_tbuf_av,
@@ -705,6 +706,7 @@ pcie_clocking_i (
   .pipe_clk                ( pipe_clk ),
   .user_clk                ( user_clk ),
   .block_clk               ( block_clk ),
+  .drp_clk                 ( drp_clk ),        // added DRP
   .clock_locked            ( clock_locked )
 
 );

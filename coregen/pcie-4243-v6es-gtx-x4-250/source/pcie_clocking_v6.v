@@ -69,6 +69,7 @@ module pcie_clocking_v6 # (
   output wire        pipe_clk,
   output wire        user_clk,
   output wire        block_clk,
+  output wire        drp_clk,        // added DRP
   output wire        clock_locked
    
 );
@@ -211,6 +212,9 @@ module pcie_clocking_v6 # (
     end
 
   endgenerate
+
+  // DRP clock for 125 MHz phase allign output
+  BUFG drp_clk_bufg_i (.O(drp_clk), .I(clk_125));
 
   // Feedback BUFG. Required for Temp Compensation
   BUFG clkfbin_bufg_i  (.O(mmcm_clkfbin), .I(mmcm_clkfbout));
