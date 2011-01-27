@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<project xmlns="http://www.xilinx.com/XMLSchema" xmlns:xil_pn="http://www.xilinx.com/XMLSchema">
+
+  <header>
+    <!--
+    ISE source project file created by Project Navigator.
+
+    This file contains project source information including a list of
+    project source files, project and process properties.  This file,
+    along with the project source files, is sufficient to open and
+    implement in ISE Project Navigator.
+
+    (c) Copyright 1995-2010 Xilinx, Inc.  All rights reserved.
+
+    This file contains confidential and proprietary information
+    of Xilinx, Inc. and is protected under U.S. and
+    international copyright and other intellectual property
+    laws.
+
+    DISCLAIMER
+    This disclaimer is not a license and does not grant any
+    rights to the materials distributed herewith. Except as
+    otherwise provided in a valid license issued to you by
+    Xilinx, and to the maximum extent permitted by applicable
+    law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+    WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+    AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+    BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+    INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+    (2) Xilinx shall not be liable (whether in contract or tort,
+    including negligence, or under any other theory of
+    liability) for any loss or damage of any kind or nature
+    related to, arising under or in connection with these
+    materials, including for any direct, or any indirect,
+    special, incidental, or consequential loss or damage
+    (including loss of data, profits, goodwill, or any type of
+    loss or damage suffered as a result of any action brought
+    by a third party) even if such damage or loss was
+    reasonably foreseeable or Xilinx had been advised of the
+    possibility of the same.
+
+    CRITICAL APPLICATIONS
+    Xilinx products are not designed or intended to be fail-
+    safe, or for use in any application requiring fail-safe
+    performance, such as life-support or safety devices or
+    systems, Class III medical devices, nuclear facilities,
+    applications related to the deployment of airbags, or any
+    other applications that could lead to death, personal
+    injury, or severe property or environmental damage
+    (individually and collectively, "Critical
+    Applications"). Customer assumes the sole risk and
+    liability of any use of Xilinx products in Critical
+    Applications, subject only to applicable laws and
+    regulations governing limitations on product liability.
+
+    THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+    PART OF THIS FILE AT ALL TIMES.
+    -->
+  </header>
+
+  <version xil_pn:ise_version="12.3" xil_pn:schema_version="2"/>
+
+  <files>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/EP_MEM.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/pcie_app_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/PIO.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/PIO_64_RX_ENGINE.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/PIO_64_TX_ENGINE.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+
+    <file xil_pn:name="v6_pcie_v2_2/example_design/PIO_EP.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/PIO_EP_MEM_ACCESS.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/PIO_TO_CTRL.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/xilinx_pcie_2_0_ep_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/example_design/xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1_ML605.ucf" xil_pn:type="FILE_UCF">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/axi_basic_rx.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/axi_basic_rx_null_gen.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/axi_basic_rx_pipeline.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/axi_basic_top.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/axi_basic_tx.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/axi_basic_tx_pipeline.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/axi_basic_tx_thrtl_ctl.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/v6_pcie_v2_2.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/gtx_drp_chanalign_fix_3752_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/gtx_rx_valid_filter_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/gtx_tx_sync_rate_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/gtx_wrapper_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_2_0_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_bram_top_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_bram_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_brams_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_clocking_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_gtx_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_pipe_lane_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_pipe_misc_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_pipe_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_reset_delay_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/source/pcie_upconfig_fix_3451_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/functional/board.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/functional/sys_clk_gen.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/functional/sys_clk_gen_ds.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/dsport/pci_exp_usrapp_cfg.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/dsport/pci_exp_usrapp_com.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/dsport/pci_exp_usrapp_pl.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/dsport/pci_exp_usrapp_rx.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/dsport/pci_exp_usrapp_tx.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/dsport/pcie_2_0_rport_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+    <file xil_pn:name="v6_pcie_v2_2/simulation/dsport/xilinx_pcie_2_0_rport_v6.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
+  </files>
+
+  <properties>
+    <property xil_pn:name="Device Family" xil_pn:value="Virtex6" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Device" xil_pn:value="xc6vlx240t" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Device Speed Grade/Select ABS Minimum" xil_pn:value="-1" xil_pn:valueState="default"/>
+    <property xil_pn:name="Implementation Top" xil_pn:value="Module|xilinx_pcie_2_0_ep_v6" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top File" xil_pn:value="v6_pcie_v2_2/example_design/xilinx_pcie_2_0_ep_v6.v" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="v6_pcie_v2_2/xilinx_pcie_2_0_ep_v6" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Package" xil_pn:value="ff1156" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Specify Search Directories for 'Include" xil_pn:value="v6_pcie_v2_2/simulation/functional|/simulation/tests" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Synthesis Constraints File" xil_pn:value="v6_pcie_v2_2/implement/xilinx_pcie_2_0_ep_v6.xcf" xil_pn:valueState="non-default"/>
+    <!--                                                                                  -->
+    <!-- The following properties are for internal use only. These should not be modified.-->
+    <!--                                                                                  -->
+  </properties>
+
+  <bindings/>
+
+  <libraries/>
+
+  <autoManagedFiles>
+    <!-- The following files are identified by `include statements in verilog -->
+    <!-- source files and are automatically managed by Project Navigator.     -->
+    <!--                                                                      -->
+    <!-- Do not hand-edit this section, as it will be overwritten when the    -->
+    <!-- project is analyzed based on files automatically identified as       -->
+    <!-- include files.                                                       -->
+  </autoManagedFiles>
+
+</project>
