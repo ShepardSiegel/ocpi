@@ -1,5 +1,5 @@
 // AXIS_LOOPBACK - For testing the OPED component
-// Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 //
 // The purpose of this module is to loopback the AXI4-Stream that is produced
 // by the OPED to the stream that is consumed by the OPED. In this way, this
@@ -18,7 +18,7 @@ module AXIS_LOOPBACK (
   input  wire [15:0]  S_AXIS_LEN_TDATA,
   input  wire [7:0]   S_AXIS_SPT_TDATA,
   input  wire [7:0]   S_AXIS_DPT_TDATA,
-  input  wire         S_AXIS_ERR_TDATA,
+  input  wire         S_AXIS_ERR_TVALID,
   output wire [255:0] M_AXIS_DAT_TDATA,
   output wire         M_AXIS_DAT_TVALID,
   output wire [31:0]  M_AXIS_DAT_TSTRB,
@@ -27,7 +27,7 @@ module AXIS_LOOPBACK (
   output wire [15:0]  M_AXIS_LEN_TDATA,
   output wire [7:0]   M_AXIS_SPT_TDATA,
   output wire [7:0]   M_AXIS_DPT_TDATA,
-  output wire         M_AXIS_ERR_TDATA
+  output wire         M_AXIS_ERR_TVALID
 );
 
 // Just loop the signals through...
@@ -39,6 +39,6 @@ module AXIS_LOOPBACK (
   assign M_AXIS_LEN_TDATA  = S_AXIS_LEN_TDATA;
   assign M_AXIS_SPT_TDATA  = S_AXIS_SPT_TDATA;
   assign M_AXIS_DPT_TDATA  = S_AXIS_DPT_TDATA;
-  assign M_AXIS_ERR_TDATA  = S_AXIS_ERR_TDATA;
+  assign M_AXIS_ERR_TVALID = S_AXIS_ERR_TVALID;
 
 endmodule

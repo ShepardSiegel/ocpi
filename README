@@ -40,7 +40,7 @@ OpenCPI website: www.opencpi.org
   where <target> is one of these platform names..
      ml555
      alder
-     shist
+     schist
      xupv5
      biotite
      nf10
@@ -93,7 +93,8 @@ OpenCPI website: www.opencpi.org
       $ make isim
 
 8.  Compiling infrastructure IP written in BSV using the Bluespec compilier (requires bsc)
-      $ make {verilog_v5|verilog_v5a|verilog_v6}
+      $ make platform_{xupv5|ml555|schist|ml605}
+      (see Makefile for valid targets)
 
 9. FAQs
   "My bitstream build failed, where can I look to see what went wrong?"
@@ -110,3 +111,4 @@ OpenCPI website: www.opencpi.org
 2010-12-18 ISE 12.4 Libraries
 2010-12-16 XUPV5 testOK on core920
 2010-12-16 ML605 testOK, but some issue (same) with SX95T and ML555 (multiple changed in flight?)
+2011-01-31 tweaks

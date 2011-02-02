@@ -1,0 +1,77 @@
+#////////////////////////////////////////////////////////////////////////
+#//
+#//  NetFPGA-10G http://www.netfpga.org
+#//
+#//  Module:
+#//          nf10_axis_xxx.mpd
+#//
+#//  Description:
+#//          Microprocessor Peripheral Description File
+#//                 
+#//  Revision history:
+#//          2011/01/15 mblott: Initial check-in
+#//
+#////////////////////////////////////////////////////////////////////////
+
+BEGIN nf10_axis_xxx
+
+## Peripheral Options
+## you name it...
+
+## Bus Interfaces
+BUS_INTERFACE BUS = M_AXIS_DAT, BUS_STD = AXIS, BUS_TYPE = INITIATOR
+BUS_INTERFACE BUS = S_AXIS_DAT, BUS_STD = AXIS, BUS_TYPE = TARGET
+BUS_INTERFACE BUS = M_AXIS_LEN, BUS_STD = AXIS, BUS_TYPE = INITIATOR
+BUS_INTERFACE BUS = S_AXIS_LEN, BUS_STD = AXIS, BUS_TYPE = TARGET
+BUS_INTERFACE BUS = M_AXIS_ERR, BUS_STD = AXIS, BUS_TYPE = INITIATOR
+BUS_INTERFACE BUS = S_AXIS_ERR, BUS_STD = AXIS, BUS_TYPE = TARGET
+BUS_INTERFACE BUS = M_AXIS_DPT, BUS_STD = AXIS, BUS_TYPE = INITIATOR
+BUS_INTERFACE BUS = S_AXIS_DPT, BUS_STD = AXIS, BUS_TYPE = TARGET
+BUS_INTERFACE BUS = M_AXIS_SPT, BUS_STD = AXIS, BUS_TYPE = INITIATOR
+BUS_INTERFACE BUS = S_AXIS_SPT, BUS_STD = AXIS, BUS_TYPE = TARGET
+
+## Generics for VHDL or Parameters for Verilog
+PARAMETER C_M_AXIS_DAT_DATA_WIDTH = 256, DT = INTEGER, RANGE = (256), BUS = M_AXIS_DAT
+PARAMETER C_S_AXIS_DAT_DATA_WIDTH = 256, DT = INTEGER, RANGE = (256), BUS = S_AXIS_DAT
+PARAMETER C_M_AXIS_LEN_DATA_WIDTH = 16,  DT = INTEGER, RANGE = (16),  BUS = M_AXIS_LEN
+PARAMETER C_S_AXIS_LEN_DATA_WIDTH = 16,  DT = INTEGER, RANGE = (16),  BUS = S_AXIS_LEN
+PARAMETER C_M_AXIS_SPT_DATA_WIDTH = 8,   DT = INTEGER, RANGE = (8),   BUS = M_AXIS_SPT
+PARAMETER C_S_AXIS_SPT_DATA_WIDTH = 8,   DT = INTEGER, RANGE = (8),   BUS = S_AXIS_SPT
+PARAMETER C_M_AXIS_DPT_DATA_WIDTH = 8,   DT = INTEGER, RANGE = (8),   BUS = M_AXIS_DPT
+PARAMETER C_S_AXIS_DPT_DATA_WIDTH = 8,   DT = INTEGER, RANGE = (8),   BUS = S_AXIS_DPT
+
+## Ports
+PORT aclk = "", DIR = I, SIGIS = CLK, BUS = M_AXIS_DAT:S_AXIS_DAT:M_AXIS_ERR:S_AXIS_ERR:M_AXIS_LEN:S_AXIS_LEN:M_AXIS_APT:S_AXIS_SPT:M_AXIS_DPT:S_AXIS_DPT
+PORT aresetn = ARESETN, DIR = I, SIGIS = RST, BUS = M_AXIS_DAT:S_AXIS_DAT:M_AXIS_ERR:S_AXIS_ERR:M_AXIS_LEN:S_AXIS_LEN:M_AXIS_APT:S_AXIS_SPT:M_AXIS_DPT:S_AXIS_DPT
+
+PORT m_axis_dat_tdata  = TDATA,  DIR = O, VEC = [C_M_AXIS_DAT_DATA_WIDTH-1:0],     BUS = M_AXIS_DAT, ENDIAN = LITTLE
+PORT m_axis_dat_tstrb  = TSTRB,  DIR = O, VEC = [(C_M_AXIS_DAT_DATA_WIDTH/8)-1:0], BUS = M_AXIS_DAT, ENDIAN = LITTLE
+PORT m_axis_dat_tvalid = TVALID, DIR = O, BUS = M_AXIS_DAT
+PORT m_axis_dat_tready = TREADY, DIR = I, BUS = M_AXIS_DAT
+PORT m_axis_dat_tlast  = TLAST,  DIR = O, BUS = M_AXIS_DAT
+PORT s_axis_dat_tdata  = TDATA,  DIR = I, VEC = [C_S_AXIS_DAT_DATA_WIDTH-1:0],     BUS = S_AXIS_DAT, ENDIAN = LITTLE
+PORT s_axis_dat_tstrb  = TSTRB,  DIR = I, VEC = [(C_S_AXIS_DAT_DATA_WIDTH/8)-1:0], BUS = S_AXIS_DAT, ENDIAN = LITTLE
+PORT s_axis_dat_tvalid = TVALID, DIR = I, BUS = S_AXIS_DAT
+PORT s_axis_dat_tready = TREADY, DIR = O, BUS = S_AXIS_DAT
+PORT s_axis_dat_tlast  = TLAST,  DIR = I, BUS = S_AXIS_DAT
+
+PORT m_axis_len_tdata  = TDATA,  DIR = O, VEC = [C_M_AXIS_LEN_DATA_WIDTH-1:0], BUS = M_AXIS_LEN, ENDIAN = LITTLE
+PORT m_axis_len_tvalid = TVALID, DIR = O, BUS = M_AXIS_LEN
+PORT s_axis_len_tdata  = TDATA,  DIR = I, VEC = [C_S_AXIS_LEN_DATA_WIDTH-1:0], BUS = S_AXIS_LEN, ENDIAN = LITTLE
+PORT s_axis_len_tvalid = TVALID, DIR = I, BUS = S_AXIS_LEN
+
+PORT m_axis_spt_tdata  = TDATA,  DIR = O, VEC = [C_M_AXIS_SPT_DATA_WIDTH-1:0], BUS = M_AXIS_SPT, ENDIAN = LITTLE
+PORT m_axis_spt_tvalid = TVALID, DIR = O, BUS = M_AXIS_SPT
+PORT s_axis_spt_tdata  = TDATA,  DIR = I, VEC = [C_S_AXIS_SPT_DATA_WIDTH-1:0], BUS = S_AXIS_SPT, ENDIAN = LITTLE
+PORT s_axis_spt_tvalid = TVALID, DIR = I, BUS = S_AXIS_SPT
+
+PORT m_axis_dpt_tdata  = TDATA,  DIR = O, VEC = [C_M_AXIS_DPT_DATA_WIDTH-1:0], BUS = M_AXIS_DPT, ENDIAN = LITTLE
+PORT m_axis_dpt_tvalid = TVALID, DIR = O, BUS = M_AXIS_DPT
+PORT s_axis_dpt_tdata  = TDATA,  DIR = I, VEC = [C_S_AXIS_DPT_DATA_WIDTH-1:0], BUS = S_AXIS_DPT, ENDIAN = LITTLE
+PORT s_axis_dpt_tvalid = TVALID, DIR = I, BUS = S_AXIS_DPT
+
+PORT m_axis_err_tvalid = TVALID, DIR = O, BUS = M_AXIS_ERR
+PORT s_axis_err_tvalid = TVALID, DIR = I, BUS = S_AXIS_ERR
+
+
+END
