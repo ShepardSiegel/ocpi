@@ -84,7 +84,7 @@ Bit#(16) tone[64] = {
 module mkTB10();
 
   Reg#(Bit#(16))              simCycle       <- mkReg(0);       // simulation cycle counter
-  WciMasterIfc#(20)           wci            <- mkWciMaster;    // WCI-OCP-Master convienenice logic
+  WciEMasterIfc#(20,32)       wci            <- mkWciEMaster;    // WCI-OCP-Master convienenice logic
   WsiMasterIfc#(12,32,4,8,0)  wsiM           <- mkWsiMaster;    // WSI-OCP-Master convienenice logic
   WsiSlaveIfc #(12,32,4,8,0)  wsiS           <- mkWsiSlave;     // WSI-OCP-Slave  convienenice logic
 
@@ -103,12 +103,10 @@ module mkTB10();
   Reg#(Bit#(16))              dstUnrollCnt   <- mkReg(0);       // Message Positions to go
   Reg#(Bit#(32))              dstDataOut     <- mkReg(0);       // DWORD ordinal count
 
-  // Connect the PSD DUT's three interfaces...
-  Wci_Em#(20)          wci_Em <- mkWciMtoEm(wci.mas);  // Convert the conventional to explicit 
-  mkConnection(wci_Em,  psdWorker.wciS0);             // connect the WCI Master to the DUT
-  mkConnection(toWsiEM(wsiM.mas), psdWorker.wsiS0);   // connect the Source wsiM to the psdWorker wsi-S input
+  mkConnection(wci.mas,  psdWorker.wciS0);             // connect the WCI Master to the DUT
+  mkConnection(toWsiEM(wsiM.mas), psdWorker.wsiS0);    // connect the Source wsiM to the psdWorker wsi-S input
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv); // Convert the conventional to explicit 
-  mkConnection(psdWorker.wsiM0,  wsi_Es);             // connect the psdWorker wsi-M output to the Sinc wsiS
+  mkConnection(psdWorker.wsiM0,  wsi_Es);              // connect the psdWorker wsi-M output to the Sinc wsiS
 
   // WCI Interaction
   // A sequence of control-configuration operartions to be performed...

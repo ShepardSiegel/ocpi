@@ -1,8 +1,8 @@
-// TB1.bsv - A testbench for the biasWorker
+// TB9.bsv - A testbench for the DelayWorker
 // Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import OCWip::*;
-import BiasWorker::*;
+import DelayWorker::*;
 
 import Connectable::*;
 import GetPut::*;
