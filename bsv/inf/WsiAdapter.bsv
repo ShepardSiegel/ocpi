@@ -53,6 +53,7 @@ rule doRequestIngress(!isFull);
   isFull <= (pos==3 || r.reqLast);
 endrule
 
+
 rule doRequestEgress (isFull);
   Bit#(16) be = ?;
   case (pos)
@@ -61,13 +62,15 @@ rule doRequestEgress (isFull);
     2 : be = extend({                stage[2].byteEn,stage[1].byteEn,stage[0].byteEn});
     3 : be =        {stage[3].byteEn,stage[2].byteEn,stage[1].byteEn,stage[0].byteEn};
   endcase
+  function Bit#(32) getData(WsiReq#(12,32,4,8,0) s) =  s.data;
   wsiM.reqPut.put(
     WsiReq { cmd:           WR,
              reqLast:       isLast,
              reqInfo:       stage[0].reqInfo,
              burstPrecise:  stage[0].burstPrecise,
              burstLength:   stage[0].burstLength,
-             data:          {stage[3].data,  stage[2].data,  stage[1].data,  stage[0].data},
+             //data:          {stage[3].data,  stage[2].data,  stage[1].data,  stage[0].data},
+             data:          pack(map(getData,readVReg(stage))),  // Little Endian DWORDS
              byteEn:        be,
              dataInfo:      stage[0].dataInfo }
     );
@@ -166,13 +169,15 @@ rule doRequestEgress (isFull);
     6 : be =          extend({stage[6].byteEn,stage[5].byteEn,stage[4].byteEn,stage[3].byteEn,stage[2].byteEn,stage[1].byteEn,stage[0].byteEn});
     7 : be = {stage[7].byteEn,stage[6].byteEn,stage[5].byteEn,stage[4].byteEn,stage[3].byteEn,stage[2].byteEn,stage[1].byteEn,stage[0].byteEn};
   endcase
+  function Bit#(32) getData(WsiReq#(12,32,4,8,0) s) =  s.data;
   wsiM.reqPut.put(
     WsiReq { cmd:           WR,
              reqLast:       isLast,
              reqInfo:       stage[0].reqInfo,
              burstPrecise:  stage[0].burstPrecise,
              burstLength:   stage[0].burstLength,
-             data:          {stage[7].data, stage[6].data, stage[5].data, stage[4].data, stage[3].data,  stage[2].data,  stage[1].data,  stage[0].data},
+             //data:          {stage[7].data, stage[6].data, stage[5].data, stage[4].data, stage[3].data,  stage[2].data,  stage[1].data,  stage[0].data},
+             data:          pack(map(getData,readVReg(stage))),  // Little Endian DWORDS
              byteEn:        be,
              dataInfo:      stage[0].dataInfo }
     );
