@@ -16,6 +16,7 @@ import WCIS2AL4M         ::*;
 import WSIAXIS           ::*;
 import SMAdapter         ::*;
 import BiasWorker        ::*;
+import WsiAdapter        ::*;
 
 // BSV Imports...
 import Clocks            ::*;
@@ -75,24 +76,26 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(noc.dp0,   dp0.server);  // uNoC to Data Plane 0
     mkConnection(noc.dp1,   dp1.server);  // uNoC to Data Plane 1
 
-    //TODO: For now, instance the usual SMAdapater->BiasWorker->SMAdapter to allow DMA streaming and loopback testing
-    //At a later date, this will be hooked up to the AXI4-Stream Interfaces
+    //TODO: Vestigial BiasWorker (W3) may be removed when software no lonnger expects to "see" it
+
     SMAdapter4BIfc  appW2  <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by rst[2]); // W2: Read WMI to WSI-M 
-    BiasWorker4BIfc appW3  <-  mkBiasWorker4B  (              hasDebugLogic, reset_by rst[3]); // W3: Delay ahead of first SMAdapter
+    BiasWorker4BIfc appW3  <-  mkBiasWorker4B  (              hasDebugLogic, reset_by rst[3]); // W3: Vestigial BiasWorker
     SMAdapter4BIfc  appW4  <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by rst[4]); // W4: WSI-S to WMI Write
     mkConnection(vWci[2], appW2.wciS0);
     mkConnection(vWci[3], appW3.wciS0);
     mkConnection(vWci[4], appW4.wciS0);
 
-    mkConnection(appW2.wmiM0, dp0.wmiS0);    // W2<->DP0
-    mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2 SMAdapter WSI-M0   feeding W3 BiasWorker WSI-S0
-    mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 BiasWorker WSI-M0 feeding W4 SMAdapter WSI-S0
-    mkConnection(appW4.wmiM0, dp1.wmiS0);    // W4<->DP1
+    WsiAdapter4B32BIfc wsiUp    <- mkWsiAdapter4B32B;
+    WSItoAXIS32BIfc    wsi2axis <- mkWSItoAXIS32B; 
+    AXIStoWSI32BIfc    axis2wsi <- mkAXIStoWSI32B;
+    WsiAdapter32B4BIfc wsiDn    <- mkWsiAdapter32B4B;
 
-    WSItoAXIS32BIfc wsi2axis <- mkWSItoAXIS32B; 
-    AXIStoWSI32BIfc axis2wsi <- mkAXIStoWSI32B;
-    // We need to add the width adaaption, then connect these to the SMAdapers instead...
-    mkConnection(axis2wsi.wsi, wsi2axis.wsi); // TODO: Temporary internal loopback of external AXIS path (to connect logic)
+    mkConnection(appW2.wmiM0, dp0.wmiS0);     // W2<->DP0
+    mkConnection(appW2.wsiM0, wsiUp.wsiS0);   // W2 SMAdapter WSI-M0 feeding wsiUp
+    mkConnection(wsiUp.wsiM0, wsi2axis.wsi);  // wsiUp feeding wsi2axis
+    mkConnection(axis2wsi.wsi, wsiDn.wsiS0);  // axis2wsi feeding wsiDn
+    mkConnection(wsiDn.wsiM0, appW4.wsiS0);   // wsiDn feeding W4 SMAdapter WSI-S0
+    mkConnection(appW4.wmiM0, dp1.wmiS0);     // W4<->DP1
 
     A4L_Em a4lm <- mkA4MtoEm(wci2axi.axiM0); // Expand the 5 concise AXI BusSend/Recv channels to explicit signals
 
