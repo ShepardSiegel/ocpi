@@ -31,9 +31,9 @@ interface OPEDIfc#(numeric type lanes);
   interface PCIE_EXP#(lanes)       pcie;
   interface Clock                  p125clk;
   interface Reset                  p125rst;
-  interface A4L_Em                 axi4m;    // The AXI4-Lite Master
-  interface A4SEM32B               axisM;    // The AXI-4-Stream Master
-  interface A4SES32B               axisS;    // The AXI-4-Stream Slave
+  interface A4L_Em                 axi4m;     // The AXI4-Lite Master (Control-Plane Interface)
+  interface NF10DPM                axisM;     // The AXI-4-Stream Master (PCIe Fabric-Consumer, Internal Data-Plane Producer)
+  interface NF10DPS                axisS;     // The AXI-4-Stream Slave  (PCIe Fabric-Producer, Internal Data-Plane Consumer)
   (*always_ready*) method Bit#(32) debug;
 endinterface: OPEDIfc
 
@@ -99,13 +99,13 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
 
     A4L_Em a4lm <- mkA4MtoEm(wci2axi.axiM0); // Expand the 5 concise AXI BusSend/Recv channels to explicit signals
 
-    interface PCI_EXP  pcie    = pciw.pcie;
-    interface Clock    p125clk = pciw.pClk;
-    interface Reset    p125rst = pciw.pRst;
-    interface A4L_Em   axi4m   = a4lm;
-    interface A4SEM32B axisM   = wsi2axis.axi;
-    interface A4SES32B axisS   = axis2wsi.axi;
-    method Bit#(32)    debug   = extend(pack(pciw.linkUp));
+    interface PCI_EXP  pcie     = pciw.pcie;
+    interface Clock    p125clk  = pciw.pClk;
+    interface Reset    p125rst  = pciw.pRst;
+    interface A4L_Em   axi4m    = a4lm;
+    interface NF10DPM  axisM    = wsi2axis.axi;
+    interface NF10DPS  axisS    = axis2wsi.axi;
+    method Bit#(32)    debug    = extend(pack(pciw.linkUp));
   endmodule: mkOPED_inner
 
   OPEDIfc#(lanes) _b  <- mkOPED_inner(clocked_by p125Clk, reset_by p125Rst); return _b; // Instance wrapped inner module

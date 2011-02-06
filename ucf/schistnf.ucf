@@ -1,0 +1,30 @@
+## Schist-NF UCF
+## Shepard Siegel for Atomic Rules LLC
+## 2011-02-05 clone ML555NF for Schist
+
+CONFIG PART = XC5VSX95T-FF1136-2 ;
+
+## Pinout...
+NET  "pcie_clkp"     LOC = AF4;  # From PCIe edge
+NET  "pcie_clkn"     LOC = AF3;
+INST "oped/oped/pciw_pci0_clk" DIFF_TERM = "TRUE";
+NET  "pcie_rstn"     LOC = AG12 | IOSTANDARD = "LVCMOS25" | PULLUP | NODELAY;
+
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[0].GT_i" LOC = GTP_DUAL_X0Y3; 
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[2].GT_i" LOC = GTP_DUAL_X0Y2;
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[4].GT_i" LOC = GTP_DUAL_X0Y1;
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/GTD[6].GT_i" LOC = GTP_DUAL_X0Y0;
+
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X6Y11;
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[1].ram_tdp2_inst" LOC = RAMB36_X6Y9;
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X6Y10;
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X6Y8;
+INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_retry/generate_sdp.ram_sdp_inst"      LOC = RAMB36_X6Y12;
+
+# Timing critical placements...
+
+# Timing Constraints...
+NET "oped/oped/pciw_pci0_clk_O" PERIOD = 10ns;
+NET "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/SIO/.pcie_gt_wrapper_i/gt_refclk_out[0]" TNM_NET = "PCI0CLK";
+TIMESPEC "TS_PCI0CLK"  = PERIOD "PCI0CLK" 100.00 MHz HIGH 50 % ;
+

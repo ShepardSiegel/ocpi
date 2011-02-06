@@ -13,6 +13,7 @@
 //
 // The {LEN/SPT/DPT/ERR} signals, although lockstep with DAT, have their own TVALIDs
 // See the nf10 doc for details about their behavior and timing
+// http://netfpga10g.pbworks.com/w/page/31840959/Standard-IP-Interfaces
 
 module OPED # 
 
@@ -137,32 +138,53 @@ end
   .axi4m_RRESP       (M_AXI_RRESP),
   .axi4m_RVALID      (M_AXI_RVALID),
   .axi4m_RREADY      (M_AXI_RREADY),
-  /*
-  .M_AXIS_DAT_TDATA  (M_AXIS_DAT_TDATA),
-  .M_AXIS_DAT_TVALID (M_AXIS_DAT_TVALID),
-  .M_AXIS_DAT_TSTRB  (M_AXIS_DAT_TSTRB),
-  .M_AXIS_DAT_TLAST  (M_AXIS_DAT_TLAST),
-  .M_AXIS_DAT_TREADY (M_AXIS_DAT_TREADY),
-  .M_AXIS_LEN_TDATA  (M_AXIS_LEN_TDATA),
-  .M_AXIS_LEN_TVALID (M_AXIS_LEN_TVALID),
-  .M_AXIS_SPT_TDATA  (M_AXIS_SPT_TDATA),
-  .M_AXIS_SPT_TVALID (M_AXIS_SPT_TVALID),
-  .M_AXIS_DPT_TDATA  (M_AXIS_DPT_TDATA),
-  .M_AXIS_DPT_TVALID (M_AXIS_DPT_TVALID),
-  .M_AXIS_ERR_TVALID (M_AXIS_ERR_TVALID),
-  .S_AXIS_DAT_TDATA  (S_AXIS_DAT_TDATA),
-  .S_AXIS_DAT_TVALID (S_AXIS_DAT_TVALID),
-  .S_AXIS_DAT_TSTRB  (S_AXIS_DAT_TSTRB),
-  .S_AXIS_DAT_TLAST  (S_AXIS_DAT_TLAST),
-  .S_AXIS_DAT_TREADY (S_AXIS_DAT_TREADY),
-  .S_AXIS_LEN_TDATA  (S_AXIS_LEN_TDATA),
-  .S_AXIS_LEN_TVALID (S_AXIS_LEN_TVALID),
-  .S_AXIS_SPT_TDATA  (S_AXIS_SPT_TDATA),
-  .S_AXIS_SPT_TVALID (S_AXIS_SPT_TVALID),
-  .S_AXIS_DPT_TDATA  (S_AXIS_DPT_TDATA),
-  .S_AXIS_DPT_TVALID (S_AXIS_DPT_TVALID),
-  .S_AXIS_ERR_TVALID (S_AXIS_ERR_TVALID),
-  */
+
+  .axisM_dat_TDATA   (M_AXIS_DAT_TDATA),
+  .axisM_dat_TVALID  (M_AXIS_DAT_TVALID),
+  .axisM_dat_TSTRB   (M_AXIS_DAT_TSTRB),
+  .axisM_dat_TLAST   (M_AXIS_DAT_TLAST),
+  .axisM_dat_TREADY  (M_AXIS_DAT_TREADY),
+  .axisM_len_TDATA   (M_AXIS_LEN_TDATA),
+  .axisM_len_TVALID  (M_AXIS_LEN_TVALID),
+  .axisM_len_TSTRB   (),                   // unused output
+  .axisM_len_TLAST   (),                   // unused output
+  .axisM_len_TREADY  (M_AXIS_DAT_TREADY),  // sub-channel uses main DAT_TREADY
+  .axisM_spt_TDATA   (M_AXIS_SPT_TDATA),
+  .axisM_spt_TVALID  (M_AXIS_SPT_TVALID),
+  .axisM_spt_TSTRB   (),                   // unused output
+  .axisM_spt_TLAST   (),                   // unused output
+  .axisM_spt_TREADY  (M_AXIS_DAT_TREADY),  // sub-channel uses main DAT_TREADY
+  .axisM_dpt_TDATA   (M_AXIS_DPT_TDATA),
+  .axisM_dpt_TVALID  (M_AXIS_DPT_TVALID),
+  .axisM_dpt_TSTRB   (),                   // unused output
+  .axisM_dpt_TLAST   (),                   // unused output
+  .axisM_dpt_TREADY  (M_AXIS_DAT_TREADY),  // sub-channel uses main DAT_TREADY
+  .axisM_err_TVALID  (M_AXIS_ERR_TVALID),
+  .axisM_err_TLAST   (),                   // unused output
+  .axisM_err_TREADY  (M_AXIS_DAT_TREADY),  // sub-channel uses main DAT_TREADY
+
+  .axisS_dat_TDATA   (S_AXIS_DAT_TDATA),
+  .axisS_dat_TVALID  (S_AXIS_DAT_TVALID),
+  .axisS_dat_TSTRB   (S_AXIS_DAT_TSTRB),
+  .axisS_dat_TLAST   (S_AXIS_DAT_TLAST),
+  .axisS_dat_TREADY  (S_AXIS_DAT_TREADY),
+  .axisS_len_TDATA   (S_AXIS_LEN_TDATA),
+  .axisS_len_TVALID  (S_AXIS_LEN_TVALID),
+  .axisS_len_TSTRB   (2'b11),              // input constant asserted
+  .axisS_len_TLAST   (1'b1),               // input constant asserted
+  .axisS_len_TREADY  (),                   // unused output
+  .axisS_spt_TDATA   (S_AXIS_SPT_TDATA),
+  .axisS_spt_TVALID  (S_AXIS_SPT_TVALID),
+  .axisS_spt_TSTRB   (1'b1),               // input constant asserted
+  .axisS_spt_TLAST   (1'b1),               // input constant asserted
+  .axisS_spt_TREADY  (),                   // unused output
+  .axisS_dpt_TDATA   (S_AXIS_DPT_TDATA),
+  .axisS_dpt_TVALID  (S_AXIS_DPT_TVALID),
+  .axisS_dpt_TSTRB   (1'b1),               // input constant asserted
+  .axisS_dpt_TLAST   (1'b1),               // input constant asserted
+  .axisS_dpt_TREADY  (),                   // unused output
+  .axisS_err_TVALID  (S_AXIS_ERR_TVALID),
+  .axisS_err_TLAST   (1'b1),               // input constant asserted
   .debug             (DEBUG)
 );
 

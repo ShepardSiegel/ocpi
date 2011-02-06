@@ -10,6 +10,26 @@ import Bus::*;
 import FIFO::*;	
 import GetPut::*;
 
+
+// These next two interfaces are as per the spec in the following wiki link... 
+// http://netfpga10g.pbworks.com/w/page/31840959/Standard-IP-Interfaces
+interface NF10DPM;
+  interface A4SEM32B  dat;    // The AXI-4-Stream Master
+  interface A4SEM2B   len;
+  interface A4SEM1B   spt;
+  interface A4SEM1B   dpt;
+  interface A4SEM0B   err;
+endinterface
+
+interface NF10DPS;
+  interface A4SES32B  dat;    // The AXI-4-Stream Slave
+  interface A4SES2B   len;
+  interface A4SES1B   spt;
+  interface A4SES1B   dpt;
+  interface A4SES0B   err;
+endinterface
+
+
 // The modules below adapt between WSI and AXI-Stream (AXIS)
 // They use the established WSI convienience IP mkWsi{Master|Slave}, 
 // bit implement "in-place" the AXIfication, as the AXI spec can be volatile.
@@ -18,7 +38,7 @@ import GetPut::*;
 
 interface WSItoAXIS32BIfc;
   interface WsiES32B  wsi;  // WSI-Slave 
-  interface A4SEM32B  axi;  // AXI4-Stream Master
+  interface NF10DPM   axi;  // NF10-Specialized AXI4-Stream Master
 endinterface 
 
 (* synthesize *)
@@ -41,12 +61,14 @@ module mkWSItoAXIS32B (WSItoAXIS32BIfc);
   Wsi_Es#(12,256,32,8,0)     wsi_Es <- mkWsiStoES(wsiS.slv);
   A4S_Em#(256,32,0)          axi_Em <- mkA4StreamMtoEm(axisM);
   interface WsiES32B  wsi = wsi_Es;
-  interface A4SEM32B  axi = axi_Em;
+  interface NF10DPM axi;
+    interface A4SEM32B dat   = axi_Em;
+  endinterface
 endmodule
 
 
 interface AXIStoWSI32BIfc;
-  interface A4SES32B  axi;  // AXI4-Stream Slave 
+  interface NF10DPS   axi;  // NF10-Specialized AXI4-Stream Slave
   interface WsiEM32B  wsi;  // WSI-Master
 endinterface 
 
@@ -73,7 +95,9 @@ module mkAXIStoWSI32B (AXIStoWSI32BIfc);
   endrule
 
   A4S_Es#(256,32,0) axi_Es <- mkA4StreamStoEs(axisS);
-  interface A4SES32B  axi = axi_Es;
+  interface NF10DPS axi;
+    interface A4SES32B dat   = axi_Es;
+  endinterface
   interface WsiEM32B  wsi = toWsiEM(wsiM.mas);
 endmodule
 

@@ -26,7 +26,9 @@ import CounterM::*;
 import DReg::*;
 import Connectable::*;
 
+// TODO: There should be a single place to specify the buffer size - and supply the control-plane with the info
 // Data Buffer BRAM Address and Data Widths...
+//typedef 16384                       DPBufSizeBytes;      // *** Set DP Buffer Size here ***
 typedef 32768                       DPBufSizeBytes;      // *** Set DP Buffer Size here ***
 typedef TDiv#(DPBufSizeBytes,16)    DPBufSizeInHWords;  
 typedef TLog#(DPBufSizeBytes)       DPLogBufSizeBytes;

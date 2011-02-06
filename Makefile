@@ -452,6 +452,16 @@ schist:
 	mv build/tmp-schist build/schist-`date +%Y%m%d_%H%M`
 	echo schist Build complete
 
+schistnf:
+	mkdir -p build
+	rm -rf build/tmp-schistnf
+	cp -r $(BUILD_HDL) build/tmp-schistnf
+	cp ucf/schistnf.ucf build/tmp-schistnf
+	cp ucf/schistnf.xcf build/tmp-schistnf
+	cd build/tmp-schistnf; ./build_fpgaTop schistnf
+	mv build/tmp-schistnf build/schistnf-`date +%Y%m%d_%H%M`
+	echo schistnf Build complete
+
 illite:
 	mkdir -p build
 	rm -rf build/tmp-illite
