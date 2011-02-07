@@ -21,7 +21,7 @@ interface NF10DPM;
   interface A4SEM2B   len;
   interface A4SEM1B   spt;
   interface A4SEM1B   dpt;
-  interface A4SEM0B   err;
+  interface A4SEM1B   err;
 endinterface
 
 interface NF10DPS;
@@ -29,7 +29,7 @@ interface NF10DPS;
   interface A4SES2B   len;
   interface A4SES1B   spt;
   interface A4SES1B   dpt;
-  interface A4SES0B   err;
+  interface A4SES1B   err;
 endinterface
 
 
@@ -52,14 +52,14 @@ module mkWSItoAXIS32B (WSItoAXIS32BIfc);
   BusSender#(A4S2B)                len        <- mkBusSender(aStrmDflt);
   BusSender#(A4S1B)                spt        <- mkBusSender(aStrmDflt);
   BusSender#(A4S1B)                dpt        <- mkBusSender(aStrmDflt);
-  BusSender#(A4S0B)                err        <- mkBusSender(aStrmDflt);
+  BusSender#(A4S1B)                err        <- mkBusSender(aStrmDflt);
   Reg#(Bool)                       firstWord  <- mkReg(True);
 
   A4StreamMIfc#(256,32,0) axisDatM = A4StreamMIfc { strm : dat.out};  // Place strm sub-interface in axisM interface
   A4StreamMIfc#(16,2,0)   axisLenM = A4StreamMIfc { strm : len.out}; 
   A4StreamMIfc#(8,1,0)    axisSptM = A4StreamMIfc { strm : spt.out}; 
   A4StreamMIfc#(8,1,0)    axisDptM = A4StreamMIfc { strm : dpt.out}; 
-  A4StreamMIfc#(1,0,0)    axisErrM = A4StreamMIfc { strm : err.out}; 
+  A4StreamMIfc#(8,1,0)    axisErrM = A4StreamMIfc { strm : err.out}; 
 
   rule operate_action; wsiS.operate(); endrule
 
@@ -72,10 +72,10 @@ module mkWSItoAXIS32B (WSItoAXIS32BIfc);
     if (firstWord) begin
       len.in.enq( A4Stream {data:extend(w.burstLength*32), strb:'1, keep:0, last:True});  // LEN is expressed in Bytes
       spt.in.enq( A4Stream {data:8'h10,                    strb:'1, keep:0, last:True});  // PCIe Logical Port 0 as SPT
-      dpt.in.enq( A4Stream {data:w.reqInfo               , strb:'1, keep:0, last:True});  // Use reqInfo/opcode for DPT
+      dpt.in.enq( A4Stream {data:w.reqInfo,                strb:'1, keep:0, last:True});  // Use reqInfo/opcode for DPT
+      err.in.enq( A4Stream {data:0,                        strb:'1, keep:0, last:True});  // TODO: Improve Error Logics
     end
     firstWord <= w.reqLast;
-    //TODO: Add Error signalling
   endrule
 
 
@@ -84,14 +84,14 @@ module mkWSItoAXIS32B (WSItoAXIS32BIfc);
   A4S_Em#(16,2,0)            axiLen_Em <- mkA4StreamMtoEm(axisLenM);
   A4S_Em#(8,1,0)             axiSpt_Em <- mkA4StreamMtoEm(axisSptM);
   A4S_Em#(8,1,0)             axiDpt_Em <- mkA4StreamMtoEm(axisDptM);
-  A4S_Em#(1,0,0)             axiErr_Em <- mkA4StreamMtoEm(axisErrM);
+  A4S_Em#(8,1,0)             axiErr_Em <- mkA4StreamMtoEm(axisErrM);
   interface WsiES32B  wsi = wsi_Es;
   interface NF10DPM axi;
     interface A4SEM32B dat   = axiDat_Em;
     interface A4SEM2B  len   = axiLen_Em;
     interface A4SEM1B  spt   = axiSpt_Em;
     interface A4SEM1B  dpt   = axiDpt_Em;
-    interface A4SEM0B  err   = axiErr_Em;
+    interface A4SEM1B  err   = axiErr_Em;
   endinterface
 endmodule
 
@@ -109,14 +109,14 @@ module mkWSItoAXIS4B (WSItoAXIS4BIfc);
   BusSender#(A4S2B)                len        <- mkBusSender(aStrmDflt);
   BusSender#(A4S1B)                spt        <- mkBusSender(aStrmDflt);
   BusSender#(A4S1B)                dpt        <- mkBusSender(aStrmDflt);
-  BusSender#(A4S0B)                err        <- mkBusSender(aStrmDflt);
+  BusSender#(A4S1B)                err        <- mkBusSender(aStrmDflt);
   Reg#(Bool)                       firstWord  <- mkReg(True);
 
   A4StreamMIfc#(256,32,0) axisDatM = A4StreamMIfc { strm : dat.out};  // Place strm sub-interface in axisM interface
   A4StreamMIfc#(16,2,0)   axisLenM = A4StreamMIfc { strm : len.out}; 
   A4StreamMIfc#(8,1,0)    axisSptM = A4StreamMIfc { strm : spt.out}; 
   A4StreamMIfc#(8,1,0)    axisDptM = A4StreamMIfc { strm : dpt.out}; 
-  A4StreamMIfc#(1,0,0)    axisErrM = A4StreamMIfc { strm : err.out}; 
+  A4StreamMIfc#(8,1,0)    axisErrM = A4StreamMIfc { strm : err.out}; 
 
   rule operate_action; wsiS.operate(); endrule
 
@@ -129,10 +129,10 @@ module mkWSItoAXIS4B (WSItoAXIS4BIfc);
     if (firstWord) begin
       len.in.enq( A4Stream {data:extend(w.burstLength*32), strb:'1, keep:0, last:True});  // LEN is expressed in Bytes
       spt.in.enq( A4Stream {data:8'h10,                    strb:'1, keep:0, last:True});  // PCIe Logical Port 0 as SPT
-      dpt.in.enq( A4Stream {data:w.reqInfo               , strb:'1, keep:0, last:True});  // Use reqInfo/opcode for DPT
+      dpt.in.enq( A4Stream {data:w.reqInfo,                strb:'1, keep:0, last:True});  // Use reqInfo/opcode for DPT
+      err.in.enq( A4Stream {data:0,                        strb:'1, keep:0, last:True});  // TODO: Improve Error Logics
     end
     firstWord <= w.reqLast;
-    //TODO: Add Error signalling
   endrule
 
 
@@ -141,14 +141,14 @@ module mkWSItoAXIS4B (WSItoAXIS4BIfc);
   A4S_Em#(16,2,0)            axiLen_Em <- mkA4StreamMtoEm(axisLenM);
   A4S_Em#(8,1,0)             axiSpt_Em <- mkA4StreamMtoEm(axisSptM);
   A4S_Em#(8,1,0)             axiDpt_Em <- mkA4StreamMtoEm(axisDptM);
-  A4S_Em#(1,0,0)             axiErr_Em <- mkA4StreamMtoEm(axisErrM);
+  A4S_Em#(8,1,0)             axiErr_Em <- mkA4StreamMtoEm(axisErrM);
   interface WsiES32B  wsi = wsi_Es;
   interface NF10DPM axi;
     interface A4SEM32B dat   = axiDat_Em;
     interface A4SEM2B  len   = axiLen_Em;
     interface A4SEM1B  spt   = axiSpt_Em;
     interface A4SEM1B  dpt   = axiDpt_Em;
-    interface A4SEM0B  err   = axiErr_Em;
+    interface A4SEM1B  err   = axiErr_Em;
   endinterface
 endmodule
 
@@ -165,7 +165,7 @@ module mkAXIStoWSI32B (AXIStoWSI32BIfc);
   BusReceiver#(A4S2B)           len        <- mkBusReceiver;
   BusReceiver#(A4S1B)           spt        <- mkBusReceiver;
   BusReceiver#(A4S1B)           dpt        <- mkBusReceiver;
-  BusReceiver#(A4S0B)           err        <- mkBusReceiver;
+  BusReceiver#(A4S1B)           err        <- mkBusReceiver;
   WsiMasterIfc#(12,256,32,8,0)  wsiM       <- mkWsiMaster;
   Reg#(Bool)                    firstWord  <- mkReg(True);
 
@@ -173,7 +173,7 @@ module mkAXIStoWSI32B (AXIStoWSI32BIfc);
   A4StreamSIfc#(16,2,0)   axisLenS = A4StreamSIfc { strm : len.in}; 
   A4StreamSIfc#(8,1,0)    axisSptS = A4StreamSIfc { strm : spt.in}; 
   A4StreamSIfc#(8,1,0)    axisDptS = A4StreamSIfc { strm : dpt.in}; 
-  A4StreamSIfc#(1,0,0)    axisErrS = A4StreamSIfc { strm : err.in}; 
+  A4StreamSIfc#(8,1,0)    axisErrS = A4StreamSIfc { strm : err.in}; 
 
   rule operate_action; wsiM.operate(); endrule
 
@@ -183,6 +183,7 @@ module mkAXIStoWSI32B (AXIStoWSI32BIfc);
       let l = len.out.first; len.out.deq; 
       let s = spt.out.first; spt.out.deq; opcodeSPT = s.data;
       let d = dpt.out.first; dpt.out.deq; // We will ignore the DPT provided
+      let e = err.out.first; err.out.deq; // We will ignore the error provided
     end
     let a = dat.out.first; dat.out.deq;
     wsiM.reqPut.put( WsiReq {   cmd  : WR,
@@ -200,13 +201,13 @@ module mkAXIStoWSI32B (AXIStoWSI32BIfc);
   A4S_Es#(16,2,0)   axiLen_Es <- mkA4StreamStoEs(axisLenS);
   A4S_Es#(8,1,0)    axiSpt_Es <- mkA4StreamStoEs(axisSptS);
   A4S_Es#(8,1,0)    axiDpt_Es <- mkA4StreamStoEs(axisDptS);
-  A4S_Es#(1,0,0)    axiErr_Es <- mkA4StreamStoEs(axisErrS);
+  A4S_Es#(8,1,0)    axiErr_Es <- mkA4StreamStoEs(axisErrS);
   interface NF10DPS axi;
     interface A4SES32B dat   = axiDat_Es;
     interface A4SES2B  len   = axiLen_Es;
     interface A4SES1B  spt   = axiSpt_Es;
     interface A4SES1B  dpt   = axiDpt_Es;
-    interface A4SES0B  err   = axiErr_Es;
+    interface A4SES1B  err   = axiErr_Es;
   endinterface
   interface WsiEM32B  wsi = toWsiEM(wsiM.mas);
 endmodule
@@ -223,7 +224,7 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
   BusReceiver#(A4S2B)           len        <- mkBusReceiver;
   BusReceiver#(A4S1B)           spt        <- mkBusReceiver;
   BusReceiver#(A4S1B)           dpt        <- mkBusReceiver;
-  BusReceiver#(A4S0B)           err        <- mkBusReceiver;
+  BusReceiver#(A4S1B)           err        <- mkBusReceiver;
   WsiMasterIfc#(12,32,4,8,0)    wsiM       <- mkWsiMaster;
   Reg#(Bool)                    firstWord  <- mkReg(True);
 
@@ -231,7 +232,7 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
   A4StreamSIfc#(16,2,0)   axisLenS = A4StreamSIfc { strm : len.in}; 
   A4StreamSIfc#(8,1,0)    axisSptS = A4StreamSIfc { strm : spt.in}; 
   A4StreamSIfc#(8,1,0)    axisDptS = A4StreamSIfc { strm : dpt.in}; 
-  A4StreamSIfc#(1,0,0)    axisErrS = A4StreamSIfc { strm : err.in}; 
+  A4StreamSIfc#(8,1,0)    axisErrS = A4StreamSIfc { strm : err.in}; 
 
   rule operate_action; wsiM.operate(); endrule
 
@@ -241,6 +242,7 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
       let l = len.out.first; len.out.deq; 
       let s = spt.out.first; spt.out.deq; opcodeSPT = s.data;
       let d = dpt.out.first; dpt.out.deq; // We will ignore the DPT provided
+      let e = err.out.first; err.out.deq; // We will ignore the error provided
     end
     let a = dat.out.first; dat.out.deq;
     wsiM.reqPut.put( WsiReq {   cmd  : WR,
@@ -258,13 +260,13 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
   A4S_Es#(16,2,0)   axiLen_Es <- mkA4StreamStoEs(axisLenS);
   A4S_Es#(8,1,0)    axiSpt_Es <- mkA4StreamStoEs(axisSptS);
   A4S_Es#(8,1,0)    axiDpt_Es <- mkA4StreamStoEs(axisDptS);
-  A4S_Es#(1,0,0)    axiErr_Es <- mkA4StreamStoEs(axisErrS);
+  A4S_Es#(8,1,0)    axiErr_Es <- mkA4StreamStoEs(axisErrS);
   interface NF10DPS axi;
     interface A4SES32B dat   = axiDat_Es;
     interface A4SES2B  len   = axiLen_Es;
     interface A4SES1B  spt   = axiSpt_Es;
     interface A4SES1B  dpt   = axiDpt_Es;
-    interface A4SES0B  err   = axiErr_Es;
+    interface A4SES1B  err   = axiErr_Es;
   endinterface
   interface WsiEM4B  wsi = toWsiEM(wsiM.mas);
 endmodule

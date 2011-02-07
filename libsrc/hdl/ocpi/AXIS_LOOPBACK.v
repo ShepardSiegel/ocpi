@@ -17,11 +17,16 @@ module AXIS_LOOPBACK (
   output wire         S_AXIS_DAT_TREADY,
   input  wire [15:0]  S_AXIS_LEN_TDATA,
   input  wire         S_AXIS_LEN_TVALID,
+  output wire         S_AXIS_LEN_TREADY,
   input  wire [7:0]   S_AXIS_SPT_TDATA,
   input  wire         S_AXIS_SPT_TVALID,
+  output wire         S_AXIS_SPT_TREADY,
   input  wire [7:0]   S_AXIS_DPT_TDATA,
   input  wire         S_AXIS_DPT_TVALID,
+  output wire         S_AXIS_DPT_TREADY,
+  input  wire [7:0]   S_AXIS_ERR_TDATA,
   input  wire         S_AXIS_ERR_TVALID,
+  output wire         S_AXIS_ERR_TREADY,
   output wire [255:0] M_AXIS_DAT_TDATA,
   output wire         M_AXIS_DAT_TVALID,
   output wire [31:0]  M_AXIS_DAT_TSTRB,
@@ -29,11 +34,16 @@ module AXIS_LOOPBACK (
   input  wire         M_AXIS_DAT_TREADY,
   output wire [15:0]  M_AXIS_LEN_TDATA,
   output wire         M_AXIS_LEN_TVALID,
+  input  wire         M_AXIS_LEN_TREADY,
   output wire [7:0]   M_AXIS_SPT_TDATA,
   output wire         M_AXIS_SPT_TVALID,
+  input  wire         M_AXIS_SPT_TREADY,
   output wire [7:0]   M_AXIS_DPT_TDATA,
   output wire         M_AXIS_DPT_TVALID,
-  output wire         M_AXIS_ERR_TVALID
+  input  wire         M_AXIS_DPT_TREADY,
+  output wire [7:0]   M_AXIS_ERR_TDATA,
+  output wire         M_AXIS_ERR_TVALID,
+  input  wire         M_AXIS_ERR_TREADY
 );
 
 // Just loop the signals through...
@@ -42,12 +52,21 @@ module AXIS_LOOPBACK (
   assign M_AXIS_DAT_TSTRB  = S_AXIS_DAT_TSTRB;
   assign M_AXIS_DAT_TLAST  = S_AXIS_DAT_TLAST;
   assign S_AXIS_DAT_TREADY = M_AXIS_DAT_TREADY;
+
   assign M_AXIS_LEN_TDATA  = S_AXIS_LEN_TDATA;
   assign M_AXIS_LEN_TVALID = S_AXIS_LEN_TVALID;
+  assign S_AXIS_LEN_TREADY = M_AXIS_LEN_TREADY;
+
   assign M_AXIS_SPT_TDATA  = S_AXIS_SPT_TDATA;
   assign M_AXIS_SPT_TVALID = S_AXIS_SPT_TVALID;
+  assign S_AXIS_SPT_TREADY = M_AXIS_SPT_TREADY;
+
   assign M_AXIS_DPT_TDATA  = S_AXIS_DPT_TDATA;
   assign M_AXIS_DPT_TVALID = S_AXIS_DPT_TVALID;
+  assign S_AXIS_DPT_TREADY = M_AXIS_DPT_TREADY;
+
+  assign M_AXIS_ERR_TDATA  = S_AXIS_ERR_TDATA;
   assign M_AXIS_ERR_TVALID = S_AXIS_ERR_TVALID;
+  assign S_AXIS_ERR_TREADY = M_AXIS_ERR_TREADY;
 
 endmodule
