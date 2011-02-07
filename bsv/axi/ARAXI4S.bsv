@@ -29,15 +29,15 @@ import Vector::*;
 // th - number of bits in keep
 
 // AXI4-S (AXIS) type synonyms...
-typedef A4Stream#( 0, 0, 0) A4S0B;
+typedef A4Stream#( 1, 0, 0) A4S0B;  // 0-bit issue, FIXME
 typedef A4Stream#( 8, 1, 0) A4S1B;
 typedef A4Stream#(16, 2, 0) A4S2B;
 typedef A4Stream#(32, 4, 0) A4S4B;
 typedef A4Stream#(64, 8, 0) A4S8B;
 typedef A4Stream#(128,16,0) A4S16B;
 typedef A4Stream#(256,32,0) A4S32B;
-typedef A4S_Em#  ( 0, 0, 0) A4SEM0B;
-typedef A4S_Es#  ( 0, 0, 0) A4SES0B;
+typedef A4S_Em#  ( 1, 0, 0) A4SEM0B;
+typedef A4S_Es#  ( 1, 0, 0) A4SES0B;
 typedef A4S_Em#  ( 8, 1, 0) A4SEM1B;
 typedef A4S_Es#  ( 8, 1, 0) A4SES1B;
 typedef A4S_Em#  (16, 2, 0) A4SEM2B;
