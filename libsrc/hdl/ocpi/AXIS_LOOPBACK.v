@@ -16,8 +16,11 @@ module AXIS_LOOPBACK (
   input  wire         S_AXIS_DAT_TLAST,
   output wire         S_AXIS_DAT_TREADY,
   input  wire [15:0]  S_AXIS_LEN_TDATA,
+  input  wire         S_AXIS_LEN_TVALID,
   input  wire [7:0]   S_AXIS_SPT_TDATA,
+  input  wire         S_AXIS_SPT_TVALID,
   input  wire [7:0]   S_AXIS_DPT_TDATA,
+  input  wire         S_AXIS_DPT_TVALID,
   input  wire         S_AXIS_ERR_TVALID,
   output wire [255:0] M_AXIS_DAT_TDATA,
   output wire         M_AXIS_DAT_TVALID,
@@ -25,8 +28,11 @@ module AXIS_LOOPBACK (
   output wire         M_AXIS_DAT_TLAST,
   input  wire         M_AXIS_DAT_TREADY,
   output wire [15:0]  M_AXIS_LEN_TDATA,
+  output wire         M_AXIS_LEN_TVALID,
   output wire [7:0]   M_AXIS_SPT_TDATA,
+  output wire         M_AXIS_SPT_TVALID,
   output wire [7:0]   M_AXIS_DPT_TDATA,
+  output wire         M_AXIS_DPT_TVALID,
   output wire         M_AXIS_ERR_TVALID
 );
 
@@ -37,8 +43,11 @@ module AXIS_LOOPBACK (
   assign M_AXIS_DAT_TLAST  = S_AXIS_DAT_TLAST;
   assign S_AXIS_DAT_TREADY = M_AXIS_DAT_TREADY;
   assign M_AXIS_LEN_TDATA  = S_AXIS_LEN_TDATA;
+  assign M_AXIS_LEN_TVALID = S_AXIS_LEN_TVALID;
   assign M_AXIS_SPT_TDATA  = S_AXIS_SPT_TDATA;
+  assign M_AXIS_SPT_TVALID = S_AXIS_SPT_TVALID;
   assign M_AXIS_DPT_TDATA  = S_AXIS_DPT_TDATA;
+  assign M_AXIS_DPT_TVALID = S_AXIS_DPT_TVALID;
   assign M_AXIS_ERR_TVALID = S_AXIS_ERR_TVALID;
 
 endmodule
