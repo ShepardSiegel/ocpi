@@ -11,6 +11,9 @@ import FIFO::*;
 import GetPut::*;
 
 
+//TODO: Consider migrating NF10 stream defintions to a aggregated line the five peer channels of AXI4-Lite
+// For now, we have them as five independent streams...
+
 // These next two interfaces are as per the spec in the following wiki link... 
 // http://netfpga10g.pbworks.com/w/page/31840959/Standard-IP-Interfaces
 interface NF10DPM;
@@ -43,26 +46,51 @@ endinterface
 
 (* synthesize *)
 module mkWSItoAXIS32B (WSItoAXIS32BIfc);
-  WsiSlaveIfc#(12,256,32,8,0)      wsiS  <- mkWsiSlave;
-  BusSender#(A4Stream#(256,32,0))  a4ms  <- mkBusSender(aStrmDflt);
+  WsiSlaveIfc#(12,256,32,8,0)      wsiS       <- mkWsiSlave;
+  BusSender#(A4Stream#(256,32,0))  dat        <- mkBusSender(aStrmDflt);
+  BusSender#(A4Stream#(16,2,0))    len        <- mkBusSender(aStrmDflt);
+  BusSender#(A4Stream#(8,1,0))     spt        <- mkBusSender(aStrmDflt);
+  BusSender#(A4Stream#(8,1,0))     dpt        <- mkBusSender(aStrmDflt);
+  BusSender#(A4Stream#(0,0,0))     err        <- mkBusSender(aStrmDflt);
+  Reg#(Bool)                       firstWord  <- mkReg(True);
 
-  A4StreamMIfc#(256,32,0) axisM = A4StreamMIfc { strm : a4ms.out};  // Place strm sub-interface in axisM interface
+  A4StreamMIfc#(256,32,0) axisDatM = A4StreamMIfc { strm : dat.out};  // Place strm sub-interface in axisM interface
+  A4StreamMIfc#(16,2,0)   axisLenM = A4StreamMIfc { strm : len.out}; 
+  A4StreamMIfc#(8,1,0)    axisSptM = A4StreamMIfc { strm : spt.out}; 
+  A4StreamMIfc#(8,1,0)    axisDptM = A4StreamMIfc { strm : dpt.out}; 
+  A4StreamMIfc#(0,0,0)    axisErrM = A4StreamMIfc { strm : err.out}; 
 
   rule operate_action; wsiS.operate(); endrule
 
   rule advance_data;
     WsiReq#(12,256,32,8,0) w <- wsiS.reqGet.get;
-    a4ms.in.enq( A4Stream { data : w.data,
+    dat.in.enq( A4Stream {  data : w.data,
                             strb : w.byteEn,
                             keep : 0,
                             last : w.reqLast });
+    if (firstWord) begin
+      len.in.enq( A4Stream {data:extend(w.burstLength*32), strb:'1, keep:0, last:True});  // LEN is expressed in Bytes
+      spt.in.enq( A4Stream {data:w.reqInfo               , strb:'1, keep:0, last:True});  // Put reqInfo/opcode on SPT
+      dpt.in.enq( A4Stream {data:w.reqInfo               , strb:'1, keep:0, last:True});  // Put reqInfo/opcode on DPT
+    end
+    firstWord <= w.reqLast;
+    //TODO: Add Error signalling
   endrule
 
-  Wsi_Es#(12,256,32,8,0)     wsi_Es <- mkWsiStoES(wsiS.slv);
-  A4S_Em#(256,32,0)          axi_Em <- mkA4StreamMtoEm(axisM);
+
+  Wsi_Es#(12,256,32,8,0)     wsi_Es    <- mkWsiStoES(wsiS.slv);
+  A4S_Em#(256,32,0)          axiDat_Em <- mkA4StreamMtoEm(axisDatM);
+  A4S_Em#(16,2,0)            axiLen_Em <- mkA4StreamMtoEm(axisLenM);
+  A4S_Em#(8,1,0)             axiSpt_Em <- mkA4StreamMtoEm(axisSptM);
+  A4S_Em#(8,1,0)             axiDpt_Em <- mkA4StreamMtoEm(axisDptM);
+  A4S_Em#(0,0,0)             axiErr_Em <- mkA4StreamMtoEm(axisErrM);
   interface WsiES32B  wsi = wsi_Es;
   interface NF10DPM axi;
-    interface A4SEM32B dat   = axi_Em;
+    interface A4SEM32B dat   = axiDat_Em;
+    interface A4SEM2B  len   = axiLen_Em;
+    interface A4SEM1B  spt   = axiSpt_Em;
+    interface A4SEM1B  dpt   = axiDpt_Em;
+    interface A4SEM0B  err   = axiErr_Em;
   endinterface
 endmodule
 
@@ -74,29 +102,52 @@ endinterface
 
 (* synthesize *)
 module mkAXIStoWSI32B (AXIStoWSI32BIfc);
-  BusReceiver#(A4Stream#(256,32,0))  a4ss  <- mkBusReceiver;
-  WsiMasterIfc#(12,256,32,8,0)       wsiM  <- mkWsiMaster;
+  BusReceiver#(A4Stream#(256,32,0))  dat        <- mkBusReceiver;
+  BusReceiver#(A4Stream#(16,2,0))    len        <- mkBusReceiver;
+  BusReceiver#(A4Stream#(8,1,0))     spt        <- mkBusReceiver;
+  BusReceiver#(A4Stream#(8,1,0))     dpt        <- mkBusReceiver;
+  BusReceiver#(A4Stream#(0,0,0))     err        <- mkBusReceiver;
+  WsiMasterIfc#(12,256,32,8,0)       wsiM       <- mkWsiMaster;
+  Reg#(Bool)                         firstWord  <- mkReg(True);
 
-  A4StreamSIfc#(256,32,0) axisS = A4StreamSIfc { strm : a4ss.in};  // Place strm sub-interface in axisS interface
+  A4StreamSIfc#(256,32,0) axisDatS = A4StreamSIfc { strm : dat.in};  // Place strm sub-interface in axisS interface
+  A4StreamSIfc#(16,2,0)   axisLenS = A4StreamSIfc { strm : len.in}; 
+  A4StreamSIfc#(8,1,0)    axisSptS = A4StreamSIfc { strm : spt.in}; 
+  A4StreamSIfc#(8,1,0)    axisDptS = A4StreamSIfc { strm : dpt.in}; 
+  A4StreamSIfc#(0,0,0)    axisErrS = A4StreamSIfc { strm : err.in}; 
 
   rule operate_action; wsiM.operate(); endrule
 
   rule advance_data;
-    let a = a4ss.out.first; 
-    a4ss.out.deq;
+    Bit#(8) opcodeSPT = 0;
+    if (firstWord) begin
+      let l = len.out.first; len.out.deq;
+      let s = spt.out.first; spt.out.deq; opcodeSPT = s.data;
+      let d = dpt.out.first; dpt.out.deq;
+    end
+    let a = dat.out.first; dat.out.deq;
     wsiM.reqPut.put( WsiReq {   cmd  : WR,
                              reqLast : a.last,
-                             reqInfo : 0,
+                             reqInfo : opcodeSPT,  // put the SPT value into the opcode 
                         burstPrecise : False,
                          burstLength : (a.last) ? 1 : '1,
                                data  : a.data,
                              byteEn  : a.strb,
                            dataInfo  : '0 });
+    firstWord <= a.last;
   endrule
 
-  A4S_Es#(256,32,0) axi_Es <- mkA4StreamStoEs(axisS);
+  A4S_Es#(256,32,0) axiDat_Es <- mkA4StreamStoEs(axisDatS);
+  A4S_Es#(16,2,0)   axiLen_Es <- mkA4StreamStoEs(axisLenS);
+  A4S_Es#(8,1,0)    axiSpt_Es <- mkA4StreamStoEs(axisSptS);
+  A4S_Es#(8,1,0)    axiDpt_Es <- mkA4StreamStoEs(axisDptS);
+  A4S_Es#(0,0,0)    axiErr_Es <- mkA4StreamStoEs(axisErrS);
   interface NF10DPS axi;
-    interface A4SES32B dat   = axi_Es;
+    interface A4SES32B dat   = axiDat_Es;
+    interface A4SES2B  len   = axiLen_Es;
+    interface A4SES1B  spt   = axiSpt_Es;
+    interface A4SES1B  dpt   = axiDpt_Es;
+    interface A4SES0B  err   = axiErr_Es;
   endinterface
   interface WsiEM32B  wsi = toWsiEM(wsiM.mas);
 endmodule

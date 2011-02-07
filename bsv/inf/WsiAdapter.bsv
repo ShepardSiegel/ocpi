@@ -29,6 +29,7 @@ endinterface
 
 
 //TODO: Correctly write me for all cases, both ways
+// Remember that OCP MBurstLength is in transfer cycles, not Bytes; so must be adjusted
 
 
 (* synthesize *)
@@ -68,9 +69,8 @@ rule doRequestEgress (isFull);
              reqLast:       isLast,
              reqInfo:       stage[0].reqInfo,
              burstPrecise:  stage[0].burstPrecise,
-             burstLength:   stage[0].burstLength,
-             //data:          {stage[3].data,  stage[2].data,  stage[1].data,  stage[0].data},
-             data:          pack(map(getData,readVReg(stage))),  // Little Endian DWORDS
+             burstLength:   stage[0].burstLength / 4,            // 1/4 the output transfers
+             data:          pack(map(getData,readVReg(stage))),  // Take Little-Endian DWORDS
              byteEn:        be,
              dataInfo:      stage[0].dataInfo }
     );
@@ -120,8 +120,8 @@ rule doRequestEgress (!isEmpty);
              reqLast:       isLast && (pos==3),
              reqInfo:       req16.reqInfo,
              burstPrecise:  req16.burstPrecise,
-             burstLength:   req16.burstLength,
-             data:          data,
+             burstLength:   req16.burstLength * 4,   // 4x the outputput transfers
+             data:          data, 
              byteEn:        be,
              dataInfo:      req16.dataInfo }
     );
@@ -175,9 +175,8 @@ rule doRequestEgress (isFull);
              reqLast:       isLast,
              reqInfo:       stage[0].reqInfo,
              burstPrecise:  stage[0].burstPrecise,
-             burstLength:   stage[0].burstLength,
-             //data:          {stage[7].data, stage[6].data, stage[5].data, stage[4].data, stage[3].data,  stage[2].data,  stage[1].data,  stage[0].data},
-             data:          pack(map(getData,readVReg(stage))),  // Little Endian DWORDS
+             burstLength:   stage[0].burstLength / 8,            // 1/8 the output transfers
+             data:          pack(map(getData,readVReg(stage))),  // Take Little-Endian DWORDS
              byteEn:        be,
              dataInfo:      stage[0].dataInfo }
     );
@@ -231,7 +230,7 @@ rule doRequestEgress (!isEmpty);
              reqLast:       isLast && (pos==7),
              reqInfo:       req32.reqInfo,
              burstPrecise:  req32.burstPrecise,
-             burstLength:   req32.burstLength,
+             burstLength:   req32.burstLength * 8,    // 8x the output transfers
              data:          data,
              byteEn:        be,
              dataInfo:      req32.dataInfo }
