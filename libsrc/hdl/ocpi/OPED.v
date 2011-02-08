@@ -11,24 +11,18 @@
 // + The ERR channel has zero bits of data. An error is indicated by TVALID assertion
 // + The DEBUG signals contain up to 32 "interesting" bits of status
 //
-// TODO: As of 2011-02-07 Switched AXIS to compliant, separate, channels...
-// The {LEN/SPT/DPT/ERR} signals, although lockstep with DAT, have their own TVALIDs
-// See the nf10 doc for details about their behavior and timing
-// http://netfpga10g.pbworks.com/w/page/31840959/Standard-IP-Interfaces
+// + The 32b of TUSER are assigned as follows
+// TUSER[31:16] Transfer Length in Bytes  (provided by OPED AXIS Master, ignored by OPED AXIS Slave)
+// TUSER[15:08] Spare, Ignored (zero)
+// TUSER[ 7:0 ] Message Opcode (provided by AXIS master, accepted by AXIS slave)
 
 module OPED # 
 
   ( // OPED accepts the MPD-named paramater specifications...
-  parameter                              C_M_AXIS_DAT_DATA_WIDTH = 256,
-  parameter                              C_S_AXIS_DAT_DATA_WIDTH = 256,
-  parameter                              C_M_AXIS_LEN_DATA_WIDTH = 16,
-  parameter                              C_S_AXIS_LEN_DATA_WIDTH = 16,
-  parameter                              C_M_AXIS_SPT_DATA_WIDTH = 8,
-  parameter                              C_S_AXIS_SPT_DATA_WIDTH = 8,
-  parameter                              C_M_AXIS_DPT_DATA_WIDTH = 8,
-  parameter                              C_S_AXIS_DPT_DATA_WIDTH = 8,
-  parameter                              C_M_AXIS_ERR_DATA_WIDTH = 8,
-  parameter                              C_S_AXIS_ERR_DATA_WIDTH = 8)
+  parameter                              C_M_AXIS_DAT_DATA_WIDTH = 32,
+  parameter                              C_S_AXIS_DAT_DATA_WIDTH = 32,
+  parameter                              C_M_AXIS_DAT_USER_WIDTH = 32,
+  parameter                              C_S_AXIS_DAT_USER_WIDTH = 8)
 
   ( // OPED uses the MPD-specified signal names for the AXI user-facing ports...
   input                                  PCIE_CLKP,           // PCIe connections...
@@ -64,55 +58,17 @@ module OPED #
 
   output [C_M_AXIS_DAT_DATA_WIDTH-1:0]   M_AXIS_DAT_TDATA,    // AXI4-Stream (Ingress from PCIe) Master-Producer...
   output [C_M_AXIS_DAT_DATA_WIDTH/8-1:0] M_AXIS_DAT_TSTRB,
+  output [C_M_AXIS_DAT_USER_WIDTH-1:0]   M_AXIS_DAT_TUSER, 
   output                                 M_AXIS_DAT_TLAST,
   output                                 M_AXIS_DAT_TVALID,
   input                                  M_AXIS_DAT_TREADY,
-  output [C_M_AXIS_LEN_DATA_WIDTH-1:0]   M_AXIS_LEN_TDATA,    // LEN (Length)
-  output [C_M_AXIS_LEN_DATA_WIDTH/8-1:0] M_AXIS_LEN_TSTRB,
-  output                                 M_AXIS_LEN_TLAST,
-  output                                 M_AXIS_LEN_TVALID,
-  input                                  M_AXIS_LEN_TREADY,
-  output [C_M_AXIS_SPT_DATA_WIDTH-1:0]   M_AXIS_SPT_TDATA,    // SPT (Source Port)
-  output [C_M_AXIS_SPT_DATA_WIDTH/8-1:0] M_AXIS_SPT_TSTRB,
-  output                                 M_AXIS_SPT_TLAST,
-  output                                 M_AXIS_SPT_TVALID,
-  input                                  M_AXIS_SPT_TREADY,
-  output [C_M_AXIS_DPT_DATA_WIDTH-1:0]   M_AXIS_DPT_TDATA,    // DPT (Destination Port)
-  output [C_M_AXIS_DPT_DATA_WIDTH/8-1:0] M_AXIS_DPT_TSTRB,
-  output                                 M_AXIS_DPT_TLAST,
-  output                                 M_AXIS_DPT_TVALID,
-  input                                  M_AXIS_DPT_TREADY,
-  output [C_M_AXIS_ERR_DATA_WIDTH-1:0]   M_AXIS_ERR_TDATA,    // ERR (Error)
-  output [C_M_AXIS_ERR_DATA_WIDTH/8-1:0] M_AXIS_ERR_TSTRB,
-  output                                 M_AXIS_ERR_TLAST,
-  output                                 M_AXIS_ERR_TVALID,
-  input                                  M_AXIS_ERR_TREADY,
 
   input  [C_S_AXIS_DAT_DATA_WIDTH-1:0]   S_AXIS_DAT_TDATA,    // AXI4-Stream (Egress to PCIe) Slave-Consumer...
   input  [C_S_AXIS_DAT_DATA_WIDTH/8-1:0] S_AXIS_DAT_TSTRB,
+  input  [C_S_AXIS_DAT_USER_WIDTH-1:0]   S_AXIS_DAT_TUSER, 
   input                                  S_AXIS_DAT_TLAST,
   input                                  S_AXIS_DAT_TVALID,
   output                                 S_AXIS_DAT_TREADY,
-  input  [C_S_AXIS_LEN_DATA_WIDTH-1:0]   S_AXIS_LEN_TDATA,    // LEN (Length)
-  input  [C_S_AXIS_LEN_DATA_WIDTH/8-1:0] S_AXIS_LEN_TSTRB,
-  input                                  S_AXIS_LEN_TLAST,
-  input                                  S_AXIS_LEN_TVALID,
-  output                                 S_AXIS_LEN_TREADY,
-  input  [C_S_AXIS_SPT_DATA_WIDTH-1:0]   S_AXIS_SPT_TDATA,    // SPT (Source Port)
-  input  [C_S_AXIS_SPT_DATA_WIDTH/8-1:0] S_AXIS_SPT_TSTRB,
-  input                                  S_AXIS_SPT_TLAST,
-  input                                  S_AXIS_SPT_TVALID,
-  output                                 S_AXIS_SPT_TREADY,
-  input  [C_S_AXIS_DPT_DATA_WIDTH-1:0]   S_AXIS_DPT_TDATA,    // DPT (Destination Port)
-  input  [C_S_AXIS_DPT_DATA_WIDTH/8-1:0] S_AXIS_DPT_TSTRB,
-  input                                  S_AXIS_DPT_TLAST,
-  input                                  S_AXIS_DPT_TVALID,
-  output                                 S_AXIS_DPT_TREADY,
-  input  [C_S_AXIS_ERR_DATA_WIDTH-1:0]   S_AXIS_ERR_TDATA,    // ERR (Error)
-  input  [C_S_AXIS_ERR_DATA_WIDTH/8-1:0] S_AXIS_ERR_TSTRB,
-  input                                  S_AXIS_ERR_TLAST,
-  input                                  S_AXIS_ERR_TVALID,
-  output                                 S_AXIS_ERR_TREADY,
 
   output [31:0]                          DEBUG                // 32b of OPED debug information
 );
@@ -127,16 +83,10 @@ module OPED #
 
 // Compile time check for expected paramaters...
 initial begin
-  if (C_M_AXIS_DAT_DATA_WIDTH != 256) begin $display("Unsupported M_AXIS_DAT width"); $finish; end
-  if (C_S_AXIS_DAT_DATA_WIDTH != 256) begin $display("Unsupported S_AXIS_DAT width"); $finish; end
-  if (C_M_AXIS_LEN_DATA_WIDTH != 16)  begin $display("Unsupported M_AXIS_LEN width"); $finish; end
-  if (C_S_AXIS_LEN_DATA_WIDTH != 16)  begin $display("Unsupported S_AXIS_LEN width"); $finish; end
-  if (C_M_AXIS_SPT_DATA_WIDTH != 8)   begin $display("Unsupported M_AXIS_SPT width"); $finish; end
-  if (C_S_AXIS_SPT_DATA_WIDTH != 8)   begin $display("Unsupported S_AXIS_SPT width"); $finish; end
-  if (C_M_AXIS_DPT_DATA_WIDTH != 8)   begin $display("Unsupported M_AXIS_DPT width"); $finish; end
-  if (C_S_AXIS_DPT_DATA_WIDTH != 8)   begin $display("Unsupported S_AXIS_DPT width"); $finish; end
-  if (C_M_AXIS_ERR_DATA_WIDTH != 8)   begin $display("Unsupported M_AXIS_ERR width"); $finish; end
-  if (C_S_AXIS_ERR_DATA_WIDTH != 8)   begin $display("Unsupported S_AXIS_ERR width"); $finish; end
+  if (C_M_AXIS_DAT_DATA_WIDTH != 32)  begin $display("Unsupported M_AXIS_DAT DATA width"); $finish; end
+  if (C_S_AXIS_DAT_DATA_WIDTH != 32)  begin $display("Unsupported S_AXIS_DAT DATA width"); $finish; end
+  if (C_M_AXIS_DAT_USER_WIDTH != 32)  begin $display("Unsupported M_AXIS_DAT USER width"); $finish; end
+  if (C_S_AXIS_DAT_USER_WIDTH !=  8)  begin $display("Unsupported S_AXIS_DAT USER width"); $finish; end
 end
 
  mkOPED_v5 oped (
@@ -173,54 +123,17 @@ end
   .axisM_dat_TDATA   (M_AXIS_DAT_TDATA),
   .axisM_dat_TVALID  (M_AXIS_DAT_TVALID),
   .axisM_dat_TSTRB   (M_AXIS_DAT_TSTRB),
+  .axisM_dat_TUSER   (M_AXIS_DAT_TUSER),
   .axisM_dat_TLAST   (M_AXIS_DAT_TLAST),
   .axisM_dat_TREADY  (M_AXIS_DAT_TREADY),
-  .axisM_len_TDATA   (M_AXIS_LEN_TDATA),
-  .axisM_len_TVALID  (M_AXIS_LEN_TVALID),
-  .axisM_len_TSTRB   (),                   // unused output
-  .axisM_len_TLAST   (),                   // unused output
-  .axisM_len_TREADY  (M_AXIS_LEN_TREADY),
-  .axisM_spt_TDATA   (M_AXIS_SPT_TDATA),
-  .axisM_spt_TVALID  (M_AXIS_SPT_TVALID),
-  .axisM_spt_TSTRB   (),                   // unused output
-  .axisM_spt_TLAST   (),                   // unused output
-  .axisM_spt_TREADY  (M_AXIS_SPT_TREADY),
-  .axisM_dpt_TDATA   (M_AXIS_DPT_TDATA),
-  .axisM_dpt_TVALID  (M_AXIS_DPT_TVALID),
-  .axisM_dpt_TSTRB   (),                   // unused output
-  .axisM_dpt_TLAST   (),                   // unused output
-  .axisM_dpt_TREADY  (M_AXIS_DPT_TREADY),
-  .axisM_err_TVALID  (M_AXIS_ERR_TVALID),
-  .axisM_err_TDATA   (M_AXIS_ERR_TDATA),
-  .axisM_err_TSTRB   (),                   // unused output
-  .axisM_err_TLAST   (),                   // unused output
-  .axisM_err_TREADY  (M_AXIS_ERR_TREADY),
 
   .axisS_dat_TDATA   (S_AXIS_DAT_TDATA),
   .axisS_dat_TVALID  (S_AXIS_DAT_TVALID),
   .axisS_dat_TSTRB   (S_AXIS_DAT_TSTRB),
+  .axisS_dat_TUSER   (S_AXIS_DAT_TUSER),
   .axisS_dat_TLAST   (S_AXIS_DAT_TLAST),
   .axisS_dat_TREADY  (S_AXIS_DAT_TREADY),
-  .axisS_len_TDATA   (S_AXIS_LEN_TDATA),
-  .axisS_len_TVALID  (S_AXIS_LEN_TVALID),
-  .axisS_len_TSTRB   (2'b11),              // input constant asserted
-  .axisS_len_TLAST   (1'b1),               // input constant asserted
-  .axisS_len_TREADY  (S_AXIS_LEN_TREADY),
-  .axisS_spt_TDATA   (S_AXIS_SPT_TDATA),
-  .axisS_spt_TVALID  (S_AXIS_SPT_TVALID),
-  .axisS_spt_TSTRB   (1'b1),               // input constant asserted
-  .axisS_spt_TLAST   (1'b1),               // input constant asserted
-  .axisS_spt_TREADY  (S_AXIS_SPT_TREADY),
-  .axisS_dpt_TDATA   (S_AXIS_DPT_TDATA),
-  .axisS_dpt_TVALID  (S_AXIS_DPT_TVALID),
-  .axisS_dpt_TSTRB   (1'b1),               // input constant asserted
-  .axisS_dpt_TLAST   (1'b1),               // input constant asserted
-  .axisS_dpt_TREADY  (S_AXIS_DPT_TREADY),
-  .axisS_err_TDATA   (S_AXIS_ERR_TDATA),
-  .axisS_err_TVALID  (S_AXIS_ERR_TVALID),
-  .axisS_err_TSTRB   (1'b1),               // input constant asserted
-  .axisS_err_TLAST   (1'b1),               // input constant asserted
-  .axisS_err_TREADY  (S_AXIS_ERR_TREADY),
+
   .debug             (DEBUG)
 );
 

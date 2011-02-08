@@ -6,6 +6,7 @@
 // NETFPGA-10G build. It is useful for standalone OPED testing and building.
 
 // This level is the top level of the nf10 FPGA, this is a stand-in for the real NETFPGA-10G top...
+//
 
 module fpgaTop (
   input  wire        pcie_clkp,      // PCIe Clock +
@@ -19,61 +20,39 @@ module fpgaTop (
 );
 
 // Wire declarations...
-wire         ACLK;  
-wire         ARESETN; 
-wire [31:0]  M_AXI_AWADDR;
-wire [2:0]   M_AXI_AWPROT;
-wire         M_AXI_AWVALID;
-wire         M_AXI_AWREADY;
-wire [31:0]  M_AXI_WDATA;
-wire [3:0]   M_AXI_WSTRB;
-wire         M_AXI_WVALID;
-wire         M_AXI_WREADY;
-wire [1:0]   M_AXI_BRESP;
-wire         M_AXI_BVALID;
-wire         M_AXI_BREADY;
-wire [31:0]  M_AXI_ARADDR;
-wire [2:0]   M_AXI_ARPROT;
-wire         M_AXI_ARVALID;
-wire         M_AXI_ARREADY;
-wire [31:0]  M_AXI_RDATA;
-wire [1:0]   M_AXI_RRESP;
-wire         M_AXI_RVALID;
-wire         M_AXI_RREADY;
-wire [255:0] M_AXIS_DAT_TDATA;
-wire         M_AXIS_DAT_TVALID;
-wire [31:0]  M_AXIS_DAT_TSTRB;
-wire         M_AXIS_DAT_TLAST;
-wire         M_AXIS_DAT_TREADY;
-wire [15:0]  M_AXIS_LEN_TDATA;
-wire         M_AXIS_LEN_TVALID;
-wire         M_AXIS_LEN_TREADY;
-wire [7:0]   M_AXIS_SPT_TDATA;
-wire         M_AXIS_SPT_TVALID;
-wire         M_AXIS_SPT_TREADY;
-wire [7:0]   M_AXIS_DPT_TDATA;
-wire         M_AXIS_DPT_TVALID;
-wire         M_AXIS_DPT_TREADY;
-wire [7:0]   M_AXIS_ERR_TDATA;
-wire         M_AXIS_ERR_TVALID;
-wire         M_AXIS_ERR_TREADY;
-wire [255:0] S_AXIS_DAT_TDATA;
-wire         S_AXIS_DAT_TVALID;
-wire [31:0]  S_AXIS_DAT_TSTRB;
-wire         S_AXIS_DAT_TLAST;
-wire         S_AXIS_DAT_TREADY;
-wire [15:0]  S_AXIS_LEN_TDATA;
-wire         S_AXIS_LEN_TVALID;
-wire         S_AXIS_LEN_TREADY;
-wire [7:0]   S_AXIS_SPT_TDATA;
-wire         S_AXIS_SPT_TVALID;
-wire         S_AXIS_SPT_TREADY;
-wire [7:0]   S_AXIS_DPT_TDATA;
-wire         S_AXIS_DPT_TVALID;
-wire         S_AXIS_DPT_TREADY;
-wire [7:0]   S_AXIS_ERR_TDATA;
-wire         S_AXIS_ERR_TVALID;
-wire         S_AXIS_ERR_TREADY;
+wire        ACLK;  
+wire        ARESETN; 
+wire [31:0] M_AXI_AWADDR;
+wire [2:0]  M_AXI_AWPROT;
+wire        M_AXI_AWVALID;
+wire        M_AXI_AWREADY;
+wire [31:0] M_AXI_WDATA;
+wire [3:0]  M_AXI_WSTRB;
+wire        M_AXI_WVALID;
+wire        M_AXI_WREADY;
+wire [1:0]  M_AXI_BRESP;
+wire        M_AXI_BVALID;
+wire        M_AXI_BREADY;
+wire [31:0] M_AXI_ARADDR;
+wire [2:0]  M_AXI_ARPROT;
+wire        M_AXI_ARVALID;
+wire        M_AXI_ARREADY;
+wire [31:0] M_AXI_RDATA;
+wire [1:0]  M_AXI_RRESP;
+wire        M_AXI_RVALID;
+wire        M_AXI_RREADY;
+wire [31:0] M_AXIS_DAT_TDATA;
+wire        M_AXIS_DAT_TVALID;
+wire [3:0]  M_AXIS_DAT_TSTRB;
+wire [31:0] M_AXIS_DAT_TUSER;
+wire        M_AXIS_DAT_TLAST;
+wire        M_AXIS_DAT_TREADY;
+wire [31:0] S_AXIS_DAT_TDATA;
+wire        S_AXIS_DAT_TVALID;
+wire [3:0]  S_AXIS_DAT_TSTRB;
+wire [7:0]  S_AXIS_DAT_TUSER;
+wire        S_AXIS_DAT_TLAST;
+wire        S_AXIS_DAT_TREADY;
 
 wire [31:0]  debug_oped;       // The 32b vector of debug signals from OPED
 always@(posedge ACLK) begin
@@ -113,40 +92,17 @@ end
   .M_AXIS_DAT_TDATA  (M_AXIS_DAT_TDATA),
   .M_AXIS_DAT_TVALID (M_AXIS_DAT_TVALID),
   .M_AXIS_DAT_TSTRB  (M_AXIS_DAT_TSTRB),
+  .M_AXIS_DAT_TUSER  (M_AXIS_DAT_TUSER),
   .M_AXIS_DAT_TLAST  (M_AXIS_DAT_TLAST),
   .M_AXIS_DAT_TREADY (M_AXIS_DAT_TREADY),
-  .M_AXIS_LEN_TDATA  (M_AXIS_LEN_TDATA),
-  .M_AXIS_LEN_TVALID (M_AXIS_LEN_TVALID),
-  .M_AXIS_LEN_TREADY (M_AXIS_LEN_TREADY),
-  .M_AXIS_SPT_TDATA  (M_AXIS_SPT_TDATA),
-  .M_AXIS_SPT_TVALID (M_AXIS_SPT_TVALID),
-  .M_AXIS_SPT_TREADY (M_AXIS_SPT_TREADY),
-  .M_AXIS_DPT_TDATA  (M_AXIS_DPT_TDATA),
-  .M_AXIS_DPT_TVALID (M_AXIS_DPT_TVALID),
-  .M_AXIS_DPT_TREADY (M_AXIS_DPT_TREADY),
-  .M_AXIS_ERR_TDATA  (M_AXIS_ERR_TDATA),
-  .M_AXIS_ERR_TVALID (M_AXIS_ERR_TVALID),
-  .M_AXIS_ERR_TREADY (M_AXIS_ERR_TREADY),
   .S_AXIS_DAT_TDATA  (S_AXIS_DAT_TDATA),
   .S_AXIS_DAT_TVALID (S_AXIS_DAT_TVALID),
   .S_AXIS_DAT_TSTRB  (S_AXIS_DAT_TSTRB),
+  .S_AXIS_DAT_TUSER  (S_AXIS_DAT_TUSER),
   .S_AXIS_DAT_TLAST  (S_AXIS_DAT_TLAST),
   .S_AXIS_DAT_TREADY (S_AXIS_DAT_TREADY),
-  .S_AXIS_LEN_TDATA  (S_AXIS_LEN_TDATA),
-  .S_AXIS_LEN_TVALID (S_AXIS_LEN_TVALID),
-  .S_AXIS_LEN_TREADY (S_AXIS_LEN_TREADY),
-  .S_AXIS_SPT_TDATA  (S_AXIS_SPT_TDATA),
-  .S_AXIS_SPT_TVALID (S_AXIS_SPT_TVALID),
-  .S_AXIS_SPT_TREADY (S_AXIS_SPT_TREADY),
-  .S_AXIS_DPT_TDATA  (S_AXIS_DPT_TDATA),
-  .S_AXIS_DPT_TVALID (S_AXIS_DPT_TVALID),
-  .S_AXIS_DPT_TREADY (S_AXIS_DPT_TREADY),
-  .S_AXIS_ERR_TDATA  (S_AXIS_ERR_TDATA),
-  .S_AXIS_ERR_TVALID (S_AXIS_ERR_TVALID),
-  .S_AXIS_ERR_TREADY (S_AXIS_ERR_TREADY),
   .DEBUG             (debug_oped)
 );
-
 
 // Instance and connect a simple AXI4-Lite Slave Device...
 // TODO: This module will be replaced with the nf10 "control plane"
@@ -176,44 +132,25 @@ end
 
 // Instance and connect a loopback core from the ingress to the egress...
 // TODO: This module will be replaced with the nf10 "data plane"
+// The 32b of AXIS TUSER are assigned as follows
+// TUSER[31:16] Transfer Length in Bytes (provided by OPED AXIS Master, ignored by OPED AXIS Slave)
+// TUSER[15:8]  Spare, Ignored (zero)
+// TUSER[7:0]   Message Opcode (provided by AXIS master, accepted by AXIS slave)
  AXIS_LOOPBACK axisLoopback (
   .ACLK              (ACLK),
   .ARESETN           (ARESETN),
   .S_AXIS_DAT_TDATA  (M_AXIS_DAT_TDATA),
   .S_AXIS_DAT_TVALID (M_AXIS_DAT_TVALID),
   .S_AXIS_DAT_TSTRB  (M_AXIS_DAT_TSTRB),
+  .S_AXIS_DAT_TUSER  (M_AXIS_DAT_TUSER),   // 32b (16b len, 8b pad, 8b opcode)
   .S_AXIS_DAT_TLAST  (M_AXIS_DAT_TLAST),
   .S_AXIS_DAT_TREADY (M_AXIS_DAT_TREADY),
-  .S_AXIS_LEN_TDATA  (M_AXIS_LEN_TDATA),
-  .S_AXIS_LEN_TVALID (M_AXIS_LEN_TVALID),
-  .S_AXIS_LEN_TREADY (M_AXIS_LEN_TREADY),
-  .S_AXIS_SPT_TDATA  (M_AXIS_SPT_TDATA),
-  .S_AXIS_SPT_TVALID (M_AXIS_SPT_TVALID),
-  .S_AXIS_SPT_TREADY (M_AXIS_SPT_TREADY),
-  .S_AXIS_DPT_TDATA  (M_AXIS_DPT_TDATA),
-  .S_AXIS_DPT_TVALID (M_AXIS_DPT_TVALID),
-  .S_AXIS_DPT_TREADY (M_AXIS_DPT_TREADY),
-  .S_AXIS_ERR_TDATA  (M_AXIS_ERR_TDATA),
-  .S_AXIS_ERR_TVALID (M_AXIS_ERR_TVALID),
-  .S_AXIS_ERR_TREADY (M_AXIS_ERR_TREADY),
   .M_AXIS_DAT_TDATA  (S_AXIS_DAT_TDATA),
   .M_AXIS_DAT_TVALID (S_AXIS_DAT_TVALID),
   .M_AXIS_DAT_TSTRB  (S_AXIS_DAT_TSTRB),
+  .M_AXIS_DAT_TUSER  (S_AXIS_DAT_TUSER),   // 8b opcode
   .M_AXIS_DAT_TLAST  (S_AXIS_DAT_TLAST),
-  .M_AXIS_DAT_TREADY (S_AXIS_DAT_TREADY),
-  .M_AXIS_LEN_TDATA  (S_AXIS_LEN_TDATA),
-  .M_AXIS_LEN_TVALID (S_AXIS_LEN_TVALID),
-  .M_AXIS_LEN_TREADY (S_AXIS_LEN_TREADY),
-  .M_AXIS_SPT_TDATA  (S_AXIS_SPT_TDATA),
-  .M_AXIS_SPT_TVALID (S_AXIS_SPT_TVALID),
-  .M_AXIS_SPT_TREADY (S_AXIS_SPT_TREADY),
-  .M_AXIS_DPT_TDATA  (S_AXIS_DPT_TDATA),
-  .M_AXIS_DPT_TVALID (S_AXIS_DPT_TVALID),
-  .M_AXIS_DPT_TREADY (S_AXIS_DPT_TREADY),
-  .M_AXIS_ERR_TDATA  (S_AXIS_ERR_TDATA),
-  .M_AXIS_ERR_TVALID (S_AXIS_ERR_TVALID),
-  .M_AXIS_ERR_TREADY (S_AXIS_ERR_TREADY)
+  .M_AXIS_DAT_TREADY (S_AXIS_DAT_TREADY)
 );
-
 
 endmodule
