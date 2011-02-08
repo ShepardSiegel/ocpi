@@ -11,6 +11,7 @@ ITEST8    ?= TB8
 ITEST10   ?= TB10
 ITEST11   ?= TB11
 ITEST12   ?= TB12
+ITEST13   ?= TB13
 OPED      ?= OPED
 A4LS      ?= A4LS
 RTEST5    ?= FTop_ml555
@@ -225,6 +226,21 @@ isim12: $(OBJ)
 		$(BSVTST)/$(ITEST12).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST12) -o runsim
+	./runsim -testplusarg bscvcd
+
+######################################################################
+isim13: $(OBJ)
+
+	# compile to verilog backend for ISim
+	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(ITEST13).bsv
+
+	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST13) -o runsim
 	./runsim -testplusarg bscvcd
 
 	# create verilog executable

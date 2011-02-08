@@ -163,14 +163,14 @@ module mkA4StreamStoEs#(A4StreamSIfc#(td,tg,th,tu) arg) (A4S_Es#(td,tg,th,tu));
 
 endmodule
 
-instance Connectable#(A4S_Em#(td,tg,th,tu), A4S_Es#(td,tg,th,tu));
-  module mkConnection#(A4S_Em#(td,tg,th,tu) m, A4S_Es#(td,tg,th,tu) s) (Empty);
+instance Connectable#(A4S_Em#(td,tg,th,tu1), A4S_Es#(td,tg,th,tu2)) provisos(Add#(a__,tu2,tu1));
+  module mkConnection#(A4S_Em#(td,tg,th,tu1) m, A4S_Es#(td,tg,th,tu2) s) (Empty);
     (* no_implicit_conditions, fire_when_enabled *) rule doAlways (True);
       if (unpack(m.mTVALID)) s.mTVALID;
       if (unpack(s.sTREADY)) m.sTREADY;
       s.mTDATA(m.mTDATA);
       s.mTSTRB(m.mTSTRB);
-      s.mTUSER(m.mTUSER);
+      s.mTUSER(truncate(m.mTUSER));
       s.mTKEEP(m.mTKEEP);
       if (unpack(m.mTLAST)) s.mTLAST;
     endrule
