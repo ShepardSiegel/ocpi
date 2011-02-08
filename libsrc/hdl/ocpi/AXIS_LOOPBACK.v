@@ -21,13 +21,12 @@ module AXIS_LOOPBACK (
   input  wire [32:0] S_AXIS_DAT_TUSER,
   input  wire        S_AXIS_DAT_TLAST,
   output wire        S_AXIS_DAT_TREADY,
-
   output wire [32:0] M_AXIS_DAT_TDATA,
   output wire        M_AXIS_DAT_TVALID,
   output wire [3:0]  M_AXIS_DAT_TSTRB,
   output wire [7:0]  M_AXIS_DAT_TUSER,
   output wire        M_AXIS_DAT_TLAST,
-  input  wire        M_AXIS_DAT_TREADY,
+  input  wire        M_AXIS_DAT_TREADY
 );
 
 // Just loop the signals through...

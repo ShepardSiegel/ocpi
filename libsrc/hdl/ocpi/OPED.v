@@ -120,19 +120,19 @@ end
   .axi4m_RVALID      (M_AXI_RVALID),
   .axi4m_RREADY      (M_AXI_RREADY),
 
-  .axisM_dat_TDATA   (M_AXIS_DAT_TDATA),
-  .axisM_dat_TVALID  (M_AXIS_DAT_TVALID),
-  .axisM_dat_TSTRB   (M_AXIS_DAT_TSTRB),
-  .axisM_dat_TUSER   (M_AXIS_DAT_TUSER),
-  .axisM_dat_TLAST   (M_AXIS_DAT_TLAST),
-  .axisM_dat_TREADY  (M_AXIS_DAT_TREADY),
+  .axisM_TDATA       (M_AXIS_DAT_TDATA),
+  .axisM_TVALID      (M_AXIS_DAT_TVALID),
+  .axisM_TSTRB       (M_AXIS_DAT_TSTRB),
+  .axisM_TUSER       (M_AXIS_DAT_TUSER),
+  .axisM_TLAST       (M_AXIS_DAT_TLAST),
+  .axisM_TREADY      (M_AXIS_DAT_TREADY),
 
-  .axisS_dat_TDATA   (S_AXIS_DAT_TDATA),
-  .axisS_dat_TVALID  (S_AXIS_DAT_TVALID),
-  .axisS_dat_TSTRB   (S_AXIS_DAT_TSTRB),
-  .axisS_dat_TUSER   (S_AXIS_DAT_TUSER),
-  .axisS_dat_TLAST   (S_AXIS_DAT_TLAST),
-  .axisS_dat_TREADY  (S_AXIS_DAT_TREADY),
+  .axisS_TDATA       (S_AXIS_DAT_TDATA),
+  .axisS_TVALID      (S_AXIS_DAT_TVALID),
+  .axisS_TSTRB       (S_AXIS_DAT_TSTRB),
+  .axisS_TUSER       (S_AXIS_DAT_TUSER),
+  .axisS_TLAST       (S_AXIS_DAT_TLAST),
+  .axisS_TREADY      (S_AXIS_DAT_TREADY),
 
   .debug             (DEBUG)
 );

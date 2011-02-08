@@ -32,8 +32,8 @@ interface OPEDIfc#(numeric type lanes);
   interface Clock                  p125clk;
   interface Reset                  p125rst;
   interface A4L_Em                 axi4m;     // The AXI4-Lite Master (Control-Plane Interface)
-  interface NF10DPM                axisM;     // The AXI-4-Stream Master (PCIe Fabric-Consumer, Internal Data-Plane Producer)
-  interface NF10DPS                axisS;     // The AXI-4-Stream Slave  (PCIe Fabric-Producer, Internal Data-Plane Consumer)
+  interface NF10DPEM4B             axisM;     // The AXI-4-Stream Master (PCIe Fabric-Consumer, Internal Data-Plane Producer)
+  interface NF10DPES4B             axisS;     // The AXI-4-Stream Slave  (PCIe Fabric-Producer, Internal Data-Plane Consumer)
   (*always_ready*) method Bit#(32) debug;
 endinterface: OPEDIfc
 
