@@ -285,7 +285,7 @@ verilog_oped: $(OBJ)
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
-		-aggressive-conditions -no-show-method-conf \
+		-aggressive-conditions -no-show-method-conf -keep-fires \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-verilog-filter basicinout $(BSVINF)/$(OPED).bsv
