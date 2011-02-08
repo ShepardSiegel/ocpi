@@ -72,6 +72,9 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
   Reg#(Bit#(32))                 abortCount        <- mkReg(0);
   Reg#(Bit#(nd))                 valExpect         <- mkReg(0);
   Reg#(Bit#(nd))                 errCount          <- mkReg(0);
+  Reg#(Bit#(32))                 wmwtBeginCount    <- mkReg(0);
+  Reg#(Bit#(32))                 wmwtPImpCount     <- mkReg(0);
+  Reg#(Bit#(32))                 wmwtFinalCount    <- mkReg(0);
 
   Bool wsiPass  = (smaCtrl[3:0]==4'h0);
   Bool wmiRd    = (smaCtrl[3:0]==4'h1) || (smaCtrl[3:0]==4'h4) || (smaCtrl[3:0]==4'h9); // FIXME: 4'h9 is temp workaround for testRpl sw
@@ -196,6 +199,7 @@ rule wmwt_mesgBegin (wci.isOperating && wmiWt && !wmi.anyBusy && !isValid(opcode
     readyToPush     <= True;
     $display("[%0d]: %m: wmwt_mesgBegin IMPRECISE mesgCount:%0x", $time, mesgCount);
   end
+  wmwtBeginCount <= wmwtBeginCount + 1;
 endrule
 
 // This rule firing posts an WMI request and the MFlag opcode/length info...
@@ -244,6 +248,7 @@ rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impre
     if (!zlm) valExpect <= valExpect + 1;
     if (w.data!=valExpect && !zlm) errCount <= errCount + 1;
   end
+  wmwtPImpCount <= wmwtPImpCount + 1;
   //$display("[%0d]: %m: wmwt_messagePushImprecise", $time );
 endrule
 
@@ -269,6 +274,7 @@ rule wmwt_messageFinalize
   preciseBurst   <= False;
   impreciseBurst <= False;
   endOfMessage   <= False;
+  wmwtFinalCount <= wmwtFinalCount + 1;
   $display("[%0d]: %m: wmwt_messageFinalize mesgCount:%0x WSI mesgLength:%0x", $time, mesgCount, fromMaybe(0,mesgLength));
 endrule
 
@@ -283,8 +289,7 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
    case (wciReq.addr[7:0]) matches
      'h00 : smaCtrl  <= unpack(wciReq.data);
    endcase
-   //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
-     //$time, wciReq.addr, wciReq.byteEn, wciReq.data);
+   $display("[%0d]: %m: SMAdapter WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
 endrule
 
@@ -303,6 +308,10 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h2C : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.pMesgCount);
      'h30 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.iMesgCount);
      'h34 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.tBusyCount);
+     'h38 : rdat = !hasDebugLogic ? 0 : pack(wmwtBeginCount);
+     'h3C : rdat = !hasDebugLogic ? 0 : pack(wmwtPImpCount);
+     'h40 : rdat = !hasDebugLogic ? 0 : pack(wmwtFinalCount);
+     'h44 : rdat = !hasDebugLogic ? 0 : 32'hFEED_C0DE;
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      //$time, wciReq.addr, wciReq.byteEn, rdat);
