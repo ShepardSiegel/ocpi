@@ -23,6 +23,7 @@ module mkTB13();
   Reg#(Bool)                  enWsiSource    <- mkReg(False);   // Trigger for WSI generator
   Reg#(Bool)                  enWsiChecker   <- mkReg(False);   // Trigger for WSI checker
   Reg#(Bool)                  testOperating  <- mkReg(False);   // Enable for test Operating
+  Reg#(Bit#(16))              srcMesgRemain  <- mkReg(1);       // Number of Messages to Send
   Reg#(Bit#(16))              srcMesgCount   <- mkReg(0);       // Number of Messages sent
   Reg#(Bit#(16))              srcUnrollCnt   <- mkReg(0);       // Message Positions to go
   Reg#(Bit#(32))              srcDataOut     <- mkReg(0);       // DWORD ordinal count
@@ -63,6 +64,7 @@ module mkTB13();
     wci.req(Control, False, 20'h00_0004, ?, ?);
     action let r <- wci.resp; endaction
     */
+    srcMesgRemain <= 4;
     testOperating <= True;
     dstUnrollCnt  <= 16;
     enWsiChecker  <= True;
@@ -90,7 +92,7 @@ module mkTB13();
 
   // WSI Interaction
   // Producer Stream...
-  rule wsi_source (enWsiSource);
+  rule wsi_source (enWsiSource && srcMesgRemain>=1);
     Bool lastWord  = (srcUnrollCnt == 1);
     Bit#(8) opcode = 0;
     Bit#(16) wsiBurstLength = 64>>2; // convert Bytes to ndw-wide WSI Words burstLength
@@ -107,6 +109,7 @@ module mkTB13();
       srcMesgCount <= srcMesgCount + 1;
       $display("[%0d]: %m: wsi_source: End of WSI Producer Egress: srcMesgCount:%0x opcode:%0x", $time, srcMesgCount, opcode);
       srcUnrollCnt <= wsiBurstLength;
+      srcMesgRemain <= srcMesgRemain - 1;
     end else begin
       srcUnrollCnt <= srcUnrollCnt - 1;
     end
