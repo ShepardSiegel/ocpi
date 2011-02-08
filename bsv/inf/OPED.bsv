@@ -85,7 +85,7 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(vWci[3], appW3.wciS0);
     mkConnection(vWci[4], appW4.wciS0);
 
-`define OPED4B
+`define AXILOOP4B
 
 `ifdef OPED32B
     WsiAdapter4B32BIfc wsiUp    <- mkWsiAdapter4B32B;
@@ -111,6 +111,17 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(appW4.wmiM0, dp1.wmiS0);     // W4<->DP1
 `endif
 
+`ifdef AXILOOP4B
+    WSItoAXIS4BIfc    wsi2axis <- mkWSItoAXIS4B; 
+    AXIStoWSI4BIfc    axis2wsi <- mkAXIStoWSI4B;
+
+    mkConnection(appW2.wmiM0, dp0.wmiS0);     // W2<->DP0
+    mkConnection(appW2.wsiM0, wsi2axis.wsi);  // W2 SMAdapter WSI-M0 feeding wsi2axis
+    mkConnection(wsi2axis.axi, axis2wsi.axi); // Module Internal AXIS Loop
+    mkConnection(axis2wsi.wsi, appW4.wsiS0);  // axis2wsi feeding W4 SMAdapter WSI-S0
+    mkConnection(appW4.wmiM0, dp1.wmiS0);     // W4<->DP1
+`endif
+
 `ifdef LOOP4B
     WSItoAXIS4BIfc    wsi2axis <- mkWSItoAXIS4B; 
     AXIStoWSI4BIfc    axis2wsi <- mkAXIStoWSI4B;
@@ -126,8 +137,10 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     interface Clock    p125clk  = pciw.pClk;
     interface Reset    p125rst  = pciw.pRst;
     interface A4L_Em   axi4m    = a4lm;
+`ifndef AXILOOP4B
     interface NF10DPM  axisM    = wsi2axis.axi;
     interface NF10DPS  axisS    = axis2wsi.axi;
+`endif
     method Bit#(32)    debug    = extend(pack(pciw.linkUp));
   endmodule: mkOPED_inner
 
