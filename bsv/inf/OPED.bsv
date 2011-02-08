@@ -85,7 +85,7 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(vWci[3], appW3.wciS0);
     mkConnection(vWci[4], appW4.wciS0);
 
-`define OPED4B
+`define LOOP4B
 
 `ifdef OPED32B
     WsiAdapter4B32BIfc wsiUp    <- mkWsiAdapter4B32B;
@@ -109,6 +109,15 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(appW2.wsiM0, wsi2axis.wsi);  // W2 SMAdapter WSI-M0 feeding wsi2axis
     mkConnection(axis2wsi.wsi, appW4.wsiS0);  // axis2wsi feeding W4 SMAdapter WSI-S0
     mkConnection(appW4.wmiM0, dp1.wmiS0);     // W4<->DP1
+`endif
+
+`ifdef LOOP4B
+    WSItoAXIS4BIfc    wsi2axis <- mkWSItoAXIS4B; 
+    AXIStoWSI4BIfc    axis2wsi <- mkAXIStoWSI4B;
+
+    mkConnection(appW2.wmiM0, dp0.wmiS0);    // W2<->DP0
+    mkConnection(appW2.wsiM0, appW4.wsiS0);  // W2/W4 Bypass
+    mkConnection(appW4.wmiM0, dp1.wmiS0);    // W4<->DP1
 `endif
 
     A4L_Em a4lm <- mkA4MtoEm(wci2axi.axiM0); // Expand the 5 concise AXI BusSend/Recv channels to explicit signals
