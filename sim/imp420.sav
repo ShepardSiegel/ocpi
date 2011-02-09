@@ -1,0 +1,68 @@
+[timestart] 12464000
+[size] 2560 1553
+[pos] -287 -268
+*-16.334087 12705200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+[treeopen] main.top.ctop.
+[treeopen] main.top.ctop.app.
+[treeopen] main.top.ctop.app.appW4.
+[treeopen] main.top.ctop.inf.
+[treeopen] main.top.tg.
+@22
+main.top.tg.chkErrors[31:0]
+main.top.ctop.app.appW4.wmwtBeginCount[31:0]
+main.top.ctop.app.appW4.wmwtPImpCount[31:0]
+main.top.ctop.app.appW4.wmwtFinalCount[31:0]
+main.top.ctop.app.appW4.wsiS_iMesgCount[31:0]
+#{main.top.ctop.app.appW4.wsi_Es_mData_w$wget[31:0]} main.top.ctop.app.appW4.wsi_Es_mData_w$wget[31] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[30] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[29] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[28] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[27] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[26] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[25] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[24] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[23] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[22] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[21] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[20] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[19] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[18] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[17] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[16] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[15] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[14] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[13] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[12] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[11] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[10] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[9] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[8] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[7] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[6] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[5] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[4] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[3] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[2] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[1] main.top.ctop.app.appW4.wsi_Es_mData_w$wget[0]
+@28
+#{main.top.ctop.app.appW4.wsi_Es_mCmd_w$wget[2:0]} main.top.ctop.app.appW4.wsi_Es_mCmd_w$wget[2] main.top.ctop.app.appW4.wsi_Es_mCmd_w$wget[1] main.top.ctop.app.appW4.wsi_Es_mCmd_w$wget[0]
+@22
+#{main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[7:0]} main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[7] main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[6] main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[5] main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[4] main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[3] main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[2] main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[1] main.top.ctop.app.appW4.wsi_Es_mReqInfo_w$wget[0]
+#{main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[11:0]} main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[11] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[10] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[9] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[8] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[7] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[6] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[5] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[4] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[3] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[2] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[1] main.top.ctop.app.appW4.wsi_Es_mBurstLength_w$wget[0]
+@28
+main.top.ctop.app.appW4.wsi_Es_mBurstPrecise_w$whas
+@22
+#{main.top.ctop.app.appW4.wsi_Es_mByteEn_w$wget[3:0]} main.top.ctop.app.appW4.wsi_Es_mByteEn_w$wget[3] main.top.ctop.app.appW4.wsi_Es_mByteEn_w$wget[2] main.top.ctop.app.appW4.wsi_Es_mByteEn_w$wget[1] main.top.ctop.app.appW4.wsi_Es_mByteEn_w$wget[0]
+@28
+main.top.ctop.app.appW4.wsi_Es_mReqLast_w$whas
+main.top.ctop.app.appW4.CAN_FIRE_RL_wmwt_mesgBegin
+main.top.ctop.app.appW4.CAN_FIRE_RL_wmwt_messagePushImprecise
+main.top.ctop.app.appW4.WILL_FIRE_RL_wmwt_messageFinalize
+@22
+main.top.ctop.app.appW4.opcode[8:0]
+@28
+main.top.ctop.app.appW4.wmi_busyWithMessage
+main.top.ctop.app.appW4.wmiM0_SThreadBusy
+main.top.ctop.app.appW4.wmiM0_SDataThreadBusy
+main.top.ctop.inf.wmiDP1_SDataThreadBusy
+main.top.ctop.inf.wmiDP1_SThreadBusy
+@22
+main.top.ctop.inf.dp1_bml_lclBufsAR[15:0]
+main.top.ctop.inf.dp1_bml_lclBufsCF[15:0]
+main.top.ctop.inf.dp1_bml_lclStarts[15:0]
+main.top.ctop.inf.dp1_bml_lclDones[15:0]
+@28
+main.top.ctop.inf.WILL_FIRE_RL_dp1_wmi_getRequest
+main.top.ctop.inf.WILL_FIRE_RL_dp1_wmi_doWriteReq
+main.top.ctop.inf.dp1_wmi_wrActive
+@23
+main.top.ctop.inf.dp1_wmi_bytesRemainReq[13:0]
+@28
+main.top.ctop.inf.WILL_FIRE_RL_dp1_wmi_doWriteFinalize
+main.top.ctop.inf.dp1_wmi_mesgBufReady
+main.top.ctop.inf.dp1_wmi_mesgBusy
+main.top.ctop.inf.dp1_wmi_bufDwell[1:0]
+@22
+main.top.ctop.app.appW4.thisMesg[31:0]
+main.top.ctop.inf.dp1_wmi_thisMesg[31:0]
+@24
+main.top.cycle[15:0]
+@28
+main.top.ctop.inf.dp1_tlp_inF.DEQ
+main.top.ctop.inf.dp1_tlp_inF.ENQ
+main.top.ctop.inf.dp1_tlp_outF.DEQ
+main.top.ctop.inf.dp1_tlp_outF.ENQ
+[pattern_trace] 1
+[pattern_trace] 0

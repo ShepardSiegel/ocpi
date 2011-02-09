@@ -15,7 +15,7 @@
 // 2009-02-26 sls Combine Merge and Fork files at bottom of this file
 // 2009-03-10 sls Rename to ServerMerge and ClientMerge
 
-\\`define USE_SRLFIFO
+//`define USE_SRLFIFO
 
 package TLPMF;
 import SRLFIFO::*;
