@@ -24,7 +24,7 @@ module AXIS_LOOPBACK (
   output wire [32:0] M_AXIS_DAT_TDATA,
   output wire        M_AXIS_DAT_TVALID,
   output wire [3:0]  M_AXIS_DAT_TSTRB,
-  output wire [7:0]  M_AXIS_DAT_TUSER,
+  output wire [32:0] M_AXIS_DAT_TUSER,
   output wire        M_AXIS_DAT_TLAST,
   input  wire        M_AXIS_DAT_TREADY
 );
@@ -33,7 +33,7 @@ module AXIS_LOOPBACK (
   assign M_AXIS_DAT_TDATA  = S_AXIS_DAT_TDATA;
   assign M_AXIS_DAT_TVALID = S_AXIS_DAT_TVALID;
   assign M_AXIS_DAT_TSTRB  = S_AXIS_DAT_TSTRB;
-  assign M_AXIS_DAT_TUSER  = S_AXIS_DAT_TUSER[7:0];  // Pass the opcode through, drop the rest
+  assign M_AXIS_DAT_TUSER  = S_AXIS_DAT_TUSER;
   assign M_AXIS_DAT_TLAST  = S_AXIS_DAT_TLAST;
   assign S_AXIS_DAT_TREADY = M_AXIS_DAT_TREADY;
 

@@ -22,7 +22,7 @@ module OPED #
   parameter                              C_M_AXIS_DAT_DATA_WIDTH = 32,
   parameter                              C_S_AXIS_DAT_DATA_WIDTH = 32,
   parameter                              C_M_AXIS_DAT_USER_WIDTH = 32,
-  parameter                              C_S_AXIS_DAT_USER_WIDTH = 8)
+  parameter                              C_S_AXIS_DAT_USER_WIDTH = 32)
 
   ( // OPED uses the MPD-specified signal names for the AXI user-facing ports...
   input                                  PCIE_CLKP,           // PCIe connections...
@@ -86,7 +86,7 @@ initial begin
   if (C_M_AXIS_DAT_DATA_WIDTH != 32)  begin $display("Unsupported M_AXIS_DAT DATA width"); $finish; end
   if (C_S_AXIS_DAT_DATA_WIDTH != 32)  begin $display("Unsupported S_AXIS_DAT DATA width"); $finish; end
   if (C_M_AXIS_DAT_USER_WIDTH != 32)  begin $display("Unsupported M_AXIS_DAT USER width"); $finish; end
-  if (C_S_AXIS_DAT_USER_WIDTH !=  8)  begin $display("Unsupported S_AXIS_DAT USER width"); $finish; end
+  if (C_S_AXIS_DAT_USER_WIDTH != 32)  begin $display("Unsupported S_AXIS_DAT USER width"); $finish; end
 end
 
  mkOPED_v5 oped (

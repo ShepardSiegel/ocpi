@@ -13,8 +13,14 @@ import GetPut::*;
 // Shorthand used in this module...
 typedef A4Stream#(32,4,0,32) NF10DPM4B;
 typedef A4S_Em  #(32,4,0,32) NF10DPEM4B;
-typedef A4Stream#(32,4,0,8)  NF10DPS4B;
-typedef A4S_Es  #(32,4,0,8)  NF10DPES4B;
+typedef A4Stream#(32,4,0,32) NF10DPS4B;
+typedef A4S_Es  #(32,4,0,32) NF10DPES4B;
+
+typedef struct {
+  Bit#(16) length; // transfer length in Bytes
+  Bit#(8)  pad;
+  Bit#(8)  opcode;
+} AxiInfo deriving (Bits);
 
 // The modules below adapt between WSI and AXI-Stream (AXIS)
 // They use the established WSI convienience IP mkWsi{Master|Slave}, 
@@ -39,10 +45,10 @@ module mkWSItoAXIS4B (WSItoAXIS4BIfc);
 
   rule advance_data;
     WsiReq#(12,32,4,8,0) w <- wsiS.reqGet.get;
-    Bit#(16) length = extend(w.burstLength*4);
+    let aui = AxiInfo {length:extend(w.burstLength*4),pad:?,opcode:w.reqInfo};
     axiM.in.enq( A4Stream { data : w.data,
                             strb : w.byteEn,
-                            user : {length, 8'h00, w.reqInfo},
+                            user : pack(aui),
                             keep : 0,
                             last : w.reqLast });
   endrule
@@ -65,23 +71,24 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
   BusReceiver#(NF10DPS4B)       axiS       <- mkBusReceiver;
   WsiMasterIfc#(12,32,4,8,0)    wsiM       <- mkWsiMaster;
 
-  A4StreamSIfc#(32,4,0,8) axisDatS = A4StreamSIfc { strm : axiS.in};  // Place strm sub-interface in axisS interface
+  A4StreamSIfc#(32,4,0,32) axisDatS = A4StreamSIfc { strm : axiS.in};  // Place strm sub-interface in axisS interface
 
   rule operate_action; wsiM.operate(); endrule
 
   rule advance_data;
     let a = axiS.out.first; axiS.out.deq;
+    AxiInfo aui = unpack(a.user);
     wsiM.reqPut.put( WsiReq {   cmd  : WR,
                              reqLast : a.last,
-                             reqInfo : a.user,
-                        burstPrecise : False,
-                         burstLength : (a.last) ? 1 : '1,
+                             reqInfo : aui.opcode,
+                        burstPrecise : True,
+                         burstLength : truncate(aui.length/4),
                                data  : a.data,
                              byteEn  : a.strb,
                            dataInfo  : '0 });
   endrule
 
-  A4S_Es#(32,4,0,8) axi_Es <- mkA4StreamStoEs(axisDatS);
+  A4S_Es#(32,4,0,32) axi_Es <- mkA4StreamStoEs(axisDatS);
   interface NF10DPES4B axi = axi_Es;
   interface WsiEM4B    wsi = toWsiEM(wsiM.mas);
 endmodule
