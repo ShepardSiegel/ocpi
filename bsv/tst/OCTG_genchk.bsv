@@ -174,8 +174,8 @@ Bit#(8)  genchkRepeat = 0;
       dwValue <- callServer(rdServer0, extend(24'hF0_004C));
 
     $display("[%0d]: %m: Write W2 (SMA0)Config Properties...", $time);
-      //fsmWrite('h01, 'h30_0000, extend(32'h0000_0001));  // Passive Consumer
-      fsmWrite('h01, 'h30_0000, extend(32'h0000_0021));  // Passive Consumer - Set bit 5 to force imprecise burst
+      fsmWrite('h01, 'h30_0000, extend(32'h0000_0001));  // Passive Consumer
+      //fsmWrite('h01, 'h30_0000, extend(32'h0000_0021));  // Passive Consumer - Set bit 5 to force imprecise burst
     $display("[%0d]: %m: Write W3 (DELAY) Config Properties...", $time);
       fsmWrite('h01, 'h40_0000, extend(32'h0000_0000));  // No Delay
       //fsmWrite('h01, 'h40_0000, extend(32'h0000_0007));  // Delay Mode
