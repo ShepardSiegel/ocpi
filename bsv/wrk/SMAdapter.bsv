@@ -179,7 +179,7 @@ endrule
 // This rule will fire once at the beginning of every inbound WSI message
 // It relies upon the implicit condition of the wsiS.reqPeek to only fire when we a request...
 rule wmwt_mesgBegin (wci.isOperating && wmiWt && !wmi.anyBusy && !isValid(opcode));
-  mesgTokenF.enq();
+  mesgTokenF.enq(?);
   opcode <= tagged Valid wsiS.reqPeek.reqInfo;
   Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength)<<myWordShift; // ndw-wide burstLength words to mesgLength Bytes
   if (wsiS.reqPeek.burstPrecise) begin
