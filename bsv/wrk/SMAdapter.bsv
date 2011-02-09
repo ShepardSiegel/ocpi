@@ -67,6 +67,7 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
   Reg#(Bit#(14))                 mesgLengthSoFar   <- mkReg(0);
   Reg#(Bool)                     zeroLengthMesg    <- mkReg(False);
   Reg#(Bool)                     doAbort           <- mkReg(False);
+  FIFOF#(Bit#(0))                mesgTokenF        <- mkFIFO1;
 
   // debug...
   Reg#(Bit#(32))                 abortCount        <- mkReg(0);
@@ -178,6 +179,7 @@ endrule
 // This rule will fire once at the beginning of every inbound WSI message
 // It relies upon the implicit condition of the wsiS.reqPeek to only fire when we a request...
 rule wmwt_mesgBegin (wci.isOperating && wmiWt && !wmi.anyBusy && !isValid(opcode));
+  mesgTokenF.enq();
   opcode <= tagged Valid wsiS.reqPeek.reqInfo;
   Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength)<<myWordShift; // ndw-wide burstLength words to mesgLength Bytes
   if (wsiS.reqPeek.burstPrecise) begin
@@ -223,18 +225,22 @@ rule wmwt_messagePushPrecise (wci.isOperating && wmiWt && wsiWordsRemain>0 && me
   //$display("[%0d]: %m: wmwt_messagePushPrecise", $time );
 endrule
 
+// Designer's Note: When WSI has an imprecise burst; it is a "Zero Length Message" (ZLM) iff there are all-zero Byte Enables on
+// the FIRST and ONLY cycle of the message. Any other condition is non-ZLM, just a cycle that has non-valid data, and is
+// in the middle or end of a WSI message (as seen by reqLast)...
+
 // Push imprecise message WSI to WMI...
 rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impreciseBurst);
   WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;  // ActionValue Get
   if (wxiSplit) wsiM.reqPut.put(w);             // Feed wsiM in Split Mode
-  Bool dwm = (w.reqLast);              // WSI ends with reqLast, used to make WMI DWM
-  Bool zlm = dwm && (w.byteEn=='0);    // Zero Length Message is 0 BEs on DWM 
+  Bool dwm = (w.reqLast);                                  // WSI ends with reqLast, used to make WMI DWM
+  Bool zlm = dwm && (w.byteEn=='0) && mesgLengthSoFar==0;  // Zero Length Message is 0 BEs on DWM on the first WSI data cycle
   Bit#(14) mlp1  =  mesgLengthSoFar+1; // message length so far plus one (in Words)
   Bit#(14) mlp1B =  mlp1<<myWordShift; // message length so far plus one (in Bytes)
   if (isAborted(w)) begin
     doAbort <= True;
   end else begin
-    let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(mlp1B)}; 
+    let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:zlm?0:extend(mlp1B)}; 
     wmi.req(True, mesgLengthSoFar<<myWordShift, 1, dwm, pack(mesgMetaF)); // Write, addr, 1Word, dwm, mFlag;
     wmi.dh(w.data,  '1, dwm);                                             // Data, BE,           dwm
     if (dwm) begin
@@ -267,6 +273,7 @@ endrule
 // When we have pushed all the data through, this rule fires to prepare us for the next...
 rule wmwt_messageFinalize
   (wci.isOperating && wmiWt && isValid(mesgLength) && !doAbort && ((preciseBurst && wsiWordsRemain==0) || (impreciseBurst && endOfMessage)) );
+  mesgTokenF.deq();
   opcode         <= tagged Invalid;
   mesgLength     <= tagged Invalid;
   mesgCount      <= mesgCount + 1;
