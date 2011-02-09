@@ -81,8 +81,8 @@ typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b
 module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(32) wci, Bool hasPush, Bool hasPull) (TLPServBCIfc);
 
   // TODO: Implement and test *registered* SRLFIFO for "best of both worlds"
-  Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
-  //Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives
+  //Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs ) (needs Verilog simulator)
+  Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives (also for BlueSim)
 
   FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;

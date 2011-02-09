@@ -15,6 +15,8 @@
 // 2009-02-26 sls Combine Merge and Fork files at bottom of this file
 // 2009-03-10 sls Rename to ServerMerge and ClientMerge
 
+\\`define USE_SRLFIFO
+
 package TLPMF;
 import SRLFIFO::*;
 
@@ -547,15 +549,15 @@ endinterface
 (* synthesize *)
 module mkPktMerge (PktMergeIfc);
 
-  /*
-  FIFOF#(PTW16) fi0        <- mkFIFOF;  // FIFO size may be reduced to 1 with reduced throughput 
-  FIFOF#(PTW16) fi1        <- mkFIFOF;
-  FIFOF#(PTW16) fo         <- mkFIFOF;
-  */
-  // FIXME: Switch to the mkSRL_FIFO for more storage, fewer FFs?
+`ifdef USE_SRLFIFO
   FIFOF#(PTW16) fi0        <- mkSRLFIFO(4);
   FIFOF#(PTW16) fi1        <- mkSRLFIFO(4);
   FIFOF#(PTW16) fo         <- mkSRLFIFO(4);
+`else
+  FIFOF#(PTW16) fi0        <- mkFIFOF;  // FIFO size may be reduced to 1 with reduced throughput 
+  FIFOF#(PTW16) fi1        <- mkFIFOF;
+  FIFOF#(PTW16) fo         <- mkFIFOF;
+`endif
 
   Reg#(Bool)    fi0HasPrio <- mkReg(True);   // True when fi0 has priority
   Reg#(Bool)    fi0Active  <- mkReg(False);  // True on the 2nd to end cycle of fi0 packet
@@ -610,14 +612,15 @@ endinterface
 (* synthesize *)
 module mkPktFork#(PktForkKey pfk) (PktForkIfc);
 
-  /*
-  FIFO#(PTW16) fi         <- mkFIFO;  // FIFO size may be reduced to 1 with reduced throughput 
-  FIFO#(PTW16) fo0        <- mkFIFO;
-  FIFO#(PTW16) fo1        <- mkFIFO;
-  */
+`ifdef USE_SRLFIFO
   FIFOF#(PTW16) fi        <- mkSRLFIFO(4);
   FIFOF#(PTW16) fo0       <- mkSRLFIFO(4);
   FIFOF#(PTW16) fo1       <- mkSRLFIFO(4);
+`else
+  FIFO#(PTW16) fi         <- mkFIFO;  // FIFO size may be reduced to 1 with reduced throughput 
+  FIFO#(PTW16) fo0        <- mkFIFO;
+  FIFO#(PTW16) fo1        <- mkFIFO;
+`endif
 
   Reg#(Bool)   f0Active   <- mkReg(False);  // True on the 2nd to end cycle of input packet
   Reg#(Bool)   f1Active   <- mkReg(False);  // True on the 2nd to end cycle of input packet

@@ -67,7 +67,7 @@ err:
 bsim: $(OBJ)
 
 	# compile to bluesim backend
-	echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
 	bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
