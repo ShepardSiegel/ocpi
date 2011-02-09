@@ -67,7 +67,7 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
   Reg#(Bit#(14))                 mesgLengthSoFar   <- mkReg(0);
   Reg#(Bool)                     zeroLengthMesg    <- mkReg(False);
   Reg#(Bool)                     doAbort           <- mkReg(False);
-  FIFOF#(Bit#(0))                mesgTokenF        <- mkFIFO1;
+  FIFO#(Bit#(0))                 mesgTokenF        <- mkFIFO1;
 
   // debug...
   Reg#(Bit#(32))                 abortCount        <- mkReg(0);
