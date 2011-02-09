@@ -56,7 +56,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
   Reg#(Bit#(16))                wrtCount         <- mkReg(0);
   Wire#(DPControl)              dpControl        <- mkWire;
   Wire#(Bit#(64))               nowW             <- mkWire;
-  FIFO#(Bit#(0))                mesgTokenF       <- mkFIFO1;
+  //FIFO#(Bit#(0))                mesgTokenF       <- mkFIFO1;
 
   Bool isProducer = dpControl.dir==FProducer;
 
@@ -97,7 +97,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
   // This rule fires to digest each new WMI request...
   rule getRequest ((!wrActive || !rdActive) && !wrFinalize && (mesgBufReady || mesgBusy) && bufDwell==0 );
     let req <- wmi.req;
-    if(req.cmd==WR) mesgTokenF.enq(?); // prevent getRequest from firing until doWriteFinalize has completed
+    //if(req.cmd==WR) mesgTokenF.enq(?); // prevent getRequest from firing until doWriteFinalize has completed
     reqCount <= reqCount + 1;
     wrActive    <= req.cmd==WR;
     rdActive    <= req.cmd==RD;
@@ -157,7 +157,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
 
   // Fires exactly once after a Write Done-With-Message (DWM) request...
   rule doWriteFinalize (wrFinalize);
-    mesgTokenF.deq();
+    //mesgTokenF.deq();
     thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:wmi.reqInfo, length:truncate(wmi.mesgLength) };
     lastMesg <= thisMesg;
     let mesgMeta  = MesgMeta {length:extend(wmi.mesgLength), opcode:{24'h800000,wmi.reqInfo}, nowMS:nowW[63:32], nowLS:nowW[31:0]};
