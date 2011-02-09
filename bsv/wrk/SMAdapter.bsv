@@ -234,7 +234,7 @@ rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impre
   if (isAborted(w)) begin
     doAbort <= True;
   end else begin
-    let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(mlp1B)}; 
+    let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:zlm?0:extend(mlp1B)}; 
     wmi.req(True, mesgLengthSoFar<<myWordShift, 1, dwm, pack(mesgMetaF)); // Write, addr, 1Word, dwm, mFlag;
     wmi.dh(w.data,  '1, dwm);                                             // Data, BE,           dwm
     if (dwm) begin
