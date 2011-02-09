@@ -1,0 +1,14 @@
+# used for DMA throughput testing
+echo > result.log
+sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 16   -i 100 -z 0000:03:00.0 >>& result.log
+sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 32   -i 100 -z 0000:03:00.0 >>& result.log
+sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 64   -i 100 -z 0000:03:00.0 >>& result.log
+sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 128  -i 100 -z 0000:03:00.0 >>& result.log
+sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 256  -i 100 -z 0000:03:00.0 >>& result.log
+sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 512  -i 100 -z 0000:03:00.0 >>& result.log
+sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 1024 -i 100 -z 0000:03:00.0 >>& result.log
+sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 2048 -i 100 -z 0000:03:00.0 >>& result.log
+#sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 4096 -i 100 -z 0000:03:00.0 >>& result.log
+#sudo -E ./testRpl -r1ip -r3op -N0o 4 -N6i 4 -I 8192 -i 100 -z 0000:03:00.0 >>& result.log
+grep Framesize result.log
+
