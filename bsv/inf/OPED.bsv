@@ -85,7 +85,7 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(vWci[3], appW3.wciS0);
     mkConnection(vWci[4], appW4.wciS0);
 
-`define OPED4B
+`define LOOP4B
 
 `ifdef OPED32B
     WsiAdapter4B32BIfc wsiUp    <- mkWsiAdapter4B32B;
