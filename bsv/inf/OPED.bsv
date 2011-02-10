@@ -15,7 +15,7 @@ import ARAXI             ::*;
 import WCIS2AL4M         ::*;
 import WSIAXIS           ::*;
 import SMAdapter         ::*;
-import BiasWorker        ::*;
+import AXISDWorker       ::*;
 import WsiAdapter        ::*;
 
 // BSV Imports...
@@ -76,71 +76,29 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     mkConnection(noc.dp0,   dp0.server);  // uNoC to Data Plane 0
     mkConnection(noc.dp1,   dp1.server);  // uNoC to Data Plane 1
 
-    //TODO: Vestigial BiasWorker (W3) may be removed when software no lonnger expects to "see" it
+    SMAdapter4BIfc   appW2  <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by rst[2]); // W2: Read WMI to WSI-M 
+    AXISDWorker4BIfc appW3  <-  mkAXISDWorker4B (              hasDebugLogic, reset_by rst[3]); // W3: AXIS Device Worker
+    SMAdapter4BIfc   appW4  <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by rst[4]); // W4: WSI-S to WMI Write
 
-    SMAdapter4BIfc  appW2  <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by rst[2]); // W2: Read WMI to WSI-M 
-    BiasWorker4BIfc appW3  <-  mkBiasWorker4B  (              hasDebugLogic, reset_by rst[3]); // W3: Vestigial BiasWorker
-    SMAdapter4BIfc  appW4  <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by rst[4]); // W4: WSI-S to WMI Write
+    //Control-Plane...
     mkConnection(vWci[2], appW2.wciS0);
     mkConnection(vWci[3], appW3.wciS0);
     mkConnection(vWci[4], appW4.wciS0);
 
-`define LOOP4B
-
-`ifdef OPED32B
-    WsiAdapter4B32BIfc wsiUp    <- mkWsiAdapter4B32B;
-    WSItoAXIS32BIfc    wsi2axis <- mkWSItoAXIS32B; 
-    AXIStoWSI32BIfc    axis2wsi <- mkAXIStoWSI32B;
-    WsiAdapter32B4BIfc wsiDn    <- mkWsiAdapter32B4B;
-
-    mkConnection(appW2.wmiM0, dp0.wmiS0);     // W2<->DP0
-    mkConnection(appW2.wsiM0, wsiUp.wsiS0);   // W2 SMAdapter WSI-M0 feeding wsiUp
-    mkConnection(wsiUp.wsiM0, wsi2axis.wsi);  // wsiUp feeding wsi2axis
-    mkConnection(axis2wsi.wsi, wsiDn.wsiS0);  // axis2wsi feeding wsiDn
-    mkConnection(wsiDn.wsiM0, appW4.wsiS0);   // wsiDn feeding W4 SMAdapter WSI-S0
-    mkConnection(appW4.wmiM0, dp1.wmiS0);     // W4<->DP1
-`endif
-
-`ifdef OPED4B
-    WSItoAXIS4BIfc    wsi2axis <- mkWSItoAXIS4B; 
-    AXIStoWSI4BIfc    axis2wsi <- mkAXIStoWSI4B;
-
-    mkConnection(appW2.wmiM0, dp0.wmiS0);     // W2<->DP0
-    mkConnection(appW2.wsiM0, wsi2axis.wsi);  // W2 SMAdapter WSI-M0 feeding wsi2axis
-    mkConnection(axis2wsi.wsi, appW4.wsiS0);  // axis2wsi feeding W4 SMAdapter WSI-S0
-    mkConnection(appW4.wmiM0, dp1.wmiS0);     // W4<->DP1
-`endif
-
-`ifdef AXILOOP4B
-    WSItoAXIS4BIfc    wsi2axis <- mkWSItoAXIS4B; 
-    AXIStoWSI4BIfc    axis2wsi <- mkAXIStoWSI4B;
-
-    mkConnection(appW2.wmiM0, dp0.wmiS0);     // W2<->DP0
-    mkConnection(appW2.wsiM0, wsi2axis.wsi);  // W2 SMAdapter WSI-M0 feeding wsi2axis
-    mkConnection(wsi2axis.axi, axis2wsi.axi); // Module Internal AXIS Loop
-    mkConnection(axis2wsi.wsi, appW4.wsiS0);  // axis2wsi feeding W4 SMAdapter WSI-S0
-    mkConnection(appW4.wmiM0, dp1.wmiS0);     // W4<->DP1
-`endif
-
-`ifdef LOOP4B
-    WSItoAXIS4BIfc    wsi2axis <- mkWSItoAXIS4B; 
-    AXIStoWSI4BIfc    axis2wsi <- mkAXIStoWSI4B;
-
+    // Data-Plane...
     mkConnection(appW2.wmiM0, dp0.wmiS0);    // W2<->DP0
-    mkConnection(appW2.wsiM0, appW4.wsiS0);  // W2/W4 Bypass
+    mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2/W3
+    mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3/w4
     mkConnection(appW4.wmiM0, dp1.wmiS0);    // W4<->DP1
-`endif
 
-    A4L_Em a4lm <- mkA4MtoEm(wci2axi.axiM0); // Expand the 5 concise AXI BusSend/Recv channels to explicit signals
+    A4L_Em a4lm <- mkA4MtoEm(wci2axi.axiM0); // Expand the 5 concise AXI4-Lite BusSend/Recv channels to explicit signals
 
     interface PCI_EXP  pcie     = pciw.pcie;
     interface Clock    p125clk  = pciw.pClk;
     interface Reset    p125rst  = pciw.pRst;
     interface A4L_Em   axi4m    = a4lm;
-`ifndef AXILOOP4B
-    interface NF10DPM  axisM    = wsi2axis.axi;
-    interface NF10DPS  axisS    = axis2wsi.axi;
-`endif
+    interface NF10DPM  axisM    = appW3.axiM0;
+    interface NF10DPS  axisS    = appW3.axiS0;
     method Bit#(32)    debug    = extend(pack(pciw.linkUp));
   endmodule: mkOPED_inner
 

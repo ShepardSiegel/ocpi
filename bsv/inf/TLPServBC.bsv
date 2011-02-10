@@ -1,5 +1,9 @@
 // TLPServBC.bsv - TLP Server, BRAM Client
-// Copyright (c) 2009,2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+
+// For use with Bluesim, you need to undefine USE_SRLFIFO, as mkSRLFIFO is not yet a BSV 
+// primative, it is importBVI of Atomic Rules Verilog...
+`define USE_SRLFIFO
 
 import TLPMF::*;
 import OCBufQ::*;
@@ -81,8 +85,11 @@ typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b
 module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(32) wci, Bool hasPush, Bool hasPull) (TLPServBCIfc);
 
   // TODO: Implement and test *registered* SRLFIFO for "best of both worlds"
-  //Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs ) (needs Verilog simulator)
-  Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives (also for BlueSim)
+`ifdef USE_SRLFIFO
+  Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs ) (needs Verilog simulator)
+`else
+  Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives (also for Bluesim simulation)
+`endif
 
   FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
   FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;

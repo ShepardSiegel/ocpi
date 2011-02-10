@@ -1,5 +1,5 @@
 // TLPMF.bsv
-// Copyright (c) 2009 Atomic Rules LLC, ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010.2011 Atomic Rules LLC, ALL RIGHTS RESERVED
 //
 //  Filename      : TLPMF.bsv
 //  Author        : Shepard Siegel
@@ -15,7 +15,9 @@
 // 2009-02-26 sls Combine Merge and Fork files at bottom of this file
 // 2009-03-10 sls Rename to ServerMerge and ClientMerge
 
-//`define USE_SRLFIFO
+// For use with Bluesim, you need to undefine USE_SRLFIFO, as mkSRLFIFO is not yet a BSV 
+// primative, it is importBVI of Atomic Rules Verilog...
+`define USE_SRLFIFO
 
 package TLPMF;
 import SRLFIFO::*;
@@ -282,9 +284,6 @@ function Tuple2#(TLPData#(8), TLPData#(8)) splitTLP16(TLPData#(16) hilo);
 endfunction
 
 
-
-
-//
 
 typedef struct {
   Bit#(18) dwAddr;   // DWord write address

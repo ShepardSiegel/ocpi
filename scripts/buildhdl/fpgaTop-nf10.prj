@@ -13,8 +13,6 @@ verilog work "../../rtl/mkOPED_v5.v"
 verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkBiasWorker4B.v"
 
-verilog work "../../rtl/mkAXIStoWSI4B.v"
-verilog work "../../rtl/mkWSItoAXIS4B.v"
 verilog work "../../libsrc/hdl/ocpi/OPED.v"
 
 verilog work "../../rtl/mkA4LS.v"

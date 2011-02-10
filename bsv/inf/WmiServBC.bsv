@@ -1,5 +1,5 @@
 // WmiServBC.bsv
-// Copyright (c) 2009 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import OCWip::*;
 import OCBufQ::*;
