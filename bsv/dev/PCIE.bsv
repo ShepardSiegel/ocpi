@@ -1,12 +1,12 @@
-////////////////////////////////////////////////////////////////////////////////
+// PCIE.bsv
 // Copyright (c) 2009  Bluespec, Inc.   ALL RIGHTS RESERVED.
-////////////////////////////////////////////////////////////////////////////////
-//  Filename      : XilinxPCIE.bsv
-//  Description   : PCI-Express wrappers for Xilinx hardware
-////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+
 package PCIE;
 
 // Notes :
+// + The Xilinx cores have an additional, manually written wrapper layer for legacy reasons when MMCMs were needed
+// + The Altera cores are import-BVI'd directly
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Imports
@@ -270,6 +270,39 @@ typedef enum {
    TRANSMIT_CREDITS_CONSUMED      = 6,
    UNKNOWN_7                      = 7
    } FlowControlInfoSelect deriving (Bits, Eq);
+
+
+// Implementatiopn-Specific Encodings...
+
+typedef enum {
+   DETECT_QUIET           = 0,
+   DETECT_ACTIVE          = 1,
+   POLLING_ACTIVE         = 2,
+   POLLING_COMPLIANCE     = 3,
+   POLLING_CONFIGURATION  = 4,
+   POLLING_SPEED          = 5,
+   CONFIG_LINKWIDTHSTART  = 6,
+   CONFIG_LINKACCEPT      = 7,
+   CONFIG_LANNUMACCEPT    = 8,
+   CONFIG_LANNUMWAIT      = 9,
+   CONFIG_COMPLETE        = 10,
+   CONFIG_IDLE            = 11,
+   RECOVERY_RCVLOCK       = 12,
+   RECOVERY_RCVCONFIG     = 13,
+   RECOVERY_IDLE          = 14,
+   L0                     = 15,
+   DISABLE                = 16,
+   LOOPBACK_ENTRY         = 17,
+   LOOPBACK_ACTIVE        = 18,
+   LOOPBACK_EXIT          = 19,
+   HOT_RESET              = 20,
+   UNKNOWN_21             = 21,
+   L1_ENTRY               = 22,
+   L1_IDLE                = 23,
+   L2_IDLE                = 24,
+   L2_TRANSMIT_WAKE       = 25
+   } LinkTrainingState deriving (Bits, Eq); // e.g. LTSSM state on dl_ltssm[4:0]
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Packet Types
@@ -610,6 +643,21 @@ endinterface: PCIE
 interface PCIE_TRN_V6;
    interface Clock            clk;
    interface Clock            clk2;
+   interface Reset            reset_n;
+   method    Bit#(1)          lnk_up_n;
+   method    Bit#(8)          fc_ph;
+   method    Bit#(12)         fc_pd;
+   method    Bit#(8)          fc_nph;
+   method    Bit#(12)         fc_npd;
+   method    Bit#(8)          fc_cplh;
+   method    Bit#(12)         fc_cpld;
+   method    Action           fc_sel(FlowControlInfoSelect i);
+endinterface
+
+(* always_ready, always_enabled *)
+interface PCIE_AST_S4;
+   interface Clock            clk250;
+   interface Clock            clk125;
    interface Reset            reset_n;
    method    Bit#(1)          lnk_up_n;
    method    Bit#(8)          fc_ph;
@@ -1044,6 +1092,183 @@ module vMkVirtex6PCIExpressWithDCM#(PCIEParams params)(PCIE_V6#(lanes))
              );
 
 endmodule: vMkVirtex6PCIExpressWithDCM
+
+`ifdef ALTERA_PCIE
+
+// Note this uses the Altera MegaFunction Directly without the wrappers historically written for the Xilinx Core...
+import "BVI" pcie_hip_s4gx_gen2_x4_128 =
+module vMkStratix4PCIExpress (PCIE_S4#(lanes))
+   provisos(Add#(lanes, 0, 4));
+
+   default_clock clk(refclk);
+   default_reset rstn(pcie_reset_n);
+
+   interface PCIE_EXP pcie;
+      method                            rxp(pci_exp_rxp) enable((*inhigh*)en0)                              reset_by(no_reset);
+      method                            rxn(pci_exp_rxn) enable((*inhigh*)en1)                              reset_by(no_reset);
+      method pci_exp_txp                txp                                                                 reset_by(no_reset);
+      method pci_exp_txn                txn                                                                 reset_by(no_reset);
+   endinterface
+
+   interface PCIE_TRN_V6 trn;
+      output_clock                      clk(trn_clk);
+      output_clock                      clk2(trn2_clk);
+      output_reset                      reset_n(trn_reset_n)                                                clocked_by(trn_clk);
+      method trn_lnk_up_n               lnk_up_n                                                            clocked_by(no_clock) reset_by(no_reset); /* semi-static */
+      method trn_fc_ph                  fc_ph                                                               clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_fc_pd                  fc_pd                                                               clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_fc_nph                 fc_nph                                                              clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_fc_npd                 fc_npd                                                              clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_fc_cplh                fc_cplh                                                             clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_fc_cpld                fc_cpld                                                             clocked_by(trn_clk)  reset_by(no_reset);
+      method                            fc_sel(trn_fc_sel)                           enable((*inhigh*)en01) clocked_by(trn_clk)  reset_by(no_reset);
+   endinterface
+
+   interface PCIE_TRN_TX_V6 trn_tx;
+      method                            tsof_n(trn_tsof_n)                           enable((*inhigh*)en02) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            teof_n(trn_teof_n)                           enable((*inhigh*)en03) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            td(trn_td)                                   enable((*inhigh*)en04) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            trem_n(trn_trem_n)                           enable((*inhigh*)en05) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            tsrc_rdy_n(trn_tsrc_rdy_n)                   enable((*inhigh*)en06) clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_tdst_rdy_n             tdst_rdy_n                                                          clocked_by(trn_clk)  reset_by(no_reset);
+      method                            tsrc_dsc_n(trn_tsrc_dsc_n)                   enable((*inhigh*)en07) clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_tbuf_av                tbuf_av                                                             clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_terr_drop_n            terr_drop_n                                                         clocked_by(trn_clk)  reset_by(no_reset);
+      method                            tstr_n(trn_tstr_n)                           enable((*inhigh*)en08) clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_tcfg_req_n             tcfg_req_n                                                          clocked_by(trn_clk)  reset_by(no_reset);
+      method                            tcfg_gnt_n(trn_tcfg_gnt_n)                   enable((*inhigh*)en09) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            terrfwd_n(trn_terrfwd_n)                     enable((*inhigh*)en10) clocked_by(trn_clk)  reset_by(no_reset);
+   endinterface
+
+   interface PCIE_TRN_RX_V6 trn_rx;
+      method trn_rsof_n                 rsof_n                                                              clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_reof_n                 reof_n                                                              clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_rd                     rd                                                                  clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_rrem_n                 rrem_n                                                              clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_rerrfwd_n              rerrfwd_n                                                           clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_rsrc_rdy_n             rsrc_rdy_n                                                          clocked_by(trn_clk)  reset_by(no_reset);
+      method                            rdst_rdy_n(trn_rdst_rdy_n)                   enable((*inhigh*)en11) clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_rsrc_dsc_n             rsrc_dsc_n                                                          clocked_by(trn_clk)  reset_by(no_reset);
+      method                            rnp_ok_n(trn_rnp_ok_n)                       enable((*inhigh*)en12) clocked_by(trn_clk)  reset_by(no_reset);
+      method trn_rbar_hit_n             rbar_hit_n                                                          clocked_by(trn_clk)  reset_by(no_reset);
+   endinterface
+
+   interface PCIE_PL_V6 pl;
+      method pl_initial_link_width      initial_link_width                                                       clocked_by(trn_clk)  reset_by(no_reset);
+      method pl_lane_reversal_mode      lane_reversal_mode                                                       clocked_by(trn_clk)  reset_by(no_reset);
+      method pl_link_gen2_capable       link_gen2_capable                                                        clocked_by(trn_clk)  reset_by(no_reset);
+      method pl_link_partner_gen2_supported link_partner_gen2_supported                                          clocked_by(trn_clk)  reset_by(no_reset);
+      method pl_link_upcfg_capable      link_upcfg_capable                                                       clocked_by(trn_clk)  reset_by(no_reset);
+      method pl_sel_link_rate           sel_link_rate                                                            clocked_by(trn_clk)  reset_by(no_reset);
+      method pl_sel_link_width          sel_link_width                                                           clocked_by(trn_clk)  reset_by(no_reset);
+      method pl_ltssm_state             ltssm_state                                                              clocked_by(trn_clk)  reset_by(no_reset);
+      method                            directed_link_auton(pl_directed_link_auton)       enable((*inhigh*)en13) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            directed_link_change(pl_directed_link_change)     enable((*inhigh*)en14) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            directed_link_speed(pl_directed_link_speed)       enable((*inhigh*)en15) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            directed_link_width(pl_directed_link_width)       enable((*inhigh*)en16) clocked_by(trn_clk)  reset_by(no_reset);
+      method                            upstream_prefer_deemph(pl_upstream_prefer_deemph) enable((*inhigh*)en17) clocked_by(trn_clk)  reset_by(no_reset);
+      method pl_received_hot_rst        received_hot_rst                                                         clocked_by(trn_clk)  reset_by(no_reset);
+   endinterface
+
+   interface PCIE_CFG_V6 cfg;
+      method cfg_do                     dout                                                                     clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_rd_wr_done_n           rd_wr_done_n                                                             clocked_by(trn_clk) reset_by(no_reset);
+      method                            di(cfg_di)                                        enable((*inhigh*)en18) clocked_by(trn_clk) reset_by(no_reset);
+      method                            dwaddr(cfg_dwaddr)                                enable((*inhigh*)en19) clocked_by(trn_clk) reset_by(no_reset);
+      method                            byte_en_n(cfg_byte_en_n)                          enable((*inhigh*)en20) clocked_by(trn_clk) reset_by(no_reset);
+      method                            wr_en_n(cfg_wr_en_n)                              enable((*inhigh*)en21) clocked_by(trn_clk) reset_by(no_reset);
+      method                            rd_en_n(cfg_rd_en_n)                              enable((*inhigh*)en22) clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_bus_number             bus_number                                                               clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_device_number          device_number                                                            clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_function_number        function_number                                                          clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_status                 status                                                                   clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_command                command                                                                  clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_dstatus                dstatus                                                                  clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_dcommand               dcommand                                                                 clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_dcommand2              dcommand2                                                                clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_lstatus                lstatus                                                                  clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_lcommand               lcommand                                                                 clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_to_turnoff_n           to_turnoff_n                                                             clocked_by(trn_clk) reset_by(no_reset);
+      method                            turnoff_ok_n(cfg_turnoff_ok_n)                    enable((*inhigh*)en23) clocked_by(trn_clk) reset_by(no_reset);
+      method                            pm_wake_n(cfg_pm_wake_n)                          enable((*inhigh*)en24) clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_pcie_link_state_n      pcie_link_state_n                                                        clocked_by(trn_clk) reset_by(no_reset);
+      method                            trn_pending_n(cfg_trn_pending_n)                  enable((*inhigh*)en25) clocked_by(trn_clk) reset_by(no_reset);
+      method                            dsn(cfg_dsn)                                      enable((*inhigh*)en26) clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_pmcsr_pme_en           pmcsr_pme_en                                                             clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_pmcsr_pme_status       pmcsr_pme_status                                                         clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_pmcsr_powerstate       pmcsr_powerstate                                                         clocked_by(trn_clk) reset_by(no_reset);
+   endinterface
+
+   interface PCIE_INT_V6 cfg_interrupt;
+      method                            req_n(cfg_interrupt_n)                            enable((*inhigh*)en27) clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_interrupt_rdy_n        rdy_n                                                                    clocked_by(trn_clk) reset_by(no_reset);
+      method                            assert_n(cfg_interrupt_assert_n)                  enable((*inhigh*)en28) clocked_by(trn_clk) reset_by(no_reset);
+      method                            di(cfg_interrupt_di)                              enable((*inhigh*)en29) clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_interrupt_do           dout                                                                     clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_interrupt_mmenable     mmenable                                                                 clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_interrupt_msienable    msienable                                                                clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_interrupt_msixenable   msixenable                                                               clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_interrupt_msixfm       msixfm                                                                   clocked_by(trn_clk) reset_by(no_reset);
+   endinterface
+
+   interface PCIE_ERR_V6 cfg_err;
+      method                            ecrc_n(cfg_err_ecrc_n)                       enable((*inhigh*)en30) clocked_by(trn_clk) reset_by(no_reset);
+      method                            ur_n(cfg_err_ur_n)                           enable((*inhigh*)en31) clocked_by(trn_clk) reset_by(no_reset);
+      method                            cpl_timeout_n(cfg_err_cpl_timeout_n)         enable((*inhigh*)en32) clocked_by(trn_clk) reset_by(no_reset);
+      method                            cpl_unexpect_n(cfg_err_cpl_unexpect_n)       enable((*inhigh*)en33) clocked_by(trn_clk) reset_by(no_reset);
+      method                            cpl_abort_n(cfg_err_cpl_abort_n)             enable((*inhigh*)en34) clocked_by(trn_clk) reset_by(no_reset);
+      method                            posted_n(cfg_err_posted_n)                   enable((*inhigh*)en35) clocked_by(trn_clk) reset_by(no_reset);
+      method                            cor_n(cfg_err_cor_n)                         enable((*inhigh*)en36) clocked_by(trn_clk) reset_by(no_reset);
+      method                            tlp_cpl_header(cfg_err_tlp_cpl_header)       enable((*inhigh*)en37) clocked_by(trn_clk) reset_by(no_reset);
+      method cfg_err_cpl_rdy_n          cpl_rdy_n                                                           clocked_by(trn_clk) reset_by(no_reset);
+      method                            locked_n(cfg_err_locked_n)                   enable((*inhigh*)en38) clocked_by(trn_clk) reset_by(no_reset);
+   endinterface
+
+   schedule (
+             pcie_rxp, pcie_rxn, pcie_txp, pcie_txn,
+             trn_lnk_up_n, trn_fc_ph, trn_fc_pd, trn_fc_nph, trn_fc_npd, trn_fc_cplh, trn_fc_cpld, trn_fc_sel,
+             trn_tx_tsof_n, trn_tx_teof_n, trn_tx_td, trn_tx_trem_n, trn_tx_tsrc_rdy_n, trn_tx_tdst_rdy_n,
+             trn_tx_tsrc_dsc_n, trn_tx_tbuf_av, trn_tx_terr_drop_n, trn_tx_tstr_n, trn_tx_tcfg_req_n, trn_tx_tcfg_gnt_n,
+             trn_tx_terrfwd_n, trn_rx_rsof_n, trn_rx_reof_n, trn_rx_rd, trn_rx_rrem_n, trn_rx_rerrfwd_n,
+             trn_rx_rsrc_rdy_n, trn_rx_rdst_rdy_n, trn_rx_rsrc_dsc_n, trn_rx_rnp_ok_n, trn_rx_rbar_hit_n,
+             pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
+             pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
+             pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph,
+             pl_received_hot_rst, cfg_dout, cfg_rd_wr_done_n, cfg_di, cfg_dwaddr, cfg_byte_en_n, cfg_wr_en_n,
+             cfg_rd_en_n, cfg_bus_number, cfg_device_number, cfg_function_number, cfg_status, cfg_command,
+             cfg_dstatus, cfg_dcommand, cfg_dcommand2, cfg_lstatus, cfg_lcommand, cfg_to_turnoff_n,
+             cfg_turnoff_ok_n, cfg_pm_wake_n, cfg_pcie_link_state_n, cfg_trn_pending_n, cfg_dsn, cfg_pmcsr_pme_en,
+             cfg_pmcsr_pme_status, cfg_pmcsr_powerstate, cfg_interrupt_req_n, cfg_interrupt_rdy_n,
+             cfg_interrupt_assert_n, cfg_interrupt_di, cfg_interrupt_dout, cfg_interrupt_mmenable,
+             cfg_interrupt_msienable, cfg_interrupt_msixenable, cfg_interrupt_msixfm, cfg_err_ecrc_n, cfg_err_ur_n,
+             cfg_err_cpl_timeout_n, cfg_err_cpl_unexpect_n, cfg_err_cpl_abort_n, cfg_err_posted_n,
+             cfg_err_cor_n, cfg_err_tlp_cpl_header, cfg_err_cpl_rdy_n, cfg_err_locked_n
+             )
+            CF
+            (
+             pcie_rxp, pcie_rxn, pcie_txp, pcie_txn,
+             trn_lnk_up_n, trn_fc_ph, trn_fc_pd, trn_fc_nph, trn_fc_npd, trn_fc_cplh, trn_fc_cpld, trn_fc_sel,
+             trn_tx_tsof_n, trn_tx_teof_n, trn_tx_td, trn_tx_trem_n, trn_tx_tsrc_rdy_n, trn_tx_tdst_rdy_n,
+             trn_tx_tsrc_dsc_n, trn_tx_tbuf_av, trn_tx_terr_drop_n, trn_tx_tstr_n, trn_tx_tcfg_req_n, trn_tx_tcfg_gnt_n,
+             trn_tx_terrfwd_n, trn_rx_rsof_n, trn_rx_reof_n, trn_rx_rd, trn_rx_rrem_n, trn_rx_rerrfwd_n,
+             trn_rx_rsrc_rdy_n, trn_rx_rdst_rdy_n, trn_rx_rsrc_dsc_n, trn_rx_rnp_ok_n, trn_rx_rbar_hit_n,
+             pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
+             pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
+             pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph,
+             pl_received_hot_rst, cfg_dout, cfg_rd_wr_done_n, cfg_di, cfg_dwaddr, cfg_byte_en_n, cfg_wr_en_n,
+             cfg_rd_en_n, cfg_bus_number, cfg_device_number, cfg_function_number, cfg_status, cfg_command,
+             cfg_dstatus, cfg_dcommand, cfg_dcommand2, cfg_lstatus, cfg_lcommand, cfg_to_turnoff_n,
+             cfg_turnoff_ok_n, cfg_pm_wake_n, cfg_pcie_link_state_n, cfg_trn_pending_n, cfg_dsn, cfg_pmcsr_pme_en,
+             cfg_pmcsr_pme_status, cfg_pmcsr_powerstate, cfg_interrupt_req_n, cfg_interrupt_rdy_n,
+             cfg_interrupt_assert_n, cfg_interrupt_di, cfg_interrupt_dout, cfg_interrupt_mmenable,
+             cfg_interrupt_msienable, cfg_interrupt_msixenable, cfg_interrupt_msixfm, cfg_err_ecrc_n, cfg_err_ur_n,
+             cfg_err_cpl_timeout_n, cfg_err_cpl_unexpect_n, cfg_err_cpl_abort_n, cfg_err_posted_n,
+             cfg_err_cor_n, cfg_err_tlp_cpl_header, cfg_err_cpl_rdy_n, cfg_err_locked_n
+             );
+
+endmodule: 
+
+`endif
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Interfaces
