@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<pinplan blockname="pcie_block" fileref="./pcie_hip_s4gx_gen2_x4_128.ppx" variation_name="pcie_hip_s4gx_gen2_x4_128" megafunction_name="PCI Express Compiler" />
