@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_pipe_lane_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //--
 //-- Description: PIPE per lane module for Virtex6 PCIe Block
 //--
@@ -61,7 +61,8 @@
 
 module pcie_pipe_lane_v6 #
 (
-    parameter        PIPE_PIPELINE_STAGES = 0    // 0 - 0 stages, 1 - 1 stage, 2 - 2 stages
+    parameter        PIPE_PIPELINE_STAGES = 0,    // 0 - 0 stages, 1 - 1 stage, 2 - 2 stages
+    parameter TCQ  = 1      // clock to out delay model
 )
 (
     output  wire [ 1:0] pipe_rx_char_is_k_o     ,
@@ -100,7 +101,6 @@ module pcie_pipe_lane_v6 #
 // Reality check.                                                   //
 //******************************************************************//
 
-    parameter TCQ  = 1;      // clock to out delay model
 
     reg [ 1:0]          pipe_rx_char_is_k_q     ;
     reg [15:0]          pipe_rx_data_q          ;

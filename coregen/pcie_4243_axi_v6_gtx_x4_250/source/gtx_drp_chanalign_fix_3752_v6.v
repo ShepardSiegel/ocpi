@@ -50,7 +50,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : gtx_drp_chanalign_fix_3752_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //--
 //-- Description: Virtex6 Workaround for deadlock due lane-lane skew Bug
 //--
@@ -61,6 +61,7 @@
 `timescale 1ns / 1ps
 module GTX_DRP_CHANALIGN_FIX_3752_V6
 #(
+  parameter       TCQ             = 1,
   parameter       C_SIMULATION    = 0 // Set to 1 for simulation
 )
 (
@@ -81,25 +82,25 @@ module GTX_DRP_CHANALIGN_FIX_3752_V6
 
   reg  [7:0]     next_daddr;
   reg  [3:0]     next_drpstate;
-    
-    
-  
+
+
+
   reg            write_ts1_gated;
   reg            write_fts_gated;
-  
-  parameter      TCQ                    =  1;
-  parameter      DRP_IDLE_FTS           =  1;
-  parameter      DRP_IDLE_TS1           =  2;
-  parameter      DRP_RESET              =  3;
-  parameter      DRP_WRITE_FTS          =  6;
-  parameter      DRP_WRITE_DONE_FTS     =  7;
-  parameter      DRP_WRITE_TS1          =  8;
-  parameter      DRP_WRITE_DONE_TS1     =  9;
-  parameter      DRP_COM                = 10'b0110111100;
-  parameter      DRP_FTS                = 10'b0100111100;
-  parameter      DRP_TS1                = 10'b0001001010;
-        
-        
+
+
+  localparam      DRP_IDLE_FTS           =  1;
+  localparam      DRP_IDLE_TS1           =  2;
+  localparam      DRP_RESET              =  3;
+  localparam      DRP_WRITE_FTS          =  6;
+  localparam      DRP_WRITE_DONE_FTS     =  7;
+  localparam      DRP_WRITE_TS1          =  8;
+  localparam      DRP_WRITE_DONE_TS1     =  9;
+  localparam      DRP_COM                = 10'b0110111100;
+  localparam      DRP_FTS                = 10'b0100111100;
+  localparam      DRP_TS1                = 10'b0001001010;
+
+
   always @(posedge drp_clk) begin
 
     if ( ~Reset_n ) begin
@@ -117,15 +118,15 @@ module GTX_DRP_CHANALIGN_FIX_3752_V6
       drpstate  <= #(TCQ) next_drpstate;
 
 
-      
+
       write_ts1_gated <= #(TCQ) write_ts1;
       write_fts_gated <= #(TCQ) write_fts;
 
     end
-          
-  end    
-        
-        
+
+  end
+
+
   always @(*) begin
 
     // DEFAULT CONDITIONS
@@ -138,7 +139,7 @@ module GTX_DRP_CHANALIGN_FIX_3752_V6
     case(drpstate)
 
       // RESET CONDITION, WE NEED TO READ THE TOP 6 BITS OF THE DRP REGISTER WHEN WE GET THE WRITE FTS TRIGGER
-      DRP_RESET : begin 
+      DRP_RESET : begin
 
         next_drpstate= DRP_WRITE_TS1;
         next_daddr=8'h8;
@@ -177,7 +178,7 @@ module GTX_DRP_CHANALIGN_FIX_3752_V6
           end else begin
 
             next_drpstate=DRP_WRITE_FTS;
-            next_daddr=daddr+1;
+            next_daddr=daddr+1'b1;
 
           end
 
@@ -226,7 +227,7 @@ module GTX_DRP_CHANALIGN_FIX_3752_V6
           end else begin
 
             next_drpstate=DRP_WRITE_TS1;
-            next_daddr=daddr+1;
+            next_daddr=daddr+1'b1;
 
           end
 
@@ -249,5 +250,5 @@ module GTX_DRP_CHANALIGN_FIX_3752_V6
     endcase
 
   end
-        
+
 endmodule

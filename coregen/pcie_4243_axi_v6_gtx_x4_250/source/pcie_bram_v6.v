@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_bram_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //--
 //-- Description: BlockRAM module for Virtex6 PCIe Block
 //--
@@ -67,7 +67,7 @@ module pcie_bram_v6
     (
      input               user_clk_i,// user clock
      input               reset_i,   // bram reset
-    
+
      input               wen_i,     // write enable
      input [12:0]        waddr_i,   // write address
      input [WIDTH - 1:0] wdata_i,   // write data
@@ -124,7 +124,7 @@ module pcie_bram_v6
 
       case (WIDTH)
         4,9,18,36,72:;
-        default: 
+        default:
           begin
              $display("[%t] %m Error WIDTH %0d not supported", $time, WIDTH);
              $finish;
@@ -141,9 +141,9 @@ module pcie_bram_v6
                .DO_REG        (DOB_REG)
                )
         ramb36sdp(
-               .WRCLK          (user_clk_i), 
+               .WRCLK          (user_clk_i),
                .SSR            (1'b0),
-               .WRADDR         (waddr_i[ADDR_MSB:0]), 
+               .WRADDR         (waddr_i[ADDR_MSB:0]),
                .DI             (wdata_i[D_MSB:0]),
                .DIP            (wdata_i[DP_MSB:DP_LSB]),
                .WREN           (wen_i),
@@ -152,15 +152,15 @@ module pcie_bram_v6
                .ECCPARITY      (),
                .SBITERR        (),
 
-               .RDCLK          (user_clk_i), 
-               .RDADDR         (raddr_i[ADDR_MSB:0]), 
+               .RDCLK          (user_clk_i),
+               .RDADDR         (raddr_i[ADDR_MSB:0]),
                .DO             (rdata_o[D_MSB:0]),
                .DOP            (rdata_o[DP_MSB:DP_LSB]),
-               .RDEN           (ren_i), 
+               .RDEN           (ren_i),
                .REGCE          (rce_i)
                );
 
-    // use RAMB36's if the width is 4, 9, 18, or 36   
+    // use RAMB36's if the width is 4, 9, 18, or 36
     end else if (WIDTH == 36) begin : use_ramb36
 
       RAMB36 #(
@@ -173,7 +173,7 @@ module pcie_bram_v6
                .WRITE_MODE_A  (WRITE_MODE)
                )
         ramb36(
-               .CLKA           (user_clk_i), 
+               .CLKA           (user_clk_i),
                .SSRA           (1'b0),
                .REGCEA         (1'b0),
                .CASCADEINLATA  (1'b0),
@@ -182,33 +182,33 @@ module pcie_bram_v6
                .CASCADEOUTREGA (),
                .DOA            (),
                .DOPA           (),
-               .ADDRA          ({1'b1, waddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}), 
+               .ADDRA          ({1'b1, waddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}),
                .DIA            (wdata_i[D_MSB:0]),
                .DIPA           (wdata_i[DP_MSB:DP_LSB]),
-               .ENA            (wen_i), 
+               .ENA            (wen_i),
                .WEA            ({4{wen_i}}),
 
-               .CLKB           (user_clk_i), 
+               .CLKB           (user_clk_i),
                .SSRB           (1'b0),
                .WEB            (4'b0),
                .CASCADEINLATB  (1'b0),
                .CASCADEINREGB  (1'b0),
                .CASCADEOUTLATB (),
                .CASCADEOUTREGB (),
-	       .DIB            (32'b0),
-	       .DIPB           ( 4'b0),
-               .ADDRB          ({1'b1, raddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}), 
+               .DIB            (32'b0),
+               .DIPB           ( 4'b0),
+               .ADDRB          ({1'b1, raddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}),
                .DOB            (rdata_o[D_MSB:0]),
                .DOPB           (rdata_o[DP_MSB:DP_LSB]),
-               .ENB            (ren_i), 
+               .ENB            (ren_i),
                .REGCEB         (rce_i)
                );
-      
+
    end else if (WIDTH < 36 && WIDTH > 4) begin : use_ramb36
 
       wire [31 - D_MSB - 1 : 0] dob_unused;
       wire [ 4 - DPW   - 1 : 0] dopb_unused;
-	 
+
       RAMB36 #(
                .DOA_REG       (0),
                .DOB_REG       (DOB_REG),
@@ -219,7 +219,7 @@ module pcie_bram_v6
                .WRITE_MODE_A  (WRITE_MODE)
                )
         ramb36(
-               .CLKA           (user_clk_i), 
+               .CLKA           (user_clk_i),
                .SSRA           (1'b0),
                .REGCEA         (1'b0),
                .CASCADEINLATA  (1'b0),
@@ -228,28 +228,28 @@ module pcie_bram_v6
                .CASCADEOUTREGA (),
                .DOA            (),
                .DOPA           (),
-               .ADDRA          ({1'b1, waddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}), 
+               .ADDRA          ({1'b1, waddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}),
                .DIA            ({{31 - D_MSB{1'b0}},wdata_i[D_MSB:0]}),
                .DIPA           ({{ 4 - DPW  {1'b0}},wdata_i[DP_MSB:DP_LSB]}),
-               .ENA            (wen_i), 
+               .ENA            (wen_i),
                .WEA            ({4{wen_i}}),
 
-               .CLKB           (user_clk_i), 
+               .CLKB           (user_clk_i),
                .SSRB           (1'b0),
                .WEB            (4'b0),
                .CASCADEINLATB  (1'b0),
                .CASCADEINREGB  (1'b0),
                .CASCADEOUTLATB (),
                .CASCADEOUTREGB (),
-	       .DIB            (32'b0),
-	       .DIPB           ( 4'b0),
-               .ADDRB          ({1'b1, raddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}), 
+               .DIB            (32'b0),
+               .DIPB           ( 4'b0),
+               .ADDRB          ({1'b1, raddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}),
                .DOB            ({dob_unused,  rdata_o[D_MSB:0]}),
                .DOPB           ({dopb_unused, rdata_o[DP_MSB:DP_LSB]}),
-               .ENB            (ren_i), 
+               .ENB            (ren_i),
                .REGCEB         (rce_i)
                );
-      
+
    end else if (WIDTH ==  4) begin : use_ramb36
 
       wire [31 - D_MSB - 1 : 0] dob_unused;
@@ -263,7 +263,7 @@ module pcie_bram_v6
                .WRITE_MODE_A  (WRITE_MODE)
                )
         ramb36(
-               .CLKA           (user_clk_i), 
+               .CLKA           (user_clk_i),
                .SSRA           (1'b0),
                .REGCEA         (1'b0),
                .CASCADEINLATA  (1'b0),
@@ -272,23 +272,23 @@ module pcie_bram_v6
                .CASCADEOUTREGA (),
                .DOA            (),
                .DOPA           (),
-               .ADDRA          ({1'b1, waddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}), 
+               .ADDRA          ({1'b1, waddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}),
                .DIA            ({{31 - D_MSB{1'b0}},wdata_i[D_MSB:0]}),
                //.DIPA           (wdata_i[DP_MSB:DP_LSB]),
-               .ENA            (wen_i), 
+               .ENA            (wen_i),
                .WEA            ({4{wen_i}}),
 
-               .CLKB           (user_clk_i), 
+               .CLKB           (user_clk_i),
                .SSRB           (1'b0),
                .WEB            (4'b0),
                .CASCADEINLATB  (1'b0),
                .CASCADEINREGB  (1'b0),
                .CASCADEOUTLATB (),
                .CASCADEOUTREGB (),
-               .ADDRB          ({1'b1, raddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}), 
+               .ADDRB          ({1'b1, raddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}),
                .DOB            ({dob_unused,rdata_o[D_MSB:0]}),
                //.DOPB           (rdata_o[DP_MSB:DP_LSB]),
-               .ENB            (ren_i), 
+               .ENB            (ren_i),
                .REGCEB         (rce_i)
                );
 

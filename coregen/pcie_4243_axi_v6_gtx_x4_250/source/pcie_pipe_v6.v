@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_pipe_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //-- Description: PIPE module for Virtex6 PCIe Block
 //--
 //--
@@ -322,7 +322,7 @@ module pcie_pipe_v6 #
 // Reality check.                                                   //
 //******************************************************************//
 
-    parameter Tc2o  = 1;      // clock to out delay model
+    localparam Tc2o  = 1;      // clock to out delay model
 
 
     wire [ 1:0] pipe_rx0_char_is_k_q     ;

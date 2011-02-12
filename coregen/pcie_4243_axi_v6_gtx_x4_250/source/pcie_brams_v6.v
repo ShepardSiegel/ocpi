@@ -50,7 +50,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_brams_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //--
 //-- Description: BlockRAM module for Virtex6 PCIe Block
 //--
@@ -91,7 +91,9 @@ module pcie_brams_v6
    // ====================================================
    //   0       BRAM write port sample
    //   1       BRAM write port sample plus pipeline stage
-   parameter RAM_WRITE_LATENCY       = 1
+   parameter RAM_WRITE_LATENCY       = 1,
+
+   parameter TCQ           = 1
  )
   (
    input          user_clk_i,
@@ -117,7 +119,6 @@ module pcie_brams_v6
                                                  4
                             );
    
-   parameter TCQ           = 1;
   
    //synthesis translate_off
    initial begin

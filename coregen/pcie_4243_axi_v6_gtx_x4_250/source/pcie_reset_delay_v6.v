@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_reset_delay_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //--
 //-- Description: sys_reset_n delay (20ms) for Virtex6 PCIe Block
 //--
@@ -62,7 +62,8 @@
 module pcie_reset_delay_v6 # (
 
   parameter PL_FAST_TRAIN = "FALSE",
-  parameter REF_CLK_FREQ = 0   // 0 - 100 MHz, 1 - 125 MHz, 2 - 250 MHz
+  parameter REF_CLK_FREQ = 0,   // 0 - 100 MHz, 1 - 125 MHz, 2 - 250 MHz
+  parameter TCQ = 1
 
 )
 (
@@ -73,7 +74,6 @@ module pcie_reset_delay_v6 # (
    
 );
 
-  parameter TCQ = 1;
 
   localparam         TBIT =  (PL_FAST_TRAIN == "FALSE") ?  ((REF_CLK_FREQ == 1) ? 20: (REF_CLK_FREQ == 0) ? 20 : 21) : 2;
 

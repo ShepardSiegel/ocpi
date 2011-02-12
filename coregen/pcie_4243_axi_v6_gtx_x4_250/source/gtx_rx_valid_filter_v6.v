@@ -50,13 +50,14 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : gtx_rx_valid_filter_v6.v
-// Version    : 1.4
+// Version    : 2.1
 
 `timescale 1ns / 1ns
 
 module GTX_RX_VALID_FILTER_V6 #(
 
-  parameter           CLK_COR_MIN_LAT    = 28
+  parameter           CLK_COR_MIN_LAT    = 28,
+  parameter           TCQ                = 1
 
 )
 (
@@ -82,19 +83,19 @@ module GTX_RX_VALID_FILTER_V6 #(
 
 );
 
-  parameter TCQ = 1;
 
-  parameter EIOS_DET_IDL      = 5'b00001;
-  parameter EIOS_DET_NO_STR0  = 5'b00010;
-  parameter EIOS_DET_STR0     = 5'b00100;
-  parameter EIOS_DET_STR1     = 5'b01000;
-  parameter EIOS_DET_DONE     = 5'b10000;
 
-  parameter EIOS_COM          = 8'hBC;
-  parameter EIOS_IDL          = 8'h7C;
-  parameter FTSOS_COM         = 8'hBC;
-  parameter FTSOS_FTS         = 8'h3C;
- 
+  localparam EIOS_DET_IDL      = 5'b00001;
+  localparam EIOS_DET_NO_STR0  = 5'b00010;
+  localparam EIOS_DET_STR0     = 5'b00100;
+  localparam EIOS_DET_STR1     = 5'b01000;
+  localparam EIOS_DET_DONE     = 5'b10000;
+
+  localparam EIOS_COM          = 8'hBC;
+  localparam EIOS_IDL          = 8'h7C;
+  localparam FTSOS_COM         = 8'hBC;
+  localparam FTSOS_FTS         = 8'h3C;
+
   reg    [4:0]        reg_state_eios_det;
   wire   [4:0]        state_eios_det;
 
@@ -104,10 +105,10 @@ module GTX_RX_VALID_FILTER_V6 #(
   reg                 reg_symbol_after_eios;
   wire                symbol_after_eios;
 
-  parameter USER_RXVLD_IDL     = 4'b0001;
-  parameter USER_RXVLD_EI      = 4'b0010;
-  parameter USER_RXVLD_EI_DB0  = 4'b0100;
-  parameter USER_RXVLD_EI_DB1  = 4'b1000;
+  localparam USER_RXVLD_IDL     = 4'b0001;
+  localparam USER_RXVLD_EI      = 4'b0010;
+  localparam USER_RXVLD_EI_DB0  = 4'b0100;
+  localparam USER_RXVLD_EI_DB1  = 4'b1000;
 
   reg    [3:0]        reg_state_rxvld_ei;
   wire   [3:0]        state_rxvld_ei;
@@ -136,7 +137,7 @@ module GTX_RX_VALID_FILTER_V6 #(
     if (RESET) begin
 
       reg_eios_detected <= #TCQ 1'b0;
-      reg_state_eios_det <= #TCQ EIOS_DET_IDL; 
+      reg_state_eios_det <= #TCQ EIOS_DET_IDL;
       reg_symbol_after_eios <= #TCQ 1'b0;
       gt_rxcharisk_q <= #TCQ 2'b00;
       gt_rxdata_q <= #TCQ 16'h0;
@@ -152,7 +153,7 @@ module GTX_RX_VALID_FILTER_V6 #(
 
       reg_eios_detected <= #TCQ 1'b0;
       reg_symbol_after_eios <= #TCQ 1'b0;
-      gt_rxcharisk_q <= #TCQ GT_RXCHARISK; 
+      gt_rxcharisk_q <= #TCQ GT_RXCHARISK;
       gt_rxdata_q <= #TCQ GT_RXDATA;
       gt_rxvalid_q <= #TCQ GT_RXVALID;
       gt_rxelecidle_q <= #TCQ GT_RXELECIDLE;
@@ -173,27 +174,27 @@ module GTX_RX_VALID_FILTER_V6 #(
       case ( state_eios_det )
 
         EIOS_DET_IDL : begin
- 
+
           if ((gt_rxcharisk_q[0]) && (gt_rxdata_q[7:0] == EIOS_COM) &&
               (gt_rxcharisk_q[1]) && (gt_rxdata_q[15:8] == EIOS_IDL)) begin
 
-            reg_state_eios_det <= #TCQ EIOS_DET_NO_STR0; 
+            reg_state_eios_det <= #TCQ EIOS_DET_NO_STR0;
             reg_eios_detected <= #TCQ 1'b1;
 
           end else if ((gt_rxcharisk_q[1]) && (gt_rxdata_q[15:8] == EIOS_COM))
-            reg_state_eios_det <= #TCQ EIOS_DET_STR0; 
+            reg_state_eios_det <= #TCQ EIOS_DET_STR0;
           else
-            reg_state_eios_det <= #TCQ EIOS_DET_IDL; 
-                  
+            reg_state_eios_det <= #TCQ EIOS_DET_IDL;
+
         end
 
         EIOS_DET_NO_STR0 : begin
 
           if ((gt_rxcharisk_q[0] && (gt_rxdata_q[7:0] == EIOS_IDL)) &&
               (gt_rxcharisk_q[1] && (gt_rxdata_q[15:8] == EIOS_IDL)))
-            reg_state_eios_det <= #TCQ EIOS_DET_DONE; 
+            reg_state_eios_det <= #TCQ EIOS_DET_DONE;
           else
-            reg_state_eios_det <= #TCQ EIOS_DET_IDL; 
+            reg_state_eios_det <= #TCQ EIOS_DET_IDL;
 
         end
 
@@ -202,27 +203,27 @@ module GTX_RX_VALID_FILTER_V6 #(
           if ((gt_rxcharisk_q[0] && (gt_rxdata_q[7:0] == EIOS_IDL)) &&
               (gt_rxcharisk_q[1] && (gt_rxdata_q[15:8] == EIOS_IDL))) begin
 
-            reg_state_eios_det <= #TCQ EIOS_DET_STR1; 
+            reg_state_eios_det <= #TCQ EIOS_DET_STR1;
             reg_eios_detected <= #TCQ 1'b1;
             reg_symbol_after_eios <= #TCQ 1'b1;
 
           end else
-            reg_state_eios_det <= #TCQ EIOS_DET_IDL; 
+            reg_state_eios_det <= #TCQ EIOS_DET_IDL;
 
         end
 
         EIOS_DET_STR1 : begin
 
           if ((gt_rxcharisk_q[0]) && (gt_rxdata_q[7:0] == EIOS_IDL))
-            reg_state_eios_det <= #TCQ EIOS_DET_DONE; 
+            reg_state_eios_det <= #TCQ EIOS_DET_DONE;
           else
-            reg_state_eios_det <= #TCQ EIOS_DET_IDL; 
+            reg_state_eios_det <= #TCQ EIOS_DET_IDL;
 
         end
 
         EIOS_DET_DONE : begin
 
-          reg_state_eios_det <= #TCQ EIOS_DET_IDL; 
+          reg_state_eios_det <= #TCQ EIOS_DET_IDL;
 
         end
 
@@ -249,7 +250,7 @@ module GTX_RX_VALID_FILTER_V6 #(
 
         USER_RXVLD_IDL : begin
 
-          if (eios_detected) 
+          if (eios_detected)
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_EI;
           else
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_IDL;
@@ -262,14 +263,14 @@ module GTX_RX_VALID_FILTER_V6 #(
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_EI_DB0;
           else if (rxvld_fallback == 4'b1111)
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_IDL;
-          else 
+          else
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_EI;
 
         end
 
         USER_RXVLD_EI_DB0 : begin
 
-          if (gt_rxvalid_q)  
+          if (gt_rxvalid_q)
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_EI_DB1;
           else if (!PLM_IN_L0)
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_IDL;
@@ -280,19 +281,19 @@ module GTX_RX_VALID_FILTER_V6 #(
 
         USER_RXVLD_EI_DB1 : begin
 
-          if (rxvld_count > CLK_COR_MIN_LAT)  
+          if (rxvld_count > CLK_COR_MIN_LAT)
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_IDL;
           else
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_EI_DB1;
 
         end
 
-      endcase 
+      endcase
 
     end
 
   end
-  assign state_rxvld_ei = reg_state_rxvld_ei;  
+  assign state_rxvld_ei = reg_state_rxvld_ei;
 
   // RxValid counter
 
@@ -306,7 +307,7 @@ module GTX_RX_VALID_FILTER_V6 #(
 
       if ((gt_rxvalid_q) &&  (state_rxvld_ei == USER_RXVLD_EI_DB1))
         reg_rxvld_count <= #TCQ reg_rxvld_count + 1'b1;
-      else 
+      else
         reg_rxvld_count <= #TCQ 5'b00000;
 
     end
@@ -326,7 +327,7 @@ module GTX_RX_VALID_FILTER_V6 #(
 
       if (state_rxvld_ei == USER_RXVLD_EI)
         reg_rxvld_fallback <= #TCQ reg_rxvld_fallback + 1'b1;
-      else 
+      else
         reg_rxvld_fallback <= #TCQ 4'b0000;
 
     end
@@ -337,10 +338,10 @@ module GTX_RX_VALID_FILTER_V6 #(
   // Delay pipe_rx_elec_idle
 
   SRL16E #(.INIT(0)) rx_elec_idle_delay (.Q(USER_RXELECIDLE),
-                                         .D(gt_rxelecidle_q), 
+                                         .D(gt_rxelecidle_q),
                                          .CLK(USER_CLK),
                                          .CE(1'b1), .A3(1'b1),.A2(1'b1),.A1(1'b1),.A0(1'b1));
- 
+
 
 reg	  awake_in_progress_q = 1'b0;
 reg	  awake_see_com_q = 1'b0;
@@ -371,12 +372,12 @@ always @(posedge USER_CLK) begin
 end
 
 
-  assign USER_RXVALID = ((state_rxvld_ei == USER_RXVLD_IDL) && ~awake_in_progress_q) ? gt_rxvalid_q : 1'b0; 
-  assign USER_RXCHARISK[0] = USER_RXVALID ? gt_rxcharisk_q[0] : 1'b0; 
-  assign USER_RXCHARISK[1] = (USER_RXVALID && !symbol_after_eios) ? gt_rxcharisk_q[1] : 1'b0; 
+  assign USER_RXVALID = ((state_rxvld_ei == USER_RXVLD_IDL) && ~awake_in_progress_q) ? gt_rxvalid_q : 1'b0;
+  assign USER_RXCHARISK[0] = USER_RXVALID ? gt_rxcharisk_q[0] : 1'b0;
+  assign USER_RXCHARISK[1] = (USER_RXVALID && !symbol_after_eios) ? gt_rxcharisk_q[1] : 1'b0;
   assign USER_RXDATA[7:0] = (gt_rx_is_skp0_q) ? FTSOS_COM : gt_rxdata_q[7:0];
   assign USER_RXDATA[15:8] = (gt_rx_is_skp1_q) ? FTSOS_COM : gt_rxdata_q[15:8];
-  assign USER_RX_STATUS = (state_rxvld_ei == USER_RXVLD_IDL) ? gt_rx_status_q : 3'b000; 
+  assign USER_RX_STATUS = (state_rxvld_ei == USER_RXVLD_IDL) ? gt_rx_status_q : 3'b000;
   assign USER_RX_PHY_STATUS = gt_rx_phy_status_q;
 
 endmodule

@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_pipe_misc_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //--
 //-- Description: Misc PIPE module for Virtex6 PCIe Block
 //--
@@ -87,7 +87,7 @@ module pcie_pipe_misc_v6 #
 // Reality check.                                                   //
 //******************************************************************//
 
-    parameter TCQ  = 1;      // clock to out delay model
+    localparam TCQ  = 1;      // clock to out delay model
 
     reg                pipe_tx_rcvr_det_q       ;
     reg                pipe_tx_reset_q          ;

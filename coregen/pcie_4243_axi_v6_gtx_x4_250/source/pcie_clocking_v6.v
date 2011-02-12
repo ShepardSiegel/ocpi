@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_clocking_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //-- Description: Clocking module for Virtex6 PCIe Block
 //--
 //--

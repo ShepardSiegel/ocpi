@@ -49,10 +49,10 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_2_0_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //-- Description: Solution wrapper for Virtex6 Hard Block for PCI Express
-//--             
-//--            
+//--
+//--
 //--
 //--------------------------------------------------------------------------------
 `timescale 1ps/1ps
@@ -303,14 +303,13 @@ module pcie_2_0_v6 #(
     input            [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0]  PCIEXPRXN,
     input            [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0]  PCIEXPRXP,
     output           [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0]  PCIEXPTXN,
-    output           [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0]  PCIEXPTXP, 
+    output           [(LINK_CAP_MAX_LINK_WIDTH - 1) : 0]  PCIEXPTXP,
 
     input            SYSCLK,
     input            FUNDRSTN,
 
     output           TRNLNKUPN,
-    output           TRNCLK,
-  
+
     output           PHYRDYN,
     output           USERRSTN,
     output           RECEIVEDFUNCLVLRSTN,
@@ -322,7 +321,7 @@ module pcie_2_0_v6 #(
     input            FUNCLVLRSTN,
     input            CMRSTN,
     input            CMSTICKYRSTN,
-  
+
     output [6:0]     TRNRBARHITN,
     output [63:0]    TRNRD,
     output           TRNRECRCERRN,
@@ -365,7 +364,7 @@ module pcie_2_0_v6 #(
     output [11:0]    TRNFCPD,
     output [7:0]     TRNFCPH,
     input  [2:0]     TRNFCSEL,
-  
+
     output           CFGAERECRCCHECKEN,
     output           CFGAERECRCGENEN,
     output           CFGCOMMANDBUSMASTERENABLE,
@@ -533,7 +532,11 @@ module pcie_2_0_v6 #(
     input            USERCLK,
     input            DRPCLK,
     input            CLOCKLOCKED,
-    output           TxOutClk
+    output           TxOutClk,
+
+    output  [31:0]   TRNRDLLPDATA,
+    output           TRNRDLLPSRCRDYN
+
 
 
     );
@@ -626,8 +629,8 @@ module pcie_2_0_v6 #(
     wire             LL2SENDENTERL23N = 1'b1;
     wire             LL2SUSPENDNOWN = 1'b1;
     wire             LL2TLPRCVN = 1'b1;
-    wire  [67:0]     MIMRXRDATA;
-    wire  [68:0]     MIMTXRDATA;
+    wire  [71:0]     MIMRXRDATA;
+    wire  [71:0]     MIMTXRDATA;
     wire  [4:0]      PL2DIRECTEDLSTATE = 5'b0;
     wire             TL2ASPMSUSPENDCREDITCHECKN;
     wire             TL2PPMSUSPENDREQN;
@@ -687,7 +690,7 @@ module pcie_2_0_v6 #(
     wire             PIPERX7PHYSTATUS;
     wire  [2:0]      PIPERX7STATUS;
     wire             PIPERX7VALID;
-  
+
     wire             PIPERX0POLARITYGT;
     wire             PIPERX1POLARITYGT;
     wire             PIPERX2POLARITYGT;
@@ -801,9 +804,6 @@ module pcie_2_0_v6 #(
     wire             filter_pipe_upconfig_fix_3451;
 
 
-// Assignments to outputs
-
-    assign TRNCLK = USERCLK; 
 
 
 
@@ -1269,7 +1269,7 @@ pcie_block_i (
   .TRNRBARHITN ( TRNRBARHITN ),
   .TRNRD ( TRNRD ),
 
-  .TRNRDLLPDATA ( ),
+  .TRNRDLLPDATA ( TRNRDLLPDATA ),
   .TRNRDLLPSRCRDYN ( TRNRDLLPSRCRDYN ),
   .TRNRECRCERRN ( TRNRECRCERRN ),
   .TRNREOFN ( TRNREOFN ),
@@ -1283,7 +1283,7 @@ pcie_block_i (
   .TRNTDLLPDSTRDYN ( TRNTDLLPDSTRDYN ),
   .TRNTDSTRDYN ( TRNTDSTRDYN ),
   .TRNTERRDROPN ( TRNTERRDROPN ),
-  .USERRSTN ( USERRSTN ), 
+  .USERRSTN ( USERRSTN ),
   .CFGBYTEENN ( CFGBYTEENN ),
   .CFGDI ( CFGDI ),
   .CFGDSBUSNUMBER ( CFGDSBUSNUMBER ),
@@ -1333,8 +1333,8 @@ pcie_block_i (
   .LL2SENDENTERL23N ( LL2SENDENTERL23N ),
   .LL2SUSPENDNOWN ( LL2SUSPENDNOWN ),
   .LL2TLPRCVN ( LL2TLPRCVN ),
-  .MIMRXRDATA ( MIMRXRDATA ),
-  .MIMTXRDATA ( MIMTXRDATA ),
+  .MIMRXRDATA ( MIMRXRDATA[67:0] ),
+  .MIMTXRDATA ( MIMTXRDATA[68:0] ),
   .PIPECLK ( PIPECLK ),
   .PIPERX0CHANISALIGNED ( PIPERX0CHANISALIGNED ),
   .PIPERX0CHARISK ( filter_pipe_upconfig_fix_3451 ? 2'b11 : PIPERX0CHARISK ),
@@ -1431,28 +1431,28 @@ pcie_block_i (
 
 pcie_pipe_v6 # (
 
-   .NO_OF_LANES(LINK_CAP_MAX_LINK_WIDTH), 
+   .NO_OF_LANES(LINK_CAP_MAX_LINK_WIDTH),
    .LINK_CAP_MAX_LINK_SPEED(LINK_CAP_MAX_LINK_SPEED),
    .PIPE_PIPELINE_STAGES(PIPE_PIPELINE_STAGES)
 
-) 
+)
 pcie_pipe_i (
 
-  // Pipe Per-Link Signals 
+  // Pipe Per-Link Signals
   .pipe_tx_rcvr_det_i       (PIPETXRCVRDET),
-  .pipe_tx_reset_i          (PIPETXRESET),  
-  .pipe_tx_rate_i           (PIPETXRATE),  
-  .pipe_tx_deemph_i         (PIPETXDEEMPH),  
-  .pipe_tx_margin_i         (PIPETXMARGIN),  
-  .pipe_tx_swing_i          (1'b0),  
+  .pipe_tx_reset_i          (PIPETXRESET),
+  .pipe_tx_rate_i           (PIPETXRATE),
+  .pipe_tx_deemph_i         (PIPETXDEEMPH),
+  .pipe_tx_margin_i         (PIPETXMARGIN),
+  .pipe_tx_swing_i          (1'b0),
 
   .pipe_tx_rcvr_det_o       (PIPETXRCVRDETGT),
-  .pipe_tx_reset_o          ( ),  
-  .pipe_tx_rate_o           (PIPETXRATEGT),  
-  .pipe_tx_deemph_o         (PIPETXDEEMPHGT),  
-  .pipe_tx_margin_o         (PIPETXMARGINGT),  
-  .pipe_tx_swing_o          ( ),  
-   
+  .pipe_tx_reset_o          ( ),
+  .pipe_tx_rate_o           (PIPETXRATEGT),
+  .pipe_tx_deemph_o         (PIPETXDEEMPHGT),
+  .pipe_tx_margin_o         (PIPETXMARGINGT),
+  .pipe_tx_swing_o          ( ),
+
   // Pipe Per-Lane Signals - Lane 0
   .pipe_rx0_char_is_k_o     (PIPERX0CHARISK         ),
   .pipe_rx0_data_o          (PIPERX0DATA            ),
@@ -1466,7 +1466,7 @@ pcie_pipe_i (
   .pipe_tx0_char_is_k_i     (PIPETX0CHARISK         ),
   .pipe_tx0_data_i          (PIPETX0DATA            ),
   .pipe_tx0_elec_idle_i     (PIPETX0ELECIDLE        ),
-  .pipe_tx0_powerdown_i     (PIPETX0POWERDOWN       ), 
+  .pipe_tx0_powerdown_i     (PIPETX0POWERDOWN       ),
 
   .pipe_rx0_char_is_k_i     (PIPERX0CHARISKGT       ),
   .pipe_rx0_data_i          (PIPERX0DATAGT          ),
@@ -1480,7 +1480,7 @@ pcie_pipe_i (
   .pipe_tx0_char_is_k_o     (PIPETX0CHARISKGT       ),
   .pipe_tx0_data_o          (PIPETX0DATAGT          ),
   .pipe_tx0_elec_idle_o     (PIPETX0ELECIDLEGT      ),
-  .pipe_tx0_powerdown_o     (PIPETX0POWERDOWNGT     ), 
+  .pipe_tx0_powerdown_o     (PIPETX0POWERDOWNGT     ),
 
   // Pipe Per-Lane Signals - Lane 1
   .pipe_rx1_char_is_k_o     (PIPERX1CHARISK         ),
@@ -1495,7 +1495,7 @@ pcie_pipe_i (
   .pipe_tx1_char_is_k_i     (PIPETX1CHARISK         ),
   .pipe_tx1_data_i          (PIPETX1DATA            ),
   .pipe_tx1_elec_idle_i     (PIPETX1ELECIDLE        ),
-  .pipe_tx1_powerdown_i     (PIPETX1POWERDOWN       ), 
+  .pipe_tx1_powerdown_i     (PIPETX1POWERDOWN       ),
 
   .pipe_rx1_char_is_k_i     (PIPERX1CHARISKGT       ),
   .pipe_rx1_data_i          (PIPERX1DATAGT          ),
@@ -1509,7 +1509,7 @@ pcie_pipe_i (
   .pipe_tx1_char_is_k_o     (PIPETX1CHARISKGT       ),
   .pipe_tx1_data_o          (PIPETX1DATAGT          ),
   .pipe_tx1_elec_idle_o     (PIPETX1ELECIDLEGT      ),
-  .pipe_tx1_powerdown_o     (PIPETX1POWERDOWNGT     ), 
+  .pipe_tx1_powerdown_o     (PIPETX1POWERDOWNGT     ),
 
   // Pipe Per-Lane Signals - Lane 2
   .pipe_rx2_char_is_k_o     (PIPERX2CHARISK         ),
@@ -1524,7 +1524,7 @@ pcie_pipe_i (
   .pipe_tx2_char_is_k_i     (PIPETX2CHARISK         ),
   .pipe_tx2_data_i          (PIPETX2DATA            ),
   .pipe_tx2_elec_idle_i     (PIPETX2ELECIDLE        ),
-  .pipe_tx2_powerdown_i     (PIPETX2POWERDOWN       ), 
+  .pipe_tx2_powerdown_i     (PIPETX2POWERDOWN       ),
 
   .pipe_rx2_char_is_k_i     (PIPERX2CHARISKGT       ),
   .pipe_rx2_data_i          (PIPERX2DATAGT          ),
@@ -1538,7 +1538,7 @@ pcie_pipe_i (
   .pipe_tx2_char_is_k_o     (PIPETX2CHARISKGT       ),
   .pipe_tx2_data_o          (PIPETX2DATAGT          ),
   .pipe_tx2_elec_idle_o     (PIPETX2ELECIDLEGT      ),
-  .pipe_tx2_powerdown_o     (PIPETX2POWERDOWNGT     ), 
+  .pipe_tx2_powerdown_o     (PIPETX2POWERDOWNGT     ),
 
   // Pipe Per-Lane Signals - Lane 3
   .pipe_rx3_char_is_k_o     (PIPERX3CHARISK         ),
@@ -1553,7 +1553,7 @@ pcie_pipe_i (
   .pipe_tx3_char_is_k_i     (PIPETX3CHARISK         ),
   .pipe_tx3_data_i          (PIPETX3DATA            ),
   .pipe_tx3_elec_idle_i     (PIPETX3ELECIDLE        ),
-  .pipe_tx3_powerdown_i     (PIPETX3POWERDOWN       ), 
+  .pipe_tx3_powerdown_i     (PIPETX3POWERDOWN       ),
 
   .pipe_rx3_char_is_k_i     (PIPERX3CHARISKGT       ),
   .pipe_rx3_data_i          (PIPERX3DATAGT          ),
@@ -1567,8 +1567,8 @@ pcie_pipe_i (
   .pipe_tx3_char_is_k_o     (PIPETX3CHARISKGT       ),
   .pipe_tx3_data_o          (PIPETX3DATAGT          ),
   .pipe_tx3_elec_idle_o     (PIPETX3ELECIDLEGT      ),
-  .pipe_tx3_powerdown_o     (PIPETX3POWERDOWNGT     ), 
-   
+  .pipe_tx3_powerdown_o     (PIPETX3POWERDOWNGT     ),
+
    // Pipe Per-Lane Signals - Lane 4
   .pipe_rx4_char_is_k_o     (PIPERX4CHARISK         ),
   .pipe_rx4_data_o          (PIPERX4DATA            ),
@@ -1582,7 +1582,7 @@ pcie_pipe_i (
   .pipe_tx4_char_is_k_i     (PIPETX4CHARISK         ),
   .pipe_tx4_data_i          (PIPETX4DATA            ),
   .pipe_tx4_elec_idle_i     (PIPETX4ELECIDLE        ),
-  .pipe_tx4_powerdown_i     (PIPETX4POWERDOWN       ), 
+  .pipe_tx4_powerdown_i     (PIPETX4POWERDOWN       ),
 
   .pipe_rx4_char_is_k_i     (PIPERX4CHARISKGT       ),
   .pipe_rx4_data_i          (PIPERX4DATAGT          ),
@@ -1596,8 +1596,8 @@ pcie_pipe_i (
   .pipe_tx4_char_is_k_o     (PIPETX4CHARISKGT       ),
   .pipe_tx4_data_o          (PIPETX4DATAGT          ),
   .pipe_tx4_elec_idle_o     (PIPETX4ELECIDLEGT      ),
-  .pipe_tx4_powerdown_o     (PIPETX4POWERDOWNGT     ), 
-   
+  .pipe_tx4_powerdown_o     (PIPETX4POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 5
   .pipe_rx5_char_is_k_o     (PIPERX5CHARISK         ),
   .pipe_rx5_data_o          (PIPERX5DATA            ),
@@ -1611,7 +1611,7 @@ pcie_pipe_i (
   .pipe_tx5_char_is_k_i     (PIPETX5CHARISK         ),
   .pipe_tx5_data_i          (PIPETX5DATA            ),
   .pipe_tx5_elec_idle_i     (PIPETX5ELECIDLE        ),
-  .pipe_tx5_powerdown_i     (PIPETX5POWERDOWN       ), 
+  .pipe_tx5_powerdown_i     (PIPETX5POWERDOWN       ),
 
   .pipe_rx5_char_is_k_i     (PIPERX5CHARISKGT       ),
   .pipe_rx5_data_i          (PIPERX5DATAGT          ),
@@ -1625,8 +1625,8 @@ pcie_pipe_i (
   .pipe_tx5_char_is_k_o     (PIPETX5CHARISKGT       ),
   .pipe_tx5_data_o          (PIPETX5DATAGT          ),
   .pipe_tx5_elec_idle_o     (PIPETX5ELECIDLEGT      ),
-  .pipe_tx5_powerdown_o     (PIPETX5POWERDOWNGT     ), 
-   
+  .pipe_tx5_powerdown_o     (PIPETX5POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 6
   .pipe_rx6_char_is_k_o     (PIPERX6CHARISK         ),
   .pipe_rx6_data_o          (PIPERX6DATA            ),
@@ -1640,7 +1640,7 @@ pcie_pipe_i (
   .pipe_tx6_char_is_k_i     (PIPETX6CHARISK         ),
   .pipe_tx6_data_i          (PIPETX6DATA            ),
   .pipe_tx6_elec_idle_i     (PIPETX6ELECIDLE        ),
-  .pipe_tx6_powerdown_i     (PIPETX6POWERDOWN       ), 
+  .pipe_tx6_powerdown_i     (PIPETX6POWERDOWN       ),
 
   .pipe_rx6_char_is_k_i     (PIPERX6CHARISKGT       ),
   .pipe_rx6_data_i          (PIPERX6DATAGT          ),
@@ -1654,8 +1654,8 @@ pcie_pipe_i (
   .pipe_tx6_char_is_k_o     (PIPETX6CHARISKGT       ),
   .pipe_tx6_data_o          (PIPETX6DATAGT          ),
   .pipe_tx6_elec_idle_o     (PIPETX6ELECIDLEGT      ),
-  .pipe_tx6_powerdown_o     (PIPETX6POWERDOWNGT     ), 
-   
+  .pipe_tx6_powerdown_o     (PIPETX6POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 7
   .pipe_rx7_char_is_k_o     (PIPERX7CHARISK         ),
   .pipe_rx7_data_o          (PIPERX7DATA            ),
@@ -1669,7 +1669,7 @@ pcie_pipe_i (
   .pipe_tx7_char_is_k_i     (PIPETX7CHARISK         ),
   .pipe_tx7_data_i          (PIPETX7DATA            ),
   .pipe_tx7_elec_idle_i     (PIPETX7ELECIDLE        ),
-  .pipe_tx7_powerdown_i     (PIPETX7POWERDOWN       ), 
+  .pipe_tx7_powerdown_i     (PIPETX7POWERDOWN       ),
 
   .pipe_rx7_char_is_k_i     (PIPERX7CHARISKGT       ),
   .pipe_rx7_data_i          (PIPERX7DATAGT          ),
@@ -1683,36 +1683,36 @@ pcie_pipe_i (
   .pipe_tx7_char_is_k_o     (PIPETX7CHARISKGT       ),
   .pipe_tx7_data_o          (PIPETX7DATAGT          ),
   .pipe_tx7_elec_idle_o     (PIPETX7ELECIDLEGT      ),
-  .pipe_tx7_powerdown_o     (PIPETX7POWERDOWNGT     ), 
+  .pipe_tx7_powerdown_o     (PIPETX7POWERDOWNGT     ),
 
   // Non PIPE signals
   .pl_ltssm_state           (PLLTSSMSTATE           ),
-  .pipe_clk                 (PIPECLK                ), 
-  .rst_n                    (PHYRDYN                ) 
+  .pipe_clk                 (PIPECLK                ),
+  .rst_n                    (PHYRDYN                )
 );
 
 //-------------------------------------------------------
 // Virtex6 GTX Module
 //-------------------------------------------------------
 
-pcie_gtx_v6 #( 
+pcie_gtx_v6 #(
 
   .NO_OF_LANES(LINK_CAP_MAX_LINK_WIDTH),
   .LINK_CAP_MAX_LINK_SPEED(LINK_CAP_MAX_LINK_SPEED),
   .REF_CLK_FREQ(REF_CLK_FREQ),
   .PL_FAST_TRAIN(PL_FAST_TRAIN)
 
-) 
+)
 pcie_gt_i (
 
-  // Pipe Common Signals 
+  // Pipe Common Signals
   .pipe_tx_rcvr_det         (PIPETXRCVRDETGT        ),
   .pipe_tx_reset            (1'b0                   ),
   .pipe_tx_rate             (PIPETXRATEGT           ),
   .pipe_tx_deemph           (PIPETXDEEMPHGT         ),
   .pipe_tx_margin           (PIPETXMARGINGT         ),
-  .pipe_tx_swing            (1'b0),  
-   
+  .pipe_tx_swing            (1'b0),
+
   // Pipe Per-Lane Signals - Lane 0
   .pipe_rx0_char_is_k       (PIPERX0CHARISKGT       ),
   .pipe_rx0_data            (PIPERX0DATAGT          ),
@@ -1726,8 +1726,8 @@ pcie_gt_i (
   .pipe_tx0_char_is_k       (PIPETX0CHARISKGT       ),
   .pipe_tx0_data            (PIPETX0DATAGT          ),
   .pipe_tx0_elec_idle       (PIPETX0ELECIDLEGT      ),
-  .pipe_tx0_powerdown       (PIPETX0POWERDOWNGT     ), 
-   
+  .pipe_tx0_powerdown       (PIPETX0POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 1
   .pipe_rx1_char_is_k       (PIPERX1CHARISKGT       ),
   .pipe_rx1_data            (PIPERX1DATAGT          ),
@@ -1741,8 +1741,8 @@ pcie_gt_i (
   .pipe_tx1_char_is_k       (PIPETX1CHARISKGT       ),
   .pipe_tx1_data            (PIPETX1DATAGT          ),
   .pipe_tx1_elec_idle       (PIPETX1ELECIDLEGT      ),
-  .pipe_tx1_powerdown       (PIPETX1POWERDOWNGT     ), 
-   
+  .pipe_tx1_powerdown       (PIPETX1POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 2
   .pipe_rx2_char_is_k       (PIPERX2CHARISKGT       ),
   .pipe_rx2_data            (PIPERX2DATAGT          ),
@@ -1756,8 +1756,8 @@ pcie_gt_i (
   .pipe_tx2_char_is_k       (PIPETX2CHARISKGT       ),
   .pipe_tx2_data            (PIPETX2DATAGT          ),
   .pipe_tx2_elec_idle       (PIPETX2ELECIDLEGT      ),
-  .pipe_tx2_powerdown       (PIPETX2POWERDOWNGT     ), 
-   
+  .pipe_tx2_powerdown       (PIPETX2POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 3
   .pipe_rx3_char_is_k       (PIPERX3CHARISKGT       ),
   .pipe_rx3_data            (PIPERX3DATAGT          ),
@@ -1771,8 +1771,8 @@ pcie_gt_i (
   .pipe_tx3_char_is_k       (PIPETX3CHARISKGT       ),
   .pipe_tx3_data            (PIPETX3DATAGT          ),
   .pipe_tx3_elec_idle       (PIPETX3ELECIDLEGT      ),
-  .pipe_tx3_powerdown       (PIPETX3POWERDOWNGT     ), 
-   
+  .pipe_tx3_powerdown       (PIPETX3POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 4
   .pipe_rx4_char_is_k       (PIPERX4CHARISKGT       ),
   .pipe_rx4_data            (PIPERX4DATAGT          ),
@@ -1786,8 +1786,8 @@ pcie_gt_i (
   .pipe_tx4_char_is_k       (PIPETX4CHARISKGT       ),
   .pipe_tx4_data            (PIPETX4DATAGT          ),
   .pipe_tx4_elec_idle       (PIPETX4ELECIDLEGT      ),
-  .pipe_tx4_powerdown       (PIPETX4POWERDOWNGT     ), 
-   
+  .pipe_tx4_powerdown       (PIPETX4POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 5
   .pipe_rx5_char_is_k       (PIPERX5CHARISKGT       ),
   .pipe_rx5_data            (PIPERX5DATAGT          ),
@@ -1801,8 +1801,8 @@ pcie_gt_i (
   .pipe_tx5_char_is_k       (PIPETX5CHARISKGT       ),
   .pipe_tx5_data            (PIPETX5DATAGT          ),
   .pipe_tx5_elec_idle       (PIPETX5ELECIDLEGT      ),
-  .pipe_tx5_powerdown       (PIPETX5POWERDOWNGT     ), 
-   
+  .pipe_tx5_powerdown       (PIPETX5POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 6
   .pipe_rx6_char_is_k       (PIPERX6CHARISKGT       ),
   .pipe_rx6_data            (PIPERX6DATAGT          ),
@@ -1816,8 +1816,8 @@ pcie_gt_i (
   .pipe_tx6_char_is_k       (PIPETX6CHARISKGT       ),
   .pipe_tx6_data            (PIPETX6DATAGT          ),
   .pipe_tx6_elec_idle       (PIPETX6ELECIDLEGT      ),
-  .pipe_tx6_powerdown       (PIPETX6POWERDOWNGT     ), 
-   
+  .pipe_tx6_powerdown       (PIPETX6POWERDOWNGT     ),
+
   // Pipe Per-Lane Signals - Lane 7
   .pipe_rx7_char_is_k       (PIPERX7CHARISKGT       ),
   .pipe_rx7_data            (PIPERX7DATAGT          ),
@@ -1831,7 +1831,7 @@ pcie_gt_i (
   .pipe_tx7_char_is_k       (PIPETX7CHARISKGT       ),
   .pipe_tx7_data            (PIPETX7DATAGT          ),
   .pipe_tx7_elec_idle       (PIPETX7ELECIDLEGT      ),
-  .pipe_tx7_powerdown       (PIPETX7POWERDOWNGT     ), 
+  .pipe_tx7_powerdown       (PIPETX7POWERDOWNGT     ),
 
   // PCI Express Signals
   .pci_exp_txn              (PCIEXPTXN            ),
@@ -1841,7 +1841,7 @@ pcie_gt_i (
 
   // Non PIPE Signals
   .sys_clk                  (SYSCLK               ),
-  .sys_rst_n                (FUNDRSTN             ), 
+  .sys_rst_n                (FUNDRSTN             ),
   .pipe_clk                 (PIPECLK              ),
   .drp_clk                  (DRPCLK               ),
   .clock_locked             (CLOCKLOCKED          ),
@@ -1871,25 +1871,25 @@ pcie_bram_top_v6 #(
   .TL_RX_RAM_RDATA_LATENCY(TL_RX_RAM_RDATA_LATENCY),
   .TL_RX_RAM_WRITE_LATENCY(TL_RX_RAM_WRITE_LATENCY)
 
-) 
+)
 pcie_bram_i (
 
   .user_clk_i( USERCLK ),
   .reset_i( PHYRDYN ),
-   
+
   .mim_tx_waddr( MIMTXWADDR ),
   .mim_tx_wen( MIMTXWEN ),
   .mim_tx_ren( MIMTXREN ),
   .mim_tx_rce( MIMTXRCE ),
-  .mim_tx_wdata( MIMTXWDATA ),
+  .mim_tx_wdata( {3'b0, MIMTXWDATA} ),
   .mim_tx_raddr( MIMTXRADDR ),
   .mim_tx_rdata( MIMTXRDATA ),
-   
+
   .mim_rx_waddr( MIMRXWADDR ),
   .mim_rx_wen( MIMRXWEN ),
   .mim_rx_ren( MIMRXREN ),
   .mim_rx_rce( MIMRXRCE ),
-  .mim_rx_wdata( MIMRXWDATA ),
+  .mim_rx_wdata( {4'h0, MIMRXWDATA} ),
   .mim_rx_raddr( MIMRXRADDR ),
   .mim_rx_rdata( MIMRXRDATA )
 
@@ -1924,4 +1924,4 @@ pcie_upconfig_fix_3451_v6_i (
 
 );
 
-endmodule 
+endmodule

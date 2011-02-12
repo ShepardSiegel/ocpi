@@ -1,12 +1,12 @@
 
            Core name: Xilinx Virtex-6 Integrated Block for PCI Express
-           Version: 1.5
-           Release Date: April 19, 2010
+           Version: 2.2
+           Release Date: December 14, 2010
 
 
 ================================================================================
 
-This document contains the following sections: 
+This document contains the following sections:
 
 1. Introduction
 2. New Features
@@ -17,9 +17,9 @@ This document contains the following sections:
 7. Other Information
 8. Core Release History
 9. Legal Disclaimer
- 
+
 ================================================================================
- 
+
 1. INTRODUCTION
 
 For the most recent updates to the IP installation instructions for this core,
@@ -33,189 +33,95 @@ For system requirements:
    http://www.xilinx.com/ipcenter/coregen/ip_update_system_requirements.htm
 
 
-This file contains release notes for the Xilinx LogiCORE(TM) IP Virtex-6 
-Integrated Block for PCI Express v1.5 solution. For the latest core updates, 
+This file contains release notes for the Xilinx LogiCORE(TM) IP Virtex-6
+Integrated Block for PCI Express v2.2 solution. For the latest core updates,
 see the product page at:
 
    http://www.xilinx.com/products/ipcenter/V6_PCI_Express_Block.htm
 
 
-2. NEW FEATURES  
- 
-   - ISE 12.1 software support
-   - Added support for HXT devices - 6VHX380T-FF1154, 6VHX380T-FF1923
-     and 6VHX255T-FF1923.
-   - Support for 8-lane Gen2 Endpoint product has been enabled for Virtex-6 HXT.
-   - Synplify Support
-   - Option added to enable Bufferring optimized for Bus Mastering Applications.
-   - License check removed
- 
+2. NEW FEATURES
+
+   - ISE 12.4 software support
+   - Support for AXI4-Streaming interface
+   - VHDL support for Endpoint Configuration
+
+
 3. SUPPORTED DEVICES
 
-   - Virtex-6 LXT, Virtex-6 SXT, Virtex-6 HXT, Virtex-6 CXT
-   - Virtex-6 Lower Power LXTL, Virtex-6 Lower Power SXTL
+- Virtex-6 LXT
+- Virtex-6 SXT
+- Virtex-6 HXT
+- Virtex-6 CXT
+- Virtex-6 Lower Power
+- QPro Virtex-6 Hi-Rel
 
-4. RESOLVED ISSUES 
+4. RESOLVED ISSUES
 
-   - License checks removed
-     o CR 550704
+   - VHDL source code generation support added.
+     o CR 575119
 
-     The Virtex-6 Integrated Block for PCI Express product no longer checks for
-     license and does not require a pre-shipped license as of the 12.1 release.
+     VHDL source code generation now supported. Also includes Example Design,
+     testbench and simulation and implementation scripts.
 
-   - Gen2 operation supported with 100 MHz Reference Clock.
-     o CR 522983
+   - 8-lane Gen2 Endpoint Configuration in a -2 Speed Grade device
+     o CR 581873
 
-     Gen 2 operation is now also supported with 100 MHz Reference Clock.
+     The 8-lane Gen2 Endpoint Configuration, in a -2 Speed Grade device, has 
+     been restricted to "High" performance Level, as the "Good" Performance Level
+     BRAMs cannot be run at 500 MHz as required for this configuration. 
 
-   - VHDL example design / testbench for Root Port Configuration now supported.
-     o CR 510476
+   - INTERRUPT_PIN attribute update based on Legacy Interrupt option in GUI
+     o CR 581046
 
-     VHDL example design and testbench for both the Endpoint and Root Port
-     Configurations is now supported.
+     Issue resolved where Unchecking the Legacy Interrupt option was not updating
+     the INTERRUPT_PIN attribute.
 
-   - Synplify flow now supported in the 12.1 release
-     o CR 531976
+   - Timing path ignored in Flat flow but analyzed in Hierarchical flow
+     o CR 576025
 
-     Synplify flow is now supported in the 12.1 release
-
-   - Option added to enable Buffering optimized for Bus Mastering application
-     o CR 535127
-
-     New option has been added to CoreGen GUI to enable Buffering optimized for
-     Bus Mastering applications.
-
-   - Added support for 6VHX380T-FF1154, 6VHX380T-FF1923 and 6VHX255T-FF1923.
-     o CR 538257
-
-     Support for all HXT devices has now been enabled.
-
-   - 8-lane Gen2 product is now supported in the Virtex-6 HXT devices.
-     o CR 531975
-
-     Support for 8-lane Gen2 product, in Virtex-6 HXT devices is now available.
-
-   - 8-lane Gen2 product is now supported in the Virtex-6 LX130T device, in a 
-     -2 speedgrade
-     o CR 538644
-
-     8-lane Gen2 product is now supported for 6VLX130T, in a -2 speedgrade, in 
-     the 12.1 release.
-
-   - Root Port product hardware autonomously initiates Gen1-Gen2 speed change.
-     o CR 535128
-
-     The Root Port product now hardware autonomously initiates Gen1 - Gen2 speed
-     change if possible.
-
-   - GTX Production Settings Updated
-     o CR 548630, 552700, 550490, 545280
-
-     GTX settings have been updated per Production GTX settings.
-
-   - Core Generation from ISE fixed
-     o CR 551143
-
-     Issue resolved where Coregen Generation from ISE was failing.
-
-   - LL Replay Timer default settings have been changed in GUI.
-     o CR 546697
-
-     LL Replay Timer default settings have been changed in the GUI, as previous
-     values were not accounting for internal processing delays, causing 
-     Correctable errors (replays) when there is link traffic but no link errors.
-
-   - New GUI option added to Disable TX ASPM L0s.
-     o CR 538239
-
-     New GUI options has been added to Disable TX ASPM L0s action. This option 
-     is recommended to be enabled for links that interconnect Xilinx Virtex-6 to
-     any Xilinx component.
-
-   - Workaround added for De-emphasis Value Error known restriction, for Root
-     Port configuration
-     o CR 539285
-
-     Workaround has been implemented for the known restriction "De-emphasis
-     Value Error", in the Root Port Configuration, by setting 
-     PLDOWNSTREAMDEEMPHSOURCE attribute to 1b. For more information on the 
-     restriction, refer to the "Known Restrictions" section in the User Guide.
-
-   - Root Port model provided for Endpoint product now passes Memory / IO 
-     transactions to User side.
-     o CR 539545
-
-     Root Port model delivered with the Endpoint product has been updated to
-     pass Memory and IO transactions from the Endpoint to the User side.
-
-   - Enabled PROM file generation for programming ML605
-     o CR 552777
-
-     Enabled PROM file generation for programming ML605, in the implementation
-     scripts.
-
-   - Upgrade capability added
-     o CR 548864
-
-     Upgrade capability added to enable generation of the latest version of the
-     product for a previously customized project (from an XCO from the previous
-     version of the core).
-
-   - Default value of Acceptable L0s Exit Latency changed
-     o CR 553769
-
-     Default value of the Acceptable L0s Exit Latency for an Endpoint product
-     has been updated to a "Maximum of 64 ns".
-
-   - GT Debug Ports option removed from CoreGen GUI
-     o CR 531980
-
-     GT Debug Ports (DRP) option has been removed from the CoreGen GUI.
-
-   - VHDL update
-     o CR 555118
-
-     The VHDL source code has been updated for latest wrapper changes and also 
-     for issues with existing code, which was causing address on Read FIFO to be
-      incorrect.
-
-   - Constraints added for Configurations with User Clock 250 MHz
-     o CR 539219
-
-     Constraints were added to the UCF and XCF for Configurations with User
-     Clock set to 250 MHz.
-
-   - PLL reset input changed
-     o CR 537545
-
-     PLL reset input had been changed so it does not get reset at link-down.
-     This enables the trn_clk to not be interrupted in thsi scenario.
+     Timing improvement for 8-lane Gen2 Configuration : Timing Ignore (TIG) 
+     added to sel_lnk_rate path. This path was being analyzed in hierarchical 
+     flow causing failure to meet timing.
 
 
-5. KNOWN ISSUES 
-   
-   The following are known issues for v1.5 of this core at time of release:
+
+5. KNOWN ISSUES
+
+   The following are known issues for v2.2 of this core at time of release:
+
+    5.1  Functional Issues
+           - VHDL is not supported for the Root Port configuration at the time of
+             this release.
+
+    5.2  Simulation Issues
 
 
-   - Use of corename "core" in VHDL design will cause implementation failures
-     o CR 538681
+    5.3  Implementation Issues
 
-     Use of corename "core" for a VHDL design causes implementation failures
-     since the instance of the core in the example design has an instance name
-     "core".
 
-     Workaround : Use a corename other than "core" for a VHDL design.
+           - Timing Closure
 
-  The most recent information, including known issues, workarounds, and 
-  resolutions for this version is provided in the IP Release Notes Guide located at 
+            In order to obtain timing closure, designers may be required to use
+            multiple PAR seeds and/or floorplanning. Using Multi-Pass Place and
+            Route (MPPR), designers can try multiple cost tables in order to meet
+            timing. Please see the Development System Reference Guide in the
+            Software Manuals found at: http://www.xilinx.com/support/library.htm
+            for more information on using MPPR. Designers may also have to
+            floorplan and add advanced placement constraints for both their
+            design and the core to meet timing.
+
+
+  The most recent information, including known issues, workarounds, and
+  resolutions for this version is provided in the IP Release Notes Guide located at
 
    http://www.xilinx.com/support/documentation/user_guides/xtp025.pdf
 
-6. TECHNICAL SUPPORT 
+6. TECHNICAL SUPPORT
 
    To obtain technical support, create a WebCase at www.xilinx.com/support.
-   Questions are routed to a team with expertise using this product.  
-     
+   Questions are routed to a team with expertise using this product.
+
    Xilinx provides technical support for use of this product when used
    according to the guidelines described in the core documentation, and
    cannot guarantee timing, functionality, or support of this product for
@@ -223,12 +129,16 @@ see the product page at:
 
 
 7. OTHER INFORMATION
-   
 
-8. CORE RELEASE HISTORY 
+
+8. CORE RELEASE HISTORY
 
 Date        By            Version      Description
 ================================================================================
+12/14/2010  Xilinx, Inc.  2.2           12.4 support
+09/21/2010  Xilinx, Inc.  2.1           12.3 support
+09/21/2010  Xilinx, Inc.  1.6           12.3 support
+07/23/2010  Xilinx, Inc.  1.5 Rev 1     Patch Release
 04/19/2010  Xilinx, Inc.  1.5           12.1 support
 03/09/2010  Xilinx, Inc.  1.4 Rev 3     Patch Release
 03/09/2010  Xilinx, Inc.  1.4 Rev 2     11.5 support

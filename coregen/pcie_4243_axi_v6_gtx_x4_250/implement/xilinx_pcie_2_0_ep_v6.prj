@@ -1,8 +1,6 @@
-
 `include "../example_design/xilinx_pcie_2_0_ep_v6.v"
 `include "../example_design/pcie_app_v6.v"
-
-`include "../source/v6_pcie_v1_5.v"
+`include "../source/v6_pcie_v2_2.v"
 `include "../source/pcie_2_0_v6.v"
 `include "../source/pcie_upconfig_fix_3451_v6.v"
 `include "../source/gtx_drp_chanalign_fix_3752_v6.v"
@@ -18,8 +16,13 @@
 `include "../source/pcie_pipe_lane_v6.v"
 `include "../source/pcie_pipe_misc_v6.v"
 `include "../source/pcie_reset_delay_v6.v"
-
-`include "../example_design/PIO_64.v"
+`include "../source/axi_basic_tx_thrtl_ctl.v"
+`include "../source/axi_basic_rx.v"
+`include "../source/axi_basic_rx_null_gen.v"
+`include "../source/axi_basic_rx_pipeline.v"
+`include "../source/axi_basic_tx.v"
+`include "../source/axi_basic_tx_pipeline.v"
+`include "../source/axi_basic_top.v"
 `include "../example_design/PIO.v"
 `include "../example_design/PIO_EP.v"
 `include "../example_design/PIO_EP_MEM_ACCESS.v"

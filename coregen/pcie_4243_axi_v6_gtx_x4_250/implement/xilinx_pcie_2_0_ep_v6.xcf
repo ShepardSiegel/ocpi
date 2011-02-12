@@ -1,8 +1,8 @@
  
 
 NET "sys_clk_c" TNM_NET = "SYSCLK" ;
-NET "core/pcie_clocking_i/clk_125" TNM_NET = "CLK_125" ;
-NET "core/pcie_clocking_i/clk_250" TNM_NET = "CLK_250" ;
+NET "core*/pcie_clocking_i/clk_125" TNM_NET = "CLK_125" ;
+NET "core*/pcie_clocking_i/clk_250" TNM_NET = "CLK_250" ;
 
 
 

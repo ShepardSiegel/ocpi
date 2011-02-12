@@ -50,7 +50,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_bram_top_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //--
 //-- Description: BlockRAM top level module for Virtex6 PCIe Block
 //--
@@ -78,7 +78,7 @@ module pcie_bram_top_v6
   (
    input          user_clk_i,
    input          reset_i,
-  
+
    input          mim_tx_wen,
    input  [12:0]  mim_tx_waddr,
    input  [71:0]  mim_tx_wdata,
@@ -86,7 +86,7 @@ module pcie_bram_top_v6
    input          mim_tx_rce,
    input  [12:0]  mim_tx_raddr,
    output [71:0]  mim_tx_rdata,
-  
+
    input          mim_rx_wen,
    input  [12:0]  mim_rx_waddr,
    input  [71:0]  mim_rx_wdata,
@@ -101,24 +101,24 @@ module pcie_bram_top_v6
                            (DEV_CAP_MAX_PAYLOAD_SUPPORTED == 1) ? 256 :
                            (DEV_CAP_MAX_PAYLOAD_SUPPORTED == 2) ? 512 :
                                                                  1024 );
-   
+
    localparam BYTES_TX = (VC0_TX_LASTPACKET + 1) * (MPS_BYTES + TLM_TX_OVERHEAD);
 
    localparam ROWS_TX = 1;
-   localparam COLS_TX = ((BYTES_TX <= 4096) ?  1 : 
-                         (BYTES_TX <= 8192) ?  2 : 
-                         (BYTES_TX <= 16384) ? 4 : 
+   localparam COLS_TX = ((BYTES_TX <= 4096) ?  1 :
+                         (BYTES_TX <= 8192) ?  2 :
+                         (BYTES_TX <= 16384) ? 4 :
                          (BYTES_TX <= 32768) ? 8 :
                                               18
                         );
-   
+
    // RX calculations
    localparam ROWS_RX = 1;
 
    localparam COLS_RX = ((VC0_RX_LIMIT < 'h0200) ? 1 :
-			 (VC0_RX_LIMIT < 'h0400) ? 2 :
-			 (VC0_RX_LIMIT < 'h0800) ? 4 :
-			 (VC0_RX_LIMIT < 'h1000) ? 8 :
+                         (VC0_RX_LIMIT < 'h0400) ? 2 :
+                         (VC0_RX_LIMIT < 'h0800) ? 4 :
+                         (VC0_RX_LIMIT < 'h1000) ? 8 :
                                                   18
                         );
 
@@ -127,7 +127,7 @@ module pcie_bram_top_v6
       $display("[%t] %m ROWS_RX %0d COLS_RX %0d", $time, ROWS_RX, COLS_RX);
    end
 
-   pcie_brams_v6 #(.NUM_BRAMS        (COLS_TX), 
+   pcie_brams_v6 #(.NUM_BRAMS        (COLS_TX),
                    .RAM_RADDR_LATENCY(TL_TX_RAM_RADDR_LATENCY),
                    .RAM_RDATA_LATENCY(TL_TX_RAM_RDATA_LATENCY),
                    .RAM_WRITE_LATENCY(TL_TX_RAM_WRITE_LATENCY))
@@ -135,7 +135,7 @@ module pcie_bram_top_v6
    (
     .user_clk_i(user_clk_i),
     .reset_i(reset_i),
-   
+
     .waddr(mim_tx_waddr),
     .wen(mim_tx_wen),
     .ren(mim_tx_ren),
@@ -145,15 +145,15 @@ module pcie_bram_top_v6
     .rdata(mim_tx_rdata)
    );
 
-   pcie_brams_v6 #(.NUM_BRAMS        (COLS_RX), 
-                   .RAM_RADDR_LATENCY(TL_RX_RAM_RADDR_LATENCY), 
-                   .RAM_RDATA_LATENCY(TL_RX_RAM_RDATA_LATENCY), 
+   pcie_brams_v6 #(.NUM_BRAMS        (COLS_RX),
+                   .RAM_RADDR_LATENCY(TL_RX_RAM_RADDR_LATENCY),
+                   .RAM_RDATA_LATENCY(TL_RX_RAM_RDATA_LATENCY),
                    .RAM_WRITE_LATENCY(TL_RX_RAM_WRITE_LATENCY))
    pcie_brams_rx
    (
     .user_clk_i(user_clk_i),
     .reset_i(reset_i),
-   
+
     .waddr(mim_rx_waddr),
     .wen(mim_rx_wen),
     .ren(mim_rx_ren),
@@ -162,5 +162,5 @@ module pcie_bram_top_v6
     .raddr(mim_rx_raddr),
     .rdata(mim_rx_rdata)
    );
-   
+
 endmodule // pcie_bram_top

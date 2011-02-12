@@ -50,14 +50,15 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : gtx_tx_sync_rate_v6.v
-// Version    : 1.4
+// Version    : 2.1
 // Module TX_SYNC
 
 `timescale 1ns / 1ps
 
 module GTX_TX_SYNC_RATE_V6
 #(
-  parameter       C_SIMULATION    = 0 // Set to 1 for simulation
+  parameter    TCQ                = 1,
+  parameter    C_SIMULATION       = 0 // Set to 1 for simulation
 )
 (
   output  reg        ENPMAPHASEALIGN = 1'b0,
@@ -85,7 +86,7 @@ module GTX_TX_SYNC_RATE_V6
   reg                USER_PHYSTATUS_c;
   reg                DELAYALIGNRESET_c;
   reg                TXALIGNDISABLE_c;
-  
+
 
   reg [7:0]         waitcounter2;
   reg [7:0]         nextwaitcounter2;
@@ -96,40 +97,39 @@ module GTX_TX_SYNC_RATE_V6
   reg               ratedone_r, ratedone_r2;
   wire              ratedone_pulse_i;
   reg               gt_phystatus_q;
-  
-  parameter    TCQ                              =  1;
 
-  parameter    IDLE                             =  22'b00000000000000000000001;
-  parameter    PHASEALIGN                       =  22'b00000000000000000000010;
-  parameter    RATECHANGE_DIVRESET              =  22'b00000000000000000000100;
-  parameter    RATECHANGE_DIVRESET_POST         =  22'b00000000000000000001000;
-  parameter    RATECHANGE_ENPMADISABLE          =  22'b00000000000000000010000;
-  parameter    RATECHANGE_ENPMADISABLE_POST     =  22'b00000000000000000100000;
-  parameter    RATECHANGE_PMARESET              =  22'b00000000000000001000000;
-  parameter    RATECHANGE_IDLE                  =  22'b00000000000000010000000;
-  parameter    RATECHANGE_PCSRESET              =  22'b00000000000000100000000;
-  parameter    RATECHANGE_PCSRESET_POST         =  22'b00000000000001000000000;
-  parameter    RATECHANGE_ASSERTPHY             =  22'b00000000000010000000000;
-  parameter    RESET_STATE                      =  22'b00000000000100000000000;
-  parameter    WAIT_PHYSTATUS                   =  22'b00000000010000000000000;
-  parameter    RATECHANGE_PMARESET_POST         =  22'b00000000100000000000000;
-  parameter    RATECHANGE_DISABLEPHASE          =  22'b00000001000000000000000;
-  parameter    DELAYALIGNRST                    =  22'b00000010000000000000000;
-  parameter    SETENPMAPHASEALIGN               =  22'b00000100000000000000000;
-  parameter    TXALIGNDISABLEDEASSERT           =  22'b00001000000000000000000;
-  parameter    RATECHANGE_TXDLYALIGNDISABLE     =  22'b00010000000000000000000;
-  parameter    OUTDIVRESET                      =  22'b00100000000000000000000;
-  parameter    RATECHANGE_DISABLE_TXALIGNDISABLE=  22'b01000000000000000000000;
+
+  localparam    IDLE                             =  22'b0000000000000000000001;
+  localparam    PHASEALIGN                       =  22'b0000000000000000000010;
+  localparam    RATECHANGE_DIVRESET              =  22'b0000000000000000000100;
+  localparam    RATECHANGE_DIVRESET_POST         =  22'b0000000000000000001000;
+  localparam    RATECHANGE_ENPMADISABLE          =  22'b0000000000000000010000;
+  localparam    RATECHANGE_ENPMADISABLE_POST     =  22'b0000000000000000100000;
+  localparam    RATECHANGE_PMARESET              =  22'b0000000000000001000000;
+  localparam    RATECHANGE_IDLE                  =  22'b0000000000000010000000;
+  localparam    RATECHANGE_PCSRESET              =  22'b0000000000000100000000;
+  localparam    RATECHANGE_PCSRESET_POST         =  22'b0000000000001000000000;
+  localparam    RATECHANGE_ASSERTPHY             =  22'b0000000000010000000000;
+  localparam    RESET_STATE                      =  22'b0000000000100000000000;
+  localparam    WAIT_PHYSTATUS                   =  22'b0000000010000000000000;
+  localparam    RATECHANGE_PMARESET_POST         =  22'b0000000100000000000000;
+  localparam    RATECHANGE_DISABLEPHASE          =  22'b0000001000000000000000;
+  localparam    DELAYALIGNRST                    =  22'b0000010000000000000000;
+  localparam    SETENPMAPHASEALIGN               =  22'b0000100000000000000000;
+  localparam    TXALIGNDISABLEDEASSERT           =  22'b0001000000000000000000;
+  localparam    RATECHANGE_TXDLYALIGNDISABLE     =  22'b0010000000000000000000;
+  localparam    OUTDIVRESET                      =  22'b0100000000000000000000;
+  localparam    RATECHANGE_DISABLE_TXALIGNDISABLE=  22'b1000000000000000000000;
 
   localparam SYNC_IDX = C_SIMULATION ? 0 : 2;
   localparam PMARESET_IDX = C_SIMULATION ? 0: 7;
 
   always @(posedge USER_CLK) begin
-  
+
     if(RESET) begin
 
-      state          <= #(TCQ) RESET_STATE;
-      waitcounter2      <= #(TCQ) 1'b0;
+      state            <= #(TCQ) RESET_STATE;
+      waitcounter2     <= #(TCQ) 1'b0;
       waitcounter      <= #(TCQ) 1'b0;
       USER_PHYSTATUS   <= #(TCQ) GT_PHYSTATUS;
       SYNC_DONE        <= #(TCQ) 1'b0;
@@ -142,8 +142,8 @@ module GTX_TX_SYNC_RATE_V6
 
     end else begin
 
-      state          <= #(TCQ) nextstate;
-      waitcounter2      <= #(TCQ) nextwaitcounter2;
+      state            <= #(TCQ) nextstate;
+      waitcounter2     <= #(TCQ) nextwaitcounter2;
       waitcounter      <= #(TCQ) nextwaitcounter;
       USER_PHYSTATUS   <= #(TCQ) USER_PHYSTATUS_c;
       SYNC_DONE        <= #(TCQ) SYNC_DONE_c;
@@ -171,82 +171,82 @@ module GTX_TX_SYNC_RATE_V6
     TXALIGNDISABLE_c=0;
     nextstate=state;
     USER_PHYSTATUS_c=GT_PHYSTATUS;
-    nextwaitcounter=waitcounter+1;
-    nextwaitcounter2= (waitcounter ==8'hff)? waitcounter2 + 1 : waitcounter2 ;
-    
+    nextwaitcounter=waitcounter+1'b1;
+    nextwaitcounter2= (waitcounter ==8'hff)? waitcounter2 + 1'b1 : waitcounter2 ;
+
     case(state)
 
       // START IN RESET
       RESET_STATE : begin
-  
+
         TXALIGNDISABLE_c=1;
         ENPMAPHASEALIGN_c=0;
         nextstate=OUTDIVRESET;
         nextwaitcounter=0;
         nextwaitcounter2=0;
-        
+
       end
       // Assert OUTDIVRESET
       OUTDIVRESET : begin
-    
+
         OUT_DIV_RESET_c=1;
         TXALIGNDISABLE_c=1;
         ENPMAPHASEALIGN_c=0;
-        
+
         if(waitcounter[4]) begin
 
           nextstate=DELAYALIGNRST;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-          
+
         end
-        
+
       end
-  
+
       // ASSERT TXDLYALIGNRESET FOR 16 CLOCK CYCLES
       DELAYALIGNRST : begin
-  
+
         DELAYALIGNRESET_c=1;
         ENPMAPHASEALIGN_c=0;
         TXALIGNDISABLE_c=1;
 
         if(waitcounter[4]) begin
-  
+
           nextstate=SETENPMAPHASEALIGN;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-          
+
         end
-  
+
       end
-      
+
       // ASSERT ENPMAPHASEALIGN FOR 32 CLOCK CYCLES
       SETENPMAPHASEALIGN : begin
-        
+
         TXALIGNDISABLE_c=1;
-      
+
         if(waitcounter[5]) begin
-  
+
           nextstate=PHASEALIGN;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-          
+
         end
-  
+
       end
-          
+
       // ASSERT PMASETPHASE OUT OF RESET for 32K CYCLES
       PHASEALIGN : begin
-  
+
         PMASETPHASE_c=1;
         TXALIGNDISABLE_c=1;
-        
+
           if(waitcounter2[PMARESET_IDX]) begin
 
             nextstate=TXALIGNDISABLEDEASSERT;
             nextwaitcounter=0;
             nextwaitcounter2=0;
-            
+
           end
 
       end
@@ -261,73 +261,73 @@ module GTX_TX_SYNC_RATE_V6
             nextwaitcounter=0;
             nextstate=IDLE;
             nextwaitcounter2=0;
-            
+
         end
 
       end
-      
+
       // NOW IN IDLE, ASSERT SYNC DONE, WAIT FOR RATECHANGE
       IDLE : begin
-  
+
         SYNC_DONE_c=1;
 
         if(ratedone_pulse_i) begin
-  
+
           USER_PHYSTATUS_c=0;
           nextstate=WAIT_PHYSTATUS;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-          
+
         end
-  
+
       end
-  
+
       // WAIT FOR PHYSTATUS
       WAIT_PHYSTATUS : begin
-  
+
         USER_PHYSTATUS_c=0;
 
         if(gt_phystatus_q) begin
-  
+
           nextstate=RATECHANGE_IDLE;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-  
+
         end
-  
+
       end
-      
+
       // WAIT 64 CYCLES BEFORE WE START THE RATE CHANGE
       RATECHANGE_IDLE : begin
-  
+
         USER_PHYSTATUS_c=0;
 
         if(waitcounter[6]) begin
-  
+
           nextstate=RATECHANGE_TXDLYALIGNDISABLE;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-  
+
         end
-  
+
       end
-  
+
       // ASSERT TXALIGNDISABLE FOR 32 CYCLES
       RATECHANGE_TXDLYALIGNDISABLE : begin
-  
+
         USER_PHYSTATUS_c=0;
         TXALIGNDISABLE_c=1;
 
         if(waitcounter[5]) begin
-  
+
           nextstate=RATECHANGE_DIVRESET;
           nextwaitcounter=0;
           nextwaitcounter2=0;
 
         end
-  
+
       end
-    
+
       // ASSERT DIV RESET FOR 16 CLOCK CYCLES
       RATECHANGE_DIVRESET : begin
 
@@ -336,34 +336,34 @@ module GTX_TX_SYNC_RATE_V6
         TXALIGNDISABLE_c=1;
 
         if(waitcounter[4]) begin
-  
+
           nextstate=RATECHANGE_DIVRESET_POST;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-  
+
         end
-  
+
       end
-      
+
       // WAIT FOR 32 CLOCK CYCLES BEFORE NEXT STEP
       RATECHANGE_DIVRESET_POST : begin
-  
+
         USER_PHYSTATUS_c=0;
         TXALIGNDISABLE_c=1;
 
         if(waitcounter[5]) begin
-  
+
           nextstate=RATECHANGE_PMARESET;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-  
+
         end
-  
+
       end
-      
+
       // ASSERT PMA RESET FOR 32K CYCLES
       RATECHANGE_PMARESET : begin
-  
+
         PMASETPHASE_c=1;
         USER_PHYSTATUS_c=0;
         TXALIGNDISABLE_c=1;
@@ -377,20 +377,20 @@ module GTX_TX_SYNC_RATE_V6
         end
 
       end
-      
-      
+
+
       // WAIT FOR 32 CYCLES BEFORE DISABLING TXALIGNDISABLE
       RATECHANGE_PMARESET_POST : begin
-  
+
         USER_PHYSTATUS_c=0;
         TXALIGNDISABLE_c=1;
 
         if(waitcounter[5]) begin
-  
+
           nextstate=RATECHANGE_DISABLE_TXALIGNDISABLE;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-  
+
         end
 
       end
@@ -408,47 +408,47 @@ module GTX_TX_SYNC_RATE_V6
 
         end
       end
-      
+
       // NOW ASSERT PCS RESET FOR 32 CYCLES
       RATECHANGE_PCSRESET : begin
-  
+
         PCS_RESET_c=1;
 
         USER_PHYSTATUS_c=0;
 
         if(waitcounter[5]) begin
-  
+
           nextstate=RATECHANGE_PCSRESET_POST;
           nextwaitcounter=0;
           nextwaitcounter2=0;
-  
+
         end
-  
+
       end
-  
+
       // WAIT FOR RESETDONE BEFORE ASSERTING PHY_STATUS_OUT
       RATECHANGE_PCSRESET_POST : begin
-  
+
         USER_PHYSTATUS_c=0;
 
         if(RESETDONE) begin
-  
+
           nextstate=RATECHANGE_ASSERTPHY;
-  
+
         end
-  
+
       end
-  
+
       // ASSERT PHYSTATUSOUT MEANING RATECHANGE IS DONE AND GO BACK TO IDLE
       RATECHANGE_ASSERTPHY : begin
-  
-        USER_PHYSTATUS_c=1; 
+
+        USER_PHYSTATUS_c=1;
         nextstate=IDLE;
-  
+
       end
-  
+
     endcase
-  
+
   end
 
   // Generate Ratechange Pulse
@@ -456,22 +456,22 @@ module GTX_TX_SYNC_RATE_V6
   always @(posedge USER_CLK) begin
 
     if (RESET) begin
-  
+
       ratedone_r  <= #(TCQ) 1'b0;
       ratedone_r2 <= #(TCQ) 1'b0;
       gt_phystatus_q <= #(TCQ) 1'b0;
-      
-  
+
+
     end else begin
-  
+
       ratedone_r  <= #(TCQ) RATE;
       ratedone_r2 <= #(TCQ) ratedone_r;
       gt_phystatus_q <= #(TCQ) GT_PHYSTATUS;
-  
+
     end
-  
+
   end
-      
+
   assign ratedone_pulse_i = (ratedone_r != ratedone_r2);
 
 endmodule

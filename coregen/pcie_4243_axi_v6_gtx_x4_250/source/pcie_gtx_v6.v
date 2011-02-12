@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_gtx_v6.v
-// Version    : 1.4
+// Version    : 2.1
 //-- Description: GTX module for Virtex6 PCIe Block
 //--
 //--
@@ -60,20 +60,22 @@
 
 module pcie_gtx_v6 #
 (
-   parameter                         NO_OF_LANES = 8,         // 1 - x1 , 2 - x2 , 4 - x4 , 8 - x8
+
+   parameter                         TCQ  = 1,                        // clock to out delay model
+   parameter                         NO_OF_LANES = 8,                 // 1 - x1 , 2 - x2 , 4 - x4 , 8 - x8
    parameter                         LINK_CAP_MAX_LINK_SPEED = 4'h1,  // 1 - Gen1, 2 - Gen2
-   parameter                         REF_CLK_FREQ = 0,        // 0 - 100 MHz , 1 - 125 MHz , 2 - 250 MHz
+   parameter                         REF_CLK_FREQ = 0,                // 0 - 100 MHz , 1 - 125 MHz , 2 - 250 MHz
    parameter                         PL_FAST_TRAIN = "FALSE"
 )
 (
-   // Pipe Per-Link Signals	
+   // Pipe Per-Link Signals
    input   wire                      pipe_tx_rcvr_det       ,
-   input   wire                      pipe_tx_reset          ,  
-   input   wire                      pipe_tx_rate           ,  
-   input   wire                      pipe_tx_deemph         ,  
-   input   wire [2:0]                pipe_tx_margin         ,  
-   input   wire                      pipe_tx_swing          ,  
-   
+   input   wire                      pipe_tx_reset          ,
+   input   wire                      pipe_tx_rate           ,
+   input   wire                      pipe_tx_deemph         ,
+   input   wire [2:0]                pipe_tx_margin         ,
+   input   wire                      pipe_tx_swing          ,
+
    // Pipe Per-Lane Signals - Lane 0
    output  wire [ 1:0]               pipe_rx0_char_is_k     ,
    output  wire [15:0]               pipe_rx0_data          ,
@@ -87,8 +89,8 @@ module pcie_gtx_v6 #
    input   wire [ 1:0]               pipe_tx0_char_is_k     ,
    input   wire [15:0]               pipe_tx0_data          ,
    input   wire                      pipe_tx0_elec_idle     ,
-   input   wire [ 1:0]               pipe_tx0_powerdown     , 
-   
+   input   wire [ 1:0]               pipe_tx0_powerdown     ,
+
    // Pipe Per-Lane Signals - Lane 1
    output  wire [ 1:0]               pipe_rx1_char_is_k     ,
    output  wire [15:0]               pipe_rx1_data          ,
@@ -102,8 +104,8 @@ module pcie_gtx_v6 #
    input   wire [ 1:0]               pipe_tx1_char_is_k     ,
    input   wire [15:0]               pipe_tx1_data          ,
    input   wire                      pipe_tx1_elec_idle     ,
-   input   wire [ 1:0]               pipe_tx1_powerdown     , 
-   
+   input   wire [ 1:0]               pipe_tx1_powerdown     ,
+
    // Pipe Per-Lane Signals - Lane 2
    output  wire [ 1:0]               pipe_rx2_char_is_k     ,
    output  wire [15:0]               pipe_rx2_data          ,
@@ -117,8 +119,8 @@ module pcie_gtx_v6 #
    input   wire [ 1:0]               pipe_tx2_char_is_k     ,
    input   wire [15:0]               pipe_tx2_data          ,
    input   wire                      pipe_tx2_elec_idle     ,
-   input   wire [ 1:0]               pipe_tx2_powerdown     , 
-   
+   input   wire [ 1:0]               pipe_tx2_powerdown     ,
+
    // Pipe Per-Lane Signals - Lane 3
    output  wire [ 1:0]               pipe_rx3_char_is_k     ,
    output  wire [15:0]               pipe_rx3_data          ,
@@ -132,8 +134,8 @@ module pcie_gtx_v6 #
    input   wire [ 1:0]               pipe_tx3_char_is_k     ,
    input   wire [15:0]               pipe_tx3_data          ,
    input   wire                      pipe_tx3_elec_idle     ,
-   input   wire [ 1:0]               pipe_tx3_powerdown     , 
-   
+   input   wire [ 1:0]               pipe_tx3_powerdown     ,
+
    // Pipe Per-Lane Signals - Lane 4
    output  wire [ 1:0]               pipe_rx4_char_is_k     ,
    output  wire [15:0]               pipe_rx4_data          ,
@@ -147,8 +149,8 @@ module pcie_gtx_v6 #
    input   wire [ 1:0]               pipe_tx4_char_is_k     ,
    input   wire [15:0]               pipe_tx4_data          ,
    input   wire                      pipe_tx4_elec_idle     ,
-   input   wire [ 1:0]               pipe_tx4_powerdown     , 
-   
+   input   wire [ 1:0]               pipe_tx4_powerdown     ,
+
    // Pipe Per-Lane Signals - Lane 5
    output  wire [ 1:0]               pipe_rx5_char_is_k     ,
    output  wire [15:0]               pipe_rx5_data          ,
@@ -162,8 +164,8 @@ module pcie_gtx_v6 #
    input   wire [ 1:0]               pipe_tx5_char_is_k     ,
    input   wire [15:0]               pipe_tx5_data          ,
    input   wire                      pipe_tx5_elec_idle     ,
-   input   wire [ 1:0]               pipe_tx5_powerdown     , 
-   
+   input   wire [ 1:0]               pipe_tx5_powerdown     ,
+
    // Pipe Per-Lane Signals - Lane 6
    output  wire [ 1:0]               pipe_rx6_char_is_k     ,
    output  wire [15:0]               pipe_rx6_data          ,
@@ -177,8 +179,8 @@ module pcie_gtx_v6 #
    input   wire [ 1:0]               pipe_tx6_char_is_k     ,
    input   wire [15:0]               pipe_tx6_data          ,
    input   wire                      pipe_tx6_elec_idle     ,
-   input   wire [ 1:0]               pipe_tx6_powerdown     , 
-   
+   input   wire [ 1:0]               pipe_tx6_powerdown     ,
+
    // Pipe Per-Lane Signals - Lane 7
    output  wire [ 1:0]               pipe_rx7_char_is_k     ,
    output  wire [15:0]               pipe_rx7_data          ,
@@ -192,7 +194,7 @@ module pcie_gtx_v6 #
    input   wire [ 1:0]               pipe_tx7_char_is_k     ,
    input   wire [15:0]               pipe_tx7_data          ,
    input   wire                      pipe_tx7_elec_idle     ,
-   input   wire [ 1:0]               pipe_tx7_powerdown     , 
+   input   wire [ 1:0]               pipe_tx7_powerdown     ,
 
    // PCI Express signals
    output  wire [ (NO_OF_LANES-1):0] pci_exp_txn            ,
@@ -201,10 +203,10 @@ module pcie_gtx_v6 #
    input   wire [ (NO_OF_LANES-1):0] pci_exp_rxp            ,
 
    // Non PIPE signals
-   input   wire                      sys_clk                , 
-   input   wire                      sys_rst_n              ,	
-   input   wire                      pipe_clk               , 
-   input   wire                      drp_clk               , 
+   input   wire                      sys_clk                ,
+   input   wire                      sys_rst_n              ,
+   input   wire                      pipe_clk               ,
+   input   wire                      drp_clk                ,
    input   wire                      clock_locked           ,
 
    output  wire                      gt_pll_lock            ,
@@ -213,7 +215,6 @@ module pcie_gtx_v6 #
    output  wire                      TxOutClk
 );
 
-  parameter                          TCQ  = 1;      // clock to out delay model
 
   wire [  7:0]                       gt_rx_phy_status_wire    ;
   wire [  7:0]                       gt_rxchanisaligned_wire  ;
@@ -239,16 +240,16 @@ module pcie_gtx_v6 #
   reg  [4:0]                         phy_rdy_pre_cnt;
   reg  [5:0]                         pl_ltssm_state_q;
 
-  wire                               plm_in_l0 = (pl_ltssm_state_q == 6'h16);  
-  wire                               plm_in_rl = (pl_ltssm_state_q == 6'h1c);  
-  wire                               plm_in_dt = (pl_ltssm_state_q == 6'h2d);  
-  wire                               plm_in_rs = (pl_ltssm_state_q == 6'h1f);  
+  wire                               plm_in_l0 = (pl_ltssm_state_q == 6'h16);
+  wire                               plm_in_rl = (pl_ltssm_state_q == 6'h1c);
+  wire                               plm_in_dt = (pl_ltssm_state_q == 6'h2d);
+  wire                               plm_in_rs = (pl_ltssm_state_q == 6'h1f);
 
 gtx_wrapper_v6 #(
 
   .NO_OF_LANES(NO_OF_LANES),
-  .REF_CLK_FREQ(REF_CLK_FREQ), 
-  .PL_FAST_TRAIN(PL_FAST_TRAIN) 
+  .REF_CLK_FREQ(REF_CLK_FREQ),
+  .PL_FAST_TRAIN(PL_FAST_TRAIN)
 
 )
 gtx_v6_i (
@@ -286,7 +287,7 @@ gtx_v6_i (
   .TXPdownAsynch(~clock_locked),
   .PowerDown(gt_power_down[((2*NO_OF_LANES)-1):0]),
   .Rate(pipe_tx_rate),
-  .Reset_n(clock_locked), 
+  .Reset_n(clock_locked),
   .GTReset_n(sys_rst_n),
   .PCLK(pipe_clk),
   .REFCLK(sys_clk),
@@ -369,14 +370,14 @@ assign pipe_rx5_valid = (NO_OF_LANES >= 8 ) ? gt_rx_valid_wire[5] : 1'b0 ;
 assign pipe_rx6_valid = (NO_OF_LANES >= 8 ) ? gt_rx_valid_wire[6] : 1'b0 ;
 assign pipe_rx7_valid = (NO_OF_LANES >= 8 ) ? gt_rx_valid_wire[7] : 1'b0 ;
 
-assign gt_rx_polarity[0] = pipe_rx0_polarity; 
-assign gt_rx_polarity[1] = pipe_rx1_polarity; 
-assign gt_rx_polarity[2] = pipe_rx2_polarity; 
-assign gt_rx_polarity[3] = pipe_rx3_polarity; 
-assign gt_rx_polarity[4] = pipe_rx4_polarity; 
-assign gt_rx_polarity[5] = pipe_rx5_polarity; 
-assign gt_rx_polarity[6] = pipe_rx6_polarity; 
-assign gt_rx_polarity[7] = pipe_rx7_polarity; 
+assign gt_rx_polarity[0] = pipe_rx0_polarity;
+assign gt_rx_polarity[1] = pipe_rx1_polarity;
+assign gt_rx_polarity[2] = pipe_rx2_polarity;
+assign gt_rx_polarity[3] = pipe_rx3_polarity;
+assign gt_rx_polarity[4] = pipe_rx4_polarity;
+assign gt_rx_polarity[5] = pipe_rx5_polarity;
+assign gt_rx_polarity[6] = pipe_rx6_polarity;
+assign gt_rx_polarity[7] = pipe_rx7_polarity;
 
 assign gt_power_down[ 1: 0] = pipe_tx0_powerdown;
 assign gt_power_down[ 3: 2] = pipe_tx1_powerdown;
@@ -395,24 +396,24 @@ assign gt_tx_char_disp_mode = {pipe_tx7_compliance,
                                pipe_tx2_compliance,
                                pipe_tx1_compliance,
                                pipe_tx0_compliance};
-                                             
 
-assign gt_tx_data_k = {pipe_tx7_char_is_k, 
-                       pipe_tx6_char_is_k, 
-                       pipe_tx5_char_is_k, 
+
+assign gt_tx_data_k = {pipe_tx7_char_is_k,
+                       pipe_tx6_char_is_k,
+                       pipe_tx5_char_is_k,
                        pipe_tx4_char_is_k,
-                       pipe_tx3_char_is_k, 
-                       pipe_tx2_char_is_k, 
-                       pipe_tx1_char_is_k, 
+                       pipe_tx3_char_is_k,
+                       pipe_tx2_char_is_k,
+                       pipe_tx1_char_is_k,
                        pipe_tx0_char_is_k};
 
-assign gt_tx_data = {pipe_tx7_data, 
-                     pipe_tx6_data, 
-                     pipe_tx5_data, 
+assign gt_tx_data = {pipe_tx7_data,
+                     pipe_tx6_data,
+                     pipe_tx5_data,
                      pipe_tx4_data,
-                     pipe_tx3_data, 
-                     pipe_tx2_data, 
-                     pipe_tx1_data, 
+                     pipe_tx3_data,
+                     pipe_tx2_data,
+                     pipe_tx1_data,
                      pipe_tx0_data};
 
 assign gt_tx_detect_rx_loopback = pipe_tx_rcvr_det;
@@ -430,7 +431,7 @@ assign gt_pll_lock = &plllkdet[NO_OF_LANES-1:0] | ~phy_rdy_pre_cnt[4];
 
 // Asserted after all workarounds have completed.
 
-always @(posedge pipe_clk or negedge clock_locked) begin 
+always @(posedge pipe_clk or negedge clock_locked) begin
 
   if (!clock_locked) begin
 
@@ -452,7 +453,7 @@ end
 // before gt_pll_lock is de-asserted so that synnchronous
 // logic see reset de-asset before clock is lost.
 
-always @(posedge pipe_clk or negedge clock_locked) begin 
+always @(posedge pipe_clk or negedge clock_locked) begin
 
   if (!clock_locked) begin
 
@@ -461,13 +462,13 @@ always @(posedge pipe_clk or negedge clock_locked) begin
   end else begin
 
     if (gt_pll_lock && phy_rdy_n)
-      phy_rdy_pre_cnt <= #TCQ phy_rdy_pre_cnt + 1'b1;   
+      phy_rdy_pre_cnt <= #TCQ phy_rdy_pre_cnt + 1'b1;
 
   end
 
 end
 
-always @(posedge pipe_clk or negedge clock_locked) begin 
+always @(posedge pipe_clk or negedge clock_locked) begin
 
   if (!clock_locked) begin
 
@@ -491,7 +492,7 @@ always @(posedge pipe_clk or negedge clock_locked) begin
 
 end
 
-always @(posedge pipe_clk or negedge clock_locked) begin 
+always @(posedge pipe_clk or negedge clock_locked) begin
 
   if (!clock_locked)
     pl_ltssm_state_q <= #TCQ 6'b0;

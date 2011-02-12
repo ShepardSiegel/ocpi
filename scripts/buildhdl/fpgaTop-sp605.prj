@@ -1,7 +1,7 @@
 verilog work "../../libsrc/hdl/ocpi/arSRLFIFO.v"
 verilog work "../../libsrc/hdl/ocpi/xilinx_s6_pcie_wrapper.v"
 
-verilog work "../../coregen/pcie-4243-s6-x1-125/source/s6_pcie_v1_2.v
+verilog work "../../coregen/pcie_4243_trn_s6_x1_125/source/s6_pcie_v1_2.v
 
 verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkDelayWorker4B.v"
