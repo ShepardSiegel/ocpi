@@ -1144,8 +1144,8 @@ module vMkVirtex6PCIExpressWithDCM#(PCIEParams params)(PCIE_V6#(lanes))
 endmodule: vMkVirtex6PCIExpressWithDCM
 
 
-import "BVI" v6_pcie_v2_2 =
-module vMkVirtex6PCIExpressAXI#(PCIEParams params)(PCIE_AXI_V6#(lanes))
+import "BVI" xilinx_axi_pcie_wrapper =
+module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_AXI_V6#(lanes))
    provisos(Add#(1, z, lanes));
 
    default_clock clk(sys_clk);
@@ -1163,7 +1163,7 @@ module vMkVirtex6PCIExpressAXI#(PCIEParams params)(PCIE_AXI_V6#(lanes))
    interface PCIE_AXI axi;
       output_clock                      clk(axi_clk);
       output_reset                      reset_n(axi_resentn)                                                     clocked_by(axi_clk);
-      method user_lnk_up                lnk_up                                                              clocked_by(no_clock) reset_by(no_reset);
+      method user_lnk_up                lnk_up                                                                   clocked_by(no_clock) reset_by(no_reset);
       method axi_fc_cpld                fc_cpld                                                                  clocked_by(axi_clk)  reset_by(no_reset);
       method axi_fc_cplh                fc_cplh                                                                  clocked_by(axi_clk)  reset_by(no_reset);
       method axi_fc_npd                 fc_npd                                                                   clocked_by(axi_clk)  reset_by(no_reset);
@@ -1305,7 +1305,7 @@ module vMkVirtex6PCIExpressAXI#(PCIEParams params)(PCIE_AXI_V6#(lanes))
              cfg_err_cor_n, cfg_err_tlp_cpl_header, cfg_err_cpl_rdy_n, cfg_err_locked_n
              );
 
-endmodule: vMkVirtex6PCIExpressAXI
+endmodule: vMkPCIExpressXilinxAXI
 
 
 `ifdef ALTERA_PCIE
@@ -1559,10 +1559,11 @@ interface PCIExpressV6#(numeric type lanes);
    interface PCIE_PL_V6         pl;
 endinterface
 
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ///
-/// Implementation
+/// Implementation - Xilinx V5 TRN
 ///
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1667,7 +1668,7 @@ endmodule: mkPCIExpressEndpoint
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ///
-/// Implementation
+/// Implementation - Xilinx V6 TRN
 ///
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1747,6 +1748,94 @@ module mkPCIExpressEndpointV6#(PCIEParams params)(PCIExpressV6#(lanes))
    interface cfg_interrupt = pcie_ep.cfg_interrupt;
    interface cfg_err       = pcie_ep.cfg_err;
 endmodule: mkPCIExpressEndpointV6
+
+`ifdef WIP_AXI
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+///
+/// Implementation - Xilinx AXI
+///
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+module mkPCIExpressXilinxAXI#(PCIEParams params)(PCIExpressV6#(lanes))
+   provisos(Add#(1, z, lanes));
+
+   ////////////////////////////////////////////////////////////////////////////////
+   /// Design Elements
+   ////////////////////////////////////////////////////////////////////////////////
+   PCIE_AXI_V6#(lanes)                       pcie_ep             <- vMkPCIExpressXilinxAXI(params);
+
+   Clock                                     axiclk               = pcie_ep.axi.clk;    // 250 MHz
+   //Clock                                     axi2clk              = pcie_ep.axi.clk2;   // 125 MHz axiclk/2
+   Reset                                     axirst_n             = pcie_ep.axi.reset_n;
+
+   PulseWire                                 pwTrnTx             <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+   PulseWire                                 pwTrnRx             <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+
+   ////////////////////////////////////////////////////////////////////////////////
+   /// Rules
+   ////////////////////////////////////////////////////////////////////////////////
+   /*
+   rule connect_axi_tx;
+      pcie_ep.trn_tx.tsrc_rdy_n(pack(!pwTrnTx));
+   endrule
+
+   rule connect_axi_rx;
+      pcie_ep.trn_rx.rdst_rdy_n(pack(!pwTrnRx));
+   endrule
+   */
+
+   ////////////////////////////////////////////////////////////////////////////////
+   /// Interface Connections / Methods
+   ////////////////////////////////////////////////////////////////////////////////
+   interface pcie       = pcie_ep.pcie;
+
+   interface PCIE_TRN_COMMON_V6 trn;
+      interface clk           = pcie_ep.axi.clk;
+    //  interface clk2          = pcie_ep.trn.clk2;
+      interface reset_n       = pcie_ep.axi.reset_n;
+      method Bool link_up     = (pcie_ep.trn.lnk_up_n == 0);
+   endinterface
+
+   interface PCIE_TRN_XMIT_V6 trn_tx;
+      method Action xmit(discontinue, data) if (pcie_ep.trn_tx.tdst_rdy_n == 0);
+         pcie_ep.trn_tx.tsof_n(pack(!data.sof));
+         pcie_ep.trn_tx.teof_n(pack(!data.eof));
+         pcie_ep.trn_tx.tsrc_dsc_n(pack(!discontinue));
+         pcie_ep.trn_tx.trem_n(pack(data.be != '1));
+         pcie_ep.trn_tx.td(data.data);
+         pwTrnTx.send;
+      endmethod
+      method dropped                           = (pcie_ep.trn_tx.terr_drop_n == 0);
+      method buffers_available                 = pcie_ep.trn_tx.tbuf_av;
+      method cut_through_mode(i)               = pcie_ep.trn_tx.tstr_n(pack(!i));
+      method configuration_completion_ready    = (pcie_ep.trn_tx.tcfg_req_n == 0);
+      method configuration_completion_grant(i) = pcie_ep.trn_tx.tcfg_gnt_n(pack(!i));
+      method error_forward(i)                  = pcie_ep.trn_tx.terrfwd_n(pack(!i));
+   endinterface
+
+   interface PCIE_TRN_RECV_V6 trn_rx;
+      method ActionValue#(TLPData#(8)) recv() if (pcie_ep.trn_rx.rsrc_rdy_n == 0);
+         TLPData#(8) retval = defaultValue;
+         retval.sof  = (pcie_ep.trn_rx.rsof_n == 0);
+         retval.eof  = (pcie_ep.trn_rx.reof_n == 0);
+         retval.hit  = ~pcie_ep.trn_rx.rbar_hit_n;
+         retval.be   = ~(pack(replicate((pcie_ep.trn_rx.rrem_n))));
+         retval.data = pcie_ep.trn_rx.rd;
+         pwTrnRx.send;
+         return retval;
+      endmethod
+      method error_forward         = (pcie_ep.trn_rx.rerrfwd_n == 0);
+      method source_discontinue    = (pcie_ep.trn_rx.rsrc_dsc_n == 0);
+      method non_posted_ready(i)   = pcie_ep.trn_rx.rnp_ok_n(pack(!i));
+   endinterface
+
+   interface pl            = pcie_ep.pl;
+   interface cfg           = pcie_ep.cfg;
+   interface cfg_interrupt = pcie_ep.cfg_interrupt;
+   interface cfg_err       = pcie_ep.cfg_err;
+endmodule: mkPCIExpressXilinxAXI
+`endif
 
 
 
