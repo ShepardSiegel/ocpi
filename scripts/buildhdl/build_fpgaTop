@@ -149,6 +149,9 @@ if ($doPromgen == 1) then
     case ml605
       promgen -w -p mcs -c FF -x xcf128x -u 00000000 ./fpgaTop.bit -data_width 16 
       breaksw
+    case nf10
+      promgen -w -p mcs -c FF -x xcf128x -u 00000000 ./fpgaTop.bit -data_width 16 
+      breaksw
     default:
       breaksw
   endsw
