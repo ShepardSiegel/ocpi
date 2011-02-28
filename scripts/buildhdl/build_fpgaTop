@@ -12,72 +12,72 @@ set doPromgen   = 0  # Control if promegen is run
 switch ($buildTarget)
   case alder:
     set PART = xc5vlx50t-ff1136-1
-    set PCIe = pcie-4243-v5-gtp-x8-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = csdef103_v5.cdc
     breaksw
   case ml555:
     set PART = xc5vlx50t-ff1136-1
-    set PCIe = pcie-4243-v5-gtp-x8-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = csdef101_v5.cdc
     breaksw
   case ml555nf:
     set PART = xc5vlx50t-ff1136-1
-    set PCIe = pcie-4243-v5-gtp-x8-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = csdef101_v5.cdc
     breaksw
   case xupv5:
     set PART = xc5vlx110t-ff1136-1
-    set PCIe = pcie-4243-v5-gtp-x1-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v5_gtp_x1_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = csdef100_v5.cdc
     breaksw
   case schist:
     set PART = xc5vsx95t-ff1136-2
-    set PCIe = pcie-4243-v5-gtp-x8-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = csdef104_v5.cdc
     breaksw
   case schistnf:
     set PART = xc5vsx95t-ff1136-2
-    set PCIe = pcie-4243-v5-gtp-x8-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = schistnf100.cdc
     breaksw
   case nf10:
     set PART = xc5vtx240t-ff1759-2
-    set PCIe = pcie-4243-v5-gtx-x8-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v5_gtx_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = csdef103_v5.cdc
     breaksw
   case illite:
     set PART = xc5vlx330t-ff1738-2
-    set PCIe = pcie-4243-v5-gtp-x8-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = csdef103_v5.cdc
     breaksw
   case ml605
     set PART = xc6vlx240t-ff1156-1
-    set PCIe = pcie-4243-v6es-gtx-x4-250
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_v6es_gtx_x4_250
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = ml605_1102.cdc
     breaksw
   case sp605:
     set PART = xc6slx45t-fgg484-3
-    set PCIe = pcie-4243-s6-x1-125
-    set FFT  = fft-v5-4k-strm-nat
-    set DDC  = ddc-4243-4ch-v5
+    set PCIe = pcie_4243_trn_s6_x1_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
     set CSIN = csdef100_v5.cdc
     breaksw
   default:
