@@ -5,6 +5,7 @@
 ## 2010-06-07 ssiegel TXT240 LED changes from Paul
 ## 2010-11-01 ssiegel Fork from TX240
 ## 2010-12-29 ssiegel PCIe clock and reset pin name change
+## 2011-03-01 ssiegel Added LEDs to rev4 HTG schematic
 
 CONFIG PART = XC5VTX240T-FF1759-2;
 
@@ -37,6 +38,22 @@ INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_t
 INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_tx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X5Y17 ;
 INST "oped/oped/pciw_pci0_pcie_ep/ep/pcie_ep0/pcie_blk/pcie_mim_wrapper_i/bram_tl_rx/generate_tdp2[0].ram_tdp2_inst" LOC = RAMB36_X5Y16 ;
 
+# LEDs and Switches...
+NET "led[0]" LOC = AK25 | IOSTANDARD = "LVCMOS25"; ## "FPGA LED-0" on top silk; "LED01" on Schematic
+NET "led[1]" LOC = AM24 | IOSTANDARD = "LVCMOS25"; ## "FPGA LED-1" on top silk; "LED02" on Schematic
+NET "led[2]" LOC = AP20 | IOSTANDARD = "LVCMOS25"; ## "FPGA LED-2" on top silk; "LED03" on Schematic
+
+# MICTOR Outputs...
+NET "mictor[1]"  LOC = AV20 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[2]"  LOC = AW20 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[3]"  LOC = AM23 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[4]"  LOC = AN24 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[5]"  LOC = AT19 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[6]"  LOC = AU19 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[7]"  LOC = AV23 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[8]"  LOC = AU23 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[9]"  LOC = BA21 | IOSTANDARD = "LVCMOS25"; 
+NET "mictor[10]" LOC = AY22 | IOSTANDARD = "LVCMOS25"; 
 
 # Timing Constraints...
 NET "oped/oped/pciw_pci0_clk_O" PERIOD = 10ns;

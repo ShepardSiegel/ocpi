@@ -16,7 +16,8 @@ module fpgaTop (
   input  wire [7:0]  pcie_rxn,
   output wire [7:0]  pcie_txp,
   output wire [7:0]  pcie_txn,
-  output reg         debug_parity    // To prevent debug from being optimized away
+  output wire [2:0]  led,
+  output reg  [10:1] mictor
 );
 
 // Wire declarations...
@@ -55,8 +56,10 @@ wire        S_AXIS_DAT_TLAST;
 wire        S_AXIS_DAT_TREADY;
 
 wire [31:0]  debug_oped;       // The 32b vector of debug signals from OPED
+assign led = debug_oped[2:0];  // Drive the three LEDs from the debug_oped port
 always@(posedge ACLK) begin
-  debug_parity <= ^debug_oped; // XOR reduce the debug bits onto debug_parity
+  mictor[10]  <= ^debug_oped; // XOR reduce the debug bits onto mictor[10]
+  mictor[9:1] <=  debug_oped[8:0];
 end
 
 // Instance and connect the OPED component just as it will be instanced in nf10...
