@@ -6,6 +6,7 @@ ssiegel 2010-11-22 Added to FAQ
 ssiegel 2010-11-29 Touched README
 ssiegel 2010-12-28 AXI *removed* from WIP. "WIP" (WCI,WSI,WMI,etc.) now implies OCP
 ssiegel 2011-01-14 Board Targets become platforms 
+ssiegel 2011-03-03 ISE 13.1
 
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
@@ -16,8 +17,8 @@ OpenCPI website: www.opencpi.org
   When you see a sub-dir named "pen", that is a "holding-pen" for files that may be depricated
 
   To build a bitstream, first make sure the appropriate tools are installed
-    e.g. Install Xilinx ISE 12.x to build Xilinx bitstreams
-    As of 2010-12-18 ISE 12.4 or greater is required for Xilinx builds.
+    e.g. Install Xilinx ISE 13.x to build Xilinx bitstreams
+    As of 2011-03-03 ISE 13.1 or greater is required for Xilinx builds.
     If you are not using the same tools version as the distribution, you may need to rebuild XST libraries
 
   Source code is under git verson control - if you care, install git and say
@@ -29,7 +30,7 @@ OpenCPI website: www.opencpi.org
     e.g. setenv OCPI_DIR $(HOME)/projects/ocpi
 
   You may need to set certain environment variables, for example...
-    source /opt/Xilinx/12.4/ISE_DS/settings64.csh
+    source /opt/Xilinx/13.1/ISE_DS/settings64.csh
     setenv XIL_PAR_DESIGN_CHECK_VERBOSE 1
     setenv XIL_TIMING_ALLOW_IMPOSSIBLE  1
 
@@ -112,3 +113,4 @@ OpenCPI website: www.opencpi.org
 2010-12-16 XUPV5 testOK on core920
 2010-12-16 ML605 testOK, but some issue (same) with SX95T and ML555 (multiple changed in flight?)
 2011-01-31 tweaks
+2011-03-03 ISE 13.1 Libraries
