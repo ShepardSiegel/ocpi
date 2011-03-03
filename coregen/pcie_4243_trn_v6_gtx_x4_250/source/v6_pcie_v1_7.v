@@ -348,6 +348,7 @@ module v6_pcie_v1_7 # (
 
   // Common
   output                                        trn_clk,
+  output                                        drp_clk,                     //ssiegel added 125 MHz out
   output                                        trn_reset_n,
   output                                        trn_lnk_up_n,
 
