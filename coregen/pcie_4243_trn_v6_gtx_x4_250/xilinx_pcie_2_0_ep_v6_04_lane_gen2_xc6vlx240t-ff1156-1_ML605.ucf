@@ -1,6 +1,6 @@
 ##-----------------------------------------------------------------------------
 ##
-## (c) Copyright 2009 Xilinx, Inc. All rights reserved.
+## (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 ##
 ## This file contains confidential and proprietary information
 ## of Xilinx, Inc. and is protected under U.S. and
@@ -48,14 +48,14 @@
 ##
 ##-----------------------------------------------------------------------------
 ## Project    : Virtex-6 Integrated Block for PCI Express
-## File       : xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff784-1-PCIE_X0Y1.ucf
-## Version    : 1.4
+## File       : xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1_ML605.ucf
+## Version    : 1.7
 #
 ###############################################################################
 # Define Device, Package And Speed Grade
 ###############################################################################
 
-CONFIG PART = xc6vlx240t-ff784-1;
+CONFIG PART = xc6vlx240t-ff1156-1;
 
 ###############################################################################
 # User Time Names / User Time Groups / Time Specs
@@ -82,11 +82,11 @@ CONFIG PART = xc6vlx240t-ff784-1;
 #
 
 NET "sys_reset_n" TIG;
-NET "sys_reset_n" IOSTANDARD = LVCMOS25 | PULLUP | NODELAY ;
+NET "sys_reset_n" LOC = AE13 | IOSTANDARD = LVCMOS25 | PULLUP | NODELAY ;
 
 #
 #
-# SYS clock 250 MHz (input) signal. The sys_clk_p and sys_clk_n
+# SYS clock 100 MHz (input) signal. The sys_clk_p and sys_clk_n
 # signals are the PCI Express reference clock. Virtex-6 GT
 # Transceiver architecture requires the use of a dedicated clock
 # resources (FPGA input pins) associated with each GT Transceiver.
@@ -96,7 +96,9 @@ NET "sys_reset_n" IOSTANDARD = LVCMOS25 | PULLUP | NODELAY ;
 # (UG) for guidelines regarding clock resource selection.
 #
 
-INST "refclk_ibuf" LOC = IBUFDS_GTXE1_X0Y7;
+#NET "sys_clk_p" LOC = P6;
+#NET "sys_clk_n" LOC = P5;
+INST "refclk_ibuf" LOC = IBUFDS_GTXE1_X0Y6;
 
 #
 # Transceiver instance placement.  This constraint selects the
@@ -106,24 +108,29 @@ INST "refclk_ibuf" LOC = IBUFDS_GTXE1_X0Y7;
 #
 
 # PCIe Lane 0
-INST "core/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y15;
-
+INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y15;
 # PCIe Lane 1
-INST "core/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y14;
-
+INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y14;
 # PCIe Lane 2
-INST "core/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y13;
-
+INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y13;
 # PCIe Lane 3
-INST "core/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
-
+INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
 
 #
 # PCI Express Block placement. This constraint selects the PCI Express
 # Block to be used.
 #
 
-INST "core/pcie_2_0_i/pcie_block_i" LOC = PCIE_X0Y1;
+INST "core*/pcie_2_0_i/pcie_block_i" LOC = PCIE_X0Y1;
+
+#NET  "led_0"           LOC = "AC22"   ;
+#NET  "led_1"           LOC = "AC24"   ;
+#NET  "led_2"           LOC = "AE22"  ;
+
+#
+# MMCM Placment. This constraint selects the MMCM Placement
+#
+INST "core*/pcie_clocking_i/mmcm_adv_i" LOC = MMCM_ADV_X0Y7;
 
 ###############################################################################
 # Timing Constraints
@@ -134,21 +141,23 @@ INST "core/pcie_2_0_i/pcie_block_i" LOC = PCIE_X0Y1;
 #
 
 NET "sys_clk_c" TNM_NET = "SYSCLK" ;
-NET "core/pcie_clocking_i/clk_125" TNM_NET = "CLK_125" ;
-NET "core/pcie_clocking_i/clk_250" TNM_NET = "CLK_250" ;
+NET "core*/pcie_clocking_i/clk_125" TNM_NET = "CLK_125" ;
+NET "core*/TxOutClk_bufg" TNM_NET = "TXOUTCLKBUFG";
+NET "core*/pcie_clocking_i/clk_250" TNM_NET = "CLK_250" ;
 
-TIMESPEC "TS_SYSCLK"  = PERIOD "SYSCLK" 250 MHz HIGH 50 % ;
-TIMESPEC TS_SYSCLK = PERIOD "SYSCLK" 250 MHz HIGH 50 %;
-TIMESPEC "TS_CLK_125"  = PERIOD "CLK_125" TS_SYSCLK/2 HIGH 50 % PRIORITY 100 ;
-TIMESPEC "TS_CLK_250" = PERIOD "CLK_250" TS_SYSCLK*1 HIGH 50 % PRIORITY 1;
+TIMESPEC "TS_SYSCLK"  = PERIOD "SYSCLK" 100 MHz HIGH 50 % ;
+TIMESPEC "TS_CLK_125"  = PERIOD "CLK_125" TS_SYSCLK*1.25 HIGH 50 % PRIORITY 100 ;
+TIMESPEC "TS_TXOUTCLKBUFG"  = PERIOD "TXOUTCLKBUFG" 100 MHz HIGH 50 % PRIORITY 100 ;
+TIMESPEC "TS_CLK_250" = PERIOD "CLK_250" TS_SYSCLK*2.5 HIGH 50 % PRIORITY 1;
 
 
-NET "core/pcie_clocking_i/sel_lnk_rate_d" TIG ;
-PIN "core/trn_reset_n_int_i.CLR" TIG ;
-PIN "core/trn_reset_n_i.CLR" TIG ;
-PIN "core/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+NET "core*/pcie_clocking_i/sel_lnk_rate_d" TIG ;
+PIN "core*/trn_reset_n_int_i.CLR" TIG ;
+PIN "core*/trn_reset_n_i.CLR" TIG ;
+PIN "core*/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
 
 TIMESPEC "TS_RESETN" = FROM FFS(*) TO FFS(trn_reset_n_i) 8 ns;
+
 
 ###############################################################################
 # Physical Constraints

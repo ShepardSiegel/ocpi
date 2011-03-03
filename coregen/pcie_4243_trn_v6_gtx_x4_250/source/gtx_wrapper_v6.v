@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : gtx_wrapper_v6.v
-// Version    : 1.4
+// Version    : 1.7
 //-- Description: GTX module for Virtex6 PCIe Block
 //--
 //--
@@ -345,7 +345,7 @@ module gtx_wrapper_v6 (
           .TX_MARGIN_FULL_0(7'b100_1101),
 
           .TX_CLK_SOURCE("RXPLL"),
-          .POWER_SAVE(10'b0000100100),
+          .POWER_SAVE(10'b0000110100),
           .CM_TRIM ( 2'b01 ),
           .PMA_CDR_SCAN ( 27'h640404C ),
           .PMA_CFG( 76'h0040000040000000003 ),
@@ -363,7 +363,7 @@ module gtx_wrapper_v6 (
           .RXPLL_CP_CFG ( RXPLL_CP_CFG ),
           //.TX_DETECT_RX_CFG( 14'h1832 ),
           .TX_TDCC_CFG ( 2'b11 ), 
-          .BIAS_CFG ( 17'h00014 ),
+          .BIAS_CFG ( 17'h00000 ),
           .AC_CAP_DIS ( "FALSE" ),
           .DFE_CFG ( 8'b00011011 ),
           .SIM_TX_ELEC_IDLE_LEVEL("1"),
@@ -444,8 +444,8 @@ module gtx_wrapper_v6 (
           .TX_XCLK_SEL ("TXUSR"),                  // Must be set to TXUSR for use by PCIE
           .TXPLL_LKDET_CFG (3'b101),
           .RX_EYE_SCANMODE (2'b00),
-          .RX_EYE_OFFSET (8'h3F), 
-          .PMA_RX_CFG ( 25'h05ce044 ), 
+          .RX_EYE_OFFSET (8'h4C), 
+          .PMA_RX_CFG ( 25'h05ce008 ), 
           .TRANS_TIME_NON_P2(8'h2),               // Reduced simulation time
           .TRANS_TIME_FROM_P2(12'h03c),            // Reduced simulation time
           .TRANS_TIME_TO_P2(10'h064),              // Reduced simulation time
@@ -465,18 +465,18 @@ module gtx_wrapper_v6 (
           .DADDR	        (daddr[(8*i)+7:(8*i)]),
           .DCLK	                (DRPCLK),
           .DEN	                (den[i]),
-	  .DFECLKDLYADJ         ( 6'h13 ), 
+	  .DFECLKDLYADJ         ( 6'h0 ), 
           .DFECLKDLYADJMON      (),
           .DFEDLYOVRD	        ( 1'b1 ),
           .DFEEYEDACMON         (),
           .DFESENSCAL	        (),
-          .DFETAP1              (8), 
+          .DFETAP1              (0), 
           .DFETAP1MONITOR	(),
-          .DFETAP2	        (),
+          .DFETAP2	        (5'h0),
           .DFETAP2MONITOR	(),
-          .DFETAP3	        (),
+          .DFETAP3	        (4'h0),
           .DFETAP3MONITOR	(),
-          .DFETAP4	        (),
+          .DFETAP4	        (4'h0),
           .DFETAP4MONITOR	(),
           .DFETAPOVRD	        ( 1'b1 ),
           .DI	                (din[(16*i)+15:(16*i)]),
@@ -484,8 +484,8 @@ module gtx_wrapper_v6 (
           .DRPDO	        (dout[(16*i)+15:(16*i)]),
           .DWE	                (dwe[i]),
           .GATERXELECIDLE       ( 1'b0 ),
-          .GREFCLKRX	        (),
-          .GREFCLKTX	        (),
+          .GREFCLKRX	        (0),
+          .GREFCLKTX	        (0),
           .GTXRXRESET	        ( ~GTReset_n ),
           .GTXTEST	        ( {11'b10000000000,OUT_DIV_RESET[i],1'b0} ),
           .GTXTXRESET	        ( ~GTReset_n ),
@@ -493,8 +493,8 @@ module gtx_wrapper_v6 (
           .MGTREFCLKFAB	        (),
           .MGTREFCLKRX	        ( {1'b0,REFCLK} ),
           .MGTREFCLKTX	        ( {1'b0,REFCLK} ),
-          .NORTHREFCLKRX	(),
-          .NORTHREFCLKTX	(),
+          .NORTHREFCLKRX	(0),
+          .NORTHREFCLKTX	(0),
           .PHYSTATUS	        ( GTX_PhyStatus[i] ),
           .PLLRXRESET	        ( 1'b0 ),
           .PLLTXRESET	        ( 1'b0 ),
@@ -560,8 +560,8 @@ module gtx_wrapper_v6 (
           .RXUSRCLK	        ( PCLK ),
           .RXUSRCLK2	        ( PCLK ),
           .RXVALID	        (GTX_RxValid[i]), 
-          .SOUTHREFCLKRX	(),
-          .SOUTHREFCLKTX	(),
+          .SOUTHREFCLKRX	(0),
+          .SOUTHREFCLKTX	(0),
           .TSTCLK0	        ( 1'b0 ),
           .TSTCLK1	        ( 1'b0 ),
           .TSTIN	        ( {20{1'b1}} ),
@@ -584,9 +584,9 @@ module gtx_wrapper_v6 (
           .TXELECIDLE	        ( GTX_TxElecIdle[i] ),
           .TXENC8B10BUSE	( 1'b1 ),
           .TXENPMAPHASEALIGN	( TXENPMAPHASEALIGN[i] ), 
-          .TXENPRBSTST	        (),
+          .TXENPRBSTST	        (0),
           .TXGEARBOXREADY	(),
-          .TXHEADER	        (),
+          .TXHEADER	        (0),
           .TXINHIBIT	        ( 1'b0 ),
           .TXKERR	        (),
           .TXMARGIN	        ( {TxMargin, 2'b00} ),
@@ -601,26 +601,26 @@ module gtx_wrapper_v6 (
           .TXPLLREFSELDY	( 3'b000 ), 
           .TXPMASETPHASE	( TXPMASETPHASE[i] ),
           .TXPOLARITY	        ( 1'b0 ),
-          .TXPOSTEMPHASIS	(),
+          .TXPOSTEMPHASIS	(0),
           .TXPOWERDOWN	        ( PowerDown[(2*i)+1:(2*i)] ),
-          .TXPRBSFORCEERR	(),
-          .TXPREEMPHASIS	(),
+          .TXPRBSFORCEERR	(0),
+          .TXPREEMPHASIS	(0),
           .TXRATE	        ( {1'b1, Rate} ),
           .TXRESET	        ( ~GTReset_n | local_pcs_reset  | PCS_RESET[i] ),
           .TXRESETDONE          ( TXRESETDONE[i] ),
           .TXRUNDISP	        (),
-          .TXSEQUENCE	        (),
-          .TXSTARTSEQ	        (),
+          .TXSEQUENCE	        (0),
+          .TXSTARTSEQ	        (0),
           .TXSWING	        ( TxSwing ),
           .TXUSRCLK	        ( PCLK ),
           .TXUSRCLK2	        ( PCLK ),
-          .USRCODEERR	        (),
-          .IGNORESIGDET         (),
-          .PERFCLKRX            (),
-          .PERFCLKTX            (),
+          .USRCODEERR	        (0),
+          .IGNORESIGDET         (0),
+          .PERFCLKRX            (0),
+          .PERFCLKTX            (0),
           .RXDLYALIGNMONITOR    (),
           .RXDLYALIGNOVERRIDE   ( 1'b0 ),
-          .RXDLYALIGNRESET      (),
+          .RXDLYALIGNRESET      (0),
           .RXDLYALIGNSWPPRECURB ( 1'b1 ),
           .RXDLYALIGNUPDSW      ( 1'b0 ),
           .TXDLYALIGNMONITOR    (),

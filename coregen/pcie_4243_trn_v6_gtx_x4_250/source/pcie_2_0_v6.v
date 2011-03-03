@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_2_0_v6.v
-// Version    : 1.4
+// Version    : 1.7
 //-- Description: Solution wrapper for Virtex6 Hard Block for PCI Express
 //--             
 //--            
@@ -1881,7 +1881,7 @@ pcie_bram_i (
   .mim_tx_wen( MIMTXWEN ),
   .mim_tx_ren( MIMTXREN ),
   .mim_tx_rce( MIMTXRCE ),
-  .mim_tx_wdata( MIMTXWDATA ),
+  .mim_tx_wdata( {3'b000, MIMTXWDATA} ),
   .mim_tx_raddr( MIMTXRADDR ),
   .mim_tx_rdata( MIMTXRDATA ),
    
@@ -1889,7 +1889,7 @@ pcie_bram_i (
   .mim_rx_wen( MIMRXWEN ),
   .mim_rx_ren( MIMRXREN ),
   .mim_rx_rce( MIMRXRCE ),
-  .mim_rx_wdata( MIMRXWDATA ),
+  .mim_rx_wdata( {4'b0000, MIMRXWDATA} ),
   .mim_rx_raddr( MIMRXRADDR ),
   .mim_rx_rdata( MIMRXRDATA )
 

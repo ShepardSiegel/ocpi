@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_bram_v6.v
-// Version    : 1.4
+// Version    : 1.7
 //--
 //-- Description: BlockRAM module for Virtex6 PCIe Block
 //--
@@ -275,6 +275,7 @@ module pcie_bram_v6
                .ADDRA          ({1'b1, waddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}), 
                .DIA            ({{31 - D_MSB{1'b0}},wdata_i[D_MSB:0]}),
                //.DIPA           (wdata_i[DP_MSB:DP_LSB]),
+               .DIPA           (4'h0),
                .ENA            (wen_i), 
                .WEA            ({4{wen_i}}),
 
@@ -286,6 +287,8 @@ module pcie_bram_v6
                .CASCADEOUTLATB (),
                .CASCADEOUTREGB (),
                .ADDRB          ({1'b1, raddr_i[ADDR_MSB:0], {ADDR_LO_BITS{1'b1}}}), 
+               .DIB            (0),
+               .DIPB           (0),
                .DOB            ({dob_unused,rdata_o[D_MSB:0]}),
                //.DOPB           (rdata_o[DP_MSB:DP_LSB]),
                .ENB            (ren_i), 
