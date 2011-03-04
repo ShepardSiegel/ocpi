@@ -1,0 +1,29 @@
+## ml605.xcf
+## Shepard Siegel for Atomic Rules LLC
+## 2009-10-23 Creadtion to convey 125 MHz core constraint to XST
+## 2010-03-16 Added ML605 MIG constraints
+
+# Timing Constraints...
+NET "ftop/pci0_pcie_ep/trn_clk" TNM_NET = "TRNCLK";
+#TIMESPEC "TS_TRNCLK"  = PERIOD "TRNCLK" 125.00 MHz HIGH 50 % ;
+TIMESPEC "TS_TRNCLK"  = PERIOD "TRNCLK" 250.00 MHz HIGH 50 % ;
+
+
+# Added ML605-MIG Constraints..
+MODEL ui_rd_data max_fanout = 20;
+
+BEGIN MODEL ui_wr_data
+NET app_wdf_rdy_r max_fanout=20;
+END;
+
+BEGIN MODEL phy_rdclk_gen
+NET rst_oserdes max_fanout=10;
+END;
+
+BEGIN MODEL phy_data_io
+NET rst_r max_fanout=1;
+END;
+
+BEGIN MODEL phy_control_io
+NET rst_r max_fanout=1;
+END

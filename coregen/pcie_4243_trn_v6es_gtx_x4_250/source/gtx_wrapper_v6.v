@@ -284,11 +284,14 @@ module gtx_wrapper_v6 (
 
         );
 
+//POWER_SAVE[4] set to an unsupported value and must be set to 1. Please see Answer Record 39430 for more information.
+
         GTXE1 # (
 
           .TX_DRIVE_MODE("PIPE"),
           .TX_CLK_SOURCE("RXPLL"),
-          .POWER_SAVE(10'b0000100100),
+          //.POWER_SAVE(10'b0000100100),
+          .POWER_SAVE(10'b0000110100),
           .CM_TRIM ( 2'b01 ),
           .PMA_CDR_SCAN ( 27'h640404C ),
           .PMA_CFG( 76'h0040000040000000003 ),

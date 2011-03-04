@@ -522,8 +522,8 @@ ml605es:
 	mkdir -p build
 	rm -rf build/tmp-ml605es
 	cp -r $(BUILD_HDL) build/tmp-ml605es
-	cp ucf/ml605.ucf build/tmp-ml605es
-	cp ucf/ml605.xcf build/tmp-ml605es
+	cp ucf/ml605es.ucf build/tmp-ml605es
+	cp ucf/ml605es.xcf build/tmp-ml605es
 	cd build/tmp-ml605es; ./build_fpgaTop ml605es
 	mv build/tmp-ml605es build/ml605es-`date +%Y%m%d_%H%M`
 	echo ml605es Build complete
