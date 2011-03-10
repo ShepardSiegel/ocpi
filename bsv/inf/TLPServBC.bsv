@@ -146,8 +146,13 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bit#(17))           mesgLengthRemainPull <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path) (for Pull Logic)
   Reg#(Bit#(17))           mesgComplReceived    <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
   Reg#(Bit#(13))           maxPayloadSize       <- mkReg(128);  // 128B Typical - Must not exceed 4096B
-  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(512);  // 512B Typical - Must not exceed 4096B
+  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(4096); // 512B Typical - Must not exceed 4096B
   Reg#(Bit#(32))           flowDiagCount        <- mkReg(0);
+
+  // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
+  // This is because with only one read in-flight at once, we wish to amortize the serial latency over as large a request as possible.
+  // When moving to two or more read-requests per DMA engine in flight at once, we may wish to lower maReadReqSize from the maximum.
+  // The team thanks Dan Zhang for bringing this issues front and center. -Shep Siegel 2011-03-10
 
   Bool actMesgP = (dpControl==fProdActMesg);
   Bool actMesgC = (dpControl==fConsActMesg);
