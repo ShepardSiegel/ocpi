@@ -1,3 +1,4 @@
+#!/bin/csh
 # used for DMA throughput testing
 echo > result.log
 sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 16   -i 1000 -z 0000:05:00.0 >>& result.log
