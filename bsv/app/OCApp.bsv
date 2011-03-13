@@ -6,7 +6,6 @@ package OCApp;
 import OCWip::*;
 //import ProtocolMonitor::*;
 
-`define USE_NDW1
 
 import DelayWorker::*;
 import SMAdapter::*;
@@ -18,6 +17,16 @@ import Vector::*;
 import GetPut::*;
 import ClientServer::*;
 import Connectable::*;
+
+`ifdef USE_NDW1
+  `define DEFINE_NDW 1
+`elsif USE_NDW2
+  `define DEFINE_NDW 2
+`elsif USE_NDW4
+  `define DEFINE_NDW 4
+`elsif USE_NDW8
+  `define DEFINE_NDW 8
+`endif
 
 // nWci   - number of Wci Worker Control Links
 // nWmi   - number of WMI Interfaces
@@ -37,7 +46,7 @@ endinterface
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi,ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)),    // by shep
     Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))),                          // by bsc output
-    NumAlias#(ndw,1) ); // by joe
+    NumAlias#(ndw, `DEFINE_NDW) ); // by joe (modified by Dan)
 
   /*
   WciMonitorIfc            wciMonW3         <- mkWciMonitor(8'h42); // monId=h42
@@ -47,11 +56,14 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
   // Instance the workers in this application container...
 
-`define USE_NDW1
 `ifdef USE_NDW1
   SMAdapter4BIfc   appW2   <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
   DelayWorker4BIfc appW3   <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapter4BIfc   appW4   <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`elsif USE_NDW4
+  SMAdapter16BIfc   appW2   <-  mkSMAdapter16B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  DelayWorker16BIfc appW3   <-  mkDelayWorker16B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapter16BIfc   appW4   <-  mkSMAdapter16B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `endif
 
   // 'PLAN A': This compiles and functions; but does not allows us to have synthesis bounds at each worker as required...

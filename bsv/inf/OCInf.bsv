@@ -24,6 +24,16 @@ import Connectable::*;
 // ndw    - number of 4B DWORDs in WSI and WMI datapaths
 // Using types, not numeric types, so this is not directly Polymorphic as in OCApp
 
+`ifdef USE_NDW1
+  `define DEFINE_NDW 1
+`elsif USE_NDW2
+  `define DEFINE_NDW 2
+`elsif USE_NDW4
+  `define DEFINE_NDW 4
+`elsif USE_NDW8
+  `define DEFINE_NDW 8
+`endif
+
 interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
   interface Server#(PTW16,PTW16) server;
   (* always_ready *)                 method Bit#(2) led;
@@ -37,7 +47,7 @@ endinterface
 
 module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci_ctop,ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)),
-    NumAlias#(ndw,1) ); // by joe
+    NumAlias#(ndw,`DEFINE_NDW) ); // by joe
 
   OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst); // control plane
   UUIDIfc         id   <- mkUUID;
@@ -57,10 +67,12 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   // The producer/consumer and passive/active roles are set by dataplane configuration properties...
   //OCDPIfc#(ndw)  dp0  <- mkOCDP(insertFNum(pciDevice,0), reset_by rst[13]); // data-plane memory (fabric consumer in example app)
   //OCDPIfc#(ndw)  dp1  <- mkOCDP(insertFNum(pciDevice,1), reset_by rst[14]); // data-plane memory (fabric producer in example app)
-`define USE_NDW1
 `ifdef USE_NDW1
-  OCDP4BIfc  dp0  <- mkOCDP(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
-  OCDP4BIfc  dp1  <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
+  OCDP4BIfc  dp0  <- mkOCDP4B(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
+  OCDP4BIfc  dp1  <- mkOCDP4B(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
+`elsif USE_NDW4
+  OCDP16BIfc  dp0  <- mkOCDP16B(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
+  OCDP16BIfc  dp1  <- mkOCDP16B(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
 `endif
 
   // uNoC connections...

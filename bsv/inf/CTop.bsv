@@ -40,9 +40,10 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   Bool hasDebugLogic = True;
 
   //OCInfIfc#(Nwci_ctop,ndw) inf <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
-`define USE_NDW1
 `ifdef USE_NDW1
   OCInf4BIfc inf <- mkOCInf4B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+`elsif USE_NDW4
+  OCInf16BIfc inf <- mkOCInf16B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
 `endif
 
   Vector#(iNwci_ctop, Reset) resetVec = newVector;                                   // Vector of WCI Resets
@@ -51,6 +52,8 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   //OCAppIfc#(Nwci_app,Nwmi,Nwmemi,ndw) app  <- mkOCApp_poly(resetVec,hasDebugLogic);  // Instance the Application
 `ifdef USE_NDW1
   OCApp4BIfc app  <- mkOCApp4B(resetVec,hasDebugLogic);  // Instance the Application
+`elsif USE_NDW4
+  OCApp16BIfc app  <- mkOCApp16B(resetVec,hasDebugLogic);  // Instance the Application
 `endif
 
   for (Integer i=0; i<iNwci_app; i=i+1) mkConnection(inf.wci_m[i], app.wci_s[i]);   // Connect WCI between INF/APP
@@ -73,29 +76,34 @@ endmodule : mkCTop
 
 // Synthesizeable, non-polymorphic modules that use the poly module above...
 
+`ifdef USE_NDW1
 typedef CTopIfc#(1) CTop4BIfc;
 (* synthesize *)
 module mkCTop4B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTop4BIfc);
   CTop4BIfc _a <- mkCTop(pciDevice, sys0_clk, sys0_rst); return _a;
 endmodule
 
+`elsif USE_NDW2
 typedef CTopIfc#(2) CTop8BIfc;
 (* synthesize *)
 module mkCTop8B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTop8BIfc);
   CTop8BIfc _a <- mkCTop(pciDevice, sys0_clk, sys0_rst); return _a;
 endmodule
 
+`elsif USE_NDW4
 typedef CTopIfc#(4) CTop16BIfc;
 (* synthesize *)
 module mkCTop16B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTop16BIfc);
   CTop16BIfc _a <- mkCTop(pciDevice, sys0_clk, sys0_rst); return _a;
 endmodule
 
+`elsif USE_NDW8
 typedef CTopIfc#(8) CTop32BIfc;
 (* synthesize *)
 module mkCTop32B#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTop32BIfc);
   CTop32BIfc _a <- mkCTop(pciDevice, sys0_clk, sys0_rst); return _a;
 endmodule
+`endif
 
 
 endpackage: CTop

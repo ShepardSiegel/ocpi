@@ -5,12 +5,16 @@ package Config;
 
   // Global
 
-`ifdef DEFINE_NDW
-`else
-`define DEFINE_NDW 1
+`ifdef USE_NDW1
+  `define DEFINE_NDW 1
+`elsif USE_NDW2
+  `define DEFINE_NDW 2
+`elsif USE_NDW4
+  `define DEFINE_NDW 4
+`elsif USE_NDW8
+  `define DEFINE_NDW 8
 `endif
 
-`define USE_NDW1
 
   typedef `DEFINE_NDW NDW_global;
   Integer iNDW_global = valueOf(NDW_global);

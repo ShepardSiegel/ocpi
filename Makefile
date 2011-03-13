@@ -377,7 +377,7 @@ platform_ml605: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		-D DEFINE_NDW=1 \
+		-D USE_NDW4 \
 		-verilog-filter basicinout $(BSVTOP)/$(RTEST6).bsv
 
 $(OBJ):

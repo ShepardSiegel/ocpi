@@ -7,7 +7,7 @@ ssiegel 2010-11-29 Touched README
 ssiegel 2010-12-28 AXI *removed* from WIP. "WIP" (WCI,WSI,WMI,etc.) now implies OCP
 ssiegel 2011-01-14 Board Targets become platforms 
 ssiegel 2011-03-03 ISE 13.1
-
+ssiegel 2011-03-13 Took Dan Zhang's patch changes (see FAQ) 
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
@@ -107,6 +107,23 @@ OpenCPI website: www.opencpi.org
      The e-Book "Bluespec by Example is a good place...  (bsv_by_example.pdf)
      http://www.bluespec.com/forum/viewtopic.php?p=827#827
 
+  "How to I switch between 4B and 16B application data paths; the later is needed for maximum througput"
+     Dan Zhang has supplied this text and changes to the files listed. This patch is for extending the OpenCPI datapath from 4B to 16B.
+     This is especially useful for the ML605 to take advantage of the 2.0GB/s theoretical PCI-E 2.0 4x connection between the FPGA and DRAM.
+     Streaming tests show that we can achieve ~1.6GB/s bidirectional.
+     To switch between the two, `define USE_NDW4 instead of USE_NDW1.
+     The patch can similarly be extended for 8B and 32B datapaths, although this has not yet been done.
+     There is currently an issue where the fpgaTop-ml605.prj file needs to be changed each time you want to change the datapath width. Any suggestions?
+     Files : (noted chnages from 4B)
+      Makefile : (set line 380 -D USE_NDW4)
+      fpgaTop-ml605.prj : (use 16B v ariants, plus use DelayWorker instead of scaerio0)
+      Config.bsv : (DEFINE_NDW 4)
+      FTop_ml605.bsv.bsv : ( use 16B CTop)
+      OCInf.bsv : ( use 16B DPs)
+      OCDP.bsv :  ( set NDW4)
+      CTop.bsv :  ( set NDW4)
+      OCApp.bsv : ( set NDW4, NumAlias)
+     Thank you Dan! -Shep
 
 10. Notes
 2010-12-18 ISE 12.4 Libraries
@@ -114,3 +131,4 @@ OpenCPI website: www.opencpi.org
 2010-12-16 ML605 testOK, but some issue (same) with SX95T and ML555 (multiple changed in flight?)
 2011-01-31 tweaks
 2011-03-03 ISE 13.1 Libraries
+2011-03-13 Switch back to 16B (4DW) baseline
