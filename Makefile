@@ -133,6 +133,8 @@ isim: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
+		-D DEFINE_NDW=1 \
+		-D USE_NDW1 \
 		$(BSVTST)/$(ITEST).bsv
 	
 	bsc -vsim isim -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST) -o runsim
