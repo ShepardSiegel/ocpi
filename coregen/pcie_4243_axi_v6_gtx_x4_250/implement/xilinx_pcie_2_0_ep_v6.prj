@@ -1,6 +1,6 @@
 `include "../example_design/xilinx_pcie_2_0_ep_v6.v"
 `include "../example_design/pcie_app_v6.v"
-`include "../source/v6_pcie_v2_2.v"
+`include "../source/v6_pcie_v2_3.v"
 `include "../source/pcie_2_0_v6.v"
 `include "../source/pcie_upconfig_fix_3451_v6.v"
 `include "../source/gtx_drp_chanalign_fix_3752_v6.v"

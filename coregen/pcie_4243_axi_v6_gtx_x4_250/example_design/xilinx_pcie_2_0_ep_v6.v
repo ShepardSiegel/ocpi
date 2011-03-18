@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : xilinx_pcie_2_0_ep_v6.v
-// Version    : 2.1
+// Version    : 2.3
 //--
 //-- Description:  PCI Express Endpoint example FPGA design
 //--
@@ -226,7 +226,7 @@ FDCP #(
 
 );
 
-v6_pcie_v2_2 #(
+v6_pcie_v2_3 #(
   .PL_FAST_TRAIN    ( PL_FAST_TRAIN )
 ) core (
 

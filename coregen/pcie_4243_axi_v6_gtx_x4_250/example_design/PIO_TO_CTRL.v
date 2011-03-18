@@ -1,7 +1,7 @@
 
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -50,7 +50,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : PIO_TO_CTRL.v
-// Version    : 2.1
+// Version    : 2.3
 //--
 //-- Description: Turn-off Control Unit.
 //--
@@ -84,9 +84,7 @@ module PIO_TO_CTRL    (
     reg                 cfg_turnoff_ok;
 
 
-    /*
-     *  Check if completion is pending
-     */
+   //  *  Check if completion is pending
 
     always @ ( posedge clk or negedge rst_n ) begin
 
@@ -108,9 +106,7 @@ module PIO_TO_CTRL    (
 
     end
 
-    /*
-     *  Turn-off OK if requested and no transaction is pending
-     */
+    // *  Turn-off OK if requested and no transaction is pending
 
      always @ ( posedge clk or negedge rst_n ) begin
 

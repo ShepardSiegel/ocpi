@@ -1,7 +1,7 @@
 
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -50,7 +50,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : PIO_EP_MEM_ACCESS.v
-// Version    : 2.1
+// Version    : 2.3
 //--
 //-- Description: Endpoint Memory Access Unit. This module provides access functions
 //--              to the Endpoint memory aperture.
@@ -99,17 +99,13 @@ module PIO_EP_MEM_ACCESS (
     input            clk;
     input            rst_n;
 
-    /*
-     *  Read Port
-     */
+    // *  Read Port
 
     input  [10:0]    rd_addr_i;
     input  [3:0]     rd_be_i;
     output [31:0]    rd_data_o;
 
-    /*
-     *  Write Port
-     */
+    // *  Write Port
 
     input  [10:0]    wr_addr_i;
     input  [7:0]     wr_be_i;
@@ -140,26 +136,20 @@ module PIO_EP_MEM_ACCESS (
 
     reg   [31:0]     DW0, DW1, DW2;
 
-    /**
-     ** Memory Write Process
-     **/
+    // ** Memory Write Process
 
-    /*
-     *  Extract current data bytes. These need to be swizzled
-     *  BRAM storage format :
-     *    data[31:0] = { byte[3], byte[2], byte[1], byte[0] (lowest addr) }
-     */
+    // *  Extract current data bytes. These need to be swizzled
+    // *  BRAM storage format :
+    // *    data[31:0] = { byte[3], byte[2], byte[1], byte[0] (lowest addr) }
 
     wire  [7:0]      w_pre_wr_data_b3 = pre_wr_data[31:24];
     wire  [7:0]      w_pre_wr_data_b2 = pre_wr_data[23:16];
     wire  [7:0]      w_pre_wr_data_b1 = pre_wr_data[15:08];
     wire  [7:0]      w_pre_wr_data_b0 = pre_wr_data[07:00];
 
-    /*
-     *  Extract new data bytes from payload
-     *  TLP Payload format :
-     *    data[31:0] = { byte[0] (lowest addr), byte[2], byte[1], byte[3] }  
-     */
+    // *  Extract new data bytes from payload
+    // *  TLP Payload format :
+    // *    data[31:0] = { byte[0] (lowest addr), byte[2], byte[1], byte[3] }  
 
     wire  [7:0]      w_wr_data_b3 = wr_data_i[07:00];
     wire  [7:0]      w_wr_data_b2 = wr_data_i[15:08];
@@ -204,10 +194,8 @@ module PIO_EP_MEM_ACCESS (
 
             `PIO_MEM_ACCESS_WR_WAIT : begin
 
-              /*
-               * Pipeline B port data before processing. Virtex 5 Block RAMs have internal
-                 output register enabled.
-               */
+              // * Pipeline B port data before processing. Virtex 5 Block RAMs have internal
+              //   output register enabled.
 
               //pre_wr_data0_q <= w_pre_wr_data0;
              // pre_wr_data1_q <= w_pre_wr_data1;
@@ -222,9 +210,7 @@ module PIO_EP_MEM_ACCESS (
 
             `PIO_MEM_ACCESS_WR_READ : begin
 
-                /*
-                 * Now save the selected BRAM B port data out
-                 */
+               //  * Now save the selected BRAM B port data out
 
                 pre_wr_data <= w_pre_wr_data; 
                 write_en <= 1'b0;
@@ -235,9 +221,7 @@ module PIO_EP_MEM_ACCESS (
 
             `PIO_MEM_ACCESS_WR_WRITE : begin
 
-              /*
-               * Merge new enabled data and write target BlockRAM location
-               */
+              // * Merge new enabled data and write target BlockRAM location
 
               post_wr_data <= {{wr_be_i[3] ? w_wr_data_b3 : w_pre_wr_data_b3},
                                {wr_be_i[2] ? w_wr_data_b2 : w_pre_wr_data_b2},
@@ -255,19 +239,15 @@ module PIO_EP_MEM_ACCESS (
 
     end
 
-    /*
-     * Write controller busy 
-     */
+    // * Write controller busy 
 
     assign wr_busy_o = wr_en_i | (wr_mem_state != `PIO_MEM_ACCESS_WR_RST);
 
-    /*
-     *  Select BlockRAM output based on higher 2 address bits
-     */
+    // *  Select BlockRAM output based on higher 2 address bits
 
     always @* // (wr_addr_i or pre_wr_data0_q or pre_wr_data1_q or pre_wr_data2_q or pre_wr_data3_q) begin
      begin
-      case ({wr_addr_i[10:9]}) /* synthesis full_case */ /* synthesis parallel_case */
+      case ({wr_addr_i[10:9]}) // synthesis parallel_case full_case
 
         2'b00 : w_pre_wr_data = w_pre_wr_data0;
         2'b01 : w_pre_wr_data = w_pre_wr_data1;  
@@ -278,9 +258,7 @@ module PIO_EP_MEM_ACCESS (
 
     end
 
-    /*
-     *  Memory Read Controller
-     */
+    // *  Memory Read Controller
 
     wire        rd_data0_en = {rd_addr_i[10:9]  == 2'b00};
     wire        rd_data1_en = {rd_addr_i[10:9]  == 2'b01};
@@ -291,7 +269,7 @@ module PIO_EP_MEM_ACCESS (
     always @(rd_addr_i or rd_data0_o or rd_data1_o or rd_data2_o or rd_data3_o) 
       begin
 
-      case ({rd_addr_i[10:9]}) /* synthesis full_case */ /* synthesis parallel_case */
+      case ({rd_addr_i[10:9]}) // synthesis parallel_case full_case
 
         2'b00 : rd_data_raw_o = rd_data0_o;
         2'b01 : rd_data_raw_o = rd_data1_o;  
@@ -302,7 +280,7 @@ module PIO_EP_MEM_ACCESS (
 
     end
 
-   /* Handle Read byte enables */
+   // Handle Read byte enables 
 
     assign rd_data_o = {{rd_be_i[0] ? rd_data_raw_o[07:00] : 8'h0},
                         {rd_be_i[1] ? rd_data_raw_o[15:08] : 8'h0},

@@ -1,7 +1,7 @@
 
            Core name: Xilinx Virtex-6 Integrated Block for PCI Express
-           Version: 2.2
-           Release Date: December 14, 2010
+           Version: 2.3
+           Release Date: March 01, 2011
 
 
 ================================================================================
@@ -34,7 +34,7 @@ For system requirements:
 
 
 This file contains release notes for the Xilinx LogiCORE(TM) IP Virtex-6
-Integrated Block for PCI Express v2.2 solution. For the latest core updates,
+Integrated Block for PCI Express v2.3 solution. For the latest core updates,
 see the product page at:
 
    http://www.xilinx.com/products/ipcenter/V6_PCI_Express_Block.htm
@@ -42,7 +42,7 @@ see the product page at:
 
 2. NEW FEATURES
 
-   - ISE 12.4 software support
+   - ISE 13.1 software support
    - Support for AXI4-Streaming interface
    - VHDL support for Endpoint Configuration
 
@@ -58,18 +58,55 @@ see the product page at:
 
 4. RESOLVED ISSUES
 
-   - VHDL source code generation support added.
-     o CR 575119
+   - Synplify script invoking verilog files in VHDL project
+     o CR 589321
 
-     VHDL source code generation now supported. Also includes Example Design,
-     testbench and simulation and implementation scripts.
+     Issue resolved where the Synplify script was invoking Verilog source files
+     in a VHDL project.
 
-   - 8-lane Gen2 Endpoint Configuration in a -2 Speed Grade device
-     o CR 581873
+   - BUFG added on TXOUTCLK to MMCM path
+     o CR 579207
 
-     The 8-lane Gen2 Endpoint Configuration, in a -2 Speed Grade device, has 
-     been restricted to "High" performance Level, as the "Good" Performance Level
-     BRAMs cannot be run at 500 MHz as required for this configuration. 
+     BUFG added to TXOUTCLK path to the MMCM to workaround requirement of MMCM
+     in same region as the PCI Express Integrated Block when the TXOUTCLK drives
+     the MMCM input directly.
+
+   - Core TxOutClk constraint added to UCF
+     o CR 589216
+
+     Constraint added to TxOutClk BUFG output as sys_clk constraint was not
+     propagated correctly by tools.
+
+   - Virtex-6 GTX Transceiver Delay Aligner Errata Work-around
+     o CR 585954
+
+     GTX transceiver settings have been updated to work around the Virtex-6 GTX
+     Transceiver Delay Aligner Errata.
+
+   - GTX Wrapper updated
+     o CR 585171
+
+     The GTX Wrapper updated per latest recommendations for GTX Transceiver for
+     PCI Express.
+
+   - Default Reference Clock Frequency updated
+     o CR 585171
+
+     The default reference clock frequency for Designs with Link Speed 5.0 Gb/s
+     been changed from 250 MHz to 100 MHz.
+
+   - PMA_RX_CFG attribute in GTX wrapper updated
+     o CR 566981
+
+     The PMA_RX_CFG attribute in the GTX wrapper has been udpated to be set 
+     based on Synchronous or Asynchronous clocking selected (Slot Clock 
+     selection).
+
+   - Transaction Buffer Pipeline default setting for 8-lane Gen2 configuration
+     o CR 572926
+
+     The default setting for Transaction Buffer Pipeline for 8-lane Gen2 
+     configurations has been updated to "Buffer Write and Read"
 
    - INTERRUPT_PIN attribute update based on Legacy Interrupt option in GUI
      o CR 581046
@@ -77,22 +114,24 @@ see the product page at:
      Issue resolved where Unchecking the Legacy Interrupt option was not updating
      the INTERRUPT_PIN attribute.
 
-   - Timing path ignored in Flat flow but analyzed in Hierarchical flow
-     o CR 576025
-
-     Timing improvement for 8-lane Gen2 Configuration : Timing Ignore (TIG) 
-     added to sel_lnk_rate path. This path was being analyzed in hierarchical 
-     flow causing failure to meet timing.
-
 
 
 5. KNOWN ISSUES
 
-   The following are known issues for v2.2 of this core at time of release:
+   The following are known issues for v2.3 of this core at time of release:
 
     5.1  Functional Issues
            - VHDL is not supported for the Root Port configuration at the time of
              this release.
+
+           - Core Interface Signal change
+             o CR 579319
+
+             The transaction interface has not been updated to use 
+             m_axis_rx_tkeep and s_axis_tx_tkeep, instead of m_axis_rx_tstrb and
+             s_axis_tx_tstrb, and for replication of m_axis_rx_tuser and 
+             s_axis_tx_tuser per DWORD of data on the interface.
+
 
     5.2  Simulation Issues
 
@@ -135,6 +174,7 @@ see the product page at:
 
 Date        By            Version      Description
 ================================================================================
+03/01/2011  Xilinx, Inc.  2.3           13.1 support
 12/14/2010  Xilinx, Inc.  2.2           12.4 support
 09/21/2010  Xilinx, Inc.  2.1           12.3 support
 09/21/2010  Xilinx, Inc.  1.6           12.3 support
@@ -151,7 +191,7 @@ Date        By            Version      Description
 
 9. Legal Disclaimer
 
-(c) Copyright 2009 - 2010 Xilinx, Inc. All rights reserved.
+(c) Copyright 2009 - 2011 Xilinx, Inc. All rights reserved.
 
 This file contains confidential and proprietary information
 of Xilinx, Inc. and is protected under U.S. and
