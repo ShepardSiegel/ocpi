@@ -306,6 +306,7 @@ verilog_oped: $(OBJ)
 		-aggressive-conditions -no-show-method-conf -keep-fires \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
+		-D USE_NDW1 \
 		-verilog-filter basicinout $(BSVINF)/$(OPED).bsv
 
 ######################################################################
@@ -353,7 +354,7 @@ platform_nf10: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		-D DEFINE_NDW=1 \
+		-D USE_NDW1 \
 		-verilog-filter basicinout $(BSVTOP)/$(RTEST5n).bsv
 
 

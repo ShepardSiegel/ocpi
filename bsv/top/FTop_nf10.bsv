@@ -34,7 +34,12 @@ module mkFTop_nf10#(Clock sys0_clkp, Clock sys0_clkn, Clock pci0_clkp, Clock pci
   Clock            sys0_clk  <- mkClockIBUFDS(sys0_clkp, sys0_clkn);
   Reset            sys0_rst  <- mkAsyncReset(1, p125Rst, sys0_clk);
 
-  CTop4BIfc        ctop  <- mkCTop4B(pciw.device, sys0_clk, sys0_rst, clocked_by p125Clk, reset_by p125Rst);
+`ifdef USE_NDW1
+  CTop4BIfc ctop <- mkCTop4B(pciw.device, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
+`elsif USE_NDW4
+  CTop16BIfc ctop <- mkCTop16B(pciw.device, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
+`endif
+
   mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
    
   ReadOnly#(Bit#(2)) infLed    <- mkNullCrossingWire(noClock, ctop.led);
