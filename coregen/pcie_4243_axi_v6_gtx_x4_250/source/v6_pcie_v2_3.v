@@ -348,7 +348,7 @@ module v6_pcie_v2_3 # (
 
   // Common
   output                                        user_clk_out,
-  output                                        user_reset_out,
+  output                                        user_reset_out, 
   output                                        user_lnk_up,
 
   // Tx
@@ -404,6 +404,7 @@ module v6_pcie_v2_3 # (
   input                                         cfg_err_locked,
   input  [47:0]                                 cfg_err_tlp_cpl_header,
   output                                        cfg_err_cpl_rdy,
+
   input                                         cfg_interrupt,
   output                                        cfg_interrupt_rdy,
   input                                         cfg_interrupt_assert,
@@ -413,6 +414,7 @@ module v6_pcie_v2_3 # (
   output                                        cfg_interrupt_msienable,
   output                                        cfg_interrupt_msixenable,
   output                                        cfg_interrupt_msixfm,
+
   input                                         cfg_turnoff_ok,
   output                                        cfg_to_turnoff,
   input                                         cfg_trn_pending,
