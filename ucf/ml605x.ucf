@@ -46,10 +46,12 @@ NET "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/clk_250" TNM_NET = "CLK_250" ;
 TIMESPEC "TS_PCICLK"   = PERIOD "PCICLK"  250 MHz HIGH 50 % ;
 TIMESPEC "TS_CLK_125"  = PERIOD "CLK_125" TS_PCICLK/2 HIGH 50 % PRIORITY 100 ;
 TIMESPEC "TS_CLK_250"  = PERIOD "CLK_250" TS_PCICLK*1 HIGH 50 % PRIORITY 1;
-NET "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/sel_lnk_rate_d" TIG ;
-PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_int_i.CLR"          TIG ;
-PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_i.CLR"              TIG ;
-PIN "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+
+#TODO restore TIGs
+#NET "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/sel_lnk_rate_d" TIG ;
+#PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_int_i.CLR"          TIG ;
+#PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_i.CLR"              TIG ;
+#PIN "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
 #TIMESPEC "TS_RESETN" = FROM FFS(*) TO FFS(trn_reset_n_i) 8 ns;
 
 # LEDs and Switches...
@@ -77,12 +79,14 @@ NET "led[12]"   LOC = AD21   | IOSTANDARD = "LVCMOS25"; ## User West
 NET  "ppsOut"     LOC = V34 | IOSTANDARD = "LVCMOS25"; #ML605 Board J57 (user_sma_gpio_p)
 NET  "ppsExtIn"   LOC = W34 | IOSTANDARD = "LVCMOS25"; #ML605 Board J56 (user_sma_gpio_n)
 
-PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
-PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;
-PIN "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
+# TODO Add TIG back in
+#PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
+#PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;
+#PIN "ftop/pciw_pci0_pcie_ep/ep/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
 
-INST "ftop/pciw_pci0_pcie_ep/ep/pcie_2_0_i/*" AREA_GROUP = "AG_pcie0" ;
-AREA_GROUP "AG_pcie0" RANGE = SLICE_X136Y147:SLICE_X155Y120 ;
+# TODO: Add PCI AG back in
+#INST "ftop/pciw_pci0_pcie_ep/ep/pcie_2_0_i/*" AREA_GROUP = "AG_pcie0" ;
+#AREA_GROUP "AG_pcie0" RANGE = SLICE_X136Y147:SLICE_X155Y120 ;
 
 ## GbE GMII...
 NET "gmii_txd[0]"     LOC = "AM11" | IOSTANDARD=LVCMOS25; ## 18 on U80
