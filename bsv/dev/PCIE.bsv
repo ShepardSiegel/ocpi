@@ -525,6 +525,11 @@ function Bit#(12) computeByteCount(Bit#(10) length,
             - ( length == 1 ? 0 : zeroExtend(missingBytes(lastBE)) ) );
 endfunction
 
+// Reverse-Position of DWORDs
+function Bit#(nd) reverseDWORDS(Bit#(nd) a) provisos (Mul#(32,ndw,nd));
+  Vector#(ndw, Bit#(32)) vWords = reverse(unpack(a)); return pack(vWords);
+endfunction
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Interfaces
@@ -694,34 +699,34 @@ endinterface
 
 (* always_ready, always_enabled *)
 interface PCIE_AXI;
-   interface Clock      clk;
-   interface Reset      reset_n;
-   method    Bit#(1)    lnk_up;
+   interface Clock       clk;
+   interface Reset       reset_n;
+   method    Bool        lnk_up;
 endinterface
 
 (* always_ready, always_enabled *)
 interface PCIE_AXI_TX;
    method    Bit#(6)     tbuf_av;
-   method    Bit#(1)     terr_drop;
-   method    Bit#(1)     tcfg_req;
-   method    Bit#(1)     tready;
-   method    Action      tdata(Bit#(64)  i);
-   method    Action      tstrb(Bit#(8)   i);
-   method    Action      tuser(Bit#(4)   i);
-   method    Action      tlast(Bit#(1)   i);
-   method    Action      tvalid(Bit#(1)  i);
-   method    Action      cfg_gnt(Bit#(1) i);
+   method    Bool        terr_drop;
+   method    Bool        tcfg_req;
+   method    Bool        tready;
+   method    Action      tdata   (Bit#(64) i);
+   method    Action      tstrb   (Bit#(8) i);
+   method    Action      tuser   (Bit#(4) i);
+   method    Action      tlast   (Bool i);
+   method    Action      tvalid  (Bool i);
+   method    Action      cfg_gnt (Bool i);
 endinterface
 
 (* always_ready, always_enabled *)
 interface PCIE_AXI_RX;
    method    Bit#(64)    tdata;
    method    Bit#(8)     tstrb;
-   method    Bit#(1)     tlast;
-   method    Bit#(1)     tvalid;
+   method    Bool        tlast;
+   method    Bool        tvalid;
    method    Bit#(22)    tuser;
-   method    Action      tready(Bit#(1) i);
-   method    Action      np_ok(Bit#(1)  i);
+   method    Action      tready (Bool i);
+   method    Action      np_ok  (Bool i);
 endinterface
 
 (* always_ready, always_enabled *)
@@ -1863,6 +1868,11 @@ endmodule: mkPCIExpressEndpointV6
 module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //TODO: Provide X6 (not TRN V6)
    provisos(Add#(1, z, lanes));
 
+
+// This implementation has the interesting challenge of reverse-migrating the AXI interface from the 2.3 V6/X6 PCIe core
+// to the older TRN interface it will someday replace. This is so we can test the AXI endpoint without having to change the
+// uNoC and everything attached to it. It is mostly the DWORD ordering and control logic generation.
+
    ////////////////////////////////////////////////////////////////////////////////
    /// Design Elements
    ////////////////////////////////////////////////////////////////////////////////
@@ -1872,21 +1882,19 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    //Clock                         axi2clk              = pcie_ep.axi.clk2;   // 125 MHz axiclk/2
    Reset                           axirst_n             = pcie_ep.axi.reset_n;
 
-   PulseWire                       pwTrnTx             <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-   PulseWire                       pwTrnRx             <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+   PulseWire                       pwAxiTx             <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+   PulseWire                       pwAxiRx             <- mkPulseWire(clocked_by axiclk, reset_by noReset);
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Rules
    ////////////////////////////////////////////////////////////////////////////////
-   /*
    rule connect_axi_tx;
-      pcie_ep.trn_tx.tsrc_rdy_n(pack(!pwTrnTx));
+      pcie_ep.axi_tx.tvalid(pwAxiTx);   // assert tvalid when we xmit - causes push into EP
    endrule
 
    rule connect_axi_rx;
-      pcie_ep.trn_rx.rdst_rdy_n(pack(!pwTrnRx));
+      pcie_ep.axi_rx.tready(pwAxiRx);   // asser tready when we receive - causes pop from EP 
    endrule
-   */
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Interface Connections / Methods
@@ -1894,46 +1902,43 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    interface pcie       = pcie_ep.pcie;
 
    interface PCIE_TRN_COMMON_V6 trn;
-      interface clk           = pcie_ep.axi.clk;
-      interface reset_n       = pcie_ep.axi.reset_n;  //FIXME - Reset is positive from X6 core
-      method Bool link_up     = unpack(pcie_ep.axi.lnk_up);
+      interface Clock clk      = pcie_ep.axi.clk;
+      interface Clock clk2     = pcie_ep.axi.clk;      //FIXME - needs to be 250/2=125
+      interface Reset reset_n  = pcie_ep.axi.reset_n;  //FIXME - Reset is positive from X6 core
+      method    Bool  link_up  = pcie_ep.axi.lnk_up;
    endinterface
 
    interface PCIE_TRN_XMIT_V6 trn_tx;
-     /*
-      method Action xmit(discontinue, data) if (pcie_ep.trn_tx.tdst_rdy_n == 0);
-         pcie_ep.trn_tx.tsof_n(pack(!data.sof));
-         pcie_ep.trn_tx.teof_n(pack(!data.eof));
-         pcie_ep.trn_tx.tsrc_dsc_n(pack(!discontinue));
-         pcie_ep.trn_tx.trem_n(pack(data.be != '1));
-         pcie_ep.trn_tx.td(data.data);
-         pwTrnTx.send;
+      method Action xmit(discontinue, data) if (pcie_ep.axi_tx.tready); 
+         //pcie_ep.trn_tx.tsof_n(pack(!data.sof));          // no sof for AXI
+         pcie_ep.axi_tx.tlast(data.eof);                    // eof goes to tlast
+         //pcie_ep.trn_tx.tsrc_dsc_n(pack(!discontinue));   // no xmt discontinue
+         pcie_ep.axi_tx.tstrb(reverseBits(data.be));        // active-high be's are strobes, TODO check reverseBits
+         pcie_ep.axi_tx.tdata(reverseDWORDS(data.data));    // reverse DWORDS
+         pwAxiTx.send;
       endmethod
-      method dropped                           = (pcie_ep.trn_tx.terr_drop_n == 0);
-      method buffers_available                 = pcie_ep.trn_tx.tbuf_av;
-      method cut_through_mode(i)               = pcie_ep.trn_tx.tstr_n(pack(!i));
-      method configuration_completion_ready    = (pcie_ep.trn_tx.tcfg_req_n == 0);
-      method configuration_completion_grant(i) = pcie_ep.trn_tx.tcfg_gnt_n(pack(!i));
-      method error_forward(i)                  = pcie_ep.trn_tx.terrfwd_n(pack(!i));
-        */
+      method dropped                           = pcie_ep.axi_tx.terr_drop;
+      method buffers_available                 = pcie_ep.axi_tx.tbuf_av;
+      //method cut_through_mode(i)               = pcie_ep.axi_tx.tstr_n(pack(!i));
+      //method configuration_completion_ready    = (pcie_ep.trn_tx.tcfg_req_n == 0);
+      //method configuration_completion_grant(i) = pcie_ep.trn_tx.tcfg_gnt_n(pack(!i));
+      //method error_forward(i)                  = pcie_ep.trn_tx.terrfwd_n(pack(!i));
    endinterface
 
    interface PCIE_TRN_RECV_V6 trn_rx;
-     /*
-      method ActionValue#(TLPData#(8)) recv() if (pcie_ep.trn_rx.rsrc_rdy_n == 0);
+      method ActionValue#(TLPData#(8)) recv() if (pcie_ep.axi_rx.tvalid);
          TLPData#(8) retval = defaultValue;
-         retval.sof  = (pcie_ep.trn_rx.rsof_n == 0);
-         retval.eof  = (pcie_ep.trn_rx.reof_n == 0);
-         retval.hit  = ~pcie_ep.trn_rx.rbar_hit_n;
-         retval.be   = ~(pack(replicate((pcie_ep.trn_rx.rrem_n))));
-         retval.data = pcie_ep.trn_rx.rd;
-         pwTrnRx.send;
+         //retval.sof  = (pcie_ep.trn_rx.rsof_n == 0);  //TODO, generate SOF
+         retval.eof  = pcie_ep.axi_rx.tlast;
+         retval.hit  = pcie_ep.axi_rx.tuser[8:2]; // implementation specific choice where 7 bar bits are in tuser
+         retval.be   = reverseBits(pcie_ep.axi_rx.tstrb); //TODO check reverseBits
+         retval.data = reverseDWORDS(pcie_ep.axi_rx.tdata);
+         pwAxiRx.send;
          return retval;
       endmethod
-      method error_forward         = (pcie_ep.trn_rx.rerrfwd_n == 0);
-      method source_discontinue    = (pcie_ep.trn_rx.rsrc_dsc_n == 0);
-      method non_posted_ready(i)   = pcie_ep.trn_rx.rnp_ok_n(pack(!i));
-        */
+      //method error_forward         = (pcie_ep.trn_rx.rerrfwd_n == 0);
+      //method source_discontinue    = (pcie_ep.trn_rx.rsrc_dsc_n == 0);
+      //method non_posted_ready(i)   = pcie_ep.trn_rx.rnp_ok_n(pack(!i));
    endinterface
 
    /*

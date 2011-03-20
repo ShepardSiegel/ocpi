@@ -531,6 +531,16 @@ ml605es:
 	mv build/tmp-ml605es build/ml605es-`date +%Y%m%d_%H%M`
 	echo ml605es Build complete
 
+ml605x:
+	mkdir -p build
+	rm -rf build/tmp-ml605x
+	cp -r $(BUILD_HDL) build/tmp-ml605x
+	cp ucf/ml605x.ucf build/tmp-ml605x
+	cp ucf/ml605x.xcf build/tmp-ml605x
+	cd build/tmp-ml605x; ./build_fpgaTop ml605x
+	mv build/tmp-ml605x build/ml605x-`date +%Y%m%d_%H%M`
+	echo ml605x Build complete
+
 sp605:
 	mkdir -p build
 	rm -rf build/tmp-sp605
