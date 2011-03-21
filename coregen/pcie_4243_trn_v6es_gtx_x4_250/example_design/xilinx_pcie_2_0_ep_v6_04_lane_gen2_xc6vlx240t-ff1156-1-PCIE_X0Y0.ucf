@@ -48,8 +48,8 @@
 ##
 ##-----------------------------------------------------------------------------
 ## Project    : Virtex-6 Integrated Block for PCI Express
-## File       : xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1_ML605.ucf
-## Version    : 2.3
+## File       : xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1-PCIE_X0Y0.ucf
+## Version    : 1.7
 #
 ###############################################################################
 # Define Device, Package And Speed Grade
@@ -82,7 +82,7 @@ CONFIG PART = xc6vlx240t-ff1156-1;
 #
 
 NET "sys_reset_n" TIG;
-NET "sys_reset_n" LOC = AE13 | IOSTANDARD = LVCMOS25 | PULLUP | NODELAY ;
+NET "sys_reset_n" IOSTANDARD = LVCMOS25 | PULLUP | NODELAY ;
 
 #
 #
@@ -92,13 +92,11 @@ NET "sys_reset_n" LOC = AE13 | IOSTANDARD = LVCMOS25 | PULLUP | NODELAY ;
 # resources (FPGA input pins) associated with each GT Transceiver.
 # To use these pins an IBUFDS primitive (refclk_ibuf) is
 # instantiated in user's design.
-# Please refer to the Virtex-6 GT Transceiver User Guide
+# Please refer to the Virtex-6 GT Transceiver User Guide 
 # (UG) for guidelines regarding clock resource selection.
 #
 
-#NET "sys_clk_p" LOC = V6;
-#NET "sys_clk_n" LOC = V5;
-INST "refclk_ibuf" LOC = IBUFDS_GTXE1_X0Y4;
+INST "refclk_ibuf" LOC = IBUFDS_GTXE1_X0Y3;
 
 #
 # Transceiver instance placement.  This constraint selects the
@@ -108,14 +106,16 @@ INST "refclk_ibuf" LOC = IBUFDS_GTXE1_X0Y4;
 #
 
 # PCIe Lane 0
-INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y15;
-# PCIe Lane 1
-INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y14;
-# PCIe Lane 2
-INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y13;
-# PCIe Lane 3
-INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
+INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[0].GTX" LOC = GTXE1_X0Y7;
 
+# PCIe Lane 1
+INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[1].GTX" LOC = GTXE1_X0Y6;
+
+# PCIe Lane 2
+INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[2].GTX" LOC = GTXE1_X0Y5;
+
+# PCIe Lane 3
+INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y4;
 
 
 #
@@ -123,16 +123,13 @@ INST "core*/pcie_2_0_i/pcie_gt_i/gtx_v6_i/GTXD[3].GTX" LOC = GTXE1_X0Y12;
 # Block to be used.
 #
 
-INST "core*/pcie_2_0_i/pcie_block_i" LOC = PCIE_X0Y1;
-
-NET  "led_0"           LOC = "AC22"   ;
-NET  "led_1"           LOC = "AC24"   ;
-NET  "led_2"           LOC = "AE22"  ;
+INST "core*/pcie_2_0_i/pcie_block_i" LOC = PCIE_X0Y0;
 
 #
 # MMCM Placment. This constraint selects the MMCM Placement
 #
-INST "core*/pcie_clocking_i/mmcm_adv_i" LOC = MMCM_ADV_X0Y7;
+
+INST "core*/pcie_clocking_i/mmcm_adv_i" LOC = MMCM_ADV_X0Y3;
 
 ###############################################################################
 # Timing Constraints
@@ -158,7 +155,8 @@ PIN "core*/trn_reset_n_int_i.CLR" TIG ;
 PIN "core*/trn_reset_n_i.CLR" TIG ;
 PIN "core*/pcie_clocking_i/mmcm_adv_i.RST" TIG ;
 
-TIMESPEC "TS_RESETN" = FROM FFS(*) TO FFS(user_reset_n_i) 8 ns;
+
+TIMESPEC "TS_RESETN" = FROM FFS(*) TO FFS(trn_reset_n_i) 8 ns;
 
 
 ###############################################################################

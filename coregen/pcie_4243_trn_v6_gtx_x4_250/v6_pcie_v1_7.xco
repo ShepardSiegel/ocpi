@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.1
-# Date: Thu Mar 03 18:42:38 2011
+# Date: Mon Mar 21 22:09:43 2011
 #
 ##############################################################
 #
@@ -166,7 +166,7 @@ CSET phantom_functions=No_function_number_bits_used
 CSET pipe_pipeline=None
 CSET prefetchable_memory_base_limit_registers=Disabled
 CSET rcb=64_byte
-CSET ref_clk_freq=100_MHz
+CSET ref_clk_freq=250_MHz
 CSET replay_timeout_func=Add
 CSET replay_timeout_value=0026
 CSET revision_id=02
@@ -195,7 +195,7 @@ CSET vc_cap_enabled=false
 CSET vc_cap_reject_snoop=false
 CSET vendor_id=10EE
 CSET vsec_enabled=false
-CSET xlnx_ref_board=ML_605
+CSET xlnx_ref_board=None
 # END Parameters
 GENERATE
-# CRC:   cfd0cf
+# CRC: cb28a334

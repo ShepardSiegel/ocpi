@@ -1,47 +1,55 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
-// This file contains confidential and proprietary information of Xilinx, Inc.
-// and is protected under U.S. and international copyright and other
-// intellectual property laws.
+// This file contains confidential and proprietary information
+// of Xilinx, Inc. and is protected under U.S. and
+// international copyright and other intellectual property
+// laws.
 //
 // DISCLAIMER
-//
-// This disclaimer is not a license and does not grant any rights to the
-// materials distributed herewith. Except as otherwise provided in a valid
-// license issued to you by Xilinx, and to the maximum extent permitted by
-// applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
-// FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
-// IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-// MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
-// and (2) Xilinx shall not be liable (whether in contract or tort, including
-// negligence, or under any other theory of liability) for any loss or damage
-// of any kind or nature related to, arising under or in connection with these
-// materials, including for any direct, or any indirect, special, incidental,
-// or consequential loss or damage (including loss of data, profits, goodwill,
-// or any type of loss or damage suffered as a result of any action brought by
-// a third party) even if such damage or loss was reasonably foreseeable or
-// Xilinx had been advised of the possibility of the same.
+// This disclaimer is not a license and does not grant any
+// rights to the materials distributed herewith. Except as
+// otherwise provided in a valid license issued to you by
+// Xilinx, and to the maximum extent permitted by applicable
+// law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+// WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+// AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+// BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+// INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+// (2) Xilinx shall not be liable (whether in contract or tort,
+// including negligence, or under any other theory of
+// liability) for any loss or damage of any kind or nature
+// related to, arising under or in connection with these
+// materials, including for any direct, or any indirect,
+// special, incidental, or consequential loss or damage
+// (including loss of data, profits, goodwill, or any type of
+// loss or damage suffered as a result of any action brought
+// by a third party) even if such damage or loss was
+// reasonably foreseeable or Xilinx had been advised of the
+// possibility of the same.
 //
 // CRITICAL APPLICATIONS
+// Xilinx products are not designed or intended to be fail-
+// safe, or for use in any application requiring fail-safe
+// performance, such as life-support or safety devices or
+// systems, Class III medical devices, nuclear facilities,
+// applications related to the deployment of airbags, or any
+// other applications that could lead to death, personal
+// injury, or severe property or environmental damage
+// (individually and collectively, "Critical
+// Applications"). Customer assumes the sole risk and
+// liability of any use of Xilinx products in Critical
+// Applications, subject only to applicable laws and
+// regulations governing limitations on product liability.
 //
-// Xilinx products are not designed or intended to be fail-safe, or for use in
-// any application requiring fail-safe performance, such as life-support or
-// safety devices or systems, Class III medical devices, nuclear facilities,
-// applications related to the deployment of airbags, or any other
-// applications that could lead to death, personal injury, or severe property
-// or environmental damage (individually and collectively, "Critical
-// Applications"). Customer assumes the sole risk and liability of any use of
-// Xilinx products in Critical Applications, subject only to applicable laws
-// and regulations governing limitations on product liability.
-//
-// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
-// AT ALL TIMES.
+// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+// PART OF THIS FILE AT ALL TIMES.
 //
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_clocking_v6.v
+// Version    : 1.7
 //-- Description: Clocking module for Virtex6 PCIe Block
 //--
 //--
@@ -52,6 +60,7 @@
 
 module pcie_clocking_v6 # (
 
+  parameter IS_ENDPOINT = "TRUE",
   parameter CAP_LINK_WIDTH = 8,        // 1 - x1 , 2 - x2 , 4 - x4 , 8 - x8
   parameter CAP_LINK_SPEED = 4'h1,     // 1 - Gen1 , 2 - Gen2
   parameter REF_CLK_FREQ = 0,          // 0 - 100 MHz , 1 - 125 MHz , 2 - 250 MHz
@@ -69,7 +78,7 @@ module pcie_clocking_v6 # (
   output wire        pipe_clk,
   output wire        user_clk,
   output wire        block_clk,
-  output wire        drp_clk,        // added DRP
+  output wire        drp_clk,
   output wire        clock_locked
    
 );
@@ -79,6 +88,7 @@ module pcie_clocking_v6 # (
   wire               mmcm_locked;
   wire               mmcm_clkfbin;
   wire               mmcm_clkfbout;
+  wire               mmcm_reset;
   wire               clk_500;
   wire               clk_250;
   wire               clk_125;
@@ -101,17 +111,22 @@ module pcie_clocking_v6 # (
   
   localparam         mmcm_divclk_divide = (REF_CLK_FREQ == 0) ? 1 : 
                                           (REF_CLK_FREQ == 1) ? 1 : 
-                                         (REF_CLK_FREQ == 2) ? 2 : 0;
+                                          (REF_CLK_FREQ == 2) ? 2 : 0;
 
   localparam         mmcm_clock0_div = 4;
   localparam         mmcm_clock1_div = 8;
-  localparam         mmcm_clock2_div = ((CAP_LINK_WIDTH == 6'h01) && (CAP_LINK_SPEED == 4'h1) && (USER_CLK_FREQ == 0)) ? 32 :
-                                       ((CAP_LINK_WIDTH == 6'h01) && (CAP_LINK_SPEED == 4'h1) && (USER_CLK_FREQ == 1)) ? 16 :
-                                       ((CAP_LINK_WIDTH == 6'h01) && (CAP_LINK_SPEED == 4'h2) && (USER_CLK_FREQ == 1)) ? 16 :
-                                       ((CAP_LINK_WIDTH == 6'h02) && (CAP_LINK_SPEED == 4'h1) && (USER_CLK_FREQ == 1)) ? 16 : 2;
+  localparam         mmcm_clock2_div = ((CAP_LINK_WIDTH == 6'h01) && (CAP_LINK_SPEED == 4'h1) && (USER_CLK_FREQ == 0)) ?  32 :
+                                       ((CAP_LINK_WIDTH == 6'h01) && (CAP_LINK_SPEED == 4'h1) && (USER_CLK_FREQ == 1)) ?  16 :
+                                       ((CAP_LINK_WIDTH == 6'h01) && (CAP_LINK_SPEED == 4'h2) && (USER_CLK_FREQ == 1)) ?  16 :
+                                       ((CAP_LINK_WIDTH == 6'h02) && (CAP_LINK_SPEED == 4'h1) && (USER_CLK_FREQ == 1)) ?  16 : 2;
   localparam         mmcm_clock3_div = 2;
 
+  // MMCM Reset
+
+  assign             mmcm_reset = 1'b0; 
+
   generate
+
 
     // PIPE Clock BUFG.
 
@@ -213,13 +228,13 @@ module pcie_clocking_v6 # (
 
   endgenerate
 
-  // DRP clock for 125 MHz phase allign output
-  BUFG drp_clk_bufg_i (.O(drp_clk), .I(clk_125));
+  // DRP clk
+  BUFG drp_clk_bufg_i  (.O(drp_clk), .I(clk_125));
 
   // Feedback BUFG. Required for Temp Compensation
   BUFG clkfbin_bufg_i  (.O(mmcm_clkfbin), .I(mmcm_clkfbout));
 
-  // sys_clk BUFG. Required for routability from IBUFDS_GTXE1
+  // sys_clk BUFG.
   BUFG sys_clk_bufg_i  (.O(sys_clk_bufg), .I(sys_clk));
 
   MMCM_ADV # (
@@ -280,19 +295,19 @@ module pcie_clocking_v6 # (
     .PSINCDEC     (1'b0),
     .PWRDWN       (1'b0),
     .PSCLK        (1'b0),
-    .RST          (~gt_pll_lock)
+    .RST          (mmcm_reset)
   );
 
   // Synchronize MMCM locked output
-  always @ (posedge pipe_clk or negedge mmcm_locked) begin
+  always @ (posedge pipe_clk or negedge gt_pll_lock) begin
 
-    if (!mmcm_locked)
+    if (!gt_pll_lock)
       reg_clock_locked[1:0] <= #TCQ 2'b11;
     else
       reg_clock_locked[1:0] <= #TCQ {reg_clock_locked[0], 1'b0};
 
   end
-  assign  clock_locked = !reg_clock_locked[1];
+  assign  clock_locked = !reg_clock_locked[1] & mmcm_locked;
 
 endmodule
 

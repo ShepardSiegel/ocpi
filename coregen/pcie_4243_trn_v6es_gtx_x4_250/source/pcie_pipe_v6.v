@@ -1,47 +1,55 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
-// This file contains confidential and proprietary information of Xilinx, Inc.
-// and is protected under U.S. and international copyright and other
-// intellectual property laws.
+// This file contains confidential and proprietary information
+// of Xilinx, Inc. and is protected under U.S. and
+// international copyright and other intellectual property
+// laws.
 //
 // DISCLAIMER
-//
-// This disclaimer is not a license and does not grant any rights to the
-// materials distributed herewith. Except as otherwise provided in a valid
-// license issued to you by Xilinx, and to the maximum extent permitted by
-// applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
-// FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
-// IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-// MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
-// and (2) Xilinx shall not be liable (whether in contract or tort, including
-// negligence, or under any other theory of liability) for any loss or damage
-// of any kind or nature related to, arising under or in connection with these
-// materials, including for any direct, or any indirect, special, incidental,
-// or consequential loss or damage (including loss of data, profits, goodwill,
-// or any type of loss or damage suffered as a result of any action brought by
-// a third party) even if such damage or loss was reasonably foreseeable or
-// Xilinx had been advised of the possibility of the same.
+// This disclaimer is not a license and does not grant any
+// rights to the materials distributed herewith. Except as
+// otherwise provided in a valid license issued to you by
+// Xilinx, and to the maximum extent permitted by applicable
+// law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+// WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+// AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+// BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+// INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+// (2) Xilinx shall not be liable (whether in contract or tort,
+// including negligence, or under any other theory of
+// liability) for any loss or damage of any kind or nature
+// related to, arising under or in connection with these
+// materials, including for any direct, or any indirect,
+// special, incidental, or consequential loss or damage
+// (including loss of data, profits, goodwill, or any type of
+// loss or damage suffered as a result of any action brought
+// by a third party) even if such damage or loss was
+// reasonably foreseeable or Xilinx had been advised of the
+// possibility of the same.
 //
 // CRITICAL APPLICATIONS
+// Xilinx products are not designed or intended to be fail-
+// safe, or for use in any application requiring fail-safe
+// performance, such as life-support or safety devices or
+// systems, Class III medical devices, nuclear facilities,
+// applications related to the deployment of airbags, or any
+// other applications that could lead to death, personal
+// injury, or severe property or environmental damage
+// (individually and collectively, "Critical
+// Applications"). Customer assumes the sole risk and
+// liability of any use of Xilinx products in Critical
+// Applications, subject only to applicable laws and
+// regulations governing limitations on product liability.
 //
-// Xilinx products are not designed or intended to be fail-safe, or for use in
-// any application requiring fail-safe performance, such as life-support or
-// safety devices or systems, Class III medical devices, nuclear facilities,
-// applications related to the deployment of airbags, or any other
-// applications that could lead to death, personal injury, or severe property
-// or environmental damage (individually and collectively, "Critical
-// Applications"). Customer assumes the sole risk and liability of any use of
-// Xilinx products in Critical Applications, subject only to applicable laws
-// and regulations governing limitations on product liability.
-//
-// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
-// AT ALL TIMES.
+// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+// PART OF THIS FILE AT ALL TIMES.
 //
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_pipe_v6.v
+// Version    : 1.7
 //-- Description: PIPE module for Virtex6 PCIe Block
 //--
 //--
@@ -453,9 +461,6 @@ module pcie_pipe_v6 #
       end
       else begin
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`ifndef PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
           assign pipe_rx1_char_is_k_o = 2'b00;
           assign pipe_rx1_data_o = 16'h0000;
@@ -471,9 +476,6 @@ module pcie_pipe_v6 #
           assign pipe_tx1_elec_idle_o = 1'b1;
           assign pipe_tx1_powerdown_o = 2'b00;
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`endif // PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       end      
 
@@ -561,9 +563,6 @@ module pcie_pipe_v6 #
       end
       else begin
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`ifndef PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
           assign pipe_rx2_char_is_k_o = 2'b00;
           assign pipe_rx2_data_o = 16'h0000;
@@ -593,9 +592,6 @@ module pcie_pipe_v6 #
           assign pipe_tx3_elec_idle_o = 1'b1;
           assign pipe_tx3_powerdown_o = 2'b00;
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`endif // PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       end      
 
@@ -764,9 +760,6 @@ module pcie_pipe_v6 #
       end
       else begin
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`ifndef PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
           assign pipe_rx4_char_is_k_o = 2'b00;
           assign pipe_rx4_data_o = 16'h0000;
@@ -824,111 +817,15 @@ module pcie_pipe_v6 #
           assign pipe_tx7_elec_idle_o = 1'b1;
           assign pipe_tx7_powerdown_o = 2'b00;
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`endif // PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       end      
 
     endgenerate
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`ifdef PIPE_RX_ERR_INJ
-
-generate
-
-if (LINK_CAP_MAX_LINK_SPEED == 4'h2) begin
-
-reg [5:0] pl_ltssm_state_q;
-
-always @(posedge pipe_clk) begin
-
-  if (rst_n)
-    pl_ltssm_state_q <= 0; 
-  else
-    pl_ltssm_state_q <= pl_ltssm_state; 
-
-end
-
-wire        plm_in_l0 = (pl_ltssm_state_q == 6'h16);
-
-
-pcie_pipe_err_inject # (
-   .NO_OF_LANES(NO_OF_LANES)
-)
-rx_err_inj(
-
-   .enable(plm_in_l0),
-   .pipe_clk(pipe_clk),
-   .pipe_rst(!rst_n),
-
-   .o_ln0_cisk(pipe_rx0_char_is_k_o),
-   .o_ln0_data(pipe_rx0_data_o),
-   .i_ln0_cisk(pipe_rx0_char_is_k_q),
-   .i_ln0_data(pipe_rx0_data_q),
-   .o_ln1_cisk(pipe_rx1_char_is_k_o),
-   .o_ln1_data(pipe_rx1_data_o),
-   .i_ln1_cisk((NO_OF_LANES >= 2 ) ? pipe_rx1_char_is_k_q : 2'b0),
-   .i_ln1_data((NO_OF_LANES >= 2 ) ? pipe_rx1_data_q : 16'h0),
-   .o_ln2_cisk(pipe_rx2_char_is_k_o),
-   .o_ln2_data(pipe_rx2_data_o),
-   .i_ln2_cisk((NO_OF_LANES >= 4 ) ? pipe_rx2_char_is_k_q : 2'b0),
-   .i_ln2_data((NO_OF_LANES >= 4 ) ?  pipe_rx2_data_q : 16'h0),
-   .o_ln3_cisk(pipe_rx3_char_is_k_o),
-   .o_ln3_data(pipe_rx3_data_o),
-   .i_ln3_cisk((NO_OF_LANES >= 4 ) ? pipe_rx3_char_is_k_q : 2'b0),
-   .i_ln3_data((NO_OF_LANES >= 4 ) ? pipe_rx3_data_q : 16'h0),
-   .o_ln4_cisk(pipe_rx4_char_is_k_o),
-   .o_ln4_data(pipe_rx4_data_o),
-   .i_ln4_cisk((NO_OF_LANES >= 8 ) ? pipe_rx4_char_is_k_q : 2'b0),
-   .i_ln4_data((NO_OF_LANES >= 8 ) ? pipe_rx4_data_q : 16'h0),
-   .o_ln5_cisk(pipe_rx5_char_is_k_o),
-   .o_ln5_data(pipe_rx5_data_o),
-   .i_ln5_cisk((NO_OF_LANES >= 8 ) ? pipe_rx5_char_is_k_q : 2'b0),
-   .i_ln5_data((NO_OF_LANES >= 8 ) ? pipe_rx5_data_q : 16'h0),
-   .o_ln6_cisk(pipe_rx6_char_is_k_o),
-   .o_ln6_data(pipe_rx6_data_o),
-   .i_ln6_cisk((NO_OF_LANES >= 8 ) ? pipe_rx6_char_is_k_q : 2'b0),
-   .i_ln6_data((NO_OF_LANES >= 8 ) ? pipe_rx6_data_q : 16'h0),
-   .o_ln7_cisk(pipe_rx7_char_is_k_o),
-   .o_ln7_data(pipe_rx7_data_o),
-   .i_ln7_cisk((NO_OF_LANES >= 8 ) ? pipe_rx7_char_is_k_q : 2'b0),
-   .i_ln7_data((NO_OF_LANES >= 8 ) ? pipe_rx7_data_q : 16'h0)
-);
-
-end else begin 
-
-assign pipe_rx0_char_is_k_o  = pipe_rx0_char_is_k_q;
-assign pipe_rx0_data_o = pipe_rx0_data_q;
-assign pipe_rx1_char_is_k_o  = pipe_rx1_char_is_k_q;
-assign pipe_rx1_data_o = pipe_rx1_data_q;
-assign pipe_rx2_char_is_k_o  = pipe_rx2_char_is_k_q;
-assign pipe_rx2_data_o = pipe_rx2_data_q;
-assign pipe_rx3_char_is_k_o  = pipe_rx3_char_is_k_q;
-assign pipe_rx3_data_o = pipe_rx3_data_q;
-assign pipe_rx4_char_is_k_o  = pipe_rx4_char_is_k_q;
-assign pipe_rx4_data_o = pipe_rx4_data_q;
-assign pipe_rx5_char_is_k_o  = pipe_rx5_char_is_k_q;
-assign pipe_rx5_data_o = pipe_rx5_data_q;
-assign pipe_rx6_char_is_k_o  = pipe_rx6_char_is_k_q;
-assign pipe_rx6_data_o = pipe_rx6_data_q;
-assign pipe_rx7_char_is_k_o  = pipe_rx7_char_is_k_q;
-assign pipe_rx7_data_o = pipe_rx7_data_q;
-
-end
-
-endgenerate
-
-
-`endif // PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`ifndef PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     assign pipe_rx0_char_is_k_o  = pipe_rx0_char_is_k_q;
@@ -949,9 +846,6 @@ endgenerate
     assign pipe_rx7_data_o = pipe_rx7_data_q;
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-// start remove before release
-`endif // PIPE_RX_ERR_INJ
-// end remove before release
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 endmodule

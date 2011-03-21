@@ -1,48 +1,56 @@
 
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
-// This file contains confidential and proprietary information of Xilinx, Inc.
-// and is protected under U.S. and international copyright and other
-// intellectual property laws.
+// This file contains confidential and proprietary information
+// of Xilinx, Inc. and is protected under U.S. and
+// international copyright and other intellectual property
+// laws.
 //
 // DISCLAIMER
-//
-// This disclaimer is not a license and does not grant any rights to the
-// materials distributed herewith. Except as otherwise provided in a valid
-// license issued to you by Xilinx, and to the maximum extent permitted by
-// applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
-// FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
-// IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-// MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
-// and (2) Xilinx shall not be liable (whether in contract or tort, including
-// negligence, or under any other theory of liability) for any loss or damage
-// of any kind or nature related to, arising under or in connection with these
-// materials, including for any direct, or any indirect, special, incidental,
-// or consequential loss or damage (including loss of data, profits, goodwill,
-// or any type of loss or damage suffered as a result of any action brought by
-// a third party) even if such damage or loss was reasonably foreseeable or
-// Xilinx had been advised of the possibility of the same.
+// This disclaimer is not a license and does not grant any
+// rights to the materials distributed herewith. Except as
+// otherwise provided in a valid license issued to you by
+// Xilinx, and to the maximum extent permitted by applicable
+// law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+// WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+// AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+// BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+// INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+// (2) Xilinx shall not be liable (whether in contract or tort,
+// including negligence, or under any other theory of
+// liability) for any loss or damage of any kind or nature
+// related to, arising under or in connection with these
+// materials, including for any direct, or any indirect,
+// special, incidental, or consequential loss or damage
+// (including loss of data, profits, goodwill, or any type of
+// loss or damage suffered as a result of any action brought
+// by a third party) even if such damage or loss was
+// reasonably foreseeable or Xilinx had been advised of the
+// possibility of the same.
 //
 // CRITICAL APPLICATIONS
+// Xilinx products are not designed or intended to be fail-
+// safe, or for use in any application requiring fail-safe
+// performance, such as life-support or safety devices or
+// systems, Class III medical devices, nuclear facilities,
+// applications related to the deployment of airbags, or any
+// other applications that could lead to death, personal
+// injury, or severe property or environmental damage
+// (individually and collectively, "Critical
+// Applications"). Customer assumes the sole risk and
+// liability of any use of Xilinx products in Critical
+// Applications, subject only to applicable laws and
+// regulations governing limitations on product liability.
 //
-// Xilinx products are not designed or intended to be fail-safe, or for use in
-// any application requiring fail-safe performance, such as life-support or
-// safety devices or systems, Class III medical devices, nuclear facilities,
-// applications related to the deployment of airbags, or any other
-// applications that could lead to death, personal injury, or severe property
-// or environmental damage (individually and collectively, "Critical
-// Applications"). Customer assumes the sole risk and liability of any use of
-// Xilinx products in Critical Applications, subject only to applicable laws
-// and regulations governing limitations on product liability.
-//
-// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
-// AT ALL TIMES.
+// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+// PART OF THIS FILE AT ALL TIMES.
 //
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : gtx_rx_valid_filter_v6.v
+// Version    : 1.7
 
 `timescale 1ns / 1ns
 
@@ -66,6 +74,8 @@ module GTX_RX_VALID_FILTER_V6 #(
   input  [ 2:0]       GT_RX_STATUS,
   input               GT_RX_PHY_STATUS,
 
+  input               PLM_IN_L0,
+  input               PLM_IN_RS,
 
   input               USER_CLK,
   input               RESET
@@ -82,6 +92,8 @@ module GTX_RX_VALID_FILTER_V6 #(
 
   parameter EIOS_COM          = 8'hBC;
   parameter EIOS_IDL          = 8'h7C;
+  parameter FTSOS_COM         = 8'hBC;
+  parameter FTSOS_FTS         = 8'h3C;
  
   reg    [4:0]        reg_state_eios_det;
   wire   [4:0]        state_eios_det;
@@ -110,9 +122,12 @@ module GTX_RX_VALID_FILTER_V6 #(
   reg    [15:0]       gt_rxdata_q;
   reg                 gt_rxvalid_q;
   reg                 gt_rxelecidle_q;
+  reg                 gt_rxelecidle_qq;
 
   reg    [ 2:0]       gt_rx_status_q;
   reg                 gt_rx_phy_status_q;
+  reg                 gt_rx_is_skp0_q;
+  reg                 gt_rx_is_skp1_q;
 
   // EIOS detector
 
@@ -127,8 +142,11 @@ module GTX_RX_VALID_FILTER_V6 #(
       gt_rxdata_q <= #TCQ 16'h0;
       gt_rxvalid_q <= #TCQ 1'b0;
       gt_rxelecidle_q <= #TCQ 1'b0;
+      gt_rxelecidle_qq <= #TCQ 1'b0;
       gt_rx_status_q <= #TCQ 3'b000;
       gt_rx_phy_status_q <= #TCQ 1'b0;
+      gt_rx_is_skp0_q <= #TCQ 1'b0;
+      gt_rx_is_skp1_q <= #TCQ 1'b0;
 
     end else begin
 
@@ -138,8 +156,19 @@ module GTX_RX_VALID_FILTER_V6 #(
       gt_rxdata_q <= #TCQ GT_RXDATA;
       gt_rxvalid_q <= #TCQ GT_RXVALID;
       gt_rxelecidle_q <= #TCQ GT_RXELECIDLE;
+      gt_rxelecidle_qq <= #TCQ gt_rxelecidle_q;
       gt_rx_status_q <= #TCQ GT_RX_STATUS;
       gt_rx_phy_status_q <= #TCQ GT_RX_PHY_STATUS;
+
+      if (GT_RXCHARISK[0] && GT_RXDATA[7:0] == FTSOS_FTS)
+        gt_rx_is_skp0_q <= #TCQ 1'b1;
+      else
+        gt_rx_is_skp0_q <= #TCQ 1'b0;
+
+      if (GT_RXCHARISK[1] && GT_RXDATA[15:8] == FTSOS_FTS)
+        gt_rx_is_skp1_q <= #TCQ 1'b1;
+      else
+        gt_rx_is_skp1_q <= #TCQ 1'b0;
 
       case ( state_eios_det )
 
@@ -242,6 +271,8 @@ module GTX_RX_VALID_FILTER_V6 #(
 
           if (gt_rxvalid_q)  
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_EI_DB1;
+          else if (!PLM_IN_L0)
+            reg_state_rxvld_ei <= #TCQ USER_RXVLD_IDL;
           else
             reg_state_rxvld_ei <= #TCQ USER_RXVLD_EI_DB0;
 
@@ -310,10 +341,41 @@ module GTX_RX_VALID_FILTER_V6 #(
                                          .CLK(USER_CLK),
                                          .CE(1'b1), .A3(1'b1),.A2(1'b1),.A1(1'b1),.A0(1'b1));
  
-  assign USER_RXVALID = (state_rxvld_ei == USER_RXVLD_IDL) ? gt_rxvalid_q : 1'b0; 
+
+reg	  awake_in_progress_q = 1'b0;
+reg	  awake_see_com_q = 1'b0;
+reg [3:0] awake_com_count_q = 4'b0000;
+
+wire	awake_see_com_0 = GT_RXVALID & (gt_rxcharisk_q[0] && (gt_rxdata_q[7:0] == EIOS_COM));
+wire	awake_see_com_1 = GT_RXVALID & (gt_rxcharisk_q[1] && (gt_rxdata_q[15:8] == EIOS_COM));
+wire	awake_see_com = (awake_see_com_0 || awake_see_com_1) && ~awake_see_com_q;
+
+// Count 8 COMs, (not back-to-back), when waking up from electrical idle
+//  but not for L0s (which is L0).
+
+wire	awake_done = awake_in_progress_q && (awake_com_count_q[3:0] >= 4'hb);
+wire	awake_start = (~gt_rxelecidle_q && gt_rxelecidle_qq) || PLM_IN_RS;
+
+wire	awake_in_progress = awake_start || (~awake_done && awake_in_progress_q);
+wire [3:0] awake_com_count_inced = awake_com_count_q[3:0] + 4'b0001;
+wire [3:0] awake_com_count = (~awake_in_progress_q) ? 4'b0000 :
+			(awake_start) ? 4'b0000 :
+			(awake_see_com_q) ? awake_com_count_inced[3:0] :
+						awake_com_count_q[3:0];
+
+wire	rst_l = ~RESET;
+always @(posedge USER_CLK) begin
+  awake_see_com_q <= #TCQ (rst_l) ? awake_see_com : 1'b0;
+  awake_in_progress_q <= #TCQ (rst_l) ? awake_in_progress : 1'b0;
+  awake_com_count_q[3:0] <= #TCQ (rst_l) ? awake_com_count[3:0] : 4'h0;
+end
+
+
+  assign USER_RXVALID = ((state_rxvld_ei == USER_RXVLD_IDL) && ~awake_in_progress_q) ? gt_rxvalid_q : 1'b0; 
   assign USER_RXCHARISK[0] = USER_RXVALID ? gt_rxcharisk_q[0] : 1'b0; 
   assign USER_RXCHARISK[1] = (USER_RXVALID && !symbol_after_eios) ? gt_rxcharisk_q[1] : 1'b0; 
-  assign USER_RXDATA = gt_rxdata_q;
+  assign USER_RXDATA[7:0] = (gt_rx_is_skp0_q) ? FTSOS_COM : gt_rxdata_q[7:0];
+  assign USER_RXDATA[15:8] = (gt_rx_is_skp1_q) ? FTSOS_COM : gt_rxdata_q[15:8];
   assign USER_RX_STATUS = (state_rxvld_ei == USER_RXVLD_IDL) ? gt_rx_status_q : 3'b000; 
   assign USER_RX_PHY_STATUS = gt_rx_phy_status_q;
 

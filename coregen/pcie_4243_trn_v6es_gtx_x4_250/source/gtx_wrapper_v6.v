@@ -1,47 +1,55 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
-// This file contains confidential and proprietary information of Xilinx, Inc.
-// and is protected under U.S. and international copyright and other
-// intellectual property laws.
+// This file contains confidential and proprietary information
+// of Xilinx, Inc. and is protected under U.S. and
+// international copyright and other intellectual property
+// laws.
 //
 // DISCLAIMER
-//
-// This disclaimer is not a license and does not grant any rights to the
-// materials distributed herewith. Except as otherwise provided in a valid
-// license issued to you by Xilinx, and to the maximum extent permitted by
-// applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
-// FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
-// IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-// MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
-// and (2) Xilinx shall not be liable (whether in contract or tort, including
-// negligence, or under any other theory of liability) for any loss or damage
-// of any kind or nature related to, arising under or in connection with these
-// materials, including for any direct, or any indirect, special, incidental,
-// or consequential loss or damage (including loss of data, profits, goodwill,
-// or any type of loss or damage suffered as a result of any action brought by
-// a third party) even if such damage or loss was reasonably foreseeable or
-// Xilinx had been advised of the possibility of the same.
+// This disclaimer is not a license and does not grant any
+// rights to the materials distributed herewith. Except as
+// otherwise provided in a valid license issued to you by
+// Xilinx, and to the maximum extent permitted by applicable
+// law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+// WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+// AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+// BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+// INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+// (2) Xilinx shall not be liable (whether in contract or tort,
+// including negligence, or under any other theory of
+// liability) for any loss or damage of any kind or nature
+// related to, arising under or in connection with these
+// materials, including for any direct, or any indirect,
+// special, incidental, or consequential loss or damage
+// (including loss of data, profits, goodwill, or any type of
+// loss or damage suffered as a result of any action brought
+// by a third party) even if such damage or loss was
+// reasonably foreseeable or Xilinx had been advised of the
+// possibility of the same.
 //
 // CRITICAL APPLICATIONS
+// Xilinx products are not designed or intended to be fail-
+// safe, or for use in any application requiring fail-safe
+// performance, such as life-support or safety devices or
+// systems, Class III medical devices, nuclear facilities,
+// applications related to the deployment of airbags, or any
+// other applications that could lead to death, personal
+// injury, or severe property or environmental damage
+// (individually and collectively, "Critical
+// Applications"). Customer assumes the sole risk and
+// liability of any use of Xilinx products in Critical
+// Applications, subject only to applicable laws and
+// regulations governing limitations on product liability.
 //
-// Xilinx products are not designed or intended to be fail-safe, or for use in
-// any application requiring fail-safe performance, such as life-support or
-// safety devices or systems, Class III medical devices, nuclear facilities,
-// applications related to the deployment of airbags, or any other
-// applications that could lead to death, personal injury, or severe property
-// or environmental damage (individually and collectively, "Critical
-// Applications"). Customer assumes the sole risk and liability of any use of
-// Xilinx products in Critical Applications, subject only to applicable laws
-// and regulations governing limitations on product liability.
-//
-// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
-// AT ALL TIMES.
+// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+// PART OF THIS FILE AT ALL TIMES.
 //
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : gtx_wrapper_v6.v
+// Version    : 1.7
 //-- Description: GTX module for Virtex6 PCIe Block
 //--
 //--
@@ -72,6 +80,10 @@ module gtx_wrapper_v6 (
 
     // other
     GTRefClkout,
+    plm_in_l0,
+    plm_in_rl,
+    plm_in_dt,
+    plm_in_rs,
     RxPLLLkDet,
     TxDetectRx,
     PhyStatus,
@@ -88,7 +100,9 @@ module gtx_wrapper_v6 (
     ChanIsAligned,
     local_pcs_reset,
     RxResetDone,
-    SyncDone
+    SyncDone,
+    DRPCLK,
+    TxOutClk
 
     );
     
@@ -101,13 +115,13 @@ module gtx_wrapper_v6 (
                                                         (REF_CLK_FREQ == 2) ? 2 : 0;
     localparam                     SIMULATION =  (PL_FAST_TRAIN == "TRUE") ? 1 : 0;
 
-    localparam                     RXPLL_CP_CFG = (REF_CLK_FREQ == 0) ? 8'h09 :
-                                                  (REF_CLK_FREQ == 1) ? 8'h09 :
-                                                  (REF_CLK_FREQ == 2) ? 8'h0D : 8'h09;
+    localparam                     RXPLL_CP_CFG = (REF_CLK_FREQ == 0) ? 8'h05 :
+                                                  (REF_CLK_FREQ == 1) ? 8'h05 :
+                                                  (REF_CLK_FREQ == 2) ? 8'h05 : 8'h05;
 
-    localparam                     TXPLL_CP_CFG = (REF_CLK_FREQ == 0) ? 8'h09 :
-                                                  (REF_CLK_FREQ == 1) ? 8'h09 :
-                                                  (REF_CLK_FREQ == 2) ? 8'h0D : 8'h09;
+    localparam                     TXPLL_CP_CFG = (REF_CLK_FREQ == 0) ? 8'h05 :
+                                                  (REF_CLK_FREQ == 1) ? 8'h05 :
+                                                  (REF_CLK_FREQ == 2) ? 8'h05 : 8'h05;
 
     localparam                     RX_CLK25_DIVIDER = (REF_CLK_FREQ == 0) ? 4  :
                                                       (REF_CLK_FREQ == 1) ? 5  :
@@ -134,9 +148,12 @@ module gtx_wrapper_v6 (
     output       [NO_OF_LANES-1:0] RxValid;
     output       [NO_OF_LANES-1:0] RxElecIdle;
     output   [(NO_OF_LANES*3)-1:0] RxStatus;
-
     // other
     output       [NO_OF_LANES-1:0] GTRefClkout;
+    input                          plm_in_l0;
+    input                          plm_in_rl;
+    input                          plm_in_dt;
+    input                          plm_in_rs;
     output       [NO_OF_LANES-1:0] RxPLLLkDet;
     input                          TxDetectRx;
     output       [NO_OF_LANES-1:0] PhyStatus;
@@ -155,7 +172,8 @@ module gtx_wrapper_v6 (
     input                          local_pcs_reset;
     output                         RxResetDone; 
     output                         SyncDone;
-
+    input                          DRPCLK;
+    output                         TxOutClk;
     genvar                         i;
 
     // dummy signals to avoid port mismatch with DUAL_GTX
@@ -203,12 +221,28 @@ module gtx_wrapper_v6 (
     wire         [NO_OF_LANES-1:0] PHYSTATUS;
     wire         [NO_OF_LANES-1:0] RXVALID;
     wire         [NO_OF_LANES-1:0] RATE_CLK_SEL;
+    wire         [NO_OF_LANES-1:0] TXOCLK;
+    wire         [NO_OF_LANES-1:0] TXDLYALIGNDISABLE;
+    wire         [NO_OF_LANES-1:0] TXDLYALIGNRESET;
     
-
+    
     reg          [(NO_OF_LANES-1):0] GTX_RxResetDone_q;
     reg          [(NO_OF_LANES-1):0] TXRESETDONE_q;
-        
+
     wire           [NO_OF_LANES-1:0] RxValid;
+    
+    
+    wire       [(NO_OF_LANES*8-1):0] daddr;
+    wire           [NO_OF_LANES-1:0] den;
+    wire      [(NO_OF_LANES*16-1):0] din;
+    wire           [NO_OF_LANES-1:0] dwe;
+    
+    wire       [(NO_OF_LANES*4-1):0] drpstate;
+    wire           [NO_OF_LANES-1:0] drdy;
+    wire      [(NO_OF_LANES*16-1):0] dout;
+
+    wire                             write_drp_cb_fts;
+    wire                             write_drp_cb_ts1;
         
     assign RxResetDone                 = &(GTX_RxResetDone_q[(NO_OF_LANES)-1:0]);
     assign TX[(NO_OF_LANES)-1:0]       = GTX_TXP[(NO_OF_LANES)-1:0];
@@ -217,6 +251,10 @@ module gtx_wrapper_v6 (
     assign TxData_dummy                = 16'b0;
     assign TxDataK_dummy               = 2'b0;
     assign SyncDone                    = &(SYNC_DONE[(NO_OF_LANES)-1:0]); 
+    assign TxOutClk                    = TXOCLK[0];
+    
+    assign write_drp_cb_fts            = plm_in_l0;
+    assign write_drp_cb_ts1            = plm_in_rl | plm_in_dt;
 
     // pipeline to improve timing
     always @ (posedge PCLK) begin
@@ -225,13 +263,30 @@ module gtx_wrapper_v6 (
       TXRESETDONE_q[(NO_OF_LANES)-1:0]      <= TXRESETDONE[(NO_OF_LANES)-1:0];
 
     end
-   
+
     generate 
 
       for (i=0; i < NO_OF_LANES; i=i+1) begin: GTXD        
 
         assign GTX_RxChbondLevel[(3*i)+2:(3*i)] = (NO_OF_LANES-(i+1));
 
+        GTX_DRP_CHANALIGN_FIX_3752_V6 # (
+          .C_SIMULATION(SIMULATION)
+        ) GTX_DRP_CHANALIGN_FIX_3752 (
+
+          .dwe(dwe[i]),
+          .din(din[(16*i)+15:(16*i)]),
+          .den(den[i]),
+          .daddr(daddr[(8*i)+7:(8*i)]),
+          .drpstate(drpstate[(4*i)+3:(4*i)]),
+          .write_ts1(write_drp_cb_ts1),
+          .write_fts(write_drp_cb_fts),
+          .dout(dout[(16*i)+15:(16*i)]),
+          .drdy(drdy[i]),
+          .Reset_n(Reset_n),
+          .drp_clk(DRPCLK)
+
+        );
 
         GTX_RX_VALID_FILTER_V6 # (
           .CLK_COR_MIN_LAT(28)
@@ -253,6 +308,8 @@ module gtx_wrapper_v6 (
           .GT_RX_STATUS     ( GTX_RxStatus[(3*i)+2:(3*i)] ),    //I 
           .GT_RX_PHY_STATUS ( PHYSTATUS[i] ), 
 
+          .PLM_IN_L0        ( plm_in_l0 ),             //I 
+          .PLM_IN_RS        ( plm_in_rs ),                      //I 
           .USER_CLK         ( PCLK ),                  //I
           .RESET            ( !Reset_n )               //I
 
@@ -269,28 +326,25 @@ module gtx_wrapper_v6 (
           .OUT_DIV_RESET    ( OUT_DIV_RESET[i] ),      //O
           .PCS_RESET        ( PCS_RESET[i] ),          //O
           .USER_PHYSTATUS   ( PHYSTATUS[i] ),          //O
-          .RATE_CLK_SEL     ( RATE_CLK_SEL[i] ),       //0
+          .TXALIGNDISABLE   ( TXDLYALIGNDISABLE[i] ),  //O
+          .DELAYALIGNRESET  ( TXDLYALIGNRESET[i] ),    //O
       
-          .USER_CLK         ( PCLK ),                  //I
+          .USER_CLK         ( PCLK),                   //I
           .RESET            ( !Reset_n ),              //I
           .RATE             ( Rate ),                  //I
           .RATEDONE         ( TXRATEDONE[i] ),         //I
           .GT_PHYSTATUS     ( GTX_PhyStatus[i] ),      //I
-          .RESETDONE        ( TXRESETDONE_q[i] & GTX_RxResetDone_q[i] ),  //I
-
-          .DEBUG_STATUS     ( ),                       // O
-          .ENPMA_STATE_MASK ( 3'b000 ),                // I
-          .OUTDIV_STATE_MASK( 3'b010 )                 // I
+          .RESETDONE        ( TXRESETDONE_q[i] & GTX_RxResetDone_q[i] )  //I
 
         );
-
-//POWER_SAVE[4] set to an unsupported value and must be set to 1. Please see Answer Record 39430 for more information.
 
         GTXE1 # (
 
           .TX_DRIVE_MODE("PIPE"),
+          .TX_DEEMPH_1(5'b10010), 
+          .TX_MARGIN_FULL_0(7'b100_1101),
+
           .TX_CLK_SOURCE("RXPLL"),
-          //.POWER_SAVE(10'b0000100100),
           .POWER_SAVE(10'b0000110100),
           .CM_TRIM ( 2'b01 ),
           .PMA_CDR_SCAN ( 27'h640404C ),
@@ -300,8 +354,8 @@ module gtx_wrapper_v6 (
           .RX_DLYALIGN_EDGESET(5'b00010),
           .RX_DLYALIGN_LPFINC(4'b0110),
           .RX_DLYALIGN_OVRDSETTING(8'b10000000),
-          .TERMINATION_CTRL(5'b10101),
-          .TERMINATION_OVRD("TRUE"),
+          .TERMINATION_CTRL(5'b00000),
+          .TERMINATION_OVRD("FALSE"),
           .TX_DLYALIGN_LPFINC(4'b0110),
           .TX_DLYALIGN_OVRDSETTING(8'b10000000),
           .TXPLL_CP_CFG( TXPLL_CP_CFG ), 
@@ -309,12 +363,12 @@ module gtx_wrapper_v6 (
           .RXPLL_CP_CFG ( RXPLL_CP_CFG ),
           //.TX_DETECT_RX_CFG( 14'h1832 ),
           .TX_TDCC_CFG ( 2'b11 ), 
-          .BIAS_CFG ( 17'h00014 ),
+          .BIAS_CFG ( 17'h00000 ),
           .AC_CAP_DIS ( "FALSE" ),
           .DFE_CFG ( 8'b00011011 ),
           .SIM_TX_ELEC_IDLE_LEVEL("1"),
           .SIM_RECEIVER_DETECT_PASS("TRUE"),
-          .RX_EN_REALIGN_RESET_BUF("TRUE"),
+          .RX_EN_REALIGN_RESET_BUF("FALSE"),
           .TX_IDLE_ASSERT_DELAY(3'b100),          // TX-idle-set-to-idle (13 UI)
           .TX_IDLE_DEASSERT_DELAY(3'b010),        // TX-idle-to-diff (7 UI)
           .CHAN_BOND_SEQ_2_CFG(5'b11111),         // 5'b11111 for PCIE mode, 5'b00000 for other modes
@@ -384,21 +438,22 @@ module gtx_wrapper_v6 (
           .RX_LOS_INVALID_INCR(8),                 // power of 2:  1..128
           .RX_LOSS_OF_SYNC_FSM("FALSE"),
           .RX_LOS_THRESHOLD(128),                  // power of 2:  4..512
-          .RX_SLIDE_MODE("AUTO"),                  // 00=OFF 01=AUTO 10=PCS 11=PMA
+          .RX_SLIDE_MODE("OFF"),                  // 00=OFF 01=AUTO 10=PCS 11=PMA
           .RX_XCLK_SEL ("RXREC"),
           .TX_BUFFER_USE("FALSE"),                 // Must be set to FALSE for use by PCIE
           .TX_XCLK_SEL ("TXUSR"),                  // Must be set to TXUSR for use by PCIE
           .TXPLL_LKDET_CFG (3'b101),
           .RX_EYE_SCANMODE (2'b00),
-          .RX_EYE_OFFSET (8'h4C),
-          .PMA_RX_CFG ( 25'h05ce048 ),
-          .TRANS_TIME_NON_P2(8'h19),               // Reduced simulation time
+          .RX_EYE_OFFSET (8'h4C), 
+          .PMA_RX_CFG ( 25'h05ce008 ), 
+          .TRANS_TIME_NON_P2(8'h2),               // Reduced simulation time
           .TRANS_TIME_FROM_P2(12'h03c),            // Reduced simulation time
           .TRANS_TIME_TO_P2(10'h064),              // Reduced simulation time
           .TRANS_TIME_RATE(8'hD7),                 // Reduced simulation time
           .SHOW_REALIGN_COMMA("FALSE"),
-          .TX_PMADATA_OPT(1'b0),                   // Lockup latch between PCS and PMA
-          .PMA_TX_CFG( 20'h00082  )                // Aligns posedge of USRCLK   
+          .TX_PMADATA_OPT(1'b1),                   // Lockup latch between PCS and PMA
+          .PMA_TX_CFG( 20'h80082  ),                // Aligns posedge of USRCLK
+          .TXOUTCLK_CTRL("TXPLLREFCLK_DIV1")      
 
         ) 
         GTX (
@@ -407,30 +462,30 @@ module gtx_wrapper_v6 (
           .COMINITDET	        (),
           .COMSASDET	        (),
           .COMWAKEDET	        (),
-          .DADDR	        (),
-          .DCLK	                (),
-          .DEN	                (),
-          .DFECLKDLYADJ         (),
+          .DADDR	        (daddr[(8*i)+7:(8*i)]),
+          .DCLK	                (DRPCLK),
+          .DEN	                (den[i]),
+	  .DFECLKDLYADJ         ( 6'h0 ), 
           .DFECLKDLYADJMON      (),
           .DFEDLYOVRD	        ( 1'b1 ),
           .DFEEYEDACMON         (),
           .DFESENSCAL	        (),
-          .DFETAP1	        (),
+          .DFETAP1              (0), 
           .DFETAP1MONITOR	(),
-          .DFETAP2	        (),
+          .DFETAP2	        (5'h0),
           .DFETAP2MONITOR	(),
-          .DFETAP3	        (),
+          .DFETAP3	        (4'h0),
           .DFETAP3MONITOR	(),
-          .DFETAP4	        (),
+          .DFETAP4	        (4'h0),
           .DFETAP4MONITOR	(),
           .DFETAPOVRD	        ( 1'b1 ),
-          .DI	                (),
-          .DRDY	                (),
-          .DRPDO	        (),
-          .DWE	                (),
+          .DI	                (din[(16*i)+15:(16*i)]),
+          .DRDY	                (drdy[i]),
+          .DRPDO	        (dout[(16*i)+15:(16*i)]),
+          .DWE	                (dwe[i]),
           .GATERXELECIDLE       ( 1'b0 ),
-          .GREFCLKRX	        (),
-          .GREFCLKTX	        (),
+          .GREFCLKRX	        (0),
+          .GREFCLKTX	        (0),
           .GTXRXRESET	        ( ~GTReset_n ),
           .GTXTEST	        ( {11'b10000000000,OUT_DIV_RESET[i],1'b0} ),
           .GTXTXRESET	        ( ~GTReset_n ),
@@ -438,8 +493,8 @@ module gtx_wrapper_v6 (
           .MGTREFCLKFAB	        (),
           .MGTREFCLKRX	        ( {1'b0,REFCLK} ),
           .MGTREFCLKTX	        ( {1'b0,REFCLK} ),
-          .NORTHREFCLKRX	(),
-          .NORTHREFCLKTX	(),
+          .NORTHREFCLKRX	(0),
+          .NORTHREFCLKTX	(0),
           .PHYSTATUS	        ( GTX_PhyStatus[i] ),
           .PLLRXRESET	        ( 1'b0 ),
           .PLLTXRESET	        ( 1'b0 ),
@@ -474,7 +529,8 @@ module gtx_wrapper_v6 (
           .RXENPMAPHASEALIGN	( 1'b0 ),
           .RXENPRBSTST	        ( 3'b0 ),
           .RXENSAMPLEALIGN	( 1'b0 ),
-          .RXEQMIX	        ( 10'b0110000110 ),
+          .RXDLYALIGNMONENB     ( 1'b1 ),
+          .RXEQMIX              ( 10'b0110000011 ),
           .RXGEARBOXSLIP	( 1'b0 ),
           .RXHEADER	        (),
           .RXHEADERVALID	(),
@@ -504,8 +560,8 @@ module gtx_wrapper_v6 (
           .RXUSRCLK	        ( PCLK ),
           .RXUSRCLK2	        ( PCLK ),
           .RXVALID	        (GTX_RxValid[i]), 
-          .SOUTHREFCLKRX	(),
-          .SOUTHREFCLKTX	(),
+          .SOUTHREFCLKRX	(0),
+          .SOUTHREFCLKTX	(0),
           .TSTCLK0	        ( 1'b0 ),
           .TSTCLK1	        ( 1'b0 ),
           .TSTIN	        ( {20{1'b1}} ),
@@ -523,18 +579,19 @@ module gtx_wrapper_v6 (
           .TXDEEMPH	        ( TxDeemph ),
           .TXDETECTRX	        ( TxDetectRx ),
           .TXDIFFCTRL	        ( 4'b1111 ),
-          .TXDLYALIGNDISABLE	( 1'b1 ),
+          .TXDLYALIGNDISABLE	( TXDLYALIGNDISABLE[i] ),
+          .TXDLYALIGNRESET	( TXDLYALIGNRESET[i] ),
           .TXELECIDLE	        ( GTX_TxElecIdle[i] ),
           .TXENC8B10BUSE	( 1'b1 ),
           .TXENPMAPHASEALIGN	( TXENPMAPHASEALIGN[i] ), 
-          .TXENPRBSTST	        (),
+          .TXENPRBSTST	        (0),
           .TXGEARBOXREADY	(),
-          .TXHEADER	        (),
+          .TXHEADER	        (0),
           .TXINHIBIT	        ( 1'b0 ),
           .TXKERR	        (),
           .TXMARGIN	        ( {TxMargin, 2'b00} ),
           .TXN	                ( GTX_TXN[i] ),
-          .TXOUTCLK	        (),
+          .TXOUTCLK	        ( TXOCLK[i] ),
           .TXOUTCLKPCS	        (),
           .TXP	                ( GTX_TXP[i] ),
           .TXPDOWNASYNCH	( TXPdownAsynch ), 
@@ -544,32 +601,32 @@ module gtx_wrapper_v6 (
           .TXPLLREFSELDY	( 3'b000 ), 
           .TXPMASETPHASE	( TXPMASETPHASE[i] ),
           .TXPOLARITY	        ( 1'b0 ),
-          .TXPOSTEMPHASIS	(),
+          .TXPOSTEMPHASIS	(0),
           .TXPOWERDOWN	        ( PowerDown[(2*i)+1:(2*i)] ),
-          .TXPRBSFORCEERR	(),
-          .TXPREEMPHASIS	(),
+          .TXPRBSFORCEERR	(0),
+          .TXPREEMPHASIS	(0),
           .TXRATE	        ( {1'b1, Rate} ),
           .TXRESET	        ( ~GTReset_n | local_pcs_reset  | PCS_RESET[i] ),
           .TXRESETDONE          ( TXRESETDONE[i] ),
           .TXRUNDISP	        (),
-          .TXSEQUENCE	        (),
-          .TXSTARTSEQ	        (),
+          .TXSEQUENCE	        (0),
+          .TXSTARTSEQ	        (0),
           .TXSWING	        ( TxSwing ),
           .TXUSRCLK	        ( PCLK ),
           .TXUSRCLK2	        ( PCLK ),
-          .USRCODEERR	        (),
-          .IGNORESIGDET         (),
-          .PERFCLKRX            (),
-          .PERFCLKTX            (),
+          .USRCODEERR	        (0),
+          .IGNORESIGDET         (0),
+          .PERFCLKRX            (0),
+          .PERFCLKTX            (0),
           .RXDLYALIGNMONITOR    (),
           .RXDLYALIGNOVERRIDE   ( 1'b0 ),
-          .RXDLYALIGNRESET      (),
+          .RXDLYALIGNRESET      (0),
           .RXDLYALIGNSWPPRECURB ( 1'b1 ),
           .RXDLYALIGNUPDSW      ( 1'b0 ),
           .TXDLYALIGNMONITOR    (),
           .TXDLYALIGNOVERRIDE   ( 1'b0 ),
-          .TXDLYALIGNRESET      (),
-          .TXDLYALIGNUPDSW      ( 1'b1 ),
+          .TXDLYALIGNUPDSW      ( 1'b0 ),
+          .TXDLYALIGNMONENB     ( 1'b1 ), 
           .TXRATEDONE           ( TXRATEDONE[i] )
 
 
@@ -577,6 +634,5 @@ module gtx_wrapper_v6 (
       end
        
     endgenerate
-
 
 endmodule

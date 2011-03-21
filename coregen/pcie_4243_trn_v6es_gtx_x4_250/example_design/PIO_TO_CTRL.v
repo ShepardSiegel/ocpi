@@ -1,3 +1,4 @@
+
 //-----------------------------------------------------------------------------
 //
 // (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
@@ -48,65 +49,82 @@
 //
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
-// File       : pcie_reset_delay_v6.v
+// File       : PIO_TO_CTRL.v
 // Version    : 1.7
 //--
-//-- Description: sys_reset_n delay (20ms) for Virtex6 PCIe Block
-//--
-//--
+//-- Description: Turn-off Control Unit.
 //--
 //--------------------------------------------------------------------------------
 
 `timescale 1ns/1ns
 
-module pcie_reset_delay_v6 # (
+module PIO_TO_CTRL    (
 
-  parameter PL_FAST_TRAIN = "FALSE",
-  parameter REF_CLK_FREQ = 0   // 0 - 100 MHz, 1 - 125 MHz, 2 - 250 MHz
+                        clk,
+                        rst_n,
 
-)
-(
+                        req_compl_i,
+                        compl_done_i,
 
-  input  wire        ref_clk,
-  input  wire        sys_reset_n,
-  output             delayed_sys_reset_n
-   
-);
+                        cfg_to_turnoff_n,
+                        cfg_turnoff_ok_n
 
-  parameter TCQ = 1;
+                        );
 
-  localparam         TBIT =  (PL_FAST_TRAIN == "FALSE") ?  ((REF_CLK_FREQ == 1) ? 20: (REF_CLK_FREQ == 0) ? 20 : 21) : 2;
+    input               clk;
+    input               rst_n;
 
-  reg [7:0]          reg_count_7_0;
-  reg [7:0]          reg_count_15_8;
-  reg [7:0]          reg_count_23_16;
-  wire [23:0]        concat_count;
+    input               req_compl_i;
+    input               compl_done_i;
 
-  assign concat_count = {reg_count_23_16, reg_count_15_8, reg_count_7_0};
+    input               cfg_to_turnoff_n;
+    output              cfg_turnoff_ok_n;
 
-  always @(posedge ref_clk or negedge sys_reset_n) begin
+    reg                 trn_pending;
+    reg                 cfg_turnoff_ok_n;
 
-    if (!sys_reset_n) begin
 
-      reg_count_7_0 <= #TCQ 8'h0;
-      reg_count_15_8 <= #TCQ 8'h0;
-      reg_count_23_16 <= #TCQ 8'h0;
+    // *  Check if completion is pending
 
-    end else begin
+    always @ ( posedge clk or negedge rst_n ) begin
 
-      if (delayed_sys_reset_n != 1'b1) begin
+        if (!rst_n ) begin
 
-        reg_count_7_0   <= #TCQ reg_count_7_0 + 1'b1;
-        reg_count_15_8  <= #TCQ (reg_count_7_0 == 8'hff)? reg_count_15_8  + 1'b1 : reg_count_15_8 ;
-        reg_count_23_16 <= #TCQ ((reg_count_15_8 == 8'hff) & (reg_count_7_0 == 8'hff)) ? reg_count_23_16 + 1'b1 : reg_count_23_16;
+          trn_pending <= 0;
 
-      end 
+        end else begin
+
+          if (!trn_pending && req_compl_i)
+
+            trn_pending <= 1'b1;
+
+          else if (compl_done_i)
+
+            trn_pending <= 1'b0;
+
+        end
 
     end
 
-  end
+    // *  Turn-off OK if requested and no transaction is pending
 
-  assign delayed_sys_reset_n = concat_count[TBIT]; 
+     always @ ( posedge clk or negedge rst_n ) begin
 
-endmodule
+      if (!rst_n ) begin
+
+        cfg_turnoff_ok_n <= 1'b1;
+
+      end else begin
+
+        if ( !cfg_to_turnoff_n  && !trn_pending)
+          cfg_turnoff_ok_n <= 1'b0;
+        else
+          cfg_turnoff_ok_n <= 1'b1;
+
+      end
+
+    end
+
+
+endmodule // PIO_TO_CTRL
 

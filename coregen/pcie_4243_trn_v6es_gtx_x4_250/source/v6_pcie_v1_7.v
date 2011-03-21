@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -48,8 +48,8 @@
 //
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
-// File       : v6_pcie_v1_4.v
-// Version    : 1.4
+// File       : v6_pcie_v1_7.v
+// Version    : 1.7
 //--
 //-- Description: Virtex6 solution wrapper : Endpoint for PCI Express
 //--
@@ -59,8 +59,8 @@
 
 `timescale 1ns/1ns
 
-(* CORE_GENERATION_INFO = "v6_pcie_v1_4,v6_pcie_v1_4,{LINK_CAP_MAX_LINK_SPEED=2,LINK_CAP_MAX_LINK_WIDTH=04,PCIE_CAP_DEVICE_PORT_TYPE=0000,DEV_CAP_MAX_PAYLOAD_SUPPORTED=2,USER_CLK_FREQ=3,REF_CLK_FREQ=2,MSI_CAP_ON=TRUE,MSI_CAP_MULTIMSGCAP=0,MSI_CAP_MULTIMSG_EXTENSION=0,MSIX_CAP_ON=FALSE,TL_TX_RAM_RADDR_LATENCY=0,TL_TX_RAM_RDATA_LATENCY=2,TL_RX_RAM_RADDR_LATENCY=0,TL_RX_RAM_RDATA_LATENCY=2,TL_RX_RAM_WRITE_LATENCY=0,VC0_TX_LASTPACKET=29,VC0_RX_RAM_LIMIT=7FF,VC0_TOTAL_CREDITS_PH=32,VC0_TOTAL_CREDITS_PD=308,VC0_TOTAL_CREDITS_NPH=12,VC0_TOTAL_CREDITS_CH=36,VC0_TOTAL_CREDITS_CD=308,VC0_CPL_INFINITE=TRUE,DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT=0,DEV_CAP_EXT_TAG_SUPPORTED=FALSE,LINK_STATUS_SLOT_CLOCK_CONFIG=FALSE,ENABLE_RX_TD_ECRC_TRIM=FALSE,DISABLE_LANE_REVERSAL=TRUE,DISABLE_SCRAMBLING=FALSE,DSN_CAP_ON=TRUE,PIPE_PIPELINE_STAGES=0,REVISION_ID=02,VC_CAP_ON=FALSE}" *)
-module v6_pcie_v1_4 # ( 
+(* CORE_GENERATION_INFO = "v6_pcie_v1_7,v6_pcie_v1_7,{LINK_CAP_MAX_LINK_SPEED=2,LINK_CAP_MAX_LINK_WIDTH=04,PCIE_CAP_DEVICE_PORT_TYPE=0000,DEV_CAP_MAX_PAYLOAD_SUPPORTED=2,USER_CLK_FREQ=3,REF_CLK_FREQ=2,MSI_CAP_ON=TRUE,MSI_CAP_MULTIMSGCAP=0,MSI_CAP_MULTIMSG_EXTENSION=0,MSIX_CAP_ON=FALSE,TL_TX_RAM_RADDR_LATENCY=0,TL_TX_RAM_RDATA_LATENCY=2,TL_RX_RAM_RADDR_LATENCY=0,TL_RX_RAM_RDATA_LATENCY=2,TL_RX_RAM_WRITE_LATENCY=0,VC0_TX_LASTPACKET=29,VC0_RX_RAM_LIMIT=7FF,VC0_TOTAL_CREDITS_PH=32,VC0_TOTAL_CREDITS_PD=308,VC0_TOTAL_CREDITS_NPH=12,VC0_TOTAL_CREDITS_CH=36,VC0_TOTAL_CREDITS_CD=308,VC0_CPL_INFINITE=TRUE,DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT=0,DEV_CAP_EXT_TAG_SUPPORTED=FALSE,LINK_STATUS_SLOT_CLOCK_CONFIG=FALSE,ENABLE_RX_TD_ECRC_TRIM=FALSE,DISABLE_LANE_REVERSAL=TRUE,DISABLE_SCRAMBLING=FALSE,DSN_CAP_ON=TRUE,PIPE_PIPELINE_STAGES=0,REVISION_ID=02,VC_CAP_ON=FALSE}" *)
+module v6_pcie_v1_7 # ( 
   parameter        ALLOW_X8_GEN2 = "FALSE",
   parameter        BAR0 = 32'hFF000000,
   parameter        BAR1 = 32'hFFFF0000,
@@ -75,7 +75,7 @@ module v6_pcie_v1_4 # (
   parameter        CPL_TIMEOUT_DISABLE_SUPPORTED = "FALSE",
   parameter        CPL_TIMEOUT_RANGES_SUPPORTED = 4'h2,
 
-  parameter        DEV_CAP_ENDPOINT_L0S_LATENCY = 7,
+  parameter        DEV_CAP_ENDPOINT_L0S_LATENCY = 0,
   parameter        DEV_CAP_ENDPOINT_L1_LATENCY = 7,
   parameter        DEV_CAP_EXT_TAG_SUPPORTED = "FALSE",
   parameter        DEV_CAP_MAX_PAYLOAD_SUPPORTED = 2,
@@ -110,9 +110,9 @@ module v6_pcie_v1_4 # (
   parameter        LL_ACK_TIMEOUT = 15'h0000,
   parameter        LL_ACK_TIMEOUT_EN = "FALSE",
   parameter        LL_ACK_TIMEOUT_FUNC = 0,
-  parameter        LL_REPLAY_TIMEOUT = 15'h0000,
-  parameter        LL_REPLAY_TIMEOUT_EN = "FALSE",
-  parameter        LL_REPLAY_TIMEOUT_FUNC = 0,
+  parameter        LL_REPLAY_TIMEOUT = 15'h0026,
+  parameter        LL_REPLAY_TIMEOUT_EN = "TRUE",
+  parameter        LL_REPLAY_TIMEOUT_FUNC = 1,
 
   parameter        LTSSM_MAX_LINK_WIDTH = 6'h04,
   parameter        MSI_CAP_MULTIMSGCAP = 0,
@@ -161,6 +161,7 @@ module v6_pcie_v1_4 # (
 
   parameter        REF_CLK_FREQ = 2,                        // 0 - 100 MHz, 1 - 125 MHz, 2 - 250 MHz
   parameter        REVISION_ID = 8'h02,
+  parameter        SPARE_BIT0 = 0,
   parameter        SUBSYSTEM_ID = 16'h0007,
   parameter        SUBSYSTEM_VENDOR_ID = 16'h10EE,
 
@@ -295,7 +296,6 @@ module v6_pcie_v1_4 # (
   parameter        SLOT_CAP_POWER_INDICATOR_PRESENT = "FALSE",
   parameter        SLOT_CAP_SLOT_POWER_LIMIT_SCALE = 0,
   parameter        SLOT_CAP_SLOT_POWER_LIMIT_VALUE = 8'h00,
-  parameter        SPARE_BIT0 = 0,
   parameter        SPARE_BIT1 = 0,
   parameter        SPARE_BIT2 = 0,
   parameter        SPARE_BIT3 = 0,
@@ -347,8 +347,7 @@ module v6_pcie_v1_4 # (
   //-------------------------------------------------------
 
   // Common
-  output                                        trn_clk,         // 250 MHz out
-  output                                        drp_clk,         // 125 MHz out
+  output                                        trn_clk,
   output                                        trn_reset_n,
   output                                        trn_lnk_up_n,
 
@@ -717,7 +716,7 @@ pcie_clocking_i (
   .pipe_clk                ( pipe_clk ),
   .user_clk                ( user_clk ),
   .block_clk               ( block_clk ),
-  .drp_clk                 ( drp_clk ),       // 125 MHz out
+  .drp_clk                 ( drp_clk ),
   .clock_locked            ( clock_locked )
 
 );
@@ -1162,7 +1161,7 @@ pcie_2_0_i (
   .PLDIRECTEDLINKCHANGE( pl_directed_link_change ),
   .PLDIRECTEDLINKSPEED( pl_directed_link_speed ),
   .PLDIRECTEDLINKWIDTH( pl_directed_link_width ),
-  .PLDOWNSTREAMDEEMPHSOURCE( 1'b0 ),
+  .PLDOWNSTREAMDEEMPHSOURCE( 1'b1 ),
   .PLUPSTREAMPREFERDEEMPH( pl_upstream_prefer_deemph ),
   .PLTRANSMITHOTRST( 1'b0 ),
   
@@ -1196,7 +1195,7 @@ pcie_2_0_i (
   .GTPLLLOCK( gt_pll_lock ),
   .PIPECLK( pipe_clk ),
   .USERCLK( user_clk ),
-  .DRPCLK(drp_clk),                      // driving 125 MHz in
+  .DRPCLK(drp_clk), 
   .CLOCKLOCKED( clock_locked ),
   .TxOutClk(TxOutClk)
 

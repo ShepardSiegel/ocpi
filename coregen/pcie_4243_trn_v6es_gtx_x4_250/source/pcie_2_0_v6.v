@@ -1,47 +1,55 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
-// This file contains confidential and proprietary information of Xilinx, Inc.
-// and is protected under U.S. and international copyright and other
-// intellectual property laws.
+// This file contains confidential and proprietary information
+// of Xilinx, Inc. and is protected under U.S. and
+// international copyright and other intellectual property
+// laws.
 //
 // DISCLAIMER
-//
-// This disclaimer is not a license and does not grant any rights to the
-// materials distributed herewith. Except as otherwise provided in a valid
-// license issued to you by Xilinx, and to the maximum extent permitted by
-// applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
-// FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
-// IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-// MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
-// and (2) Xilinx shall not be liable (whether in contract or tort, including
-// negligence, or under any other theory of liability) for any loss or damage
-// of any kind or nature related to, arising under or in connection with these
-// materials, including for any direct, or any indirect, special, incidental,
-// or consequential loss or damage (including loss of data, profits, goodwill,
-// or any type of loss or damage suffered as a result of any action brought by
-// a third party) even if such damage or loss was reasonably foreseeable or
-// Xilinx had been advised of the possibility of the same.
+// This disclaimer is not a license and does not grant any
+// rights to the materials distributed herewith. Except as
+// otherwise provided in a valid license issued to you by
+// Xilinx, and to the maximum extent permitted by applicable
+// law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+// WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+// AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+// BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+// INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+// (2) Xilinx shall not be liable (whether in contract or tort,
+// including negligence, or under any other theory of
+// liability) for any loss or damage of any kind or nature
+// related to, arising under or in connection with these
+// materials, including for any direct, or any indirect,
+// special, incidental, or consequential loss or damage
+// (including loss of data, profits, goodwill, or any type of
+// loss or damage suffered as a result of any action brought
+// by a third party) even if such damage or loss was
+// reasonably foreseeable or Xilinx had been advised of the
+// possibility of the same.
 //
 // CRITICAL APPLICATIONS
+// Xilinx products are not designed or intended to be fail-
+// safe, or for use in any application requiring fail-safe
+// performance, such as life-support or safety devices or
+// systems, Class III medical devices, nuclear facilities,
+// applications related to the deployment of airbags, or any
+// other applications that could lead to death, personal
+// injury, or severe property or environmental damage
+// (individually and collectively, "Critical
+// Applications"). Customer assumes the sole risk and
+// liability of any use of Xilinx products in Critical
+// Applications, subject only to applicable laws and
+// regulations governing limitations on product liability.
 //
-// Xilinx products are not designed or intended to be fail-safe, or for use in
-// any application requiring fail-safe performance, such as life-support or
-// safety devices or systems, Class III medical devices, nuclear facilities,
-// applications related to the deployment of airbags, or any other
-// applications that could lead to death, personal injury, or severe property
-// or environmental damage (individually and collectively, "Critical
-// Applications"). Customer assumes the sole risk and liability of any use of
-// Xilinx products in Critical Applications, subject only to applicable laws
-// and regulations governing limitations on product liability.
-//
-// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
-// AT ALL TIMES.
+// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+// PART OF THIS FILE AT ALL TIMES.
 //
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_2_0_v6.v
+// Version    : 1.7
 //-- Description: Solution wrapper for Virtex6 Hard Block for PCI Express
 //--             
 //--            
@@ -49,7 +57,6 @@
 //--------------------------------------------------------------------------------
 `timescale 1ps/1ps
 
-(* X_CORE_INFO = "v6_pcie_v1_3, Coregen 11.3" *)
 module pcie_2_0_v6 #(
     parameter        TCQ = 1,
     parameter        REF_CLK_FREQ = 0,                        // 0 - 100 MHz, 1 - 125 MHz, 2 - 250 MHz
@@ -513,18 +520,20 @@ module pcie_2_0_v6 #(
     input  [1:0]     DBGMODE,
     input            DBGSUBMODE,
     input  [2:0]     PLDBGMODE,
-    output [15:0]    DRPDO,
-    output           DRPDRDY,
-    input            DRPCLK,
-    input  [8:0]     DRPDADDR,
-    input            DRPDEN,
-    input  [15:0]    DRPDI,
-    input            DRPDWE,
+    output [15:0]    PCIEDRPDO,
+    output           PCIEDRPDRDY,
+    input            PCIEDRPCLK,
+    input  [8:0]     PCIEDRPDADDR,
+    input            PCIEDRPDEN,
+    input  [15:0]    PCIEDRPDI,
+    input            PCIEDRPDWE,
 
     output           GTPLLLOCK,
     input            PIPECLK,
     input            USERCLK,
-    input            CLOCKLOCKED
+    input            DRPCLK,
+    input            CLOCKLOCKED,
+    output           TxOutClk
 
 
     );
@@ -1152,8 +1161,8 @@ pcie_block_i (
   .DBGVECA ( DBGVECA ),
   .DBGVECB ( DBGVECB ),
   .DBGVECC ( DBGVECC ),
-  .DRPDO ( DRPDO ),
-  .DRPDRDY ( DRPDRDY ),
+  .DRPDO ( PCIEDRPDO ),
+  .DRPDRDY ( PCIEDRPDRDY ),
   .LL2BADDLLPERRN ( LL2BADDLLPERRN ),
   .LL2BADTLPERRN ( LL2BADTLPERRN ),
   .LL2PROTOCOLERRN ( LL2PROTOCOLERRN ),
@@ -1313,11 +1322,11 @@ pcie_block_i (
   .DBGMODE ( DBGMODE ),
   .DBGSUBMODE ( DBGSUBMODE ),
   .DLRSTN ( DLRSTN ),
-  .DRPCLK ( DRPCLK ),
-  .DRPDADDR ( DRPDADDR ),
-  .DRPDEN ( DRPDEN ),
-  .DRPDI ( DRPDI ),
-  .DRPDWE ( DRPDWE ),
+  .DRPCLK ( PCIEDRPCLK ),
+  .DRPDADDR ( PCIEDRPDADDR ),
+  .DRPDEN ( PCIEDRPDEN ),
+  .DRPDI ( PCIEDRPDI ),
+  .DRPDWE ( PCIEDRPDWE ),
   .FUNCLVLRSTN ( FUNCLVLRSTN ),
   .LL2SENDASREQL1N ( LL2SENDASREQL1N ),
   .LL2SENDENTERL1N ( LL2SENDENTERL1N ),
@@ -1834,11 +1843,13 @@ pcie_gt_i (
   .sys_clk                  (SYSCLK               ),
   .sys_rst_n                (FUNDRSTN             ), 
   .pipe_clk                 (PIPECLK              ),
+  .drp_clk                  (DRPCLK               ),
   .clock_locked             (CLOCKLOCKED          ),
   .pl_ltssm_state           (PLLTSSMSTATE         ),
 
   .gt_pll_lock              (GTPLLLOCK            ),
-  .phy_rdy_n                (PHYRDYN              )
+  .phy_rdy_n                (PHYRDYN              ),
+  .TxOutClk                 (TxOutClk             )
 
 );
 
@@ -1870,7 +1881,7 @@ pcie_bram_i (
   .mim_tx_wen( MIMTXWEN ),
   .mim_tx_ren( MIMTXREN ),
   .mim_tx_rce( MIMTXRCE ),
-  .mim_tx_wdata( MIMTXWDATA ),
+  .mim_tx_wdata( {3'b000, MIMTXWDATA} ),
   .mim_tx_raddr( MIMTXRADDR ),
   .mim_tx_rdata( MIMTXRDATA ),
    
@@ -1878,7 +1889,7 @@ pcie_bram_i (
   .mim_rx_wen( MIMRXWEN ),
   .mim_rx_ren( MIMRXREN ),
   .mim_rx_rce( MIMRXRCE ),
-  .mim_rx_wdata( MIMRXWDATA ),
+  .mim_rx_wdata( {4'b0000, MIMRXWDATA} ),
   .mim_rx_raddr( MIMRXRADDR ),
   .mim_rx_rdata( MIMRXRDATA )
 
@@ -1906,6 +1917,8 @@ pcie_upconfig_fix_3451_v6_i (
   .pl_directed_link_change(PLDIRECTEDLINKCHANGE),
 
   .cfg_link_status_negotiated_width(CFGLINKSTATUSNEGOTIATEDWIDTH),
+  .pipe_rx0_data(PIPERX0DATAGT[15:0]),
+  .pipe_rx0_char_isk(PIPERX0CHARISKGT[1:0]),
 
   .filter_pipe(filter_pipe_upconfig_fix_3451)
 

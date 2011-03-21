@@ -1,47 +1,55 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2009-2011 Xilinx, Inc. All rights reserved.
 //
-// This file contains confidential and proprietary information of Xilinx, Inc.
-// and is protected under U.S. and international copyright and other
-// intellectual property laws.
+// This file contains confidential and proprietary information
+// of Xilinx, Inc. and is protected under U.S. and
+// international copyright and other intellectual property
+// laws.
 //
 // DISCLAIMER
-//
-// This disclaimer is not a license and does not grant any rights to the
-// materials distributed herewith. Except as otherwise provided in a valid
-// license issued to you by Xilinx, and to the maximum extent permitted by
-// applicable law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND WITH ALL
-// FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS,
-// IMPLIED, OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
-// MERCHANTABILITY, NON-INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE;
-// and (2) Xilinx shall not be liable (whether in contract or tort, including
-// negligence, or under any other theory of liability) for any loss or damage
-// of any kind or nature related to, arising under or in connection with these
-// materials, including for any direct, or any indirect, special, incidental,
-// or consequential loss or damage (including loss of data, profits, goodwill,
-// or any type of loss or damage suffered as a result of any action brought by
-// a third party) even if such damage or loss was reasonably foreseeable or
-// Xilinx had been advised of the possibility of the same.
+// This disclaimer is not a license and does not grant any
+// rights to the materials distributed herewith. Except as
+// otherwise provided in a valid license issued to you by
+// Xilinx, and to the maximum extent permitted by applicable
+// law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+// WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+// AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+// BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+// INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSE; and
+// (2) Xilinx shall not be liable (whether in contract or tort,
+// including negligence, or under any other theory of
+// liability) for any loss or damage of any kind or nature
+// related to, arising under or in connection with these
+// materials, including for any direct, or any indirect,
+// special, incidental, or consequential loss or damage
+// (including loss of data, profits, goodwill, or any type of
+// loss or damage suffered as a result of any action brought
+// by a third party) even if such damage or loss was
+// reasonably foreseeable or Xilinx had been advised of the
+// possibility of the same.
 //
 // CRITICAL APPLICATIONS
+// Xilinx products are not designed or intended to be fail-
+// safe, or for use in any application requiring fail-safe
+// performance, such as life-support or safety devices or
+// systems, Class III medical devices, nuclear facilities,
+// applications related to the deployment of airbags, or any
+// other applications that could lead to death, personal
+// injury, or severe property or environmental damage
+// (individually and collectively, "Critical
+// Applications"). Customer assumes the sole risk and
+// liability of any use of Xilinx products in Critical
+// Applications, subject only to applicable laws and
+// regulations governing limitations on product liability.
 //
-// Xilinx products are not designed or intended to be fail-safe, or for use in
-// any application requiring fail-safe performance, such as life-support or
-// safety devices or systems, Class III medical devices, nuclear facilities,
-// applications related to the deployment of airbags, or any other
-// applications that could lead to death, personal injury, or severe property
-// or environmental damage (individually and collectively, "Critical
-// Applications"). Customer assumes the sole risk and liability of any use of
-// Xilinx products in Critical Applications, subject only to applicable laws
-// and regulations governing limitations on product liability.
-//
-// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE
-// AT ALL TIMES.
+// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+// PART OF THIS FILE AT ALL TIMES.
 //
 //-----------------------------------------------------------------------------
 // Project    : Virtex-6 Integrated Block for PCI Express
 // File       : pcie_gtx_v6.v
+// Version    : 1.7
 //-- Description: GTX module for Virtex6 PCIe Block
 //--
 //--
@@ -196,11 +204,13 @@ module pcie_gtx_v6 #
    input   wire                      sys_clk                , 
    input   wire                      sys_rst_n              ,	
    input   wire                      pipe_clk               , 
+   input   wire                      drp_clk               , 
    input   wire                      clock_locked           ,
 
    output  wire                      gt_pll_lock            ,
    input   wire [ 5:0]               pl_ltssm_state         ,
-   output  reg                       phy_rdy_n
+   output  reg                       phy_rdy_n              ,
+   output  wire                      TxOutClk
 );
 
   parameter                          TCQ  = 1;      // clock to out delay model
@@ -220,15 +230,19 @@ module pcie_gtx_v6 #
   wire                               gt_tx_detect_rx_loopback ;
   wire [  7:0]                       gt_tx_elec_idle          ;
   wire [  7:0]                       gt_rx_elec_idle_reset    ;
-   
   wire [NO_OF_LANES-1:0]             plllkdet;
   wire                               RxResetDone;
-  wire                               plm_in_l0 = (pl_ltssm_state == 6'h16);  
 
   reg                                local_pcs_reset;
   reg                                local_pcs_reset_done;
   reg  [3:0]                         cnt_local_pcs_reset;
   reg  [4:0]                         phy_rdy_pre_cnt;
+  reg  [5:0]                         pl_ltssm_state_q;
+
+  wire                               plm_in_l0 = (pl_ltssm_state_q == 6'h16);  
+  wire                               plm_in_rl = (pl_ltssm_state_q == 6'h1c);  
+  wire                               plm_in_dt = (pl_ltssm_state_q == 6'h2d);  
+  wire                               plm_in_rs = (pl_ltssm_state_q == 6'h1f);  
 
 gtx_wrapper_v6 #(
 
@@ -261,6 +275,10 @@ gtx_v6_i (
 
   // other
   .GTRefClkout(),
+  .plm_in_l0(plm_in_l0),
+  .plm_in_rl(plm_in_rl),
+  .plm_in_dt(plm_in_dt),
+  .plm_in_rs(plm_in_rs),
   .RxPLLLkDet(plllkdet),
   .ChanIsAligned(gt_rxchanisaligned_wire[((NO_OF_LANES)-1):0]),
   .TxDetectRx(gt_tx_detect_rx_loopback),
@@ -272,12 +290,14 @@ gtx_v6_i (
   .GTReset_n(sys_rst_n),
   .PCLK(pipe_clk),
   .REFCLK(sys_clk),
+  .DRPCLK(drp_clk),
   .TxDeemph(pipe_tx_deemph),
   .TxMargin(pipe_tx_margin[2]),
   .TxSwing(pipe_tx_swing),
   .local_pcs_reset(local_pcs_reset),
   .RxResetDone(RxResetDone),
-  .SyncDone(SyncDone)
+  .SyncDone(SyncDone),
+  .TxOutClk(TxOutClk)
 );
 
 assign pipe_rx0_phy_status = gt_rx_phy_status_wire[0] ;
@@ -468,6 +488,15 @@ always @(posedge pipe_clk or negedge clock_locked) begin
     end
 
   end
+
+end
+
+always @(posedge pipe_clk or negedge clock_locked) begin 
+
+  if (!clock_locked)
+    pl_ltssm_state_q <= #TCQ 6'b0;
+  else
+    pl_ltssm_state_q <= #TCQ pl_ltssm_state;
 
 end
 
