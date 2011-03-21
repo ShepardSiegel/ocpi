@@ -107,7 +107,7 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   interface Clock    p125clk = p125Clk;
   interface Reset    p125rst = p125Rst;
   method  led   =
-    {7'b1010000, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
+    {5'b10100, 2'b10, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
   interface GPSIfc   gps     = ctop.gps;
   interface FLASH_IO flash   = flash0.flash;
   interface DDR3_64  dram    = dram0.dram;

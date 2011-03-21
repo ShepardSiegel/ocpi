@@ -82,9 +82,10 @@ module mkPCIEwrapX6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrap
   mkConnection(toGet(i2pAF), toPut(fI2P),  clocked_by p250clk,  reset_by p250rst);  // 16B->8B 250 MHz
   mkConnection(toGet(fI2P),  pci0.trn_tx,  clocked_by p250clk,  reset_by p250rst);  // 8B      250 MHz
 
-  mkConnection(pci0.cfg_interrupt, pcie_irq.pcie_irq);
-  mkTieOff(pci0.cfg);
-  mkTieOff(pci0.cfg_err);
+  // TODO: Implement me when these interfaces are exposed
+  //mkConnection(pci0.cfg_interrupt, pcie_irq.pcie_irq);
+  //mkTieOff(pci0.cfg);
+  //mkTieOff(pci0.cfg_err);
 
   // Interfaces and Methods provided...
   interface PCI_EXP pcie     = pci0.pcie;

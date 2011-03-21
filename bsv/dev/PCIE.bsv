@@ -700,7 +700,8 @@ endinterface
 (* always_ready, always_enabled *)
 interface PCIE_AXI;
    interface Clock       clk;
-   interface Reset       reset_n;
+   interface Clock       drp;
+   interface Reset       usr_rst_p;
    method    Bool        lnk_up;
 endinterface
 
@@ -906,11 +907,11 @@ interface PCIE_X6#(numeric type lanes);  // V6 AXI (X6)
    interface PCIE_AXI_TX      axi_tx;
    interface PCIE_AXI_RX      axi_rx;
    interface PCIE_AXI_FC      axi_fc;
-   interface PCIE_AXI_CFG     cfg;
-   interface PCIE_AXI_ERR     cerr;
-   interface PCIE_AXI_INT     cint;
-   interface PCIE_AXI_CFG2    cfg2;
    interface PCIE_PL_V6       pl;
+   interface PCIE_AXI_CFG     cfg;
+   interface PCIE_AXI_CFG2    cfg2;
+   interface PCIE_AXI_ERR     cfg_err;
+   interface PCIE_AXI_INT     cfg_interrupt;
 endinterface: PCIE_X6
 
 
@@ -1245,7 +1246,8 @@ module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_X6#(lanes))
 
    interface PCIE_AXI axi;
       output_clock                      clk(user_clk_out);
-      output_reset                      reset_n(user_reset_out)                                                  clocked_by(axi_clk);
+      output_clock                      drp(drp_clk);
+      output_reset                      usr_rst_p(user_reset_out)                                                clocked_by(axi_clk);
       method user_lnk_up                lnk_up                                                                   clocked_by(no_clock) reset_by(no_reset);
    endinterface
 
@@ -1292,7 +1294,7 @@ module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_X6#(lanes))
       method                            rd_en(cfg_rd_en)                                  enable((*inhigh*)en15) clocked_by(axi_clk) reset_by(no_reset);
    endinterface
 
-   interface PCIE_AXI_ERR cerr;
+   interface PCIE_AXI_ERR cfg_error;
       method                            cor(cfg_err_cor)                                  enable((*inhigh*)en16) clocked_by(axi_clk) reset_by(no_reset);
       method                            ur(cfg_err_ur)                                    enable((*inhigh*)en17) clocked_by(axi_clk) reset_by(no_reset);
       method                            ecrc(cfg_err_ecrc)                                enable((*inhigh*)en18) clocked_by(axi_clk) reset_by(no_reset);
@@ -1305,7 +1307,7 @@ module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_X6#(lanes))
       method cfg_err_cpl_rdy            cpl_rdy                                                                  clocked_by(axi_clk) reset_by(no_reset);
    endinterface
 
-   interface PCIE_AXI_INT cint;
+   interface PCIE_AXI_INT cfg_interrupt;
       method                            req(cfg_interrupt)                                enable((*inhigh*)en25) clocked_by(axi_clk) reset_by(no_reset);
       method cfg_interrupt_rdy          rdy                                                                      clocked_by(axi_clk) reset_by(no_reset);
       method                            iassert(cfg_interrupt_assert)                     enable((*inhigh*)en26) clocked_by(axi_clk) reset_by(no_reset);
@@ -1867,9 +1869,8 @@ endmodule: mkPCIExpressEndpointV6
 ///
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //TODO: Provide X6 (not TRN V6)
+module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //TODO: Provide X6 (not TRN V6) as alternate implementation
    provisos(Add#(1, z, lanes));
-
 
 // This implementation has the interesting challenge of reverse-migrating the AXI interface from the 2.3 V6/X6 PCIe core
 // to the older TRN interface it will someday replace. This is so we can test the AXI endpoint without having to change the
@@ -1878,25 +1879,39 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    ////////////////////////////////////////////////////////////////////////////////
    /// Design Elements
    ////////////////////////////////////////////////////////////////////////////////
-   PCIE_X6#(lanes)                 pcie_ep             <- vMkPCIExpressXilinxAXI(params);
-
-   Clock                           axiclk               = pcie_ep.axi.clk;    // 250 MHz
-   //Clock                         axi2clk              = pcie_ep.axi.clk2;   // 125 MHz axiclk/2
-   Reset                           axirst_n             = pcie_ep.axi.reset_n;
-
-   PulseWire                       pwAxiTx             <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-   PulseWire                       pwAxiRx             <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+   PCIE_X6#(lanes)       pcie_ep          <- vMkPCIExpressXilinxAXI(params);   // Instance the vMk layer
+   Clock                 axiclk           = pcie_ep.axi.clk;    // 250 MHz
+   Clock                 axiclk2          = pcie_ep.axi.drp;    // 125 MHz
+   Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
+   PulseWire             pwAxiTx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+   PulseWire             pwAxiRx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+   Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by usr_rst_n)
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Rules
    ////////////////////////////////////////////////////////////////////////////////
    rule connect_axi_tx;
-      pcie_ep.axi_tx.tvalid(pwAxiTx);   // assert tvalid when we xmit - causes push into EP
+     pcie_ep.axi_tx.tvalid(pwAxiTx);   // assert tvalid when we xmit - causes push into EP
    endrule
 
    rule connect_axi_rx;
-      pcie_ep.axi_rx.tready(pwAxiRx);   // asser tready when we receive - causes pop from EP 
+     pcie_ep.axi_rx.tready(pwAxiRx);   // asser tready when we receive - causes pop from EP 
    endrule
+
+   rule rx_active (pcie_ep.axi_rx.tvalid && pwAxiRx); // Used to recreate SoF on RX path
+     rcvPktActive <= !pcie_ep.axi_rx.tlast;
+   endrule
+
+   // Tieoffs...
+   rule tx_grant; pce_ep.axi_tx.cfg_gnt(True); endrule  // always let EP have priority
+   rule rx_np_ok; pce_ep.axi_rx.np_ok(True);   endrule  // always allow non-posted requests
+   rule fc_sel;   pce_ep.axi_fc.sel(3'b0);     endrule  // always look at rcv credit avail
+   mkTieOff(pcie_ep.pl);
+   mkTieOff(pcie_ep.cfg);
+   mkTieOff(pcie_ep.cfg2);
+   mkTieOff(pcie_ep.cfg_interrupt);
+   mkTieOff(pcie_ep.cfg_err);
+
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Interface Connections / Methods
@@ -1904,9 +1919,9 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    interface pcie       = pcie_ep.pcie;
 
    interface PCIE_TRN_COMMON_V6 trn;
-      interface Clock clk      = pcie_ep.axi.clk;
-      interface Clock clk2     = pcie_ep.axi.clk;      //FIXME - needs to be 250/2=125
-      interface Reset reset_n  = pcie_ep.axi.reset_n;  //FIXME - Reset is positive from X6 core
+      interface Clock clk      = axiclk;    // 250 MHz
+      interface Clock clk2     = axiclk2;   // 125 MHz
+      interface Reset reset_n  = usr_rst_n;
       method    Bool  link_up  = pcie_ep.axi.lnk_up;
    endinterface
 
@@ -1930,7 +1945,7 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    interface PCIE_TRN_RECV_V6 trn_rx;
       method ActionValue#(TLPData#(8)) recv() if (pcie_ep.axi_rx.tvalid);
          TLPData#(8) retval = defaultValue;
-         //retval.sof  = (pcie_ep.trn_rx.rsof_n == 0);  //TODO, generate SOF
+         retval.sof  = pcie_ep.axi_rx.tvalid && !rcvPktActive; // Make SoF on first tvalid
          retval.eof  = pcie_ep.axi_rx.tlast;
          retval.hit  = pcie_ep.axi_rx.tuser[8:2]; // implementation specific choice where 7 bar bits are in tuser
          retval.be   = reverseBits(pcie_ep.axi_rx.tstrb); //TODO check reverseBits
@@ -1943,12 +1958,14 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
       //method non_posted_ready(i)   = pcie_ep.trn_rx.rnp_ok_n(pack(!i));
    endinterface
 
+
    /*
    interface pl            = pcie_ep.pl;
    interface cfg           = pcie_ep.cfg;
    interface cfg_interrupt = pcie_ep.cfg_interrupt;
    interface cfg_err       = pcie_ep.cfg_err;
-     */
+   */
+
 endmodule: mkPCIExpressEndpointX6
 
 
@@ -2531,6 +2548,29 @@ instance TieOff#(PCIE_CFG);
    endmodule
 endinstance
 
+instance TieOff#(PCIE_AXI_CFG);
+   module mkTieOff#(PCIE_AXI_CFG ifc)(Empty);
+      rule tie_off_inputs;
+         ifc.di('0);
+         ifc.byte_en('0);
+         ifc.dwaddr('0);
+         ifc.wr_en(False);
+         ifc.rd_en(False);
+      endrule
+   endmodule
+endinstance
+
+instance TieOff#(PCIE_AXI_CFG2);
+   module mkTieOff#(PCIE_AXI_CFG2 ifc)(Empty);
+      rule tie_off_inputs;
+         ifc.turnoff_ok(False);
+         ifc.trn_pending(False);
+         ifc.pm_wake(False);
+         ifc.dsn({ 32'h0000_0001, { { 8'h1}, 24'h000A35}});
+      endrule
+   endmodule
+endinstance
+
 instance TieOff#(PCIE_ERR);
    module mkTieOff#(PCIE_ERR ifc)(Empty);
       rule tie_off_inputs;
@@ -2543,6 +2583,22 @@ instance TieOff#(PCIE_ERR);
          ifc.cor_n('1);
          ifc.tlp_cpl_header('0);
          ifc.locked_n('1);
+      endrule
+   endmodule
+endinstance
+
+instance TieOff#(PCIE_AXI_ERR);
+   module mkTieOff#(PCIE_AXI_ERR ifc)(Empty);
+      rule tie_off_inputs;
+         ifc.cor(False);
+         ifc.ur(False);
+         ifc.ecrc(False);
+         ifc.cpl_timeout(False);
+         ifc.cpl_abort(False);
+         ifc.cpl_unexpect(False);
+         ifc.posted(False);
+         ifc.locked(False);
+         ifc.tlp_cpl_header('0); // TODO: Make meaningful default
       endrule
    endmodule
 endinstance
@@ -2583,6 +2639,16 @@ instance TieOff#(PCIE_INT_V6);
    endmodule
 endinstance
 
+instance TieOff#(PCIE_AXI_INT);
+   module mkTieOff#(PCIE_AXI_INT ifc)(Empty);
+      rule tie_off_inputs;
+         ifc.req(False);
+         ifc.iassert(False);
+         ifc.din('0);
+      endrule
+   endmodule
+endinstance
+
 instance TieOff#(PCIE_ERR_V6);
    module mkTieOff#(PCIE_ERR_V6 ifc)(Empty);
       rule tie_off_inputs;
@@ -2605,8 +2671,8 @@ instance TieOff#(PCIE_PL_V6);
          ifc.directed_link_auton('0);
          ifc.directed_link_change('0);
          ifc.directed_link_speed('0);
-         ifc.directed_link_width('1);
-         ifc.upstream_prefer_deemph('0);
+         ifc.directed_link_width('0);
+         ifc.upstream_prefer_deemph(1'b1);
       endrule
    endmodule
 endinstance

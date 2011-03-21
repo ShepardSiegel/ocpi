@@ -348,6 +348,7 @@ module v6_pcie_v2_3 # (
 
   // Common
   output                                        user_clk_out,
+  output                                        drp_clk,             // 125 MHz
   output                                        user_reset_out, 
   output                                        user_lnk_up,
 
@@ -873,7 +874,7 @@ pcie_clocking_i (
   .pipe_clk                ( pipe_clk ),
   .user_clk                ( user_clk_out ),
   .block_clk               ( block_clk ),
-  .drp_clk                 ( drp_clk ),
+  .drp_clk                 ( drp_clk ),           // Also used as clk2 125 MHz out
   .clock_locked            ( clock_locked )
 
 );
