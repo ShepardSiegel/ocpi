@@ -1883,10 +1883,19 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    Clock                 axiclk           = pcie_ep.axi.clk;    // 250 MHz
    Clock                 axiclk2          = pcie_ep.axi.drp;    // 125 MHz
    Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
-   Reset                 axiReset         <- mkAsyncReset(1, usr_rst_n, axiclk);
+   Reset                 axiRst250        <- mkAsyncReset(2, usr_rst_n, axiclk);
+   Reset                 axiRst125        <- mkAsyncReset(2, usr_rst_n, axiclk2);
    PulseWire             pwAxiTx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
    PulseWire             pwAxiRx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-   Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by axiReset);
+   Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by axiRst250);
+
+   Reg#(UInt#(4))        dbpciCA          <- mkReg(1);                                             // 250 MHz source
+   Reg#(UInt#(4))        dbpciCB          <- mkReg(2, clocked_by axiclk,  reset_by axiRst250);     // 250 MHz from core
+   Reg#(UInt#(4))        dbpciCC          <- mkReg(3, clocked_by axiclk2, reset_by axiRst125);      // 125 MHz from core
+
+   rule cnt_ca; dbpciCA <= dbpciCA + 1; endrule
+   rule cnt_cb; dbpciCB <= dbpciCB + 1; endrule
+   rule cnt_cc; dbpciCC <= dbpciCC + 1; endrule
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Rules

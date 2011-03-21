@@ -61,10 +61,18 @@ module mkPCIEwrapX6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrap
   PciId                 pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
   Reg#(PciId)           pciDevice   <- mkSyncReg(unpack(0), p250clk, p250rst, p125clk); // multi-bit sync 250 to 125 MHz
 
+  Reg#(UInt#(4))        dbpciCD          <- mkReg(4, clocked_by pci0_clk, reset_by pci0_rstn);
+  Reg#(UInt#(4))        dbpciCE          <- mkReg(5, clocked_by p250clk,  reset_by p250rst);
+  Reg#(UInt#(4))        dbpciCF          <- mkReg(6, clocked_by p125clk,  reset_by p125rst);  
+
+  rule cnt_cd; dbpciCD <= dbpciCD + 1; endrule
+  rule cnt_ce; dbpciCE <= dbpciCE + 1; endrule
+  rule cnt_cf; dbpciCF <= dbpciCF + 1; endrule
+
   (* fire_when_enabled, no_implicit_conditions *) rule send_pciLinkup; pciLinkUp.send(pack(pLinkUp)); endrule 
   (* fire_when_enabled *) rule capture_pciDevice; pciDevice <= pciDev;  endrule 
 
-  InterruptControl pcie_irq   <- mkInterruptController(p250clk, p250rst, clocked_by p250clk, reset_by p250rst);
+  //InterruptControl pcie_irq   <- mkInterruptController(p250clk, p250rst, clocked_by p250clk, reset_by p250rst);
   ClockInvToBoolIfc preEdge   <- vMkClockInvToBool(p125clk , clocked_by p250clk, reset_by p250rst);  //true when trn2 will rise on next edge
 
   Store#(UInt#(0),TLPData#(16),0) p2iS    <- mkRegStore(p250clk, p125clk );
