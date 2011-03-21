@@ -14,7 +14,7 @@ cp xilinx_pcie_2_0_ep_v6.log xst.srp
 cd results
 
 echo 'Running ngdbuild'
-ngdbuild -verbose -uc ../../example_design/xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1-PCIE_X0Y0.ucf xilinx_pcie_2_0_ep_v6.ngc -sd .
+ngdbuild -verbose -uc ../../example_design/xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1_ML605.ucf xilinx_pcie_2_0_ep_v6.ngc -sd .
 
 
 echo 'Running map'
@@ -45,3 +45,5 @@ netgen -sim -ofmt verilog -ne -w -tm xilinx_pcie_2_0_ep_v6 -sdf_path . routed.nc
 echo 'Running design through bitgen'
 bitgen -w routed.ncd
 
+echo 'Generating PROM file for programming'
+promgen -w -p mcs -x xcf128x -data_width 16 -o ./ML605.mcs -u 0 ./routed.bit

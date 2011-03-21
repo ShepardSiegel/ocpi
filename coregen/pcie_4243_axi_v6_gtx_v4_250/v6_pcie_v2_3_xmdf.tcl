@@ -125,7 +125,7 @@ utilities_xmdf::xmdfSetData $instance FileSet $fcount toplevel true
 incr fcount
 
 
-utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path v6_pcie_v2_3/example_design/xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1-PCIE_X0Y0.ucf
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path v6_pcie_v2_3/example_design/xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1_ML605.ucf
 utilities_xmdf::xmdfSetData $instance FileSet $fcount type Ucf
 utilities_xmdf::xmdfSetData $instance FileSet $fcount associated_module xilinx_pcie_2_0_ep_v6.v
 incr fcount

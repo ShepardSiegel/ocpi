@@ -90,7 +90,7 @@
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="v6_pcie_v2_3/example_design/xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1-PCIE_X0Y0.ucf" xil_pn:type="FILE_UCF">
+    <file xil_pn:name="v6_pcie_v2_3/example_design/xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1_ML605.ucf" xil_pn:type="FILE_UCF">
       <association xil_pn:name="Implementation"/>
     </file>
     <file xil_pn:name="v6_pcie_v2_3/source/axi_basic_rx.v" xil_pn:type="FILE_VERILOG">

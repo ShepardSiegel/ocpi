@@ -910,7 +910,7 @@ interface PCIE_X6#(numeric type lanes);  // V6 AXI (X6)
    interface PCIE_PL_V6       pl;
    interface PCIE_AXI_CFG     cfg;
    interface PCIE_AXI_CFG2    cfg2;
-   interface PCIE_AXI_ERR     cfg_err;
+   interface PCIE_AXI_ERR     cfg_error;
    interface PCIE_AXI_INT     cfg_interrupt;
 endinterface: PCIE_X6
 
@@ -1366,8 +1366,8 @@ module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_X6#(lanes))
      axi_rx_tdata, axi_rx_tstrb, axi_rx_tlast, axi_rx_tvalid, axi_rx_tuser, axi_rx_tready, axi_rx_np_ok, 
 
      cfg_dout, cfg_rd_wr_done, cfg_di, cfg_byte_en, cfg_dwaddr, cfg_wr_en, cfg_rd_en, 
-     cerr_cor, cerr_ur, cerr_ecrc, cerr_cpl_timeout, cerr_cpl_abort, cerr_cpl_unexpect, cerr_posted, cerr_locked, cerr_tlp_cpl_header, cerr_cpl_rdy, 
-     cint_req, cint_rdy, cint_iassert, cint_din, cint_dout, cint_mmenable, cint_msienable, cint_msixenable, cint_msixfm, 
+     cfg_error_cor, cfg_error_ur, cfg_error_ecrc, cfg_error_cpl_timeout, cfg_error_cpl_abort, cfg_error_cpl_unexpect, cfg_error_posted, cfg_error_locked, cfg_error_tlp_cpl_header, cfg_error_cpl_rdy, 
+     cfg_interrupt_req, cfg_interrupt_rdy, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_dout, cfg_interrupt_mmenable, cfg_interrupt_msienable, cfg_interrupt_msixenable, cfg_interrupt_msixfm, 
      cfg2_turnoff_ok, cfg2_to_turnoff, cfg2_trn_pending, cfg2_pm_wake, cfg2_bus_number, cfg2_device_number, cfg2_function_number, cfg2_status,
      cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_dsn,
      cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
@@ -1384,8 +1384,8 @@ module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_X6#(lanes))
      axi_rx_tdata, axi_rx_tstrb, axi_rx_tlast, axi_rx_tvalid, axi_rx_tuser, axi_rx_tready, axi_rx_np_ok, 
 
      cfg_dout, cfg_rd_wr_done, cfg_di, cfg_byte_en, cfg_dwaddr, cfg_wr_en, cfg_rd_en, 
-     cerr_cor, cerr_ur, cerr_ecrc, cerr_cpl_timeout, cerr_cpl_abort, cerr_cpl_unexpect, cerr_posted, cerr_locked, cerr_tlp_cpl_header, cerr_cpl_rdy, 
-     cint_req, cint_rdy, cint_iassert, cint_din, cint_dout, cint_mmenable, cint_msienable, cint_msixenable, cint_msixfm, 
+     cfg_error_cor, cfg_error_ur, cfg_error_ecrc, cfg_error_cpl_timeout, cfg_error_cpl_abort, cfg_error_cpl_unexpect, cfg_error_posted, cfg_error_locked, cfg_error_tlp_cpl_header, cfg_error_cpl_rdy, 
+     cfg_interrupt_req, cfg_interrupt_rdy, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_dout, cfg_interrupt_mmenable, cfg_interrupt_msienable, cfg_interrupt_msixenable, cfg_interrupt_msixfm, 
      cfg2_turnoff_ok, cfg2_to_turnoff, cfg2_trn_pending, cfg2_pm_wake, cfg2_bus_number, cfg2_device_number, cfg2_function_number, cfg2_status,
      cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_dsn,
      cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
@@ -1883,9 +1883,10 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    Clock                 axiclk           = pcie_ep.axi.clk;    // 250 MHz
    Clock                 axiclk2          = pcie_ep.axi.drp;    // 125 MHz
    Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
+   Reset                 axiReset         <- mkAsyncReset(1, usr_rst_n, axiclk);
    PulseWire             pwAxiTx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
    PulseWire             pwAxiRx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-   Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by usr_rst_n)
+   Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by axiReset);
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Rules
@@ -1895,7 +1896,7 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    endrule
 
    rule connect_axi_rx;
-     pcie_ep.axi_rx.tready(pwAxiRx);   // asser tready when we receive - causes pop from EP 
+     pcie_ep.axi_rx.tready(pwAxiRx);   // assert tready when we receive - causes pop from EP 
    endrule
 
    rule rx_active (pcie_ep.axi_rx.tvalid && pwAxiRx); // Used to recreate SoF on RX path
@@ -1903,14 +1904,14 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    endrule
 
    // Tieoffs...
-   rule tx_grant; pce_ep.axi_tx.cfg_gnt(True); endrule  // always let EP have priority
-   rule rx_np_ok; pce_ep.axi_rx.np_ok(True);   endrule  // always allow non-posted requests
-   rule fc_sel;   pce_ep.axi_fc.sel(3'b0);     endrule  // always look at rcv credit avail
+   rule tx_grant; pcie_ep.axi_tx.cfg_gnt(True); endrule  // always let EP have priority
+   rule rx_np_ok; pcie_ep.axi_rx.np_ok(True);   endrule  // always allow non-posted requests
+   rule fc_sel;   pcie_ep.axi_fc.sel(RECEIVE_BUFFER_AVAILABLE_SPACE);     endrule  // always look at rcv credit avail
    mkTieOff(pcie_ep.pl);
    mkTieOff(pcie_ep.cfg);
    mkTieOff(pcie_ep.cfg2);
    mkTieOff(pcie_ep.cfg_interrupt);
-   mkTieOff(pcie_ep.cfg_err);
+   mkTieOff(pcie_ep.cfg_error);
 
 
    ////////////////////////////////////////////////////////////////////////////////

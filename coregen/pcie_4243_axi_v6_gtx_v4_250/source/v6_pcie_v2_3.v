@@ -59,7 +59,7 @@
 
 `timescale 1ns/1ns
 
-(* CORE_GENERATION_INFO = "v6_pcie_v2_3,v6_pcie_v2_3,{LINK_CAP_MAX_LINK_SPEED=2,LINK_CAP_MAX_LINK_WIDTH=04,PCIE_CAP_DEVICE_PORT_TYPE=0000,DEV_CAP_MAX_PAYLOAD_SUPPORTED=2,USER_CLK_FREQ=3,REF_CLK_FREQ=0,MSI_CAP_ON=TRUE,MSI_CAP_MULTIMSGCAP=0,MSI_CAP_MULTIMSG_EXTENSION=0,MSIX_CAP_ON=FALSE,TL_TX_RAM_RADDR_LATENCY=0,TL_TX_RAM_RDATA_LATENCY=2,TL_RX_RAM_RADDR_LATENCY=0,TL_RX_RAM_RDATA_LATENCY=2,TL_RX_RAM_WRITE_LATENCY=0,VC0_TX_LASTPACKET=29,VC0_RX_RAM_LIMIT=7FF,VC0_TOTAL_CREDITS_PH=32,VC0_TOTAL_CREDITS_PD=308,VC0_TOTAL_CREDITS_NPH=12,VC0_TOTAL_CREDITS_CH=36,VC0_TOTAL_CREDITS_CD=308,VC0_CPL_INFINITE=TRUE,DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT=0,DEV_CAP_EXT_TAG_SUPPORTED=FALSE,LINK_STATUS_SLOT_CLOCK_CONFIG=FALSE,ENABLE_RX_TD_ECRC_TRIM=FALSE,DISABLE_LANE_REVERSAL=TRUE,DISABLE_SCRAMBLING=FALSE,DSN_CAP_ON=TRUE,PIPE_PIPELINE_STAGES=0,REVISION_ID=02,VC_CAP_ON=FALSE}" *)
+(* CORE_GENERATION_INFO = "v6_pcie_v2_3,v6_pcie_v2_3,{LINK_CAP_MAX_LINK_SPEED=2,LINK_CAP_MAX_LINK_WIDTH=04,PCIE_CAP_DEVICE_PORT_TYPE=0000,DEV_CAP_MAX_PAYLOAD_SUPPORTED=2,USER_CLK_FREQ=3,REF_CLK_FREQ=2,MSI_CAP_ON=TRUE,MSI_CAP_MULTIMSGCAP=0,MSI_CAP_MULTIMSG_EXTENSION=0,MSIX_CAP_ON=FALSE,TL_TX_RAM_RADDR_LATENCY=0,TL_TX_RAM_RDATA_LATENCY=2,TL_RX_RAM_RADDR_LATENCY=0,TL_RX_RAM_RDATA_LATENCY=2,TL_RX_RAM_WRITE_LATENCY=0,VC0_TX_LASTPACKET=29,VC0_RX_RAM_LIMIT=7FF,VC0_TOTAL_CREDITS_PH=32,VC0_TOTAL_CREDITS_PD=308,VC0_TOTAL_CREDITS_NPH=12,VC0_TOTAL_CREDITS_CH=36,VC0_TOTAL_CREDITS_CD=308,VC0_CPL_INFINITE=TRUE,DEV_CAP_PHANTOM_FUNCTIONS_SUPPORT=0,DEV_CAP_EXT_TAG_SUPPORTED=FALSE,LINK_STATUS_SLOT_CLOCK_CONFIG=FALSE,ENABLE_RX_TD_ECRC_TRIM=FALSE,DISABLE_LANE_REVERSAL=TRUE,DISABLE_SCRAMBLING=FALSE,DSN_CAP_ON=TRUE,PIPE_PIPELINE_STAGES=0,REVISION_ID=02,VC_CAP_ON=FALSE}" *)
 module v6_pcie_v2_3 # (
   parameter        ALLOW_X8_GEN2 = "FALSE",
   parameter        BAR0 = 32'hFF000000,
@@ -159,7 +159,7 @@ module v6_pcie_v2_3 # (
   parameter        PM_DATA6 = 8'h00,
   parameter        PM_DATA7 = 8'h00,
 
-  parameter        REF_CLK_FREQ = 0,                        // 0 - 100 MHz, 1 - 125 MHz, 2 - 250 MHz
+  parameter        REF_CLK_FREQ = 2,                        // 0 - 100 MHz, 1 - 125 MHz, 2 - 250 MHz
   parameter        REVISION_ID = 8'h02,
   parameter        SPARE_BIT0 = 0,
   parameter        SUBSYSTEM_ID = 16'h0007,
@@ -348,8 +348,8 @@ module v6_pcie_v2_3 # (
 
   // Common
   output                                        user_clk_out,
-  output                                        drp_clk,             // 125 MHz
-  output                                        user_reset_out, 
+  output                                        drp_clk,
+  output                                        user_reset_out,
   output                                        user_lnk_up,
 
   // Tx
@@ -405,7 +405,6 @@ module v6_pcie_v2_3 # (
   input                                         cfg_err_locked,
   input  [47:0]                                 cfg_err_tlp_cpl_header,
   output                                        cfg_err_cpl_rdy,
-
   input                                         cfg_interrupt,
   output                                        cfg_interrupt_rdy,
   input                                         cfg_interrupt_assert,
@@ -415,7 +414,6 @@ module v6_pcie_v2_3 # (
   output                                        cfg_interrupt_msienable,
   output                                        cfg_interrupt_msixenable,
   output                                        cfg_interrupt_msixfm,
-
   input                                         cfg_turnoff_ok,
   output                                        cfg_to_turnoff,
   input                                         cfg_trn_pending,
@@ -874,7 +872,7 @@ pcie_clocking_i (
   .pipe_clk                ( pipe_clk ),
   .user_clk                ( user_clk_out ),
   .block_clk               ( block_clk ),
-  .drp_clk                 ( drp_clk ),           // Also used as clk2 125 MHz out
+  .drp_clk                 ( drp_clk ),
   .clock_locked            ( clock_locked )
 
 );

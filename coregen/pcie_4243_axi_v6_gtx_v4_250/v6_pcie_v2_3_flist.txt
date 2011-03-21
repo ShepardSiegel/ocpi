@@ -10,7 +10,7 @@ v6_pcie_v2_3\example_design\PIO_EP_MEM_ACCESS.v
 v6_pcie_v2_3\example_design\PIO_TO_CTRL.v
 v6_pcie_v2_3\example_design\pcie_app_v6.v
 v6_pcie_v2_3\example_design\xilinx_pcie_2_0_ep_v6.v
-v6_pcie_v2_3\example_design\xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1-PCIE_X0Y0.ucf
+v6_pcie_v2_3\example_design\xilinx_pcie_2_0_ep_v6_04_lane_gen2_xc6vlx240t-ff1156-1_ML605.ucf
 v6_pcie_v2_3\implement\implement.bat
 v6_pcie_v2_3\implement\implement.sh
 v6_pcie_v2_3\implement\xilinx_pcie_2_0_ep_v6.prj
