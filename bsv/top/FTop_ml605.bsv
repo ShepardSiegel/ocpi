@@ -48,7 +48,7 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
                      Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTop_ml605Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
-  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("X6", pci0_clkp, pci0_clkn, pci0_rstn);
+  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("V6", pci0_clkp, pci0_clkn, pci0_rstn);
   Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
   Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
   Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);

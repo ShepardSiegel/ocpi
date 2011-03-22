@@ -1,0 +1,25 @@
+Looks like there is a recoverable hang at the first non-zero m p.
+-Shep
+
+Log is: /home/shep/projects/ocpi/bin/testDMA8876.log
+For -r1ip -r3op -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 0 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1ip -r3op -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 16 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1ip -r3op -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 4096 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1ip -r3of -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 0 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1ip -r3of -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 16 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1ip -r3of -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 4096 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1ip -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 0 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1ip -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 16 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1ip -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 4096 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3op -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 0 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3op -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 16 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3op -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 4096 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3of -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 0 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3of -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 16 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3of -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 4096 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 0 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 16 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1if -r3om -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 4096 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1im -r3op -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 0 -i 500 0000:04:00.0 ... SUCCEEDED
+For -r1im -r3op -N0o 3 -N1i 3 -N3o 3 -N0i 3 -I 16 -i 500 0000:04:00.0 ... 
+
