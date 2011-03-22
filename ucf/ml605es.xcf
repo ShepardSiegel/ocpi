@@ -4,9 +4,8 @@
 ## 2010-03-16 Added ML605 MIG constraints
 
 # Timing Constraints...
-NET "ftop/pci0_pcie_ep/trn_clk" TNM_NET = "TRNCLK";
-#TIMESPEC "TS_TRNCLK"  = PERIOD "TRNCLK" 125.00 MHz HIGH 50 % ;
-TIMESPEC "TS_TRNCLK"  = PERIOD "TRNCLK" 250.00 MHz HIGH 50 % ;
+NET "ftop/pciw_pci0_pcie_ep/user_clk_out" TNM_NET = "PCIUSERCLK";
+TIMESPEC "TS_PCIUSERCLK"  = PERIOD "PCIUSERCLK" 250.00 MHz HIGH 50 % ;
 
 
 # Added ML605-MIG Constraints..

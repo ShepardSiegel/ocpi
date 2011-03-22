@@ -48,7 +48,7 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
                      Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTop_ml605Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
-  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("V6", pci0_clkp, pci0_clkn, pci0_rstn);
+  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("X6", pci0_clkp, pci0_clkn, pci0_rstn);
   Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
   Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
   Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
@@ -107,7 +107,7 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   interface Clock    p125clk = p125Clk;
   interface Reset    p125rst = p125Rst;
   method  led   =
-    {5'b10100, 2'b10, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
+    {5'b10100, 2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
   interface GPSIfc   gps     = ctop.gps;
   interface FLASH_IO flash   = flash0.flash;
   interface DDR3_64  dram    = dram0.dram;
