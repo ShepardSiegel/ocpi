@@ -1,0 +1,8 @@
+## KC705.xcf
+## Shepard Siegel for Atomic Rules LLC
+## 2011-03-22 Creation
+
+# Timing Constraints...
+NET "ftop/pciw_pci0_pcie_ep/user_clk_out" TNM_NET = "PCIUSERCLK";
+TIMESPEC "TS_PCIUSERCLK"  = PERIOD "PCIUSERCLK" 250.00 MHz HIGH 50 % ;
+
