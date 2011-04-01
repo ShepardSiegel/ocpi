@@ -542,18 +542,11 @@ interface PCIE_EXP#(numeric type lanes);
    method    Bit#(lanes) txn;
 endinterface: PCIE_EXP
 
-//TODO: Investigate is Altrea tools can handle n-bit vectors of *pseudo-diff* signals...
 (* always_ready, always_enabled *)
-interface PCIE_EXP_ALT4#(numeric type lanes);
-   method    Action      rx0(Bit#(1) i);
-   method    Action      rx1(Bit#(1) i);
-   method    Action      rx2(Bit#(1) i);
-   method    Action      rx3(Bit#(1) i);
-   method    Bit#(1)     tx0;
-   method    Bit#(1)     tx1;
-   method    Bit#(1)     tx2;
-   method    Bit#(1)     tx3;
-endinterface
+interface PCIE_EXP_ALT#(numeric type lanes);
+   method    Action      rx(Bit#(lanes) i);
+   method    Bit#(lanes) tx;
+endinterface: PCIE_EXP
 
 (* always_ready, always_enabled *)
 interface PCIE_CFG;
@@ -962,10 +955,10 @@ interface PCIE_X6#(numeric type lanes);  // V6 AXI (X6)
 endinterface: PCIE_X6
 
 interface PCIE_S4GX#(numeric type lanes);  // Altera Stratix4-GX
-   interface PCIE_EXP_ALT4#(lanes) pcie;
-   interface PCIE_AVALONST         ava;
-   interface PCIE_AVALONST_RX      ava_rx;
-   interface PCIE_AVALONST_TX      ava_tx;
+   interface PCIE_EXP_ALT#(lanes) pcie;
+   interface PCIE_AVALONST        ava;
+   interface PCIE_AVALONST_RX     ava_rx;
+   interface PCIE_AVALONST_TX     ava_tx;
    //interface PCIE_ALT_CFG     cfg;
    //interface PCIE_ALT_INT     cfg_interrupt;
 endinterface: PCIE_S4GX
@@ -1464,15 +1457,9 @@ module vMkStratix4PCIExpress (PCIE_S4GX#(lanes))
    default_reset rstn(pcie_rstn);
    //TODO: Handle local_rstn signal
 
-   interface PCIE_EXP_ALT4 pcie;
-      method                            rx0(rx_in0) enable((*inhigh*)en00)  reset_by(no_reset);
-      method                            rx1(rx_in1) enable((*inhigh*)en01)  reset_by(no_reset);
-      method                            rx2(rx_in2) enable((*inhigh*)en02)  reset_by(no_reset);
-      method                            rx3(rx_in3) enable((*inhigh*)en03)  reset_by(no_reset);
-      method tx_out0                    tx0                                 reset_by(no_reset);
-      method tx_out1                    tx1                                 reset_by(no_reset);
-      method tx_out2                    tx2                                 reset_by(no_reset);
-      method tx_out3                    tx3                                 reset_by(no_reset);
+   interface PCIE_EXP_ALT pcie;
+      method                            rx(rx_in)  enable((*inhigh*)en00)  reset_by(no_reset);
+      method tx_out                     tx                                 reset_by(no_reset);
    endinterface
 
    interface PCIE_AVALONST ava;
