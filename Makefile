@@ -20,6 +20,8 @@ RTEST5n   ?= FTop_nf10
 RTEST5x   ?= FTop_xupv5
 RTEST6    ?= FTop_ml605
 RTESTS6   ?= FTop_sp605
+RTEST7    ?= FTop_altst4
+RTEST8    ?= FTop_htgs4
 OBJ       ?= obj
 RTL       ?= rtl
 BSV       ?= bsv
@@ -382,6 +384,30 @@ platform_ml605: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
 		-verilog-filter basicinout $(BSVTOP)/$(RTEST6).bsv
+
+######################################################################
+platform_altst4: $(OBJ)
+
+	# compile to verilog backend for RTL
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D USE_NDW4 \
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST7).bsv
+
+######################################################################
+platform_htgs4: $(OBJ)
+
+	# compile to verilog backend for RTL
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D USE_NDW4 \
+		-verilog-filter basicinout $(BSVTOP)/$(RTEST8).bsv
 
 $(OBJ):
 	@mkdir -p $(OBJ)

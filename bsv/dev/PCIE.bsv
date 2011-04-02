@@ -546,7 +546,7 @@ endinterface: PCIE_EXP
 interface PCIE_EXP_ALT#(numeric type lanes);
    method    Action      rx(Bit#(lanes) i);
    method    Bit#(lanes) tx;
-endinterface: PCIE_EXP
+endinterface: PCIE_EXP_ALT
 
 (* always_ready, always_enabled *)
 interface PCIE_CFG;

@@ -31,11 +31,11 @@ interface FTop_altst4Ifc;
 endinterface: FTop_altst4Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_altst4#(Clock sys0_clk, Reset sys0_rstn.
+module mkFTop_altst4#(Clock sys0_clk, Reset sys0_rstn,
                       Clock pcie_clk, Reset pcie_rstn)(FTop_altst4Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
-  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("A4", pci0_clkp, pci0_clkn, pci0_rstn);
+  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("A4", pcie_clk, pcie_clk, pcie_rstn);
   Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
   Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
   Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
@@ -46,9 +46,9 @@ module mkFTop_altst4#(Clock sys0_clk, Reset sys0_rstn.
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
   // Static approach..
 `ifdef USE_NDW1
-  CTop4BIfc ctop <- mkCTop4B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
+  CTop4BIfc ctop <- mkCTop4B(pciDevice, sys0_clk, sys0_rstn, clocked_by p125Clk , reset_by p125Rst );
 `elsif USE_NDW4
-  CTop16BIfc ctop <- mkCTop16B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
+  CTop16BIfc ctop <- mkCTop16B(pciDevice, sys0_clk, sys0_rstn, clocked_by p125Clk , reset_by p125Rst );
 `endif
    
   mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
@@ -73,7 +73,7 @@ module mkFTop_altst4#(Clock sys0_clk, Reset sys0_rstn.
 
 
   // Interfaces and Methods provided...
-  interface PCI_EXP_ALT  pcie    = pciw.pcie;
+  //FIXME interface PCI_EXP_ALT  pcie    = pciw.pcie;
   interface Clock        p125clk = p125Clk;
   interface Reset        p125rst = p125Rst;
   method  led   =
