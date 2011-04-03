@@ -15,16 +15,22 @@ ITEST13   ?= TB13
 OPED      ?= OPED
 A4LS      ?= A4LS
 
+## 14 OpenCPI FPGA Board Platforms...
+## See $OPCPI/doc/OpenCPI-BoardsDevices.pdf
 P_ML555   ?= FTop_ml555
+P_ALDER   ?= FTop_alder
 P_SCHIST  ?= FTop_schist
-P_NF10    ?= FTop_nf10
 P_XUPV5   ?= FTop_xupv5
+P_BIOTITE ?= FTop_biotite
+P_NF10    ?= FTop_nf10
+P_ILLITE  ?= FTop_illite
 P_ML605   ?= FTop_ml605
-P_KC705   ?= FTop_kc705
-P_VC707   ?= FTop_vc707
 P_SP605   ?= FTop_sp605
+P_ALCY4   ?= FTop_alcy4
 P_ALTST4  ?= FTop_altst4
 P_HTGS4   ?= FTop_htgs4
+P_KC705   ?= FTop_kc705
+P_VC707   ?= FTop_vc707
 
 OBJ       ?= obj
 RTL       ?= rtl
