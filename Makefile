@@ -14,14 +14,18 @@ ITEST12   ?= TB12
 ITEST13   ?= TB13
 OPED      ?= OPED
 A4LS      ?= A4LS
-RTEST5    ?= FTop_ml555
-RTEST5a   ?= FTop_schist
-RTEST5n   ?= FTop_nf10
-RTEST5x   ?= FTop_xupv5
-RTEST6    ?= FTop_ml605
-RTESTS6   ?= FTop_sp605
-RTEST7    ?= FTop_altst4
-RTEST8    ?= FTop_htgs4
+
+P_ML555   ?= FTop_ml555
+P_SCHIST  ?= FTop_schist
+P_NF10    ?= FTop_nf10
+P_XUPV5   ?= FTop_xupv5
+P_ML605   ?= FTop_ml605
+P_KC705   ?= FTop_kc705
+P_VC707   ?= FTop_vc707
+P_SP605   ?= FTop_sp605
+P_ALTST4  ?= FTop_altst4
+P_HTGS4   ?= FTop_htgs4
+
 OBJ       ?= obj
 RTL       ?= rtl
 BSV       ?= bsv
@@ -297,7 +301,7 @@ verilog_sp605: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTESTS6).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(P_SP605).bsv
 
 ######################################################################
 verilog_oped: $(OBJ)
@@ -333,7 +337,7 @@ platform_ml555: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
 		-D USE_NDW1 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST5).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(P_ML555).bsv
 
 ######################################################################
 platform_schist: $(OBJ)
@@ -346,7 +350,7 @@ platform_schist: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
 		-D USE_NDW1 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST5a).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(P_SCHIST).bsv
 
 
 ######################################################################
@@ -359,7 +363,7 @@ platform_nf10: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW1 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST5n).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(P_NF10).bsv
 
 
 ######################################################################
@@ -372,7 +376,8 @@ platform_xupv5: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST5x).bsv
+		-D USE_NDW1 \
+		-verilog-filter basicinout $(BSVTOP)/$(P_XUPV5).bsv
 
 
 ######################################################################
@@ -385,7 +390,31 @@ platform_ml605: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST6).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(P_ML605).bsv
+
+######################################################################
+platform_kc705: $(OBJ)
+
+	# compile to verilog backend for RTL
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D USE_NDW4 \
+		-verilog-filter basicinout $(BSVTOP)/$(P_KC705).bsv
+
+######################################################################
+platform_vc707: $(OBJ)
+
+	# compile to verilog backend for RTL
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D USE_NDW4 \
+		-verilog-filter basicinout $(BSVTOP)/$(P_VC707).bsv
 
 ######################################################################
 platform_altst4: $(OBJ)
@@ -397,7 +426,7 @@ platform_altst4: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST7).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(P_ALTST4).bsv
 
 ######################################################################
 platform_htgs4: $(OBJ)
@@ -409,7 +438,7 @@ platform_htgs4: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
-		-verilog-filter basicinout $(BSVTOP)/$(RTEST8).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(P_HTGS4).bsv
 
 $(OBJ):
 	@mkdir -p $(OBJ)
