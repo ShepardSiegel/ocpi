@@ -1,0 +1,1607 @@
+ -- Copyright (C) 1991-2011 Altera Corporation
+ -- Your use of Altera Corporation's design tools, logic functions 
+ -- and other software and tools, and its AMPP partner logic 
+ -- functions, and any output files from any of the foregoing 
+ -- (including device programming or simulation files), and any 
+ -- associated documentation or information are expressly subject 
+ -- to the terms and conditions of the Altera Program License 
+ -- Subscription Agreement, Altera MegaCore Function License 
+ -- Agreement, or other applicable license agreement, including, 
+ -- without limitation, that your use is for the sole purpose of 
+ -- programming logic devices manufactured by Altera and sold by 
+ -- Altera or its authorized distributors.  Please refer to the 
+ -- applicable agreement for further details.
+ -- 
+ -- This is a Quartus II output file. It is for reporting purposes only, and is
+ -- not intended for use as a Quartus II input file. This file cannot be used
+ -- to make Quartus II pin assignments - for instructions on how to make pin
+ -- assignments, please see Quartus II help.
+ ---------------------------------------------------------------------------------
+
+
+
+ ---------------------------------------------------------------------------------
+ -- NC            : No Connect. This pin has no internal connection to the device.
+ -- DNU           : Do Not Use. This pin MUST NOT be connected.
+ -- VCCPGM        : Dedicated power pin for configuration, which MUST be connected to 1.8V, 2.5V or 3.0V depending on the requirements of the configuration device.
+ -- VCCINT        : Dedicated power pin, which MUST be connected to VCC  (0.9V).
+ -- VCCIO         : Dedicated power pin, which MUST be connected to VCC
+ --                 of its bank.
+ --					Bank 1A:		2.5V
+ --					Bank 1C:		2.5V
+ --					Bank 2C:		2.5V
+ --					Bank 2A:		2.5V
+ --					Bank 3A:		2.5V
+ --					Bank 3B:		2.5V
+ --					Bank 3C:		2.5V
+ --					Bank 4C:		2.5V
+ --					Bank 4B:		2.5V
+ --					Bank 4A:	2.5V
+ --					Bank 5A:	2.5V
+ --					Bank 5C:	2.5V
+ --					Bank 6C:	2.5V
+ --					Bank 6A:	2.5V
+ --					Bank 7A:	2.5V
+ --					Bank 7B:	2.5V
+ --					Bank 7C:	2.5V
+ --					Bank 8C:	2.5V
+ --					Bank 8B:	2.5V
+ --					Bank 8A:	2.5V
+ -- RREF          : External reference resistor for the quad, MUST be connected to
+ --                 GND via a 2k Ohm resistor.
+ -- GND           : Dedicated ground pin. Dedicated GND pins MUST be connected to GND.
+ --					It can also be used to report unused dedicated pins. The connection
+ --					on the board for unused dedicated pins depends on whether this will
+ --					be used in a future design. One example is device migration. When
+ --					using device migration, refer to the device pin-tables. If it is a
+ --					GND pin in the pin table or if it will not be used in a future design
+ --					for another purpose the it MUST be connected to GND. If it is an unused
+ --					dedicated pin, then it can be connected to a valid signal on the board
+ --					(low, high, or toggling) if that signal is required for a different
+ --					revision of the design.
+ -- GND+          : Unused input pin. It can also be used to report unused dual-purpose pins.
+ --					This pin should be connected to GND. It may also be connected  to a
+ --					valid signal  on the board  (low, high, or toggling)  if that signal
+ --					is required for a different revision of the design.
+ -- GND*          : Unused  I/O  pin.   For transceiver I/O banks, connect each pin marked GND*
+ --           	    either individually through a 10k Ohm resistor to GND or tie all pins
+ --           	    together and connect through a single 10k Ohm resistor to GND.
+ -- RESERVED      : Unused I/O pin, which MUST be left unconnected.
+ -- RESERVED_INPUT    : Pin is tri-stated and should be connected to the board.
+ -- RESERVED_INPUT_WITH_WEAK_PULLUP    : Pin is tri-stated with internal weak pull-up resistor.
+ -- RESERVED_INPUT_WITH_BUS_HOLD       : Pin is tri-stated with bus-hold circuitry.
+ -- RESERVED_OUTPUT_DRIVEN_HIGH        : Pin is output driven high.
+ -- GXB_GND*      : Unused GXB Receiver or dedicated reference clock pin. This pin
+ --                 must be connected to GXB_GND through a 10k Ohm resistor.
+ -- GXB_NC        : Unused GXB Transmitter or dedicated clock output pin. This pin
+ --                 must not be connected.
+ ---------------------------------------------------------------------------------
+
+
+
+ ---------------------------------------------------------------------------------
+ -- Pin directions (input, output or bidir) are based on device operating in user mode.
+ ---------------------------------------------------------------------------------
+
+Quartus II Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Full Version
+CHIP  "pcie_hip_s4gx_gen2_x4_128_example_chaining_top"  ASSIGNED TO AN: EP4SGX230KF40C2
+
+Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
+-------------------------------------------------------------------------------------------------------------
+GND                          : A2        : gnd    :                   :         :           :                
+GND                          : A3        : gnd    :                   :         :           :                
+GND                          : A4        : gnd    :                   :         :           :                
+GND                          : A5        : gnd    :                   :         :           :                
+RREF                         : A6        :        :                   :         :           :                
+GND                          : A7        : gnd    :                   :         :           :                
+MSEL2                        : A8        :        :                   :         : 1A        :                
+TEMPDIODEp                   : A9        :        :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A10       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A11       :        :                   :         : 7A        :                
+VCCIO7A                      : A12       : power  :                   : 2.5V    : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A14       :        :                   :         : 7A        :                
+VCCIO7B                      : A15       : power  :                   : 2.5V    : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A17       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A18       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A20       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A21       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A23       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A24       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A25       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A26       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A27       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A28       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A29       :        :                   :         : 8A        :                
+VCCIO8A                      : A30       : power  :                   : 2.5V    : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : A31       :        :                   :         : 8A        :                
+TRST                         : A32       : input  :                   :         : 1A        :                
+GND                          : A33       : gnd    :                   :         :           :                
+RREF                         : A34       :        :                   :         :           :                
+GND                          : A35       : gnd    :                   :         :           :                
+GND                          : A36       : gnd    :                   :         :           :                
+GND                          : A37       : gnd    :                   :         :           :                
+GND                          : A38       : gnd    :                   :         :           :                
+GXB_GND*                     : AA1       :        :                   :         : QR1       :                
+GXB_GND*                     : AA2       :        :                   :         : QR1       :                
+GND                          : AA3       : gnd    :                   :         :           :                
+GND                          : AA4       : gnd    :                   :         :           :                
+GND+                         : AA5       :        :                   :         : 6C        :                
+VCCH_GXBR1                   : AA6       : power  :                   : 1.4V    : QR1       :                
+VCCL_GXBR1                   : AA7       : power  :                   : 1.1V    : QR1       :                
+VCC                          : AA8       : power  :                   : 0.9V    :           :                
+VCCHIP_R                     : AA9       : power  :                   : 0.9V    :           :                
+VCCA_PLL_R3                  : AA10      : power  :                   : 2.5V    :           :                
+VCCD_PLL_R3                  : AA11      : power  :                   : 0.9V    :           :                
+VCCPT                        : AA12      : power  :                   : 1.5V    :           :                
+VCCPD5C                      : AA13      : power  :                   : 2.5V    : 5C        :                
+GND                          : AA14      : gnd    :                   :         :           :                
+VCC                          : AA15      : power  :                   : 0.9V    :           :                
+GND                          : AA16      : gnd    :                   :         :           :                
+VCC                          : AA17      : power  :                   : 0.9V    :           :                
+GND                          : AA18      : gnd    :                   :         :           :                
+VCC                          : AA19      : power  :                   : 0.9V    :           :                
+DNU                          : AA20      :        :                   :         :           :                
+VCC                          : AA21      : power  :                   : 0.9V    :           :                
+GND                          : AA22      : gnd    :                   :         :           :                
+VCC                          : AA23      : power  :                   : 0.9V    :           :                
+GND                          : AA24      : gnd    :                   :         :           :                
+VCC                          : AA25      : power  :                   : 0.9V    :           :                
+VCCPT                        : AA26      : power  :                   : 1.5V    :           :                
+VCCPT                        : AA27      : power  :                   : 1.5V    :           :                
+VCCD_PLL_L3                  : AA28      : power  :                   : 0.9V    :           :                
+VCCA_PLL_L3                  : AA29      : power  :                   : 2.5V    :           :                
+VCCIO1C                      : AA30      : power  :                   : 2.5V    : 1C        :                
+VCCHIP_L                     : AA31      : power  :                   : 0.9V    :           :                
+VCC                          : AA32      : power  :                   : 0.9V    :           :                
+VCCL_GXBL1                   : AA33      : power  :                   : 1.1V    : QL1       :                
+VCCH_GXBL1                   : AA34      : power  :                   : 1.4V    : QL1       :                
+GND+                         : AA35      :        :                   :         : 1C        :                
+GND                          : AA36      : gnd    :                   :         :           :                
+GND                          : AA37      : gnd    :                   :         :           :                
+GXB_GND*                     : AA38      :        :                   :         : QL1       :                
+GXB_GND*                     : AA39      :        :                   :         : QL1       :                
+GND                          : AB1       : gnd    :                   :         :           :                
+GND                          : AB2       : gnd    :                   :         :           :                
+GXB_NC                       : AB3       :        :                   :         : QR1       :                
+GXB_NC                       : AB4       :        :                   :         : QR1       :                
+VCCT_R                       : AB5       : power  :                   : 1.1V    :           :                
+GND+                         : AB6       :        :                   :         : 6C        :                
+GND                          : AB7       : gnd    :                   :         :           :                
+VCC                          : AB8       : power  :                   : 0.9V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AB9       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AB10      :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AB11      :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AB12      :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AB13      :        :                   :         : 5C        :                
+VCC                          : AB14      : power  :                   : 0.9V    :           :                
+GND                          : AB15      : gnd    :                   :         :           :                
+VCC                          : AB16      : power  :                   : 0.9V    :           :                
+GND                          : AB17      : gnd    :                   :         :           :                
+VCC                          : AB18      : power  :                   : 0.9V    :           :                
+GND                          : AB19      : gnd    :                   :         :           :                
+VCC                          : AB20      : power  :                   : 0.9V    :           :                
+GND                          : AB21      : gnd    :                   :         :           :                
+VCC                          : AB22      : power  :                   : 0.9V    :           :                
+GND                          : AB23      : gnd    :                   :         :           :                
+VCC                          : AB24      : power  :                   : 0.9V    :           :                
+GND                          : AB25      : gnd    :                   :         :           :                
+VCCPD2A                      : AB26      : power  :                   : 2.5V    : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AB27      :        :                   :         : 2C        :                
+gen2_led                     : AB28      : output : 2.5 V             :         : 2C        : Y              
+VREFB2CN0                    : AB29      : power  :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AB30      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AB31      :        :                   :         : 2C        :                
+VCC                          : AB32      : power  :                   : 0.9V    :           :                
+GND                          : AB33      : gnd    :                   :         :           :                
+GND+                         : AB34      :        :                   :         : 1C        :                
+VCCT_L                       : AB35      : power  :                   : 1.1V    :           :                
+GXB_NC                       : AB36      :        :                   :         : QL1       :                
+GXB_NC                       : AB37      :        :                   :         : QL1       :                
+GND                          : AB38      : gnd    :                   :         :           :                
+GND                          : AB39      : gnd    :                   :         :           :                
+GXB_GND*                     : AC1       :        :                   :         : QR1       :                
+GXB_GND*                     : AC2       :        :                   :         : QR1       :                
+GND                          : AC3       : gnd    :                   :         :           :                
+GND                          : AC4       : gnd    :                   :         :           :                
+GND+                         : AC5       :        :                   :         : 5C        :                
+GND+                         : AC6       :        :                   :         : 5C        :                
+GND                          : AC7       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC8       :        :                   :         : 5C        :                
+GND                          : AC9       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC10      :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC11      :        :                   :         : 5C        :                
+GND                          : AC12      : gnd    :                   :         :           :                
+VCCPD5A                      : AC13      : power  :                   : 2.5V    : 5A        :                
+GND                          : AC14      : gnd    :                   :         :           :                
+VCC                          : AC15      : power  :                   : 0.9V    :           :                
+GND                          : AC16      : gnd    :                   :         :           :                
+VCC                          : AC17      : power  :                   : 0.9V    :           :                
+GND                          : AC18      : gnd    :                   :         :           :                
+VCC                          : AC19      : power  :                   : 0.9V    :           :                
+GND                          : AC20      : gnd    :                   :         :           :                
+VCC                          : AC21      : power  :                   : 0.9V    :           :                
+GND                          : AC22      : gnd    :                   :         :           :                
+VCC                          : AC23      : power  :                   : 0.9V    :           :                
+GND                          : AC24      : gnd    :                   :         :           :                
+VCC                          : AC25      : power  :                   : 0.9V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC26      :        :                   :         : 2A        :                
+GND                          : AC27      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC28      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC29      :        :                   :         : 2C        :                
+GND                          : AC30      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC31      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AC32      :        :                   :         : 2C        :                
+GND                          : AC33      : gnd    :                   :         :           :                
+GND+                         : AC34      :        :                   :         : 2C        :                
+usr_sw[1]                    : AC35      : input  : 2.5 V             :         : 2C        : Y              
+GND                          : AC36      : gnd    :                   :         :           :                
+GND                          : AC37      : gnd    :                   :         :           :                
+GXB_GND*                     : AC38      :        :                   :         : QL1       :                
+GXB_GND*                     : AC39      :        :                   :         : QL1       :                
+GND                          : AD1       : gnd    :                   :         :           :                
+GND                          : AD2       : gnd    :                   :         :           :                
+GXB_NC                       : AD3       :        :                   :         : QR1       :                
+GXB_NC                       : AD4       :        :                   :         : QR1       :                
+VCCR_R                       : AD5       : power  :                   : 1.1V    :           :                
+GND                          : AD6       : gnd    :                   :         :           :                
+VCCL_GXBR0                   : AD7       : power  :                   : 1.1V    : QR0       :                
+GND                          : AD8       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD9       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD10      :        :                   :         : 5C        :                
+VREFB5CN0                    : AD11      : power  :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD12      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD13      :        :                   :         : 5A        :                
+VCCPD4A                      : AD14      : power  :                   : 2.5V    : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD15      :        :                   :         : 4A        :                
+VCCPD4B                      : AD16      : power  :                   : 2.5V    : 4B        :                
+NC                           : AD17      :        :                   :         :           :                
+VCCPD4C                      : AD18      : power  :                   : 2.5V    : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD19      :        :                   :         : 4C        :                
+VCCPD3C                      : AD20      : power  :                   : 2.5V    : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD21      :        :                   :         : 3C        :                
+VCCPD3B                      : AD22      : power  :                   : 2.5V    : 3B        :                
+GND                          : AD23      : gnd    :                   :         :           :                
+VCCPD3A                      : AD24      : power  :                   : 2.5V    : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD25      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD26      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD27      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD28      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD29      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD30      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AD31      :        :                   :         : 2C        :                
+GND                          : AD32      : gnd    :                   :         :           :                
+VCCL_GXBL0                   : AD33      : power  :                   : 1.1V    : QL0       :                
+GND                          : AD34      : gnd    :                   :         :           :                
+VCCR_L                       : AD35      : power  :                   : 1.1V    :           :                
+GXB_NC                       : AD36      :        :                   :         : QL1       :                
+GXB_NC                       : AD37      :        :                   :         : QL1       :                
+GND                          : AD38      : gnd    :                   :         :           :                
+GND                          : AD39      : gnd    :                   :         :           :                
+GXB_GND*                     : AE1       :        :                   :         : QR1       :                
+GXB_GND*                     : AE2       :        :                   :         : QR1       :                
+GND                          : AE3       : gnd    :                   :         :           :                
+GND                          : AE4       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE5       :        :                   :         : 5C        :                
+VCCH_GXBR0                   : AE6       : power  :                   : 1.4V    : QR0       :                
+VCCL_GXBR0                   : AE7       : power  :                   : 1.1V    : QR0       :                
+VCC                          : AE8       : power  :                   : 0.9V    :           :                
+VCCIO5C                      : AE9       : power  :                   : 2.5V    : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE10      :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE11      :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE12      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE13      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE14      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE15      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE16      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE17      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE18      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE20      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE21      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE22      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE23      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE24      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE25      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE26      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE27      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE28      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE29      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE30      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE31      :        :                   :         : 2C        :                
+VCC                          : AE32      : power  :                   : 0.9V    :           :                
+VCCL_GXBL0                   : AE33      : power  :                   : 1.1V    : QL0       :                
+VCCH_GXBL0                   : AE34      : power  :                   : 1.4V    : QL0       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AE35      :        :                   :         : 2C        :                
+GND                          : AE36      : gnd    :                   :         :           :                
+GND                          : AE37      : gnd    :                   :         :           :                
+GXB_GND*                     : AE38      :        :                   :         : QL1       :                
+GXB_GND*                     : AE39      :        :                   :         : QL1       :                
+GND                          : AF1       : gnd    :                   :         :           :                
+GND                          : AF2       : gnd    :                   :         :           :                
+GXB_NC                       : AF3       :        :                   :         : QR0       :                
+GXB_NC                       : AF4       :        :                   :         : QR0       :                
+VCCA_R                       : AF5       : power  :                   : 2.5V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF6       :        :                   :         : 5C        :                
+GND                          : AF7       : gnd    :                   :         :           :                
+VCC                          : AF8       : power  :                   : 0.9V    :           :                
+GND                          : AF9       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF10      :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF11      :        :                   :         : 5C        :                
+GND                          : AF12      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF13      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF14      :        :                   :         : 4A        :                
+GND                          : AF15      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF16      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF17      :        :                   :         : 4B        :                
+GND                          : AF18      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF20      :        :                   :         : 3C        :                
+GND                          : AF21      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF22      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF23      :        :                   :         : 3B        :                
+GND                          : AF24      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF25      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AF26      :        :                   :         : 2A        :                
+GND                          : AF27      : gnd    :                   :         :           :                
+VREFB2AN0                    : AF28      : power  :                   :         : 2A        :                
+lane_active_led[3]           : AF29      : output : 2.5 V             :         : 2C        : Y              
+GND                          : AF30      : gnd    :                   :         :           :                
+VCCIO2C                      : AF31      : power  :                   : 2.5V    : 2C        :                
+VCC                          : AF32      : power  :                   : 0.9V    :           :                
+GND                          : AF33      : gnd    :                   :         :           :                
+free_100MHz                  : AF34      : input  : 2.5 V             :         : 2C        : N              
+VCCA_L                       : AF35      : power  :                   : 3.0V    :           :                
+tx_out3                      : AF36      : output : 1.4-V PCML        :         : QL0       : Y              
+tx_out3(n)                   : AF37      : output : 1.4-V PCML        :         : QL0       : N              
+GND                          : AF38      : gnd    :                   :         :           :                
+GND                          : AF39      : gnd    :                   :         :           :                
+GXB_GND*                     : AG1       :        :                   :         : QR0       :                
+GXB_GND*                     : AG2       :        :                   :         : QR0       :                
+GND                          : AG3       : gnd    :                   :         :           :                
+GND                          : AG4       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG5       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG6       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG7       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG8       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG9       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG10      :        :                   :         : 5C        :                
+VREFB5AN0                    : AG11      : power  :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG12      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG13      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG14      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG15      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG17      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG18      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG20      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG21      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG22      :        :                   :         : 3B        :                
+VCCIO3B                      : AG23      : power  :                   : 2.5V    : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG24      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG25      :        :                   :         : 3A        :                
+VCCIO2A                      : AG26      : power  :                   : 2.5V    : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG27      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG28      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG29      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG30      :        :                   :         : 2C        :                
+usr_sw[7]                    : AG31      : input  : 2.5 V             :         : 2C        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG32      :        :                   :         : 2C        :                
+VCCIO2C                      : AG33      : power  :                   : 2.5V    : 2C        :                
+usr_sw[6]                    : AG34      : input  : 2.5 V             :         : 2C        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AG35      :        :                   :         : 2C        :                
+GND                          : AG36      : gnd    :                   :         :           :                
+GND                          : AG37      : gnd    :                   :         :           :                
+rx_in3                       : AG38      : input  : 1.4-V PCML        :         : QL0       : Y              
+rx_in3(n)                    : AG39      : input  : 1.4-V PCML        :         : QL0       : N              
+GND                          : AH1       : gnd    :                   :         :           :                
+GND                          : AH2       : gnd    :                   :         :           :                
+GXB_NC                       : AH3       :        :                   :         : QR0       :                
+GXB_NC                       : AH4       :        :                   :         : QR0       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH5       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH6       :        :                   :         : 5C        :                
+VCCIO5C                      : AH7       : power  :                   : 2.5V    : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH8       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH9       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH10      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH11      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH12      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH14      :        :                   :         : 4A        :                
+VCCIO4A                      : AH15      : power  :                   : 2.5V    : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH17      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH18      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH20      :        :                   :         : 3C        :                
+VCCIO3C                      : AH21      : power  :                   : 2.5V    : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH22      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH23      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH24      :        :                   :         : 3A        :                
+VCCIO3A                      : AH25      : power  :                   : 2.5V    : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH26      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH27      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH28      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH29      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH30      :        :                   :         : 2A        :                
+VCCIO2C                      : AH31      : power  :                   : 2.5V    : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH32      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH33      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AH34      :        :                   :         : 2C        :                
+lane_active_led[2]           : AH35      : output : 2.5 V             :         : 2C        : Y              
+tx_out2                      : AH36      : output : 1.4-V PCML        :         : QL0       : Y              
+tx_out2(n)                   : AH37      : output : 1.4-V PCML        :         : QL0       : N              
+GND                          : AH38      : gnd    :                   :         :           :                
+GND                          : AH39      : gnd    :                   :         :           :                
+GXB_GND*                     : AJ1       :        :                   :         : QR0       :                
+GXB_GND*                     : AJ2       :        :                   :         : QR0       :                
+GND                          : AJ3       : gnd    :                   :         :           :                
+GND                          : AJ4       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ5       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ6       :        :                   :         : 5C        :                
+GND                          : AJ7       : gnd    :                   :         :           :                
+VCCIO5C                      : AJ8       : power  :                   : 2.5V    : 5C        :                
+GND                          : AJ9       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ10      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ11      :        :                   :         : 5A        :                
+GND                          : AJ12      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ14      :        :                   :         : 4A        :                
+GND                          : AJ15      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ16      :        :                   :         : 4B        :                
+VCCIO4B                      : AJ17      : power  :                   : 2.5V    : 4B        :                
+GND                          : AJ18      : gnd    :                   :         :           :                
+VCCIO4C                      : AJ19      : power  :                   : 2.5V    : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ20      :        :                   :         : 3C        :                
+GND                          : AJ21      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ22      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ23      :        :                   :         : 3B        :                
+GND                          : AJ24      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ25      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ26      :        :                   :         : 3A        :                
+GND                          : AJ27      : gnd    :                   :         :           :                
+VCCIO2A                      : AJ28      : power  :                   : 2.5V    : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ29      :        :                   :         : 2A        :                
+GND                          : AJ30      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ31      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ32      :        :                   :         : 2C        :                
+GND                          : AJ33      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ34      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AJ35      :        :                   :         : 2C        :                
+GND                          : AJ36      : gnd    :                   :         :           :                
+GND                          : AJ37      : gnd    :                   :         :           :                
+rx_in2                       : AJ38      : input  : 1.4-V PCML        :         : QL0       : Y              
+rx_in2(n)                    : AJ39      : input  : 1.4-V PCML        :         : QL0       : N              
+GND                          : AK1       : gnd    :                   :         :           :                
+GND                          : AK2       : gnd    :                   :         :           :                
+GXB_NC                       : AK3       :        :                   :         : QR0       :                
+GXB_NC                       : AK4       :        :                   :         : QR0       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK5       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK6       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK7       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK8       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK9       :        :                   :         : 5A        :                
+VCCIO5A                      : AK10      : power  :                   : 2.5V    : 5A        :                
+NC                           : AK11      :        :                   :         :           :                
+VCCPGM                       : AK12      : power  :                   : 1.8V/2.5V/3.0V :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK14      :        :                   :         : 4A        :                
+VCCIO4A                      : AK15      : power  :                   : 2.5V    : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK17      :        :                   :         : 4B        :                
+VCC_CLKIN4C                  : AK18      : power  :                   : 2.5V    :           :                
+VCCD_PLL_B2                  : AK19      : power  :                   : 0.9V    :           :                
+VCCD_PLL_B1                  : AK20      : power  :                   : 0.9V    :           :                
+VCC_CLKIN3C                  : AK21      : power  :                   : 2.5V    :           :                
+VCCIO3C                      : AK22      : power  :                   : 2.5V    : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK23      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK24      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK25      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK26      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK27      :        :                   :         : 3A        :                
+VCCPGM                       : AK28      : power  :                   : 1.8V/2.5V/3.0V :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK29      :        :                   :         : 2A        :                
+req_compliance_push_button_n : AK30      : input  : 2.5 V             :         : 2A        : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK31      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK32      :        :                   :         : 2A        :                
+alive_led                    : AK33      : output : 2.5 V             :         : 2C        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AK34      :        :                   :         : 2C        :                
+local_rstn_ext               : AK35      : input  : 2.5 V             :         : 2C        : Y              
+GXB_NC                       : AK36      :        :                   :         : QL0       :                
+GXB_NC                       : AK37      :        :                   :         : QL0       :                
+GND                          : AK38      : gnd    :                   :         :           :                
+GND                          : AK39      : gnd    :                   :         :           :                
+GXB_GND*                     : AL1       :        :                   :         : QR0       :                
+GXB_GND*                     : AL2       :        :                   :         : QR0       :                
+GND                          : AL3       : gnd    :                   :         :           :                
+GND                          : AL4       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL5       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL6       :        :                   :         : 5C        :                
+VCCIO5C                      : AL7       : power  :                   : 2.5V    : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL8       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL9       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL10      :        :                   :         : 5A        :                
+GND                          : AL11      : gnd    :                   :         :           :                
+VCCAUX                       : AL12      : power  :                   : 2.5V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL14      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL15      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL17      :        :                   :         : 4B        :                
+VREFB4CN0                    : AL18      : power  :                   :         : 4C        :                
+VCCA_PLL_B2                  : AL19      : power  :                   : 2.5V    :           :                
+VCCA_PLL_B1                  : AL20      : power  :                   : 2.5V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL21      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL22      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL23      :        :                   :         : 3B        :                
+VREFB3BN0                    : AL24      : power  :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL25      :        :                   :         : 3A        :                
+VCCIO3A                      : AL26      : power  :                   : 2.5V    : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL27      :        :                   :         : 3A        :                
+VCCAUX                       : AL28      : power  :                   : 2.5V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL29      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL30      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL31      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL32      :        :                   :         : 2A        :                
+VCCIO2C                      : AL33      : power  :                   : 2.5V    : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AL34      :        :                   :         : 2C        :                
+usr_sw[0]                    : AL35      : input  : 2.5 V             :         : 2C        : Y              
+GND                          : AL36      : gnd    :                   :         :           :                
+GND                          : AL37      : gnd    :                   :         :           :                
+GXB_GND*                     : AL38      :        :                   :         : QL0       :                
+GXB_GND*                     : AL39      :        :                   :         : QL0       :                
+GND                          : AM1       : gnd    :                   :         :           :                
+GND                          : AM2       : gnd    :                   :         :           :                
+GXB_NC                       : AM3       :        :                   :         : QR0       :                
+GXB_NC                       : AM4       :        :                   :         : QR0       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM5       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM6       :        :                   :         : 5C        :                
+GND                          : AM7       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM8       :        :                   :         : 5A        :                
+GND                          : AM9       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM10      :        :                   :         : 5A        :                
+nIO_PULLUP                   : AM11      :        :                   :         : 1A        :                
+GND                          : AM12      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM14      :        :                   :         : 4A        :                
+GND                          : AM15      : gnd    :                   :         :           :                
+VREFB4BN0                    : AM16      : power  :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM17      :        :                   :         : 4B        :                
+GND                          : AM18      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM19      :        :                   :         : 4C        :                
+VCCPT                        : AM20      : power  :                   : 1.5V    :           :                
+GND                          : AM21      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM22      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM23      :        :                   :         : 3C        :                
+GND                          : AM24      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM25      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM26      :        :                   :         : 3A        :                
+GND                          : AM27      : gnd    :                   :         :           :                
+NC                           : AM28      :        :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM29      :        :                   :         : 2A        :                
+GND                          : AM30      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM31      :        :                   :         : 2A        :                
+VCCIO2A                      : AM32      : power  :                   : 2.5V    : 2A        :                
+GND                          : AM33      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM34      :        :                   :         : 2C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AM35      :        :                   :         : 2C        :                
+GXB_NC                       : AM36      :        :                   :         : QL0       :                
+GXB_NC                       : AM37      :        :                   :         : QL0       :                
+GND                          : AM38      : gnd    :                   :         :           :                
+GND                          : AM39      : gnd    :                   :         :           :                
+GXB_GND*                     : AN1       :        :                   :         : QR0       :                
+GXB_GND*                     : AN2       :        :                   :         : QR0       :                
+GND                          : AN3       : gnd    :                   :         :           :                
+GND                          : AN4       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN5       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN6       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN7       :        :                   :         : 5A        :                
+VCCIO5A                      : AN8       : power  :                   : 2.5V    : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN9       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN10      :        :                   :         : 5A        :                
+ASDO                         : AN11      :        :                   :         : 1A        :                
+VREFB4AN0                    : AN12      : power  :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN14      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN15      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN17      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN18      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN20      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN21      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN22      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN23      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN24      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN25      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN26      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN27      :        :                   :         : 3A        :                
+VREFB3AN0                    : AN28      : power  :                   :         : 3A        :                
+nCE                          : AN29      :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN30      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN31      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN32      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN33      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AN34      :        :                   :         : 2C        :                
+usr_sw[3]                    : AN35      : input  : 2.5 V             :         : 2C        : Y              
+GND                          : AN36      : gnd    :                   :         :           :                
+GND                          : AN37      : gnd    :                   :         :           :                
+refclk                       : AN38      : input  : HCSL              :         : QL0       : Y              
+refclk(n)                    : AN39      : input  : HCSL              :         : QL0       : N              
+GND                          : AP1       : gnd    :                   :         :           :                
+GND                          : AP2       : gnd    :                   :         :           :                
+GXB_NC                       : AP3       :        :                   :         : QR0       :                
+GXB_NC                       : AP4       :        :                   :         : QR0       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP5       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP6       :        :                   :         : 5C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP7       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP8       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP9       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP10      :        :                   :         : 5A        :                
+nCSO                         : AP11      :        :                   :         : 1A        :                
+VCCIO4A                      : AP12      : power  :                   : 2.5V    : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP14      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP15      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP17      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP18      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP20      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP21      :        :                   :         : 3C        :                
+VREFB3CN0                    : AP22      : power  :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP23      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP24      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP25      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP26      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP27      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP28      :        :                   :         : 3A        :                
+PORSEL                       : AP29      :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP30      :        :                   :         : 2A        :                
+VCCIO2A                      : AP31      : power  :                   : 2.5V    : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP32      :        :                   :         : 2A        :                
+lane_active_led[1]           : AP33      : output : 2.5 V             :         : 2A        : N              
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP34      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AP35      :        :                   :         : 2A        :                
+tx_out1                      : AP36      : output : 1.4-V PCML        :         : QL0       : Y              
+tx_out1(n)                   : AP37      : output : 1.4-V PCML        :         : QL0       : N              
+GND                          : AP38      : gnd    :                   :         :           :                
+GND                          : AP39      : gnd    :                   :         :           :                
+GXB_GND*                     : AR1       :        :                   :         : QR0       :                
+GXB_GND*                     : AR2       :        :                   :         : QR0       :                
+GND                          : AR3       : gnd    :                   :         :           :                
+GND                          : AR4       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR5       :        :                   :         : 5A        :                
+GND                          : AR6       : gnd    :                   :         :           :                
+VCCIO5A                      : AR7       : power  :                   : 2.5V    : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR8       :        :                   :         : 5A        :                
+GND                          : AR9       : gnd    :                   :         :           :                
+VCCIO5A                      : AR10      : power  :                   : 2.5V    : 5A        :                
+DCLK                         : AR11      : bidir  :                   :         : 1A        :                
+GND                          : AR12      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR14      :        :                   :         : 4A        :                
+GND                          : AR15      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR17      :        :                   :         : 4B        :                
+GND                          : AR18      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR20      :        :                   :         : 4C        :                
+GND                          : AR21      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR22      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR23      :        :                   :         : 3C        :                
+GND                          : AR24      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR25      :        :                   :         : 3B        :                
+VCCIO3B                      : AR26      : power  :                   : 2.5V    : 3B        :                
+GND                          : AR27      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR28      :        :                   :         : 3A        :                
+VCCIO3A                      : AR29      : power  :                   : 2.5V    : 3A        :                
+GND                          : AR30      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR31      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR32      :        :                   :         : 2A        :                
+GND                          : AR33      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR34      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AR35      :        :                   :         : 2A        :                
+GND                          : AR36      : gnd    :                   :         :           :                
+GND                          : AR37      : gnd    :                   :         :           :                
+rx_in1                       : AR38      : input  : 1.4-V PCML        :         : QL0       : Y              
+rx_in1(n)                    : AR39      : input  : 1.4-V PCML        :         : QL0       : N              
+GND                          : AT1       : gnd    :                   :         :           :                
+GND                          : AT2       : gnd    :                   :         :           :                
+GXB_NC                       : AT3       :        :                   :         : QR0       :                
+GXB_NC                       : AT4       :        :                   :         : QR0       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT5       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT6       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT7       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT8       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT9       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT10      :        :                   :         : 5A        :                
+nCEO                         : AT11      :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT12      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT14      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT15      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT17      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT18      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT20      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT21      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT22      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT23      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT24      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT25      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT26      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT27      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT28      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT29      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT30      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT31      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT32      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT33      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AT34      :        :                   :         : 2A        :                
+VCCIO2A                      : AT35      : power  :                   : 2.5V    : 2A        :                
+tx_out0                      : AT36      : output : 1.4-V PCML        :         : QL0       : Y              
+tx_out0(n)                   : AT37      : output : 1.4-V PCML        :         : QL0       : N              
+GND                          : AT38      : gnd    :                   :         :           :                
+GND                          : AT39      : gnd    :                   :         :           :                
+GXB_GND*                     : AU1       :        :                   :         : QR0       :                
+GXB_GND*                     : AU2       :        :                   :         : QR0       :                
+GND                          : AU3       : gnd    :                   :         :           :                
+GND                          : AU4       : gnd    :                   :         :           :                
+NC                           : AU5       :        :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU6       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU7       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU8       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU9       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU10      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU11      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU12      :        :                   :         : 4A        :                
+VCCIO4A                      : AU13      : power  :                   : 2.5V    : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU14      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU15      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU17      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU18      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU20      :        :                   :         : 4C        :                
+VCCIO4C                      : AU21      : power  :                   : 2.5V    : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU22      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU23      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU24      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU25      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU26      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU27      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU28      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU29      :        :                   :         : 3A        :                
+VCCIO3A                      : AU30      : power  :                   : 2.5V    : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU31      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU32      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU33      :        :                   :         : 2A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AU34      :        :                   :         : 2A        :                
+NC                           : AU35      :        :                   :         :           :                
+GND                          : AU36      : gnd    :                   :         :           :                
+GND                          : AU37      : gnd    :                   :         :           :                
+rx_in0                       : AU38      : input  : 1.4-V PCML        :         : QL0       : Y              
+rx_in0(n)                    : AU39      : input  : 1.4-V PCML        :         : QL0       : N              
+GND                          : AV1       : gnd    :                   :         :           :                
+GND                          : AV2       : gnd    :                   :         :           :                
+GND                          : AV3       : gnd    :                   :         :           :                
+NC                           : AV4       :        :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV5       :        :                   :         : 5A        :                
+GND                          : AV6       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV7       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV8       :        :                   :         : 5A        :                
+GND                          : AV9       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV10      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV11      :        :                   :         : 4A        :                
+GND                          : AV12      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV14      :        :                   :         : 4A        :                
+GND                          : AV15      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV16      :        :                   :         : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV17      :        :                   :         : 4C        :                
+GND                          : AV18      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV20      :        :                   :         : 4C        :                
+GND                          : AV21      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV22      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV23      :        :                   :         : 3C        :                
+GND                          : AV24      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV25      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV26      :        :                   :         : 3B        :                
+GND                          : AV27      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV28      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV29      :        :                   :         : 3A        :                
+GND                          : AV30      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV31      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV32      :        :                   :         : 3A        :                
+GND                          : AV33      : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AV34      :        :                   :         : 2A        :                
+CONF_DONE                    : AV35      :        :                   :         : 1A        :                
+NC                           : AV36      :        :                   :         :           :                
+GND                          : AV37      : gnd    :                   :         :           :                
+GND                          : AV38      : gnd    :                   :         :           :                
+GND                          : AV39      : gnd    :                   :         :           :                
+RREF                         : AW2       :        :                   :         :           :                
+GND                          : AW3       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW4       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW5       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW6       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW7       :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW8       :        :                   :         : 5A        :                
+VCCIO5A                      : AW9       : power  :                   : 2.5V    : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW10      :        :                   :         : 5A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW11      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW12      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW13      :        :                   :         : 4A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW14      :        :                   :         : 4A        :                
+VCCIO4B                      : AW15      : power  :                   : 2.5V    : 4B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW16      :        :                   :         : 4B        :                
+VCCIO4C                      : AW17      : power  :                   : 2.5V    : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW18      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW19      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW20      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW21      :        :                   :         : 4C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW22      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW23      :        :                   :         : 3C        :                
+VCCIO3C                      : AW24      : power  :                   : 2.5V    : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW25      :        :                   :         : 3C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW26      :        :                   :         : 3B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW27      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW28      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW29      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW30      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW31      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW32      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW33      :        :                   :         : 3A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : AW34      :        :                   :         : 3A        :                
+nSTATUS                      : AW35      :        :                   :         : 1A        :                
+nCONFIG                      : AW36      :        :                   :         : 1A        :                
+GND                          : AW37      : gnd    :                   :         :           :                
+RREF                         : AW38      :        :                   :         :           :                
+GND                          : B1        : gnd    :                   :         :           :                
+GND                          : B2        : gnd    :                   :         :           :                
+GXB_NC                       : B3        :        :                   :         : QR2       :                
+GXB_NC                       : B4        :        :                   :         : QR2       :                
+GND                          : B5        : gnd    :                   :         :           :                
+GND                          : B6        : gnd    :                   :         :           :                
+GND                          : B7        : gnd    :                   :         :           :                
+VCCIO6A                      : B8        : power  :                   : 2.5V    : 6A        :                
+GND                          : B9        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B10       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B11       :        :                   :         : 7A        :                
+GND                          : B12       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B14       :        :                   :         : 7A        :                
+GND                          : B15       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B17       :        :                   :         : 7C        :                
+GND                          : B18       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B20       :        :                   :         : 7C        :                
+GND                          : B21       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B23       :        :                   :         : 8C        :                
+GND                          : B24       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B25       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B26       :        :                   :         : 8B        :                
+GND                          : B27       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B28       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B29       :        :                   :         : 8A        :                
+GND                          : B30       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B31       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : B32       :        :                   :         : 1A        :                
+GND                          : B33       : gnd    :                   :         :           :                
+GND                          : B34       : gnd    :                   :         :           :                
+GND                          : B35       : gnd    :                   :         :           :                
+GXB_NC                       : B36       :        :                   :         : QL2       :                
+GXB_NC                       : B37       :        :                   :         : QL2       :                
+GND                          : B38       : gnd    :                   :         :           :                
+GND                          : B39       : gnd    :                   :         :           :                
+GXB_GND*                     : C1        :        :                   :         : QR2       :                
+GXB_GND*                     : C2        :        :                   :         : QR2       :                
+GND                          : C3        : gnd    :                   :         :           :                
+GND                          : C4        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C5        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C6        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C7        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C8        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C9        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C10       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C11       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C12       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C14       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C15       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C17       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C18       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C20       :        :                   :         : 7C        :                
+VCCIO7C                      : C21       : power  :                   : 2.5V    : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C22       :        :                   :         : 8C        :                
+VCCIO8C                      : C23       : power  :                   : 2.5V    : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C24       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C25       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C26       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C27       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C28       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C29       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C30       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C31       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C32       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C33       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C34       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : C35       :        :                   :         : 1A        :                
+GND                          : C36       : gnd    :                   :         :           :                
+GND                          : C37       : gnd    :                   :         :           :                
+GXB_GND*                     : C38       :        :                   :         : QL2       :                
+GXB_GND*                     : C39       :        :                   :         : QL2       :                
+GND                          : D1        : gnd    :                   :         :           :                
+GND                          : D2        : gnd    :                   :         :           :                
+GXB_NC                       : D3        :        :                   :         : QR2       :                
+GXB_NC                       : D4        :        :                   :         : QR2       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D5        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D6        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D7        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D8        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D9        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D10       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D11       :        :                   :         : 7A        :                
+VCCIO7A                      : D12       : power  :                   : 2.5V    : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D14       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D15       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D17       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D18       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D20       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D21       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D23       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D24       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D25       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D26       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D27       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D28       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D29       :        :                   :         : 8A        :                
+VCCIO8A                      : D30       : power  :                   : 2.5V    : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D31       :        :                   :         : 1A        :                
+VCCIO1A                      : D32       : power  :                   : 2.5V    : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D33       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D34       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : D35       :        :                   :         : 1A        :                
+GXB_NC                       : D36       :        :                   :         : QL2       :                
+GXB_NC                       : D37       :        :                   :         : QL2       :                
+GND                          : D38       : gnd    :                   :         :           :                
+GND                          : D39       : gnd    :                   :         :           :                
+GXB_GND*                     : E1        :        :                   :         : QR2       :                
+GXB_GND*                     : E2        :        :                   :         : QR2       :                
+GND                          : E3        : gnd    :                   :         :           :                
+GND                          : E4        : gnd    :                   :         :           :                
+VCCIO6A                      : E5        : power  :                   : 2.5V    : 6A        :                
+GND                          : E6        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E7        :        :                   :         : 6A        :                
+VCCIO6A                      : E8        : power  :                   : 2.5V    : 6A        :                
+GND                          : E9        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E10       :        :                   :         : 6A        :                
+TEMPDIODEn                   : E11       :        :                   :         :           :                
+GND                          : E12       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E14       :        :                   :         : 7A        :                
+GND                          : E15       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E17       :        :                   :         : 7C        :                
+GND                          : E18       : gnd    :                   :         :           :                
+VCCIO7C                      : E19       : power  :                   : 2.5V    : 7C        :                
+VREFB7CN0                    : E20       : power  :                   :         : 7C        :                
+GND                          : E21       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E23       :        :                   :         : 8C        :                
+GND                          : E24       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E25       :        :                   :         : 8B        :                
+VCCIO8B                      : E26       : power  :                   : 2.5V    : 8B        :                
+GND                          : E27       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E28       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E29       :        :                   :         : 8A        :                
+GND                          : E30       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E31       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E32       :        :                   :         : 1A        :                
+GND                          : E33       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : E34       :        :                   :         : 1A        :                
+VCCIO1A                      : E35       : power  :                   : 2.5V    : 1A        :                
+GND                          : E36       : gnd    :                   :         :           :                
+GND                          : E37       : gnd    :                   :         :           :                
+GXB_GND*                     : E38       :        :                   :         : QL2       :                
+GXB_GND*                     : E39       :        :                   :         : QL2       :                
+GND                          : F1        : gnd    :                   :         :           :                
+GND                          : F2        : gnd    :                   :         :           :                
+GXB_NC                       : F3        :        :                   :         : QR2       :                
+GXB_NC                       : F4        :        :                   :         : QR2       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F5        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F6        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F7        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F8        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F9        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F10       :        :                   :         : 6A        :                
+NC                           : F11       :        :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F12       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F14       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F15       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F17       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F18       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F20       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F21       :        :                   :         : 8C        :                
+VCCIO8C                      : F22       : power  :                   : 2.5V    : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F23       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F24       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F25       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F26       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F27       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F28       :        :                   :         : 8A        :                
+VREFB8AN0                    : F29       : power  :                   :         : 8A        :                
+TDO                          : F30       : output :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F31       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F32       :        :                   :         : 1A        :                
+L0_led                       : F33       : output : 2.5 V             :         : 1A        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : F34       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : F35       :        :                   :         : 1A        :                
+GXB_NC                       : F36       :        :                   :         : QL2       :                
+GXB_NC                       : F37       :        :                   :         : QL2       :                
+GND                          : F38       : gnd    :                   :         :           :                
+GND                          : F39       : gnd    :                   :         :           :                
+GXB_GND*                     : G1        :        :                   :         : QR2       :                
+GXB_GND*                     : G2        :        :                   :         : QR2       :                
+GND                          : G3        : gnd    :                   :         :           :                
+GND                          : G4        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G5        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G6        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G7        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G8        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G9        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G10       :        :                   :         : 6A        :                
+VCCAUX                       : G11       : power  :                   : 2.5V    :           :                
+VREFB7AN0                    : G12       : power  :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G14       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G15       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G17       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G18       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G20       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G21       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G23       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G24       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G25       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G26       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G27       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G28       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G29       :        :                   :         : 8A        :                
+TCK                          : G30       : input  :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G31       :        :                   :         : 1A        :                
+VCCIO1A                      : G32       : power  :                   : 2.5V    : 1A        :                
+usr_sw[4]                    : G33       : input  : 2.5 V             :         : 1A        : Y              
+VCCIO1A                      : G34       : power  :                   : 2.5V    : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : G35       :        :                   :         : 1A        :                
+GND                          : G36       : gnd    :                   :         :           :                
+GND                          : G37       : gnd    :                   :         :           :                
+GXB_GND*                     : G38       :        :                   :         : QL2       :                
+GXB_GND*                     : G39       :        :                   :         : QL2       :                
+GND                          : H1        : gnd    :                   :         :           :                
+GND                          : H2        : gnd    :                   :         :           :                
+GXB_NC                       : H3        :        :                   :         : QR2       :                
+GXB_NC                       : H4        :        :                   :         : QR2       :                
+VCCIO6C                      : H5        : power  :                   : 2.5V    : 6C        :                
+GND                          : H6        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H7        :        :                   :         : 6A        :                
+VCCIO6A                      : H8        : power  :                   : 2.5V    : 6A        :                
+GND                          : H9        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H10       :        :                   :         : 6A        :                
+MSEL1                        : H11       :        :                   :         : 1A        :                
+GND                          : H12       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H14       :        :                   :         : 7A        :                
+GND                          : H15       : gnd    :                   :         :           :                
+VREFB7BN0                    : H16       : power  :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H17       :        :                   :         : 7B        :                
+GND                          : H18       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H19       :        :                   :         : 7C        :                
+VCCPT                        : H20       : power  :                   : 1.5V    :           :                
+GND                          : H21       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H23       :        :                   :         : 8C        :                
+GND                          : H24       : gnd    :                   :         :           :                
+VREFB8BN0                    : H25       : power  :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H26       :        :                   :         : 8A        :                
+GND                          : H27       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H28       :        :                   :         : 8A        :                
+VCCAUX                       : H29       : power  :                   : 2.5V    :           :                
+GND                          : H30       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H31       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H32       :        :                   :         : 1A        :                
+GND                          : H33       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H34       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : H35       :        :                   :         : 1A        :                
+GXB_NC                       : H36       :        :                   :         : QL2       :                
+GXB_NC                       : H37       :        :                   :         : QL2       :                
+GND                          : H38       : gnd    :                   :         :           :                
+GND                          : H39       : gnd    :                   :         :           :                
+GXB_GND*                     : J1        :        :                   :         : QR2       :                
+GXB_GND*                     : J2        :        :                   :         : QR2       :                
+GND                          : J3        : gnd    :                   :         :           :                
+GND                          : J4        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J5        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J6        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J7        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J8        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J9        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J10       :        :                   :         : 6A        :                
+MSEL0                        : J11       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J12       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J13       :        :                   :         : 7A        :                
+VCCIO7A                      : J14       : power  :                   : 2.5V    : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J15       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J17       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J18       :        :                   :         : 7C        :                
+VCCA_PLL_T2                  : J19       : power  :                   : 2.5V    :           :                
+VCCA_PLL_T1                  : J20       : power  :                   : 2.5V    :           :                
+VREFB8CN0                    : J21       : power  :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J23       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J24       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J25       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J26       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J27       :        :                   :         : 8A        :                
+VCCIO8A                      : J28       : power  :                   : 2.5V    : 8A        :                
+TDI                          : J29       : input  :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J30       :        :                   :         : 1A        :                
+VCCIO1A                      : J31       : power  :                   : 2.5V    : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J32       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : J33       :        :                   :         : 1A        :                
+usr_sw[2]                    : J34       : input  : 2.5 V             :         : 1C        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : J35       :        :                   :         : 1C        :                
+GND                          : J36       : gnd    :                   :         :           :                
+GND                          : J37       : gnd    :                   :         :           :                
+GXB_GND*                     : J38       :        :                   :         : QL2       :                
+GXB_GND*                     : J39       :        :                   :         : QL2       :                
+GND                          : K1        : gnd    :                   :         :           :                
+GND                          : K2        : gnd    :                   :         :           :                
+GXB_NC                       : K3        :        :                   :         : QR2       :                
+GXB_NC                       : K4        :        :                   :         : QR2       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K5        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K6        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K7        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K8        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K9        :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K10       :        :                   :         : 6A        :                
+VCCBAT                       : K11       : power  :                   : 3.0V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K12       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K14       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K15       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K17       :        :                   :         : 7B        :                
+VCC_CLKIN7C                  : K18       : power  :                   : 2.5V    :           :                
+VCCD_PLL_T2                  : K19       : power  :                   : 0.9V    :           :                
+VCCD_PLL_T1                  : K20       : power  :                   : 0.9V    :           :                
+VCC_CLKIN8C                  : K21       : power  :                   : 2.5V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K23       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K24       :        :                   :         : 8B        :                
+VCCIO8B                      : K25       : power  :                   : 2.5V    : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K26       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K27       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K28       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K29       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K30       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K31       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K32       :        :                   :         : 1A        :                
+VCCIO1C                      : K33       : power  :                   : 2.5V    : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : K34       :        :                   :         : 1C        :                
+usr_sw[5]                    : K35       : input  : 2.5 V             :         : 1C        : Y              
+GXB_NC                       : K36       :        :                   :         : QL2       :                
+GXB_NC                       : K37       :        :                   :         : QL2       :                
+GND                          : K38       : gnd    :                   :         :           :                
+GND                          : K39       : gnd    :                   :         :           :                
+GXB_GND*                     : L1        :        :                   :         : QR2       :                
+GXB_GND*                     : L2        :        :                   :         : QR2       :                
+GND                          : L3        : gnd    :                   :         :           :                
+GND                          : L4        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L5        :        :                   :         : 6C        :                
+GND                          : L6        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L7        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L8        :        :                   :         : 6C        :                
+GND                          : L9        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L10       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L11       :        :                   :         : 6A        :                
+GND                          : L12       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L14       :        :                   :         : 7A        :                
+GND                          : L15       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L16       :        :                   :         : 7B        :                
+VCCIO7B                      : L17       : power  :                   : 2.5V    : 7B        :                
+GND                          : L18       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L20       :        :                   :         : 8C        :                
+GND                          : L21       : gnd    :                   :         :           :                
+VCCIO8C                      : L22       : power  :                   : 2.5V    : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L23       :        :                   :         : 8B        :                
+GND                          : L24       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L25       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L26       :        :                   :         : 8A        :                
+GND                          : L27       : gnd    :                   :         :           :                
+NC                           : L28       :        :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L29       :        :                   :         : 1A        :                
+GND                          : L30       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L31       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L32       :        :                   :         : 1C        :                
+GND                          : L33       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L34       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : L35       :        :                   :         : 1C        :                
+GND                          : L36       : gnd    :                   :         :           :                
+GND                          : L37       : gnd    :                   :         :           :                
+GXB_GND*                     : L38       :        :                   :         : QL2       :                
+GXB_GND*                     : L39       :        :                   :         : QL2       :                
+GND                          : M1        : gnd    :                   :         :           :                
+GND                          : M2        : gnd    :                   :         :           :                
+GXB_NC                       : M3        :        :                   :         : QR2       :                
+GXB_NC                       : M4        :        :                   :         : QR2       :                
+VCCA_R                       : M5        : power  :                   : 2.5V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M6        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M7        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M8        :        :                   :         : 6C        :                
+VCCIO6A                      : M9        : power  :                   : 2.5V    : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M10       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M11       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M12       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M14       :        :                   :         : 7A        :                
+VCCIO7A                      : M15       : power  :                   : 2.5V    : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M17       :        :                   :         : 7B        :                
+VCCIO7C                      : M18       : power  :                   : 2.5V    : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M20       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M21       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M22       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M23       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M24       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M25       :        :                   :         : 8A        :                
+VCCIO8A                      : M26       : power  :                   : 2.5V    : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M27       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M28       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M29       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M30       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M31       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M32       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M33       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : M34       :        :                   :         : 1C        :                
+VCCA_L                       : M35       : power  :                   : 3.0V    :           :                
+GXB_NC                       : M36       :        :                   :         : QL2       :                
+GXB_NC                       : M37       :        :                   :         : QL2       :                
+GND                          : M38       : gnd    :                   :         :           :                
+GND                          : M39       : gnd    :                   :         :           :                
+GXB_GND*                     : N1        :        :                   :         : QR2       :                
+GXB_GND*                     : N2        :        :                   :         : QR2       :                
+GND                          : N3        : gnd    :                   :         :           :                
+GND                          : N4        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N5        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N6        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N7        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N8        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N9        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N10       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N11       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N12       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N13       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N14       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N15       :        :                   :         : 7A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N17       :        :                   :         : 7B        :                
+GND                          : N18       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N20       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N21       :        :                   :         : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N22       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N23       :        :                   :         : 8B        :                
+GND                          : N24       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N25       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N26       :        :                   :         : 8A        :                
+TMS                          : N27       : input  :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N28       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N29       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N30       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N31       :        :                   :         : 1A        :                
+VCCIO1C                      : N32       : power  :                   : 2.5V    : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N33       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N34       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : N35       :        :                   :         : 1C        :                
+GND                          : N36       : gnd    :                   :         :           :                
+GND                          : N37       : gnd    :                   :         :           :                
+GXB_GND*                     : N38       :        :                   :         : QL2       :                
+GXB_GND*                     : N39       :        :                   :         : QL2       :                
+GND                          : P1        : gnd    :                   :         :           :                
+GND                          : P2        : gnd    :                   :         :           :                
+GXB_NC                       : P3        :        :                   :         : QR1       :                
+GXB_NC                       : P4        :        :                   :         : QR1       :                
+VCCT_R                       : P5        : power  :                   : 1.1V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P6        :        :                   :         : 6C        :                
+GND                          : P7        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P8        :        :                   :         : 6C        :                
+GND                          : P9        : gnd    :                   :         :           :                
+VCCIO6C                      : P10       : power  :                   : 2.5V    : 6C        :                
+VREFB6AN0                    : P11       : power  :                   :         : 6A        :                
+GND                          : P12       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P13       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P14       :        :                   :         : 7A        :                
+GND                          : P15       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P16       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P17       :        :                   :         : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P18       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P19       :        :                   :         : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P20       :        :                   :         : 8C        :                
+GND                          : P21       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P22       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P23       :        :                   :         : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P24       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P25       :        :                   :         : 8A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P26       :        :                   :         : 8A        :                
+GND                          : P27       : gnd    :                   :         :           :                
+VREFB1AN0                    : P28       : power  :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P29       :        :                   :         : 1A        :                
+GND                          : P30       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P31       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P32       :        :                   :         : 1C        :                
+GND                          : P33       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : P34       :        :                   :         : 1C        :                
+VCCT_L                       : P35       : power  :                   : 1.1V    :           :                
+GXB_NC                       : P36       :        :                   :         : QL1       :                
+GXB_NC                       : P37       :        :                   :         : QL1       :                
+GND                          : P38       : gnd    :                   :         :           :                
+GND                          : P39       : gnd    :                   :         :           :                
+GXB_GND*                     : R1        :        :                   :         : QR1       :                
+GXB_GND*                     : R2        :        :                   :         : QR1       :                
+GND                          : R3        : gnd    :                   :         :           :                
+GND                          : R4        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R5        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R6        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R7        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R8        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R9        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R10       :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R11       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R12       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R13       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R14       :        :                   :         : 7A        :                
+VCCPD7A                      : R15       : power  :                   : 2.5V    : 7A        :                
+NC                           : R16       :        :                   :         :           :                
+VCCPD7B                      : R17       : power  :                   : 2.5V    : 7B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R18       :        :                   :         : 7C        :                
+VCCPD7C                      : R19       : power  :                   : 2.5V    : 7C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R20       :        :                   :         : 8C        :                
+VCCPD8C                      : R21       : power  :                   : 2.5V    : 8C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R22       :        :                   :         : 8B        :                
+VCCPD8B                      : R23       : power  :                   : 2.5V    : 8B        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R24       :        :                   :         : 8A        :                
+VCCPD8A                      : R25       : power  :                   : 2.5V    : 8A        :                
+NC                           : R26       :        :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R27       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R28       :        :                   :         : 1A        :                
+lane_active_led[0]           : R29       : output : 2.5 V             :         : 1A        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : R30       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R31       :        :                   :         : 1C        :                
+pcie_rstn                    : R32       : input  : 2.5 V             :         : 1C        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : R33       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R34       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : R35       :        :                   :         : 1C        :                
+GND                          : R36       : gnd    :                   :         :           :                
+GND                          : R37       : gnd    :                   :         :           :                
+GXB_GND*                     : R38       :        :                   :         : QL1       :                
+GXB_GND*                     : R39       :        :                   :         : QL1       :                
+GND                          : T1        : gnd    :                   :         :           :                
+GND                          : T2        : gnd    :                   :         :           :                
+GXB_NC                       : T3        :        :                   :         : QR1       :                
+GXB_NC                       : T4        :        :                   :         : QR1       :                
+VCCR_R                       : T5        : power  :                   : 1.1V    :           :                
+GND                          : T6        : gnd    :                   :         :           :                
+VCCL_GXBR2                   : T7        : power  :                   : 1.1V    : QR2       :                
+GND                          : T8        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T9        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T10       :        :                   :         : 6C        :                
+VCCIO6C                      : T11       : power  :                   : 2.5V    : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T12       :        :                   :         : 6A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T13       :        :                   :         : 6A        :                
+VCC                          : T14       : power  :                   : 0.9V    :           :                
+GND                          : T15       : gnd    :                   :         :           :                
+VCC                          : T16       : power  :                   : 0.9V    :           :                
+GND                          : T17       : gnd    :                   :         :           :                
+VCC                          : T18       : power  :                   : 0.9V    :           :                
+GND                          : T19       : gnd    :                   :         :           :                
+VCC                          : T20       : power  :                   : 0.9V    :           :                
+GND                          : T21       : gnd    :                   :         :           :                
+VCC                          : T22       : power  :                   : 0.9V    :           :                
+GND                          : T23       : gnd    :                   :         :           :                
+VCC                          : T24       : power  :                   : 0.9V    :           :                
+GND                          : T25       : gnd    :                   :         :           :                
+VCC                          : T26       : power  :                   : 0.9V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T27       :        :                   :         : 1A        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T28       :        :                   :         : 1A        :                
+VCCIO1C                      : T29       : power  :                   : 2.5V    : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T30       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : T31       :        :                   :         : 1C        :                
+GND                          : T32       : gnd    :                   :         :           :                
+VCCL_GXBL2                   : T33       : power  :                   : 1.1V    : QL2       :                
+GND                          : T34       : gnd    :                   :         :           :                
+VCCR_L                       : T35       : power  :                   : 1.1V    :           :                
+GXB_NC                       : T36       :        :                   :         : QL1       :                
+GXB_NC                       : T37       :        :                   :         : QL1       :                
+GND                          : T38       : gnd    :                   :         :           :                
+GND                          : T39       : gnd    :                   :         :           :                
+GXB_GND*                     : U1        :        :                   :         : QR1       :                
+GXB_GND*                     : U2        :        :                   :         : QR1       :                
+GND                          : U3        : gnd    :                   :         :           :                
+GND                          : U4        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : U5        :        :                   :         : 6C        :                
+VCCH_GXBR2                   : U6        : power  :                   : 1.4V    : QR2       :                
+VCCL_GXBR2                   : U7        : power  :                   : 1.1V    : QR2       :                
+VCC                          : U8        : power  :                   : 0.9V    :           :                
+GND                          : U9        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : U10       :        :                   :         : 6C        :                
+VREFB6CN0                    : U11       : power  :                   :         : 6C        :                
+GND                          : U12       : gnd    :                   :         :           :                
+VCCPD6A                      : U13       : power  :                   : 2.5V    : 6A        :                
+GND                          : U14       : gnd    :                   :         :           :                
+VCC                          : U15       : power  :                   : 0.9V    :           :                
+GND                          : U16       : gnd    :                   :         :           :                
+VCC                          : U17       : power  :                   : 0.9V    :           :                
+GND                          : U18       : gnd    :                   :         :           :                
+VCC                          : U19       : power  :                   : 0.9V    :           :                
+GND                          : U20       : gnd    :                   :         :           :                
+VCC                          : U21       : power  :                   : 0.9V    :           :                
+GND                          : U22       : gnd    :                   :         :           :                
+VCC                          : U23       : power  :                   : 0.9V    :           :                
+GND                          : U24       : gnd    :                   :         :           :                
+VCC                          : U25       : power  :                   : 0.9V    :           :                
+GND                          : U26       : gnd    :                   :         :           :                
+VCCPD1A                      : U27       : power  :                   : 2.5V    : 1A        :                
+GND                          : U28       : gnd    :                   :         :           :                
+VREFB1CN0                    : U29       : power  :                   :         : 1C        :                
+GND                          : U30       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : U31       :        :                   :         : 1C        :                
+VCC                          : U32       : power  :                   : 0.9V    :           :                
+VCCL_GXBL2                   : U33       : power  :                   : 1.1V    : QL2       :                
+VCCH_GXBL2                   : U34       : power  :                   : 1.4V    : QL2       :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : U35       :        :                   :         : 1C        :                
+GND                          : U36       : gnd    :                   :         :           :                
+GND                          : U37       : gnd    :                   :         :           :                
+GXB_GND*                     : U38       :        :                   :         : QL1       :                
+GXB_GND*                     : U39       :        :                   :         : QL1       :                
+GND                          : V1        : gnd    :                   :         :           :                
+GND                          : V2        : gnd    :                   :         :           :                
+GXB_NC                       : V3        :        :                   :         : QR1       :                
+GXB_NC                       : V4        :        :                   :         : QR1       :                
+VCCT_R                       : V5        : power  :                   : 1.1V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V6        :        :                   :         : 6C        :                
+GND                          : V7        : gnd    :                   :         :           :                
+VCC                          : V8        : power  :                   : 0.9V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V9        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V10       :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V11       :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V12       :        :                   :         : 6C        :                
+VCCIO6C                      : V13       : power  :                   : 2.5V    : 6C        :                
+VCC                          : V14       : power  :                   : 0.9V    :           :                
+GND                          : V15       : gnd    :                   :         :           :                
+VCC                          : V16       : power  :                   : 0.9V    :           :                
+GND                          : V17       : gnd    :                   :         :           :                
+VCC                          : V18       : power  :                   : 0.9V    :           :                
+GND                          : V19       : gnd    :                   :         :           :                
+VCC                          : V20       : power  :                   : 0.9V    :           :                
+GND                          : V21       : gnd    :                   :         :           :                
+VCC                          : V22       : power  :                   : 0.9V    :           :                
+GND                          : V23       : gnd    :                   :         :           :                
+VCC                          : V24       : power  :                   : 0.9V    :           :                
+GND                          : V25       : gnd    :                   :         :           :                
+VCC                          : V26       : power  :                   : 0.9V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V27       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V28       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V29       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V30       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V31       :        :                   :         : 1C        :                
+VCC                          : V32       : power  :                   : 0.9V    :           :                
+GND                          : V33       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : V34       :        :                   :         : 1C        :                
+VCCT_L                       : V35       : power  :                   : 1.1V    :           :                
+GXB_NC                       : V36       :        :                   :         : QL1       :                
+GXB_NC                       : V37       :        :                   :         : QL1       :                
+GND                          : V38       : gnd    :                   :         :           :                
+GND                          : V39       : gnd    :                   :         :           :                
+GXB_GND*                     : W1        :        :                   :         : QR1       :                
+GXB_GND*                     : W2        :        :                   :         : QR1       :                
+GND                          : W3        : gnd    :                   :         :           :                
+GND                          : W4        : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W5        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W6        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W7        :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W8        :        :                   :         : 6C        :                
+VCCHIP_R                     : W9        : power  :                   : 0.9V    :           :                
+GND                          : W10       : gnd    :                   :         :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W11       :        :                   :         : 6C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W12       :        :                   :         : 6C        :                
+VCCPD6C                      : W13       : power  :                   : 2.5V    : 6C        :                
+GND                          : W14       : gnd    :                   :         :           :                
+VCC                          : W15       : power  :                   : 0.9V    :           :                
+GND                          : W16       : gnd    :                   :         :           :                
+VCC                          : W17       : power  :                   : 0.9V    :           :                
+GND                          : W18       : gnd    :                   :         :           :                
+VCC                          : W19       : power  :                   : 0.9V    :           :                
+GND                          : W20       : gnd    :                   :         :           :                
+VCC                          : W21       : power  :                   : 0.9V    :           :                
+GND                          : W22       : gnd    :                   :         :           :                
+VCC                          : W23       : power  :                   : 0.9V    :           :                
+GND                          : W24       : gnd    :                   :         :           :                
+VCC                          : W25       : power  :                   : 0.9V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W26       :        :                   :         : 1C        :                
+VCCPD1C                      : W27       : power  :                   : 2.5V    : 1C        :                
+comp_led                     : W28       : output : 2.5 V             :         : 1C        : Y              
+RESERVED_INPUT_WITH_WEAK_PULLUP : W29       :        :                   :         : 1C        :                
+~ALTERA_DATA0~ / RESERVED_INPUT : W30       : input  : 1.8 V             :         : 1C        : N              
+VCCHIP_L                     : W31       : power  :                   : 0.9V    :           :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W32       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W33       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W34       :        :                   :         : 1C        :                
+RESERVED_INPUT_WITH_WEAK_PULLUP : W35       :        :                   :         : 1C        :                
+GND                          : W36       : gnd    :                   :         :           :                
+GND                          : W37       : gnd    :                   :         :           :                
+GXB_GND*                     : W38       :        :                   :         : QL1       :                
+GXB_GND*                     : W39       :        :                   :         : QL1       :                
+GND                          : Y1        : gnd    :                   :         :           :                
+GND                          : Y2        : gnd    :                   :         :           :                
+GXB_NC                       : Y3        :        :                   :         : QR1       :                
+GXB_NC                       : Y4        :        :                   :         : QR1       :                
+VCCR_R                       : Y5        : power  :                   : 1.1V    :           :                
+GND                          : Y6        : gnd    :                   :         :           :                
+VCCL_GXBR1                   : Y7        : power  :                   : 1.1V    : QR1       :                
+GND                          : Y8        : gnd    :                   :         :           :                
+VCCHIP_R                     : Y9        : power  :                   : 0.9V    :           :                
+VCCA_PLL_R2                  : Y10       : power  :                   : 2.5V    :           :                
+VCCD_PLL_R2                  : Y11       : power  :                   : 0.9V    :           :                
+GND                          : Y12       : gnd    :                   :         :           :                
+VCCPT                        : Y13       : power  :                   : 1.5V    :           :                
+VCC                          : Y14       : power  :                   : 0.9V    :           :                
+GND                          : Y15       : gnd    :                   :         :           :                
+VCC                          : Y16       : power  :                   : 0.9V    :           :                
+GND                          : Y17       : gnd    :                   :         :           :                
+VCC                          : Y18       : power  :                   : 0.9V    :           :                
+GND                          : Y19       : gnd    :                   :         :           :                
+VCC                          : Y20       : power  :                   : 0.9V    :           :                
+GND                          : Y21       : gnd    :                   :         :           :                
+VCC                          : Y22       : power  :                   : 0.9V    :           :                
+GND                          : Y23       : gnd    :                   :         :           :                
+VCC                          : Y24       : power  :                   : 0.9V    :           :                
+GND                          : Y25       : gnd    :                   :         :           :                
+VCCPD2C                      : Y26       : power  :                   : 2.5V    : 2C        :                
+GND                          : Y27       : gnd    :                   :         :           :                
+VCCD_PLL_L2                  : Y28       : power  :                   : 0.9V    :           :                
+VCCA_PLL_L2                  : Y29       : power  :                   : 2.5V    :           :                
+GND                          : Y30       : gnd    :                   :         :           :                
+VCCHIP_L                     : Y31       : power  :                   : 0.9V    :           :                
+GND                          : Y32       : gnd    :                   :         :           :                
+VCCL_GXBL1                   : Y33       : power  :                   : 1.1V    : QL1       :                
+GND                          : Y34       : gnd    :                   :         :           :                
+VCCR_L                       : Y35       : power  :                   : 1.1V    :           :                
+GXB_NC                       : Y36       :        :                   :         : QL1       :                
+GXB_NC                       : Y37       :        :                   :         : QL1       :                
+GND                          : Y38       : gnd    :                   :         :           :                
+GND                          : Y39       : gnd    :                   :         :           :                

@@ -1075,12 +1075,12 @@ endmodule
 // Retrieval info:      <PRIVATE name = "p_pci_master" value="true"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pci_master_bursts" value="true"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pci_master_concurrent_reads" value="false"  type="STRING"  enable="1" />
-// Retrieval info:      <PRIVATE name = "p_pci_master_data_width" value="32"  type="STRING"  enable="1" />
+// Retrieval info:      <PRIVATE name = "p_pci_master_data_width" value="64"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pci_maximum_burst_size" value="128"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pci_maximum_burst_size_a2p" value="128"  type="STRING"  enable="1" />
-// Retrieval info:      <PRIVATE name = "p_pci_maximum_pending_read_transactions_a2p" value="2"  type="STRING"  enable="1" />
+// Retrieval info:      <PRIVATE name = "p_pci_maximum_pending_read_transactions_a2p" value="8"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pci_non_pref_av_master_port" value="true"  type="STRING"  enable="1" />
-// Retrieval info:      <PRIVATE name = "p_pci_not_target_only_port" value="true"  type="STRING"  enable="1" />
+// Retrieval info:      <PRIVATE name = "p_pci_not_target_only_port" value="false"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pci_pref_av_master_port" value="true"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pci_reqn_gntn_pins" value="true"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pci_single_clock" value="false"  type="STRING"  enable="1" />
@@ -1114,7 +1114,7 @@ endmodule
 // Retrieval info:      <PRIVATE name = "p_pcie_bar_used_bar_5" value="0"  type="BOOLEAN"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_channel_number" value="0"  type="INTEGER"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_chk_io" value="0"  type="STRING"  enable="1" />
-// Retrieval info:      <PRIVATE name = "p_pcie_class_code" value="0xFF0000"  type="STRING"  enable="1" />
+// Retrieval info:      <PRIVATE name = "p_pcie_class_code" value="0x050000"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_completion_data_credit_vc0" value="448"  type="INTEGER"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_completion_data_credit_vc1" value="0"  type="INTEGER"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_completion_data_credit_vc2" value="0"  type="INTEGER"  enable="1" />
@@ -1203,7 +1203,7 @@ endmodule
 // Retrieval info:      <PRIVATE name = "p_pcie_posted_header_used_space_vc3" value="0"  type="INTEGER"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_rate" value="Gen2 (5.0 Gbps)"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_retry_buffer_size" value="16 KBytes"  type="STRING"  enable="1" />
-// Retrieval info:      <PRIVATE name = "p_pcie_revision_id" value="0x01"  type="STRING"  enable="1" />
+// Retrieval info:      <PRIVATE name = "p_pcie_revision_id" value="0x11"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_rx_buffer_preset" value="Default"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_rx_buffer_size_string_vc0" value="16 KBytes"  type="STRING"  enable="1" />
 // Retrieval info:      <PRIVATE name = "p_pcie_rx_buffer_size_string_vc1" value="0"  type="STRING"  enable="1" />

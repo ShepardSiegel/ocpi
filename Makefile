@@ -332,6 +332,7 @@ platform_ml555: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
+		-D USE_NDW1 \
 		-verilog-filter basicinout $(BSVTOP)/$(RTEST5).bsv
 
 ######################################################################
@@ -344,6 +345,7 @@ platform_schist: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
+		-D USE_NDW1 \
 		-verilog-filter basicinout $(BSVTOP)/$(RTEST5a).bsv
 
 

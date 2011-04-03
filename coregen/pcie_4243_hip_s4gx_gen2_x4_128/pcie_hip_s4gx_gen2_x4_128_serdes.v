@@ -3968,4 +3968,4 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL pcie_hip_s4gx_gen2_x4_128_serdes.cmp FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL pcie_hip_s4gx_gen2_x4_128_serdes.bsf FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL pcie_hip_s4gx_gen2_x4_128_serdes_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pcie_hip_s4gx_gen2_x4_128_serdes_bb.v FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL pcie_hip_s4gx_gen2_x4_128_serdes_bb.v TRUE
