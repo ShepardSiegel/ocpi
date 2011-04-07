@@ -1,0 +1,5 @@
+Top=endpoint_blk_plus_v1_14
+OnlyTargets=virtex5
+PreBuiltCore=endpoint_blk_plus_v1_14.ngc
+SourceFiles=
+
