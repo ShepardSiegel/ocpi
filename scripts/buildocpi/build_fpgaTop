@@ -1,0 +1,182 @@
+#!/bin/csh -v
+if ($#argv != 1) then
+  echo $0{}: Usage is: build_fpgaTop buildTarget
+  exit 1
+endif
+
+set buildTarget = $argv[1]
+set doXst       = 1  # Control if XST is run
+set doChipscope = 0  # Control if chipscope is inserted
+set doPromgen   = 0  # Control if promegen is run
+
+switch ($buildTarget)
+  case alder:
+    set PART = xc5vlx50t-ff1136-1
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = csdef103_v5.cdc
+    breaksw
+  case ml555:
+    set PART = xc5vlx50t-ff1136-1
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = csdef101_v5.cdc
+    breaksw
+  case ml555nf:
+    set PART = xc5vlx50t-ff1136-1
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = csdef101_v5.cdc
+    breaksw
+  case xupv5:
+    set PART = xc5vlx110t-ff1136-1
+    set PCIe = pcie_4243_trn_v5_gtp_x1_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = csdef100_v5.cdc
+    breaksw
+  case schist:
+    set PART = xc5vsx95t-ff1136-2
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = csdef104_v5.cdc
+    breaksw
+  case schistnf:
+    set PART = xc5vsx95t-ff1136-2
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = schistnf100.cdc
+    breaksw
+  case nf10:
+    set PART = xc5vtx240t-ff1759-2
+    set PCIe = pcie_4243_trn_v5_gtx_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = csdef103_v5.cdc
+    breaksw
+  case illite:
+    set PART = xc5vlx330t-ff1738-2
+    set PCIe = pcie_4243_trn_v5_gtp_x8_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = csdef103_v5.cdc
+    breaksw
+  case ml605
+    set PART = xc6vlx240t-ff1156-1
+    set PCIe = pcie_4243_trn_v6_gtx_x4_250
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = ml605_1102.cdc
+    breaksw
+  case ml605es
+    set PART = xc6vlx240t-ff1156-1
+    set PCIe = pcie_4243_trn_v6es_gtx_x4_250
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = ml605_1102.cdc
+    breaksw
+  case ml605x
+    set PART = xc6vlx240t-ff1156-1
+    set PCIe = pcie_4243_axi_v6_gtx_x4_250
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = ml605_1102.cdc
+    breaksw
+  case sp605:
+    set PART = xc6slx45t-fgg484-3
+    set PCIe = pcie_4243_trn_s6_x1_125
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = csdef100_v5.cdc
+    breaksw
+  case kc705 
+    set PART = xc7k325t-ff900-1
+    set PCIe = pcie_4243_axi_k6_gtx_x4_250
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = ml605_1102.cdc
+    breaksw
+  default:
+    echo Unknown buildTarget $buildTarget
+    exit 1
+    breaksw
+endsw
+
+if ($doXst == 1) then
+  xst -ifn fpgaTop-$buildTarget.xst
+endif
+if ($status != 0) then
+  echo Xst returned non-zero status
+  exit 1
+endif
+
+if ($doChipscope == 1) then
+  inserter -insert $CSIN -p $PART -i fpgaTop.ngc fpgaTop_csi.ngc
+else
+  cp fpgaTop.ngc fpgaTop_csi.ngc
+endif
+if ($status != 0) then
+  echo Chipscope returned non-zero status
+  exit 1
+endif
+
+ngdbuild -sd ../../coregen/$PCIe -sd ../../coregen/$FFT  -sd ../../coregen/$DDC \
+  -aul -aut -uc $buildTarget.ucf -p $PART fpgaTop_csi.ngc fpgaTop.ngd  
+if ($status != 0) then
+  echo NGDBuild returned non-zero status
+  exit 1
+endif
+
+#map -p $PART -w -logic_opt on -ol high -xe n -mt on -t 1 \
+map -p $PART -w -logic_opt on -xe n -mt on -t 1 \
+  -register_duplication on -global_opt off -ir off \
+  -pr off -lc off -power off -o fpgaTop_map.ncd fpgaTop.ngd fpgaTop.pcf 
+if ($status != 0) then
+  echo MAP returned non-zero status
+  exit 1
+endif
+
+#par -w -ol high -xe n -t 1 fpgaTop_map.ncd fpgaTop.ncd fpgaTop.pcf 
+par -w -xe n fpgaTop_map.ncd fpgaTop.ncd fpgaTop.pcf 
+if ($status != 0) then
+  echo PAR returned non-zero status
+  exit 1
+endif
+
+trce -v 20 -fastpaths -xml fpgaTop.twx fpgaTop.ncd -o fpgaTop.twr fpgaTop.pcf 
+
+bitgen -f bitgen_bit.ut fpgaTop.ncd 
+tar czvf fpgaTop-$buildTarget.bit.-gz fpgaTop.bit
+
+#bitgen -f bitgen_bin.ut fpgaTop.ncd 
+#tar czvf fpgaTop-$buildTarget.bin.-gz fpgaTop.bin
+# .bin may be built from filename.bit
+# promgen -u 0x0 filename.bit -p bin -w -spi
+
+if ($doPromgen == 1) then
+  echo $buildTarget PROM generation
+  switch ($buildTarget)
+    case ml555:
+      promgen -w -p mcs -c FF -ver 0 fpgaTop.bit -x xcf32p
+      breaksw
+    case xupv5:
+      promgen -w -p mcs -c FF -ver 0 fpgaTop.bit -x xcf32p
+      breaksw
+    case ml605
+      promgen -w -p mcs -c FF -x xcf128x -u 00000000 ./fpgaTop.bit -data_width 16 
+      breaksw
+    case nf10
+      promgen -w -p mcs -c FF -x xcf128x -u 00000000 ./fpgaTop.bit -data_width 16 
+      breaksw
+    default:
+      breaksw
+  endsw
+endif
+
+grep errors fpgaTop.twr | tee twrErrors.txt
+

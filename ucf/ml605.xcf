@@ -25,4 +25,5 @@ END;
 
 BEGIN MODEL phy_control_io
 NET rst_r max_fanout=1;
-END
+END;
+
