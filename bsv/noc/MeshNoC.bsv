@@ -78,7 +78,7 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
    FifoMsgSource#(bpb,asz) node_out  <- mk_fsource();
 
    /* The implementation of the switch follows a regular pattern.
-    * Every input port has an associated MsgParse module to
+    * Every input port has an associated MsgRoute module to
     * announce the first and last beat of each message passing
     * through the port. Every output port has an LRU module to
     * arbitrate access to the output port.
@@ -89,11 +89,11 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
     */
 
    // track messages coming in from each port
-   MsgParse#(bpb,asz) north_mp <- mkMsgParse();
-   MsgParse#(bpb,asz) east_mp  <- mkMsgParse();
-   MsgParse#(bpb,asz) west_mp  <- mkMsgParse();
-   MsgParse#(bpb,asz) south_mp <- mkMsgParse();
-   MsgParse#(bpb,asz) node_mp  <- mkMsgParse();
+   MsgRoute#(bpb,asz) north_mr <- mkMsgRoute();
+   MsgRoute#(bpb,asz) east_mr  <- mkMsgRoute();
+   MsgRoute#(bpb,asz) west_mr  <- mkMsgRoute();
+   MsgRoute#(bpb,asz) south_mr <- mkMsgRoute();
+   MsgRoute#(bpb,asz) node_mr  <- mkMsgRoute();
 
    // arbitrate access to send out each port
    LRU#(4) north_lru <- mkLRU();
@@ -106,30 +106,30 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
 
    (* fire_when_enabled, no_implicit_conditions *)
    rule parse_north if (!north_in.empty());
-      north_mp.beat(north_in.first());
+      north_mr.beat(north_in.first());
    endrule
 
    (* fire_when_enabled, no_implicit_conditions *)
    rule parse_east if (!east_in.empty());
-      east_mp.beat(east_in.first());
+      east_mr.beat(east_in.first());
    endrule
 
    (* fire_when_enabled, no_implicit_conditions *)
    rule parse_west if (!west_in.empty());
-      west_mp.beat(west_in.first());
+      west_mr.beat(west_in.first());
    endrule
 
    (* fire_when_enabled, no_implicit_conditions *)
    rule parse_south if (!south_in.empty());
-      south_mp.beat(south_in.first());
+      south_mr.beat(south_in.first());
    endrule
 
    (* fire_when_enabled, no_implicit_conditions *)
    rule parse_node if (!node_in.empty());
-      node_mp.beat(node_in.first());
+      node_mr.beat(node_in.first());
    endrule
 
-   // destinations (don't use *_mp.dst() because we want any implicit conditions on these)
+   // destinations (don't use *_mr.dst() because we want any implicit conditions on these)
    let {north_x,north_y} = node_to_xy(unpack(truncate(north_in.first())));
    let {east_x,east_y}   = node_to_xy(unpack(truncate(east_in.first())));
    let {west_x,west_y}   = node_to_xy(unpack(truncate(west_in.first())));
@@ -148,36 +148,36 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
     */
 
    // from N (we know that north_x == this_x && north_y >= this_y)
-   Bool start_N_to_S    = north_mp.first_beat()
+   Bool start_N_to_S    = north_mr.first_beat()
                        && !north_in.empty()
                        && (north_y != this_y)
                         ;
    Reg#(Bool) continue_N_to_S <- mkReg(False);
-   Bool start_N_to_node = north_mp.first_beat()
+   Bool start_N_to_node = north_mr.first_beat()
                        && !north_in.empty()
                        && (north_y == this_y)
                         ;
    Reg#(Bool) continue_N_to_node <- mkReg(False);
 
    // from E (we know that east_x <= this_x)
-   Bool start_E_to_N    = east_mp.first_beat()
+   Bool start_E_to_N    = east_mr.first_beat()
                        && !east_in.empty()
                        && (east_x == this_x)
                        && (east_y < this_y)
                         ;
    Reg#(Bool) continue_E_to_N <- mkReg(False);
-   Bool start_E_to_W    = east_mp.first_beat()
+   Bool start_E_to_W    = east_mr.first_beat()
                        && !east_in.empty()
                        && (east_x != this_x)
                         ;
    Reg#(Bool) continue_E_to_W <- mkReg(False);
-   Bool start_E_to_S    = east_mp.first_beat()
+   Bool start_E_to_S    = east_mr.first_beat()
                        && !east_in.empty()
                        && (east_x == this_x)
                        && (east_y > this_y)
                         ;
    Reg#(Bool) continue_E_to_S <- mkReg(False);
-   Bool start_E_to_node = east_mp.first_beat()
+   Bool start_E_to_node = east_mr.first_beat()
                        && !east_in.empty()
                        && (east_x == this_x)
                        && (east_y == this_y)
@@ -186,24 +186,24 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
    Reg#(Bool) continue_E_to_node <- mkReg(False);
 
    // from W (we know that west_x >= this_x)
-   Bool start_W_to_N    = west_mp.first_beat()
+   Bool start_W_to_N    = west_mr.first_beat()
                        && !west_in.empty()
                        && (west_x == this_x)
                        && (west_y < this_y)
                         ;
    Reg#(Bool) continue_W_to_N <- mkReg(False);
-   Bool start_W_to_E    = west_mp.first_beat()
+   Bool start_W_to_E    = west_mr.first_beat()
                        && !west_in.empty()
                        && (west_x != this_x)
                         ;
    Reg#(Bool) continue_W_to_E <- mkReg(False);
-   Bool start_W_to_S    = west_mp.first_beat()
+   Bool start_W_to_S    = west_mr.first_beat()
                        && !west_in.empty()
                        && (west_x == this_x)
                        && (west_y > this_y)
                         ;
    Reg#(Bool) continue_W_to_S <- mkReg(False);
-   Bool start_W_to_node = west_mp.first_beat()
+   Bool start_W_to_node = west_mr.first_beat()
                        && !west_in.empty()
                        && (west_x == this_x)
                        && (west_y == this_y)
@@ -211,35 +211,35 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
    Reg#(Bool) continue_W_to_node <- mkReg(False);
 
    // from S (we know that south_x == this_x && south_y <= this_y)
-   Bool start_S_to_N    = south_mp.first_beat()
+   Bool start_S_to_N    = south_mr.first_beat()
                        && !south_in.empty()
                        && (south_y != this_y)
                         ;
    Reg#(Bool) continue_S_to_N <- mkReg(False);
-   Bool start_S_to_node = south_mp.first_beat()
+   Bool start_S_to_node = south_mr.first_beat()
                        && !south_in.empty()
                        && (south_y == this_y)
                         ;
    Reg#(Bool) continue_S_to_node <- mkReg(False);
 
    // from node (we know that !(node_x == this_x && node_y == this_y))
-   Bool start_node_to_N = node_mp.first_beat()
+   Bool start_node_to_N = node_mr.first_beat()
                        && !node_in.empty()
                        && (node_x == this_x)
                        && (node_y < this_y)
                         ;
    Reg#(Bool) continue_node_to_N <- mkReg(False);
-   Bool start_node_to_E = node_mp.first_beat()
+   Bool start_node_to_E = node_mr.first_beat()
                        && !node_in.empty()
                        && (node_x > this_x)
                         ;
    Reg#(Bool) continue_node_to_E <- mkReg(False);
-   Bool start_node_to_W = node_mp.first_beat()
+   Bool start_node_to_W = node_mr.first_beat()
                        && !node_in.empty()
                        && (node_x < this_x)
                         ;
    Reg#(Bool) continue_node_to_W <- mkReg(False);
-   Bool start_node_to_S = node_mp.first_beat()
+   Bool start_node_to_S = node_mr.first_beat()
                        && !node_in.empty()
                        && (node_x == this_x)
                        && (node_y > this_y)
@@ -318,16 +318,16 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
    function Action move_beat( FifoMsgSink#(bpb,asz) inport
                             , FifoMsgSource#(bpb,asz) outport
                             , Reg#(Bool) continue_xfer
-                            , MsgParse#(bpb,asz) mp
+                            , MsgRoute#(bpb,asz) mr
                             );
       action
          MsgBeat#(bpb,asz) beat = inport.first();
          inport.deq();
          outport.enq(beat);
-         mp.advance();
-         if (mp.last_beat())
+         mr.advance();
+         if (mr.last_beat())
             continue_xfer <= False;
-         else if (mp.first_beat())
+         else if (mr.first_beat())
             continue_xfer <= True;
       endaction
    endfunction: move_beat
@@ -355,19 +355,19 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
       if      (  (!outport_N_is_busy && north_lru.channel[0].grant())
               || (continue_E_to_N && !east_in.empty())
               )
-         move_beat(east_in,  north_out, continue_E_to_N,    east_mp);
+         move_beat(east_in,  north_out, continue_E_to_N,    east_mr);
       else if (  (!outport_N_is_busy && north_lru.channel[1].grant())
               || (continue_W_to_N && !west_in.empty())
               )
-         move_beat(west_in,  north_out, continue_W_to_N,    west_mp);
+         move_beat(west_in,  north_out, continue_W_to_N,    west_mr);
       else if (  (!outport_N_is_busy && north_lru.channel[2].grant())
               || (continue_S_to_N && !south_in.empty())
               )
-         move_beat(south_in, north_out, continue_S_to_N,    south_mp);
+         move_beat(south_in, north_out, continue_S_to_N,    south_mr);
       else if (  (!outport_N_is_busy && north_lru.channel[3].grant())
               || (continue_node_to_N && !node_in.empty())
               )
-         move_beat(node_in,  north_out, continue_node_to_N, node_mp);
+         move_beat(node_in,  north_out, continue_node_to_N, node_mr);
    endrule: xfer_to_N
 
    (* fire_when_enabled *)
@@ -375,11 +375,11 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
       if      (  (!outport_E_is_busy && east_lru.channel[0].grant())
               || (continue_W_to_E && !west_in.empty())
               )
-         move_beat(west_in,  east_out, continue_W_to_E,     west_mp);
+         move_beat(west_in,  east_out, continue_W_to_E,     west_mr);
       else if (  (!outport_E_is_busy && east_lru.channel[1].grant())
               || (continue_node_to_E && !node_in.empty())
               )
-         move_beat(node_in,  east_out, continue_node_to_E,  node_mp);
+         move_beat(node_in,  east_out, continue_node_to_E,  node_mr);
    endrule: xfer_to_E
 
    (* fire_when_enabled *)
@@ -387,11 +387,11 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
       if      (  (!outport_W_is_busy && west_lru.channel[0].grant())
               || (continue_E_to_W && !east_in.empty())
               )
-         move_beat(east_in,  west_out, continue_E_to_W,     east_mp);
+         move_beat(east_in,  west_out, continue_E_to_W,     east_mr);
       else if (  (!outport_W_is_busy && west_lru.channel[1].grant())
               || (continue_node_to_W && !node_in.empty())
               )
-         move_beat(node_in,  west_out, continue_node_to_W,  node_mp);
+         move_beat(node_in,  west_out, continue_node_to_W,  node_mr);
    endrule: xfer_to_W
 
    (* fire_when_enabled *)
@@ -399,19 +399,19 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
       if      (  (!outport_S_is_busy && south_lru.channel[0].grant())
               || (continue_N_to_S && !north_in.empty())
               )
-         move_beat(north_in, south_out, continue_N_to_S,    north_mp);
+         move_beat(north_in, south_out, continue_N_to_S,    north_mr);
       else if (  (!outport_S_is_busy && south_lru.channel[1].grant())
               || (continue_E_to_S && !east_in.empty())
               )
-         move_beat(east_in,  south_out, continue_E_to_S,    east_mp);
+         move_beat(east_in,  south_out, continue_E_to_S,    east_mr);
       else if (  (!outport_S_is_busy && south_lru.channel[2].grant())
               || (continue_W_to_S && !west_in.empty())
               )
-         move_beat(west_in,  south_out, continue_W_to_S,    west_mp);
+         move_beat(west_in,  south_out, continue_W_to_S,    west_mr);
       else if (  (!outport_S_is_busy && south_lru.channel[3].grant())
               || (continue_node_to_S && !node_in.empty())
               )
-         move_beat(node_in,  south_out, continue_node_to_S, node_mp);
+         move_beat(node_in,  south_out, continue_node_to_S, node_mr);
    endrule: xfer_to_S
 
    (* fire_when_enabled *)
@@ -419,19 +419,19 @@ module mkMeshSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
       if      (  (!outport_node_is_busy && node_lru.channel[0].grant())
               || (continue_N_to_node && !north_in.empty())
               )
-         move_beat(north_in, node_out,  continue_N_to_node, north_mp);
+         move_beat(north_in, node_out,  continue_N_to_node, north_mr);
       else if (  (!outport_node_is_busy && node_lru.channel[1].grant())
               || (continue_E_to_node && !east_in.empty())
               )
-         move_beat(east_in,  node_out,  continue_E_to_node, east_mp);
+         move_beat(east_in,  node_out,  continue_E_to_node, east_mr);
       else if (  (!outport_node_is_busy && node_lru.channel[2].grant())
               || (continue_W_to_node && !west_in.empty())
               )
-         move_beat(west_in,  node_out,  continue_W_to_node, west_mp);
+         move_beat(west_in,  node_out,  continue_W_to_node, west_mr);
       else if (  (!outport_node_is_busy && node_lru.channel[3].grant())
               || (continue_S_to_node && !south_in.empty())
               )
-         move_beat(south_in, node_out,  continue_S_to_node, south_mp);
+         move_beat(south_in, node_out,  continue_S_to_node, south_mr);
    endrule: xfer_to_node
 
    // assemble the interface

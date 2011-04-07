@@ -19,6 +19,7 @@ export FifoMsgSink(..), mkFifoMsgSink;
 export get_source_ifc, get_sink_ifc;
 export MsgPort(..), as_port;
 export hasNodeID;
+export MsgRoute(..), mkMsgRoute;
 export MsgParse(..), MsgParseTC(..);
 export MsgBuild(..), MsgBuildTC(..);
 
@@ -244,6 +245,170 @@ endfunction: as_port
 function Bool hasNodeID(NodeID target, NodeID n);
    return (n == target);
 endfunction: hasNodeID
+
+/* This is a minimal utility for extracting routing
+ * information from a stream of beats.
+ */
+
+interface MsgRoute#(numeric type bpb, numeric type asz);
+   // provide the next beat
+   (* always_ready *)
+   method Action beat(MsgBeat#(bpb,asz) v);
+   // commit the state updates for this beat
+   (* always_ready *)
+   method Action advance();
+   // read the routing information from the beat
+   method NodeID dst();
+   method NodeID src();
+   // beat framing signals
+   (* always_ready *)
+   method Bool first_beat();
+   (* always_ready *)
+   method Bool last_beat();
+endinterface: MsgRoute
+
+module mkMsgRoute(MsgRoute#(bpb,asz));
+
+   Integer bytes_per_beat = valueOf(bpb);
+   Integer addr_size      = valueOf(asz);
+
+   check_msg_type_params("mkMsgRoute", bytes_per_beat, addr_size);
+
+   // the incoming beat
+   Wire#(Vector#(bpb,Bit#(8))) the_beat <- mkWire();
+
+   // wires to report what was learned from the beat
+   Wire#(NodeID)    dst_w         <- mkWire();
+   Wire#(NodeID)    src_w         <- mkWire();
+   PulseWire        first_beat_pw <- mkPulseWire();
+   PulseWire        last_beat_pw  <- mkPulseWire();
+
+   RWire#(Tuple2#(Bool,UInt#(8))) length_info <- mkRWire();
+
+   // message decoding state
+   Reg#(UInt#(3)) header_pos <- mkReg(0);
+   Reg#(UInt#(8)) remaining  <- mkReg(0);
+   Reg#(Bool)     last       <- mkReg(True);
+
+   Reg#(MsgType) msg_type <- mkRegU(); // only used for bytes_per_beat == 1
+
+   UInt#(3) num_header_beats = (bytes_per_beat >= 4) ? 1 : fromInteger(4/bytes_per_beat);
+
+   // when the initial segment tag is known, this function
+   // updates the state to reflect the number of bytes
+   // until the next segment tag or end of message
+   function Action determine_length(MsgType mt, SegmentTag stag);
+      action
+         if (mt == Request) begin
+            Integer rest_of_header = 2 * (addr_size / 8);
+            if (bytes_per_beat >= 4 + rest_of_header)
+               length_info.wset(tuple2(True,0));
+            else if (bytes_per_beat <= 4)
+               length_info.wset(tuple2(True,fromInteger(rest_of_header)));
+            else
+               length_info.wset(tuple2(True,fromInteger(rest_of_header - (bytes_per_beat - 4))));
+         end
+         else begin
+            Integer rest_of_header = (mt == Datagram) ? 0 : (addr_size / 8);
+            UInt#(8) to_end_of_segment = fromInteger(rest_of_header) + zeroExtend(stag.length_in_bytes);
+            if (fromInteger(bytes_per_beat) >= 4 + to_end_of_segment)
+               length_info.wset(tuple2(stag.end_of_message,0));
+            else if (bytes_per_beat <= 4)
+               length_info.wset(tuple2(stag.end_of_message,to_end_of_segment));
+            else
+               length_info.wset(tuple2(stag.end_of_message,to_end_of_segment - fromInteger(bytes_per_beat - 4)));
+         end
+      endaction
+   endfunction
+
+   // decode the incoming beat
+   rule decode_beat;
+      // extract destination and mark beginning of msg
+      if (header_pos == 0) begin
+         dst_w <= unpack(the_beat[0]);
+         first_beat_pw.send();
+      end
+
+      // extract source
+      if (bytes_per_beat == 1) begin
+         if (header_pos == 1) src_w <= unpack(the_beat[0]);
+      end
+      else begin
+         if (header_pos == 0) src_w <= unpack(the_beat[1]);
+      end
+
+      // if bytes_per_beat == 1, the message type needs to be saved
+      // because the message type and initial stag will be in different
+      // beats
+      if ((bytes_per_beat == 1) && (header_pos == 2)) msg_type <= unpack(the_beat[0][1:0]);
+
+      // figure out the distance to the end of the message or the
+      // initial payload segment
+      case (bytes_per_beat)
+         1:       if (header_pos == 3) determine_length(msg_type,                 unpack(the_beat[0]));
+         2:       if (header_pos == 1) determine_length(unpack(the_beat[0][1:0]), unpack(the_beat[1]));
+         default: if (header_pos == 0) determine_length(unpack(the_beat[2][1:0]), unpack(the_beat[3]));
+      endcase
+
+      // beyond the header, we just need to decode segment tags and count bytes
+      if (header_pos == num_header_beats) begin
+         // starting a new segment
+         if (remaining == 0) begin
+            SegmentTag stag = unpack(the_beat[0]);
+            if (stag.length_in_bytes < fromInteger(bytes_per_beat))
+               length_info.wset(tuple2(stag.end_of_message,0));
+            else
+               length_info.wset(tuple2(stag.end_of_message,zeroExtend(stag.length_in_bytes) - fromInteger(bytes_per_beat - 1)));
+         end
+         // continuing the current segment
+         else begin
+            if (remaining <= fromInteger(bytes_per_beat))
+               length_info.wset(tuple2(last,0));
+            else
+               length_info.wset(tuple2(last,remaining - fromInteger(bytes_per_beat)));
+         end
+      end
+   endrule
+
+   // Set the last_beat_pw from a rule, to avoid conflicts if
+   // the user calls advance and last_beat methods inside a single
+   // rule, and to provide last_beat notification independently from
+   // the advance method call.
+   (* fire_when_enabled, no_implicit_conditions *)
+   rule detect_last_beat if (length_info.wget() matches tagged Valid {._last, ._remaining});
+      if (_remaining == 0 && _last)
+         last_beat_pw.send();
+   endrule
+
+   // provide the next beat
+   method Action beat(MsgBeat#(bpb,asz) v);
+      the_beat <= unpack(pack(v));
+   endmethod
+
+   // Commit the state updates from the current beat.
+   // This is written without an implicit condition so that
+   // it can be combined in rules without aggressive conditions.
+   method Action advance();
+      if (length_info.wget() matches tagged Valid {._last, ._remaining}) begin
+         last      <= _last;
+         remaining <= _remaining;
+      end
+      if (last_beat_pw) begin
+         header_pos <= 0;
+      end
+      else if (header_pos != num_header_beats)
+         header_pos <= header_pos + 1;
+   endmethod
+
+   // read the routing information from the beat
+   method NodeID dst = dst_w;
+   method NodeID src = src_w;
+
+   // message framing signals
+   method Bool first_beat = first_beat_pw;
+   method Bool last_beat  = last_beat_pw;
+
+endmodule: mkMsgRoute
 
 /* This is a useful utility module for parsing messages.
  * It can take in a stream of beats and provide the
@@ -1253,10 +1418,7 @@ module mkMsgBuild_POLY(MsgBuild#(bpb,asz))
 
       UInt#(TAdd#(3,TLog#(TAdd#(buf_sz,1)))) shift_by = 8 * zeroExtend(bytes_removed);
       UInt#(TAdd#(3,TLog#(TAdd#(buf_sz,1)))) bit_pos  = 8 * (zeroExtend(updated_st.byte_count) - zeroExtend(bytes_removed));
-//    XXX - experiment to determine path issues regardless of available_bytes updating
-//    updated_st.available_bytes = unpack((pack(updated_st.available_bytes) >> shift_by) | (zeroExtend(pack(bytes)) << bit_pos));
-      updated_st.available_bytes = unpack(pack(updated_st.available_bytes) | zeroExtend(pack(bytes)));
-
+      updated_st.available_bytes = unpack((pack(updated_st.available_bytes) >> shift_by) | (zeroExtend(pack(bytes)) << bit_pos));
       let orig_byte_count = updated_st.byte_count;
       updated_st.byte_count      = updated_st.byte_count - zeroExtend(bytes_removed) + zeroExtend(bytes_added);
       updated_st.bytes_remaining = updated_st.bytes_remaining - zeroExtend(bytes_removed);

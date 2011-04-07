@@ -14,10 +14,10 @@ import LRU       :: *;
  * descendents. All switches except the root are connected to an
  * ancestor.
  *
- * The descendent ports on a switch are numbered sequentially
+ * The descendant ports on a switch are numbered sequentially
  * starting from 0. A level is defined for each switch based
  * on its distance for the root. The root is at level 0, its
- * immediate descendents are at level 1, their immediate
+ * immediate descendants are at level 1, their immediate
  * descendants are at level 2, and so on. For any path from
  * the root to a leaf, let the port number by which that path
  * exits level n be called p_n. Then the polynomial:
@@ -59,7 +59,10 @@ module mkTreeSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
                     , NodeID coordinate
                     )
                     ( TreeSwitch#(k,bpb,asz) )
-   provisos( Add#(_,8,TMul#(8,bpb)), Add#(k,1,k_plus_1), Add#(asz,p,64) );
+   provisos( Add#(_,8,TMul#(8,bpb))
+           , Add#(k,1,k_plus_1)
+           , Add#(asz,p,64)
+           );
 
    Integer addr_size = valueOf(asz);
    if (addr_size != 32 && addr_size != 64) begin
@@ -91,15 +94,15 @@ module mkTreeSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
    FifoMsgSource#(bpb,asz)            to_above   <- mk_fsource();
 
    /* The implementation of the switch follows a regular pattern.
-    * Every input port has an associated MsgParse module to
+    * Every input port has an associated MsgRoute module to
     * announce the first and last beat of each message passing
     * through the port. Every output port has an LRU module to
     * arbitrate access to the output port.
     */
 
    // track messages coming in from each port
-   Vector#(k,MsgParse#(bpb,asz)) below_mp <- replicateM(mkMsgParse);
-   MsgParse#(bpb,asz)            above_mp <- mkMsgParse();
+   Vector#(k,MsgRoute#(bpb,asz)) below_mr <- replicateM(mkMsgRoute);
+   MsgRoute#(bpb,asz)            above_mr <- mkMsgRoute();
 
    // arbitrate access to send out each port
    Vector#(k,LRU#(k)) below_lru <- replicateM(mkLRU);
@@ -110,13 +113,13 @@ module mkTreeSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
    for (Integer s = 0; s < valueOf(k); s = s + 1) begin
       (* fire_when_enabled, no_implicit_conditions *)
       rule parse_below if (!from_below[s].empty());
-         below_mp[s].beat(from_below[s].first());
+         below_mr[s].beat(from_below[s].first());
       endrule
    end
 
    (* fire_when_enabled, no_implicit_conditions *)
    rule parse_above if (!from_above.empty());
-      above_mp.beat(from_above.first());
+      above_mr.beat(from_above.first());
    endrule
 
    /* We maintain matrices to track for each (input port,
@@ -134,7 +137,7 @@ module mkTreeSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
     * message has been moved to the output port.
     *
     * In these matrices, the indices 0 through k-1 represent the
-    * descendent ports, and the index k represents the ancestor
+    * descendant ports, and the index k represents the ancestor
     * port.
     */
    Vector#(k_plus_1,Vector#(k_plus_1,Bool))       start_xfer    =  replicate(replicate(False));
@@ -146,19 +149,19 @@ module mkTreeSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
             start_xfer[s][d] = False;
          end
          else begin
-            start_xfer[s][d] = below_mp[s].first_beat()
+            start_xfer[s][d] = below_mr[s].first_beat()
                             && !from_below[s].empty()
                             && route_to(d,from_below[s].first()[7:0])
                              ;
          end
       end //for
-      start_xfer[s][up_idx] = below_mp[s].first_beat()
+      start_xfer[s][up_idx] = below_mr[s].first_beat()
                            && !from_below[s].empty()
                            && route_to(up_idx,from_below[s].first()[7:0])
                             ;
    end // for
    for (Integer d = 0; d < valueOf(k); d = d + 1) begin
-      start_xfer[up_idx][d] = above_mp.first_beat()
+      start_xfer[up_idx][d] = above_mr.first_beat()
                            && !from_above.empty()
                            && route_to(d,from_above.first()[7:0])
                             ;
@@ -213,15 +216,15 @@ module mkTreeSwitch#( module#(FifoMsgSink#(bpb,asz))   mk_fsink
          FifoMsgSink#(bpb,asz)   inport    = (s == valueOf(k)) ? from_above : from_below[s];
          FifoMsgSource#(bpb,asz) outport   = (d == valueOf(k)) ? to_above   : to_below[d];
          Reg#(Bool)              cont_xfer = asIfc(continue_xfer[s][d]);
-         MsgParse#(bpb,asz)      mp        = (s == valueOf(k)) ? above_mp   : below_mp[s];
+         MsgRoute#(bpb,asz)      mr        = (s == valueOf(k)) ? above_mr   : below_mr[s];
 
          MsgBeat#(bpb,asz) beat = inport.first();
          inport.deq();
          outport.enq(beat);
-         mp.advance();
-         if (mp.last_beat())
+         mr.advance();
+         if (mr.last_beat())
             cont_xfer <= False;
-         else if (mp.first_beat())
+         else if (mr.first_beat())
             cont_xfer <= True;
       endaction
    endfunction: move_beat
