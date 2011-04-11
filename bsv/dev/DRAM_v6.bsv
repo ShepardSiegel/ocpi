@@ -178,7 +178,7 @@ interface DramControllerUiIfc;
   method Bit#(16) reqCount;
 endinterface: DramControllerUiIfc
 
-import "BVI" v6_mig33 = 
+import "BVI" v6_mig37 = 
 module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
 
   default_clock clk();
