@@ -211,13 +211,13 @@ module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
   interface DRAM_APP_32B app;
     method                    cmd      (app_cmd)        enable((*inhigh*)ena1) clocked_by(uclk) reset_by(urst_n);
     method                    en       ()               enable(app_en)         clocked_by(uclk) reset_by(urst_n);
-    method app_full           full                                             clocked_by(uclk) reset_by(urst_n);
-    method                    addr     (tg_addr)        enable((*inhigh*)ena3) clocked_by(uclk) reset_by(urst_n);
+    method app_rdy            full                                             clocked_by(uclk) reset_by(urst_n); // app_full became app_rdy in v37
+    method                    addr     (app_addr)       enable((*inhigh*)ena3) clocked_by(uclk) reset_by(urst_n); // tg_addr became app_addr in v37
     method                    wdf_wren ()               enable(app_wdf_wren)   clocked_by(uclk) reset_by(urst_n);
     method                    wdf_data (app_wdf_data)   enable((*inhigh*)ena5) clocked_by(uclk) reset_by(urst_n);
     method                    wdf_mask (app_wdf_mask)   enable((*inhigh*)ena6) clocked_by(uclk) reset_by(urst_n);
     method                    wdf_end  (app_wdf_end)    enable((*inhigh*)ena7) clocked_by(uclk) reset_by(urst_n);
-    method app_wdf_full       wdf_full                                         clocked_by(uclk) reset_by(urst_n);
+    method app_wdf_rdy        wdf_full                                         clocked_by(uclk) reset_by(urst_n); // app_wdf_full became app_wdk_rdy in v37
     method app_rd_data        rd_data                                          clocked_by(uclk) reset_by(urst_n);
     method app_rd_data_end    rd_data_end                                      clocked_by(uclk) reset_by(urst_n);
     method app_rd_data_valid  rd_data_valid                                    clocked_by(uclk) reset_by(urst_n);
