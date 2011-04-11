@@ -1,7 +1,7 @@
 Top=v6_mig37
 OnlyTargets=virtex6
 SourceFiles=\
-v6_mig37patch20110411.v \
+v6_mig37_patch20110411.v \
 iodelay_ctrl_eco20100428.v \
 mig_37/user_design/rtl/controller/arb_mux.v \
 mig_37/user_design/rtl/controller/arb_row_col.v \
