@@ -501,8 +501,11 @@ dtest(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
   uint32_t *p32 = (uint32_t *)&config[off];
   uint32_t *c32 = (uint32_t *)&config[coff];
 
+  printf("dtest\n"); fflush(stdout);
+
   printf("npages:2^%d  pagesz(4B words):2^%d  memoryBytes:2^%d\n", DRAM_L2NPAGES, DRAM_L2PAGESZ, DRAM_L2NPAGES+DRAM_L2PAGESZ+2);
   printf("Worker %ld, memory test offset 0x%x, test loop count: %d\n", (OCCP_WorkerControlSpace *)w - p->control, off, val);
+  fflush(stdout);
   
   unsigned int exp, got, i, j, k, pg;
   int errors = 0;

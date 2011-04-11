@@ -78,14 +78,14 @@ interface DRAM_APP#(numeric type appWidth, numeric type adrWidth, numeric type m
   method Action              cmd      (Bit#(3) i);
 //method Action              en       (Bit#(1) i);
   method Action              en       ();
-  method Bit#(1)             full;
+  method Bit#(1)             cmd_rdy;
   method Action              addr     (Bit#(adrWidth) i);
 //method Action              wdf_wren (Bit#(1) i);
   method Action              wdf_wren ();
   method Action              wdf_data (Bit#(appWidth) i);
   method Action              wdf_mask (Bit#(mskWidth) i);
   method Action              wdf_end  (Bit#(1) i);
-  method Bit#(1)             wdf_full;
+  method Bit#(1)             wdf_rdy;
   method Bit#(appWidth)      rd_data;
   method Bit#(1)             rd_data_end;
   method Bit#(1)             rd_data_valid;
@@ -211,13 +211,13 @@ module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
   interface DRAM_APP_32B app;
     method                    cmd      (app_cmd)        enable((*inhigh*)ena1) clocked_by(uclk) reset_by(urst_n);
     method                    en       ()               enable(app_en)         clocked_by(uclk) reset_by(urst_n);
-    method app_rdy            full                                             clocked_by(uclk) reset_by(urst_n); // app_full became app_rdy in v37
+    method app_rdy            cmd_rdy                                          clocked_by(uclk) reset_by(urst_n);
     method                    addr     (app_addr)       enable((*inhigh*)ena3) clocked_by(uclk) reset_by(urst_n); // tg_addr became app_addr in v37
     method                    wdf_wren ()               enable(app_wdf_wren)   clocked_by(uclk) reset_by(urst_n);
     method                    wdf_data (app_wdf_data)   enable((*inhigh*)ena5) clocked_by(uclk) reset_by(urst_n);
     method                    wdf_mask (app_wdf_mask)   enable((*inhigh*)ena6) clocked_by(uclk) reset_by(urst_n);
     method                    wdf_end  (app_wdf_end)    enable((*inhigh*)ena7) clocked_by(uclk) reset_by(urst_n);
-    method app_wdf_rdy        wdf_full                                         clocked_by(uclk) reset_by(urst_n); // app_wdf_full became app_wdk_rdy in v37
+    method app_wdf_rdy        wdf_rdy                                          clocked_by(uclk) reset_by(urst_n);
     method app_rd_data        rd_data                                          clocked_by(uclk) reset_by(urst_n);
     method app_rd_data_end    rd_data_end                                      clocked_by(uclk) reset_by(urst_n);
     method app_rd_data_valid  rd_data_valid                                    clocked_by(uclk) reset_by(urst_n);
@@ -292,7 +292,7 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
     memc.app.addr(extend(r.addr>>2));        // convert byte address to 64B/16B address //TODO: Check shift 
     memc.app.cmd (r.isRead?3'b001:3'b000);   // Set the command
     memc.app.en();                           // Assert the command enable
-    if (!unpack(memc.app.full)) begin        // When the command is (finally) accepted...
+    if (unpack(memc.app.cmd_rdy)) begin      // When the command is (finally) accepted...
       if (r.isRead) begin                    // Read...
         rdpF.enq(r.addr[5:4]);               // push 2b of 16B/64B read-phase to rdpF
         reqF.deq();                          // Deq for read (we are done with read request)
@@ -314,7 +314,7 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
     endcase
     memc.app.wdf_mask (~myBE);               // Invert myBE to be a "mask"
     wdfWren <= True;                         // Assert the write data enable (W0)
-    if (!unpack(memc.app.wdf_full)) begin    // When the write-data W0 is (finally) accepted...
+    if (unpack(memc.app.wdf_rdy)) begin      // When the write-data W0 is (finally) accepted...
       firstBeat  <= False;                   // Clear firstBeat
       secondBeat <= True;                    // Writes need a second beat
     end
@@ -332,7 +332,7 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
     memc.app.wdf_mask (~myBE);               // Invert myBE to be a "mask"
     wdfWren <= True;                         // Assert the write data enable (W1)
     wdfEnd  <= True;                         // Assert wdf end
-    if (!unpack(memc.app.wdf_full)) begin    // When the write-data W1 is (finally) accepted...
+    if (unpack(memc.app.wdf_rdy)) begin     // When the write-data W1 is (finally) accepted...
       secondBeat <= False;                   // Clear the secondBeat state
       reqF.deq();                            // Deq, we are done with write request
     end
@@ -358,8 +358,8 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
 
   interface DRAM_USR16B usr;
     method    Bool initComplete = unpack(memc.app.init_complete);
-    method    Bool appFull      = unpack(memc.app.full);
-    method    Bool wdfFull      = unpack(memc.app.wdf_full);
+    method    Bool appFull      = !unpack(memc.app.cmd_rdy);
+    method    Bool wdfFull      = !unpack(memc.app.wdf_rdy);
     method    Bool firBeat      = firstBeat;
     method    Bool secBeat      = secondBeat;
     interface Put  request      = toPut(reqF);
