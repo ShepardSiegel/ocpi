@@ -84,7 +84,7 @@ verilog work "../../coregen/dram_v6_mig37/mig_37/user_design/rtl/ui/ui_rd_data.v
 verilog work "../../coregen/dram_v6_mig37/mig_37/user_design/rtl/ui/ui_top.v"
 verilog work "../../coregen/dram_v6_mig37/mig_37/user_design/rtl/ui/ui_wr_data.v"
 verilog work "../../coregen/dram_v6_mig37/iodelay_ctrl_eco20100428.v"
-verilog work "../../coregen/dram_v6_mig37/v6_mig37.v"
+verilog work "../../coregen/dram_v6_mig37/v6_mig37_patch20110411.v"
 
 verilog work "../../rtl/mkTLPSM.v"
 verilog work "../../rtl/mkTLPCM.v"

@@ -1,4 +1,4 @@
-// v6_mig33.v
+// v6_mig37_patch20110411.v
 
 //*****************************************************************************
 //   ____  ____
@@ -190,11 +190,11 @@ module v6_mig33 #
    input [(4*PAYLOAD_WIDTH)-1:0]        app_wdf_data,
    input [(4*PAYLOAD_WIDTH)/8-1:0]      app_wdf_mask,
    input                                app_wdf_end,
-   input [ADDR_WIDTH-1:0]               tg_addr,
+   input [ADDR_WIDTH-1:0]               app_addr,
    input [2:0]                          app_cmd,
    input                                app_en,
-   output                               app_full,
-   output                               app_wdf_full,
+   output                               app_rdy,
+   output                               app_wdf_rdy,
    output [(4*PAYLOAD_WIDTH)-1:0]       app_rd_data,
    output                               app_rd_data_valid,
    output                               app_rd_data_end,    // added
@@ -270,7 +270,6 @@ module v6_mig33 #
   wire                                ddr3_parity;
   wire [ADDR_WIDTH-1:0]               app_addr;
   wire                                app_hi_pri;
-  wire                                dfi_init_complete;
   wire [3:0]                          app_ecc_multiple_err_i;
   wire [47:0]                         traffic_wr_data_counts;
   wire [47:0]                         traffic_rd_data_counts;
@@ -290,8 +289,6 @@ module v6_mig33 #
   wire [31:0]                         ddr3_cs4_sync_out;
 
 
-  assign phy_init_done = dfi_init_complete;
-  assign app_addr = tg_addr;
   assign app_hi_pri = 1'b0;
   assign tb_clk = clk;
   assign tb_rst_n = !rst;
@@ -445,7 +442,7 @@ module v6_mig33 #
    .bank_mach_next                   (bank_mach_next),
 //Spofford    .ocb_mon_PSEN                     (ocb_mon_PSEN),
 //Spofford    .ocb_mon_PSINCDEC                 (ocb_mon_PSINCDEC),
-   .dfi_init_complete                (dfi_init_complete),
+   .phy_init_done                    (phy_init_done),   // ssiegel was dfi_init_complete in v34
    .app_ecc_multiple_err             (app_ecc_multiple_err_i),
    .clk                              (clk),
    .clk_mem                          (clk_mem),
@@ -458,9 +455,9 @@ module v6_mig33 #
    .app_rd_data                      (app_rd_data),
    .app_rd_data_end                  (app_rd_data_end),
    .app_rd_data_valid                (app_rd_data_valid),
-   .app_full                         (app_full),
-   .app_wdf_full                     (app_wdf_full),
-   .app_addr                         (app_addr),
+   .app_rdy                          (app_rdy),     //ssiegel was _full in v34
+   .app_wdf_rdy                      (app_wdf_rdy), //ssiegel was _full in v34
+   .app_addr                         (app_addr),    //ssiegel was tg_addt in v34
    .app_cmd                          (app_cmd),
    .app_en                           (app_en),
    .app_hi_pri                       (app_hi_pri),
