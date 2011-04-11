@@ -17,8 +17,8 @@ verilog work $OCPI_BASE_DIR/hdl/primitives/pcie_4243_trn_v6_gtx_x4_250/gtx_tx_sy
 verilog work $OCPI_BASE_DIR/hdl/primitives/pcie_4243_trn_v6_gtx_x4_250/v6_pcie_v1_7.v
 verilog work $OCPI_BASE_DIR/hdl/primitives/pcie_4243_trn_v6_gtx_x4_250/gtx_wrapper_v6.v
 
-verilog work $OCPI_BASE_DIR/hdl/primitives/duc_ddc_compiler_v1_0/duc_ddc_compiler_v1_0_bb.v
-verilog work $OCPI_BASE_DIR/hdl/primitives/xfft_v7_1/xfft_v7_1_bb.v
+verilog work $OCPI_BASE_DIR/hdl/primitives/ddc_4243_4ch_v5/duc_ddc_compiler_v1_0_bb.v
+verilog work $OCPI_BASE_DIR/hdl/primitives/fft_v5_4k_strm_nat/xfft_v7_1_bb.v
 
 verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkSMAdapter16B.v"
@@ -82,7 +82,7 @@ verilog work $OCPI_BASE_DIR/hdl/primitives/dram_v6_mig37/ui_rd_data.v
 verilog work $OCPI_BASE_DIR/hdl/primitives/dram_v6_mig37/ui_top.v
 verilog work $OCPI_BASE_DIR/hdl/primitives/dram_v6_mig37/ui_wr_data.v
 verilog work $OCPI_BASE_DIR/hdl/primitives/dram_v6_mig37/iodelay_ctrl_eco20100428.v
-verilog work $OCPI_BASE_DIR/hdl/primitives/dram_v6_mig37/mig_v37_patch20110411.v
+verilog work $OCPI_BASE_DIR/hdl/primitives/dram_v6_mig37/v6_mig37_patch20110411.v
 
 verilog work "../../rtl/mkTLPSM.v"
 verilog work "../../rtl/mkTLPCM.v"

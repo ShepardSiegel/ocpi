@@ -125,7 +125,8 @@ if ($status != 0) then
   exit 1
 endif
 
-ngdbuild -sd ../../coregen/$PCIe -sd ../../coregen/$FFT  -sd ../../coregen/$DDC \
+#ngdbuild -sd ../../coregen/$PCIe -sd ../../coregen/$FFT  -sd ../../coregen/$DDC \
+ngdbuild -sd $OCPI_BASE_DIR/hdl/primitives/$PCIe -sd $OCPI_BASE_DIR/hdl/primitives/$FFT  -sd $OCPI_BASE_DIR/hdl/primitives/$DDC \
   -aul -aut -uc $buildTarget.ucf -p $PART fpgaTop_csi.ngc fpgaTop.ngd  
 if ($status != 0) then
   echo NGDBuild returned non-zero status
