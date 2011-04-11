@@ -52,8 +52,8 @@ OCAPP_S4    ?= OCApp_scenario4
 VLG_HDL   = libsrc/hdl/ocpi
 
 # Select if we use the local or opencpi-referenced build
-BUILD_HDL = scripts/buildhdl
-#BUILD_HDL = scripts/buildocpi
+#BUILD_HDL = scripts/buildhdl
+BUILD_HDL = scripts/buildocpi
 
 OCPI_DIR  ?= (shell pwd)
 
