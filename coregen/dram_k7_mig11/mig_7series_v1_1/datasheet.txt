@@ -1,0 +1,78 @@
+
+
+CORE Generator Options:
+   Target Device                 : xc7k325t-fbg900
+   Speed Grade                   : -1
+   HDL                           : verilog
+   Synthesis Tool                : Foundation_ISE
+
+MIG Output Options:
+   Module Name                   : mig_7series_v1_1
+   No of Controllers             : 1
+   Selected Compatible Device(s) : --
+
+FPGA Options:
+   Clock Type                    : Differential
+   Debug Port                    : OFF
+   Internal Vref                 : disabled
+
+Extended FPGA Options:
+   DCI for DQ,DQS/DQS#,DM        : enabled
+    
+/*******************************************************/
+/*                  Controller 0                       */
+/*******************************************************/
+Controller Options :
+   Memory                 : DDR3_SDRAM
+   Design Clock Frequency : 2500 ps (400.00 MHz)
+   Memory Type            : Components
+   Memory Part            : MT41J128M8XX-125
+   Equivalent Part(s)     : --
+   Data Width             : 64
+   Data Mask              : enabled
+   ORDERING               : Normal
+
+Memory Options:
+   Burst Length (MR0[1:0])          : 8 - Fixed
+   Read Burst Type (MR0[3])         : Sequential
+   CAS Latency (MR0[6:4])           : 6
+   Output Drive Strength (MR1[5,1]) : RZQ/7
+   Rtt_NOM - ODT (MR1[9,6,2])       : RZQ/4
+   Rtt_WR - Dynamic ODT (MR2[10:9]) : Dynamic ODT off
+
+
+Bank Selections:
+	Bank: 32
+		Byte Group T0:	DQ[32-39]
+		Byte Group T1:	DQ[40-47]
+		Byte Group T2:	DQ[48-55]
+		Byte Group T3:	DQ[56-63]
+	Bank: 33
+		Byte Group T0:	Address/Ctrl-0
+		Byte Group T1:	Address/Ctrl-1
+		Byte Group T2:	Address/Ctrl-2
+	Bank: 34
+		Byte Group T0:	DQ[0-7]
+		Byte Group T1:	DQ[8-15]
+		Byte Group T2:	DQ[16-23]
+		Byte Group T3:	DQ[24-31]
+
+Reference_Clock: 
+	SignalName: clk_ref_p/n
+		PadLocation: No connect  Bank: Select Bank
+
+System_Clock: 
+	SignalName: sys_clk_p/n
+		PadLocation: AE10/AF10(CC_P/N)  Bank: 33
+
+System_Control: 
+	SignalName: sys_rst
+		PadLocation: No connect  Bank: Select Bank
+	SignalName: init_calib_complete
+		PadLocation: No connect  Bank: Select Bank
+	SignalName: error
+		PadLocation: No connect  Bank: Select Bank
+
+
+
+    
