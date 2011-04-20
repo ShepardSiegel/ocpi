@@ -107,7 +107,7 @@ OpenCPI website: www.opencpi.org
      The e-Book "Bluespec by Example is a good place...  (bsv_by_example.pdf)
      http://www.bluespec.com/forum/viewtopic.php?p=827#827
 
-  "How to I switch between 4B and 16B application data paths; the later is needed for maximum througput"
+  "How to I switch between 4B and 16B application data paths?; the later is needed for maximum througput"
      Dan Zhang has supplied this text and changes to the files listed. This patch is for extending the OpenCPI datapath from 4B to 16B.
      This is especially useful for the ML605 to take advantage of the 2.0GB/s theoretical PCI-E 2.0 4x connection between the FPGA and DRAM.
      Streaming tests show that we can achieve ~1.6GB/s bidirectional.
@@ -125,6 +125,13 @@ OpenCPI website: www.opencpi.org
       OCApp.bsv : ( set NDW4, NumAlias)
      Thank you Dan! -Shep
 
+  "What's up with the multiple GIT repos?"
+    This work started out in this (once private) disti as an upstream sandbox:
+      https://github.com/ShepardSiegel/ocpi
+    With the intent that select files would be merged to the OpenCPI public repo:
+      https://github.com/opencpi/opencpi
+    At this writing 2011-04-03, the transition is underway. Stay tuned.
+
 10. Notes
 2010-12-18 ISE 12.4 Libraries
 2010-12-16 XUPV5 testOK on core920
@@ -132,3 +139,4 @@ OpenCPI website: www.opencpi.org
 2011-01-31 tweaks
 2011-03-03 ISE 13.1 Libraries
 2011-03-13 Switch back to 16B (4DW) baseline
+2011-04-20 Multiple GIT repos
