@@ -138,6 +138,21 @@ bsim8: $(OBJ)
 	# run bluesim executable
 	$(OBJ)/mk$(BTEST8).bexe -V
 
+######################################################################
+vcs: $(OBJ)
+
+	# compile to verilog backend for ISim
+	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -info-dir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D USE_NDW4 \
+		$(BSVTST)/$(ITEST).bsv
+	
+	bsc -vsim vcs -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST) -o runsim
+	./runsim | tee tmp
 
 ######################################################################
 isim: $(OBJ)
