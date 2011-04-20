@@ -1,5 +1,5 @@
 Assembler report for pcie_hip_s4gx_gen2_x4_128_example_chaining_top
-Thu Mar 31 07:17:03 2011
+Wed Apr 20 16:07:23 2011
 Quartus II Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Full Version
 
 
@@ -38,11 +38,11 @@ applicable agreement for further details.
 +------------------------------------------------------------------------+
 ; Assembler Summary                                                      ;
 +-----------------------+------------------------------------------------+
-; Assembler Status      ; Successful - Thu Mar 31 07:17:03 2011          ;
+; Assembler Status      ; Successful - Wed Apr 20 16:07:23 2011          ;
 ; Revision Name         ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ;
 ; Top-level Entity Name ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ;
 ; Family                ; Stratix IV                                     ;
-; Device                ; EP4SGX230KF40C2                                ;
+; Device                ; EP4SGX360KF40C2                                ;
 +-----------------------+------------------------------------------------+
 
 
@@ -101,9 +101,9 @@ applicable agreement for further details.
 +----------------+-------------------------------------------------------------+
 ; Option         ; Setting                                                     ;
 +----------------+-------------------------------------------------------------+
-; Device         ; EP4SGX230KF40C2                                             ;
+; Device         ; EP4SGX360KF40C2                                             ;
 ; JTAG usercode  ; 0xFFFFFFFF                                                  ;
-; Checksum       ; 0x075CCD1F                                                  ;
+; Checksum       ; 0x0B227C20                                                  ;
 +----------------+-------------------------------------------------------------+
 
 
@@ -113,14 +113,14 @@ applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus II Assembler
     Info: Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Mar 31 07:16:44 2011
+    Info: Processing started: Wed Apr 20 16:06:57 2011
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off pcie_hip_s4gx_gen2_x4_128_example_chaining_top -c pcie_hip_s4gx_gen2_x4_128_example_chaining_top
 Info: Writing out detailed assembly data for power analysis
 Info: Assembler is generating device programming files
 Info: Quartus II Assembler was successful. 0 errors, 0 warnings
-    Info: Peak virtual memory: 740 megabytes
-    Info: Processing ended: Thu Mar 31 07:17:04 2011
-    Info: Elapsed time: 00:00:20
-    Info: Total CPU time (on all processors): 00:00:20
+    Info: Peak virtual memory: 934 megabytes
+    Info: Processing ended: Wed Apr 20 16:07:23 2011
+    Info: Elapsed time: 00:00:26
+    Info: Total CPU time (on all processors): 00:00:26
 
 

@@ -37,7 +37,11 @@
 
 
 set_global_assignment -name FAMILY "Stratix IV"
-set_global_assignment -name DEVICE EP4SGX230KF40C2
+
+#HTG_ssiegel
+#set_global_assignment -name DEVICE EP4SGX230KF40C2
+set_global_assignment -name DEVICE EP4SGX360KF40C2
+
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "10.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:29:49  FEBRUARY 11, 2011"
 set_global_assignment -name LAST_QUARTUS_VERSION "10.1 SP1"
@@ -51,19 +55,22 @@ set_global_assignment -name OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 2
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+#
+# LEDs O-7 on HTG_ssiegel
+set_location_assignment PIN_D33 -to alive_led
+set_location_assignment PIN_C34 -to L0_led
+set_location_assignment PIN_M28 -to gen2_led
+set_location_assignment PIN_D34 -to lane_active_led[0]
+set_location_assignment PIN_E34 -to lane_active_led[2]
+set_location_assignment PIN_R27 -to lane_active_led[3]
+set_location_assignment PIN_F34 -to comp_led
 
-#location
-set_location_assignment PIN_AB28 -to gen2_led
-set_location_assignment PIN_F33 -to L0_led
-set_location_assignment PIN_AK33 -to alive_led
-set_location_assignment PIN_W28 -to comp_led
-set_location_assignment PIN_R29 -to lane_active_led[0]
-set_location_assignment PIN_AH35 -to lane_active_led[2]
-set_location_assignment PIN_AF29 -to lane_active_led[3]
-set_location_assignment PIN_AK35 -to local_rstn_ext
+# FPGA_USER_RESET (active low) HTG_ssiegel
+set_location_assignment PIN_V34 -to local_rstn_ext
+
+# PCIe HTG_ssiegel
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED WITH WEAK PULL-UP"
-set_location_assignment PIN_R32 -to pcie_rstn
-set_location_assignment PIN_AN38 -to refclk
+set_location_assignment PIN_N33 -to pcie_rstn
 set_location_assignment PIN_AU38 -to rx_in0
 set_location_assignment PIN_AR38 -to rx_in1
 set_location_assignment PIN_AJ38 -to rx_in2
@@ -76,19 +83,25 @@ set_location_assignment PIN_AT36 -to tx_out0
 set_location_assignment PIN_AP36 -to tx_out1
 set_location_assignment PIN_AH36 -to tx_out2
 set_location_assignment PIN_AF36 -to tx_out3
-set_location_assignment PIN_AD36 -to tx_out4
+set_location_assignment PIN_AD36 -to tx_out4 
 set_location_assignment PIN_AB36 -to tx_out5
 set_location_assignment PIN_T36 -to tx_out6
 set_location_assignment PIN_P36 -to tx_out7
-set_location_assignment PIN_AL35 -to usr_sw[0]
-set_location_assignment PIN_AC35 -to usr_sw[1]
-set_location_assignment PIN_J34 -to usr_sw[2]
-set_location_assignment PIN_AN35 -to usr_sw[3]
-set_location_assignment PIN_G33 -to usr_sw[4]
-set_location_assignment PIN_K35 -to usr_sw[5]
-set_location_assignment PIN_AG34 -to usr_sw[6]
-set_location_assignment PIN_AG31 -to usr_sw[7]
+set_location_assignment PIN_AN38 -to refclk
+
+# GPIO HTG_ssiegel
+set_location_assignment PIN_T27 -to usr_sw[0]
+set_location_assignment PIN_H34 -to usr_sw[1]
+set_location_assignment PIN_J33 -to usr_sw[2]
+set_location_assignment PIN_K32 -to usr_sw[3]
+set_location_assignment PIN_L31 -to usr_sw[4]
+set_location_assignment PIN_M31 -to usr_sw[5]
+set_location_assignment PIN_N29 -to usr_sw[6]
+set_location_assignment PIN_N30 -to usr_sw[7]
+
 set_location_assignment PIN_W32 -to comp_cycle
+#set_location_assignment PIN_W32 -to comp_cycle
+
 set_instance_assignment -name IO_STANDARD "2.5 V" -to usr_sw[0]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to usr_sw[1]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to usr_sw[2]

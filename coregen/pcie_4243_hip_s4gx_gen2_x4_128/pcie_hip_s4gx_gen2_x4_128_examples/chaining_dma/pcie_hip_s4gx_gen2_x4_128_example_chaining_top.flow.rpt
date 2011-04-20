@@ -1,5 +1,5 @@
 Flow report for pcie_hip_s4gx_gen2_x4_128_example_chaining_top
-Thu Mar 31 07:17:03 2011
+Wed Apr 20 16:07:23 2011
 Quartus II Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Full Version
 
 
@@ -38,22 +38,22 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------------+
 ; Flow Summary                                                                       ;
 +-----------------------------------+------------------------------------------------+
-; Flow Status                       ; Successful - Thu Mar 31 07:17:03 2011          ;
+; Flow Status                       ; Successful - Wed Apr 20 16:07:23 2011          ;
 ; Quartus II Version                ; 10.1 Build 197 01/19/2011 SP 1 SJ Full Version ;
 ; Revision Name                     ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ;
 ; Top-level Entity Name             ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ;
 ; Family                            ; Stratix IV                                     ;
-; Device                            ; EP4SGX230KF40C2                                ;
+; Device                            ; EP4SGX360KF40C2                                ;
 ; Timing Models                     ; Final                                          ;
-; Logic utilization                 ; 3 %                                            ;
-;     Combinational ALUTs           ; 3,886 / 182,400 ( 2 % )                        ;
-;     Memory ALUTs                  ; 53 / 91,200 ( < 1 % )                          ;
-;     Dedicated logic registers     ; 5,226 / 182,400 ( 3 % )                        ;
+; Logic utilization                 ; 2 %                                            ;
+;     Combinational ALUTs           ; 3,886 / 282,880 ( 1 % )                        ;
+;     Memory ALUTs                  ; 53 / 141,440 ( < 1 % )                         ;
+;     Dedicated logic registers     ; 5,226 / 282,880 ( 2 % )                        ;
 ; Total registers                   ; 5226                                           ;
 ; Total pins                        ; 38 / 888 ( 4 % )                               ;
 ; Total virtual pins                ; 0                                              ;
-; Total block memory bits           ; 714,888 / 14,625,792 ( 5 % )                   ;
-; DSP block 18-bit elements         ; 0 / 1,288 ( 0 % )                              ;
+; Total block memory bits           ; 714,888 / 18,579,456 ( 4 % )                   ;
+; DSP block 18-bit elements         ; 0 / 1,040 ( 0 % )                              ;
 ; Total GXB Receiver Channel PCS    ; 4 / 24 ( 17 % )                                ;
 ; Total GXB Receiver Channel PMA    ; 4 / 36 ( 11 % )                                ;
 ; Total GXB Transmitter Channel PCS ; 4 / 24 ( 17 % )                                ;
@@ -68,7 +68,7 @@ applicable agreement for further details.
 +-------------------+------------------------------------------------+
 ; Option            ; Setting                                        ;
 +-------------------+------------------------------------------------+
-; Start date & time ; 03/31/2011 07:11:01                            ;
+; Start date & time ; 04/20/2011 16:00:59                            ;
 ; Main task         ; Compilation                                    ;
 ; Revision Name     ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ;
 +-------------------+------------------------------------------------+
@@ -79,7 +79,7 @@ applicable agreement for further details.
 +-----------------------------------------+----------------------------------------------------------------------------------------------------------------+---------------+-------------+------------+
 ; Assignment Name                         ; Value                                                                                                          ; Default Value ; Entity Name ; Section Id ;
 +-----------------------------------------+----------------------------------------------------------------------------------------------------------------+---------------+-------------+------------+
-; COMPILER_SIGNATURE_ID                   ; 136298225522.130156986111110                                                                                   ; --            ; --          ; --         ;
+; COMPILER_SIGNATURE_ID                   ; 136298225522.130332965908944                                                                                   ; --            ; --          ; --         ;
 ; ENABLE_CLOCK_LATENCY                    ; On                                                                                                             ; Off           ; --          ; --         ;
 ; ENABLE_RECOVERY_REMOVAL_ANALYSIS        ; On                                                                                                             ; Off           ; --          ; --         ;
 ; IP_TOOL_NAME                            ; PCI Express Compiler                                                                                           ; --            ; --          ; --         ;
@@ -207,10 +207,10 @@ applicable agreement for further details.
 ; Module Name               ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Analysis & Synthesis      ; 00:02:22     ; 1.0                     ; --                  ; 00:02:22                           ;
-; Fitter                    ; 00:03:03     ; 1.4                     ; --                  ; 00:03:20                           ;
-; Assembler                 ; 00:00:19     ; 1.0                     ; --                  ; 00:00:19                           ;
-; TimeQuest Timing Analyzer ; 00:00:10     ; 1.2                     ; --                  ; 00:00:12                           ;
-; Total                     ; 00:05:44     ; --                      ; --                  ; 00:06:01                           ;
+; Fitter                    ; 00:03:18     ; 1.5                     ; --                  ; 00:03:39                           ;
+; Assembler                 ; 00:00:26     ; 1.0                     ; --                  ; 00:00:26                           ;
+; TimeQuest Timing Analyzer ; 00:00:11     ; 1.9                     ; --                  ; 00:00:13                           ;
+; Total                     ; 00:06:06     ; --                      ; --                  ; 00:06:27                           ;
 +---------------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

@@ -1,19 +1,19 @@
-Fitter Status : Successful - Thu Mar 31 07:16:34 2011
+Fitter Status : Successful - Wed Apr 20 16:06:47 2011
 Quartus II Version : 10.1 Build 197 01/19/2011 SP 1 SJ Full Version
 Revision Name : pcie_hip_s4gx_gen2_x4_128_example_chaining_top
 Top-level Entity Name : pcie_hip_s4gx_gen2_x4_128_example_chaining_top
 Family : Stratix IV
-Device : EP4SGX230KF40C2
+Device : EP4SGX360KF40C2
 Timing Models : Final
-Logic utilization : 3 %
-    Combinational ALUTs : 3,886 / 182,400 ( 2 % )
-    Memory ALUTs : 53 / 91,200 ( < 1 % )
-    Dedicated logic registers : 5,226 / 182,400 ( 3 % )
+Logic utilization : 2 %
+    Combinational ALUTs : 3,886 / 282,880 ( 1 % )
+    Memory ALUTs : 53 / 141,440 ( < 1 % )
+    Dedicated logic registers : 5,226 / 282,880 ( 2 % )
 Total registers : 5226
 Total pins : 38 / 888 ( 4 % )
 Total virtual pins : 0
-Total block memory bits : 714,888 / 14,625,792 ( 5 % )
-DSP block 18-bit elements : 0 / 1,288 ( 0 % )
+Total block memory bits : 714,888 / 18,579,456 ( 4 % )
+DSP block 18-bit elements : 0 / 1,040 ( 0 % )
 Total GXB Receiver Channel PCS : 4 / 24 ( 17 % )
 Total GXB Receiver Channel PMA : 4 / 36 ( 11 % )
 Total GXB Transmitter Channel PCS : 4 / 24 ( 17 % )

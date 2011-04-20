@@ -3,67 +3,67 @@ TimeQuest Timing Analyzer Summary
 ------------------------------------------------------------
 
 Type  : Slow 900mV 85C Model Setup 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.018
-TNS   : 0.000
+Slack : -0.001
+TNS   : -0.001
 
 Type  : Slow 900mV 85C Model Setup 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 1.253
+Slack : 1.165
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Setup 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 7.466
+Slack : 7.387
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Setup 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 7.936
+Slack : 7.954
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Setup 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 10.002
+Slack : 10.202
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Setup 'n/a'
-Slack : 12.740
+Slack : 12.045
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Hold 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.212
-TNS   : 0.000
-
-Type  : Slow 900mV 85C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 0.264
-TNS   : 0.000
-
-Type  : Slow 900mV 85C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.266
+Slack : 0.244
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Hold 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 0.313
+Slack : 0.245
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.281
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
+Slack : 0.310
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Hold 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 0.437
+Slack : 0.486
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Hold 'n/a'
-Slack : 1.387
+Slack : 1.417
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Recovery 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 2.515
+Slack : 1.990
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Recovery 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 9.003
+Slack : 8.873
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Removal 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.501
+Slack : 0.492
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Removal 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 0.517
+Slack : 0.543
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Minimum Pulse Width 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
@@ -71,7 +71,7 @@ Slack : 0.000
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Minimum Pulse Width 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 0.419
+Slack : 0.405
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Minimum Pulse Width 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|rateswitchbaseclock'
@@ -79,19 +79,19 @@ Slack : 0.834
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Minimum Pulse Width 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 3.215
+Slack : 3.224
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Minimum Pulse Width 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 3.430
+Slack : 3.423
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Minimum Pulse Width 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 4.486
+Slack : 4.490
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Minimum Pulse Width 'free_100MHz'
-Slack : 4.970
+Slack : 4.969
 TNS   : 0.000
 
 Type  : Slow 900mV 85C Model Minimum Pulse Width 'refclk'
@@ -99,67 +99,67 @@ Slack : 5.000
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Setup 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.091
+Slack : 0.070
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Setup 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 1.275
+Slack : 1.207
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Setup 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 7.481
+Slack : 7.410
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Setup 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 8.019
+Slack : 8.032
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Setup 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 10.060
+Slack : 10.242
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Setup 'n/a'
-Slack : 13.116
+Slack : 12.510
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Hold 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.192
-TNS   : 0.000
-
-Type  : Slow 900mV 0C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.259
-TNS   : 0.000
-
-Type  : Slow 900mV 0C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 0.264
+Slack : 0.223
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Hold 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 0.307
+Slack : 0.235
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.277
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
+Slack : 0.303
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Hold 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 0.425
+Slack : 0.475
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Hold 'n/a'
-Slack : 1.367
+Slack : 1.402
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Recovery 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 2.763
+Slack : 2.371
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Recovery 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 9.040
+Slack : 8.914
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Removal 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.481
+Slack : 0.475
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Removal 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 0.496
+Slack : 0.518
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Minimum Pulse Width 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
@@ -167,7 +167,7 @@ Slack : 0.000
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Minimum Pulse Width 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 0.408
+Slack : 0.396
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Minimum Pulse Width 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|rateswitchbaseclock'
@@ -175,15 +175,15 @@ Slack : 0.811
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Minimum Pulse Width 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 3.162
+Slack : 3.155
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Minimum Pulse Width 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 3.434
+Slack : 3.439
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Minimum Pulse Width 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 4.492
+Slack : 4.488
 TNS   : 0.000
 
 Type  : Slow 900mV 0C Model Minimum Pulse Width 'free_100MHz'
@@ -195,67 +195,67 @@ Slack : 5.000
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Setup 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.732
+Slack : 0.700
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Setup 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 1.589
+Slack : 1.554
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Setup 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 7.695
+Slack : 7.670
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Setup 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 8.894
+Slack : 8.885
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Setup 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 14.766
+Slack : 14.921
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Setup 'n/a'
-Slack : 15.368
-TNS   : 0.000
-
-Type  : Fast 900mV 0C Model Hold 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.131
-TNS   : 0.000
-
-Type  : Fast 900mV 0C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
-Slack : 0.148
-TNS   : 0.000
-
-Type  : Fast 900mV 0C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 0.153
+Slack : 14.945
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Hold 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 0.164
+Slack : 0.133
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
+Slack : 0.143
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
+Slack : 0.149
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
+Slack : 0.166
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Hold 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 0.253
+Slack : 0.263
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Hold 'n/a'
-Slack : 0.875
+Slack : 0.851
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Recovery 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 4.601
+Slack : 4.236
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Recovery 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 9.445
+Slack : 9.369
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Removal 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 0.272
+Slack : 0.269
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Removal 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 0.284
+Slack : 0.296
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Minimum Pulse Width 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[0]'
@@ -263,7 +263,7 @@ Slack : 0.000
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Minimum Pulse Width 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|coreclkout'
-Slack : 0.623
+Slack : 0.614
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Minimum Pulse Width 'core|ep_plus|epmap|serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|central_clk_div0|rateswitchbaseclock'
@@ -271,19 +271,19 @@ Slack : 0.901
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Minimum Pulse Width 'core|ep_plus|epmap|wrapper|altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip|coreclkout'
-Slack : 3.195
+Slack : 3.192
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Minimum Pulse Width 'core|reconfig_pll|altpll_component|auto_generated|pll1|clk[1]'
-Slack : 3.624
+Slack : 3.623
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Minimum Pulse Width 'refclk~input~INSERTED_REFCLK_DIVIDER|clkout'
-Slack : 4.655
+Slack : 4.657
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Minimum Pulse Width 'free_100MHz'
-Slack : 4.707
+Slack : 4.706
 TNS   : 0.000
 
 Type  : Fast 900mV 0C Model Minimum Pulse Width 'refclk'

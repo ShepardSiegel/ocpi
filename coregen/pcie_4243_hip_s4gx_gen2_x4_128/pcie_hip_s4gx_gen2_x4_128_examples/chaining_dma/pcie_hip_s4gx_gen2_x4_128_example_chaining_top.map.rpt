@@ -1,5 +1,5 @@
 Analysis & Synthesis report for pcie_hip_s4gx_gen2_x4_128_example_chaining_top
-Thu Mar 31 07:13:28 2011
+Wed Apr 20 16:03:26 2011
 Quartus II Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Full Version
 
 
@@ -174,7 +174,7 @@ applicable agreement for further details.
 +------------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                       ;
 +-----------------------------------+------------------------------------------------+
-; Analysis & Synthesis Status       ; Successful - Thu Mar 31 07:13:27 2011          ;
+; Analysis & Synthesis Status       ; Successful - Wed Apr 20 16:03:25 2011          ;
 ; Quartus II Version                ; 10.1 Build 197 01/19/2011 SP 1 SJ Full Version ;
 ; Revision Name                     ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ;
 ; Top-level Entity Name             ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ;
@@ -202,7 +202,7 @@ applicable agreement for further details.
 +----------------------------------------------------------------------------+------------------------------------------------+------------------------------------------------+
 ; Option                                                                     ; Setting                                        ; Default Value                                  ;
 +----------------------------------------------------------------------------+------------------------------------------------+------------------------------------------------+
-; Device                                                                     ; EP4SGX230KF40C2                                ;                                                ;
+; Device                                                                     ; EP4SGX360KF40C2                                ;                                                ;
 ; Top-level entity name                                                      ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ; pcie_hip_s4gx_gen2_x4_128_example_chaining_top ;
 ; Family name                                                                ; Stratix IV                                     ; Cyclone IV GX                                  ;
 ; Optimization Technique                                                     ; Speed                                          ; Balanced                                       ;
@@ -5050,7 +5050,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+--------------+
 ; Partition Name ; Elapsed Time ;
 +----------------+--------------+
-; Top            ; 00:01:56     ;
+; Top            ; 00:01:54     ;
 +----------------+--------------+
 
 
@@ -5060,7 +5060,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus II Analysis & Synthesis
     Info: Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Full Version
-    Info: Processing started: Thu Mar 31 07:11:01 2011
+    Info: Processing started: Wed Apr 20 16:00:59 2011
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off pcie_hip_s4gx_gen2_x4_128_example_chaining_top -c pcie_hip_s4gx_gen2_x4_128_example_chaining_top
 Info: Parallel compilation is enabled and will use 4 of the 4 processors detected
 Info: Found 1 design units, including 1 entities, in source file /home/shep/projects/ocpi/coregen/pcie_4243_hip_s4gx_gen2_x4_128/pcie_hip_s4gx_gen2_x4_128.v
@@ -6734,135 +6734,135 @@ Info: Generating hard_block partition "hard_block:auto_generated_inst"
     Info: Adding node "pcie_hip_s4gx_gen2_x4_128_example_chaining_pipen1b:core|pcie_hip_s4gx_gen2_x4_128_plus:ep_plus|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_serdes:serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa:pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|rx_cdr_pll3"
     Info: Adding node "pcie_hip_s4gx_gen2_x4_128_example_chaining_pipen1b:core|pcie_hip_s4gx_gen2_x4_128_plus:ep_plus|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_serdes:serdes|pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa:pcie_hip_s4gx_gen2_x4_128_serdes_alt4gxb_svoa_component|tx_pll0"
 Warning: Ignored 129 Virtual Pin logic option assignments
-    Warning: Ignored Virtual Pin assignment to "txcompl3_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_fifo_full0".
-    Warning: Ignored Virtual Pin assignment to "rxvalid1_ext".
-    Warning: Ignored Virtual Pin assignment to "rxdatak0_ext".
-    Warning: Ignored Virtual Pin assignment to "reset_status".
-    Warning: Ignored Virtual Pin assignment to "pll_powerdown".
-    Warning: Ignored Virtual Pin assignment to "lmi_din".
-    Warning: Ignored Virtual Pin assignment to "derr_cor_ext_rcv0".
-    Warning: Ignored Virtual Pin assignment to "app_int_sts".
-    Warning: Ignored Virtual Pin assignment to "rxstatus3_ext".
-    Warning: Ignored Virtual Pin assignment to "txelecidle3_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_st_valid0".
-    Warning: Ignored Virtual Pin assignment to "tl_cfg_sts".
-    Warning: Ignored Virtual Pin assignment to "rxpolarity1_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_mask0".
-    Warning: Ignored Virtual Pin assignment to "rc_rx_digitalreset".
-    Warning: Ignored Virtual Pin assignment to "pclk_in".
-    Warning: Ignored Virtual Pin assignment to "l2_exit".
-    Warning: Ignored Virtual Pin assignment to "core_clk_out".
-    Warning: Ignored Virtual Pin assignment to "rxdata3_ext".
-    Warning: Ignored Virtual Pin assignment to "txdetectrx_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_st_eop0".
-    Warning: Ignored Virtual Pin assignment to "test_out".
-    Warning: Ignored Virtual Pin assignment to "rxelecidle1_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_data0".
-    Warning: Ignored Virtual Pin assignment to "pme_to_sr".
-    Warning: Ignored Virtual Pin assignment to "npd_alloc_1cred_vc0".
-    Warning: Ignored Virtual Pin assignment to "gxb_powerdown".
-    Warning: Ignored Virtual Pin assignment to "busy_altgxb_reconfig".
-    Warning: Ignored Virtual Pin assignment to "txdata3_ext".
-    Warning: Ignored Virtual Pin assignment to "powerdown_ext".
-    Warning: Ignored Virtual Pin assignment to "txdatak0_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_fifo_rdptr0".
-    Warning: Ignored Virtual Pin assignment to "rxvalid2_ext".
-    Warning: Ignored Virtual Pin assignment to "rxdatak1_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_fifo_empty0".
-    Warning: Ignored Virtual Pin assignment to "pm_auxpwr".
-    Warning: Ignored Virtual Pin assignment to "lmi_dout".
-    Warning: Ignored Virtual Pin assignment to "derr_cor_ext_rpl".
-    Warning: Ignored Virtual Pin assignment to "app_msi_ack".
-    Warning: Ignored Virtual Pin assignment to "test_in".
-    Warning: Ignored Virtual Pin assignment to "txcompl0_ext".
-    Warning: Ignored Virtual Pin assignment to "tl_cfg_sts_wr".
-    Warning: Ignored Virtual Pin assignment to "rxpolarity2_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_ready0".
-    Warning: Ignored Virtual Pin assignment to "reconfig_clk".
-    Warning: Ignored Virtual Pin assignment to "pex_msi_num".
-    Warning: Ignored Virtual Pin assignment to "lane_act".
-    Warning: Ignored Virtual Pin assignment to "cpl_err".
-    Warning: Ignored Virtual Pin assignment to "rxstatus0_ext".
-    Warning: Ignored Virtual Pin assignment to "txelecidle0_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_st_err0".
-    Warning: Ignored Virtual Pin assignment to "tl_cfg_add".
-    Warning: Ignored Virtual Pin assignment to "rxelecidle2_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_empty0".
-    Warning: Ignored Virtual Pin assignment to "r2c_err0".
-    Warning: Ignored Virtual Pin assignment to "npd_cred_vio_vc0".
-    Warning: Ignored Virtual Pin assignment to "hotrst_exit".
-    Warning: Ignored Virtual Pin assignment to "cal_blk_clk".
-    Warning: Ignored Virtual Pin assignment to "rxdata0_ext".
-    Warning: Ignored Virtual Pin assignment to "txdatak1_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_fifo_wrptr0".
-    Warning: Ignored Virtual Pin assignment to "rxvalid3_ext".
-    Warning: Ignored Virtual Pin assignment to "rxdatak2_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_fifo_full0".
-    Warning: Ignored Virtual Pin assignment to "pm_data".
-    Warning: Ignored Virtual Pin assignment to "lmi_rden".
-    Warning: Ignored Virtual Pin assignment to "derr_rpl".
-    Warning: Ignored Virtual Pin assignment to "app_msi_num".
-    Warning: Ignored Virtual Pin assignment to "txdata0_ext".
-    Warning: Ignored Virtual Pin assignment to "txcompl1_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_cred0".
-    Warning: Ignored Virtual Pin assignment to "rxpolarity3_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_sop0".
-    Warning: Ignored Virtual Pin assignment to "reconfig_fromgxb".
-    Warning: Ignored Virtual Pin assignment to "phystatus_ext".
-    Warning: Ignored Virtual Pin assignment to "lmi_ack".
-    Warning: Ignored Virtual Pin assignment to "cpl_pending".
-    Warning: Ignored Virtual Pin assignment to "rxstatus1_ext".
-    Warning: Ignored Virtual Pin assignment to "txelecidle1_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_st_ready0".
-    Warning: Ignored Virtual Pin assignment to "tl_cfg_ctl".
-    Warning: Ignored Virtual Pin assignment to "rxelecidle3_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_eop0".
-    Warning: Ignored Virtual Pin assignment to "rate_ext".
-    Warning: Ignored Virtual Pin assignment to "nph_alloc_1cred_vc0".
-    Warning: Ignored Virtual Pin assignment to "hpg_ctrler".
-    Warning: Ignored Virtual Pin assignment to "clk250_out".
-    Warning: Ignored Virtual Pin assignment to "rxdata1_ext".
-    Warning: Ignored Virtual Pin assignment to "txdatak2_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_st_data0".
-    Warning: Ignored Virtual Pin assignment to "srst".
-    Warning: Ignored Virtual Pin assignment to "rxdatak3_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_bardec0".
-    Warning: Ignored Virtual Pin assignment to "pm_event".
-    Warning: Ignored Virtual Pin assignment to "lmi_wren".
-    Warning: Ignored Virtual Pin assignment to "dlup_exit".
-    Warning: Ignored Virtual Pin assignment to "app_msi_req".
-    Warning: Ignored Virtual Pin assignment to "txdata1_ext".
-    Warning: Ignored Virtual Pin assignment to "txcompl2_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_fifo_empty0".
-    Warning: Ignored Virtual Pin assignment to "rxvalid0_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_valid0".
-    Warning: Ignored Virtual Pin assignment to "reconfig_togxb".
-    Warning: Ignored Virtual Pin assignment to "pld_clk".
-    Warning: Ignored Virtual Pin assignment to "lmi_addr".
-    Warning: Ignored Virtual Pin assignment to "crst".
-    Warning: Ignored Virtual Pin assignment to "app_int_ack".
-    Warning: Ignored Virtual Pin assignment to "rxstatus2_ext".
     Warning: Ignored Virtual Pin assignment to "txelecidle2_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_st_sop0".
-    Warning: Ignored Virtual Pin assignment to "tl_cfg_ctl_wr".
-    Warning: Ignored Virtual Pin assignment to "rxpolarity0_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_err0".
-    Warning: Ignored Virtual Pin assignment to "rc_pll_locked".
-    Warning: Ignored Virtual Pin assignment to "nph_cred_vio_vc0".
-    Warning: Ignored Virtual Pin assignment to "ko_cpl_spc_vc0".
-    Warning: Ignored Virtual Pin assignment to "clk500_out".
-    Warning: Ignored Virtual Pin assignment to "rxdata2_ext".
-    Warning: Ignored Virtual Pin assignment to "txdatak3_ext".
-    Warning: Ignored Virtual Pin assignment to "tx_st_empty0".
-    Warning: Ignored Virtual Pin assignment to "suc_spd_neg".
-    Warning: Ignored Virtual Pin assignment to "rxelecidle0_ext".
-    Warning: Ignored Virtual Pin assignment to "rx_st_be0".
-    Warning: Ignored Virtual Pin assignment to "pme_to_cr".
-    Warning: Ignored Virtual Pin assignment to "ltssm".
-    Warning: Ignored Virtual Pin assignment to "fixedclk_serdes".
+    Warning: Ignored Virtual Pin assignment to "rxvalid1_ext".
+    Warning: Ignored Virtual Pin assignment to "txcompl3_ext".
+    Warning: Ignored Virtual Pin assignment to "rxelecidle1_ext".
+    Warning: Ignored Virtual Pin assignment to "tx_st_eop0".
+    Warning: Ignored Virtual Pin assignment to "rx_st_ready0".
+    Warning: Ignored Virtual Pin assignment to "lmi_rden".
+    Warning: Ignored Virtual Pin assignment to "rxdata3_ext".
+    Warning: Ignored Virtual Pin assignment to "rx_fifo_full0".
+    Warning: Ignored Virtual Pin assignment to "hpg_ctrler".
+    Warning: Ignored Virtual Pin assignment to "rate_ext".
+    Warning: Ignored Virtual Pin assignment to "crst".
     Warning: Ignored Virtual Pin assignment to "app_msi_tc".
+    Warning: Ignored Virtual Pin assignment to "tl_cfg_sts".
+    Warning: Ignored Virtual Pin assignment to "txelecidle3_ext".
+    Warning: Ignored Virtual Pin assignment to "rxvalid2_ext".
+    Warning: Ignored Virtual Pin assignment to "txdatak0_ext".
+    Warning: Ignored Virtual Pin assignment to "rxelecidle2_ext".
+    Warning: Ignored Virtual Pin assignment to "phystatus_ext".
+    Warning: Ignored Virtual Pin assignment to "rx_st_sop0".
+    Warning: Ignored Virtual Pin assignment to "lmi_wren".
+    Warning: Ignored Virtual Pin assignment to "rxstatus0_ext".
+    Warning: Ignored Virtual Pin assignment to "rx_st_bardec0".
+    Warning: Ignored Virtual Pin assignment to "ko_cpl_spc_vc0".
+    Warning: Ignored Virtual Pin assignment to "derr_cor_ext_rcv0".
+    Warning: Ignored Virtual Pin assignment to "busy_altgxb_reconfig".
+    Warning: Ignored Virtual Pin assignment to "tl_cfg_sts_wr".
+    Warning: Ignored Virtual Pin assignment to "rxvalid3_ext".
+    Warning: Ignored Virtual Pin assignment to "txdatak1_ext".
+    Warning: Ignored Virtual Pin assignment to "rxelecidle3_ext".
+    Warning: Ignored Virtual Pin assignment to "pld_clk".
+    Warning: Ignored Virtual Pin assignment to "rx_st_valid0".
+    Warning: Ignored Virtual Pin assignment to "ltssm".
+    Warning: Ignored Virtual Pin assignment to "rxstatus1_ext".
+    Warning: Ignored Virtual Pin assignment to "rx_st_be0".
+    Warning: Ignored Virtual Pin assignment to "l2_exit".
+    Warning: Ignored Virtual Pin assignment to "derr_cor_ext_rpl".
+    Warning: Ignored Virtual Pin assignment to "tx_st_err0".
+    Warning: Ignored Virtual Pin assignment to "cal_blk_clk".
+    Warning: Ignored Virtual Pin assignment to "tx_cred0".
+    Warning: Ignored Virtual Pin assignment to "srst".
+    Warning: Ignored Virtual Pin assignment to "rc_pll_locked".
+    Warning: Ignored Virtual Pin assignment to "rxpolarity0_ext".
+    Warning: Ignored Virtual Pin assignment to "pll_powerdown".
+    Warning: Ignored Virtual Pin assignment to "rxdatak0_ext".
+    Warning: Ignored Virtual Pin assignment to "npd_alloc_1cred_vc0".
+    Warning: Ignored Virtual Pin assignment to "rxstatus2_ext".
+    Warning: Ignored Virtual Pin assignment to "lane_act".
+    Warning: Ignored Virtual Pin assignment to "derr_rpl".
+    Warning: Ignored Virtual Pin assignment to "tx_st_ready0".
+    Warning: Ignored Virtual Pin assignment to "tx_fifo_empty0".
+    Warning: Ignored Virtual Pin assignment to "suc_spd_neg".
+    Warning: Ignored Virtual Pin assignment to "rc_rx_digitalreset".
+    Warning: Ignored Virtual Pin assignment to "rxpolarity1_ext".
+    Warning: Ignored Virtual Pin assignment to "pm_auxpwr".
+    Warning: Ignored Virtual Pin assignment to "rxdatak1_ext".
+    Warning: Ignored Virtual Pin assignment to "npd_cred_vio_vc0".
+    Warning: Ignored Virtual Pin assignment to "rxstatus3_ext".
+    Warning: Ignored Virtual Pin assignment to "lmi_ack".
+    Warning: Ignored Virtual Pin assignment to "powerdown_ext".
+    Warning: Ignored Virtual Pin assignment to "txdatak2_ext".
+    Warning: Ignored Virtual Pin assignment to "dlup_exit".
+    Warning: Ignored Virtual Pin assignment to "tx_st_sop0".
+    Warning: Ignored Virtual Pin assignment to "tx_fifo_full0".
+    Warning: Ignored Virtual Pin assignment to "rx_st_data0".
+    Warning: Ignored Virtual Pin assignment to "test_out".
+    Warning: Ignored Virtual Pin assignment to "reconfig_clk".
+    Warning: Ignored Virtual Pin assignment to "rxpolarity2_ext".
+    Warning: Ignored Virtual Pin assignment to "pm_data".
+    Warning: Ignored Virtual Pin assignment to "clk250_out".
+    Warning: Ignored Virtual Pin assignment to "nph_alloc_1cred_vc0".
+    Warning: Ignored Virtual Pin assignment to "app_int_ack".
+    Warning: Ignored Virtual Pin assignment to "test_in".
+    Warning: Ignored Virtual Pin assignment to "lmi_addr".
+    Warning: Ignored Virtual Pin assignment to "rxdata0_ext".
+    Warning: Ignored Virtual Pin assignment to "txdatak3_ext".
+    Warning: Ignored Virtual Pin assignment to "tx_st_valid0".
+    Warning: Ignored Virtual Pin assignment to "tx_fifo_rdptr0".
+    Warning: Ignored Virtual Pin assignment to "rx_st_empty0".
+    Warning: Ignored Virtual Pin assignment to "tl_cfg_add".
+    Warning: Ignored Virtual Pin assignment to "reconfig_fromgxb".
+    Warning: Ignored Virtual Pin assignment to "rxpolarity3_ext".
+    Warning: Ignored Virtual Pin assignment to "pm_event".
+    Warning: Ignored Virtual Pin assignment to "clk500_out".
+    Warning: Ignored Virtual Pin assignment to "nph_cred_vio_vc0".
+    Warning: Ignored Virtual Pin assignment to "app_int_sts".
+    Warning: Ignored Virtual Pin assignment to "txdata0_ext".
+    Warning: Ignored Virtual Pin assignment to "lmi_din".
+    Warning: Ignored Virtual Pin assignment to "rxdata1_ext".
+    Warning: Ignored Virtual Pin assignment to "txdetectrx_ext".
+    Warning: Ignored Virtual Pin assignment to "txcompl0_ext".
+    Warning: Ignored Virtual Pin assignment to "rxdatak2_ext".
+    Warning: Ignored Virtual Pin assignment to "tx_fifo_wrptr0".
+    Warning: Ignored Virtual Pin assignment to "rx_st_eop0".
+    Warning: Ignored Virtual Pin assignment to "tl_cfg_ctl".
+    Warning: Ignored Virtual Pin assignment to "reconfig_togxb".
+    Warning: Ignored Virtual Pin assignment to "fixedclk_serdes".
+    Warning: Ignored Virtual Pin assignment to "pme_to_cr".
+    Warning: Ignored Virtual Pin assignment to "core_clk_out".
+    Warning: Ignored Virtual Pin assignment to "pclk_in".
+    Warning: Ignored Virtual Pin assignment to "app_msi_ack".
+    Warning: Ignored Virtual Pin assignment to "txdata1_ext".
+    Warning: Ignored Virtual Pin assignment to "rxdata2_ext".
+    Warning: Ignored Virtual Pin assignment to "txelecidle0_ext".
+    Warning: Ignored Virtual Pin assignment to "txcompl1_ext".
+    Warning: Ignored Virtual Pin assignment to "rxdatak3_ext".
+    Warning: Ignored Virtual Pin assignment to "tx_st_data0".
+    Warning: Ignored Virtual Pin assignment to "rx_st_err0".
+    Warning: Ignored Virtual Pin assignment to "tl_cfg_ctl_wr".
+    Warning: Ignored Virtual Pin assignment to "reset_status".
+    Warning: Ignored Virtual Pin assignment to "gxb_powerdown".
+    Warning: Ignored Virtual Pin assignment to "pme_to_sr".
+    Warning: Ignored Virtual Pin assignment to "cpl_err".
+    Warning: Ignored Virtual Pin assignment to "pex_msi_num".
+    Warning: Ignored Virtual Pin assignment to "app_msi_num".
     Warning: Ignored Virtual Pin assignment to "txdata2_ext".
+    Warning: Ignored Virtual Pin assignment to "txelecidle1_ext".
+    Warning: Ignored Virtual Pin assignment to "rxvalid0_ext".
+    Warning: Ignored Virtual Pin assignment to "txcompl2_ext".
+    Warning: Ignored Virtual Pin assignment to "rxelecidle0_ext".
+    Warning: Ignored Virtual Pin assignment to "tx_st_empty0".
+    Warning: Ignored Virtual Pin assignment to "rx_st_mask0".
+    Warning: Ignored Virtual Pin assignment to "lmi_dout".
+    Warning: Ignored Virtual Pin assignment to "rx_fifo_empty0".
+    Warning: Ignored Virtual Pin assignment to "hotrst_exit".
+    Warning: Ignored Virtual Pin assignment to "r2c_err0".
+    Warning: Ignored Virtual Pin assignment to "cpl_pending".
+    Warning: Ignored Virtual Pin assignment to "app_msi_req".
+    Warning: Ignored Virtual Pin assignment to "txdata3_ext".
 Warning: Design contains 7 input pin(s) that do not drive logic
     Warning (15610): No output dependent on input pin "usr_sw[1]"
     Warning (15610): No output dependent on input pin "usr_sw[2]"
@@ -6878,8 +6878,8 @@ Info: Implemented 8029 device resources after synthesis - the final resource cou
     Info: Implemented 1048 RAM segments
     Info: Implemented 1 PLLs
 Info: Quartus II Analysis & Synthesis was successful. 0 errors, 374 warnings
-    Info: Peak virtual memory: 518 megabytes
-    Info: Processing ended: Thu Mar 31 07:13:28 2011
+    Info: Peak virtual memory: 569 megabytes
+    Info: Processing ended: Wed Apr 20 16:03:26 2011
     Info: Elapsed time: 00:02:27
     Info: Total CPU time (on all processors): 00:02:27
 

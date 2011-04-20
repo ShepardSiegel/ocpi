@@ -1,0 +1,20 @@
+Analysis & Synthesis Status : Failed - Wed Apr 20 15:14:13 2011
+Quartus II Version : 10.1 Build 197 01/19/2011 SP 1 SJ Full Version
+Revision Name : htg_top
+Top-level Entity Name : htg_top
+Family : Stratix IV
+Logic utilization : N/A until Partition Merge
+    Combinational ALUTs : N/A until Partition Merge
+    Memory ALUTs : N/A until Partition Merge
+    Dedicated logic registers : N/A until Partition Merge
+Total registers : N/A until Partition Merge
+Total pins : N/A until Partition Merge
+Total virtual pins : N/A until Partition Merge
+Total block memory bits : N/A until Partition Merge
+DSP block 18-bit elements : N/A until Partition Merge
+Total GXB Receiver Channel PCS : N/A until Partition Merge
+Total GXB Receiver Channel PMA : N/A until Partition Merge
+Total GXB Transmitter Channel PCS : N/A until Partition Merge
+Total GXB Transmitter Channel PMA : N/A until Partition Merge
+Total PLLs : N/A until Partition Merge
+Total DLLs : N/A until Partition Merge
