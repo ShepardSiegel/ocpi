@@ -1,4 +1,4 @@
-// FTop_altst4.bsv
+// FTop_htgs4.bsv - The HTG S4 Board
 // Copyright (c) 2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
@@ -22,17 +22,17 @@ import PCIEInterrupt     ::*;
 import Vector            ::*;
 
 (* always_ready, always_enabled *)
-interface FTop_altst4Ifc;
+interface FTop_htgs4Ifc;
   interface PCIE_EXP_ALT#(4) pcie;
   interface Clock            p125clk;
   interface Reset            p125rst;
   method Action              usr_sw (Bit#(8) i);
-  method Bit#(16)            led;
-endinterface: FTop_altst4Ifc
+  method Bit#(8)             led;
+endinterface: FTop_htgs4Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_altst4#(Clock sys0_clk, Reset sys0_rstn,
-                      Clock pcie_clk, Reset pcie_rstn)(FTop_altst4Ifc);
+module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn,
+                      Clock pcie_clk, Reset pcie_rstn)(FTop_htgs4Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
   PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("A4", pcie_clk, pcie_clk, pcie_rstn);
@@ -77,5 +77,5 @@ module mkFTop_altst4#(Clock sys0_clk, Reset sys0_rstn,
   interface Clock        p125clk = p125Clk;
   interface Reset        p125rst = p125Rst;
   method  led   =
-    {8'h42, 2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //16 leds are on active low alts4gx
-endmodule: mkFTop_altst4
+    ~{2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //8 leds are on active low htgs4
+endmodule: mkFTop_htgs4
