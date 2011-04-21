@@ -2,6 +2,7 @@
 // Copyright (c) 2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
+import AlteraExtra       ::*;
 import Config            ::*;
 import CTop              ::*;
 import OCWip             ::*;
@@ -23,17 +24,32 @@ import Vector            ::*;
 
 (* always_ready, always_enabled *)
 interface FTop_htgs4Ifc;
-  interface PCIE_EXP_ALT#(4) pcie;
-  interface Clock            p125clk;
-  interface Reset            p125rst;
+  //interface PCIE_EXP_ALT#(4) pcie;
+  interface Clock            p200clk;
+  interface Reset            p200rst;
   method Action              usr_sw (Bit#(8) i);
   method Bit#(8)             led;
 endinterface: FTop_htgs4Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn,
-                      Clock pcie_clk, Reset pcie_rstn)(FTop_htgs4Ifc);
+module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn
+                     //,Clock pcie_clk, Reset pcie_rstn)(FTop_htgs4Ifc);
+                                                    )(FTop_htgs4Ifc);
 
+  //Clock            p200Clk    <- clockFromLVDS(pairClocks(sys0_clkp, sys0_clkn));
+  Clock            p200Clk    =  sys0_clk;
+  Reset            p200Rst    =  sys0_rstn;
+
+  Reg#(Bit#(8))   swReg      <- mkReg(0, clocked_by p200Clk, reset_by p200Rst);
+  Reg#(Bit#(32))  freeCnt    <- mkReg(0, clocked_by p200Clk, reset_by p200Rst);
+
+  Bit#(1) swParity = parity(swReg);
+
+  rule freeCount;
+    freeCnt <= freeCnt + 1;
+  endrule
+
+  /*
   // Instance the wrapped, technology-specific PCIE core...
   PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("A4", pcie_clk, pcie_clk, pcie_rstn);
   Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
@@ -42,9 +58,13 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn,
 
   (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
 
+  */
+
   // Poly approach...
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
   // Static approach..
+
+  /* FIXME_Z1
 `ifdef USE_NDW1
   CTop4BIfc ctop <- mkCTop4B(pciDevice, sys0_clk, sys0_rstn, clocked_by p125Clk , reset_by p125Rst );
 `elsif USE_NDW4
@@ -66,6 +86,8 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn,
   WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
   PMEMMonitorIfc           pmemMonW8        <- mkPMEMMonitor(      clocked_by p125Clk , reset_by p125Rst );
   mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by p125Clk , reset_by p125Rst );  // Connect the wciMon to an event monitor
+
+  FIXME_Z1 */ 
   
   // WCI...
   //mkConnection(vWci[0], icap.wciS0);    // worker 8
@@ -74,8 +96,12 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn,
 
   // Interfaces and Methods provided...
   //FIXME interface PCI_EXP_ALT  pcie    = pciw.pcie;
-  interface Clock        p125clk = p125Clk;
-  interface Reset        p125rst = p125Rst;
+  interface Clock        p200clk = p200Clk;
+  interface Reset        p200rst = p200Rst;
+  method Action usr_sw (Bit#(8) i);
+    swReg <= i;
+  endmethod
   method  led   =
-    ~{2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //8 leds are on active low htgs4
+    //{2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; 
+    {~swParity, swParity, freeCnt[31:26]};
 endmodule: mkFTop_htgs4
