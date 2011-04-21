@@ -24,7 +24,7 @@ import Vector            ::*;
 
 (* always_ready, always_enabled *)
 interface FTop_htgs4Ifc;
-  //interface PCIE_EXP_ALT#(4) pcie;
+  interface PCIE_EXP_ALT#(4) pcie;
   interface Clock            p200clk;
   interface Reset            p200rst;
   method Action              usr_sw (Bit#(8) i);
@@ -32,16 +32,12 @@ interface FTop_htgs4Ifc;
 endinterface: FTop_htgs4Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn
-                     //,Clock pcie_clk, Reset pcie_rstn)(FTop_htgs4Ifc);
-                                                    )(FTop_htgs4Ifc);
+module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie_rstn)(FTop_htgs4Ifc);
 
-  //Clock            p200Clk    <- clockFromLVDS(pairClocks(sys0_clkp, sys0_clkn));
   Clock            p200Clk    =  sys0_clk;
   Reset            p200Rst    =  sys0_rstn;
-
-  Reg#(Bit#(8))   swReg      <- mkReg(0, clocked_by p200Clk, reset_by p200Rst);
-  Reg#(Bit#(32))  freeCnt    <- mkReg(0, clocked_by p200Clk, reset_by p200Rst);
+  Reg#(Bit#(8))    swReg      <- mkReg(0, clocked_by p200Clk, reset_by p200Rst);
+  Reg#(Bit#(32))   freeCnt    <- mkReg(0, clocked_by p200Clk, reset_by p200Rst);
 
   Bit#(1) swParity = parity(swReg);
 
@@ -49,16 +45,15 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn
     freeCnt <= freeCnt + 1;
   endrule
 
-  /*
   // Instance the wrapped, technology-specific PCIE core...
-  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("A4", pcie_clk, pcie_clk, pcie_rstn);
+  //PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("A4", pcie_clk, pcie_clk, pcie_rstn);
   Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
   Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
-  Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
 
-  (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
+  //Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
 
-  */
+  //(* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
+
 
   // Poly approach...
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
@@ -95,7 +90,7 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn
 
 
   // Interfaces and Methods provided...
-  //FIXME interface PCI_EXP_ALT  pcie    = pciw.pcie;
+  interface PCI_EXP_ALT  pcie    = pciw.pcie;
   interface Clock        p200clk = p200Clk;
   interface Reset        p200rst = p200Rst;
   method Action usr_sw (Bit#(8) i);

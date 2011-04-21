@@ -1448,7 +1448,6 @@ endmodule: vMkPCIExpressXilinxAXI
 
 
 // Altera Avalon-SX...
-// Note this uses the Altera MegaFunction Directly without the wrappers historically written for the Xilinx Core...
 import "BVI" pcie_hip_s4gx_gen2_x4_128_bviwrap =
 module vMkStratix4PCIExpress (PCIE_S4GX#(lanes))
    provisos(Add#(lanes, 0, 4));
