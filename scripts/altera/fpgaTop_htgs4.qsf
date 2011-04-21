@@ -32,11 +32,11 @@ set_global_assignment -name QIP_FILE fpgaTop_htgs4.qip
 #   output wire [ 7:0]  led,            // leds
 # );
 
-# FPGA_USER_RESET (active low) HTG_ssiegel
-#set_location_assignment PIN_V34 -to local_rstn_ex
+set_location_assignment PIN_AA35 -to sys0_clk     # 200 MHz LVDS
+set_location_assignment PIN_V34  -to sys0_rstn    # Sys Reset
 
-set_location_assignment PIN_AN38 -to refclk
-set_location_assignment PIN_N33  -to pcie_rstn
+set_location_assignment PIN_AN38 -to pcie_clk     # PCIE REFCLK
+set_location_assignment PIN_N33  -to pcie_rstn    # PCIE RESET
 set_location_assignment PIN_AU38 -to pcie_rx[0]
 set_location_assignment PIN_AR38 -to pcie_rx[1]
 set_location_assignment PIN_AJ38 -to pcie_rx[2]
@@ -70,9 +70,12 @@ set_location_assignment PIN_R27  -to led[5]
 set_location_assignment PIN_F34  -to led[6]
 set_location_assignment PIN_N28  -to led[7]
 
-set_instance_assignment -name IO_STANDARD HCSL      -to refclk
-set_instance_assignment -name INPUT_TERMINATION OFF -to refclk
-set_instance_assignment -name IO_STANDARD "2.5 V" -to local_rstn_ext
+set_instance_assignment -name IO_STANDARD HCSL      -to sys0_clk
+set_instance_assignment -name INPUT_TERMINATION OFF -to sys0_clk
+set_instance_assignment -name IO_STANDARD "2.5 V"   -to sys0_rstn
+
+set_instance_assignment -name IO_STANDARD HCSL      -to pcie_clk
+set_instance_assignment -name INPUT_TERMINATION OFF -to pcie_clk
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[0]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[1]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[2]
