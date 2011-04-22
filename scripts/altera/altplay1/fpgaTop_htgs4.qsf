@@ -39,7 +39,7 @@ set_global_assignment -name VERILOG_FILE mkFTop_htgs4.v
 # );
 
 set_location_assignment PIN_AB34  -to sys0_clk     # 200 MHz LVDS P
-set_location_assignment PIN_AA35  -to sys0_clk(n)  # 200 MHz LVDS N
+#set_location_assignment PIN_AA35  -to sys0_clk(n)  # 200 MHz LVDS N
 set_location_assignment PIN_V34   -to sys0_rstn    # Sys Reset
 
 #set_location_assignment PIN_AN38 -to pcie_clk     # PCIE REFCLK
@@ -79,7 +79,7 @@ set_location_assignment PIN_F34  -to led[6]
 set_location_assignment PIN_N28  -to led[7]
 
 set_instance_assignment -name IO_STANDARD LVDS      -to sys0_clk
-set_instance_assignment -name IO_STANDARD LVDS      -to sys0_clk(n)
+#set_instance_assignment -name IO_STANDARD LVDS      -to sys0_clk(n)
 set_instance_assignment -name INPUT_TERMINATION OFF -to sys0_clk
 set_instance_assignment -name IO_STANDARD "2.5 V"   -to sys0_rstn
 
