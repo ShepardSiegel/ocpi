@@ -887,7 +887,8 @@ endinterface
 interface PCIE_AVALONST;
    interface Clock       clk;
    interface Reset       usr_rst;
-   method    Bool        lnk_up;
+   method    Bool        alive;       // core is alive
+   method    Bool        lnk_up;      // Link-Up L0 status
 endinterface
 
 (* always_ready, always_enabled *)
@@ -1448,22 +1449,26 @@ endmodule: vMkPCIExpressXilinxAXI
 
 
 // Altera Avalon-SX...
-import "BVI" pcie_hip_s4gx_gen2_x4_128_bviwrap =
-module vMkStratix4PCIExpress (PCIE_S4GX#(lanes))
+import "BVI" pcie_hip_s4gx_gen2_x4_128_wrapper =
+module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) (PCIE_S4GX#(lanes))
    provisos(Add#(lanes, 0, 4));
 
-   default_clock clk(refclk);
-   default_reset rstn(pcie_rstn);
-   //TODO: Handle local_rstn signal
+   default_clock no_clock;  // No default clock or reset in this vMk module...
+   default_reset no_reset;
+   input_clock (sys0_clk)  = sclk;
+   input_reset pcie_rstn() = prstn;
+   input_clock (pcie_clk)  = pclk;
+   input_reset sys0_rstn() = srstn;
 
    interface PCIE_EXP_ALT pcie;
-      method                            rx(rx_in)  enable((*inhigh*)en00)  reset_by(no_reset);
-      method tx_out                     tx                                 reset_by(no_reset);
+      method                            rx(pcie_rx_in)  enable((*inhigh*)en00)  reset_by(no_reset);
+      method pcie_tx_out                tx                                      reset_by(no_reset);
    endinterface
 
    interface PCIE_AVALONST ava;
-      output_clock                      clk(core_clk_out);
-      output_reset                      usr_rst(srstn)                      clocked_by(ava_clk);
+      output_clock                      clk(ava_core_clk_out);
+      output_reset                      usr_rst(ava_srstn)                  clocked_by(ava_clk);
+      method ava_alive                  alive                               clocked_by(no_clock) reset_by(no_reset); 
       method ava_lnk_up                 lnk_up                              clocked_by(no_clock) reset_by(no_reset); 
    endinterface
 
@@ -1895,6 +1900,29 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    */
 
 endmodule: mkPCIExpressEndpointX6
+
+
+////////////////////////////////////////////////////////////////////////////////
+///
+/// Implementation - Altera S4 GX - Avalon-ST Interface
+///
+////////////////////////////////////////////////////////////////////////////////
+module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prstn)(PCIE_S4GX#(lanes))
+  provisos(Add#(lanes, 0, 4));
+
+  PCIE_S4GX#(4)     pcie_ep    <- vMkStratix4PCIExpress(sclk, srstn, pclk, prstn);
+
+  interface pcie = pcie_ep.pcie;
+
+  interface PCIE_AVALONST ava;
+    interface Clock clk     = pcie_ep.ava.clk;
+    interface Reset usr_rst = pcie_ep.ava.usr_rst;
+    method    Bool  alive   = pcie_ep.ava.alive;
+    method    Bool  lnk_up  = pcie_ep.ava.lnk_up;
+  endinterface
+
+
+endmodule: mkPCIExpressEndpointS4GX
 
 
 

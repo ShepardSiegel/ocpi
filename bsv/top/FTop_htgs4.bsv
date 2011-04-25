@@ -47,8 +47,16 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
 
   // Instance the wrapped, technology-specific PCIE core...
   //PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("A4", pcie_clk, pcie_clk, pcie_rstn);
-  Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
-  Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
+
+  PCIE_S4GX#(4) pciw <- mkPCIExpressEndpointS4GX(sys0_clk, sys0_rstn, pcie_clk, pcie_rstn);
+  Clock            p125Clk    =  pciw.ava.clk;      // Nominal 125 MHz clock domain
+  Reset            p125Rst    =  pciw.ava.usr_rst;  // Reset for p125 domain
+
+  SyncBitIfc#(Bit#(1)) aliveLed_sb  <- mkSyncBit(p125Clk, p125Rst, p200Clk);
+  SyncBitIfc#(Bit#(1)) linkLed_sb   <- mkSyncBit(p125Clk, p125Rst, p200Clk);
+
+  rule assign_alive; aliveLed_sb.send(pack(pciw.ava.alive)); endrule
+  rule assign_link;  linkLed_sb.send(pack(pciw.ava.lnk_up)); endrule
 
   //Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
 
@@ -90,7 +98,7 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
 
 
   // Interfaces and Methods provided...
-  interface PCI_EXP_ALT  pcie    = pciw.pcie;
+//  interface PCI_EXP_ALT  pcie    = pciw.pcie;
   interface Clock        p200clk = p200Clk;
   interface Reset        p200rst = p200Rst;
   method Action usr_sw (Bit#(8) i);
@@ -98,5 +106,5 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
   endmethod
   method  led   =
     //{2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; 
-    {~swParity, swParity, freeCnt[31:26]};
+    {~swParity, swParity, aliveLed_sb.read, linkLed_sb.read, freeCnt[29:26]};
 endmodule: mkFTop_htgs4
