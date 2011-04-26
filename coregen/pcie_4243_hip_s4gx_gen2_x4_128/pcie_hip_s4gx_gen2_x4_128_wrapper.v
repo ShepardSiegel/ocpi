@@ -10,8 +10,8 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
 
   input  wire         pcie_clk,             // PCIe 100 MHz reference
   input  wire         pcie_rstn,            // PCIe Active-Low Reset 
-  input  wire [7:0]   pcie_rx_in,           // PCIe RX SERDES
-  output wire [7:0]   pcie_tx_out,          // PCIe TX SERDES
+  input  wire [3:0]   pcie_rx_in,           // PCIe RX SERDES
+  output wire [3:0]   pcie_tx_out,          // PCIe TX SERDES
 
   output wire         ava_core_clk_out,     // Avalon 125 MHz clock out
   output wire         ava_srstn,            // Avalon Active-Low Reset
@@ -256,9 +256,9 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
         end else begin
           alive_cnt <= alive_cnt +1;
           alive_led <= alive_cnt[24];
-          L0_led    <= ~(test_out_icm[4 : 0] == 5'b01111);
-          //comp_led  <= ~(test_out_icm[4 : 0] == 5'b00011);
-          //lane_active_led[3 : 0] <= ~(test_out_icm[8 : 5]);
+          L0_led    <= (test_out_icm[4 : 0] == 5'b01111);
+          //comp_led  <= (test_out_icm[4 : 0] == 5'b00011);
+          //lane_active_led[3 : 0] <= (test_out_icm[8 : 5]);
         end
     end
   end
@@ -289,10 +289,10 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   // These next three modules have been copied into the local dir and may be edited
 
   // (level:1) codes...
-  altpcierd_reconfig_clk_pll reconfig_pll (
-      .c0     (reconfig_clk),
-      .c1     (fixedclk_serdes),
-      .inclk0 (sys0_clk),   // was 100 MHz, now 200 MHz, added divider inside
+  pll1 reconfig_pll (   
+      .c0     (reconfig_clk),        //  50 MHz
+      .c1     (fixedclk_serdes),     // 125 MHz
+      .inclk0 (sys0_clk),            // 200 MHz in
       .locked (reconfig_clk_locked)
     );
 

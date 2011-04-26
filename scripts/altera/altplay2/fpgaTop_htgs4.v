@@ -7,8 +7,8 @@ module fpgaTop (
   input  wire         sys0_rstn,     // External active-low reset 
   input  wire         pcie_clk,      // PCIe Clock
   input  wire         pcie_rstn,     // PCIe Reset
-  input  wire [ 7:0]  pcie_rx,       // PCIe lanes...
-  output wire [ 7:0]  pcie_tx,
+  input  wire [ 3:0]  pcie_rx,       // PCIe lanes...
+  output wire [ 3:0]  pcie_tx,
   input  wire [ 7:0]  usr_sw,        // dip-switches
   output wire [ 7:0]  led            // leds
 );

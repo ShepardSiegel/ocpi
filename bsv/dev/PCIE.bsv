@@ -542,11 +542,24 @@ interface PCIE_EXP#(numeric type lanes);
    method    Bit#(lanes) txn;
 endinterface: PCIE_EXP
 
+// Altera may not handle bit-vectors of differential signals...
 (* always_ready, always_enabled *)
 interface PCIE_EXP_ALT#(numeric type lanes);
    method    Action      rx(Bit#(lanes) i);
    method    Bit#(lanes) tx;
 endinterface: PCIE_EXP_ALT
+
+(* always_ready, always_enabled *)
+interface PCIE_EXP_ALT4;
+   method    Action  rx0(Bit#(1) i);
+   method    Action  rx1(Bit#(1) i);
+   method    Action  rx2(Bit#(1) i);
+   method    Action  rx3(Bit#(1) i);
+   method    Bit#(1) tx0;
+   method    Bit#(1) tx1;
+   method    Bit#(1) tx2;
+   method    Bit#(1) tx3;
+endinterface: PCIE_EXP_ALT4
 
 (* always_ready, always_enabled *)
 interface PCIE_CFG;
@@ -957,6 +970,7 @@ endinterface: PCIE_X6
 
 interface PCIE_S4GX#(numeric type lanes);  // Altera Stratix4-GX
    interface PCIE_EXP_ALT#(lanes) pcie;
+   //interface PCIE_EXP_ALT pcie;
    interface PCIE_AVALONST        ava;
    interface PCIE_AVALONST_RX     ava_rx;
    interface PCIE_AVALONST_TX     ava_tx;
@@ -1453,12 +1467,10 @@ import "BVI" pcie_hip_s4gx_gen2_x4_128_wrapper =
 module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) (PCIE_S4GX#(lanes))
    provisos(Add#(lanes, 0, 4));
 
-   default_clock no_clock;  // No default clock or reset in this vMk module...
-   default_reset no_reset;
-   input_clock (sys0_clk)  = sclk;
-   input_reset pcie_rstn() = prstn;
-   input_clock (pcie_clk)  = pclk;
-   input_reset sys0_rstn() = srstn;
+   input_clock sclk    (sys0_clk)                   = sclk;
+   input_reset srstn   (sys0_rstn) clocked_by(sclk) = srstn;
+   default_clock       (pcie_clk)  = pclk;
+   default_reset prstn (pcie_rstn) = prstn;
 
    interface PCIE_EXP_ALT pcie;
       method                            rx(pcie_rx_in)  enable((*inhigh*)en00)  reset_by(no_reset);

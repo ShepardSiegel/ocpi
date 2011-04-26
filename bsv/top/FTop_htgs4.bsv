@@ -98,7 +98,7 @@ module mkFTop_htgs4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
 
 
   // Interfaces and Methods provided...
-//  interface PCI_EXP_ALT  pcie    = pciw.pcie;
+  interface PCI_EXP_ALT  pcie    = pciw.pcie;
   interface Clock        p200clk = p200Clk;
   interface Reset        p200rst = p200Rst;
   method Action usr_sw (Bit#(8) i);
