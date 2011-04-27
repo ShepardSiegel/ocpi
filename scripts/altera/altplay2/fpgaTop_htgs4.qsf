@@ -5,9 +5,9 @@ set_global_assignment -name FAMILY "Stratix IV"
 set_global_assignment -name DEVICE EP4SGX360KF40C2
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "10.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:29:49  FEBRUARY 11, 2011"
-set_global_assignment -name LAST_QUARTUS_VERSION 10.1
+set_global_assignment -name LAST_QUARTUS_VERSION "10.1 SP1"
 set_global_assignment -name SEARCH_PATH ../../coregen/pcie_4243_hip_s4gx_gen2_x4_128
-set_global_assignment -name SEARCH_PATH ../../coregen/pcie_4243_hip_s4gx_gen2_x4_128/pci_express_compiler-library
+set_global_assignment -name SEARCH_PATH "../../coregen/pcie_4243_hip_s4gx_gen2_x4_128/pci_express_compiler-library"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
@@ -23,17 +23,25 @@ set_global_assignment -name SDC_FILE fpgaTop_htgs4.sdc
 #set_global_assignment -name QIP_FILE fpgaTop_htgs4.qip
 
 set_global_assignment -name TOP_LEVEL_ENTITY fpgaTop
-set_global_assignment -name VERILOG_FILE fpgaTop_htgs4.v 
+set_global_assignment -name VERILOG_FILE fpgaTop_htgs4.v
 set_global_assignment -name VERILOG_FILE mkFTop_htgs4.v
 set_global_assignment -name VERILOG_FILE SyncBit.v
 set_global_assignment -name VERILOG_FILE pcie_hip_s4gx_gen2_x4_128_wrapper.v
+set_global_assignment -name VERILOG_FILE pcie_hip_s4gx_gen2_x4_128.v
+set_global_assignment -name VERILOG_FILE pcie_hip_s4gx_gen2_x4_128_core.v
+set_global_assignment -name VERILOG_FILE pcie_hip_s4gx_gen2_x4_128_serdes.v
 set_global_assignment -name VERILOG_FILE pll1.v
+set_global_assignment -name VERILOG_FILE pcie_hip_s4gx_gen2_x4_128_rs_hip.v
+set_global_assignment -name VERILOG_FILE altpcierd_tl_cfg_sample.v
+set_global_assignment -name VERILOG_FILE altpcierd_cplerr_lmi.v
+set_global_assignment -name VERILOG_FILE altpcie_reconfig_4sgx.v
+set_global_assignment -name VERILOG_FILE altpcie_rs_serdes.v
 
-set_location_assignment PIN_AB34  -to sys0_clk     # 200 MHz LVDS P
-set_location_assignment PIN_V34   -to sys0_rstn    # Sys Reset
+set_location_assignment PIN_AB34 -to sys0_clk
+set_location_assignment PIN_V34 -to sys0_rstn
 
-set_location_assignment PIN_AN38 -to pcie_clk     # PCIE REFCLK
-set_location_assignment PIN_N33  -to pcie_rstn    # PCIE RESET
+set_location_assignment PIN_AN38 -to pcie_clk
+set_location_assignment PIN_N33 -to pcie_rstn
 set_location_assignment PIN_AU38 -to pcie_rx[0]
 set_location_assignment PIN_AR38 -to pcie_rx[1]
 set_location_assignment PIN_AJ38 -to pcie_rx[2]
@@ -51,28 +59,28 @@ set_location_assignment PIN_AF36 -to pcie_tx[3]
 #set_location_assignment PIN_T36  -to pcie_tx[6]
 #set_location_assignment PIN_P36  -to pcie_tx[7]
 
-set_location_assignment PIN_T27  -to usr_sw[0]
-set_location_assignment PIN_H34  -to usr_sw[1]
-set_location_assignment PIN_J33  -to usr_sw[2]
-set_location_assignment PIN_K32  -to usr_sw[3]
-set_location_assignment PIN_L31  -to usr_sw[4]
-set_location_assignment PIN_M31  -to usr_sw[5]
-set_location_assignment PIN_N29  -to usr_sw[6]
-set_location_assignment PIN_N30  -to usr_sw[7]
-set_location_assignment PIN_D33  -to led[0]
-set_location_assignment PIN_C34  -to led[1]
-set_location_assignment PIN_M28  -to led[2]
-set_location_assignment PIN_D34  -to led[3]
-set_location_assignment PIN_E34  -to led[4]
-set_location_assignment PIN_R27  -to led[5]
-set_location_assignment PIN_F34  -to led[6]
-set_location_assignment PIN_N28  -to led[7]
+set_location_assignment PIN_T27 -to usr_sw[0]
+set_location_assignment PIN_H34 -to usr_sw[1]
+set_location_assignment PIN_J33 -to usr_sw[2]
+set_location_assignment PIN_K32 -to usr_sw[3]
+set_location_assignment PIN_L31 -to usr_sw[4]
+set_location_assignment PIN_M31 -to usr_sw[5]
+set_location_assignment PIN_N29 -to usr_sw[6]
+set_location_assignment PIN_N30 -to usr_sw[7]
+set_location_assignment PIN_D33 -to led[0]
+set_location_assignment PIN_C34 -to led[1]
+set_location_assignment PIN_M28 -to led[2]
+set_location_assignment PIN_D34 -to led[3]
+set_location_assignment PIN_E34 -to led[4]
+set_location_assignment PIN_R27 -to led[5]
+set_location_assignment PIN_F34 -to led[6]
+set_location_assignment PIN_N28 -to led[7]
 
-set_instance_assignment -name IO_STANDARD LVDS      -to sys0_clk
+set_instance_assignment -name IO_STANDARD LVDS -to sys0_clk
 set_instance_assignment -name INPUT_TERMINATION OFF -to sys0_clk
-set_instance_assignment -name IO_STANDARD "2.5 V"   -to sys0_rstn
+set_instance_assignment -name IO_STANDARD "2.5 V" -to sys0_rstn
 
-set_instance_assignment -name IO_STANDARD HCSL      -to pcie_clk
+set_instance_assignment -name IO_STANDARD HCSL -to pcie_clk
 set_instance_assignment -name INPUT_TERMINATION OFF -to pcie_clk
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[0]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[1]
@@ -126,3 +134,9 @@ set_instance_assignment -name SLEW_RATE 0 -to led[5]
 set_instance_assignment -name SLEW_RATE 0 -to led[6]
 set_instance_assignment -name SLEW_RATE 0 -to led[7]
 
+
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
