@@ -128,7 +128,7 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   wire    [ 11: 0] cfg_np_bas;
   wire    [ 43: 0] cfg_pr_bas;
   wire    [ 31: 0] cfg_prmcsr_icm;
-  wire    [  2: 0] cpl_err = 3'b000;
+  wire    [  6: 0] cpl_err = 7'b0000000;
   wire             cpl_pending = 1'b0;
   wire    [  6: 0] cpl_err_icm;
   wire    [  6: 0] cpl_err_in;
