@@ -38,10 +38,10 @@ set_global_assignment -name VERILOG_FILE altpcie_reconfig_4sgx.v
 set_global_assignment -name VERILOG_FILE altpcie_rs_serdes.v
 
 set_location_assignment PIN_AB34 -to sys0_clk
-set_location_assignment PIN_V34 -to sys0_rstn
+set_location_assignment PIN_V34  -to sys0_rstn
 
-set_location_assignment PIN_AN38 -to pcie_clk
-set_location_assignment PIN_N33 -to pcie_rstn
+set_location_assignment PIN_AN38 -to pcie_clk    # 100 MHz PCIe refclk from U29 jitter atten (DIV5)
+set_location_assignment PIN_AG24 -to pcie_rstn   # active-low primary reset input from PCIe
 set_location_assignment PIN_AU38 -to pcie_rx[0]
 set_location_assignment PIN_AR38 -to pcie_rx[1]
 set_location_assignment PIN_AJ38 -to pcie_rx[2]
@@ -76,12 +76,13 @@ set_location_assignment PIN_R27 -to led[5]
 set_location_assignment PIN_F34 -to led[6]
 set_location_assignment PIN_N28 -to led[7]
 
-set_instance_assignment -name IO_STANDARD LVDS -to sys0_clk
+set_instance_assignment -name IO_STANDARD LVDS      -to sys0_clk
 set_instance_assignment -name INPUT_TERMINATION OFF -to sys0_clk
-set_instance_assignment -name IO_STANDARD "2.5 V" -to sys0_rstn
+set_instance_assignment -name IO_STANDARD "2.5 V"   -to sys0_rstn
 
-set_instance_assignment -name IO_STANDARD HCSL -to pcie_clk
-set_instance_assignment -name INPUT_TERMINATION OFF -to pcie_clk
+set_instance_assignment -name IO_STANDARD HCSL         -to pcie_clk
+set_instance_assignment -name INPUT_TERMINATION OFF    -to pcie_clk
+set_instance_assignment -name IO_STANDARD "2.5 V"      -to pcie_rstn
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[0]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[1]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[2]
@@ -135,8 +136,112 @@ set_instance_assignment -name SLEW_RATE 0 -to led[6]
 set_instance_assignment -name SLEW_RATE 0 -to led[7]
 
 
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+set_global_assignment -name SIGNALTAP_FILE stp1.stp
+set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name USE_SIGNALTAP_FILE stp3.stp
+set_global_assignment -name SIGNALTAP_FILE stp3.stp
+set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|core_clk_out" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=M9K" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=805334528" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=128" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ATTRIBUTE_MEM_MODE=OFF" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_FLOW_USE_GENERATED=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_BITS=11" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BUFFER_FULL_STOP=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_CURRENT_RESOURCE_WIDTH=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=128" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "mkFTop_htgs4:ftop|freeCnt[0]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "mkFTop_htgs4:ftop|freeCnt[10]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "mkFTop_htgs4:ftop|freeCnt[11]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "mkFTop_htgs4:ftop|freeCnt[12]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "mkFTop_htgs4:ftop|freeCnt[13]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "mkFTop_htgs4:ftop|freeCnt[14]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "mkFTop_htgs4:ftop|freeCnt[15]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "mkFTop_htgs4:ftop|freeCnt[16]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "mkFTop_htgs4:ftop|freeCnt[17]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "mkFTop_htgs4:ftop|freeCnt[18]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "mkFTop_htgs4:ftop|freeCnt[19]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "mkFTop_htgs4:ftop|freeCnt[1]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[12] -to "mkFTop_htgs4:ftop|freeCnt[20]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[13] -to "mkFTop_htgs4:ftop|freeCnt[21]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[14] -to "mkFTop_htgs4:ftop|freeCnt[22]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[15] -to "mkFTop_htgs4:ftop|freeCnt[23]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[16] -to "mkFTop_htgs4:ftop|freeCnt[24]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[17] -to "mkFTop_htgs4:ftop|freeCnt[25]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[18] -to "mkFTop_htgs4:ftop|freeCnt[26]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[19] -to "mkFTop_htgs4:ftop|freeCnt[27]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[20] -to "mkFTop_htgs4:ftop|freeCnt[28]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[21] -to "mkFTop_htgs4:ftop|freeCnt[29]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[22] -to "mkFTop_htgs4:ftop|freeCnt[2]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[23] -to "mkFTop_htgs4:ftop|freeCnt[30]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[24] -to "mkFTop_htgs4:ftop|freeCnt[31]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[25] -to "mkFTop_htgs4:ftop|freeCnt[3]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[26] -to "mkFTop_htgs4:ftop|freeCnt[4]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[27] -to "mkFTop_htgs4:ftop|freeCnt[5]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[28] -to "mkFTop_htgs4:ftop|freeCnt[6]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[29] -to "mkFTop_htgs4:ftop|freeCnt[7]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[30] -to "mkFTop_htgs4:ftop|freeCnt[8]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[31] -to "mkFTop_htgs4:ftop|freeCnt[9]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[32] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[0]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[33] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[1]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[34] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[2]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[35] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[3]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[36] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[4]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to "mkFTop_htgs4:ftop|freeCnt[0]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to "mkFTop_htgs4:ftop|freeCnt[10]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "mkFTop_htgs4:ftop|freeCnt[11]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "mkFTop_htgs4:ftop|freeCnt[12]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "mkFTop_htgs4:ftop|freeCnt[13]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "mkFTop_htgs4:ftop|freeCnt[14]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "mkFTop_htgs4:ftop|freeCnt[15]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "mkFTop_htgs4:ftop|freeCnt[16]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "mkFTop_htgs4:ftop|freeCnt[17]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "mkFTop_htgs4:ftop|freeCnt[18]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "mkFTop_htgs4:ftop|freeCnt[19]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "mkFTop_htgs4:ftop|freeCnt[1]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "mkFTop_htgs4:ftop|freeCnt[20]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "mkFTop_htgs4:ftop|freeCnt[21]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[14] -to "mkFTop_htgs4:ftop|freeCnt[22]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[15] -to "mkFTop_htgs4:ftop|freeCnt[23]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[16] -to "mkFTop_htgs4:ftop|freeCnt[24]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[17] -to "mkFTop_htgs4:ftop|freeCnt[25]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[18] -to "mkFTop_htgs4:ftop|freeCnt[26]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[19] -to "mkFTop_htgs4:ftop|freeCnt[27]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[20] -to "mkFTop_htgs4:ftop|freeCnt[28]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[21] -to "mkFTop_htgs4:ftop|freeCnt[29]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[22] -to "mkFTop_htgs4:ftop|freeCnt[2]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[23] -to "mkFTop_htgs4:ftop|freeCnt[30]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[24] -to "mkFTop_htgs4:ftop|freeCnt[31]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[25] -to "mkFTop_htgs4:ftop|freeCnt[3]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[26] -to "mkFTop_htgs4:ftop|freeCnt[4]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[27] -to "mkFTop_htgs4:ftop|freeCnt[5]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[28] -to "mkFTop_htgs4:ftop|freeCnt[6]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[29] -to "mkFTop_htgs4:ftop|freeCnt[7]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[30] -to "mkFTop_htgs4:ftop|freeCnt[8]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[31] -to "mkFTop_htgs4:ftop|freeCnt[9]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[32] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[0]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[33] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[1]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[34] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[2]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[35] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[3]" -section_id auto_signaltap_0
+set_instance_assignment -name POST_FIT_CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[36] -to "mkFTop_htgs4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pcie_ep|pcie_hip_s4gx_gen2_x4_128:epmap|pcie_hip_s4gx_gen2_x4_128_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|dl_ltssm[4]" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=37" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=37" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=132" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=23882" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=24418" -section_id auto_signaltap_0
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

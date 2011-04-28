@@ -547,6 +547,8 @@ endinterface: PCIE_EXP
 interface PCIE_EXP_ALT#(numeric type lanes);
    method    Action      rx(Bit#(lanes) i);
    method    Bit#(lanes) tx;
+   //method    Action      prsnt(Bool i);
+   //method    Bool        waken;
 endinterface: PCIE_EXP_ALT
 
 (* always_ready, always_enabled *)
@@ -1473,8 +1475,10 @@ module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) 
    default_reset prstn (pcie_rstn) = prstn;
 
    interface PCIE_EXP_ALT pcie;
-      method                            rx(pcie_rx_in)  enable((*inhigh*)en00)  reset_by(no_reset);
-      method pcie_tx_out                tx                                      reset_by(no_reset);
+      method                            rx(pcie_rx_in)     enable((*inhigh*)en00)  reset_by(no_reset);
+      method pcie_tx_out                tx                                         reset_by(no_reset);
+      //method                            prsnt(pcie_prsnt)  enable((*inhigh*)en01)  reset_by(no_reset);
+      //method pcie_waken                 waken                                      reset_by(no_reset);
    endinterface
 
    interface PCIE_AVALONST ava;
@@ -1923,6 +1927,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   provisos(Add#(lanes, 0, 4));
 
   PCIE_S4GX#(4)     pcie_ep    <- vMkStratix4PCIExpress(sclk, srstn, pclk, prstn);
+
+  //rule no_wake; pcie_ep.pcie.waken <= (True); endrule // Keep waken sigbal de-asserted
 
   interface pcie = pcie_ep.pcie;
 
