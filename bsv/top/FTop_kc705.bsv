@@ -29,23 +29,39 @@ import Vector            ::*;
 import XilinxCells       ::*;
 
 interface FTop_kc705Ifc;
-  interface PCIE_EXP#(4)           pcie;
-  interface Clock                  p125clk;
-  interface Reset                  p125rst;
-  (*always_ready*) method Bit#(13) led;
-  interface GPSIfc                 gps;
-  interface FLASH_IO#(24,16)       flash;
-  interface Clock                  rxclk;    // GMII assocaited Clock
-  interface Reset                  mrst_n;   // GMII associated Reset
-  interface GMII                   gmii;     // The GMII link
+  //interface PCIE_EXP#(4)           pcie;
+  interface Clock              p200clk;
+  interface Reset              p200rst;
+  method Action                usr_sw (Bit#(8) i);
+  method Bit#(8)               led;
+  method Bit#(32)              debug;
+  //interface GPSIfc                 gps;
+  //interface FLASH_IO#(24,16)       flash;
+  //interface Clock                  rxclk;    // GMII assocaited Clock
+  //interface Reset                  mrst_n;   // GMII associated Reset
+  //interface GMII                   gmii;     // The GMII link
 endinterface: FTop_kc705Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn,
-                     Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
-                     Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTop_kc705Ifc);
+module mkFTop_kc705#(Clock sys0_clk, Reset sys0_rstn) (FTop_kc705Ifc);
+                    // Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
+                    // Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTop_kc705Ifc);
+
+  Clock            p200Clk    =  sys0_clk;
+  Reset            p200Rst    =  sys0_rstn;
+  Reg#(Bit#(8))    swReg      <- mkReg(0, clocked_by p200Clk, reset_by p200Rst);
+  Reg#(Bit#(32))   freeCnt    <- mkReg(0, clocked_by p200Clk, reset_by p200Rst);
+
+  Bit#(1) swParity = parity(swReg);
+
+  rule freeCount;
+    freeCnt <= freeCnt + 1;
+  endrule
+
+
 
   // Instance the wrapped, technology-specific PCIE core...
+  /*
   PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("X7", pci0_clkp, pci0_clkn, pci0_rstn);
   Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
   Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
@@ -59,6 +75,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn,
 
   (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
 
+
   // Poly approach...
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
   // Static approach..
@@ -69,6 +86,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn,
 `endif
    
   mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
+ 
 
   ReadOnly#(Bit#(2)) infLed    <- mkNullCrossingWire(noClock, ctop.led);
 
@@ -99,17 +117,21 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn,
 
   // Wmemi...
   //mkConnection(ctop.wmemiM0, dram0.wmemiS0);
+  */
 
   // Interfaces and Methods provided...
-  interface PCI_EXP  pcie    = pciw.pcie;
-  interface Clock    p125clk = p125Clk;
-  interface Reset    p125rst = p125Rst;
-  method  led   =
-    {5'b10100, 2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
-  interface GPSIfc   gps     = ctop.gps;
-  interface FLASH_IO flash   = flash0.flash;
-  interface Clock    rxclk   = gbe0.rxclk;
-  interface Reset    mrst_n  = gbe0.mrst_n;
-  interface GMII     gmii    = gbe0.gmii;
+  //interface PCI_EXP  pcie    = pciw.pcie;
+
+  interface Clock        p200clk = p200Clk;
+  interface Reset        p200rst = p200Rst;
+  method Action usr_sw (Bit#(8) i); swReg <= i; endmethod
+  method  led    = swReg;
+  method  debug  = freeCnt;
+
+  //interface GPSIfc   gps     = ctop.gps;
+  //interface FLASH_IO flash   = flash0.flash;
+  //interface Clock    rxclk   = gbe0.rxclk;
+  //interface Reset    mrst_n  = gbe0.mrst_n;
+  //interface GMII     gmii    = gbe0.gmii;
 endmodule: mkFTop_kc705
 
