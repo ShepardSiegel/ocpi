@@ -1,1 +1,0 @@
-Info (10281): Verilog HDL Declaration information at altpcierd_cdma_ast_tx_128.v(61): object "TXFIFO_ALMOST_FULL" differs only in case from object "txfifo_almost_full" in the same scope
