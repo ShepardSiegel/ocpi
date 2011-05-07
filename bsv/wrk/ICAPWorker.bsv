@@ -5,6 +5,7 @@ import Accum::*;
 import ICAP::*;
 import OCWip::*;
 import SRLFIFO::*;
+import DNA::*;
 
 import Alias::*;
 import AlignedFIFOs::*;
@@ -44,6 +45,8 @@ module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICA
 
   Reg#(Bit#(32))              inCnt       <- mkSyncRegToCC(0, cd.slowClock, slowReset);
   Reg#(Bit#(32))              outCnt      <- mkSyncRegToCC(0, cd.slowClock, slowReset);
+
+  DNAIfc                      dna         <- mkDNA;
 
 
   Bool writeICAP  = unpack(icapCtrl[0]);
@@ -92,6 +95,8 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h00 : rdat = pack(icapStatus);
      'h04 : rdat = pack(icapCtrl);
      'h0C : begin rdat = pack(coutF.first); coutF.deq; end
+     'h10 : begin rdat = truncate(dna.deviceID); end
+     'h14 : begin rdat = truncate(dna.deviceID>>32); end
      'h40 : rdat = !hasDebugLogic ? 0 : pack(dwWritten);
      'h44 : rdat = !hasDebugLogic ? 0 : pack(dwRead);
      'h48 : rdat = !hasDebugLogic ? 0 : pack(inCnt);
