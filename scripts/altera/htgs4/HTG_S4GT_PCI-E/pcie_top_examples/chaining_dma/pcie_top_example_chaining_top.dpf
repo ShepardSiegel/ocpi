@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<pin_planner>
+	<pin_info>
+		<pin name="refclk" direction="Input" source="Hierarchy Database" diff_pair_node="refclk(n)" >
+		</pin>
+		<pin name="rx_in0" direction="Input" source="Hierarchy Database" diff_pair_node="rx_in0(n)" >
+		</pin>
+		<pin name="rx_in1" direction="Input" source="Hierarchy Database" diff_pair_node="rx_in1(n)" >
+		</pin>
+		<pin name="rx_in2" direction="Input" source="Hierarchy Database" diff_pair_node="rx_in2(n)" >
+		</pin>
+		<pin name="rx_in3" direction="Input" source="Hierarchy Database" diff_pair_node="rx_in3(n)" >
+		</pin>
+		<pin name="rx_in4" direction="Input" source="Hierarchy Database" diff_pair_node="rx_in4(n)" >
+		</pin>
+		<pin name="rx_in5" direction="Input" source="Hierarchy Database" diff_pair_node="rx_in5(n)" >
+		</pin>
+		<pin name="rx_in6" direction="Input" source="Hierarchy Database" diff_pair_node="rx_in6(n)" >
+		</pin>
+		<pin name="rx_in7" direction="Input" source="Hierarchy Database" diff_pair_node="rx_in7(n)" >
+		</pin>
+		<pin name="tx_out0" direction="Output" source="Hierarchy Database" diff_pair_node="tx_out0(n)" >
+		</pin>
+		<pin name="tx_out1" direction="Output" source="Hierarchy Database" diff_pair_node="tx_out1(n)" >
+		</pin>
+		<pin name="tx_out2" direction="Output" source="Hierarchy Database" diff_pair_node="tx_out2(n)" >
+		</pin>
+		<pin name="tx_out3" direction="Output" source="Hierarchy Database" diff_pair_node="tx_out3(n)" >
+		</pin>
+		<pin name="tx_out4" direction="Output" source="Hierarchy Database" diff_pair_node="tx_out4(n)" >
+		</pin>
+		<pin name="tx_out5" direction="Output" source="Hierarchy Database" diff_pair_node="tx_out5(n)" >
+		</pin>
+		<pin name="tx_out6" direction="Output" source="Hierarchy Database" diff_pair_node="tx_out6(n)" >
+		</pin>
+		<pin name="tx_out7" direction="Output" source="Hierarchy Database" diff_pair_node="tx_out7(n)" >
+		</pin>
+		<pin name="rx_in0(n)" source="Assignments" diff_pair_node="rx_in0" >
+		</pin>
+		<pin name="rx_in1(n)" source="Assignments" diff_pair_node="rx_in1" >
+		</pin>
+		<pin name="rx_in2(n)" source="Assignments" diff_pair_node="rx_in2" >
+		</pin>
+		<pin name="rx_in3(n)" source="Assignments" diff_pair_node="rx_in3" >
+		</pin>
+		<pin name="rx_in4(n)" source="Assignments" diff_pair_node="rx_in4" >
+		</pin>
+		<pin name="rx_in5(n)" source="Assignments" diff_pair_node="rx_in5" >
+		</pin>
+		<pin name="rx_in6(n)" source="Assignments" diff_pair_node="rx_in6" >
+		</pin>
+		<pin name="rx_in7(n)" source="Assignments" diff_pair_node="rx_in7" >
+		</pin>
+		<pin name="tx_out0(n)" source="Assignments" diff_pair_node="tx_out0" >
+		</pin>
+		<pin name="tx_out1(n)" source="Assignments" diff_pair_node="tx_out1" >
+		</pin>
+		<pin name="tx_out2(n)" source="Assignments" diff_pair_node="tx_out2" >
+		</pin>
+		<pin name="tx_out3(n)" source="Assignments" diff_pair_node="tx_out3" >
+		</pin>
+		<pin name="tx_out4(n)" source="Assignments" diff_pair_node="tx_out4" >
+		</pin>
+		<pin name="tx_out5(n)" source="Assignments" diff_pair_node="tx_out5" >
+		</pin>
+		<pin name="tx_out6(n)" source="Assignments" diff_pair_node="tx_out6" >
+		</pin>
+		<pin name="tx_out7(n)" source="Assignments" diff_pair_node="tx_out7" >
+		</pin>
+		<pin name="refclk(n)" source="Assignments" diff_pair_node="refclk" >
+		</pin>
+	</pin_info>
+	<buses>
+	</buses>
+	<group_file_association>
+	</group_file_association>
+	<pin_planner_file_specifies>
+	</pin_planner_file_specifies>
+</pin_planner>

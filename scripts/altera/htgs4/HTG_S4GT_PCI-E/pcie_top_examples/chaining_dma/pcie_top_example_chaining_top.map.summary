@@ -1,0 +1,20 @@
+Analysis & Synthesis Status : Successful - Fri Apr 29 05:16:27 2011
+Quartus II Version : 10.1 Build 197 01/19/2011 SP 1 SJ Full Version
+Revision Name : pcie_top_example_chaining_top
+Top-level Entity Name : pcie_top_example_chaining_top
+Family : Stratix IV
+Logic utilization : N/A
+    Combinational ALUTs : 3,990
+    Memory ALUTs : 0
+    Dedicated logic registers : 5,309
+Total registers : 5309
+Total pins : 37
+Total virtual pins : 0
+Total block memory bits : 716,392
+DSP block 18-bit elements : 0
+Total GXB Receiver Channel PCS : 8
+Total GXB Receiver Channel PMA : 8
+Total GXB Transmitter Channel PCS : 8
+Total GXB Transmitter Channel PMA : 8
+Total PLLs : 1
+Total DLLs : 0
