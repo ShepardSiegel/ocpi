@@ -1,0 +1,110 @@
+PLL_Name	pcie_top_example_chaining_pipen1b:core|altpcierd_reconfig_clk_pll:reconfig_pll|altpll:altpll_component|altpcierd_reconfig_clk_pll_altpll:auto_generated|pll1
+PLLJITTER	33
+PLLSPEmax	40
+PLLSPEmin	-40
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_core:wrapper|altpcie_hip_pipen1b:altpcie_hip_pipen1b_inst|stratix_iv.stratixiv_hssi_pcie_hip
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|central_clk_div0
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|central_clk_div1
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|receive_pma0
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|receive_pma1
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|receive_pma2
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|receive_pma3
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|receive_pma4
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|receive_pma5
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|receive_pma6
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|receive_pma7
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|rx_cdr_pll0
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|rx_cdr_pll1
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|rx_cdr_pll2
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|rx_cdr_pll3
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|rx_cdr_pll4
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|rx_cdr_pll5
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|rx_cdr_pll6
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|rx_cdr_pll7
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	pcie_top_example_chaining_pipen1b:core|pcie_top_plus:ep_plus|pcie_top:epmap|pcie_top_serdes:serdes|pcie_top_serdes_alt4gxb_c0pa:pcie_top_serdes_alt4gxb_c0pa_component|tx_pll0
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
+PLL_Name	refclk~input~INSERTED_REFCLK_DIVIDER
+PLLJITTER	NA
+PLLSPEmax	NA
+PLLSPEmin	NA
+
