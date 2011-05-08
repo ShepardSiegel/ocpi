@@ -583,7 +583,7 @@ module mkICAPWorker(wciS0_Clk,
 						 .sRDY(cwe$sRDY));
 
   // submodule dna_dna
-  DNA_PORT dna_dna(  //.NO_CONNECT(wciS0_Clk),
+  DNA_PORT dna_dna(.NO_CONNECT(wciS0_Clk),
 		   .CLK(dna_dna$CLK),
 		   .DIN(dna_dna$DIN),
 		   .READ(dna_dna$READ),

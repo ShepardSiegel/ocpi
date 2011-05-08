@@ -1,0 +1,9 @@
+#!/bin/csh
+if ($#argv != 2) then
+    echo $0{}: Usage is: sof2AltFlash infile outfile
+    exit 1
+endif
+set infile  = $argv[1]
+set outfile = $argv[2]
+sof2flash --input=$infile --output=$outfile --offset=0x00C20000 --pfl --optionbit=0x00018000 --programmingmode=PS
+exit 

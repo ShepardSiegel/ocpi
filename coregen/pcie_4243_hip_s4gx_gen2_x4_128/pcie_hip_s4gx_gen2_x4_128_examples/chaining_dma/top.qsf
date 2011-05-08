@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Stratix IV"
 set_global_assignment -name DEVICE EP4SGX230KF40C2
-set_global_assignment -name TOP_LEVEL_ENTITY top_example_chaining_top
+set_global_assignment -name TOP_LEVEL_ENTITY pcie_hip_s4gx_gen2_x4_128_example_chaining_top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 9.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "11:07:07  JANUARY 12, 2009"
 set_global_assignment -name LAST_QUARTUS_VERSION "10.1 SP1"
@@ -226,8 +226,11 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_RAM_BLOCK_TYPE=M9
 
 
 set_global_assignment -name SEARCH_PATH .
-set_global_assignment -name SEARCH_PATH ./top_examples/chaining_dma
-set_global_assignment -name SEARCH_PATH ./top_examples/common/incremental_compile_module/
+set_global_assignment -name SEARCH_PATH ../..
+set_global_assignment -name SEARCH_PATH ../../pci_express_compiler-library
+#set_global_assignment -name SEARCH_PATH ./top_examples/chaining_dma
+#set_global_assignment -name SEARCH_PATH ./top_examples/common/incremental_compile_module/
+set_global_assignment -name SEARCH_PATH ../common/incremental_compile_module/
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name LL_ROOT_REGION ON -section_id "Root Region"
