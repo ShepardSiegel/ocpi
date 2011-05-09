@@ -27,7 +27,7 @@ P_ILLITE  ?= FTop_illite
 P_ML605   ?= FTop_ml605
 P_SP605   ?= FTop_sp605
 P_ALCY4   ?= FTop_alcy4
-P_ALTST4  ?= FTop_altst4
+P_ALST4   ?= FTop_alst4
 P_HTGS4   ?= FTop_htgs4
 P_KC705   ?= FTop_kc705
 P_VC707   ?= FTop_vc707
@@ -446,7 +446,7 @@ platform_vc707: $(OBJ)
 		-verilog-filter basicinout $(BSVTOP)/$(P_VC707).bsv
 
 ######################################################################
-platform_altst4: $(OBJ)
+platform_alst4: $(OBJ)
 
 	# compile to verilog backend for RTL
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
@@ -455,7 +455,7 @@ platform_altst4: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
-		-verilog-filter basicinout $(BSVTOP)/$(P_ALTST4).bsv
+		-verilog-filter basicinout $(BSVTOP)/$(P_ALST4).bsv
 
 ######################################################################
 platform_htgs4: $(OBJ)

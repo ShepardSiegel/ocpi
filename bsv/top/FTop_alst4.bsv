@@ -1,4 +1,4 @@
-// FTop_altst4.bsv
+// FTop_alst4.bsv
 // Copyright (c) 2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
