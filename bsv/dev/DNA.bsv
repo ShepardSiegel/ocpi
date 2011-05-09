@@ -68,12 +68,9 @@ module mkDNA (DNAIfc);
 
   rule assert_shift (cnt>=3 && cnt<=116);  // Shift DNA out on cnt 4-117  (56 rising clk edges)
     shftReg <= True;
+    if (cnt[0]==1'b0) sr <= {sr[55:0], dna.dOut};
   endrule
 
-  rule capture_dna (cnt>=3 && cnt<=118 && cnt[0]==1'b0);  // Shift sr in on cnt 4-119  (57 rising clk edges)
-    sr <= {sr[55:0], dna.dOut};
-  endrule
-  
   method Bit#(57) deviceID if (cnt==maxBound);
     return(sr);
   endmethod
