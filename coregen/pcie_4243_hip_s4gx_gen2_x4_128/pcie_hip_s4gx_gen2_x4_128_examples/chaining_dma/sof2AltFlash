@@ -1,0 +1,25 @@
+#!/usr/bin/python
+
+import commands, os, string, sys
+
+print 'Python version'
+
+#if len(sys.argv) !=3:
+#  print 'Usage: sof2AltFlash infile outfile'`
+#   sys.exit(0)
+
+program = 'sof2flash'
+inarg   = '--input=top.sof'
+outarg  = '--output=top.flash'
+flags   = '--offset=0x00C20000 --pfl --optionbit=0x00018000 --programmingmode=PS'
+
+cmd = program + ' ' + inarg + ' ' + outarg + ' ' + flags
+print cmd
+
+#stat, out = commands.getstatusoutput(cmd)
+#if not stat:
+  #print out
+
+os.system(cmd)
+
+exit 
