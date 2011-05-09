@@ -23,7 +23,7 @@ endinterface: DNA_PORTIfc
 import "BVI" DNA_PORT =
 module vDNA (DNA_PORTIfc);
 
-   default_clock (NO_CONNECT);
+   default_clock clock();
    default_reset no_reset;
 
    method DOUT  dOut;
