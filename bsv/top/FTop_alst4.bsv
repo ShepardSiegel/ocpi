@@ -31,9 +31,33 @@ interface FTop_altst4Ifc;
 endinterface: FTop_altst4Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_altst4#(Clock sys0_clk, Reset sys0_rstn,
-                      Clock pcie_clk, Reset pcie_rstn)(FTop_altst4Ifc);
+module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie_rstn)(FTop_altst4Ifc);
 
+  Clock            sys0Clk    =  sys0_clk;
+  Reset            sys0Rst    =  sys0_rstn;
+  Reg#(Bit#(8))    swReg      <- mkReg(0, clocked_by sys0Clk, reset_by sys0Rst);
+  Reg#(Bit#(32))   freeCnt    <- mkReg(0, clocked_by sys0Clk, reset_by sys0Rst);
+
+  Bit#(1) swParity = parity(swReg);
+
+  rule freeCount;
+    freeCnt <= freeCnt + 1;
+  endrule
+
+  PCIE_S4GX#(4) pciw <- mkPCIExpressEndpointS4GX(sys0_clk, sys0_rstn, pcie_clk, pcie_rstn);
+  Clock            p125Clk    =  pciw.ava.clk;      // Nominal 125 MHz clock domain
+  Reset            p125Rst    =  pciw.ava.usr_rst;  // Reset for p125 domain
+
+  SyncBitIfc#(Bit#(1)) aliveLed_sb  <- mkSyncBit(p125Clk, p125Rst, sys0Clk);
+  SyncBitIfc#(Bit#(1)) linkLed_sb   <- mkSyncBit(p125Clk, p125Rst, sys0Clk);
+
+  rule assign_alive; aliveLed_sb.send(pack(pciw.ava.alive)); endrule
+  rule assign_link;  linkLed_sb.send(pack(pciw.ava.lnk_up)); endrule
+
+
+
+
+  /*
   // Instance the wrapped, technology-specific PCIE core...
   PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("A4", pcie_clk, pcie_clk, pcie_rstn);
   Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
@@ -71,11 +95,16 @@ module mkFTop_altst4#(Clock sys0_clk, Reset sys0_rstn,
   //mkConnection(vWci[0], icap.wciS0);    // worker 8
   //mkConnectionMSO(vWci[0],  icap.wciS0, wciMonW8.observe, clocked_by p125Clk , reset_by p125Rst );
 
+  */
 
   // Interfaces and Methods provided...
-  //FIXME interface PCI_EXP_ALT  pcie    = pciw.pcie;
+  interface PCI_EXP_ALT  pcie    = pciw.pcie;
   interface Clock        p125clk = p125Clk;
   interface Reset        p125rst = p125Rst;
+  method Action usr_sw (Bit#(8) i);
+    swReg <= i;
+  endmethod
   method  led   =
-    {8'h42, 2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //16 leds are on active low alts4gx
-endmodule: mkFTop_altst4
+    //{8'h42, 2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //16 leds are on active low alts4gx
+    {8'h42, ~swParity, swParity, aliveLed_sb.read, linkLed_sb.read, freeCnt[29:26]};
+endmodule: mkFTop_alst4

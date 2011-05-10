@@ -5,7 +5,7 @@ set_global_assignment -name FAMILY "Stratix IV"
 set_global_assignment -name DEVICE EP4SGX230KF40C2
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "10.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:29:49  FEBRUARY 11, 2011"
-set_global_assignment -name LAST_QUARTUS_VERSION "10.1 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 11.0
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
@@ -19,8 +19,8 @@ set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON
 set_global_assignment -name SDC_FILE fpgaTop_alst4.sdc
 #set_global_assignment -name QIP_FILE fpgaTop_alst4.qip
 
-#set_global_assignment -name SEARCH_PATH ../../coregen/pcie_4243_hip_s4gx_gen2_x4_128
-#set_global_assignment -name SEARCH_PATH "../../coregen/pcie_4243_hip_s4gx_gen2_x4_128/pci_express_compiler-library"
+set_global_assignment -name SEARCH_PATH ../../../coregen/pcie_4243_hip_s4gx_gen2_x4_128
+set_global_assignment -name SEARCH_PATH ../../../coregen/pcie_4243_hip_s4gx_gen2_x4_128/pci_express_compiler-library
 set_global_assignment -name TOP_LEVEL_ENTITY fpgaTop
 set_global_assignment -name VERILOG_FILE fpgaTop_alst4.v
 set_global_assignment -name VERILOG_FILE mkFTop_alst4.v
