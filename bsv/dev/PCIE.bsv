@@ -928,6 +928,7 @@ interface PCIE_AVALONST_TX;
    method    Action      empty  (Bool i);
    method    Action      valid  (Bool i);
    method    Action      err    (Bool i);
+   method    Bool        tready;
    method    Bit#(36)    credit;
    method    Bool        fEmpty;
 endinterface
@@ -1508,9 +1509,14 @@ module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) 
       method                            empty(tx_st_empty0) enable((*inhigh*)en09) clocked_by(ava_clk) reset_by(no_reset);
       method                            valid(tx_st_valid0) enable((*inhigh*)en10) clocked_by(ava_clk) reset_by(no_reset);
       method                            err  (tx_st_err0)   enable((*inhigh*)en11) clocked_by(ava_clk) reset_by(no_reset);
+      method    tx_st_ready0   tready                                              clocked_by(ava_clk) reset_by(no_reset);
       method    tx_cred0       credit                                              clocked_by(ava_clk) reset_by(no_reset);
       method    tx_fifo_empty0 fEmpty                                              clocked_by(ava_clk) reset_by(no_reset);
    endinterface
+
+     schedule (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty ) CF
+     (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty );
+
 
 endmodule: vMkStratix4PCIExpress 
 
@@ -1930,6 +1936,18 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   //rule no_wake; pcie_ep.pcie.waken <= (True); endrule // Keep waken sigbal de-asserted
 
+  rule benign_avalon;
+    pcie_ep.ava_rx.mask(False);  // Assert to stop receiving non-posted requests
+    pcie_ep.ava_rx.rdy(True);    // Assert to allow receiving packets
+
+    pcie_ep.ava_tx.data(0);      // TX Data
+    pcie_ep.ava_tx.sop(False);
+    pcie_ep.ava_tx.eop(False);
+    pcie_ep.ava_tx.empty(False);
+    pcie_ep.ava_tx.valid(False); // is TLP Valid
+    pcie_ep.ava_tx.err(False);
+  endrule
+
   interface pcie = pcie_ep.pcie;
 
   interface PCIE_AVALONST ava;
@@ -1939,6 +1957,9 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     method    Bool  lnk_up  = pcie_ep.ava.lnk_up;
   endinterface
 
+
+  //interface PCIE_AVALONST_RX ava_rx = pcie_ep.ava_rx;
+  //interface PCIE_AVALONST_TX ava_tx = pcie_ep.ava_tx;
 
 endmodule: mkPCIExpressEndpointS4GX
 

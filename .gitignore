@@ -4,5 +4,14 @@
 *~
 *.swp
 *.log
+*.flash
+*.sof
+*.rpt
+*.smsg
+*.summary
+*.done
+*.pin
 build/
 obj/
+db/
+incremental_db/
