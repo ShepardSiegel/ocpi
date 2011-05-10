@@ -18,25 +18,26 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   output wire         ava_alive,            // Avalon Alive
   output wire         ava_lnk_up,           // Avalon Link-Up
 
-  output wire         rx_st_mask0,          // Avalon RX signalling...
-  output wire         rx_st_ready0,         // downstream traffic
-  input  wire         rx_st_valid0,
-  input  wire [7:0]   rx_st_bardec0,
-  input  wire [15:0]  rx_st_be0,
-  input  wire [127:0] rx_st_data0,
-  input  wire         rx_st_sop0,
-  input  wire         rx_st_eop0,
-  input  wire         rx_st_empty0,
-  input  wire         rx_st_err0,
+  input  wire         rx_st_mask0,          // Avalon RX signalling...
+  input  wire         rx_st_ready0,         // downstream traffic
+  output wire         rx_st_valid0,
+  output wire [7:0]   rx_st_bardec0,
+  output wire [15:0]  rx_st_be0,
+  output wire [127:0] rx_st_data0,
+  output wire         rx_st_sop0,
+  output wire         rx_st_eop0,
+  output wire         rx_st_empty0,
+  output wire         rx_st_err0,
 
-  output wire [127:0] tx_st_data0,          // Avalon TX signalling...
-  output wire         tx_st_sop0,           // upstream traffic
-  output wire         tx_st_eop0,
-  output wire         tx_st_empty0,
-  output wire         tx_st_valid0,
-  output wire         tx_st_err0,
-  input  wire [35:0]  tx_cred0,
-  input  wire         tx_fifo_empty0
+  input  wire [127:0] tx_st_data0,          // Avalon TX signalling...
+  input  wire         tx_st_sop0,           // upstream traffic
+  input  wire         tx_st_eop0,
+  input  wire         tx_st_empty0,
+  input  wire         tx_st_valid0,
+  input  wire         tx_st_err0,
+  output wire         tx_st_ready0,
+  output wire [35:0]  tx_cred0,
+  output wire         tx_fifo_empty0
 );
 
 
@@ -230,7 +231,7 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   wire    [  4: 0] tx_preemp_0t_out;
   wire    [  4: 0] tx_preemp_1t_out;
   wire    [  4: 0] tx_preemp_2t_out;
-  wire             tx_st_ready0;
+//  wire             tx_st_ready0;
   wire    [  2: 0] tx_vodctrl_out;
 
 
@@ -273,13 +274,13 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   //assign ko_cpl_spc_vc0[7 : 0] = 8'd112;
   //assign ko_cpl_spc_vc0[19 : 8] = 12'd448;
   //assign gnd_cfg_tcvcmap_icm = 0;
-  assign tx_st_sop0 = tx_stream_data0[73];
-  assign tx_st_err0 = tx_stream_data0[74];
+  //assign tx_st_sop0 = tx_stream_data0[73];
+  //assign tx_st_err0 = tx_stream_data0[74];
   //assign rx_stream_data0 = {rx_st_be0[7 : 0], rx_st_sop0, rx_st_empty0, rx_st_bardec0, rx_st_data0[63 : 0]};
   //assign rx_stream_data0_1 = {rx_st_be0[15 : 8], rx_st_sop0, rx_st_eop0, rx_st_bardec0, rx_st_data0[127 : 64]};
-  assign tx_st_data0 = {tx_stream_data0_1[63 : 0],tx_stream_data0[63 : 0]};
-  assign tx_st_eop0 = tx_stream_data0_1[72];
-  assign tx_st_empty0 = tx_stream_data0[72];
+  //assign tx_st_data0 = {tx_stream_data0_1[63 : 0],tx_stream_data0[63 : 0]};
+  //assign tx_st_eop0 = tx_stream_data0_1[72];
+  //assign tx_st_empty0 = tx_stream_data0[72];
   assign test_out_icm = test_out_int;
   assign test_out_int = test_out;
   //assign pcie_reconfig_busy = 1'b1;
