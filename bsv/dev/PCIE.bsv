@@ -971,12 +971,24 @@ interface PCIE_X6#(numeric type lanes);  // V6 AXI (X6)
    interface PCIE_AXI_INT     cfg_interrupt;
 endinterface: PCIE_X6
 
-interface PCIE_S4GX#(numeric type lanes);  // Altera Stratix4-GX
+interface PCIE_vS4GX#(numeric type lanes);  // Altera Stratix4-GX low-level interface
    interface PCIE_EXP_ALT#(lanes) pcie;
    //interface PCIE_EXP_ALT pcie;
    interface PCIE_AVALONST        ava;
    interface PCIE_AVALONST_RX     ava_rx;
    interface PCIE_AVALONST_TX     ava_tx;
+   //interface PCIE_ALT_CFG     cfg;
+   //interface PCIE_ALT_INT     cfg_interrupt;
+endinterface: PCIE_vS4GX
+
+interface PCIE_S4GX#(numeric type lanes);  // Altera Stratix4-GX mid-level interface
+   interface PCIE_EXP_ALT#(lanes) pcie;
+   //interface PCIE_EXP_ALT pcie;
+   interface PCIE_AVALONST        ava;
+   //interface PCIE_AVALONST_RX     ava_rx;
+   //interface PCIE_AVALONST_TX     ava_tx;
+   interface PCIE_TRN_XMIT16 trn_tx;
+   interface PCIE_TRN_RECV16 trn_rx;
    //interface PCIE_ALT_CFG     cfg;
    //interface PCIE_ALT_INT     cfg_interrupt;
 endinterface: PCIE_S4GX
@@ -1467,7 +1479,7 @@ endmodule: vMkPCIExpressXilinxAXI
 
 // Altera Avalon-SX...
 import "BVI" pcie_hip_s4gx_gen2_x4_128_wrapper =
-module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) (PCIE_S4GX#(lanes))
+module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) (PCIE_vS4GX#(lanes))
    provisos(Add#(lanes, 0, 4));
 
    input_clock sclk    (sys0_clk)                   = sclk;
@@ -1551,6 +1563,10 @@ interface PCIE_TRN_XMIT;
    method    Bit#(4)     buffers_available;
 endinterface: PCIE_TRN_XMIT
 
+interface PCIE_TRN_XMIT16;
+   method    Action      xmit(Bool discontinue, TLPData#(16) data);
+endinterface: PCIE_TRN_XMIT16
+
 interface PCIE_TRN_XMIT_V6;
    method    Action      xmit(Bool discontinue, TLPData#(8) data);
    method    Bool        dropped;
@@ -1572,6 +1588,10 @@ interface PCIE_TRN_RECV;
    method    Bit#(8)     non_posted_header_credits;
    method    Bit#(12)    non_posted_data_credits;
 endinterface: PCIE_TRN_RECV
+
+interface PCIE_TRN_RECV16;
+   method    ActionValue#(TLPData#(16)) recv();
+endinterface: PCIE_TRN_RECV16
 
 interface PCIE_TRN_RECV_V6;
    method    ActionValue#(TLPData#(8)) recv();
@@ -1932,10 +1952,22 @@ endmodule: mkPCIExpressEndpointX6
 module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prstn)(PCIE_S4GX#(lanes))
   provisos(Add#(lanes, 0, 4));
 
-  PCIE_S4GX#(4)     pcie_ep    <- vMkStratix4PCIExpress(sclk, srstn, pclk, prstn);
+  PCIE_vS4GX#(4)    pcie_ep     <- vMkStratix4PCIExpress(sclk, srstn, pclk, prstn);
+  Clock             ava125Clk   = pcie_ep.ava.clk; 
+  Reset             ava125Rst   = pcie_ep.ava.usr_rst;
+  PulseWire         pwAvaTx     <- mkPulseWire(clocked_by ava125Clk, reset_by noReset);
+  PulseWire         pwAvaRx     <- mkPulseWire(clocked_by ava125Clk, reset_by noReset);
 
-  //rule no_wake; pcie_ep.pcie.waken <= (True); endrule // Keep waken sigbal de-asserted
 
+  rule connect_ava_tx;
+    pcie_ep.ava_tx.valid(pwAvaTx);   // assert valid when we xmit - causes push into EP
+  endrule
+
+  rule connect_ava_rx;
+    pcie_ep.ava_rx.rdy(pwAvaRx);   // assert rdy when we receive - causes pop from EP 
+  endrule
+
+  /*
   rule benign_avalon;
     pcie_ep.ava_rx.mask(False);  // Assert to stop receiving non-posted requests
     pcie_ep.ava_rx.rdy(True);    // Assert to allow receiving packets
@@ -1947,6 +1979,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     pcie_ep.ava_tx.valid(False); // is TLP Valid
     pcie_ep.ava_tx.err(False);
   endrule
+  */
 
   interface pcie = pcie_ep.pcie;
 
@@ -1957,9 +1990,32 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     method    Bool  lnk_up  = pcie_ep.ava.lnk_up;
   endinterface
 
+  interface PCIE_TRN_XMIT16 trn_tx;
+     method Action xmit(discontinue, data) if (pcie_ep.ava_tx.tready); 
+        pcie_ep.ava_tx.sop(data.sof);
+        pcie_ep.ava_tx.eop(data.eof);
+        pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
+        //pcie_ep.ava_tx.tstrb(reverseBits(data.be));       // active-high be's are strobes, TODO check reverseBits
+        pcie_ep.ava_tx.data(reverseDWORDS(data.data));    // reverse DWORDS
+        pwAvaTx.send;
+     endmethod
+  endinterface
 
-  //interface PCIE_AVALONST_RX ava_rx = pcie_ep.ava_rx;
+  interface PCIE_TRN_RECV16 trn_rx;
+     method ActionValue#(TLPData#(16)) recv() if (pcie_ep.ava_rx.valid);
+        TLPData#(16) retval = defaultValue;
+        retval.sof  = pcie_ep.ava_rx.sop;
+        retval.eof  = pcie_ep.ava_rx.eop;
+        retval.hit  = truncate(pcie_ep.ava_rx.bar);
+        retval.be   = reverseBits(pcie_ep.ava_rx.be); //TODO check reverseBits
+        retval.data = reverseDWORDS(pcie_ep.ava_rx.data);
+        pwAvaRx.send;
+        return retval;
+     endmethod
+  endinterface
+
   //interface PCIE_AVALONST_TX ava_tx = pcie_ep.ava_tx;
+  //interface PCIE_AVALONST_RX ava_rx = pcie_ep.ava_rx;
 
 endmodule: mkPCIExpressEndpointS4GX
 
