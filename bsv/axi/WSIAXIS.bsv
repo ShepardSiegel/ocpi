@@ -72,9 +72,9 @@ interface AXIStoWSI4BIfc;
 endinterface 
 
 module mkAXIStoWSI4B (AXIStoWSI4BIfc);
-  BusReceiver#(NF10DPS4B)       axiS       <- mkBusReceiver;
-  FIFOLevelIfc#(WsiReq#(12,32,4,8,0),3) reqFifo <- mkFIFOLevel;
-  Reg#(Bool)                    operateD   <- mkDReg(False);
+  BusReceiver#(NF10DPS4B)                axiS       <- mkBusReceiver;
+  FIFOLevelIfc#(WsiReq#(12,32,4,8,0),3)  reqFifo    <- mkFIFOLevel;
+  Reg#(Bool)                             operateD   <- mkDReg(False);
 
   A4StreamSIfc#(32,4,0,128) axisDatS = A4StreamSIfc { strm : axiS.in};  // Place strm sub-interface in axisS interface
 

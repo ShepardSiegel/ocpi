@@ -115,7 +115,7 @@ endinterface
 
 // The following modules are used to adapt between an aggregated version of the interface, and a version
 // where the individual signal have been separated out. This is useful for modules which must provide the
-// "explict" versions of the interface. These modules are practically functions, their stateless, but use
+// "explict" versions of the interface. These modules are practically functions, they are stateless, but use
 // DWires to provide the needed conflict freeness...
 
 // Master to Explicit Master
@@ -170,7 +170,7 @@ instance Connectable#(A4S_Em#(td,tg,th,tu1), A4S_Es#(td,tg,th,tu2)) provisos(Add
       if (unpack(s.sTREADY)) m.sTREADY;
       s.mTDATA(m.mTDATA);
       s.mTSTRB(m.mTSTRB);
-      s.mTUSER(truncate(m.mTUSER));
+      s.mTUSER(m.mTUSER);
       s.mTKEEP(m.mTKEEP);
       if (unpack(m.mTLAST)) s.mTLAST;
     endrule
