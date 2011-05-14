@@ -15,15 +15,16 @@ import GetPut::*;
 import SpecialFIFOs::*;
 
 // Shorthand used in this module...
-typedef A4Stream#(32,4,0,32) NF10DPM4B;
-typedef A4S_Em  #(32,4,0,32) NF10DPEM4B;
-typedef A4Stream#(32,4,0,32) NF10DPS4B;
-typedef A4S_Es  #(32,4,0,32) NF10DPES4B;
+typedef A4Stream#(32,4,0,128) NF10DPM4B;
+typedef A4S_Em  #(32,4,0,128) NF10DPEM4B;
+typedef A4Stream#(32,4,0,128) NF10DPS4B;
+typedef A4S_Es  #(32,4,0,128) NF10DPES4B;
 
 typedef struct {
+  Bit#(96) umeta;  // user metadata
+  Bit#(8)  dpt;    // opcode to DP1
+  Bit#(8)  spt;    // opcode from DP0
   Bit#(16) length; // transfer length in Bytes
-  Bit#(8)  pad;
-  Bit#(8)  opcode;
 } AxiInfo deriving (Bits);
 
 // The modules below adapt between WSI and AXI-Stream (AXIS)
@@ -44,11 +45,11 @@ module mkWSItoAXIS4B (WSItoAXIS4BIfc);
   BusSender#(NF10DPM4B)            axiM       <- mkBusSender(aStrmDflt);
   Reg#(Bool)                       operateD   <- mkDReg(False);
 
-  A4StreamMIfc#(32,4,0,32) axisDatM = A4StreamMIfc { strm : axiM.out};  // Place strm sub-interface in axisM interface
+  A4StreamMIfc#(32,4,0,128) axisDatM = A4StreamMIfc { strm : axiM.out};  // Place strm sub-interface in axisM interface
 
   rule advance_data (operateD);
     WsiReq#(12,32,4,8,0) w = reqFifo.first; reqFifo.deq;
-    let aui = AxiInfo {length:extend(w.burstLength*4),pad:?,opcode:w.reqInfo};
+    let aui = AxiInfo {length:extend(w.burstLength*4), spt:w.reqInfo, dpt:8'h01, umeta:0};
     axiM.in.enq( A4Stream { data : w.data,
                             strb : w.byteEn,
                             user : pack(aui),
@@ -56,7 +57,7 @@ module mkWSItoAXIS4B (WSItoAXIS4BIfc);
                             last : w.reqLast });
   endrule
 
-  A4S_Em#(32,4,0,32)         axi_Em    <- mkA4StreamMtoEm(axisDatM);
+  A4S_Em#(32,4,0,128)   axi_Em    <- mkA4StreamMtoEm(axisDatM);
   interface reqPut = toPut(reqFifo);
   interface NF10DPEM4B axi = axi_Em;
   method Action operate = operateD._write(True);
@@ -75,14 +76,14 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
   FIFOLevelIfc#(WsiReq#(12,32,4,8,0),3) reqFifo <- mkFIFOLevel;
   Reg#(Bool)                    operateD   <- mkDReg(False);
 
-  A4StreamSIfc#(32,4,0,32) axisDatS = A4StreamSIfc { strm : axiS.in};  // Place strm sub-interface in axisS interface
+  A4StreamSIfc#(32,4,0,128) axisDatS = A4StreamSIfc { strm : axiS.in};  // Place strm sub-interface in axisS interface
 
   rule advance_data (operateD);
     let a = axiS.out.first; axiS.out.deq;
     AxiInfo aui = unpack(a.user);
     reqFifo.enq( WsiReq {   cmd  : WR,
                          reqLast : a.last,
-                         reqInfo : aui.opcode,
+                         reqInfo : aui.dpt,  // opcode comes in on dpt
                     burstPrecise : True,
                      burstLength : truncate(aui.length/4),
                            data  : a.data,
@@ -90,7 +91,7 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
                        dataInfo  : '0 });
   endrule
 
-  A4S_Es#(32,4,0,32) axi_Es <- mkA4StreamStoEs(axisDatS);
+  A4S_Es#(32,4,0,128) axi_Es <- mkA4StreamStoEs(axisDatS);
   interface NF10DPES4B axi = axi_Es;
   interface reqGet = toGet(reqFifo);
   method Action operate = operateD._write(True);

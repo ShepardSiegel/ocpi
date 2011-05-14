@@ -15,7 +15,7 @@
 // TUSER[15:0]   Transfer Length in Bytes  (provided by OPED AXIS Master; ignored by OPED AXIS Slave since TLAST implicit length) 
 // TUSER[23:16]  Source Port (SPT) (provided by OPED AXIS Master from DP0 opcode; ignored by OPED AXIS Slave)
 // TUSER[31:24]  Destination Port (DPT) (driven to 8'h01 by OPED AXIS Master;  used by OPED AXIS Slave to make DP1 opcode)
-// TUSER[127:32] User metadata bits, unsed by OPED. driven to 0 by OPED AXIS master; un-used by OPED AXIS slave
+// TUSER[127:32] User metadata bits, un-used by OPED. driven to 0 by OPED AXIS master; un-used by OPED AXIS slave
 //
 // Note that OPED is "port-encoding-agnostic" with respect to the values on SPT and DPT:
 //  a. In the case of packets moving downstream from host to NF10, OPED places DP0 opcode metadata on SPT

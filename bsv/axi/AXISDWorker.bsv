@@ -16,8 +16,8 @@ interface AXISDWorkerIfc#(numeric type ndw);
   interface WciES                                       wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiM0;    // WSI-M Stream Output
-  interface A4S_Em#(TMul#(ndw,32),TMul#(ndw,4),0,32)    axiM0;    // AXIS-M Stream Output
-  interface A4S_Es#(TMul#(ndw,32),TMul#(ndw,4),0,32)    axiS0;    // AXIS-S Stream Input
+  interface A4S_Em#(TMul#(ndw,32),TMul#(ndw,4),0,128)   axiM0;    // AXIS-M Stream Output
+  interface A4S_Es#(TMul#(ndw,32),TMul#(ndw,4),0,128)   axiS0;    // AXIS-S Stream Input
 endinterface 
 
 module mkAXISDWorker#(parameter Bool hasDebugLogic) (AXISDWorkerIfc#(ndw))
