@@ -1,0 +1,22 @@
+Shep,
+
+The bulk of it is included in these files (search for msix and intr).
+
+The msix_enable and msix_all_masked signals come from the Xilinx endpoint:
+
+   Bool      msix_enable_250              = (ep.cfg_interrupt.msixenable() == 1);
+   Bool      msix_masked_250              = (ep.cfg_interrupt.msixfm()     == 1);
+
+You have to implement a configuration table and a pending bit array in some PCIE BAR space. They recommend placing them separated by a page from any other addresses in the PCIE address map and from each other(or even in their own BARs), so that the OS has maximum flexibility with the page protection. In the example I sent, I put them both in BAR 0 with the table at 16K and the pending bit array at 20K.
+
+The table consists of 16 bytes for each entry (I have 4 entries in my table, but only use 1 of them right now). 8 bytes are dedicated to the address for the generated message, 4 bytes are for the data payload in the message, and 4 bytes are used for a single per-vector mask bit.
+
+The driver code uses the MSI-X capability data from the endpoint configuration to locate the tables. When you enable MSI-X it will populate the table, program the IO-APIC, and turn off the global mask bit. Each entry has a per-vector mask bit the standard says comes out of reset as 1. To begin generating interrupts, the driver writes that bit to 0.
+
+In the BSV code, when you want to generate an interrupt, you need to consult the MSI-X entry and global enables to determine if you can send an interrupt. To actually send it, you construct a memory write (3DW if the upper address is 0, 4DW otherwise) using the address and data from the MSI-X entry. The pending bit array shows if there is an interrupt waiting to be delivered (for instance, if an interrupt is desired but the vector is masked). It clears on its own when the interrupt is delivered. It allows a driver to use polling operation if it keeps the interrupt masked. I just used the notFull method of a FIFOF for the pending bit.
+
+You can see the MSI-X status by doing an lspci -vvv as root.
+
+I think that covers most of it.
+
+Jeff
