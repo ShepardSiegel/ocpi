@@ -57,8 +57,8 @@ VLG_HDL   = libsrc/hdl/ocpi
 # To use buildocpi, pull down the opencpi.org disti (limk on next line) and place it in a peer directory
 # https://github.com/opencpi/opencpi
 #
-#BUILD_HDL = scripts/buildhdl
-BUILD_HDL = scripts/buildocpi
+BUILD_HDL = scripts/buildhdl
+#BUILD_HDL = scripts/buildocpi
 
 OCPI_DIR  ?= (shell pwd)
 
