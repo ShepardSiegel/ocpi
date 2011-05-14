@@ -11,18 +11,29 @@
 // + The ERR channel has zero bits of data. An error is indicated by TVALID assertion
 // + The DEBUG signals contain up to 32 "interesting" bits of status
 //
-// + The 32b of TUSER are assigned as follows
-// TUSER[31:16] Transfer Length in Bytes  (provided by OPED AXIS Master, ignored by OPED AXIS Slave)
-// TUSER[15:08] Spare, Ignored (zero)
-// TUSER[ 7:0 ] Message Opcode (provided by AXIS master, accepted by AXIS slave)
+// + The 128b of TUSER are assigned as follows:
+// TUSER[15:0]   Transfer Length in Bytes  (provided by OPED AXIS Master; ignored by OPED AXIS Slave since TLAST implicit length) 
+// TUSER[23:16]  Source Port (SPT) (provided by OPED AXIS Master from DP0 opcode; ignored by OPED AXIS Slave)
+// TUSER[31:24]  Destination Port (DPT) (driven to 8'h01 by OPED AXIS Master;  used by OPED AXIS Slave to make DP1 opcode)
+// TUSER[127:32] User metadata bits, unsed by OPED. driven to 0 by OPED AXIS master; un-used by OPED AXIS slave
+//
+// Note that OPED is "port-encoding-agnostic" with respect to the values on SPT and DPT:
+//  a. In the case of packets moving downstream from host to NF10, OPED places DP0 opcode metadata on SPT
+//  b. In the case of packets moving upstream from NF10 to host, OPED captures DPT and places it in DP1 opcode
+//  The value 8'h01 is placed as a constant in the DPT output of the OPED AXIS Master
+
+// Note that OPED does nothing with the TUSER[127:32] user metadata bits.
+// a. It drives them to 0 on the AXIS Master
+// b. it ignores them on the the AXIS Slave
+
 
 module OPED # 
 
   ( // OPED accepts the MPD-named paramater specifications...
   parameter                              C_M_AXIS_DAT_DATA_WIDTH = 32,
   parameter                              C_S_AXIS_DAT_DATA_WIDTH = 32,
-  parameter                              C_M_AXIS_DAT_USER_WIDTH = 32,
-  parameter                              C_S_AXIS_DAT_USER_WIDTH = 32)
+  parameter                              C_M_AXIS_DAT_USER_WIDTH = 128,
+  parameter                              C_S_AXIS_DAT_USER_WIDTH = 128)
 
   ( // OPED uses the MPD-specified signal names for the AXI user-facing ports...
   input                                  PCIE_CLKP,           // PCIe connections...
@@ -85,8 +96,8 @@ module OPED #
 initial begin
   if (C_M_AXIS_DAT_DATA_WIDTH != 32)  begin $display("Unsupported M_AXIS_DAT DATA width"); $finish; end
   if (C_S_AXIS_DAT_DATA_WIDTH != 32)  begin $display("Unsupported S_AXIS_DAT DATA width"); $finish; end
-  if (C_M_AXIS_DAT_USER_WIDTH != 32)  begin $display("Unsupported M_AXIS_DAT USER width"); $finish; end
-  if (C_S_AXIS_DAT_USER_WIDTH != 32)  begin $display("Unsupported S_AXIS_DAT USER width"); $finish; end
+  if (C_M_AXIS_DAT_USER_WIDTH != 128) begin $display("Unsupported M_AXIS_DAT USER width"); $finish; end
+  if (C_S_AXIS_DAT_USER_WIDTH != 128) begin $display("Unsupported S_AXIS_DAT USER width"); $finish; end
 end
 
  mkOPED_v5 oped (
