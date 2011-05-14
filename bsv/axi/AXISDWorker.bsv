@@ -104,7 +104,7 @@ module mkAXISDWorker#(parameter Bool hasDebugLogic) (AXISDWorkerIfc#(ndw))
   // This rule contains the operations that take place in the Exists->Initialized control edge...
   rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize);
     spareValue  <= 0; // initialize spare value to zero
-    controlReg <= 0;  // initialize control register to zero
+    controlReg <= 1;  // initialize control register to 32'h0000_0001 to enable useAXI by default
     wci.ctlAck;       // acknowledge the initialization operation
   endrule
 
