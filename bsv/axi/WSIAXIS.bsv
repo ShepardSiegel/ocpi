@@ -41,7 +41,7 @@ interface WSItoAXIS4BIfc;
 endinterface 
 
 module mkWSItoAXIS4B (WSItoAXIS4BIfc);
-  FIFOF#(WsiReq#(12,32,4,8,0))     reqFifo    <- mkFIFO;
+  FIFOF#(WsiReq#(12,32,4,8,0))     reqFifo    <- mkFIFOF;
   BusSender#(NF10DPM4B)            axiM       <- mkBusSender(aStrmDflt);
   Reg#(Bool)                       operateD   <- mkDReg(False);
 
