@@ -17,5 +17,8 @@ verilog work "../../libsrc/hdl/ocpi/OPED.v"
 
 verilog work "../../rtl/mkA4LS.v"
 verilog work "../../libsrc/hdl/ocpi/AXIS_LOOPBACK.v"
+verilog work "../../rtl/small_fifo_v3.v"
+verilog work "../../rtl/fallthrough_small_fifo_v2.v"
+verilog work "../../rtl/nf10_axis_converter.v"
 
 verilog work "../../libsrc/hdl/ocpi/fpgaTop_nf10.v"

@@ -54,6 +54,12 @@ wire [3:0]   S_AXIS_DAT_TSTRB;
 wire [127:0] S_AXIS_DAT_TUSER;
 wire         S_AXIS_DAT_TLAST;
 wire         S_AXIS_DAT_TREADY;
+wire [31:0]  I_AXIS_DAT_TDATA;
+wire         I_AXIS_DAT_TVALID;
+wire [3:0]   I_AXIS_DAT_TSTRB;
+wire [127:0] I_AXIS_DAT_TUSER;
+wire         I_AXIS_DAT_TLAST;
+wire         I_AXIS_DAT_TREADY;
 
 wire [31:0]  debug_oped;       // The 32b vector of debug signals from OPED
 assign led = debug_oped[2:0];  // Drive the three LEDs from the debug_oped port
@@ -151,7 +157,7 @@ end
 // a. It drives them to 0 on the AXIS Master
 // b. it ignores them on the the AXIS Slave
 
-
+/*
  AXIS_LOOPBACK axisLoopback (
   .ACLK              (ACLK),
   .ARESETN           (ARESETN),
@@ -168,5 +174,61 @@ end
   .M_AXIS_DAT_TLAST  (S_AXIS_DAT_TLAST),
   .M_AXIS_DAT_TREADY (S_AXIS_DAT_TREADY)
 );
+*/
+
+nf10_axis_converter 
+#(  .C_M_AXIS_DATA_WIDTH (64),
+    .C_S_AXIS_DATA_WIDTH (256),
+    .C_USER_WIDTH (128),
+    .C_LEN_WIDTH (16),
+    .C_SPT_WIDTH (8),
+    .C_DPT_WIDTH (8),
+    .C_DEFAULT_VALUE_ENABLE (0),
+    .C_DEFAULT_SRC_PORT (0),
+    .C_DEFAULT_DST_PORT (0))   conv_i0
+(
+    .axi_aclk      (ACLK),
+    .axi_resetn    (ARESETN),
+    .s_axis_tdata  (M_AXIS_DAT_TDATA),
+    .s_axis_tstrb  (M_AXIS_DAT_TSTRB),
+    .s_axis_tuser  (M_AXIS_DAT_TUSER),
+    .s_axis_tvalid (M_AXIS_DAT_TVALID),
+    .s_axis_tready (M_AXIS_DAT_TREADY),
+    .s_axis_tlast  (M_AXIS_DAT_TLAST),
+    .m_axis_tdata  (I_AXIS_DAT_TDATA),
+    .m_axis_tstrb  (I_AXIS_DAT_TSTRB),
+    .m_axis_tuser  (I_AXIS_DAT_TUSER),
+    .m_axis_tvalid (I_AXIS_DAT_TVALID),
+    .m_axis_tready (I_AXIS_DAT_TREADY),
+    .m_axis_tlast  (I_AXIS_DAT_TLAST)
+);
+
+nf10_axis_converter 
+#(  .C_M_AXIS_DATA_WIDTH (256),
+    .C_S_AXIS_DATA_WIDTH (64),
+    .C_USER_WIDTH (128),
+    .C_LEN_WIDTH (16),
+    .C_SPT_WIDTH (8),
+    .C_DPT_WIDTH (8),
+    .C_DEFAULT_VALUE_ENABLE (0),
+    .C_DEFAULT_SRC_PORT (0),
+    .C_DEFAULT_DST_PORT (0)) conv_i1
+(
+    .axi_aclk      (ACLK),
+    .axi_resetn    (ARESETN),
+    .s_axis_tdata  (I_AXIS_DAT_TDATA),
+    .s_axis_tstrb  (I_AXIS_DAT_TSTRB),
+    .s_axis_tuser  (I_AXIS_DAT_TUSER),
+    .s_axis_tvalid (I_AXIS_DAT_TVALID),
+    .s_axis_tready (I_AXIS_DAT_TREADY),
+    .s_axis_tlast  (I_AXIS_DAT_TLAST),
+    .m_axis_tdata  (S_AXIS_DAT_TDATA),
+    .m_axis_tstrb  (S_AXIS_DAT_TSTRB),
+    .m_axis_tuser  (S_AXIS_DAT_TUSER),
+    .m_axis_tvalid (S_AXIS_DAT_TVALID),
+    .m_axis_tready (S_AXIS_DAT_TREADY),
+    .m_axis_tlast  (S_AXIS_DAT_TLAST)
+);
+
 
 endmodule
