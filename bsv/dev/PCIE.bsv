@@ -21,6 +21,7 @@ import DefaultValue      ::*;
 import DReg              ::*;
 import Gearbox           ::*;
 import FIFO              ::*;
+import FIFOF             ::*;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Types
@@ -1958,28 +1959,120 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   PulseWire         pwAvaTx     <- mkPulseWire(clocked_by ava125Clk, reset_by noReset);
   PulseWire         pwAvaRx     <- mkPulseWire(clocked_by ava125Clk, reset_by noReset);
 
+  // Avalon-ST RX qword-allignment bubble removal
+  FIFOF#(TLPData#(16))       rxStageF      <- mkFIFOF1;  // Purposefully depth-1 for bubble removal
+  Reg#(Bit#(2))              rxSerPos      <- mkReg(0);
+  FIFOF#(TLPData#(16))       rxOutF        <- mkFIFOF;
+
+  // Avalon-ST TX qword-allignment bubble insertion
+  FIFOF#(TLPData#(16))       txInF         <- mkFIFOF; 
+  FIFOF#(TLPData#(16))       txStageF      <- mkFIFOF1; 
+  Reg#(Bit#(2))              txSerPos      <- mkReg(0);
+  Reg#(Bool)                 txHeadPushed  <- mkReg(False);
+
+  // Downstream Avalon-ST to TRN
+
+  Bool rxBubble = pcie_ep.ava_rx.sop && !unpack(pcie_ep.ava_rx.data[34]); // bit 2 of the request address at Header Byte 11 - bubble when alligned
+
+  rule rx_enstage (pcie_ep.ava_rx.valid && !rxStageF.notEmpty);
+    pwAvaRx.send;
+    if (rxSerPos==0 && !rxBubble) begin
+      rxOutF.enq(TLPData {                   // Enq directly to rxOutF...
+        sof:  pcie_ep.ava_rx.sop,
+        eof:  pcie_ep.ava_rx.eop,
+        hit:  truncate(pcie_ep.ava_rx.bar),
+        be:   pcie_ep.ava_rx.be,
+        data: pcie_ep.ava_rx.data });
+    end else begin 
+      rxSerPos <= rxSerPos + 3;
+      rxStageF.enq(TLPData {                 // Enq in the Stage Fifo...
+        sof:  pcie_ep.ava_rx.sop,
+        eof:  pcie_ep.ava_rx.eop,
+        hit:  truncate(pcie_ep.ava_rx.bar),
+        be:   pcie_ep.ava_rx.be,
+        data: pcie_ep.ava_rx.data });
+    end
+  endrule
+
+  rule rx_destage (pcie_ep.ava_rx.valid && rxStageF.notEmpty);
+    pwAvaRx.send;
+    let stg = rxStageF.first;
+    // TODO: Add correct "pick" from rxSerPos
+    Bit#(16)  be   = { pcie_ep.ava_rx.be[3:0],    stg.be[11:0] };
+    Bit#(128) data = { pcie_ep.ava_rx.data[15:0], stg.data[111:0] };
+    // TODO: Add enq to rxStageF
+    rxOutF.enq(TLPData {                    // Enq composite in rxOutF
+      sof:  pcie_ep.ava_rx.sop,
+      eof:  pcie_ep.ava_rx.eop,
+      hit:  truncate(pcie_ep.ava_rx.bar),
+      be:   be,
+      data: data });
+    rxStageF.deq;
+    if (pcie_ep.ava_rx.eop) begin
+      rxSerPos <= 0;
+    end
+  endrule
+
+
+  // Upstream TRN to Avalon-ST...
+
+
+  rule tx_enstage (pcie_ep.ava_tx.tready && !txStageF.notEmpty);
+    let tx = txInF.first;
+    txInF.deq;
+    Bool txBubble = tx.sof && !unpack(tx.data[34]); // bit 2 of the lower address at Header Byte 11 - bubble when alligned
+    Bit#(16)  be   = ?;
+    Bit#(128) data = ?;
+    if (!txBubble) begin
+      be   = reverseBits(tx.be);        // active-high be's are strobes, TODO check reverseBits
+      data = reverseDWORDS(tx.data);    // reverse DWORDS
+    end else begin
+      be   = {4'h0,     reverseBits(tx.be)[11:0]};
+      data = {16'h0000, reverseDWORDS(tx.data)[111:0]};
+      txStageF.enq(tx);
+    end
+
+    pwAvaTx.send;
+    pcie_ep.ava_tx.sop(tx.sof);
+    pcie_ep.ava_tx.eop(tx.eof);
+    pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
+    //pcie_ep.ava_tx.tstrb(be);
+    pcie_ep.ava_tx.data(data);
+
+    if (tx.eof && !txBubble) begin
+      txSerPos <= 0;
+      txHeadPushed <= False;
+    end
+  endrule
+
+  rule tx_destage (pcie_ep.ava_tx.tready && txStageF.notEmpty);
+    let tx = txInF.first; txInF.deq;
+    let ts = txStageF.first; txStageF.deq;
+    Bit#(16)  be   = ?;
+    Bit#(128) data = ?;
+    be   = {reverseBits(tx.be)[15:4],       reverseBits(ts.be)[3:0]};
+    data = {reverseDWORDS(tx.data)[127:32], reverseDWORDS(ts.data)[31:0]};
+
+    pwAvaTx.send;
+    pcie_ep.ava_tx.sop(tx.sof);
+    pcie_ep.ava_tx.eop(tx.eof);
+    pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
+    //pcie_ep.ava_tx.tstrb(be);
+    pcie_ep.ava_tx.data(data);
+
+    if (tx.eof) begin
+      txSerPos <= 0;
+      txHeadPushed <= False;
+    end
+  endrule
+
 
   rule connect_ava_tx;
     pcie_ep.ava_tx.valid(pwAvaTx);   // assert valid when we xmit - causes push into EP
   endrule
-
   rule connect_ava_rx;
     pcie_ep.ava_rx.rdy(pwAvaRx);   // assert rdy when we receive - causes pop from EP 
   endrule
-
-  /*
-  rule benign_avalon;
-    pcie_ep.ava_rx.mask(False);  // Assert to stop receiving non-posted requests
-    pcie_ep.ava_rx.rdy(True);    // Assert to allow receiving packets
-
-    pcie_ep.ava_tx.data(0);      // TX Data
-    pcie_ep.ava_tx.sop(False);
-    pcie_ep.ava_tx.eop(False);
-    pcie_ep.ava_tx.empty(False);
-    pcie_ep.ava_tx.valid(False); // is TLP Valid
-    pcie_ep.ava_tx.err(False);
-  endrule
-  */
 
   interface pcie = pcie_ep.pcie;
 
@@ -1990,32 +2083,25 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     method    Bool  lnk_up  = pcie_ep.ava.lnk_up;
   endinterface
 
-  interface PCIE_TRN_XMIT16 trn_tx;
-     method Action xmit(discontinue, data) if (pcie_ep.ava_tx.tready); 
-        pcie_ep.ava_tx.sop(data.sof);
-        pcie_ep.ava_tx.eop(data.eof);
-        pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
-        //pcie_ep.ava_tx.tstrb(reverseBits(data.be));       // active-high be's are strobes, TODO check reverseBits
-        pcie_ep.ava_tx.data(reverseDWORDS(data.data));    // reverse DWORDS
-        pwAvaTx.send;
-     endmethod
-  endinterface
-
-  interface PCIE_TRN_RECV16 trn_rx;
-     method ActionValue#(TLPData#(16)) recv() if (pcie_ep.ava_rx.valid);
+  interface PCIE_TRN_RECV16 trn_rx;  // downstream...
+     method ActionValue#(TLPData#(16)) recv() if (rxOutF.notEmpty);
+        let rxo = rxOutF.first;
+        rxOutF.deq;
         TLPData#(16) retval = defaultValue;
-        retval.sof  = pcie_ep.ava_rx.sop;
-        retval.eof  = pcie_ep.ava_rx.eop;
-        retval.hit  = truncate(pcie_ep.ava_rx.bar);
-        retval.be   = reverseBits(pcie_ep.ava_rx.be); //TODO check reverseBits
-        retval.data = reverseDWORDS(pcie_ep.ava_rx.data);
-        pwAvaRx.send;
+        retval.sof  = rxo.sof;
+        retval.eof  = rxo.eof;
+        retval.hit  = rxo.hit;
+        retval.be   = reverseBits(rxo.be); //TODO check reverseBits
+        retval.data = reverseDWORDS(rxo.data);
         return retval;
      endmethod
   endinterface
 
-  //interface PCIE_AVALONST_TX ava_tx = pcie_ep.ava_tx;
-  //interface PCIE_AVALONST_RX ava_rx = pcie_ep.ava_rx;
+  interface PCIE_TRN_XMIT16 trn_tx; // upstream
+    method Action xmit(discontinue, data) if (txInF.notFull);
+      txInF.enq(data);
+    endmethod
+  endinterface
 
 endmodule: mkPCIExpressEndpointS4GX
 
