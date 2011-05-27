@@ -454,7 +454,7 @@ platform_alst4: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		-D USE_NDW4 \
+		-D USE_NDW1 \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ALST4).bsv
 
 ######################################################################
@@ -466,7 +466,7 @@ platform_htgs4: $(OBJ)
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		-D USE_NDW4 \
+		-D USE_NDW1 \
 		-verilog-filter basicinout $(BSVTOP)/$(P_HTGS4).bsv
 
 $(OBJ):

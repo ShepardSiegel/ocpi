@@ -934,6 +934,15 @@ interface PCIE_AVALONST_TX;
    method    Bool        fEmpty;
 endinterface
 
+(* always_ready, always_enabled *)
+interface PCIE_ALT_CFG;
+   method    Bit#(4)     addr;
+   method    Bit#(32)    data;
+   method    Bool        dataWrite;
+   method    Bit#(53)    status;
+   method    Bool        statusWrite;
+endinterface
+
 // These Interface declarations aggregate the sub-interfaces used by each of the importBVI variants...
 // These are the interfaces provided by the vMkXXX modules...
 
@@ -978,7 +987,7 @@ interface PCIE_vS4GX#(numeric type lanes);  // Altera Stratix4-GX low-level inte
    interface PCIE_AVALONST        ava;
    interface PCIE_AVALONST_RX     ava_rx;
    interface PCIE_AVALONST_TX     ava_tx;
-   //interface PCIE_ALT_CFG     cfg;
+   interface PCIE_ALT_CFG         cfg;
    //interface PCIE_ALT_INT     cfg_interrupt;
 endinterface: PCIE_vS4GX
 
@@ -990,6 +999,7 @@ interface PCIE_S4GX#(numeric type lanes);  // Altera Stratix4-GX mid-level inter
    //interface PCIE_AVALONST_TX     ava_tx;
    interface PCIE_TRN_XMIT16 trn_tx;
    interface PCIE_TRN_RECV16 trn_rx;
+   method PciId                 device;
    //interface PCIE_ALT_CFG     cfg;
    //interface PCIE_ALT_INT     cfg_interrupt;
 endinterface: PCIE_S4GX
@@ -1527,8 +1537,16 @@ module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) 
       method    tx_fifo_empty0 fEmpty                                              clocked_by(ava_clk) reset_by(no_reset);
    endinterface
 
-     schedule (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty ) CF
-     (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty );
+   interface PCIE_ALT_CFG cfg;
+      method    tl_cfg_add     addr                                                clocked_by(ava_clk) reset_by(no_reset);
+      method    tl_cfg_ctl     data                                                clocked_by(ava_clk) reset_by(no_reset);
+      method    tl_cfg_ctl_wr  dataWrite                                           clocked_by(ava_clk) reset_by(no_reset);
+      method    tl_cfg_sts     status                                              clocked_by(ava_clk) reset_by(no_reset);
+      method    tl_cfg_sts_wr  statusWrite                                         clocked_by(ava_clk) reset_by(no_reset);
+   endinterface
+
+     schedule (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty, cfg_addr, cfg_data, cfg_dataWrite, cfg_status, cfg_statusWrite) CF
+     (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty, cfg_addr, cfg_data, cfg_dataWrite, cfg_status, cfg_statusWrite);
 
 
 endmodule: vMkStratix4PCIExpress 
@@ -1960,15 +1978,23 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   PulseWire         pwAvaRx     <- mkPulseWire(clocked_by ava125Clk, reset_by noReset);
 
   // Avalon-ST RX qword-allignment bubble removal
-  FIFOF#(TLPData#(16))       rxStageF      <- mkFIFOF1;  // Purposefully depth-1 for bubble removal
-  Reg#(Bit#(2))              rxSerPos      <- mkReg(0);
-  FIFOF#(TLPData#(16))       rxOutF        <- mkFIFOF;
+  FIFOF#(TLPData#(16))       rxStageF      <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst);  // Purposefully depth-1 for bubble removal
+  Reg#(Bit#(2))              rxSerPos      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPData#(16))       rxOutF        <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST TX qword-allignment bubble insertion
-  FIFOF#(TLPData#(16))       txInF         <- mkFIFOF; 
-  FIFOF#(TLPData#(16))       txStageF      <- mkFIFOF1; 
-  Reg#(Bit#(2))              txSerPos      <- mkReg(0);
-  Reg#(Bool)                 txHeadPushed  <- mkReg(False);
+  FIFOF#(TLPData#(16))       txInF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
+  FIFOF#(TLPData#(16))       txStageF      <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst); 
+  Reg#(Bit#(2))              txSerPos      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                 txHeadPushed  <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+
+  Reg#(PciId)                deviceReg     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
+
+
+  // Configuration capture logic...
+  rule capture_deviceid (pcie_ep.cfg.addr == 4'hF); // capture cfg_busdev
+    deviceReg <= PciId { bus:pcie_ep.cfg.data[12:5], dev:pcie_ep.cfg.data[4:0], func:0 } ;
+  endrule
 
   // Downstream Avalon-ST to TRN
 
@@ -2102,6 +2128,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
       txInF.enq(data);
     endmethod
   endinterface
+
+  method PciId device = deviceReg;
 
 endmodule: mkPCIExpressEndpointS4GX
 
