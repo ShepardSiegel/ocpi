@@ -905,6 +905,7 @@ interface PCIE_AVALONST;
    interface Reset       usr_rst;
    method    Bool        alive;       // core is alive
    method    Bool        lnk_up;      // Link-Up L0 status
+   method    Bit#(32)    debug;
 endinterface
 
 (* always_ready, always_enabled *)
@@ -1510,6 +1511,7 @@ module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) 
       output_reset                      usr_rst(ava_srstn)                  clocked_by(ava_clk);
       method ava_alive                  alive                               clocked_by(no_clock) reset_by(no_reset); 
       method ava_lnk_up                 lnk_up                              clocked_by(no_clock) reset_by(no_reset); 
+      method ava_debug                  debug                               clocked_by(no_clock) reset_by(no_reset); 
    endinterface
 
    interface PCIE_AVALONST_RX ava_rx;
@@ -1545,9 +1547,8 @@ module vMkStratix4PCIExpress#(Clock sclk, Reset srstn, Clock pclk, Reset prstn) 
       method    tl_cfg_sts_wr  statusWrite                                         clocked_by(ava_clk) reset_by(no_reset);
    endinterface
 
-     schedule (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty, cfg_addr, cfg_data, cfg_dataWrite, cfg_status, cfg_statusWrite) CF
-     (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty, cfg_addr, cfg_data, cfg_dataWrite, cfg_status, cfg_statusWrite);
-
+     schedule (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_debug, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty, cfg_addr, cfg_data, cfg_dataWrite, cfg_status, cfg_statusWrite) CF
+     (pcie_rx, pcie_tx, ava_alive, ava_lnk_up, ava_debug, ava_rx_mask, ava_rx_rdy, ava_rx_valid, ava_rx_bar, ava_rx_be, ava_rx_data, ava_rx_sop, ava_rx_eop, ava_rx_empty, ava_rx_err, ava_tx_data, ava_tx_sop, ava_tx_eop, ava_tx_empty, ava_tx_valid, ava_tx_err, ava_tx_tready, ava_tx_credit, ava_tx_fEmpty, cfg_addr, cfg_data, cfg_dataWrite, cfg_status, cfg_statusWrite);
 
 endmodule: vMkStratix4PCIExpress 
 
@@ -2096,17 +2097,20 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   rule connect_ava_tx;
     pcie_ep.ava_tx.valid(pwAvaTx);   // assert valid when we xmit - causes push into EP
   endrule
+
   rule connect_ava_rx;
-    pcie_ep.ava_rx.rdy(pwAvaRx);   // assert rdy when we receive - causes pop from EP 
+    //pcie_ep.ava_rx.rdy(pwAvaRx);     // assert rdy when we receive - causes pop from EP 
+    pcie_ep.ava_rx.rdy(True); //FIXME
   endrule
 
   interface pcie = pcie_ep.pcie;
 
   interface PCIE_AVALONST ava;
-    interface Clock clk     = pcie_ep.ava.clk;
-    interface Reset usr_rst = pcie_ep.ava.usr_rst;
-    method    Bool  alive   = pcie_ep.ava.alive;
-    method    Bool  lnk_up  = pcie_ep.ava.lnk_up;
+    interface Clock    clk     = pcie_ep.ava.clk;
+    interface Reset    usr_rst = pcie_ep.ava.usr_rst;
+    method    Bool     alive   = pcie_ep.ava.alive;
+    method    Bool     lnk_up  = pcie_ep.ava.lnk_up;
+    method    Bit#(32) debug   = pcie_ep.ava.debug;
   endinterface
 
   interface PCIE_TRN_RECV16 trn_rx;  // downstream...
@@ -2215,6 +2219,26 @@ instance Connectable#(PCIE_TRN_RECV_V6, Put#(TLPData#(8)));
       mkConnection(p, r);
    endmodule
 endinstance
+
+
+instance Connectable#(PCIE_TRN_RECV16, Put#(TLPData#(16)));
+   module mkConnection#(PCIE_TRN_RECV16 r, Put#(TLPData#(16)) p)(Empty);
+      rule connect;
+         let data <- r.recv;
+         p.put(data);
+      endrule
+   endmodule
+endinstance
+
+instance Connectable#(Get#(TLPData#(16)), PCIE_TRN_XMIT16);
+   module mkConnection#(Get#(TLPData#(16)) g, PCIE_TRN_XMIT16 p)(Empty);
+      rule connect;
+         let data <- g.get;
+         p.xmit(False, data);
+      endrule
+   endmodule
+endinstance
+
 
 
 // Conversions between TLPData#(8) and TLPData#(16)

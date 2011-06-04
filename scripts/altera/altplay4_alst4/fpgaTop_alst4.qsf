@@ -154,3 +154,4 @@ set_instance_assignment -name SLEW_RATE 0 -to led[*]
 #set_instance_assignment -name SLEW_RATE 0 -to led[5]
 #set_instance_assignment -name SLEW_RATE 0 -to led[6]
 #set_instance_assignment -name SLEW_RATE 0 -to led[7]
+

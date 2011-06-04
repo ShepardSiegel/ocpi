@@ -41,6 +41,7 @@ interface PCIEwrapAIfc#(numeric type lanes);
   interface Client#(PTW16,PTW16)  client;  // The PCIe client - normally connected to infrastructure uNoC
   (* always_ready *) method Bool  alive;   // Pulsing when the core is alive
   (* always_ready *) method Bool  linkUp;  // True when the pcie link is up
+  (* always_ready *) method Bool  dbgBool; // Collected OR of debug
   (* always_ready *) method PciId device;  // PCIe device-id (16b bus/dev/fun 3-tuple)
 endinterface: PCIEwrapAIfc
 
@@ -81,16 +82,9 @@ module mkPCIEwrapA4#(Clock sys0_clk, Reset sys0_rstn, Clock pci0_clk,  Reset pci
   SyncBitIfc#(Bit#(1)) linkLed_sb   <- mkSyncBit(sys0Clk, sys0Rst, p125Clk);
   rule assign_alive; aliveLed_sb.send(pack(pci0.ava.alive)); endrule
   rule assign_link;  linkLed_sb.send(pack(pci0.ava.lnk_up)); endrule
-
   Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
   (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pci0.device; endrule
 
-  //Bool                  pLinkUp     =  pci0.trn.link_up;
-  //SyncBitIfc#(Bit#(1))  pciLinkUp   <- mkSyncBit(p250clk, p250rst, p125clk);  // single-bit synchronizer 250 to 125 MHz
-  //Bool                  pLinkUp     =  pci0.trn.link_up;
-  //SyncBitIfc#(Bit#(1))  pciLinkUp   <- mkSyncBit(p250clk, p250rst, p125clk);  // single-bit synchronizer 250 to 125 MHz
-  //PciId                 pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
-  //Reg#(PciId)           pciDevice   <- mkSyncReg(unpack(0), p250clk, p250rst, p125clk); // multi-bit sync 250 to 125 MHz
 
   //(* fire_when_enabled, no_implicit_conditions *) rule send_pciLinkup; pciLinkUp.send(pack(pLinkUp)); endrule 
   //(* fire_when_enabled *) rule capture_pciDevice; pciDevice <= pciDev;  endrule 
@@ -98,20 +92,13 @@ module mkPCIEwrapA4#(Clock sys0_clk, Reset sys0_rstn, Clock pci0_clk,  Reset pci
   //InterruptControl pcie_irq   <- mkInterruptController(p250clk, p250rst, clocked_by p250clk, reset_by p250rst);
   //ClockInvToBoolIfc preEdge   <- vMkClockInvToBool(p125clk , clocked_by p250clk, reset_by p250rst);  //true when trn2 will rise on next edge
 
-  //Store#(UInt#(0),TLPData#(16),0) p2iS    <- mkRegStore(p250clk, p125clk );
-  //AlignedFIFO#(TLPData#(16))      p2iAF   <- mkAlignedFIFO(p250clk,p250rst,p125clk ,p125rst ,p2iS,preEdge,True);
-  //Store#(UInt#(0),TLPData#(16),0) i2pS    <- mkRegStore(p125clk , p250clk);
-  //AlignedFIFO#(TLPData#(16))      i2pAF   <- mkAlignedFIFO(p125clk ,p125rst ,p250clk,p250rst,i2pS,True,preEdge);
-  //FIFO#(TLPData#(8))              fP2I    <- mkSizedFIFO(4,    clocked_by p250clk, reset_by p250rst  );
-  //FIFO#(TLPData#(8))              fI2P    <- mkSizedFIFO(4,    clocked_by p250clk, reset_by p250rst  );
+  FIFO#(TLPData#(16))      p2iF   <- mkFIFO(clocked_by p125Clk, reset_by p125Rst);
+  FIFO#(TLPData#(16))      i2pF   <- mkFIFO(clocked_by p125Clk, reset_by p125Rst);
 
-  // Inbound  PCIe (8B@250MHz) -> CTOP (16B@125MHz)...
-  //mkConnection(pci0.trn_rx,  toPut(fP2I),  clocked_by p250clk,  reset_by p250rst);  // 8B      250 MHz
-  //mkConnection(toGet(fP2I),  toPut(p2iAF), clocked_by p250clk,  reset_by p250rst);  // 8B->16B 250 MHz
-
-  // Outbound CTOP (16B@125MHz) -> PCIe (8B@250MHz)...
-  //mkConnection(toGet(i2pAF), toPut(fI2P),  clocked_by p250clk,  reset_by p250rst);  // 16B->8B 250 MHz
-  //mkConnection(toGet(fI2P),  pci0.trn_tx,  clocked_by p250clk,  reset_by p250rst);  // 8B      250 MHz
+  // Inbound  PCIe (16B@125MHz) -> CTOP (16B@125MHz)...
+  mkConnection(pci0.trn_rx,  toPut(p2iF));
+  // Outbound CTOP (16B@125MHz) -> PCIe (16B@125MHz)...
+  mkConnection(toGet(i2pF),  pci0.trn_tx);
 
   // TODO: Implement me when these interfaces are exposed
   //mkConnection(pci0.cfg_interrupt, pcie_irq.pcie_irq);
@@ -122,13 +109,14 @@ module mkPCIEwrapA4#(Clock sys0_clk, Reset sys0_rstn, Clock pci0_clk,  Reset pci
   interface PCI_EXP_ALT pcie     = pci0.pcie;
   interface Clock       pClk     = p125Clk ;
   interface Reset       pRst     = p125Rst ;
-  //interface Client client;
-  //  interface request  = toGet(p2iAF); // 16B-125MHz requests  towards uNoC infrastructre
-  //  interface response = toPut(i2pAF); // 16B-125MHz responses towards PCIe fabric
-  //endinterface
-  method Bool  alive  = unpack(aliveLed_sb.read);
-  method Bool  linkUp = unpack(linkLed_sb.read);
-  method PciId device = pciDevice;
+  interface Client client;
+    interface request  = toGet(p2iF); // 16B-125MHz requests  towards uNoC infrastructre
+    interface response = toPut(i2pF); // 16B-125MHz responses towards PCIe fabric
+  endinterface
+  method Bool  alive   = unpack(aliveLed_sb.read);
+  method Bool  dbgBool = unpack(parity(pci0.ava.debug));
+  method Bool  linkUp  = unpack(linkLed_sb.read);
+  method PciId device  = pciDevice;
 endmodule: mkPCIEwrapA4
 
 // This Xilinx X6 specifc implementation takes 8B/250MHz interface and converts it to 16B/125MHz...

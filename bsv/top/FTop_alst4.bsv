@@ -59,7 +59,7 @@ module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
 
   Reg#(Bit#(16)) ledReg <- mkReg(0, clocked_by p125Clk, reset_by p125Rst);
   rule assign_led;
-    ledReg <= ~{8'h42, ~swParity, swParity, pack(pciw.alive), pack(pciw.linkUp), freeCnt[29:26]};
+    ledReg <= ~{8'h42, swParity, pack(pciw.dbgBool), pack(pciw.alive), pack(pciw.linkUp), freeCnt[29:26]};
   endrule
 
   // Interfaces and Methods provided...

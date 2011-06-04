@@ -17,6 +17,13 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   output wire         ava_srstn,            // Avalon Active-Low Reset
   output wire         ava_alive,            // Avalon Alive
   output wire         ava_lnk_up,           // Avalon Link-Up
+  output wire [31:0]  ava_debug,            // 32b of Debug Info
+
+  output wire [3:0]   tl_cfg_add,           // Altera Multiplexed Configuration...
+  output wire [31:0]  tl_cfg_ctl,
+  output wire         tl_cfg_ctl_wr,
+  output wire [52:0]  tl_cfg_sts,           // Altera Status...
+  output wire         tl_cfg_sts_wr,
 
   input  wire         rx_st_mask0,          // Avalon RX signalling...
   input  wire         rx_st_ready0,         // downstream traffic
@@ -40,6 +47,17 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   output wire         tx_fifo_empty0
 );
 
+                                              // 32b of Debug Info
+assign ava_debug = { 11'h000,                 // 31:21
+                     any_rstn_rr,             // 20 
+                     local_rstn,              // 19
+                     pcie_rstn,               // 18
+                     pll_powerdown,           // 16
+                     npor_serdes_pll_locked,  // 16
+                     rc_pll_locked,           // 15
+                     busy_altgxb_reconfig,    // 14
+                     ltssm,                   // 13:9
+                     test_out };              // 8:0
 
 // (level:0) wire declarations...
   reg              L0_led;
@@ -49,8 +67,6 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   reg              any_rstn_r   /* synthesis ALTERA_ATTRIBUTE = "SUPPRESS_DA_RULE_INTERNAL=R102"  */;
   reg              any_rstn_rr  /* synthesis ALTERA_ATTRIBUTE = "SUPPRESS_DA_RULE_INTERNAL=R102"  */;
   wire             local_rstn = sys0_rstn;
-  //reg              comp_led;
-  //reg     [  3: 0] lane_active_led;
 
   wire refclk        = pcie_clk;
   assign pcie_tx_out = {tx_out3, tx_out2, tx_out1, tx_out0};
@@ -63,11 +79,11 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   assign ava_core_clk_out = core_clk_out;
   assign ava_alive   = alive_led;
   assign ava_lnk_up  = L0_led;
-  assign test_in     = 40'h0000000000;
-  wire pclk_in       = clk500_out;  // For Gen2, drive pclk_in with clk500_out
+  //assign test_in     = 40'h0000000000;  // All zeros provdes the "default behavior"
+  assign test_in     = 40'h00_0000_00A8;  // b7="safe_mode", b5=hip, b3=what altera does
+  //assign test_in     = 40'h00000000A8;  // Undocumented change suggested by Altera "CW" 2011-06-03
+  wire pclk_in       = clk500_out;      // For Gen2, drive pclk_in with clk500_out
 
-  //wire    [  3: 0] open_phy_sel_code;
-  //wire    [  3: 0] open_ref_clk_sel_code;
   wire             phystatus_ext;
   wire             req_compliance_soft_ctrl;
   wire    [  7: 0] rxdata0_ext;
@@ -121,49 +137,26 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   wire             txelecidle3_ext;
 
 // (level:1) wire declarations...
-  wire    [ 12: 0] cfg_busdev_icm;
-  wire    [ 31: 0] cfg_devcsr_icm;
-  wire    [ 19: 0] cfg_io_bas;
-  wire    [ 31: 0] cfg_linkcsr_icm;
-  wire    [ 15: 0] cfg_msicsr;
-  wire    [ 11: 0] cfg_np_bas;
-  wire    [ 43: 0] cfg_pr_bas;
-  wire    [ 31: 0] cfg_prmcsr_icm;
   wire    [  6: 0] cpl_err = 7'b0000000;
   wire             cpl_pending = 1'b0;
-  wire    [  6: 0] cpl_err_icm;
-  wire    [  6: 0] cpl_err_in;
   wire             cpl_pending_icm;
-  wire    [  4: 0] dl_ltssm;
-  wire    [127: 0] err_desc;
   wire             fixedclk_serdes;
-  //wire    [ 23: 0] gnd_cfg_tcvcmap_icm;
-  //wire             gnd_msi_stream_ready0;
-  //wire    [  9: 0] gnd_pm_data;
-  //wire             gnd_tx_stream_mask0;
-  //wire    [ 19: 0] ko_cpl_spc_vc0;
-  //wire    [  3: 0] lane_width_code;
-  wire    [ 11: 0] lmi_addr;
-  wire    [ 31: 0] lmi_din;
-  wire             lmi_rden;
-  wire             lmi_wren;
+  wire    [ 11: 0] lmi_addr = 12'h000;
+  wire    [ 31: 0] lmi_din  = 32'h0000_0000;
+  wire             lmi_rden = 1'b0;
+  wire             lmi_wren = 1'b0;
+  wire             lmi_ack;
+  wire    [ 31: 0] lmi_dout;
   wire    [  4: 0] open_aer_msi_num;
-  wire    [ 23: 0] open_cfg_tcvcmap;
-  wire             open_cplerr_lmi_busy;
   wire    [  7: 0] open_msi_stream_data0;
   wire             open_msi_stream_valid0;
   wire    [  9: 0] open_pm_data;
   wire             open_rx_st_err0;
-  //wire             pcie_reconfig_busy;
   wire    [  4: 0] pex_msi_num = 5'b00000;
   wire    [  4: 0] pex_msi_num_icm;
-  //wire    [  3: 0] phy_sel_code;
   wire             reconfig_clk;
   wire             reconfig_clk_locked;
-  //wire    [  3: 0] ref_clk_sel_code;
   wire             rx_mask0;
-  //wire    [ 81: 0] rx_stream_data0;
-  //wire    [ 81: 0] rx_stream_data0_1;
   wire             rx_stream_ready0;
   wire             rx_stream_valid0;
   wire    [  8: 0] test_out_int;
@@ -172,7 +165,6 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   wire    [ 74: 0] tx_stream_data0_1 = 0;
   wire             tx_stream_ready0;
   wire             tx_stream_valid0;
-
   wire             pm_auxpwr = 1'b0;
   wire [9:0]       pm_data   = 9'b000000000;
   wire             pm_event  = 1'b0;
@@ -186,7 +178,6 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   wire    [2:0]    app_msi_tc  = 3'b000;
   wire             app_msi_ack;
   wire             busy_altgxb_reconfig;
-  wire             busy_altgxb_reconfig_altr;
   wire             clk250_out;
   wire             clk500_out;
   wire             crst;
@@ -198,8 +189,6 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   wire             hotrst_exit_altr;
   wire             l2_exit;
   wire    [  3: 0] lane_act;
-  wire             lmi_ack;
-  wire    [ 31: 0] lmi_dout;
   wire    [  4: 0] ltssm;
   wire             npor;
   wire             npor_serdes_pll_locked;
@@ -221,23 +210,15 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   wire    [  3: 0] rx_eqctrl_out;
   wire    [  2: 0] rx_eqdcgain_out;
   wire             srst;
-  wire             srstn;
   wire    [  8: 0] test_out;
-  wire    [  3: 0] tl_cfg_add;
-  wire    [ 31: 0] tl_cfg_ctl;
-  wire             tl_cfg_ctl_wr;
-  wire    [ 52: 0] tl_cfg_sts;
-  wire             tl_cfg_sts_wr;
   wire    [  4: 0] tx_preemp_0t_out;
   wire    [  4: 0] tx_preemp_1t_out;
   wire    [  4: 0] tx_preemp_2t_out;
-//  wire             tx_st_ready0;
   wire    [  2: 0] tx_vodctrl_out;
 
 
   // (level:0) assignments...
   assign any_rstn  = pcie_rstn & local_rstn;
-  assign ava_srstn = any_rstn_rr;
 
   // (level:0) codes...
   always @(posedge core_clk_out or negedge any_rstn)
@@ -252,40 +233,19 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
           alive_cnt <= 0;
           alive_led <= 0;
           L0_led    <= 0;
-          //comp_led  <= 0;
-          //lane_active_led <= 0;
         end else begin
           alive_cnt <= alive_cnt +1;
           alive_led <= alive_cnt[24];
           L0_led    <= (test_out_icm[4 : 0] == 5'b01111);
-          //comp_led  <= (test_out_icm[4 : 0] == 5'b00011);
-          //lane_active_led[3 : 0] <= (test_out_icm[8 : 5]);
         end
     end
   end
 
   // (level:1) assignments...
-  //assign ref_clk_sel_code = 0;
-  //assign lane_width_code = 2;
-  //assign phy_sel_code = 6;
   assign otb0 = 1'b0;
   assign otb1 = 1'b1;
-  //assign gnd_pm_data = 0;
-  //assign ko_cpl_spc_vc0[7 : 0] = 8'd112;
-  //assign ko_cpl_spc_vc0[19 : 8] = 12'd448;
-  //assign gnd_cfg_tcvcmap_icm = 0;
-  //assign tx_st_sop0 = tx_stream_data0[73];
-  //assign tx_st_err0 = tx_stream_data0[74];
-  //assign rx_stream_data0 = {rx_st_be0[7 : 0], rx_st_sop0, rx_st_empty0, rx_st_bardec0, rx_st_data0[63 : 0]};
-  //assign rx_stream_data0_1 = {rx_st_be0[15 : 8], rx_st_sop0, rx_st_eop0, rx_st_bardec0, rx_st_data0[127 : 64]};
-  //assign tx_st_data0 = {tx_stream_data0_1[63 : 0],tx_stream_data0[63 : 0]};
-  //assign tx_st_eop0 = tx_stream_data0_1[72];
-  //assign tx_st_empty0 = tx_stream_data0[72];
   assign test_out_icm = test_out_int;
   assign test_out_int = test_out;
-  //assign pcie_reconfig_busy = 1'b1;
-  //assign gnd_tx_stream_mask0 = 1'b0;
-  //assign gnd_msi_stream_ready0 = 1'b0;
 
   // These next three modules have been copied into the local dir and may be edited
 
@@ -297,40 +257,6 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
       .locked (reconfig_clk_locked)
     );
 
-  altpcierd_tl_cfg_sample cfgbus (
-      .cfg_busdev    (cfg_busdev_icm),
-      .cfg_devcsr    (cfg_devcsr_icm),
-      .cfg_io_bas    (cfg_io_bas),
-      .cfg_linkcsr   (cfg_linkcsr_icm),
-      .cfg_msicsr    (cfg_msicsr),
-      .cfg_np_bas    (cfg_np_bas),
-      .cfg_pr_bas    (cfg_pr_bas),
-      .cfg_prmcsr    (cfg_prmcsr_icm),
-      .cfg_tcvcmap   (open_cfg_tcvcmap),
-      .pld_clk       (pld_clk),
-      .rstn          (srstn),
-      .tl_cfg_add    (tl_cfg_add),
-      .tl_cfg_ctl    (tl_cfg_ctl),
-      .tl_cfg_ctl_wr (tl_cfg_ctl_wr),
-      .tl_cfg_sts    (tl_cfg_sts),
-      .tl_cfg_sts_wr (tl_cfg_sts_wr)
-    );
-  defparam cfgbus.HIP_SV = 0;
-
-  altpcierd_cplerr_lmi lmi_blk (
-      .clk_in          (pld_clk),
-      .cpl_err_in      (cpl_err_in),
-      .cpl_err_out     (cpl_err_icm),
-      .cplerr_lmi_busy (open_cplerr_lmi_busy),
-      .err_desc        (err_desc),
-      .lmi_ack         (lmi_ack),
-      .lmi_addr        (lmi_addr),
-      .lmi_din         (lmi_din),
-      .lmi_rden        (lmi_rden),
-      .lmi_wren        (lmi_wren),
-      .rstn            (srstn)
-    );
-
   // (level:2) assignments...
   wire pipe_mode = 1'b0;
   assign otb0 = 1'b0;
@@ -338,7 +264,6 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
   assign offset_cancellation_reset = ~reconfig_clk_locked;
   assign reconfig_fromgxb[33 : 17] = 0;
   assign gnd_hpg_ctrler = 0;
-  assign busy_altgxb_reconfig_altr = (pipe_mode==otb1)?otb0:busy_altgxb_reconfig;
   assign gxb_powerdown = ~npor;
   assign hotrst_exit_altr = hotrst_exit;
   assign pll_powerdown = ~npor;
@@ -347,16 +272,16 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
 
   // This next core has been copied into the local dir and may be edited
   pcie_hip_s4gx_gen2_x4_128_rs_hip rs_hip (
-    .app_rstn    (srstn),
-    .crst        (crst),
     .dlup_exit   (dlup_exit),
     .hotrst_exit (hotrst_exit_altr),
     .l2_exit     (l2_exit),
     .ltssm       (ltssm),
     .npor        (npor_serdes_pll_locked),
     .pld_clk     (pld_clk),
-    .srst        (srst),
-    .test_sim    (test_in[0])
+    .test_sim    (test_in[0]),
+    .app_rstn    (ava_srstn),    // out: Avalon application reset (active-low)
+    .crst        (crst),         // out: config reset to hard core...
+    .srst        (srst)          // out: sync   reset to hard core...
   );
 
   // This next cores is from the core's pci_express_compiler-library...
@@ -381,14 +306,14 @@ module pcie_hip_s4gx_gen2_x4_128_wrapper (
     .tx_preemp_2t     (5'b00000),
     .tx_preemp_2t_out (tx_preemp_2t_out),
     .tx_vodctrl       (3'b000),
-    .tx_vodctrl_out (tx_vodctrl_out),
+    .tx_vodctrl_out   (tx_vodctrl_out),
     .write_all        (1'b0)
   );
 
   // Instantiation of the unedited (level:3) core...
   pcie_hip_s4gx_gen2_x4_128 epmap (
       .app_int_ack (app_int_ack), .app_int_sts (app_int_sts), .app_msi_ack (app_msi_ack), .app_msi_num (app_msi_num), .app_msi_req (app_msi_req), .app_msi_tc (app_msi_tc),
-      .busy_altgxb_reconfig (busy_altgxb_reconfig_altr), .cal_blk_clk (reconfig_clk), .clk250_out (clk250_out), .clk500_out (clk500_out), .core_clk_out (core_clk_out), .cpl_err (cpl_err),
+      .busy_altgxb_reconfig (busy_altgxb_reconfig), .cal_blk_clk (reconfig_clk), .clk250_out (clk250_out), .clk500_out (clk500_out), .core_clk_out (core_clk_out), .cpl_err (cpl_err),
       .cpl_pending (cpl_pending), .crst (crst), .dlup_exit (dlup_exit), .fixedclk_serdes (fixedclk_serdes), .gxb_powerdown (gxb_powerdown), .hotrst_exit (hotrst_exit),
       .hpg_ctrler (gnd_hpg_ctrler), .l2_exit (l2_exit), .lane_act (lane_act), .lmi_ack (lmi_ack), .lmi_addr (lmi_addr), .lmi_din (lmi_din),
       .lmi_dout (lmi_dout), .lmi_rden (lmi_rden), .lmi_wren (lmi_wren), .ltssm (ltssm), .npor (npor), .pclk_in (pclk_in),
