@@ -292,7 +292,7 @@ isim13: $(OBJ)
 ######################################################################
 verilog_scenario0: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S0).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S0).bsv 
 	mv $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario0.v
 
 verilog_scenario1: $(OBJ)

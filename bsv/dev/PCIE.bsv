@@ -22,6 +22,7 @@ import DReg              ::*;
 import Gearbox           ::*;
 import FIFO              ::*;
 import FIFOF             ::*;
+import FIFOLevel         ::*;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Types
@@ -59,6 +60,29 @@ instance DefaultValue#(TLPData#(n));
       data: 0
       };
 endinstance
+
+// Altera Variant with empty and 8b Bar
+typedef struct {
+   Bool                  empty; // on eop/eof, asserts that only the lower 64b of data have data
+   Bool                  sof;
+   Bool                  eof;
+   Bit#(8)               hit;
+   Bit#(bytes)           be;
+   Bit#(TMul#(bytes, 8)) data;
+   } TLPDataA#(type bytes) deriving (Bits, Eq);
+
+instance DefaultValue#(TLPDataA#(n));
+   defaultValue =
+   TLPDataA {
+      empty:False,
+      sof:  False,
+      eof:  False,
+      hit:  0,
+      be:   0,
+      data: 0
+      };
+endinstance
+
 
 typedef enum {
    STRICT_ORDERING   = 0,
@@ -529,6 +553,11 @@ endfunction
 // Reverse-Position of DWORDs
 function Bit#(nd) reverseDWORDS(Bit#(nd) a) provisos (Mul#(32,ndw,nd));
   Vector#(ndw, Bit#(32)) vWords = reverse(unpack(a)); return pack(vWords);
+endfunction
+
+// Reverse-Position of BYTESs
+function Bit#(nd) reverseBYTES(Bit#(nd) a) provisos (Mul#(8,nby,nd));
+  Vector#(nby, Bit#(8)) vBytes = reverse(unpack(a)); return pack(vBytes);
 endfunction
 
 
@@ -1857,7 +1886,7 @@ endmodule: mkPCIExpressEndpointV6
 module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //TODO: Provide X6 (not TRN V6) as alternate implementation
    provisos(Add#(1, z, lanes));
 
-// This implementation has the interesting challenge of reverse-migrating the AXI interface from the 2.3 V6/X6 PCIe core
+// This implementation has the interesting challenge of backward-migrating the AXI interface from the 2.3 V6/X6 PCIe core
 // to the older TRN interface it will someday replace. This is so we can test the AXI endpoint without having to change the
 // uNoC and everything attached to it. It is mostly the DWORD ordering and control logic generation.
 
@@ -1976,21 +2005,29 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   Clock             ava125Clk   = pcie_ep.ava.clk; 
   Reset             ava125Rst   = pcie_ep.ava.usr_rst;
   PulseWire         pwAvaTx     <- mkPulseWire(clocked_by ava125Clk, reset_by noReset);
-  PulseWire         pwAvaRx     <- mkPulseWire(clocked_by ava125Clk, reset_by noReset);
 
   // Avalon-ST RX qword-allignment bubble removal
-  FIFOF#(TLPData#(16))       rxStageF      <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst);  // Purposefully depth-1 for bubble removal
-  Reg#(Bit#(2))              rxSerPos      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  FIFOF#(TLPData#(16))       rxOutF        <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOLevelIfc#(TLPDataA#(16), 3) rxInF       <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // Pusposefully depth-3 for Avalon variable latency flow control
+  FIFOF#(TLPData#(16))         rxStageF       <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst);  // Purposefully depth-1 for bubble removal
+  Reg#(Bit#(2))                rxSerPos       <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPData#(16))         rxOutF         <- mkGFIFOF(True, False,  clocked_by ava125Clk, reset_by ava125Rst); //unguarded ENQ
+  FIFOF#(Bit#(8))              rxBarF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Vector#(4,Bit#(32)))    rxDataDebug    <- mkRegU(      clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bit#(32))               rxInValCount   <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bit#(32))               rxInSopCount   <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bit#(32))               rxInEopCount   <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bit#(32))               rxOutValCount  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bit#(32))               rxOutSofCount  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bit#(32))               rxOutEofCount  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bit#(32))               rxOutOvfCount  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST TX qword-allignment bubble insertion
-  FIFOF#(TLPData#(16))       txInF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
-  FIFOF#(TLPData#(16))       txStageF      <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst); 
-  Reg#(Bit#(2))              txSerPos      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bool)                 txHeadPushed  <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPData#(16))         txInF          <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
+  FIFOF#(TLPData#(16))         txStageF       <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst); 
+  Reg#(Bit#(2))                txSerPos       <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                   txHeadPushed   <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
 
-  Reg#(PciId)                deviceReg     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
-
+  Reg#(PciId)                  deviceReg      <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Configuration capture logic...
   rule capture_deviceid (pcie_ep.cfg.addr == 4'hF); // capture cfg_busdev
@@ -1999,50 +2036,101 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   // Downstream Avalon-ST to TRN
 
-  Bool rxBubble = pcie_ep.ava_rx.sop && !unpack(pcie_ep.ava_rx.data[34]); // bit 2 of the request address at Header Byte 11 - bubble when alligned
+  rule connect_ava_rx_mask;
+    pcie_ep.ava_rx.mask(False); // No non-posted back pressure. 26 more NP requests may come after this is asserted (128b Avalon-ST)
+  endrule
 
-  rule rx_enstage (pcie_ep.ava_rx.valid && !rxStageF.notEmpty);
-    pwAvaRx.send;
+  rule connect_ava_rx_rdy;
+    //pcie_ep.ava_rx.rdy(rxInF.isLessThan(2)); // 1 element in rxInF means at least 2 more may follow after Avalon-Ready is de-asserted
+    pcie_ep.ava_rx.rdy(True); // FIXME
+  endrule
+
+  rule rx_instage (pcie_ep.ava_rx.valid);  // instage brings guarded FIFO semantics to Avalon-ST (removes variable read latency)
+    rxInF.enq(TLPDataA {  
+      empty: pcie_ep.ava_rx.empty,
+      sof:   pcie_ep.ava_rx.sop,
+      eof:   pcie_ep.ava_rx.eop,
+      hit:   0,
+      be:    pcie_ep.ava_rx.be,
+      data:  pcie_ep.ava_rx.data });
+      rxInValCount <= rxInValCount + 1;
+      if(pcie_ep.ava_rx.sop) begin  // Avalon bardec only valid on SOP
+        TLPPacketType pktType = unpack(pcie_ep.ava_rx.data[28:24]);
+        Bit#(8) bar = (pktType==MEMORY_READ_WRITE) ? pcie_ep.ava_rx.bar : 0; // zero out Bar for non-memory requests
+        rxBarF.enq(bar);
+        rxInSopCount <= rxInSopCount + 1;
+      end
+      if(pcie_ep.ava_rx.eop) rxInEopCount <= rxInEopCount + 1;
+  endrule
+
+  // When RX packets are available in rxInF, one of the next two rules will file depending on if we have previously staged data or not
+
+  rule rx_enstage (!rxStageF.notEmpty);
+    let prx = rxInF.first; rxInF.deq();
+    Bool rxBubble = prx.sof && !unpack(prx.data[34]); // bit 2 of the request address at Header Byte 11 - bubble when alligned
+
+    Vector#(4, Bit#(32)) vdw = unpack(prx.data);
+    if (prx.sof && !rxBubble) begin
+      vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data (non-header)
+    end else begin
+      vdw[0] = reverseBYTES(vdw[0]);
+      vdw[1] = reverseBYTES(vdw[1]);
+      vdw[2] = reverseBYTES(vdw[2]);
+      vdw[3] = reverseBYTES(vdw[3]);
+    end
+
     if (rxSerPos==0 && !rxBubble) begin
       rxOutF.enq(TLPData {                   // Enq directly to rxOutF...
-        sof:  pcie_ep.ava_rx.sop,
-        eof:  pcie_ep.ava_rx.eop,
-        hit:  truncate(pcie_ep.ava_rx.bar),
-        be:   pcie_ep.ava_rx.be,
-        data: pcie_ep.ava_rx.data });
+        sof:  prx.sof,
+        eof:  prx.eof,
+        hit:  truncate(rxBarF.first),
+        be:   reverseBits(prx.be),
+        data: reverseDWORDS(pack(vdw)) });
+        rxOutValCount <= rxOutValCount + 1;
+        if (!rxOutF.notFull) rxOutOvfCount <= rxOutOvfCount + 1; // record unguarded OVF
+        if (prx.sof) rxOutSofCount <= rxOutSofCount + 1;
+        if (prx.eof) begin
+          rxSerPos <= 0;
+          rxOutEofCount <= rxOutEofCount + 1;
+        end
     end else begin 
       rxSerPos <= rxSerPos + 3;
       rxStageF.enq(TLPData {                 // Enq in the Stage Fifo...
-        sof:  pcie_ep.ava_rx.sop,
-        eof:  pcie_ep.ava_rx.eop,
-        hit:  truncate(pcie_ep.ava_rx.bar),
-        be:   pcie_ep.ava_rx.be,
-        data: pcie_ep.ava_rx.data });
+        sof:  prx.sof,
+        eof:  prx.eof,
+        hit:  0,
+        be:   prx.be,
+        data: pack(vdw) });
     end
+    if (prx.eof) rxBarF.deq;
   endrule
 
-  rule rx_destage (pcie_ep.ava_rx.valid && rxStageF.notEmpty);
-    pwAvaRx.send;
+  rule rx_destage (rxStageF.notEmpty);
+    let prx = rxInF.first; rxInF.deq();
     let stg = rxStageF.first;
     // TODO: Add correct "pick" from rxSerPos
-    Bit#(16)  be   = { pcie_ep.ava_rx.be[3:0],    stg.be[11:0] };
-    Bit#(128) data = { pcie_ep.ava_rx.data[15:0], stg.data[111:0] };
+    Bit#(16)  be   = { prx.be[3:0],    stg.be[11:0] };
+    Bit#(128) data = { prx.data[31:0], stg.data[95:0] };
     // TODO: Add enq to rxStageF
     rxOutF.enq(TLPData {                    // Enq composite in rxOutF
-      sof:  pcie_ep.ava_rx.sop,
-      eof:  pcie_ep.ava_rx.eop,
-      hit:  truncate(pcie_ep.ava_rx.bar),
-      be:   be,
-      data: data });
+      sof:  prx.sof,
+      eof:  prx.eof,
+      hit:  truncate(rxBarF.first),
+      be:   reverseBits(be),
+      data: reverseDWORDS(data) });
+    if (!rxOutF.notFull) rxOutOvfCount <= rxOutOvfCount + 1; // record unguarded OVF
     rxStageF.deq;
-    if (pcie_ep.ava_rx.eop) begin
+    rxOutValCount <= rxOutValCount + 1;
+    if (prx.sof) rxOutSofCount <= rxOutSofCount + 1;
+    if (prx.eof) begin
       rxSerPos <= 0;
+      rxBarF.deq;
+      rxOutEofCount <= rxOutEofCount + 1;
     end
   endrule
 
 
   // Upstream TRN to Avalon-ST...
-
 
   rule tx_enstage (pcie_ep.ava_tx.tready && !txStageF.notEmpty);
     let tx = txInF.first;
@@ -2051,11 +2139,11 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     Bit#(16)  be   = ?;
     Bit#(128) data = ?;
     if (!txBubble) begin
-      be   = reverseBits(tx.be);        // active-high be's are strobes, TODO check reverseBits
-      data = reverseDWORDS(tx.data);    // reverse DWORDS
+      be   = tx.be;      // active-high be's are strobes
+      data = tx.data;
     end else begin
-      be   = {4'h0,     reverseBits(tx.be)[11:0]};
-      data = {16'h0000, reverseDWORDS(tx.data)[111:0]};
+      be   = {4'h0,     tx.be[11:0]};
+      data = {16'h0000, tx.data[111:0]};
       txStageF.enq(tx);
     end
 
@@ -2077,8 +2165,10 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     let ts = txStageF.first; txStageF.deq;
     Bit#(16)  be   = ?;
     Bit#(128) data = ?;
-    be   = {reverseBits(tx.be)[15:4],       reverseBits(ts.be)[3:0]};
-    data = {reverseDWORDS(tx.data)[127:32], reverseDWORDS(ts.data)[31:0]};
+    //be   = {reverseBits(tx.be)[15:4],       reverseBits(ts.be)[3:0]};
+    //data = {reverseDWORDS(tx.data)[127:32], reverseDWORDS(ts.data)[31:0]};
+    be   = {tx.be[15:4],     ts.be[3:0]};
+    data = {tx.data[127:32], ts.data[31:0]};
 
     pwAvaTx.send;
     pcie_ep.ava_tx.sop(tx.sof);
@@ -2098,10 +2188,6 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     pcie_ep.ava_tx.valid(pwAvaTx);   // assert valid when we xmit - causes push into EP
   endrule
 
-  rule connect_ava_rx;
-    //pcie_ep.ava_rx.rdy(pwAvaRx);     // assert rdy when we receive - causes pop from EP 
-    pcie_ep.ava_rx.rdy(True); //FIXME
-  endrule
 
   interface pcie = pcie_ep.pcie;
 
@@ -2110,7 +2196,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     interface Reset    usr_rst = pcie_ep.ava.usr_rst;
     method    Bool     alive   = pcie_ep.ava.alive;
     method    Bool     lnk_up  = pcie_ep.ava.lnk_up;
-    method    Bit#(32) debug   = pcie_ep.ava.debug;
+    method    Bit#(32) debug   = pcie_ep.ava.debug | rxInValCount | rxInSopCount | rxInEopCount | rxOutValCount | rxOutSofCount | rxOutEofCount | rxOutOvfCount;
   endinterface
 
   interface PCIE_TRN_RECV16 trn_rx;  // downstream...
@@ -2121,8 +2207,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
         retval.sof  = rxo.sof;
         retval.eof  = rxo.eof;
         retval.hit  = rxo.hit;
-        retval.be   = reverseBits(rxo.be); //TODO check reverseBits
-        retval.data = reverseDWORDS(rxo.data);
+        retval.be   = rxo.be;
+        retval.data = rxo.data;
         return retval;
      endmethod
   endinterface

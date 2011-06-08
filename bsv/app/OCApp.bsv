@@ -7,7 +7,8 @@ import OCWip::*;
 //import ProtocolMonitor::*;
 
 
-import DelayWorker::*;
+import BiasWorker::*;
+//import DelayWorker::*;
 import SMAdapter::*;
 import Config::*;
 
@@ -58,11 +59,13 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
 `ifdef USE_NDW1
   SMAdapter4BIfc   appW2   <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  DelayWorker4BIfc appW3   <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  //DelayWorker4BIfc appW3   <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  BiasWorker4BIfc appW3   <-  mkBiasWorker4B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapter4BIfc   appW4   <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `elsif USE_NDW4
   SMAdapter16BIfc   appW2   <-  mkSMAdapter16B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  DelayWorker16BIfc appW3   <-  mkDelayWorker16B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  //DelayWorker16BIfc appW3   <-  mkDelayWorker16B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  BiasWorker16BIfc appW3   <-  mkBiasWorker16B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapter16BIfc   appW4   <-  mkSMAdapter16B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `endif
 
@@ -157,7 +160,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   interface wmiM1     = appW4.wmiM0;
 
   // Connect appropriate workers to their Wmemi...
-  interface wmemiM0   = appW3.wmemiM0;  // W3 DelayWroker Wmemi connect
+  //interface wmemiM0   = appW3.wmemiM0;  // W3 DelayWroker Wmemi connect
 
   interface wsi_s_adc = appW2.wsiS0;    // The ADC data to the   W2 SMAdapter WSI-S0 Slave Port
   interface wsi_m_dac = appW4.wsiM0;    // The DAC data from the W4 SMAdapter WSI-M0 Master Port
