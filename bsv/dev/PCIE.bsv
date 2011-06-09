@@ -2067,17 +2067,20 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   rule rx_enstage (!rxStageF.notEmpty);
     let prx = rxInF.first; rxInF.deq();
-    Bool rxBubble = prx.sof && !unpack(prx.data[34]); // bit 2 of the request address at Header Byte 11 - bubble when alligned
+    Bool rxBubble = prx.sof && !unpack(prx.data[66]); // bit 2 of the request address at Header Byte 11 - bubble when alligned
 
     Vector#(4, Bit#(32)) vdw = unpack(prx.data);
     if (prx.sof && !rxBubble) begin
       vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data (non-header)
-    end else begin
+    end 
+    /*
+    else begin
       vdw[0] = reverseBYTES(vdw[0]);
       vdw[1] = reverseBYTES(vdw[1]);
       vdw[2] = reverseBYTES(vdw[2]);
       vdw[3] = reverseBYTES(vdw[3]);
     end
+    */
 
     if (rxSerPos==0 && !rxBubble) begin
       rxOutF.enq(TLPData {                   // Enq directly to rxOutF...
@@ -2110,19 +2113,21 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     let stg = rxStageF.first;
     // TODO: Add correct "pick" from rxSerPos
     Bit#(16)  be   = { prx.be[3:0],    stg.be[11:0] };
-    Bit#(128) data = { prx.data[31:0], stg.data[95:0] };
+    Bit#(128) data = { reverseBYTES(prx.data[31:0]), stg.data[95:0] };  // FIXME for general case, not just 1DW alligned PIO
+    Bool sof = prx.sof || stg.sof;
+    Bool eof = prx.eof || stg.eof;
     // TODO: Add enq to rxStageF
     rxOutF.enq(TLPData {                    // Enq composite in rxOutF
-      sof:  prx.sof,
-      eof:  prx.eof,
+      sof:  sof,
+      eof:  eof,
       hit:  truncate(rxBarF.first),
       be:   reverseBits(be),
       data: reverseDWORDS(data) });
     if (!rxOutF.notFull) rxOutOvfCount <= rxOutOvfCount + 1; // record unguarded OVF
     rxStageF.deq;
     rxOutValCount <= rxOutValCount + 1;
-    if (prx.sof) rxOutSofCount <= rxOutSofCount + 1;
-    if (prx.eof) begin
+    if (sof) rxOutSofCount <= rxOutSofCount + 1;
+    if (eof) begin
       rxSerPos <= 0;
       rxBarF.deq;
       rxOutEofCount <= rxOutEofCount + 1;
