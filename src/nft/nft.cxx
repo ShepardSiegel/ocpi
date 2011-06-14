@@ -192,7 +192,7 @@ doRead(void *args) {
       int n = write(1, buf, nwrite);
       assert(n > 0 && (unsigned)n == nwrite);
     }
-    assert(s->metadata[bufIdx].opCode == (opCode & 0xff));
+    //assert(s->metadata[bufIdx].opCode == (opCode & 0xff));
     opCode++;
     // mark the buffer empty.  FPGA will set it to 1 when it fills it (ready to use)
     s->flags[bufIdx] = 0;
