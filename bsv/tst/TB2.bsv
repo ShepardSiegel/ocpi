@@ -15,7 +15,7 @@ module mkTB2();
   PciId           pciDevice  = unpack('0);
   Clock           sys0_clk   <- exposeCurrentClock;
   Reset           sys0_rst   <- exposeCurrentReset;
-  CTop4BIfc       ctop       <- mkCTop4B(pciDevice, sys0_clk, sys0_rst);
+  CTop16BIfc       ctop       <- mkCTop16B(pciDevice, sys0_clk, sys0_rst);
   OCTGIfc         tg         <- mkOCTG_genchk;
   TLPCMIfc        cm0        <- mkTLPCM(tagged Bus 255);    // client merge, fork away Req to Bus 255
 
