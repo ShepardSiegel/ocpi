@@ -5,7 +5,7 @@
 // 2009-11-01 ssiegel ImportBVI Wrapper Created
 // 2011-06-16 ssiegel Added SRLFIFOD
 
-package SRLFIIFO;
+package SRLFIFO;
 
 import FIFOF :: * ;
 
