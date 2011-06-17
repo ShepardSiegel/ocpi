@@ -8,9 +8,9 @@
 
 module arSRLFIFOD (CLK,RST_N,ENQ,DEQ,FULL_N,EMPTY_N,D_IN,D_OUT,CLR);
 
-  parameter width  = 128;
-  parameter l2depth = 5;
-  parameter depth  = 2**l2depth;
+  parameter  width   = 128;
+  parameter  l2depth = 5;
+  localparam depth   = 2**l2depth;
 
   input             CLK;
   input             RST_N;

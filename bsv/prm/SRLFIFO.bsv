@@ -3,7 +3,7 @@
 //
 // 2009-05-10 ssiegel Creation in VHDL
 // 2009-11-01 ssiegel ImportBVI Wrapper Created
-// 2011-06-16 ssiegel Added SRLFIFOD
+// 2011-06-16 ssiegel Added SRLFIFOD, made depth a localparam in the Verilog
 
 package SRLFIFO;
 
@@ -15,7 +15,6 @@ module mkSRLFIFO#(Integer ldepth) (FIFOF#(a))
 
         parameter width = valueOf(size_a);
         parameter l2depth = ldepth;
-        parameter depth = 2**ldepth;
         
         default_clock clk;
         default_reset rst_RST_N;
@@ -54,7 +53,6 @@ module mkSRLFIFOD#(Integer ldepth) (FIFOF#(a))
 
         parameter width = valueOf(size_a);
         parameter l2depth = ldepth;
-        parameter depth = 2**ldepth;
         
         default_clock clk;
         default_reset rst_RST_N;
