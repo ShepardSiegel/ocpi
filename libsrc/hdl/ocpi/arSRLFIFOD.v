@@ -51,7 +51,10 @@ module arSRLFIFOD (CLK,RST_N,ENQ,DEQ,FULL_N,EMPTY_N,D_IN,D_OUT,CLR);
       // must happen with a DEQ of the SRL FIFO, this internal signal is "sdx"
       if (sdx) begin 
         dreg   <= dat[pos-1];  // transfer the SRL to the D reg
-        dempty <= sempty;      // transfer the sempty to the dempty
+        dempty <= 1'b0;        // dempty becomes False when we load the 1-deep FIFO
+      end
+      if (DEQ && sempty) begin
+        dempty <= 1'b1;        // dempty becomes True when we DEQ and nothing to sdx
       end
     end
   end
