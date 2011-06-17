@@ -1,5 +1,6 @@
 verilog work "../../libsrc/hdl/ocpi/ClockInvToBool.v"
 verilog work "../../libsrc/hdl/ocpi/arSRLFIFO.v"
+verilog work "../../libsrc/hdl/ocpi/arSRLFIFOD.v"
 verilog work "../../libsrc/hdl/ocpi/Ethernet_v6.v"
 
 verilog work "../../coregen/pcie_4243_axi_v6_gtx_x4_250/source/axi_basic_rx_null_gen.v"
