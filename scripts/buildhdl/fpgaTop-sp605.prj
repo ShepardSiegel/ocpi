@@ -1,4 +1,5 @@
 verilog work "../../libsrc/hdl/ocpi/arSRLFIFO.v"
+verilog work "../../libsrc/hdl/ocpi/arSRLFIFOD.v"
 verilog work "../../libsrc/hdl/ocpi/xilinx_s6_pcie_wrapper.v"
 
 verilog work "../../coregen/pcie_4243_trn_s6_x1_125/source/s6_pcie_v1_2.v

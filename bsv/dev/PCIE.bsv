@@ -2140,15 +2140,20 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   rule tx_enstage (pcie_ep.ava_tx.tready && !txStageF.notEmpty);
     let tx = txInF.first;
     txInF.deq;
-    Bool txBubble = tx.sof && !unpack(tx.data[34]); // bit 2 of the lower address at Header Byte 11 - bubble when alligned
+    TLPCompletionHeader txAsCompl = unpack(tx.data);
+    //Bool txBubble = tx.sof && !unpack(tx.data[66]); // bit 2 of the lower address at Header Byte 11 - bubble when alligned
+    Bool txBubble = tx.sof && txAsCompl.loweraddr[2]==0;
     Bit#(16)  be   = ?;
     Bit#(128) data = ?;
+
+    be   = reverseBits(tx.be);
+    data = reverseDWORDS(tx.data);
+
+    Vector#(4, Bit#(32)) vdw = unpack(data);
+
     if (!txBubble) begin
-      be   = tx.be;      // active-high be's are strobes
-      data = tx.data;
+      vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data (non-header)
     end else begin
-      be   = {4'h0,     tx.be[11:0]};
-      data = {16'h0000, tx.data[111:0]};
       txStageF.enq(tx);
     end
 
@@ -2157,7 +2162,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     pcie_ep.ava_tx.eop(tx.eof);
     pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
     //pcie_ep.ava_tx.tstrb(be);
-    pcie_ep.ava_tx.data(data);
+    pcie_ep.ava_tx.data(pack(vdw));
 
     if (tx.eof && !txBubble) begin
       txSerPos <= 0;
