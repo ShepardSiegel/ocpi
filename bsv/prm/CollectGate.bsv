@@ -34,7 +34,7 @@ interface CollectGateIfc;
 endinterface: CollectGateIfc
 
 module mkCollectGate (CollectGateIfc);
-  FIFOF#(SampMesg)      sampF           <-  mkSRLFIFO(4);
+  FIFOF#(SampMesg)      sampF           <-  mkSRLFIFOD(4);
   PulseWire             operatePW       <-  mkPulseWire;
   PulseWire             collectPW       <-  mkPulseWire;
   Wire#(Bool)           average_dw      <-  mkDWire(False);

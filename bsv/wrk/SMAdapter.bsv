@@ -52,7 +52,7 @@ module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic
 
   FIFOF#(WsiReq#(12,nd,nbe,8,0)) respF             <- hasDeepResponseBuffer ?
                                                       mkSizedBRAMFIFOF(1024) : // 1024 Words of Message Response Storage
-                                                      mkSRLFIFO(4);            // 16   Words of Message Response Storage
+                                                      mkSRLFIFOD(4);           // 16   Words of Message Response Storage
 
   // WMI-Write...
   Reg#(Maybe#(Bit#(8)))          opcode            <- mkReg(tagged Invalid);

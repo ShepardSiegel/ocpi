@@ -550,9 +550,9 @@ endinterface
 module mkPktMerge (PktMergeIfc);
 
 `ifdef USE_SRLFIFO
-  FIFOF#(PTW16) fi0        <- mkSRLFIFO(4);
-  FIFOF#(PTW16) fi1        <- mkSRLFIFO(4);
-  FIFOF#(PTW16) fo         <- mkSRLFIFO(4);
+  FIFOF#(PTW16) fi0        <- mkSRLFIFOD(4);
+  FIFOF#(PTW16) fi1        <- mkSRLFIFOD(4);
+  FIFOF#(PTW16) fo         <- mkSRLFIFOD(4);
 `else
   FIFOF#(PTW16) fi0        <- mkFIFOF;  // FIFO size may be reduced to 1 with reduced throughput 
   FIFOF#(PTW16) fi1        <- mkFIFOF;

@@ -1,5 +1,5 @@
 // DRAM_v6.bsv - BSV code to provide DRAM functionality
-// Copyright (c) 2010  Atomic Rules LCC ALL RIGHTS RESERVED
+// Copyright (c) 2010,2011  Atomic Rules LCC ALL RIGHTS RESERVED
 
 package DRAM_v6;
 
@@ -281,7 +281,7 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
   Reg#(Bit#(16))        requestCount  <- mkReg(0,       clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bool)            firstBeat     <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bool)            secondBeat    <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
-  FIFOF#(Bit#(2))       rdpF          <- mkSRLFIFO(4,   clocked_by memc.uclk, reset_by memc.urst_n);
+  FIFOF#(Bit#(2))       rdpF          <- mkSRLFIFOD(4,  clocked_by memc.uclk, reset_by memc.urst_n);
   Wire#(Bool)           wdfWren       <- mkDWire(False, clocked_by memc.uclk, reset_by memc.urst_n);
   Wire#(Bool)           wdfEnd        <- mkDWire(False, clocked_by memc.uclk, reset_by memc.urst_n);
 

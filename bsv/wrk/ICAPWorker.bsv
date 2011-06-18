@@ -4,7 +4,6 @@
 import Accum::*;
 import ICAP::*;
 import OCWip::*;
-import SRLFIFO::*;
 import DNA::*;
 
 import Alias::*;

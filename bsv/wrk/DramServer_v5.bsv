@@ -47,7 +47,7 @@ module mkDramServer_v5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sy
   Reg#(Bit#(32))                   dbgCtrl                    <- mkReg(0, clocked_by uclk, reset_by urst_n);
   Reg#(Bit#(8))                    respCount                  <- mkReg(0);
   Reg#(Bool)                       splitReadInFlight          <- mkReg(False); 
-  FIFOF#(Bit#(2))                  splaF                      <- mkSRLFIFO(4);
+  FIFOF#(Bit#(2))                  splaF                      <- mkSRLFIFOD(4);
 
   Reg#(Bit#(4))                    dbg_calib_done             <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(4))                    dbg_calib_err              <- mkSyncRegToCC(0, uclk, urst_n);

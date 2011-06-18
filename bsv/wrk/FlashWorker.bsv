@@ -6,7 +6,6 @@ package FlashWorker;
 import OCWip::*;
 import Flash::*;
 import Config::*;
-import SRLFIFO ::*;
 
 import Clocks::*;
 import Connectable::*;

@@ -46,7 +46,7 @@ module mkDramServer_v6#(Clock sys0_clk, Reset sys0_rst) (DramServer_v6Ifc);
   Reg#(Bit#(32))                   dbgCtrl                    <- mkReg(0, clocked_by uclk, reset_by urst_n);
   Reg#(Bit#(8))                    respCount                  <- mkReg(0);
   Reg#(Bool)                       splitReadInFlight          <- mkReg(False); 
-  FIFOF#(Bit#(2))                  splaF                      <- mkSRLFIFO(4);
+  FIFOF#(Bit#(2))                  splaF                      <- mkSRLFIFOD(4);
 
   Reg#(Bit#(DqsWidth))             dbg_wl_dqs_inverted        <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(TMul#(2,DqsWidth)))    dbg_wr_calib_clk_delay     <- mkSyncRegToCC(0, uclk, urst_n);

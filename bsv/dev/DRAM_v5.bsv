@@ -1,5 +1,5 @@
 // DRAMV5.bsv - BSV code to provide DRAM functionality
-// Copyright (c) 2010  Atomic Rules LCC ALL RIGHTS RESERVED
+// Copyright (c) 2010,2011  Atomic Rules LCC ALL RIGHTS RESERVED
 
 package DRAM_v5;
 
@@ -16,7 +16,6 @@ import FIFOF             ::*;
 import SpecialFIFOs      ::*;
 import XilinxCells       :: *;
 
-import SRLFIFO ::*;
 import XilinxExtra :: *;
 
 

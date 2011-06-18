@@ -69,14 +69,15 @@ module mkDelayWorker#(parameter Bit#(32) dlyCtrlInit, parameter Bool hasDebugLog
   Reg#(Bit#(32))                 bytesRead         <- mkReg(0);
 
   // Delay FIFOs
+  //TODO: Switch back in SRLFIFO, now that SRLFIFOD implemenation is in place...
   /*
-  FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
+  FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFOD(4);
   FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(2048);  // MUST be sized large enough for imprecise->precise conversion!
-  FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
-  FIFOF#(Bit#(nd))               mesgRF             <- mkSRLFIFO(4);            // Needs only to be large enough to accomodate the dlyReadCredit
-  FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
-  FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
-  FIFOF#(Bit#(128))              wide16Fc           <- mkSRLFIFO(4);
+  FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFOD(4);
+  FIFOF#(Bit#(nd))               mesgRF             <- mkSRLFIFOD(4);            // Needs only to be large enough to accomodate the dlyReadCredit
+  FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFOD(4);
+  FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFOD(4);
+  FIFOF#(Bit#(128))              wide16Fc           <- mkSRLFIFOD(4);
   */
 
   FIFOF#(MesgMetaFlag)           metaWF             <- mkSizedFIFOF(15);
@@ -155,12 +156,12 @@ endrule
 
   ... Serializer Storage ...
   FIFOF#(Bit#(nd))               mesgWF             <- mkSizedBRAMFIFOF(512);  
-  FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFO(4);
-  FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFO(4);
+  FIFOF#(MesgMetaFlag)           metaWF             <- mkSRLFIFOD(4);
+  FIFOF#(Bit#(128))              wide16Fa           <- mkSRLFIFOD(4);
   ... De-Serializer Storage..
-  FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFO(4);
+  FIFOF#(Bit#(128))              wide16Fb           <- mkSRLFIFOD(4);
   FIFOF#(Bit#(nd))               mesgRF             <- mkSizedBRAMFIFOF(512);  
-  FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFO(4);
+  FIFOF#(MesgMetaFlag)           metaRF             <- mkSRLFIFOD(4);
 
   Overview:   Serializer -> 16B FIFO Channel -> De-Serializer
 
