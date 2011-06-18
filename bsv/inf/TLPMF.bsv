@@ -613,9 +613,9 @@ endinterface
 module mkPktFork#(PktForkKey pfk) (PktForkIfc);
 
 `ifdef USE_SRLFIFO
-  FIFOF#(PTW16) fi        <- mkSRLFIFO(4);
-  FIFOF#(PTW16) fo0       <- mkSRLFIFO(4);
-  FIFOF#(PTW16) fo1       <- mkSRLFIFO(4);
+  FIFOF#(PTW16) fi        <- mkSRLFIFOD(4);
+  FIFOF#(PTW16) fo0       <- mkSRLFIFOD(4);
+  FIFOF#(PTW16) fo1       <- mkSRLFIFOD(4);
 `else
   FIFO#(PTW16) fi         <- mkFIFO;  // FIFO size may be reduced to 1 with reduced throughput 
   FIFO#(PTW16) fo0        <- mkFIFO;
