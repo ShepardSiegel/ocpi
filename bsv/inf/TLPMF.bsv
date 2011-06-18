@@ -37,6 +37,7 @@ typedef TLPData#(16) PTW16;
 
 interface OCTGIfc;
   interface Client#(PTW16,PTW16) client;
+  interface Client#(PTW16,PTW16) client2;
 endinterface
 
 // Convienient PCIe functions...

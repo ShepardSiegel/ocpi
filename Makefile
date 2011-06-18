@@ -14,6 +14,7 @@ ITEST12   ?= TB12
 ITEST13   ?= TB13
 OPED      ?= OPED
 A4LS      ?= A4LS
+NFT       ?= TB_nft
 
 ## 14 OpenCPI FPGA Board Platforms...
 ## See $OPCPI/doc/OpenCPI-BoardsDevices.pdf
@@ -153,9 +154,9 @@ vcs: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -info-dir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
-		$(BSVTST)/$(ITEST).bsv
+		$(BSVTST)/$(NFT).bsv
 	
-	bsc -vsim vcs -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST) -o runsim
+	bsc -vsim vcs -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(NFT) -o runsim
 	./runsim | tee tmp
 
 ######################################################################
