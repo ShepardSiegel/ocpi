@@ -78,7 +78,7 @@ typedef struct {
   Bool     burstPrecise;  // 0=Imprecise, 1=Precise
   Bit#(nb) burstLength;   // polymorhic burst length (nb)  //TODO: This should be a UInt
   Bit#(nd) data;          // polymorphic data width  (nd)
-  Bit#(ng) byteEn;        // polymorphic data width  (ng)
+  Bit#(ng) byteEn;        // polymorphic BE   width  (ng)
   Bit#(nh) reqInfo;       // polymorhic reqInfo size (nh)
   Bit#(ni) dataInfo;      // polymorphic data info   (ni)
 } WsiReq#(numeric type nb, numeric type nd, numeric type ng, numeric type nh, numeric type ni) deriving (Bits, Eq);

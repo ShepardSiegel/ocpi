@@ -179,10 +179,9 @@ rule wmrd_mesgBodyResponse (wci.isOperating && wmiRd && unrollCnt>0);
                         burstPrecise : !impWsiM,
                          burstLength : (zlm || (impWsiM && lastWord)) ? 1 : (impWsiM) ? '1 : truncate(wsiBurstLength),
                                data  : x.data,
-
-                             byteEn  : (zlm) ? '0 : '1,
-                             //byteEn  : (zlm) ? '0 : truncate(byteEnFromLength(thisMesg.length)), // This is where 1B sub-word info is sent
-
+                             //byteEn  : (zlm) ? '0 : '1,
+                             // WSI rule to assert all BEs except on last word of a transfer...
+                             byteEn  : (zlm) ? '0 : (lastword) ? truncate(byteEnFromLength(thisMesg.length)) : '1,
                            dataInfo  : '0 });
   if (lastWord) begin
     mesgCount <= mesgCount + 1;
