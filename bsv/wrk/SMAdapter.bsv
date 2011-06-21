@@ -1,5 +1,5 @@
-// SMAdapter.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// SMAdapter.bsv - Stream/Message Adapter WSI/WMI
+// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import Accum::*;
 import OCWip::*;
@@ -13,6 +13,15 @@ import FIFOF::*;
 import SRLFIFO::*;
 import GetPut::*;
 
+// Some useful functions...
+
+// Given a UInt#(np) specifiying how many ones, decode into a little-endian bit vector Bit#(nm) mask of ones...
+function Bit#(nm) genLittleOnes (UInt#(np) numOnes);
+  Bit#(nm) mask = 0;
+  for (UInt#(np) p=0; p<numOnes; p=p+1) mask = mask | (1<<p);
+  return (mask);
+endfunction
+
 interface SMAdapterIfc#(numeric type ndw);
   interface WciES                                          wciS0;
   interface Wmi_Em#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmiM0;
@@ -21,9 +30,27 @@ interface SMAdapterIfc#(numeric type ndw);
 endinterface 
 
 module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapterIfc#(ndw))
-  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe),
+  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(b_,TMul#(ndw,4),32),
     Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8)))))))
   );
+
+// This function accepts the length of a transfer, knows "ndw" as a side-effect, and either:
+// i)  Returns all '1s if the length is alligned and thus all BEs are active
+// ii) Returns a littte-endian mask of ones to enable just the bytes in the word that matter
+function Bit#(32) byteEnFromLength (Bit#(16) length);
+  UInt#(8)  larg = unpack(length[7:0]);
+  UInt#(8)  lmask = 0;
+  Bit#(32)  rval  = 0;
+  case (valueOf(ndw)) // ndw determines which address bits are significant for BE mask generation
+    1: lmask = 8'h03; // 1DW /  4B
+    2: lmask = 8'h07; // 2DW /  8B
+    4: lmask = 8'h0F; // 4DW / 16B
+    8: lmask = 8'h1F; // 8DW / 32B
+  endcase
+  UInt#(6) addrResidue = truncate(larg&lmask);
+  rval = (addrResidue==0) ? '1 : genLittleOnes(addrResidue);
+  return(rval);
+endfunction
 
   // Set this True for possibly higher WMI to WSI throughput; False for possibly lower area...
   Bool hasDeepResponseBuffer = True;
@@ -138,7 +165,6 @@ rule wmrd_mesgBodyRequest (wci.isOperating && wmiRd && mesgPreRequest);
   // $time, mesgReqAddr, fabWordsCurReq, fabWordsRemain );
 endrule
 
-
 //(* execution_order = "wmrd_mesgBodyResponse, wci_cfwr" *) 
 rule wmrd_mesgBodyResponse (wci.isOperating && wmiRd && unrollCnt>0);
   let x <- wmi.resp;     // Take the response from the WMI interface
@@ -152,7 +178,7 @@ rule wmrd_mesgBodyResponse (wci.isOperating && wmiRd && unrollCnt>0);
                         burstPrecise : !impWsiM,
                          burstLength : (zlm || (impWsiM && lastWord)) ? 1 : (impWsiM) ? '1 : truncate(wsiBurstLength),
                                data  : x.data,
-                             byteEn  : (zlm) ? '0 : '1,   // For Zero-Length WSI Messages
+                             byteEn  : (zlm) ? '0 : truncate(byteEnFromLength(thisMesg.length)), // This is where 1B sub-word info is sent
                            dataInfo  : '0 });
   if (lastWord) begin
     mesgCount <= mesgCount + 1;

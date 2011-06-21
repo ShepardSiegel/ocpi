@@ -1,5 +1,5 @@
 // WmiServBC.bsv
-// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import OCWip::*;
 import OCBufQ::*;
@@ -80,7 +80,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
   // As a Fabric Consumer, capture the message metadata...
   rule respMetadata (!isProducer && !isValid(mesgMeta) && mesgBufReady && metaBusy);
     metaBusy <= False;
-    Bit#(32) length   <- mem[0].response.get;
+    Bit#(32) length   <- mem[0].response.get;  // Message Length in Bytes
     Bit#(32) opcode   <- mem[1].response.get;
     Bit#(32) nowMS    <- mem[2].response.get;
     Bit#(32) nowLS    <- mem[3].response.get;
@@ -89,7 +89,7 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
                        nowMS    : nowMS,
                        nowLS    : nowLS };
     mesgMeta <= tagged Valid m; // Valid mesgMeta indicates message available on SThreadBusy
-    wmi.drvSFlag({opcode[7:0],length[23:0]});  // Put the opcode and length out on WMI SFlag
+    wmi.drvSFlag({opcode[7:0],length[23:0]});  // Put the opcode and Byte length out on WMI SFlag
     //$display("[%0d]: %m: respMetaData length:%0h opcode:%0h", $time, length, opcode);
   endrule
 
@@ -160,10 +160,10 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
     //mesgTokenF.deq();
     thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:wmi.reqInfo, length:truncate(wmi.mesgLength) };
     lastMesg <= thisMesg;
-    let mesgMeta  = MesgMeta {length:extend(wmi.mesgLength), opcode:{24'h800000,wmi.reqInfo}, nowMS:nowW[63:32], nowLS:nowW[31:0]};
+    let mesgMeta  = MesgMeta {length:extend(wmi.mesgLength), opcode:{24'h800000,wmi.reqInfo}, nowMS:nowW[63:32], nowLS:nowW[31:0]}; 
     let req = BRAMRequest {write:True, address:truncate(lclMetaAddr>>4), datain:0, responseOnWrite:False };
     // Simultaneously write all four DWORDs of the Message Metadata...
-    req.datain = mesgMeta.length;   mem[0].request.put(req); 
+    req.datain = mesgMeta.length;   mem[0].request.put(req);  // Message Length in Bytes
     req.datain = mesgMeta.opcode;   mem[1].request.put(req); 
     req.datain = mesgMeta.nowMS;    mem[2].request.put(req); 
     req.datain = mesgMeta.nowLS;    mem[3].request.put(req); 
