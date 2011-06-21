@@ -10,7 +10,7 @@ module fpgaTop (
   //input  wire [ 3:0]  pcie_rx,       // PCIe lanes...
   //output wire [ 3:0]  pcie_tx,
   input  wire [ 7:0]  usr_sw,        // dip-switches
-  output wire [ 7:0]  led            // leds
+  output wire [ 7:0]  led,           // leds
   output wire [31:0]  debug          // debug
 );
 
