@@ -293,32 +293,32 @@ isim13: $(OBJ)
 ######################################################################
 verilog_scenario0: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S0).bsv 
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S0).bsv 
 	mv $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario0.v
 
 verilog_scenario1: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S1).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S1).bsv
 	mv $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario1.v
 
 verilog_scenario2: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S2).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S2).bsv
 	mv $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario2.v
 
 verilog_scenario3a: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3a).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3a).bsv
 	mv $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario3a.v
 
 verilog_scenario3b: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3b).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3b).bsv
 	mv $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario3b.v
 
 verilog_scenario4: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S4).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S4).bsv
 	mv $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario4.v
 
 ######################################################################

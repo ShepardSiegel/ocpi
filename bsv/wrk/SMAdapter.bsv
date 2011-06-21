@@ -179,7 +179,10 @@ rule wmrd_mesgBodyResponse (wci.isOperating && wmiRd && unrollCnt>0);
                         burstPrecise : !impWsiM,
                          burstLength : (zlm || (impWsiM && lastWord)) ? 1 : (impWsiM) ? '1 : truncate(wsiBurstLength),
                                data  : x.data,
-                             byteEn  : (zlm) ? '0 : truncate(byteEnFromLength(thisMesg.length)), // This is where 1B sub-word info is sent
+
+                             byteEn  : (zlm) ? '0 : '1,
+                             //byteEn  : (zlm) ? '0 : truncate(byteEnFromLength(thisMesg.length)), // This is where 1B sub-word info is sent
+
                            dataInfo  : '0 });
   if (lastWord) begin
     mesgCount <= mesgCount + 1;
@@ -208,8 +211,11 @@ endrule
 rule wmwt_mesgBegin (wci.isOperating && wmiWt && !wmi.anyBusy && !isValid(opcode));
   mesgTokenF.enq(?);
   opcode <= tagged Valid wsiS.reqPeek.reqInfo;
+
   // Note that we use an endian-neutral countOnes policy to calculate Byte message length...
-  Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength-1)<<myWordShift + extend(pack(countOnes(wsiS.reqPeek.byteEn))); // ndw-wide burstLength words to mesgLength Bytes
+  Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength)<<myWordShift;
+  //Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength-1)<<myWordShift + extend(pack(countOnes(wsiS.reqPeek.byteEn))); // ndw-wide burstLength words to mesgLength Bytes
+
   if (wsiS.reqPeek.burstPrecise) begin
     preciseBurst    <= True;
     if (wsiS.reqPeek.byteEn=='0) begin
