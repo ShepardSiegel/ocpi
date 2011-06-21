@@ -2,7 +2,7 @@
 ## Shepard Siegel for Atomic Rules LLC
 ## 2011-03-22 Creation
 
-CONFIG PART = XC7K325T-FF900-1 ;
+CONFIG PART = XC7K325T-FFG900-1 ;
 
 #NET  XADC_DXN                  LOC =  U14; # Bank   0 - DXN_0
 #NET  XADC_VCC                  LOC =  P15; # Bank   0 - VCCADC_0

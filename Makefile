@@ -638,6 +638,15 @@ sp605:
 	mv build/tmp-sp605 build/sp605-`date +%Y%m%d_%H%M`
 	echo sp605 Build complete
 
+kc705:
+	mkdir -p build
+	rm -rf build/tmp-kc705
+	cp -r $(BUILD_HDL) build/tmp-kc705
+	cp ucf/kc705.ucf build/tmp-kc705
+	cp ucf/kc705.xcf build/tmp-kc705
+	cd build/tmp-kc705; ./build_fpgaTop kc705
+	mv build/tmp-kc705 build/kc705-`date +%Y%m%d_%H%M`
+	echo kc705 Build complete
 
 build_all:
 	make verilog_v5
@@ -650,5 +659,6 @@ build_all:
 	make verilog_v6
 	make ml605
 	make sp605
+	make kc705
 
 
