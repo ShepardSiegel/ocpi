@@ -30,8 +30,9 @@ interface SMAdapterIfc#(numeric type ndw);
 endinterface 
 
 module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapterIfc#(ndw))
-  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(b_,TMul#(ndw,4),32),
-    Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8)))))))
+  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(b_,TMul#(ndw,4),32), 
+   Add#(1, c_, TLog#(TAdd#(1, TMul#(ndw,4)))), Add#(d_, TLog#(TAdd#(1, TMul#(ndw, 4))), 8),
+   Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8)))))))
   );
 
 // This function accepts the length of a transfer, knows "ndw" as a side-effect, and either:
@@ -207,7 +208,8 @@ endrule
 rule wmwt_mesgBegin (wci.isOperating && wmiWt && !wmi.anyBusy && !isValid(opcode));
   mesgTokenF.enq(?);
   opcode <= tagged Valid wsiS.reqPeek.reqInfo;
-  Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength)<<myWordShift; // ndw-wide burstLength words to mesgLength Bytes
+  // Note that we use an endian-neutral countOnes policy to calculate Byte message length...
+  Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength-1)<<myWordShift + extend(pack(countOnes(wsiS.reqPeek.byteEn))); // ndw-wide burstLength words to mesgLength Bytes
   if (wsiS.reqPeek.burstPrecise) begin
     preciseBurst    <= True;
     if (wsiS.reqPeek.byteEn=='0) begin

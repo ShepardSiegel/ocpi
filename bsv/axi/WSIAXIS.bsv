@@ -21,11 +21,17 @@ typedef A4Stream#(32,4,0,128) NF10DPS4B;
 typedef A4S_Es  #(32,4,0,128) NF10DPES4B;
 
 typedef struct {
-  Bit#(96) umeta;  // user metadata
-  Bit#(8)  dpt;    // opcode to DP1
-  Bit#(8)  spt;    // opcode from DP0
-  Bit#(16) length; // transfer length in Bytes
+  Bit#(96)  umeta;  // user metadata
+  Bit#(8)   dpt;    // opcode to DP1
+  Bit#(8)   spt;    // opcode from DP0
+  UInt#(16) length; // transfer length in Bytes
 } AxiInfo deriving (Bits);
+
+// For the bit vector bin, count the number of 1s until the first 0,
+// starting from the least signigcant bit (LSB).
+function UInt#(lgn1) countOnesLSB (Bit#(n) bin) provisos (Add#(1, n, n1), Log#(n1, lgn1) );
+  return(countZerosLSB(~bin));
+endfunction
 
 // The modules below adapt between WSI and AXI-Stream (AXIS)
 // They use the established WSI convienience IP mkWsi{Master|Slave}, 
@@ -49,9 +55,11 @@ module mkWSItoAXIS4B (WSItoAXIS4BIfc);
 
   rule advance_data (operateD);
     WsiReq#(12,32,4,8,0) w = reqFifo.first; reqFifo.deq;
-    let aui = AxiInfo {length:extend(w.burstLength*4), spt:w.reqInfo, dpt:8'h01, umeta:0};
+    // Note we use a endian-neutral method of countOnes to determine th exact message length...
+    UInt#(16) xfrLengthInBytes = extend((unpack(w.burstLength)-1)*4)  + extend(countOnes(w.byteEn)); // Calculate exact Byte length
+    let aui = AxiInfo {length:xfrLengthInBytes, spt:w.reqInfo, dpt:8'h01, umeta:0};
     axiM.in.enq( A4Stream { data : w.data,
-                            strb : w.byteEn,
+                            strb : w.byteEn,     // AXI strobes come directly from WSI byte-enables
                             user : pack(aui),
                             keep : 0,
                             last : w.reqLast });
@@ -81,13 +89,14 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
   rule advance_data (operateD);
     let a = axiS.out.first; axiS.out.deq;
     AxiInfo aui = unpack(a.user);
+    // Although aui.length contains the exact length in Bytes; we must disribute the information on both burstLenth and byteEn...
     reqFifo.enq( WsiReq {   cmd  : WR,
                          reqLast : a.last,
-                         reqInfo : aui.dpt,  // opcode comes in on dpt
+                         reqInfo : aui.dpt,                       // opcode comes in on dpt
                     burstPrecise : True,
-                     burstLength : truncate(aui.length/4),
+                     burstLength : truncate(pack(aui.length)>>2), // WSI burstLength is only accurate to 4B bounds
                            data  : a.data,
-                         byteEn  : a.strb,
+                         byteEn  : a.strb,                        // WSI byte-enables come directly from the AXI strobes
                        dataInfo  : '0 });
   endrule
 

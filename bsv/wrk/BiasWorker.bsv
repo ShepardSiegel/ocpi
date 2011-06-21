@@ -1,5 +1,5 @@
 // BiasWorker.bsv 
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import OCWip::*;
 
@@ -34,6 +34,7 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
   endrule
   
   // Each firing of this rule processes exactly one word and applies the biasValue...
+  // Note that no change to the byte-enables takes place; and bias is oblivious to their state
   rule doMessagePush (wci.isOperating);
     WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;   // get the request from the slave-cosumer
     r.data = r.data + extend(biasValue);           // apply the biasValue to the data

@@ -76,7 +76,7 @@ typedef struct {
   OCP_CMD  cmd;           // IDLE WR RD (non-Idle qualifies group)
   Bool     reqLast;       // Last cycle of request (always included)
   Bool     burstPrecise;  // 0=Imprecise, 1=Precise
-  Bit#(nb) burstLength;   // polymorhic burst length (nb)
+  Bit#(nb) burstLength;   // polymorhic burst length (nb)  //TODO: This should be a UInt
   Bit#(nd) data;          // polymorphic data width  (nd)
   Bit#(ng) byteEn;        // polymorphic data width  (ng)
   Bit#(nh) reqInfo;       // polymorhic reqInfo size (nh)
