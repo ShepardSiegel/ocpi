@@ -80,9 +80,11 @@ interface AXIStoWSI4BIfc;
 endinterface 
 
 module mkAXIStoWSI4B (AXIStoWSI4BIfc);
-  BusReceiver#(NF10DPS4B)                axiS       <- mkBusReceiver;
-  FIFOLevelIfc#(WsiReq#(12,32,4,8,0),3)  reqFifo    <- mkFIFOLevel;
-  Reg#(Bool)                             operateD   <- mkDReg(False);
+  BusReceiver#(NF10DPS4B)                axiS        <- mkBusReceiver;
+  FIFOLevelIfc#(WsiReq#(12,32,4,8,0),3)  reqFifo     <- mkFIFOLevel;
+  Reg#(Bool)                             operateD    <- mkDReg(False);
+  Reg#(Bool)                             xfrActive   <- mkReg(False);
+  Reg#(Bit#(2))                          xfrLenLSBs  <- mkReg(0);
 
   A4StreamSIfc#(32,4,0,128) axisDatS = A4StreamSIfc { strm : axiS.in};  // Place strm sub-interface in axisS interface
 
@@ -96,8 +98,10 @@ module mkAXIStoWSI4B (AXIStoWSI4BIfc);
                     burstPrecise : True,
                      burstLength : truncate(pack(aui.length)>>2), // WSI burstLength is only accurate to 4B bounds
                            data  : a.data,
-                         byteEn  : a.strb,                        // WSI byte-enables come directly from the AXI strobes
+                         byteEn  : a.strb,  
                        dataInfo  : '0 });
+    xfrActive <= !a.last;                                // Keep track if this is an active transfer - NO BUBBLES ALLOWED - No way to indicate
+    if (!xfrActive) xfrLenLSBs <= pack(aui.length)[1:0]; // sample the TUSER Length LSBs for use in the last cycle
   endrule
 
   A4S_Es#(32,4,0,128) axi_Es <- mkA4StreamStoEs(axisDatS);

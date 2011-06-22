@@ -85,16 +85,10 @@ endfunction
 
   // WMI-Write...
   Reg#(Maybe#(Bit#(8)))          opcode            <- mkReg(tagged Invalid);
-  Reg#(Maybe#(Bit#(14)))         mesgLength        <- mkReg(tagged Invalid); // in Bytes
-  Reg#(Bit#(12))                 wsiWordsRemain    <- mkReg(0);              // in ndw-wide words
-  Reg#(Bool)                     mesgReqValid      <- mkReg(False);
-  Reg#(Bool)                     impreciseBurst    <- mkReg(False);
-  Reg#(Bool)                     preciseBurst      <- mkReg(False);
   Reg#(Bool)                     endOfMessage      <- mkReg(False);
   Reg#(Bool)                     readyToRequest    <- mkReg(False);
   Reg#(Bool)                     readyToPush       <- mkReg(False);
   Reg#(Bit#(14))                 mesgLengthSoFar   <- mkReg(0);              // in Bytes up to 2^14 -1
-  Reg#(Bool)                     zeroLengthMesg    <- mkReg(False);
   Reg#(Bool)                     doAbort           <- mkReg(False);
   FIFO#(Bit#(0))                 mesgTokenF        <- mkFIFO1;
 
@@ -103,7 +97,7 @@ endfunction
   Reg#(Bit#(nd))                 valExpect         <- mkReg(0);
   Reg#(Bit#(nd))                 errCount          <- mkReg(0);
   Reg#(Bit#(32))                 wmwtBeginCount    <- mkReg(0);
-  Reg#(Bit#(32))                 wmwtPImpCount     <- mkReg(0);
+  Reg#(Bit#(32))                 wmwtPushCount     <- mkReg(0);
   Reg#(Bit#(32))                 wmwtFinalCount    <- mkReg(0);
 
   Bool wsiPass  = (smaCtrl[3:0]==4'h0);
@@ -203,75 +197,47 @@ endrule
 
 
 // WMI Write...
-(* descending_urgency = "wmwt_doAbort, wmwt_messageFinalize, wmwt_messagePushImprecise, wmwt_messagePushPrecise, wmwt_requestPrecise, wmwt_mesgBegin, wsipass_doMessagePush" *)
+(* descending_urgency = "wmwt_doAbort, wmwt_messageFinalize, wmwt_messagePush, wmwt_mesgBegin, wsipass_doMessagePush" *)
 
 // This rule will fire once at the beginning of every inbound WSI message
 // It relies upon the implicit condition of the wsiS.reqPeek to only fire when we a request...
 rule wmwt_mesgBegin (wci.isOperating && wmiWt && !wmi.anyBusy && !isValid(opcode));
   mesgTokenF.enq(?);
   opcode <= tagged Valid wsiS.reqPeek.reqInfo;
-
-  // Note that we use an endian-neutral countOnes policy to calculate Byte message length...
-  Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength)<<myWordShift;  // This is a maximum length, only known for precise transfers WSI->WMI
-  //Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength-1)<<myWordShift + extend(pack(countOnes(wsiS.reqPeek.byteEn))); // ndw-wide burstLength words to mesgLength Bytes
-
   if (wsiS.reqPeek.burstPrecise) begin
-    preciseBurst    <= True;
-    if (wsiS.reqPeek.byteEn=='0) begin
-      zeroLengthMesg  <= True;
-      mesgLength      <= tagged Valid 0;
-    end else begin
-      zeroLengthMesg  <= False;
-      mesgLength      <= tagged Valid (mesgLengthB); // mesgLength is the maximum length, we won't know until the BEs on the last cycle what the real length is
-    end
-    wsiWordsRemain  <= wsiS.reqPeek.burstLength; 
-    readyToRequest  <= True;
-    $display("[%0d]: %m: mesgBegin PRECISE mesgCount:%0x WSI burstLength:%0x reqInfo:%0x",
-      $time, mesgCount, wsiS.reqPeek.burstLength, wsiS.reqPeek.reqInfo);
+    $display("[%0d]: %m: mesgBegin PRECISE mesgCount:%0x WSI burstLength:%0x reqInfo:%0x", $time, mesgCount, wsiS.reqPeek.burstLength, wsiS.reqPeek.reqInfo);
   end else begin
-    impreciseBurst  <= True;
-    mesgLengthSoFar <= 0; 
-    readyToPush     <= True;
     $display("[%0d]: %m: wmwt_mesgBegin IMPRECISE mesgCount:%0x", $time, mesgCount);
   end
+  mesgLengthSoFar <= 0; 
+  readyToPush     <= True;
   wmwtBeginCount <= wmwtBeginCount + 1;
 endrule
 
-// This rule firing posts an WMI request and the MFlag opcode/length info...
-rule wmwt_requestPrecise (wci.isOperating && wmiWt && readyToRequest && preciseBurst);
-  thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:fromMaybe(0,opcode), length:extend(fromMaybe(0,mesgLength)) }; // use the maximum length for precise
-  lastMesg <= thisMesg;
-  let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(fromMaybe(0,mesgLength))}; 
-  Bit#(14) wmiLen =  (fromMaybe(0,mesgLength)>>myWordShift);
-  wmi.req(True, 0, zeroLengthMesg?1:truncate(wmiLen),True,pack(mesgMetaF)); // The sole request precise is DWM 
-  readyToRequest <= False;
-  mesgReqValid   <= True;
-  //$display("[%0d]: %m: wmwt_requestPrecise", $time );
-endrule
+// 2011-06-22 ssiegel: Surgery to fuse the precise and imprecise WSI->WMI cases
+// Previously, there were separate rule to request and push in the Precise WSI case
+// Henceforth, we treat all WSI messages as imprecise, even if they arrive as precise.
+// The motivation for this change is that a single front-end precise request can NOT know the exact length in bytes of the message
+// that will be revealed on the very last cycle by adding in the Hamming-weight of the byteEn field
 
-// Push precise message WSI to WMI. This rule fires once for each word moved...
-rule wmwt_messagePushPrecise (wci.isOperating && wmiWt && wsiWordsRemain>0 && mesgReqValid && preciseBurst);
-  WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;  // ActionValue Get
-  if (wxiSplit) wsiM.reqPut.put(w);             // Feed wsiM in Split Mode
-  wmi.dh(w.data, '1, (wsiWordsRemain==1));
-  wsiWordsRemain <= wsiWordsRemain - 1;
-  //$display("[%0d]: %m: wmwt_messagePushPrecise", $time );
-endrule
+// The downside of the is approach is that in all cases, both precise and imprecise, we issue a reqest and datahandhake per WSI word
+// This is fine if the WMI slacve an accept a request and word on every cycle, as the WmiServBC implementation can.
+// However, there may be WMI implemenations that perform better with one signle N-word request; followed by N words of data phase
+// That was how the old precise logic (removed now) operated. But we had no easy way to communicate the exact Byte length at the
+// the front of the transfer (in the request).
 
 // Designer's Note: When WSI has an imprecise burst; it is a "Zero Length Message" (ZLM) iff there are all-zero Byte Enables on
 // the FIRST and ONLY cycle of the message. Any other condition is non-ZLM, just a cycle that has non-valid data, and is
 // in the middle or end of a WSI message (as seen by reqLast)...
 
-// Push imprecise message WSI to WMI...
-rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impreciseBurst);
+// Push messages WSI to WMI...
+rule wmwt_messagePush (wci.isOperating && wmiWt && readyToPush);
   WsiReq#(12,nd,nbe,8,0) w <- wsiS.reqGet.get;  // ActionValue Get
   if (wxiSplit) wsiM.reqPut.put(w);             // Feed wsiM in Split Mode
   Bool dwm = (w.reqLast);                                  // WSI ends with reqLast, used to make WMI DWM
   Bool zlm = dwm && (w.byteEn=='0) && mesgLengthSoFar==0;  // Zero Length Message is 0 BEs on DWM on the first WSI data cycle
-
   Bit#(14) mlInc =(dwm) ? pack(extend(countOnes(w.byteEn))) : extend(myByteWidth); // Increment by byteWidth except on last cycle use byteEn
   Bit#(14) mlB   = mesgLengthSoFar + mlInc;                                        // Current messageLength in Bytes
-
   if (isAborted(w)) begin
     doAbort <= True;
   end else begin
@@ -279,7 +245,6 @@ rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impre
     wmi.req(True, pack(truncate(mesgLengthSoFar<<myWordShift)), 1, dwm, pack(mesgMetaF)); // Write, addr, 1Word, dwm, mFlag;
     wmi.dh(w.data,  '1, dwm);                                             // Data,  BE,          dwm
     if (dwm) begin
-      mesgLength   <= tagged Valid mlB; // TODO: This is only used to gate the Finalize, can be trimmed
       readyToPush  <= False;
       endOfMessage <= True;
       thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:fromMaybe(0,opcode), length:extend(mlB) }; lastMesg <= thisMesg;  // diag
@@ -289,35 +254,28 @@ rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impre
     if (!zlm) valExpect <= valExpect + 1;
     if (w.data!=valExpect && !zlm) errCount <= errCount + 1;
   end
-  wmwtPImpCount <= wmwtPImpCount + 1;
-  //$display("[%0d]: %m: wmwt_messagePushImprecise", $time );
+  wmwtPushCount <= wmwtPushCount + 1;
+  //$display("[%0d]: %m: wmwt_messagePush", $time );
 endrule
 
 // In case we abort the imprecise WSI...
 rule wmwt_doAbort (wci.isOperating && wmiWt && doAbort);
   doAbort         <= False;
   readyToPush     <= False;
-  preciseBurst    <= False;
-  impreciseBurst  <= False;
   opcode          <= tagged Invalid;
-  mesgLength      <= tagged Invalid;
   abortCount      <= abortCount + 1;
   $display("[%0d]: %m: wmwt_doAbort", $time );
 endrule
 
 // When we have pushed all the data through, this rule fires to prepare us for the next...
 rule wmwt_messageFinalize
-  (wci.isOperating && wmiWt && isValid(mesgLength) && !doAbort && ((preciseBurst && wsiWordsRemain==0) || (impreciseBurst && endOfMessage)) );
+  (wci.isOperating && wmiWt && !doAbort && endOfMessage );
   mesgTokenF.deq();
   opcode         <= tagged Invalid;
-  mesgLength     <= tagged Invalid;
   mesgCount      <= mesgCount + 1;
-  mesgReqValid   <= False;
-  preciseBurst   <= False;
-  impreciseBurst <= False;
   endOfMessage   <= False;
   wmwtFinalCount <= wmwtFinalCount + 1;
-  $display("[%0d]: %m: wmwt_messageFinalize mesgCount:%0x WSI mesgLength:%0x", $time, mesgCount, fromMaybe(0,mesgLength));
+  $display("[%0d]: %m: wmwt_messageFinalize mesgCount:%0x WSI mesgLength:%0x", $time, mesgCount, thisMesg.length);
 endrule
 
 
@@ -351,7 +309,7 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h30 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.iMesgCount);
      'h34 : rdat = !hasDebugLogic ? 0 : pack(wsiM.extStatus.tBusyCount);
      'h38 : rdat = !hasDebugLogic ? 0 : pack(wmwtBeginCount);
-     'h3C : rdat = !hasDebugLogic ? 0 : pack(wmwtPImpCount);
+     'h3C : rdat = !hasDebugLogic ? 0 : pack(wmwtPushCount);
      'h40 : rdat = !hasDebugLogic ? 0 : pack(wmwtFinalCount);
      'h44 : rdat = !hasDebugLogic ? 0 : 32'hFEED_C0DE;
    endcase
