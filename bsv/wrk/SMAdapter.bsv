@@ -32,7 +32,8 @@ endinterface
 module mkSMAdapter#(parameter Bit#(32) smaCtrlInit, parameter Bool hasDebugLogic) (SMAdapterIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(b_,TMul#(ndw,4),32), 
    Add#(1, c_, TLog#(TAdd#(1, TMul#(ndw,4)))), Add#(d_, TLog#(TAdd#(1, TMul#(ndw, 4))), 8),
-   Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8)))))))
+   Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))),
+   Add#(bx_, TLog#(TAdd#(1, TMul#(ndw,4))), 14)
   );
 
 // This function accepts the length of a transfer, knows "ndw" as a side-effect, and either:
@@ -92,7 +93,7 @@ endfunction
   Reg#(Bool)                     endOfMessage      <- mkReg(False);
   Reg#(Bool)                     readyToRequest    <- mkReg(False);
   Reg#(Bool)                     readyToPush       <- mkReg(False);
-  Reg#(Bit#(14))                 mesgLengthSoFar   <- mkReg(0);
+  Reg#(Bit#(14))                 mesgLengthSoFar   <- mkReg(0);              // in Bytes up to 2^14 -1
   Reg#(Bool)                     zeroLengthMesg    <- mkReg(False);
   Reg#(Bool)                     doAbort           <- mkReg(False);
   FIFO#(Bit#(0))                 mesgTokenF        <- mkFIFO1;
@@ -142,7 +143,7 @@ rule wmrd_mesgBegin (wci.isOperating && wmiRd && !wmi.anyBusy && unrollCnt==0);
   end
   mesgReqOK        <= True;
   mesgReqAddr      <= 0;  // Initialize address to 0
-  thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:wmi.reqInfo, length:truncate(wmi.mesgLength) };
+  thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:wmi.reqInfo, length:truncate(wmi.mesgLength) };  // WMI->WSI: take the length from WMI metadata
   lastMesg <= thisMesg;
   $display("[%0d]: %m: wmrd_mesgBegin mesgCount:%0h mesgLength:%0h reqInfo:%0h", $time, mesgCount, wmi.mesgLength, wmi.reqInfo);
 endrule
@@ -211,7 +212,7 @@ rule wmwt_mesgBegin (wci.isOperating && wmiWt && !wmi.anyBusy && !isValid(opcode
   opcode <= tagged Valid wsiS.reqPeek.reqInfo;
 
   // Note that we use an endian-neutral countOnes policy to calculate Byte message length...
-  Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength)<<myWordShift;
+  Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength)<<myWordShift;  // This is a maximum length, only known for precise transfers WSI->WMI
   //Bit#(14) mesgLengthB =  extend(wsiS.reqPeek.burstLength-1)<<myWordShift + extend(pack(countOnes(wsiS.reqPeek.byteEn))); // ndw-wide burstLength words to mesgLength Bytes
 
   if (wsiS.reqPeek.burstPrecise) begin
@@ -221,7 +222,7 @@ rule wmwt_mesgBegin (wci.isOperating && wmiWt && !wmi.anyBusy && !isValid(opcode
       mesgLength      <= tagged Valid 0;
     end else begin
       zeroLengthMesg  <= False;
-      mesgLength      <= tagged Valid (mesgLengthB);
+      mesgLength      <= tagged Valid (mesgLengthB); // mesgLength is the maximum length, we won't know until the BEs on the last cycle what the real length is
     end
     wsiWordsRemain  <= wsiS.reqPeek.burstLength; 
     readyToRequest  <= True;
@@ -238,7 +239,7 @@ endrule
 
 // This rule firing posts an WMI request and the MFlag opcode/length info...
 rule wmwt_requestPrecise (wci.isOperating && wmiWt && readyToRequest && preciseBurst);
-  thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:fromMaybe(0,opcode), length:extend(fromMaybe(0,mesgLength)) };
+  thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:fromMaybe(0,opcode), length:extend(fromMaybe(0,mesgLength)) }; // use the maximum length for precise
   lastMesg <= thisMesg;
   let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:extend(fromMaybe(0,mesgLength))}; 
   Bit#(14) wmiLen =  (fromMaybe(0,mesgLength)>>myWordShift);
@@ -267,21 +268,23 @@ rule wmwt_messagePushImprecise (wci.isOperating && wmiWt && readyToPush && impre
   if (wxiSplit) wsiM.reqPut.put(w);             // Feed wsiM in Split Mode
   Bool dwm = (w.reqLast);                                  // WSI ends with reqLast, used to make WMI DWM
   Bool zlm = dwm && (w.byteEn=='0) && mesgLengthSoFar==0;  // Zero Length Message is 0 BEs on DWM on the first WSI data cycle
-  Bit#(14) mlp1  =  mesgLengthSoFar+1; // message length so far plus one (in Words)
-  Bit#(14) mlp1B =  mlp1<<myWordShift; // message length so far plus one (in Bytes)
+
+  Bit#(14) mlInc =(dwm) ? pack(extend(countOnes(w.byteEn))) : extend(myByteWidth); // Increment by byteWidth except on last cycle use byteEn
+  Bit#(14) mlB   = mesgLengthSoFar + mlInc;                                        // Current messageLength in Bytes
+
   if (isAborted(w)) begin
     doAbort <= True;
   end else begin
-    let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:zlm?0:extend(mlp1B)}; 
-    wmi.req(True, mesgLengthSoFar<<myWordShift, 1, dwm, pack(mesgMetaF)); // Write, addr, 1Word, dwm, mFlag;
-    wmi.dh(w.data,  '1, dwm);                                             // Data, BE,           dwm
+    let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:zlm?0:extend(mlB)}; 
+    wmi.req(True, pack(truncate(mesgLengthSoFar<<myWordShift)), 1, dwm, pack(mesgMetaF)); // Write, addr, 1Word, dwm, mFlag;
+    wmi.dh(w.data,  '1, dwm);                                             // Data,  BE,          dwm
     if (dwm) begin
-      mesgLength   <= tagged Valid pack(mlp1B);
+      mesgLength   <= tagged Valid mlB; // TODO: This is only used to gate the Finalize, can be trimmed
       readyToPush  <= False;
       endOfMessage <= True;
-      thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:fromMaybe(0,opcode), length:extend(fromMaybe(0,mesgLength)) }; lastMesg <= thisMesg;  // diag
+      thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:fromMaybe(0,opcode), length:extend(mlB) }; lastMesg <= thisMesg;  // diag
     end
-    mesgLengthSoFar <= mlp1;
+    mesgLengthSoFar <= mlB; // transfer mlB to accumulator
     // Count Pattern Error check...
     if (!zlm) valExpect <= valExpect + 1;
     if (w.data!=valExpect && !zlm) errCount <= errCount + 1;
