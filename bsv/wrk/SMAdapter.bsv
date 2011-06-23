@@ -54,6 +54,20 @@ function Bit#(32) byteEnFromLength (Bit#(16) length);
   return(rval);
 endfunction
 
+function Bool isAlignedLength (Bit#(16) length);
+  UInt#(8)  larg = unpack(length[7:0]);
+  UInt#(8)  lmask = 0;
+  case (valueOf(ndw)) 
+    1: lmask = 8'h03; // 1DW /  4B
+    2: lmask = 8'h07; // 2DW /  8B
+    4: lmask = 8'h0F; // 4DW / 16B
+    8: lmask = 8'h1F; // 8DW / 32B
+  endcase
+  UInt#(6) addrResidue = truncate(larg&lmask);
+  return (addrResidue==0);
+endfunction
+
+
   // Set this True for possibly higher WMI to WSI throughput; False for possibly lower area...
   Bool hasDeepResponseBuffer = True;
 
@@ -126,14 +140,15 @@ endrule
 // This rule to fire once at the beginning of each and every fabric consumption of a message...
 rule wmrd_mesgBegin (wci.isOperating && wmiRd && !wmi.anyBusy && unrollCnt==0);
   Bool isZlm = ?;
+  Bit#(24) residue = (isAlignedLength(truncate(wmi.mesgLength))) ? 0 : 1; // if there is a remainder, we will need an extra word cycle
   if (wmi.zeroLengthMesg) begin
     isZlm = True;
     unrollCnt      <= 1;  // One word to produce on WSI with all BEs inaction (zero lenghth mesg indication)
     fabWordsRemain <= 1;  // One word to consume from WMI so we can send a DWM
   end else begin
     isZlm = False;
-    unrollCnt      <= truncate(unpack(wmi.mesgLength>>myWordShift)); // ndw-wide Words remaining to be emitted to WSI
-    fabWordsRemain <= truncate(unpack(wmi.mesgLength>>myWordShift)); // ndw-wide Words remaining to be requested from fabric
+    unrollCnt      <= truncate(unpack((wmi.mesgLength>>myWordShift) + residue)); // ndw-wide Words remaining to be emitted to WSI
+    fabWordsRemain <= truncate(unpack((wmi.mesgLength>>myWordShift) + residue)); // ndw-wide Words remaining to be requested from fabric
   end
   mesgReqOK        <= True;
   mesgReqAddr      <= 0;  // Initialize address to 0
