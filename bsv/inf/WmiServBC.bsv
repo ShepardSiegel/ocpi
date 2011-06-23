@@ -103,10 +103,8 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
     rdActive    <= req.cmd==RD;
     addr        <= req.addr;
     Bit#(14) transferBytes = extend(req.burstLength) * extend(wmiByteWidth);
-    //bytesRemainReq  <= extend(req.burstLength * extend(wmiByteWidth));  // Calculate the number of bytes remaining
     bytesRemainReq  <= transferBytes;
     if (req.cmd==RD) begin
-      //bytesRemainResp <= extend(req.burstLength*extend(wmiByteWidth));  // Calculate the number of bytes remaining
       bytesRemainResp <= transferBytes;
       p4B <= req.addr[3:2];                  // Starting Read phase for the 4B word in the 16B superword
     end
@@ -158,9 +156,12 @@ module mkWmiServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (WmiServBC
   // Fires exactly once after a Write Done-With-Message (DWM) request...
   rule doWriteFinalize (wrFinalize);
     //mesgTokenF.deq();
-    thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:wmi.reqInfo, length:truncate(wmi.mesgLength) };
+    let mf <- wmi.popMFlag;
+    Bit#(8)  reqInfo    = truncate(mf>>24);
+    Bit#(24) mesgLength = truncate(mf);
+    thisMesg <= MesgMetaDW { tag:truncate(mesgCount), opcode:reqInfo, length:truncate(mesgLength) };
     lastMesg <= thisMesg;
-    let mesgMeta  = MesgMeta {length:extend(wmi.mesgLength), opcode:{24'h800000,wmi.reqInfo}, nowMS:nowW[63:32], nowLS:nowW[31:0]}; 
+    let mesgMeta  = MesgMeta {length:extend(mesgLength), opcode:{24'h800000,reqInfo}, nowMS:nowW[63:32], nowLS:nowW[31:0]}; 
     let req = BRAMRequest {write:True, address:truncate(lclMetaAddr>>4), datain:0, responseOnWrite:False };
     // Simultaneously write all four DWORDs of the Message Metadata...
     req.datain = mesgMeta.length;   mem[0].request.put(req);  // Message Length in Bytes

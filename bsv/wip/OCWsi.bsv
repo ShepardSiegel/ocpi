@@ -370,6 +370,7 @@ module mkWsiMaster (WsiMasterIfc#(nb,nd,ng,nh,ni));
   Bool linkReady = (operateD && peerIsReady);
   rule sThreadBusy_reg; sThreadBusy_d <= sThreadBusy_pw; endrule
   //TODO: Move this rule action to be atomic with reqFifo.first()...
+  //TODO: Make daignostic behavior correct when r.reqlast is on the first and only cycle of a message
   rule reqFifo_deq (reqFifo.notEmpty && !sThreadBusy_d);
     let r = reqFifo.first;
     if (r.cmd==WR) begin

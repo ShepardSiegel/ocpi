@@ -242,8 +242,8 @@ rule wmwt_messagePush (wci.isOperating && wmiWt && readyToPush);
     doAbort <= True;
   end else begin
     let mesgMetaF = MesgMetaFlag {opcode:fromMaybe(0,opcode), length:zlm?0:extend(mlB)}; 
-    wmi.req(True, pack(truncate(mesgLengthSoFar<<myWordShift)), 1, dwm, pack(mesgMetaF)); // Write, addr, 1Word, dwm, mFlag;
-    wmi.dh(w.data,  '1, dwm);                                             // Data,  BE,          dwm
+    wmi.req(True, mesgLengthSoFar, 1, dwm, pack(mesgMetaF)); // Write, ByteAddr, 1Word, dwm, mFlag;
+    wmi.dh(w.data, w.byteEn, dwm);                           // Data,  BE,              dwm
     if (dwm) begin
       readyToPush  <= False;
       endOfMessage <= True;

@@ -1,5 +1,5 @@
 // OCWmi.bsv OpenCPI Worker Message Interface (WMI)
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package OCWmi;
 
@@ -97,9 +97,9 @@ typedef struct {
   Bit#(nd) data;          // polymorphic data width (nd)
 } WmiResp#(numeric type nd) deriving (Bits, Eq);
 
-  WmiReq#(na,nb)   wmiIdleRequest = WmiReq  {cmd:IDLE,reqLast:?,reqInfo:?,addrSpace:?,addr:?,burstLength:?};
-  WmiDh#(nd,ni,ne) wmiIdleDh      = WmiDh   {dataValid:False,dataLast:?,data:?,dataInfo:?,dataByteEn:?};
-  WmiResp#(nd)     wmiIdleResp    = WmiResp {resp:NULL,data:?};
+  WmiReq#(na,nb)   wmiIdleRequest = WmiReq  {cmd:IDLE,reqLast:False,reqInfo:0,addrSpace:0,addr:0,burstLength:0};
+  WmiDh#(nd,ni,ne) wmiIdleDh      = WmiDh   {dataValid:False,dataLast:False,data:0,dataInfo:0,dataByteEn:0};
+  WmiResp#(nd)     wmiIdleResp    = WmiResp {resp:NULL,data:0};
 
 (* always_ready *)
 interface Wmi_m#(numeric type na, numeric type nb, numeric type nd, numeric type ni, numeric type ne, numeric type nf);
@@ -512,8 +512,7 @@ module mkWmiMaster (WmiMasterIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), A
   method Action req (Bool write, Bit#(na) addr, Bit#(nb) bl, Bool doneWithMessage, Bit#(nf) mf) if (linkReady);
     let r = WmiReq {cmd:write?WR:RD, reqLast:True, reqInfo:pack(doneWithMessage), addrSpace:'b0, addr:addr, burstLength:bl};
     reqF.enq(r);
-    // if producer DWM, enq the message metadata into the mFlagF FIFO...
-    if (doneWithMessage) mFlagF.enq(mf);
+    if (doneWithMessage) mFlagF.enq(mf); // if producer DWM, enq the message metadata into the mFlagF FIFO
     //$display("[%0d]: %m: req addr:%0x", $time, addr);
   endmethod
 
@@ -555,13 +554,14 @@ endmodule
 interface WmiSlaveIfc#(numeric type na, numeric type nb, numeric type nd, numeric type ni, numeric type ne, numeric type nf);
   method ActionValue#(WmiReq#(na,nb))   req;
   method ActionValue#(WmiDh#(nd,ni,ne)) dh;
+  method ActionValue#(Bit#(nf))         popMFlag;
   method Action                         respd (Bit#(nd) rdata);
   method Action                         drvSFlag(Bit#(nf) sf);
   method Action                         forceSThreadBusy;
   method Action                         allowReq;
-  method Bit#(nf)                       peekMFlag;
-  method Bit#(8)                        reqInfo;  
-  method Bit#(24)                       mesgLength;
+  //method Bit#(nf)                       peekMFlag;
+  //method Bit#(8)                        reqInfo;  
+  //method Bit#(24)                       mesgLength;
   method Action                         operate;
   method WipDataPortStatus              status;
   interface Wmi_s#(na,nb,nd,ni,ne,nf) slv;  // The WMI-OCP Slave Interface
@@ -576,7 +576,7 @@ module mkWmiSlave (WmiSlaveIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add
   FIFOLevelIfc#(Bit#(nf),SRBsize)         mFlagF           <- mkFIFOLevel;
   FIFOLevelIfc#(WmiDh#(nd,ni,ne),SRBsize) dhF              <- mkFIFOLevel;
   FIFOF#(WmiResp#(nd))                respF                <- mkDFIFOF(wmiIdleResp);
-  Reg#(Bit#(nf))                      mFlagReg             <- mkReg(0);
+  //Reg#(Bit#(nf))                      mFlagReg             <- mkReg(0);
   Reg#(Bit#(nf))                      sFlagReg             <- mkReg(0);
   Reg#(Bool)                          blockReq             <- mkReg(False);
   ReadOnly#(Bool)                     isReset              <- isResetAsserted;
@@ -628,10 +628,10 @@ module mkWmiSlave (WmiSlaveIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add
   method ActionValue#(WmiReq#(na,nb)) req if (linkReady && !blockReq);
     let x = reqF.first;
     if (x.reqLast && x.reqInfo==1'b1) blockReq <= True; 
-    if (x.reqInfo==pack(True) && mFlagF.notEmpty) begin 
-      mFlagReg<=mFlagF.first; 
-      mFlagF.deq; 
-    end
+    //if (x.reqInfo==pack(True) && mFlagF.notEmpty) begin 
+    //  mFlagReg<=mFlagF.first; 
+    //  mFlagF.deq; 
+    //end
     reqF.deq;
     return x;
   endmethod
@@ -640,13 +640,18 @@ module mkWmiSlave (WmiSlaveIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add
     let x = dhF.first; dhF.deq; return x;
   endmethod
 
+  method ActionValue#(Bit#(nf)) popMFlag if (linkReady);
+    let x = mFlagF.first; mFlagF.deq; return x;
+  endmethod
+
+
   method Action   respd (Bit#(nd) rdata) if(linkReady); respF.enq( WmiResp { resp:DVA, data:rdata} ); endmethod
   method Action   drvSFlag(Bit#(nf) sf)  if(linkReady); sFlagReg<=sf; endmethod
   method Action   forceSThreadBusy  = forceSThreadBusy_pw.send;
   method Action   allowReq; blockReq<=False; endmethod
-  method Bit#(nf) peekMFlag  = mFlagReg;
-  method Bit#(8)  reqInfo    = truncate(mFlagReg>>24);  
-  method Bit#(24) mesgLength = truncate(mFlagReg);
+  //method Bit#(nf) peekMFlag  = mFlagReg;
+  //method Bit#(8)  reqInfo    = truncate(mFlagReg>>24);  
+  //method Bit#(24) mesgLength = truncate(mFlagReg);
   method Action   operate    = operateD._write(True);
   method WipDataPortStatus status = statusR;    
 

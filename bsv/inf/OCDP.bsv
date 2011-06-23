@@ -100,12 +100,11 @@ module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
        'h2C : rdat = pack({bml.bs.remIndex,  bml.bs.lclIndex});
        'h30 : rdat = pack({bml.bs.lclStarts, bml.bs.lclDones});
        'h34 : rdat = pack({bml.bs.remStarts, bml.bs.remDones});
-       //'h38 : rdat = pack(v[3]);  // thisMesg
-       //'h3C : rdat = pack(v[2]);  // lastMesg
-       //'h40 : rdat = pack(v[1]);  // req/wrt Count
-       //'h44 : rdat = pack(v[0]);  // wrtData
+       'h38 : rdat = pack(v[3]);  // thisMesg
+       'h3C : rdat = pack(v[2]);  // lastMesg
+       'h40 : rdat = pack(v[1]);  // req/wrt Count
+       'h44 : rdat = pack(v[0]);  // wrtData
        'h48 : rdat = 32'hDADE_BABE;
-       //'h4C : rdat = 32'h0000_4000;  // 2^14 16KB TODO: This location returns the bufferExtent (memory size)
        'h4C : rdat = 32'h0000_8000;  // 2^15 32KB TODO: This location returns the bufferExtent (memory size)
        'h50 : rdat = extend(pack(bml.i_fabMesgBase));
        'h54 : rdat = extend(pack(bml.i_fabMetaBase));
