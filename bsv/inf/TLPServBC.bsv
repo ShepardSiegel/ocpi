@@ -199,6 +199,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     reqMetaInFlight <= False;
     fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemainPush), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
     xmtMetaOK <= (mesgLengthRemainPush==0); // Skip over Message Movement phases and just send metadata if mesgLength is zero
+    mesgLengthRemainPush <= (mesgLengthRemainPush+3) & ~3; // DWORD roundup - shep owes Jim a beer
     remMesgAccu <= remMesgAddr;  // Load the message rem address accumulator so we can locally manage message segments
     srcMesgAccu <= fabMesgAddr;  // Load the message src address accumulator so we can locally manage message segments
     fabMesgAccu <= fabMesgAddr;  // Load the message fab address accumulator so we can locally manage message segments
@@ -386,6 +387,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Bit#(32) nowLS   = byteSwap(vWords[2]);
     fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemainPull), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
     dmaDoTailEvent <= (mesgLengthRemainPull==0); // Skip over Message Movement pull phases if mesgLength is zero
+    mesgLengthRemainPull <= (mesgLengthRemainPull+3) & ~3; // DWORD roundup - shep owes Jim a beer
     mesgComplReceived <= 0;                  // Used to form the barrier-sync before isssuing pull tail event
     remMesgAccu <= remMesgAddr;              // Load the accumulator of rem address for sub-completions and multiple requests
     fabMesgAccu <= fabMesgAddr;              // Load the accumulator of fabric starting addresses over multiple requests
@@ -468,7 +470,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // We use the target-side "mesgComplReceived" accumulating to the full message length as the barrier-sync for the tail event.
 
   // Transmit the DMA-PULL TailEvent...
-  rule dmaPullTailEvent (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived==truncate(meta.length)));
+  rule dmaPullTailEvent (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived>=truncate(meta.length))); //sls 2011-06-24
     remDone         <= True;  // Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
     dmaDoTailEvent  <= False;
     fabMeta         <= (Invalid);
