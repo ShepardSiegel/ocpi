@@ -3,8 +3,8 @@
 set log=testDMA$$.log
 echo Start with $argv >& $log
 echo Log is: `pwd`/$log
-set tree=jk8
-#set cmd="sudo -E LD_LIBRARY_PATH=$tree/lib:/usr/local $tree/core/dataplane/rpl_container/linux-bin/testRpl"
+set tree=/mnt/JKusim/ocpi/opencpi
+#set cmd="sudo -E LD_LIBRARY_PATH=$tree/lib/linux-x86_64-bin:/usr/local $tree/core/container/hdl_container/linux-x86_64-bin/testRpl"
 set cmd="sudo -E ./testRpl"
 
 if ($#argv == 0) then
