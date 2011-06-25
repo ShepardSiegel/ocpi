@@ -157,7 +157,6 @@ end
 // a. It drives them to 0 on the AXIS Master
 // b. it ignores them on the the AXIS Slave
 
-/*
  AXIS_LOOPBACK axisLoopback (
   .ACLK              (ACLK),
   .ARESETN           (ARESETN),
@@ -174,7 +173,8 @@ end
   .M_AXIS_DAT_TLAST  (S_AXIS_DAT_TLAST),
   .M_AXIS_DAT_TREADY (S_AXIS_DAT_TREADY)
 );
-*/
+
+/*
 
 nf10_axis_converter 
 #(  .C_M_AXIS_DATA_WIDTH (64),
@@ -229,6 +229,8 @@ nf10_axis_converter
     .m_axis_tready (S_AXIS_DAT_TREADY),
     .m_axis_tlast  (S_AXIS_DAT_TLAST)
 );
+
+*/
 
 
 endmodule

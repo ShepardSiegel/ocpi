@@ -1,0 +1,27 @@
+// Example showing use of swctl for communicating with AXI4-Lite Bridge at Worker 0 (W0)
+
+./swctl 0xF1000000 0xF2FF0000 settime                      // Set the fpga clock, not-required
+./swctl 0xF1000000 0xF2FF0000 admin                        // Dump admin registers, not required
+
+                                                           // Worker reset and initialization
+./swctl 0xF1000000 0xF2FF0000 wreset 0                     // Put W0 in reset
+./swctl 0xF1000000 0xF2FF0000 wunreset 0                   // Take W0 out of reset
+./swctl 0xF1000000 0xF2FF0000 wop 0 initialize             // Initialize W0
+./swctl 0xF1000000 0xF2FF0000 wop 0 start                  // Start W0
+./swctl 0xF1000000 0xF2FF0000 wread 0 0x0 10               // Look at 10 words of W0 properties
+
+echo write then read back...
+./swctl 0xF1000000 0xF2FF0000 wwrite 0 0x0 0x10000055      // Write 0x10000055 to base + 0
+./swctl 0xF1000000 0xF2FF0000 wwrite 0 0x4 0x200000AA      // Write 0x200000AA to base + 4
+./swctl 0xF1000000 0xF2FF0000 wread 0 0x0 10               // Look at 10 words of W0 properties
+
+./swctl 0xF1000000 0xF2FF0000 wdump 0                      // Dump W0 status
+
+echo now lets set the two MSB of a 32b Address space 
+./swctl 0xF1000000 0xF2FF0000 wwpage 0 0xC00               // Write the page register with 0xC00
+./swctl 0xF1000000 0xF2FF0000 wdump 0                      // Dump W0 status
+
+echo now lets write up hi
+./swctl 0xF1000000 0xF2FF0000 wwrite 0 0x4 0x30000033      // Write 0x30000033 to 0xC00_00004
+
+./swctl 0xF1000000 0xF2FF0000 wread 0 0x0 10               // Look at 10 words of W0 properties
