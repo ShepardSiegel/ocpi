@@ -114,7 +114,7 @@ typedef struct {
 
 
 typedef int func(volatile OCCP_Space *, char **, volatile OCCP_WorkerControl *, volatile uint8_t *, volatile OCDP_Space *);
-static func admin, wdump, wread, wwrite, wadmin, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset;
+static func admin, wdump, wread, wwrite, wadmin, radmin, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset;
 
 typedef struct {
   char *name;
@@ -128,6 +128,7 @@ static OCCP_Command commands[] = {
   {"wread", wread, 1},       // read worker config
   {"wwrite", wwrite, 1},     // write worker config
   {"wadmin", wadmin},        // write admin space
+  {"radmin", radmin},        // read  admin space
   {"settime", settime},      // set the FPGA to system time
   {"deltatime", deltatime},  // Measure the difference of FPGA-Host (+ means FPGA leading)
   {"wop", wop, 1},           // do control op
@@ -321,6 +322,16 @@ admin(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
 
   printf("Admin space, offset 0x%x, writing value: 0x%x\n", off, val);
   *pv = val;
+  return 0;
+}
+
+ static int
+ radmin(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  unsigned off = atoi_any(*ap, 0);
+  uint32_t *pv = (uint32_t *)((uint8_t *)&p->admin + off);
+
+  printf("Admin space, offset 0x%x, read value: 0x%x\n", off, *pv);
   return 0;
 }
 
