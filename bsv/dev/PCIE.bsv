@@ -2067,7 +2067,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   rule rx_enstage (!rxStageF.notEmpty);
     let prx = rxInF.first; rxInF.deq();
-    Bool rxBubble = prx.sof && !unpack(prx.data[66]) && pack(prx.data[30]); // bit 2 of the request address at Header Byte 11 - bubble when alligned (and a MEM_WRITE)
+    Bool rxBubble = prx.sof && !unpack(prx.data[66]) && unpack(prx.data[30]); // bit 2 of the request address at Header Byte 11 - bubble when alligned (and a MEM_WRITE)
     // If we are a read request, we are not a bubble
 
     Vector#(4, Bit#(32)) vdw = unpack(prx.data);
