@@ -51,7 +51,7 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
 
   //OCAppIfc#(Nwci_app,Nwmi,Nwmemi,ndw) app  <- mkOCApp_poly(resetVec,hasDebugLogic);  // Instance the Application
 `ifdef USE_NDW1
-  OCApp4BIfc app  <- mkOCApp4B(resetVec,hasDebugLogic);  // Instance the Application
+  OCApp4BIfc  app  <- mkOCApp4B(resetVec,hasDebugLogic);  // Instance the Application
 `elsif USE_NDW4
   OCApp16BIfc app  <- mkOCApp16B(resetVec,hasDebugLogic);  // Instance the Application
 `endif
