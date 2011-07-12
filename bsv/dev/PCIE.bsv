@@ -2171,6 +2171,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     end
   endrule
 
+  //TODO: Bubble insertion on TX
+
   rule tx_destage (pcie_ep.ava_tx.tready && txStageF.notEmpty);
     let tx = txInF.first; txInF.deq;
     let ts = txStageF.first; txStageF.deq;
@@ -2179,7 +2181,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     //be   = {reverseBits(tx.be)[15:4],       reverseBits(ts.be)[3:0]};
     //data = {reverseDWORDS(tx.data)[127:32], reverseDWORDS(ts.data)[31:0]};
     be   = {tx.be[15:4],     ts.be[3:0]};
-    data = {tx.data[127:32], ts.data[31:0]};
+    data = {tx.data[127:32], reverseBYTES(ts.data[31:0])};  // FIXME: only reverse leading bubble DW
 
     pwAvaTx.send;
     pcie_ep.ava_tx.sop(tx.sof);
