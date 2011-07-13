@@ -2024,6 +2024,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   // Avalon-ST TX qword-allignment bubble insertion
   FIFOF#(TLPData#(16))         txInF          <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
   FIFOF#(TLPData#(16))         txStageF       <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst); 
+  FIFOF#(Bool)                 txEofF         <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst); 
   Reg#(Bit#(2))                txSerPos       <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(Bool)                   txHeadPushed   <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
 
@@ -2140,10 +2141,10 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   rule tx_enstage (pcie_ep.ava_tx.tready && !txStageF.notEmpty);
     let tx = txInF.first;
-    txInF.deq;
     TLPCompletionHeader txAsCompl = unpack(tx.data);
     //Bool txBubble = tx.sof && !unpack(tx.data[66]); // bit 2 of the lower address at Header Byte 11 - bubble when alligned
     Bool txBubble = tx.sof && txAsCompl.loweraddr[2]==0;
+    if (!txBubble) txInF.deq;
     Bit#(16)  be   = ?;
     Bit#(128) data = ?;
 
@@ -2156,11 +2157,12 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
       vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data (non-header)
     end else begin
       txStageF.enq(tx);
+      txEofF.enq(tx.eof);
     end
 
     pwAvaTx.send;
     pcie_ep.ava_tx.sop(tx.sof);
-    pcie_ep.ava_tx.eop(tx.eof);
+    pcie_ep.ava_tx.eop(tx.eof && !txBubble);
     pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
     //pcie_ep.ava_tx.tstrb(be);
     pcie_ep.ava_tx.data(pack(vdw));
@@ -2181,12 +2183,23 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     //be   = {reverseBits(tx.be)[15:4],       reverseBits(ts.be)[3:0]};
     //data = {reverseDWORDS(tx.data)[127:32], reverseDWORDS(ts.data)[31:0]};
     be   = {tx.be[15:4],     ts.be[3:0]};
-    data = {tx.data[127:32], reverseBYTES(ts.data[31:0])};  // FIXME: only reverse leading bubble DW
+    //data = {tx.data[127:32], ts.data[31:0]};
+
+    // This is always data, so reverse Bytes...
+    Vector#(4, Bit#(32)) vdw = unpack({tx.data[127:32], ts.data[31:0]});
+      vdw[0] = reverseBYTES(vdw[0]);
+      vdw[1] = reverseBYTES(vdw[1]);
+      vdw[2] = reverseBYTES(vdw[2]);
+      vdw[3] = reverseBYTES(vdw[3]);
+      data = pack(vdw);
 
     pwAvaTx.send;
     pcie_ep.ava_tx.sop(tx.sof);
-    pcie_ep.ava_tx.eop(tx.eof);
-    pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
+    //pcie_ep.ava_tx.eop(tx.eof);
+    pcie_ep.ava_tx.eop(True);
+    txEofF.deq;
+
+    pcie_ep.ava_tx.empty(True); //FIXME: Assert when TLP ends in lower 64b of 128b
     //pcie_ep.ava_tx.tstrb(be);
     pcie_ep.ava_tx.data(data);
 
