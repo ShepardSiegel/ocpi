@@ -20,7 +20,7 @@ set_global_assignment -name SDC_FILE fpgaTop_alst4.sdc
 #set_global_assignment -name QIP_FILE fpgaTop_alst4.qip
 
 set_global_assignment -name SEARCH_PATH ../../../coregen/pcie_4243_hip_s4gx_gen2_x4_128
-set_global_assignment -name SEARCH_PATH ../../../coregen/pcie_4243_hip_s4gx_gen2_x4_128/pci_express_compiler-library
+set_global_assignment -name SEARCH_PATH "../../../coregen/pcie_4243_hip_s4gx_gen2_x4_128/pci_express_compiler-library"
 set_global_assignment -name SEARCH_PATH ../../../rtl
 set_global_assignment -name SEARCH_PATH ../../../libsrc/hdl/bsv
 set_global_assignment -name SEARCH_PATH ../../../libsrc/hdl/ocpi
@@ -37,11 +37,11 @@ set_global_assignment -name VERILOG_FILE altpcie_rs_serdes.v
 
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED WITH WEAK PULL-UP"
 
-set_location_assignment PIN_A21  -to sys0_clk    # 100 MHz top
-set_location_assignment PIN_AK35 -to sys0_rstn   # User PB0
+set_location_assignment PIN_A21 -to sys0_clk
+set_location_assignment PIN_AK35 -to sys0_rstn
 
-set_location_assignment PIN_AN38 -to pcie_clk    # 100 MHz PCIe refclk from U29 jitter atten (DIV5)
-set_location_assignment PIN_R32 -to pcie_rstn    # active-low primary reset input from PCIe
+set_location_assignment PIN_AN38 -to pcie_clk
+set_location_assignment PIN_R32 -to pcie_rstn
 set_location_assignment PIN_AU38 -to pcie_rx[0]
 set_location_assignment PIN_AR38 -to pcie_rx[1]
 set_location_assignment PIN_AJ38 -to pcie_rx[2]
@@ -61,37 +61,37 @@ set_location_assignment PIN_AF36 -to pcie_tx[3]
 
 set_location_assignment PIN_AL35 -to usr_sw[0]
 set_location_assignment PIN_AC35 -to usr_sw[1]
-set_location_assignment PIN_J34  -to usr_sw[2]
+set_location_assignment PIN_J34 -to usr_sw[2]
 set_location_assignment PIN_AN35 -to usr_sw[3]
-set_location_assignment PIN_G33  -to usr_sw[4]
-set_location_assignment PIN_K35  -to usr_sw[5]
+set_location_assignment PIN_G33 -to usr_sw[4]
+set_location_assignment PIN_K35 -to usr_sw[5]
 set_location_assignment PIN_AG34 -to usr_sw[6]
 set_location_assignment PIN_AG31 -to usr_sw[7]
 
-set_location_assignment PIN_F33  -to led[0]
+set_location_assignment PIN_F33 -to led[0]
 set_location_assignment PIN_AK33 -to led[1]
-set_location_assignment PIN_W28  -to led[2]
-set_location_assignment PIN_L34  -to led[3]
+set_location_assignment PIN_W28 -to led[2]
+set_location_assignment PIN_L34 -to led[3]
 set_location_assignment PIN_AM34 -to led[4]
-set_location_assignment PIN_M32  -to led[5]
-set_location_assignment PIN_L35  -to led[6]
+set_location_assignment PIN_M32 -to led[5]
+set_location_assignment PIN_L35 -to led[6]
 set_location_assignment PIN_AM35 -to led[7]
-set_location_assignment PIN_N34  -to led[8]
-set_location_assignment PIN_W35  -to led[9]
+set_location_assignment PIN_N34 -to led[8]
+set_location_assignment PIN_W35 -to led[9]
 set_location_assignment PIN_AE30 -to led[10]
-set_location_assignment PIN_V30  -to led[11]
+set_location_assignment PIN_V30 -to led[11]
 set_location_assignment PIN_AG30 -to led[12]
 set_location_assignment PIN_AD29 -to led[13]
-set_location_assignment PIN_U31  -to led[14]
-set_location_assignment PIN_U35  -to led[15]
+set_location_assignment PIN_U31 -to led[14]
+set_location_assignment PIN_U35 -to led[15]
 
-set_instance_assignment -name IO_STANDARD LVDS      -to sys0_clk
+set_instance_assignment -name IO_STANDARD LVDS -to sys0_clk
 set_instance_assignment -name INPUT_TERMINATION OFF -to sys0_clk
-set_instance_assignment -name IO_STANDARD "2.5 V"   -to sys0_rstn
+set_instance_assignment -name IO_STANDARD "2.5 V" -to sys0_rstn
 
-set_instance_assignment -name IO_STANDARD HCSL         -to pcie_clk
-set_instance_assignment -name INPUT_TERMINATION OFF    -to pcie_clk
-set_instance_assignment -name IO_STANDARD "2.5 V"      -to pcie_rstn
+set_instance_assignment -name IO_STANDARD HCSL -to pcie_clk
+set_instance_assignment -name INPUT_TERMINATION OFF -to pcie_clk
+set_instance_assignment -name IO_STANDARD "2.5 V" -to pcie_rstn
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[0]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[1]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[2]
@@ -1351,49 +1351,6 @@ set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[115
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1159] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_eop0" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1160] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_sop0" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1161] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_valid0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1162] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1163] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1164] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1165] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1166] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1167] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1168] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1169] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1170] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1171] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1172] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1173] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1174] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1175] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1176] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1177] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1178] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1179] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1180] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1181] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1182] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1183] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1184] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1185] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1186] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1187] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1188] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1189] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1190] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1191] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1192] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1193] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1194] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1195] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1196] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1197] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1198] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1199] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1200] -to "mkFTop_alst4:ftop|pciw_pci0_rxStageF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1201] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1202] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1203] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1204] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$ENQ" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "mkFTop_alst4:ftop|FIFO1:pciw_pci0_txStageF|D_OUT[0]" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "mkFTop_alst4:ftop|FIFO1:pciw_pci0_txStageF|D_OUT[100]" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "mkFTop_alst4:ftop|FIFO1:pciw_pci0_txStageF|D_OUT[101]" -section_id auto_signaltap_0
@@ -2553,49 +2510,6 @@ set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1158] 
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1159] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_eop0" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1160] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_sop0" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1161] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_valid0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1162] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1163] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1164] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1165] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1166] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1167] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1168] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1169] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1170] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1171] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1172] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1173] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1174] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1175] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1176] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1177] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1178] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1179] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1180] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1181] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1182] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1183] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1184] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1185] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1186] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1187] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1188] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1189] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1190] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1191] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1192] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1193] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1194] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1195] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1196] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1197] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1198] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1199] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1200] -to "mkFTop_alst4:ftop|pciw_pci0_rxStageF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1201] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1202] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1203] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1204] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$ENQ" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[3] -to "mkFTop_alst4:ftop|FIFO1:pciw_pci0_txStageF|D_OUT[0]" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[4] -to "mkFTop_alst4:ftop|FIFO1:pciw_pci0_txStageF|D_OUT[100]" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[5] -to "mkFTop_alst4:ftop|FIFO1:pciw_pci0_txStageF|D_OUT[101]" -section_id auto_signaltap_0
@@ -3755,57 +3669,548 @@ set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualif
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1159] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_eop0" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1160] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_sop0" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1161] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_valid0" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1162] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1163] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1164] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1165] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1166] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1167] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1168] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1169] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1170] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1171] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1172] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1173] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1174] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1175] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1176] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1177] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1178] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1179] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1180] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1181] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1182] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1183] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1184] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1185] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1186] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1187] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1188] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1189] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1190] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1191] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1192] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1193] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1194] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1195] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1196] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1197] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1198] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1199] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1200] -to "mkFTop_alst4:ftop|pciw_pci0_rxStageF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1201] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1202] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$ENQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1203] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$DEQ" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1204] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$ENQ" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=1205" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=1205" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_BITS=1205" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=7251" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=3616" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=64" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=56105" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=62120" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=64" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1162] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_empty0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1163] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_eop0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1164] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_err0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1165] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_ready0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1166] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_sop0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1167] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_valid0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1168] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1169] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[100]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1170] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[101]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1171] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[102]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1172] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[103]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1173] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[104]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1174] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[105]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1175] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[106]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1176] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[107]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1177] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[108]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1178] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[109]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1179] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1180] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[110]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1181] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[111]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1182] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[112]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1183] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[113]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1184] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[114]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1185] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[115]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1186] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[116]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1187] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[117]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1188] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[118]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1189] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[119]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1190] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1191] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[120]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1192] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[121]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1193] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[122]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1194] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[123]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1195] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[124]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1196] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[125]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1197] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[126]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1198] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[127]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1199] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1200] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1201] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1202] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1203] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1204] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1205] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1206] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1207] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1208] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1209] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1210] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1211] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[23]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1212] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[24]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1213] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[25]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1214] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[26]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1215] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[27]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1216] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[28]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1217] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[29]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1218] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1219] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[30]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1220] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[31]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1221] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[32]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1222] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[33]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1223] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[34]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1224] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[35]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1225] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[36]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1226] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[37]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1227] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[38]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1228] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[39]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1229] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1230] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[40]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1231] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[41]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1232] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[42]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1233] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[43]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1234] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[44]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1235] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[45]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1236] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[46]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1237] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[47]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1238] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[48]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1239] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[49]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1240] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1241] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[50]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1242] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[51]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1243] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[52]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1244] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[53]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1245] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[54]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1246] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[55]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1247] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[56]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1248] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[57]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1249] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[58]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1250] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[59]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1251] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1252] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[60]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1253] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[61]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1254] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[62]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1255] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[63]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1256] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[64]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1257] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[65]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1258] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[66]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1259] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[67]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1260] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[68]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1261] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[69]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1262] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1263] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[70]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1264] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[71]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1265] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[72]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1266] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[73]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1267] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[74]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1268] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[75]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1269] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[76]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1270] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[77]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1271] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[78]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1272] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[79]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1273] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1274] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[80]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1275] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[81]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1276] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[82]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1277] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[83]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1278] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[84]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1279] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[85]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1280] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[86]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1281] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[87]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1282] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[88]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1283] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[89]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1284] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1285] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[90]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1286] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[91]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1287] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[92]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1288] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[93]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1289] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[94]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1290] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[95]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1291] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[96]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1292] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[97]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1293] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[98]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1294] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[99]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1295] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1162] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_empty0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1163] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_eop0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1164] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_err0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1165] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_ready0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1166] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_sop0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1167] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_valid0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1168] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1169] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[100]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1170] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[101]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1171] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[102]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1172] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[103]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1173] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[104]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1174] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[105]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1175] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[106]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1176] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[107]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1177] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[108]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1178] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[109]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1179] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1180] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[110]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1181] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[111]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1182] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[112]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1183] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[113]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1184] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[114]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1185] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[115]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1186] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[116]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1187] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[117]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1188] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[118]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1189] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[119]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1190] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1191] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[120]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1192] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[121]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1193] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[122]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1194] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[123]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1195] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[124]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1196] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[125]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1197] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[126]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1198] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[127]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1199] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1200] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1201] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1202] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1203] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1204] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1205] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1206] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1207] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1208] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1209] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1210] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1211] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[23]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1212] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[24]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1213] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[25]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1214] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[26]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1215] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[27]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1216] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[28]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1217] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[29]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1218] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1219] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[30]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1220] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[31]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1221] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[32]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1222] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[33]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1223] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[34]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1224] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[35]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1225] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[36]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1226] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[37]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1227] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[38]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1228] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[39]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1229] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1230] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[40]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1231] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[41]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1232] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[42]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1233] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[43]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1234] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[44]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1235] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[45]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1236] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[46]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1237] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[47]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1238] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[48]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1239] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[49]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1240] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1241] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[50]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1242] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[51]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1243] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[52]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1244] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[53]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1245] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[54]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1246] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[55]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1247] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[56]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1248] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[57]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1249] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[58]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1250] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[59]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1251] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1252] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[60]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1253] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[61]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1254] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[62]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1255] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[63]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1256] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[64]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1257] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[65]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1258] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[66]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1259] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[67]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1260] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[68]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1261] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[69]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1262] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1263] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[70]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1264] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[71]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1265] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[72]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1266] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[73]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1267] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[74]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1268] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[75]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1269] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[76]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1270] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[77]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1271] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[78]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1272] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[79]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1273] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1274] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[80]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1275] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[81]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1276] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[82]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1277] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[83]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1278] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[84]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1279] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[85]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1280] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[86]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1281] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[87]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1282] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[88]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1283] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[89]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1284] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1285] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[90]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1286] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[91]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1287] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[92]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1288] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[93]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1289] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[94]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1290] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[95]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1291] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[96]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1292] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[97]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1293] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[98]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1294] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[99]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1295] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1162] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_empty0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1163] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_eop0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1164] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_err0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1165] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_ready0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1166] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_sop0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1167] -to "mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|tx_st_valid0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1168] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1169] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[100]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1170] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[101]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1171] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[102]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1172] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[103]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1173] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[104]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1174] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[105]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1175] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[106]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1176] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[107]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1177] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[108]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1178] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[109]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1179] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1180] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[110]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1181] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[111]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1182] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[112]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1183] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[113]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1184] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[114]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1185] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[115]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1186] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[116]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1187] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[117]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1188] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[118]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1189] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[119]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1190] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1191] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[120]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1192] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[121]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1193] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[122]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1194] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[123]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1195] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[124]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1196] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[125]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1197] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[126]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1198] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[127]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1199] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1200] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1201] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1202] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1203] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1204] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1205] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1206] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1207] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1208] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1209] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1210] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1211] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[23]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1212] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[24]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1213] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[25]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1214] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[26]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1215] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[27]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1216] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[28]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1217] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[29]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1218] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1219] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[30]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1220] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[31]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1221] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[32]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1222] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[33]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1223] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[34]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1224] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[35]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1225] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[36]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1226] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[37]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1227] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[38]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1228] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[39]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1229] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1230] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[40]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1231] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[41]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1232] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[42]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1233] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[43]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1234] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[44]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1235] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[45]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1236] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[46]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1237] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[47]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1238] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[48]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1239] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[49]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1240] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1241] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[50]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1242] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[51]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1243] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[52]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1244] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[53]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1245] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[54]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1246] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[55]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1247] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[56]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1248] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[57]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1249] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[58]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1250] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[59]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1251] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1252] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[60]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1253] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[61]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1254] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[62]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1255] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[63]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1256] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[64]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1257] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[65]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1258] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[66]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1259] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[67]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1260] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[68]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1261] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[69]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1262] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1263] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[70]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1264] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[71]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1265] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[72]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1266] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[73]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1267] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[74]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1268] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[75]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1269] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[76]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1270] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[77]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1271] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[78]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1272] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[79]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1273] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1274] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[80]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1275] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[81]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1276] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[82]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1277] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[83]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1278] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[84]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1279] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[85]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1280] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[86]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1281] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[87]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1282] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[88]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1283] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[89]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1284] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1285] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[90]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1286] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[91]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1287] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[92]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1288] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[93]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1289] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[94]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1290] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[95]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1291] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[96]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1292] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[97]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1293] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[98]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1294] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[99]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1295] -to "mkFTop_alst4:ftop|pciw_pci0_pcie_ep\$tx_st_data0[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1296] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1297] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1298] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1299] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1300] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1301] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1302] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1303] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1304] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1305] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1306] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1307] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1308] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1309] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1310] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1311] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1312] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1313] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1314] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1315] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[23]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1316] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[24]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1317] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[25]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1318] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[26]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1319] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[27]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1320] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[28]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1321] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[29]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1322] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1323] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[30]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1324] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[31]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1325] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1326] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1327] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1328] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1329] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1330] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1331] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1332] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1333] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1334] -to "mkFTop_alst4:ftop|pciw_pci0_rxStageF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1335] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1336] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1296] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1297] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1298] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1299] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1300] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1301] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1302] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1303] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1304] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1305] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1306] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1307] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1308] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1309] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1310] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1311] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1312] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1313] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1314] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1315] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[23]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1316] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[24]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1317] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[25]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1318] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[26]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1319] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[27]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1320] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[28]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1321] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[29]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1322] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1323] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[30]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1324] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[31]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1325] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1326] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1327] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1328] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1329] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1330] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1331] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1332] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1333] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1334] -to "mkFTop_alst4:ftop|pciw_pci0_rxStageF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1335] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1336] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1296] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1297] -to "mkFTop_alst4:ftop|pciw_pci0_rxBarF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1298] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1299] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1300] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1301] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1302] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1303] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1304] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1305] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1306] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1307] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1308] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1309] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1310] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1311] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1312] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1313] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1314] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1315] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[23]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1316] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[24]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1317] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[25]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1318] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[26]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1319] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[27]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1320] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[28]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1321] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[29]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1322] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1323] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[30]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1324] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[31]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1325] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1326] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1327] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1328] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1329] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1330] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1331] -to "mkFTop_alst4:ftop|pciw_pci0_rxOutOvfCount[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1332] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1333] -to "mkFTop_alst4:ftop|pciw_pci0_rxSerPos[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1334] -to "mkFTop_alst4:ftop|pciw_pci0_rxStageF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1335] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1336] -to "mkFTop_alst4:ftop|pciw_pci0_txInF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1337] -to "mkFTop_alst4:ftop|pciw_pci0_txSeqGuard" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1338] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1339] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1337] -to "mkFTop_alst4:ftop|pciw_pci0_txSeqGuard" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1338] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1339] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$ENQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1337] -to "mkFTop_alst4:ftop|pciw_pci0_txSeqGuard" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1338] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$DEQ" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_storage_qualifier_in[1339] -to "mkFTop_alst4:ftop|pciw_pci0_txStageF\$ENQ" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=1340" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=1340" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_BITS=1340" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=8061" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=4021" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=35247" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=15310" -section_id auto_signaltap_0
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -2004,7 +2004,12 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   PCIE_vS4GX#(4)    pcie_ep     <- vMkStratix4PCIExpress(sclk, srstn, pclk, prstn);
   Clock             ava125Clk   = pcie_ep.ava.clk; 
   Reset             ava125Rst   = pcie_ep.ava.usr_rst;
-  PulseWire         pwAvaTx     <- mkPulseWire(clocked_by ava125Clk, reset_by noReset);
+
+  Wire#(Bool)       avaTxSop    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Wire#(Bool)       avaTxEop    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Wire#(Bool)       avaTxEmpty  <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Wire#(Bool)       avaTxValid  <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Wire#(Bool)       avaTxErr    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST RX qword-allignment bubble removal
   FIFOLevelIfc#(TLPDataA#(16), 3) rxInF       <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // Pusposefully depth-3 for Avalon variable latency flow control
@@ -2024,9 +2029,9 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   // Avalon-ST TX qword-allignment bubble insertion
   FIFOF#(TLPData#(16))         txInF          <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
   FIFOF#(TLPData#(16))         txStageF       <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst); 
-  FIFOF#(Bool)                 txEofF         <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst); 
   Reg#(Bit#(2))                txSerPos       <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(Bool)                   txHeadPushed   <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                   txSeqGuard     <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
 
   Reg#(PciId)                  deviceReg      <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
 
@@ -2139,12 +2144,15 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   // Upstream TRN to Avalon-ST...
 
-  rule tx_enstage (pcie_ep.ava_tx.tready && !txStageF.notEmpty);
+  rule tx_enstage (pcie_ep.ava_tx.tready && !txStageF.notEmpty && !txSeqGuard);
     let tx = txInF.first;
     TLPCompletionHeader txAsCompl = unpack(tx.data);
     //Bool txBubble = tx.sof && !unpack(tx.data[66]); // bit 2 of the lower address at Header Byte 11 - bubble when alligned
     Bool txBubble = tx.sof && txAsCompl.loweraddr[2]==0;
+
     if (!txBubble) txInF.deq;
+    else txSeqGuard <= True;
+
     Bit#(16)  be   = ?;
     Bit#(128) data = ?;
 
@@ -2157,14 +2165,16 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
       vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data (non-header)
     end else begin
       txStageF.enq(tx);
-      txEofF.enq(tx.eof);
     end
 
-    pwAvaTx.send;
-    pcie_ep.ava_tx.sop(tx.sof);
-    pcie_ep.ava_tx.eop(tx.eof && !txBubble);
-    pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
+    avaTxValid  <=  True;
+    avaTxSop    <=  tx.sof;
+    avaTxEop    <= (tx.eof && !txBubble);
+    avaTxEmpty  <=  False;
+
+    //pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
     //pcie_ep.ava_tx.tstrb(be);
+
     pcie_ep.ava_tx.data(pack(vdw));
 
     if (tx.eof && !txBubble) begin
@@ -2175,7 +2185,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   //TODO: Bubble insertion on TX
 
-  rule tx_destage (pcie_ep.ava_tx.tready && txStageF.notEmpty);
+  rule tx_destage (pcie_ep.ava_tx.tready && txStageF.notEmpty && txSeqGuard);
     let tx = txInF.first; txInF.deq;
     let ts = txStageF.first; txStageF.deq;
     Bit#(16)  be   = ?;
@@ -2193,13 +2203,12 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
       vdw[3] = reverseBYTES(vdw[3]);
       data = pack(vdw);
 
-    pwAvaTx.send;
-    pcie_ep.ava_tx.sop(tx.sof);
-    //pcie_ep.ava_tx.eop(tx.eof);
-    pcie_ep.ava_tx.eop(True);
-    txEofF.deq;
+    avaTxValid  <=  True;
+    avaTxSop    <=  False;
+    avaTxEop    <=  True;
+    avaTxEmpty  <=  True;
 
-    pcie_ep.ava_tx.empty(True); //FIXME: Assert when TLP ends in lower 64b of 128b
+    //pcie_ep.ava_tx.empty(True); //FIXME: Assert when TLP ends in lower 64b of 128b
     //pcie_ep.ava_tx.tstrb(be);
     pcie_ep.ava_tx.data(data);
 
@@ -2207,11 +2216,17 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
       txSerPos <= 0;
       txHeadPushed <= False;
     end
+
+    txSeqGuard <= False;
   endrule
 
-
+  (* no_implicit_conditions, fire_when_enabled *)
   rule connect_ava_tx;
-    pcie_ep.ava_tx.valid(pwAvaTx);   // assert valid when we xmit - causes push into EP
+    pcie_ep.ava_tx.sop(avaTxSop);
+    pcie_ep.ava_tx.eop(avaTxEop);
+    pcie_ep.ava_tx.empty(avaTxEmpty);
+    pcie_ep.ava_tx.valid(avaTxValid);
+    pcie_ep.ava_tx.err(avaTxErr);
   endrule
 
 
