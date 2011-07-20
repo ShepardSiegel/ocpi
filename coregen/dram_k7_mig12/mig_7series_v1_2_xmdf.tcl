@@ -1,0 +1,222 @@
+# The package naming convention is <core_name>_xmdf
+package provide mig_7series_v1_2_xmdf 1.0
+
+# This includes some utilities that support common XMDF operations 
+package require utilities_xmdf
+
+# Define a namespace for this package. The name of the name space
+# is <core_name>_xmdf
+namespace eval ::mig_7series_v1_2_xmdf {
+# Use this to define any statics
+}
+
+# Function called by client to rebuild the params and port arrays
+# Optional when the use context does not require the param or ports
+# arrays to be available.
+proc ::mig_7series_v1_2_xmdf::xmdfInit { instance } {
+	# Variable containing name of library into which module is compiled
+	# Recommendation: <module_name>
+	# Required
+	utilities_xmdf::xmdfSetData $instance Module Attributes Name mig_7series_v1_2
+}
+# ::mig_7series_v1_2_xmdf::xmdfInit
+
+# Function called by client to fill in all the xmdf* data variables
+# based on the current settings of the parameters
+proc ::mig_7series_v1_2_xmdf::xmdfApplyParams { instance } {
+
+set fcount 0
+	# Array containing libraries that are assumed to exist
+	# Examples include unisim and xilinxcorelib
+	# Optional
+	# In this example, we assume that the unisim library will
+	# be magically
+	# available to the simulation and synthesis tool
+	utilities_xmdf::xmdfSetData $instance FileSet $fcount type logical_library
+	utilities_xmdf::xmdfSetData $instance FileSet $fcount logical_library unisim
+	incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/clocking/clk_ibuf.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/clocking/infrastructure.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/clocking/iodelay_ctrl.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/arb_mux.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/arb_row_col.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/arb_select.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/bank_cntrl.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/bank_common.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/bank_compare.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/bank_mach.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/bank_queue.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/bank_state.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/col_mach.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/mc.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/rank_cntrl.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/rank_common.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/rank_mach.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/controller/round_robin_arb.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ecc/ecc_buf.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ecc/ecc_dec_fix.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ecc/ecc_gen.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ecc/ecc_merge_enc.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ip_top/mem_intfc.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ip_top/memc_ui_top_std.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/mig_7series_v1_2.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/byte_group_io.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/byte_lane.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/calib_top.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/if_post_fifo.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/mc_phy.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/mc_phy_wrapper.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/of_pre_fifo.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/phy_4lanes.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/phy_dqs_found_cal.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/phy_init.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/phy_rdlvl.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/phy_top.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/phy_wrcal.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/phy_wrlvl.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/phy/prbs_gen.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ui/ui_cmd.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ui/ui_rd_data.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ui/ui_top.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/rtl/ui/ui_wr_data.v
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type verilog
+incr fcount
+
+utilities_xmdf::xmdfSetData $instance FileSet $fcount relative_path mig_7series_v1_2/user_design/ucf/mig_7series_v1_2.ucf
+utilities_xmdf::xmdfSetData $instance FileSet $fcount type ucf 
+utilities_xmdf::xmdfSetData $instance FileSet $fcount associated_module mig_7series_v1_2
+incr fcount
+
+}
+
+# ::gen_comp_name_xmdf::xmdfApplyParams

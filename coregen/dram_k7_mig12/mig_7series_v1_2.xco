@@ -1,0 +1,46 @@
+##############################################################
+#
+# Xilinx Core Generator version 13.2
+# Date: Wed Jul 20 17:27:39 2011
+#
+##############################################################
+#
+#  This file contains the customisation parameters for a
+#  Xilinx CORE Generator IP GUI. It is strongly recommended
+#  that you do not manually alter this file as it may cause
+#  unexpected and unsupported behavior.
+#
+##############################################################
+#
+#  Generated from component: xilinx.com:ip:mig_7series:1.2
+#
+##############################################################
+#
+# BEGIN Project Options
+SET addpads = false
+SET asysymbol = true
+SET busformat = BusFormatAngleBracketNotRipped
+SET createndf = false
+SET designentry = Verilog
+SET device = xc7k325t
+SET devicefamily = kintex7
+SET flowvendor = Other
+SET formalverification = false
+SET foundationsym = false
+SET implementationfiletype = Ngc
+SET package = fbg900
+SET removerpms = false
+SET simulationfiles = Behavioral
+SET speedgrade = -1
+SET verilogsim = true
+SET vhdlsim = false
+# END Project Options
+# BEGIN Select
+SELECT MIG_7_Series family Xilinx,_Inc. 1.2
+# END Select
+# BEGIN Parameters
+CSET component_name=mig_7series_v1_2
+CSET xml_input_file=./mig_7series_v1_2/mig.prj
+# END Parameters
+GENERATE
+# CRC: e229dd22
