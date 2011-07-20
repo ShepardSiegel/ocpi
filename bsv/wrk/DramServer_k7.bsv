@@ -90,24 +90,26 @@ module mkDramServer_k7#(Clock sys0_clk, Reset sys0_rst) (DramServer_k7Ifc);
   rule update_firBeat;      firBeat.send(pack(memc.usr.firBeat)); endrule
   rule update_secBeat;      secBeat.send(pack(memc.usr.secBeat)); endrule
 
+  //FIXME
+  /*
   //(* no_implicit_conditions, fire_when_enabled *)
   rule update_debug (True);
      dbg_wl_dqs_inverted       <= memc.dbg.wl_dqs_inverted;
      dbg_wr_calib_clk_delay    <= memc.dbg.wr_calib_clk_delay;
      dbg_wl_odelay_dqs_tap_cnt <= memc.dbg.wl_odelay_dqs_tap_cnt;
      dbg_wl_odelay_dq_tap_cnt  <= memc.dbg.wl_odelay_dq_tap_cnt;
-     //FIXME dbg_rdlvl_done            <= memc.dbg.rdlvl_done;
-     //FIXME dbg_rdlvl_err             <= memc.dbg.rdlvl_err;
+     dbg_rdlvl_done            <= memc.dbg.rdlvl_done;
+     dbg_rdlvl_err             <= memc.dbg.rdlvl_err;
      dbg_cpt_tap_cnt           <= memc.dbg.cpt_tap_cnt;
-     //FIXME dbg_cpt_first_edge_cnt    <= memc.dbg.cpt_first_edge_cnt;
-     //FIXME dbg_cpt_second_edge_cnt   <= memc.dbg.cpt_second_edge_cnt;
+     dbg_cpt_first_edge_cnt    <= memc.dbg.cpt_first_edge_cnt;
+     dbg_cpt_second_edge_cnt   <= memc.dbg.cpt_second_edge_cnt;
      dbg_rd_bitslip_cnt        <= memc.dbg.rd_bitslip_cnt;
      dbg_rd_clkdly_cnt         <= memc.dbg.rd_clkdly_cnt;
      dbg_rd_active_dly         <= memc.dbg.rd_active_dly;
      dbg_dqs_p_tap_cnt         <= memc.dbg.dqs_p_tap_cnt;
      dbg_dqs_n_tap_cnt         <= memc.dbg.dqs_n_tap_cnt;
      dbg_dq_tap_cnt            <= memc.dbg.dq_tap_cnt;
-     //FIXME dbg_rddata                <= memc.dbg.rddata;
+     dbg_rddata                <= memc.dbg.rddata;
      requestCount              <= memc.reqCount;
   endrule
 
@@ -122,6 +124,7 @@ module mkDramServer_k7#(Clock sys0_clk, Reset sys0_rst) (DramServer_k7Ifc);
     memc.dbg.dec_rd_dqs(0);
     memc.dbg.inc_dec_sel(0);
   endrule
+  */
 
   mkConnection(toGet(lreqF), memc.usr.request);
   mkConnection(memc.usr.response, toPut(lrespF));

@@ -53,7 +53,7 @@ module mkPCIEwrap#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_r
     "V5"    : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 5
     "V6"    : _a  <- mkPCIEwrapV6(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6
     "X6"    : _a  <- mkPCIEwrapX6(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6 with AXI Interface
-//  "X7"    : _a  <- mkPCIEwrapX7(pci0_clkp, pci0_clkn, pci0_rstn);  // Xilinx Series 7 AXI (Artex, Kintex, Virtex)
+ // "X7"    : _a  <- mkPCIEwrapX7(pci0_clkp, pci0_clkn, pci0_rstn);  // Xilinx Series 7 AXI (Artex, Kintex, Virtex)
     default : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);
   endcase
   return _a;

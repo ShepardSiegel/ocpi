@@ -95,17 +95,18 @@ interface DRAM_APP#(numeric type appWidth, numeric type adrWidth, numeric type m
 endinterface: DRAM_APP
 typedef DRAM_APP#(256,33,32) DRAM_APP_32B;
 
+/*
 (* always_enabled, always_ready *)
 interface DRAM_DEBUG#(numeric type dqsWidth, numeric type dqsCntWidth);
   method Bit#(dqsWidth)            wl_dqs_inverted;
   method Bit#(TMul#(2,dqsWidth))   wr_calib_clk_delay;
   method Bit#(TMul#(5,dqsWidth))   wl_odelay_dqs_tap_cnt;
   method Bit#(TMul#(5,dqsWidth))   wl_odelay_dq_tap_cnt;
-  //FIXME method Bit#(2)                   rdlvl_done;
-  //FIXME method Bit#(2)                   rdlvl_err;
+  method Bit#(2)                   rdlvl_done;
+  method Bit#(2)                   rdlvl_err;
   method Bit#(TMul#(5,dqsWidth))   cpt_tap_cnt;
-  //FIXME method Bit#(TMul#(5,dqsWidth))   cpt_first_edge_cnt;
-  //FIXME method Bit#(TMul#(5,dqsWidth))   cpt_second_edge_cnt;
+  method Bit#(TMul#(5,dqsWidth))   cpt_first_edge_cnt;
+  method Bit#(TMul#(5,dqsWidth))   cpt_second_edge_cnt;
   method Bit#(TMul#(3,dqsWidth))   rd_bitslip_cnt;
   method Bit#(TMul#(2,dqsWidth))   rd_clkdly_cnt;
   method Bit#(5)                   rd_active_dly;
@@ -121,9 +122,10 @@ interface DRAM_DEBUG#(numeric type dqsWidth, numeric type dqsCntWidth);
   method Bit#(TMul#(5,dqsWidth))   dqs_p_tap_cnt;
   method Bit#(TMul#(5,dqsWidth))   dqs_n_tap_cnt;
   method Bit#(TMul#(5,dqsWidth))   dq_tap_cnt;
-  //FIXME method Bit#(TMul#(4,dqsWidth))   rddata;
+  method Bit#(TMul#(4,dqsWidth))   rddata;
 endinterface: DRAM_DEBUG
 typedef DRAM_DEBUG#(8,3) DRAM_DBG_32B;
+*/
 
 
 (* always_enabled, always_ready *)
@@ -146,7 +148,7 @@ endinterface: DRAM_INF
 interface DramControllerIfc;
   interface DDR3_64       dram;
   interface DRAM_APP_32B  app;
-  interface DRAM_DBG_32B  dbg;
+  //FIXME  interface DRAM_DBG_32B  dbg;
   interface Clock         uclk;      // user-facing clock
   interface Reset         urst_n;    // user-facing reset
 endinterface: DramControllerIfc
@@ -154,7 +156,7 @@ endinterface: DramControllerIfc
 interface DramControllerV5Ifc;
   interface DDR2_32       dram;
   interface DRAM_APP_32B  app;
-  interface DRAM_DBG_32B  dbg;
+  //FIXME  interface DRAM_DBG_32B  dbg;
   interface Clock         uclk;      // user-facing clock
   interface Reset         urst_n;    // user-facing reset
 endinterface: DramControllerV5Ifc
@@ -172,7 +174,7 @@ endinterface
 interface DramControllerUiIfc;
   interface DRAM_USR16B          usr;       // user interface
   interface DDR3_64              dram;      // dram pins
-  interface DRAM_DBG_32B         dbg;       // debug port
+  //FIXME interface DRAM_DBG_32B         dbg;       // debug port
   interface Clock                uclk;      // user-facing clock
   interface Reset                urst_n;    // user-facing reset
   method Bit#(16) reqCount;
@@ -210,38 +212,39 @@ module vMkK7DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
   endinterface: dram
 
   interface DRAM_APP_32B app;
-    method                    cmd      (app_cmd)        enable((*inhigh*)ena1) clocked_by(uclk) reset_by(urst_n);
-    method                    en       ()               enable(app_en)         clocked_by(uclk) reset_by(urst_n);
-    method app_rdy            cmd_rdy                                          clocked_by(uclk) reset_by(urst_n);
-    method                    addr     (app_addr)       enable((*inhigh*)ena3) clocked_by(uclk) reset_by(urst_n); // tg_addr became app_addr in v37
-    method                    wdf_wren ()               enable(app_wdf_wren)   clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_data (app_wdf_data)   enable((*inhigh*)ena5) clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_mask (app_wdf_mask)   enable((*inhigh*)ena6) clocked_by(uclk) reset_by(urst_n);
-    method                    wdf_end  (app_wdf_end)    enable((*inhigh*)ena7) clocked_by(uclk) reset_by(urst_n);
-    method app_wdf_rdy        wdf_rdy                                          clocked_by(uclk) reset_by(urst_n);
-    method app_rd_data        rd_data                                          clocked_by(uclk) reset_by(urst_n);
-    method app_rd_data_end    rd_data_end                                      clocked_by(uclk) reset_by(urst_n);
-    method app_rd_data_valid  rd_data_valid                                    clocked_by(uclk) reset_by(urst_n);
-    method phy_init_done      init_complete                                    clocked_by(uclk) reset_by(urst_n);
+    method                     cmd      (app_cmd)        enable((*inhigh*)ena1) clocked_by(uclk) reset_by(urst_n);
+    method                     en       ()               enable(app_en)         clocked_by(uclk) reset_by(urst_n);
+    method app_rdy             cmd_rdy                                          clocked_by(uclk) reset_by(urst_n);
+    method                     addr     (app_addr)       enable((*inhigh*)ena3) clocked_by(uclk) reset_by(urst_n); // tg_addr became app_addr in v37
+    method                     wdf_wren ()               enable(app_wdf_wren)   clocked_by(uclk) reset_by(urst_n);
+    method                     wdf_data (app_wdf_data)   enable((*inhigh*)ena5) clocked_by(uclk) reset_by(urst_n);
+    method                     wdf_mask (app_wdf_mask)   enable((*inhigh*)ena6) clocked_by(uclk) reset_by(urst_n);
+    method                     wdf_end  (app_wdf_end)    enable((*inhigh*)ena7) clocked_by(uclk) reset_by(urst_n);
+    method app_wdf_rdy         wdf_rdy                                          clocked_by(uclk) reset_by(urst_n);
+    method app_rd_data         rd_data                                          clocked_by(uclk) reset_by(urst_n);
+    method app_rd_data_end     rd_data_end                                      clocked_by(uclk) reset_by(urst_n);
+    method app_rd_data_valid   rd_data_valid                                    clocked_by(uclk) reset_by(urst_n);
+    method init_calib_complete init_complete                                    clocked_by(uclk) reset_by(urst_n);
   endinterface: app
 
+  /*
   interface DRAM_DBG_32B dbg;
     method dbg_wl_dqs_inverted       wl_dqs_inverted                           clocked_by(uclk) reset_by(urst_n);
     method dbg_wr_calib_clk_delay    wr_calib_clk_delay                        clocked_by(uclk) reset_by(urst_n);
     method dbg_wl_odelay_dqs_tap_cnt wl_odelay_dqs_tap_cnt                     clocked_by(uclk) reset_by(urst_n);
     method dbg_wl_odelay_dq_tap_cnt  wl_odelay_dq_tap_cnt                      clocked_by(uclk) reset_by(urst_n);
-    //FIXME method dbg_rdlvl_done            rdlvl_done                                clocked_by(uclk) reset_by(urst_n);
-    //FIXME method dbg_rdlvl_err             rdlvl_err                                 clocked_by(uclk) reset_by(urst_n);
+    method dbg_rdlvl_done            rdlvl_done                                clocked_by(uclk) reset_by(urst_n);
+    method dbg_rdlvl_err             rdlvl_err                                 clocked_by(uclk) reset_by(urst_n);
     method dbg_cpt_tap_cnt           cpt_tap_cnt                               clocked_by(uclk) reset_by(urst_n);
-    //FIXME method dbg_cpt_first_edge_cnt    cpt_first_edge_cnt                        clocked_by(uclk) reset_by(urst_n);
-    //FIXME method dbg_cpt_second_edge_cnt   cpt_second_edge_cnt                       clocked_by(uclk) reset_by(urst_n);
+    method dbg_cpt_first_edge_cnt    cpt_first_edge_cnt                        clocked_by(uclk) reset_by(urst_n);
+    method dbg_cpt_second_edge_cnt   cpt_second_edge_cnt                       clocked_by(uclk) reset_by(urst_n);
     method dbg_rd_bitslip_cnt        rd_bitslip_cnt                            clocked_by(uclk) reset_by(urst_n);
     method dbg_rd_clkdly_cnt         rd_clkdly_cnt                             clocked_by(uclk) reset_by(urst_n);
     method dbg_rd_active_dly         rd_active_dly                             clocked_by(uclk) reset_by(urst_n);
     method dbg_dqs_p_tap_cnt         dqs_p_tap_cnt                             clocked_by(uclk) reset_by(urst_n);
     method dbg_dqs_n_tap_cnt         dqs_n_tap_cnt                             clocked_by(uclk) reset_by(urst_n);
     method dbg_dq_tap_cnt            dq_tap_cnt                                clocked_by(uclk) reset_by(urst_n);
-    //FIXME method dbg_rddata                rddata                                    clocked_by(uclk) reset_by(urst_n);
+    method dbg_rddata                rddata                                    clocked_by(uclk) reset_by(urst_n);
     method pd_off             (dbg_pd_off)              enable((*inhigh*)enb1) clocked_by(uclk) reset_by(urst_n);
     method pd_maintain_off    (dbg_pd_maintain_off)     enable((*inhigh*)enb2) clocked_by(uclk) reset_by(urst_n);
     method pd_maintain_0_only (dbg_pd_maintain_0_only)  enable((*inhigh*)enb3) clocked_by(uclk) reset_by(urst_n);
@@ -252,6 +255,7 @@ module vMkK7DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
     method dec_rd_dqs         (dbg_dec_rd_dqs)          enable((*inhigh*)enb8) clocked_by(uclk) reset_by(urst_n);
     method inc_dec_sel        (dbg_inc_dec_sel)         enable((*inhigh*)enb9) clocked_by(uclk) reset_by(urst_n);
   endinterface: dbg
+  *.
 
   /*
     schedule (dbg_wl_dqs_inverted, dbg_wr_calib_clk_delay, dbg_wl_odelay_dqs_tap_cnt, dbg_wl_odelay_dq_tap_cnt, dbg_rdlvl_done, dbg_rdlvl_err, dbg_cpt_tap_cnt, dbg_cpt_first_edge_cnt, dbg_cpt_second_edge_cnt, dbg_rd_bitslip_cnt, dbg_rd_clkdly_cnt, dbg_rd_active_dly, dbg_dqs_p_tap_cnt, dbg_dqs_n_tap_cnt, dbg_dq_tap_cnt, dbg_rddata) CF
@@ -262,13 +266,10 @@ module vMkK7DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
            (dbg_pd_off, dbg_pd_maintain_off, dbg_pd_maintain_0_only, dbg_ocb_mon_off, dbg_inc_cpt, dbg_dec_cpt , dbg_inc_rd_dqs, dbg_dec_rd_dqs, dbg_inc_dec_sel,
              app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end );
   */
-    schedule (dbg_wl_dqs_inverted, dbg_wr_calib_clk_delay, dbg_wl_odelay_dqs_tap_cnt, dbg_wl_odelay_dq_tap_cnt, dbg_cpt_tap_cnt, dbg_rd_bitslip_cnt, dbg_rd_clkdly_cnt, dbg_rd_active_dly, dbg_dqs_p_tap_cnt, dbg_dqs_n_tap_cnt, dbg_dq_tap_cnt) CF
-             (dbg_wl_dqs_inverted, dbg_wr_calib_clk_delay, dbg_wl_odelay_dqs_tap_cnt, dbg_wl_odelay_dq_tap_cnt, dbg_cpt_tap_cnt, dbg_rd_bitslip_cnt, dbg_rd_clkdly_cnt, dbg_rd_active_dly, dbg_dqs_p_tap_cnt, dbg_dqs_n_tap_cnt, dbg_dq_tap_cnt);
 
-  schedule (dbg_pd_off, dbg_pd_maintain_off, dbg_pd_maintain_0_only, dbg_ocb_mon_off, dbg_inc_cpt, dbg_dec_cpt , dbg_inc_rd_dqs, dbg_dec_rd_dqs, dbg_inc_dec_sel,
-             app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end ) CF
-           (dbg_pd_off, dbg_pd_maintain_off, dbg_pd_maintain_0_only, dbg_ocb_mon_off, dbg_inc_cpt, dbg_dec_cpt , dbg_inc_rd_dqs, dbg_dec_rd_dqs, dbg_inc_dec_sel,
-             app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end );
+
+  schedule ( app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end ) CF
+           ( app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end );
 
 endmodule: vMkK7DDR3
 
@@ -376,7 +377,7 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
     interface Get  response     = toGet(respF);
   endinterface
   interface DDR3_64        dram    = memc.dram;    // pass-through other interfaces...
-  interface DRAM_DBG_32B   dbg     = memc.dbg;
+  //FIXME interface DRAM_DBG_32B   dbg     = memc.dbg;
   interface Clock          uclk    = memc.uclk;
   interface Reset          urst_n  = memc.urst_n;
   method Bit#(16) reqCount = requestCount;
