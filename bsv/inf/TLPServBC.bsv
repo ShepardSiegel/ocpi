@@ -244,7 +244,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, False); // TODO: Byte Enable Support
     let w = PTW16 { data : {pack(h), fabMesgAccu, rres.data}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
     outF.enq(w);
-    fabMesgAccu <= fabMesgAccu + extend(rres.dwLength<<2);  // increment the fabric address accumulator
+    fabMesgAccu <= fabMesgAccu + (extend(rres.dwLength)<<2);  // increment the fabric address accumulator
     outDwRemain <= rres.dwLength - 1;                       // load DW remaining in this segment
     if (!onlyBeatInSegment) tlpXmtBusy <= True;             // acquire outbound mutex
     if ( onlyBeatInSegment && lastSegmentInMesg) begin
@@ -434,7 +434,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     inF.deq;
     Ptw16Hdr p = unpack(pw.data);
     CompletionHdr ch = unpack(pw.data[127:32]);
-    remMesgAccu <= remMesgAccu + extend(ch.length<<2);  // increment the rem address accumulator
+    remMesgAccu <= remMesgAccu + (extend(ch.length)<<2);  // increment the rem address accumulator
     WriteReq wreq = WriteReq {
       dwAddr   : truncate(remMesgAccu>>2),   //
       dwLength : ch.length,                  // the length in DW of this (possibly sub-) completion of the request
@@ -463,7 +463,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     dmaPullRemainDWLen    <=  endOfSubCompletion ? dmaPullRemainDWLen-dmaPullRemainDWSub : dmaPullRemainDWLen-4;   
     dmaPullRemainDWSub    <=  endOfSubCompletion ? 0 : dmaPullRemainDWSub-4;
     updatePullState(endOfSubCompletion, endOfReqCompletion);
-    mesgComplReceived <= mesgComplReceived + (endOfSubCompletion ? extend(dmaPullRemainDWSub<<2) : 16);
+    mesgComplReceived <= mesgComplReceived + (endOfSubCompletion ? (extend(dmaPullRemainDWSub)<<2) : 16);
     $display("[%0d]: %m: dmaPullResponseBody FPactMesg-Step4b/5", $time);
   endrule
 
