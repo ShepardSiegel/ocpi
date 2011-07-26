@@ -237,7 +237,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transform the local read response header to a PCIe posted write request header for push DMA...
-  rule dmaPushResponseHeader (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==DMASrc);
+  rule dmaPushResponseHeader (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==DMASrc && !tlpXmtBusy && postSeqDwell == 0);
     mRespF.deq;
     Bool onlyBeatInSegment = (rres.dwLength==1);
     Bool lastSegmentInMesg = (rres.tag==8'h01); 
@@ -273,7 +273,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transmit the Metadata header...
-  rule dmaXmtMetaHead (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && !xmtMetaInFlight && xmtMetaOK);
+  rule dmaXmtMetaHead (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && !xmtMetaInFlight && xmtMetaOK && postSeqDwell == 0);
     xmtMetaInFlight <= True;
     tlpXmtBusy      <= True;
     doXmtMetaBody   <= True;
@@ -301,7 +301,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transmit the DMA-PUSH TailEvent...
-  rule dmaXmtTailEvent (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && tlpMetaSent && postSeqDwell==0);
+  rule dmaXmtTailEvent (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& tlpMetaSent);
     xmtMetaInFlight <= False;
     tlpMetaSent     <= False;
     fabMeta         <= (Invalid);
@@ -317,7 +317,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // FPactFlow - Fabric Consumer Sending Doorbells
   // 
   // Send Doorbells to tell the far side of our near buffer availability...
-  rule dmaXmtDoorbell (actFlow && !tlpXmtBusy && postSeqDwell==0 && creditReady);
+  rule dmaXmtDoorbell (actFlow && creditReady);
     remStart      <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
     postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
     flowDiagCount <= flowDiagCount + 1;
@@ -481,7 +481,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
 
   // Generic TailEvent Sender (Used at end of push, pull, and for flow signal to fabFlowAddr)...
-  rule dmaTailEventSender;
+  rule dmaTailEventSender(!tlpXmtBusy && postSeqDwell==0);
     tailEventF.deq;
     MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
     let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
