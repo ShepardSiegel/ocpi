@@ -504,8 +504,7 @@ module mkWmiMaster (WmiMasterIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), A
   endrule
 
   rule respAdvance (linkReady && !respNULL);
-    if (respF.notFull) respF.enq(wmiResponse); // enq the response in the respF  (normal behavior)
-    else errorSticky<=True;                    // set errorSticky if we try to enq a full respF (response was dropped)
+    respF.enq(wmiResponse); // enq the response in the respF  (normal behavior)
   endrule
 
   //TODO: convert the awkward OCP bl in cycles to a friendly length in Bytes
@@ -600,19 +599,16 @@ module mkWmiSlave (WmiSlaveIfc#(na,nb,nd,ni,ne,nf)) provisos (Add#(a_,8,nf), Add
   endrule
 
   rule reqF_enq   (linkReady && wmiReq.cmd!=IDLE); 
-    if (reqF.notFull) reqF.enq(wmiReq);
-    else errorSticky <= True;
+    reqF.enq(wmiReq);
   endrule
 
   // Opcode and Message Size sent M->S on MFlag when DWM is indicated on reqInfo...
   rule mFlagF_enq (linkReady && wmiReq.cmd!=IDLE && wmiReq.reqInfo==pack(True));
-    if (mFlagF.notFull) mFlagF.enq(wmiMFlag);
-    else errorSticky <= True;
+    mFlagF.enq(wmiMFlag);
   endrule
 
   rule dhF_enq    (linkReady && wmiDh.dataValid); 
-    if (dhF.notFull) dhF.enq(wmiDh);
-    else errorSticky <= True;
+    dhF.enq(wmiDh);
   endrule
 
   rule respF_deq; respF.deq(); endrule

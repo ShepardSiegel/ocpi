@@ -413,8 +413,7 @@ module mkWmemiMaster (WmemiMasterIfc#(na,nb,nd,ne));
   rule dhF_deq  (sDataAccept_w); dhF.deq(); endrule
 
   rule respAdvance (linkReady && !respNULL);     // This profile does not use respAccept, no response backpresure...
-    if (respF.notFull) respF.enq(wmemiResponse); // enq the response in the respF  (normal behavior)
-    else errorSticky<=True;                      // set errorSticky if we try to enq a full respF (response was dropped)
+    respF.enq(wmemiResponse); // enq the response in the respF  (normal behavior)
   endrule
 
   //TODO: Factor the (nearly) common WipDataPortStatus and ExtendedStatus into reused module or function
