@@ -1,0 +1,68 @@
+#!/bin/csh
+
+# Pcore full name and version number...
+set pcores=/home/shep/projects/netfpga-10g-dev/lib/hw/std/pcores
+set srcdir=nf10_oped_v1_10_a
+set dstdir=nf10_oped_v1_11_a
+
+set src=$pcores/$srcdir
+set dst=$pcores/$dstdir
+set dstver=$dst/hdl/verilog
+
+mkdir $dst
+mkdir $dst/hdl
+mkdir $dstver
+
+# Reuse these elements...
+cp    $src/Makefile $dst/Makefile
+cp -r $src/xco      $dst/xco
+cp -r $src/data     $dst/data
+
+# Full path to where the OpenCPI assets will be copied from
+set ocpi=/home/shep/projects/ocpi
+
+# Source path definitions (as dictated by import author)...
+set ocpi_rtl=$ocpi/rtl
+set ocpi_bsv=$ocpi/libsrc/hdl/bsv
+set ocpi_ocpi=$ocpi/libsrc/hdl/ocpi
+
+# Destination path definitions (as dictated by pcore builder)...
+set pcore_oped=$dstver/oped
+set pcore_util=$dstver/util
+set pcore_veri=$dstver
+
+mkdir $pcore_oped
+mkdir $pcore_util
+
+# File manifest in form: src dst filename...
+cp $ocpi_rtl/mkAXISDWorker4B.v $pcore_oped/mkAXISDWorker4B.v
+cp $ocpi_rtl/mkBiasWorker4B.v  $pcore_oped/mkBiasWorker4B.v
+cp $ocpi_rtl/mkOCCP.v          $pcore_oped/mkOCCP.v
+cp $ocpi_rtl/mkOPED_v5.v       $pcore_oped/mkOPED_v5.v
+cp $ocpi_rtl/mkPktFork.v       $pcore_oped/mkPktFork.v
+cp $ocpi_rtl/mkPktMerge.v      $pcore_oped/mkPktMerge.v
+cp $ocpi_rtl/mkSMAdapter4B.v   $pcore_oped/mkSMAdapter4B.v
+cp $ocpi_rtl/mkTLPCM.v         $pcore_oped/mkTLPCM.v
+cp $ocpi_rtl/mkTLPSM.v         $pcore_oped/mkTLPSM.v
+cp $ocpi_rtl/mkUUID.v          $pcore_oped/mkUUID.v
+cp $ocpi_rtl/mkWCIS2A4LM.v     $pcore_oped/mkWCIS2A4LM.v 
+
+cp $ocpi_ocpi/xilinx_v5_pcie_wrapper.v $pcore_oped/xilinx_v5_pcie_wrapper.v
+cp $ocpi_ocpi/arSRLFIFOD.v     $pcore_util/arSRLFIFOD.v 
+cp $ocpi_ocpi/arSRLFIFO.v      $pcore_util/arSRLFIFO.v
+
+cp $ocpi_bsv/BRAM2.v           $pcore_util/BRAM2.v 
+cp $ocpi_bsv/FIFO10.v          $pcore_util/FIFO10.v
+cp $ocpi_bsv/FIFO1.v           $pcore_util/FIFO1.v
+cp $ocpi_bsv/FIFO20.v          $pcore_util/FIFO20.v
+cp $ocpi_bsv/FIFO2.v           $pcore_util/FIFO2.v
+cp $ocpi_bsv/MakeResetA.v      $pcore_util/MakeResetA.v
+cp $ocpi_bsv/ResetToBool.v     $pcore_util/ResetToBool.v
+cp $ocpi_bsv/SizedFIFO.v       $pcore_util/SizedFIFO.v
+cp $ocpi_bsv/SyncBit.v         $pcore_util/SyncBit.v
+cp $ocpi_bsv/SyncFIFO.v        $pcore_util/SyncFIFO.v
+cp $ocpi_bsv/SyncHandshake.v   $pcore_util/SyncHandshake.v
+cp $ocpi_bsv/SyncRegister.v    $pcore_util/SyncRegister.v
+cp $ocpi_bsv/SyncResetA.v      $pcore_util/SyncResetA.v
+
+cp $ocpi_ocpi/nf10_oped.v      $pcore_veri/nf10_oped.v
