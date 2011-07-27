@@ -700,7 +700,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     // For example we may get DCBE from our BRAM where B is the "first" data when idx=1
     // The reverse transformation gets us EBCD; the rotateBy gets us BCDE, which is correct
 
-    UInt#(2)  idx  =  unpack(readNxtDWAddr[1:0]);
+    Bit#(2)   nxtDWAddr = truncate(rreq.dwAddr) + 1;
+    UInt#(2)  idx  =  unpack(nxtDWAddr[1:0]);
     Bit#(128) rdata = pack(rotateBy(reverse(vResps),idx));
 
     let pkt = ReadBody(ReadPayld{role:rreq.role, tag:rreq.tag, data:rdata});
