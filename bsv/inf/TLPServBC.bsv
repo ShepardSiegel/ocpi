@@ -95,7 +95,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   FIFOF#(MemReqPacket)     mReqF                <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;
   FIFOF#(MemRespPacket)    mRespF               <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;
   FIFOF#(ReadReq)          readReq              <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;
-  FIFOF#(Bit#(0))          tailEventF           <- mkFIFOF;
+  FIFOF#(Bit#(1))          tailEventF           <- mkFIFOF;
 
   Reg#(Bool)               inIgnorePkt          <- mkRegU;
   Reg#(Bit#(10))           outDwRemain          <- mkRegU;
@@ -304,9 +304,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule dmaXmtTailEvent (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& tlpMetaSent);
     xmtMetaInFlight <= False;
     tlpMetaSent     <= False;
-    fabMeta         <= (Invalid);
-    postSeqDwell    <= psDwell;
-    tailEventF.enq(?);  // Send a generic tail event
+    tailEventF.enq(0);  // Send a generic tail event
     $display("[%0d]: %m: dmaXmtTailEvent FPactMesg-Step7/7", $time);
   endrule
 
@@ -319,9 +317,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Send Doorbells to tell the far side of our near buffer availability...
   rule dmaXmtDoorbell (actFlow && creditReady);
     remStart      <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
-    postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
+    //postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
     flowDiagCount <= flowDiagCount + 1;
-    tailEventF.enq(?);  // Send a generic tail event
+    tailEventF.enq(0);  // Send a generic tail event
     $display("[%0d]: %m: dmaXmtDoorbell FC/FPactFlow-Step1/1", $time);
   endrule
 
@@ -471,11 +469,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // Transmit the DMA-PULL TailEvent...
   rule dmaPullTailEvent (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived>=truncate(meta.length))); //sls 2011-06-24
-    remDone         <= True;  // Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
     dmaDoTailEvent  <= False;
-    fabMeta         <= (Invalid);
-    postSeqDwell    <= psDwell;
-    tailEventF.enq(?);  // Send a generic tail event
+    tailEventF.enq(1);  // Send a generic tail event
     $display("[%0d]: %m: dmaPullTailEvent FPactMesg-Step5/5", $time);
   endrule
 
@@ -483,6 +478,12 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Generic TailEvent Sender (Used at end of push, pull, and for flow signal to fabFlowAddr)...
   rule dmaTailEventSender(!tlpXmtBusy && postSeqDwell==0);
     tailEventF.deq;
+    if(tailEventF.first == 1) begin
+       remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
+    end
+     
+    postSeqDwell    <= psDwell;
+    fabMeta         <= (Invalid);
     MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
     let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
     outF.enq(w);
