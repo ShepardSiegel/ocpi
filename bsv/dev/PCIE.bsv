@@ -563,6 +563,11 @@ function Bit#(nd) reverseBYTES(Bit#(nd) a) provisos (Mul#(8,nby,nd));
   Vector#(nby, Bit#(8)) vBytes = reverse(unpack(a)); return pack(vBytes);
 endfunction
 
+// Decode PCIe 0=1024 over-zealous encoding (ref table 2-4 in pcie 2.0 spec)
+function UInt#(11) decodeDWlength(Bit#(10) pcieDWlen);
+  return(pcieDWlen==0?1024:unpack(extend(pcieDWlen)));
+endfunction
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Interfaces
@@ -1999,8 +2004,9 @@ endmodule: mkPCIExpressEndpointX6
 // Not from PCIe spec but used for head communication...
 typedef struct {
  Bit#(8)         hit;
- TLPLength       length;
+ TLPLength       tlpLen; // encoded
  TLPPacketFormat pfmt;
+ UInt#(11)       length; // actual packet length in DWORDS
 } TLPHeadInfo deriving (Bits, Eq);
 
 
@@ -2030,6 +2036,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   FIFOF#(TLPData#(16))            rxOutF      <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(3))                  rxPushAccu  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(Bool)                      rxInFlight  <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                 rxDwrEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                 rxDwrDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST TX qword-allignment bubble insertion
   FIFOF#(TLPData#(16))         txInF          <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
@@ -2083,11 +2091,18 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     Bool rxBubble  = prx.sof && !unpack(prx.data[66]) && unpack(prx.data[30]);  // fmt[1] indicates "with data" (e.g. MemWrt)
     Bool is4DWHead = prx.sof                          && unpack(prx.data[29]);  // fmt[0] indicates 4DW head vs. 3DW head
 
+    // Regardless of "bubbles" and "straddling" the information in length conveys exactly how many DWORDs are in this packet
+    // This is useful for the rule on the downstream side to know exactly how many DWORDs to take out...
     TLPPacketFormat tpf = unpack(prx.data[30:29]);
     TLPLength       len = unpack(prx.data[9:0]);
-    if (prx.sof) begin
-      rxHeadF.enq(TLPHeadInfo {hit:prx.hit, length:len, pfmt:tpf});
-    end
+    UInt#(11) realDWlength = ?;
+    case (tpf)
+      MEM_WRITE_3DW_DATA   : realDWlength = 3 + decodeDWlength(len); 
+      MEM_WRITE_4DW_DATA   : realDWlength = 4 + decodeDWlength(len);
+      MEM_READ_3DW_NO_DATA : realDWlength = 3;
+      MEM_READ_4DW_NO_DATA : realDWlength = 4;
+    endcase
+    if (prx.sof) rxHeadF.enq(TLPHeadInfo {hit:prx.hit, tlpLen:len, pfmt:tpf, length:realDWlength}); //TODO: trim tlplen and pfmt 
 
     // Now supply the rxDws with the goods...
     Vector#(4, Bit#(32)) vdw = unpack(prx.data);
@@ -2099,22 +2114,19 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     UInt#(3) enqCount = 0;  // enqCount is how many DWORDs we push into rxDws on this cycle
     if      ( prx.sof && tpf==MEM_READ_3DW_NO_DATA)            enqCount = 3; // 3DW of header
     else if ( prx.sof && tpf==MEM_READ_4DW_NO_DATA)            enqCount = 4; // 4DW of header
+    else if ( prx.sof && tpf==MEM_WRITE_4DW_DATA)              enqCount = 4; // 4DW of header
     else if ( prx.sof && tpf==MEM_WRITE_3DW_DATA && !rxBubble) enqCount = 4; // 3DW of header + 1 DW of payload
     else if ( prx.sof && tpf==MEM_WRITE_3DW_DATA &&  rxBubble) enqCount = 3; // 3DW of header + 0 DW of payload
-    else if (!prx.sof && !prx.eof)                             enqCount = 4; //                 4 DW of payload
-    else if (             prx.eof &&  prx.empty)               enqCount = 2; //                 2 DW of payload (at end)
-    else if (             prx.eof && !prx.empty)               enqCount = 4; //                 4 DW of payload (at end)
-    else                                                       enqCount = 0; // default
+    else if (!prx.sof && !prx.empty && prx.be==16'hFFFF)       enqCount = 4; //                 4 DW of payload
+    else if (!prx.sof && !prx.empty && prx.be==16'h0FFF)       enqCount = 3; //                 3 DW of payload
+    else if (!prx.sof &&  prx.empty && prx.be[7:0]==8'hFF)     enqCount = 2; //                 2 DW of payload
+    else if (!prx.sof &&  prx.empty && prx.be[7:0]==8'h0F)     enqCount = 1; //                 1 DW of payload
+    else                                                       enqCount = 0; // default 0
     rxDws.enq(enqCount, vdw); 
 
-    UInt#(3) rxNxtAccu = rxPushAccu + enqCount; // keep track of how many DW pused so we can calculate remainder
-    rxPushAccu <= rxNxtAccu;
-
     if (prx.eof) begin
-      rxEofF.enq(rxNxtAccu % 4); // signal that the message is over and what we pushed to make it complete
+      rxEofF.enq(?); // signal that the message is over
     end
-
-    // Note we have not used the BE supplied from the Avalon RX core
 
   endrule
 
@@ -2132,18 +2144,21 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     vdw = unpack(reverseDWORDS(pack(vdw)));                        // Make DWORDs Big-Endian
     for (Integer i=0; i<4; i=i+1) vdw[i] = reverseBYTES(vdw[i]);   // Make Bytes with each DWORD Big-Endian
 
-    // Assumption is that rxEofF will never exceed 4, even though maxBound is 7, by modulus operator on enq
-    rxDws.deq(eof?rxEofF.first:4); // if eof, only deq as many as we added; otherwise take 4 DWORDs
+    // The deqAmount is how many DWORDs we will deq from rxDws this cycle. It can never be more than 4.
+    // and in the case of SOF, we get it directly from rxh.length instead of the state variable...
+    UInt#(3) deqAmount =  truncate(min(4, sof ? rxh.length : rxDwrDeq));
+    // The state variable keeps track of how many more DWORDs to go by subtracting away the deqAmount...
+    rxDwrDeq <= sof ? (eof ? 0 : rxh.length-extend(deqAmount)) : rxDwrDeq-extend(deqAmount);
+    rxDws.deq(deqAmount);
 
-    Bit#(16) mask = '1; // all Bytes are valid on non-eof
-    if (eof)
-      case (rxEofF.first)
-        0 : mask = 16'h0000;
-        1 : mask = 16'h000F;
-        2 : mask = 16'h00FF;
-        3 : mask = 16'h0FFF;
-        4 : mask = 16'hFFFF;
-      endcase
+    Bit#(16) mask = '1;
+    case (deqAmount)
+      0 : mask = 16'h0000;
+      1 : mask = 16'h000F;
+      2 : mask = 16'h00FF;
+      3 : mask = 16'h0FFF;
+      4 : mask = 16'hFFFF;
+    endcase
 
     rxOutF.enq(TLPData { 
       sof:  sof,
