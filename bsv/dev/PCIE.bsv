@@ -11,6 +11,9 @@ package PCIE;
 ////////////////////////////////////////////////////////////////////////////////
 /// Imports
 ////////////////////////////////////////////////////////////////////////////////
+import DwordShifter      ::*;
+
+
 import Clocks            ::*;
 import Vector            ::*;
 import Connectable       ::*;
@@ -1993,6 +1996,14 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
 endmodule: mkPCIExpressEndpointX6
 
 
+// Not from PCIe spec but used for head communication...
+typedef struct {
+ Bit#(8)         hit;
+ TLPLength       length;
+ TLPPacketFormat pfmt;
+} TLPHeadInfo deriving (Bits, Eq);
+
+
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// Implementation - Altera S4 GX - Avalon-ST Interface
@@ -2013,18 +2024,12 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   // Avalon-ST RX qword-allignment bubble removal
   FIFOLevelIfc#(TLPDataA#(16), 3) rxInF       <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // Pusposefully depth-3 for Avalon variable latency flow control
-  FIFOF#(TLPData#(16))         rxStageF       <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst);  // Purposefully depth-1 for bubble removal
-  Reg#(Bit#(2))                rxSerPos       <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  FIFOF#(TLPData#(16))         rxOutF         <- mkGFIFOF(True, False,  clocked_by ava125Clk, reset_by ava125Rst); //unguarded ENQ
-  FIFOF#(Bit#(8))              rxBarF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Vector#(4,Bit#(32)))    rxDataDebug    <- mkRegU(      clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bit#(32))               rxInValCount   <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bit#(32))               rxInSopCount   <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bit#(32))               rxInEopCount   <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bit#(32))               rxOutValCount  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bit#(32))               rxOutSofCount  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bit#(32))               rxOutEofCount  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bit#(32))               rxOutOvfCount  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPHeadInfo)             rxHeadF     <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  DwordShifter#(4,4,8)            rxDws       <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(UInt#(3))                rxEofF      <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPData#(16))            rxOutF      <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(3))                  rxPushAccu  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                      rxInFlight  <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST TX qword-allignment bubble insertion
   FIFOF#(TLPData#(16))         txInF          <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
@@ -2047,101 +2052,116 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   endrule
 
   rule connect_ava_rx_rdy;
-    //pcie_ep.ava_rx.rdy(rxInF.isLessThan(2)); // 1 element in rxInF means at least 2 more may follow after Avalon-Ready is de-asserted
-    pcie_ep.ava_rx.rdy(True); // FIXME
+    pcie_ep.ava_rx.rdy(rxInF.isLessThan(2)); // 1 element in rxInF means at least 2 more may follow after Avalon-Ready is de-asserted
   endrule
 
   rule rx_instage (pcie_ep.ava_rx.valid);  // instage brings guarded FIFO semantics to Avalon-ST (removes variable read latency)
+    Bit#(8) bar = 0;
+    if(pcie_ep.ava_rx.sop) begin  // Avalon bardec is only valid on SOP
+      TLPPacketType pktType = unpack(pcie_ep.ava_rx.data[28:24]);
+      bar = (pktType==MEMORY_READ_WRITE) ? pcie_ep.ava_rx.bar : 0; // zero out Bar for non-memory requests
+    end
     rxInF.enq(TLPDataA {  
-      empty: pcie_ep.ava_rx.empty,
+      empty: pcie_ep.ava_rx.empty,     // When empty asserted, there is no data in upper 64b of data - qualifies byte-enables
       sof:   pcie_ep.ava_rx.sop,
       eof:   pcie_ep.ava_rx.eop,
-      hit:   0,
-      be:    pcie_ep.ava_rx.be,
-      data:  pcie_ep.ava_rx.data });
-      rxInValCount <= rxInValCount + 1;
-      if(pcie_ep.ava_rx.sop) begin  // Avalon bardec only valid on SOP
-        TLPPacketType pktType = unpack(pcie_ep.ava_rx.data[28:24]);
-        Bit#(8) bar = (pktType==MEMORY_READ_WRITE) ? pcie_ep.ava_rx.bar : 0; // zero out Bar for non-memory requests
-        rxBarF.enq(bar);
-        rxInSopCount <= rxInSopCount + 1;
-      end
-      if(pcie_ep.ava_rx.eop) rxInEopCount <= rxInEopCount + 1;
+      hit:   bar,                      // bar/hit is only valid on sop/sof
+      be:    pcie_ep.ava_rx.be,        // 16b BEs qualify the data (true=valid) in little-endian format' when empty asserted, only lower 8b are valid
+      data:  pcie_ep.ava_rx.data });   // 16B data is little-endian; except PCIe header bytes are byte-wise big-endian within each DWORD
   endrule
 
-  // When RX packets are available in rxInF, one of the next two rules will file depending on if we have previously staged data or not
+  // When RX packets are available in rxInF, we consume then and then enstage enq into HeadF, Dws, and Eof
 
-  rule rx_enstage (!rxStageF.notEmpty);
-    let prx = rxInF.first; rxInF.deq();
-    Bool rxBubble = prx.sof && !unpack(prx.data[66]) && unpack(prx.data[30]); // bit 2 of the request address at Header Byte 11 - bubble when alligned (and a MEM_WRITE)
-    // If we are a read request, we are not a bubble
+  // These rx_enstage operations are about removing the Avalon Spexcificiity and making PCIe generic
+  // All DWORDs from insatge are LE; but the header-only is Byte-Wise BE
+  // We will Byte-Reverse ONLY the Header, so EVERYTHING enqueued into rxDws is both DWORD and BYTE wise Little-Endian
 
+  rule rx_enstage (rxDws.space_available >= 4);  // enstage is only ready when 4 or more locations are open in rxDws (the max we may need)
+    let prx = rxInF.first; rxInF.deq();  // take a packet-fragment from rxInF
+
+    // bit 2 of the request address at Header Byte 11 - bubble when alligned (and a MEM_WRITE); If we are a read request, we are not a bubble...
+    Bool rxBubble  = prx.sof && !unpack(prx.data[66]) && unpack(prx.data[30]);  // fmt[1] indicates "with data" (e.g. MemWrt)
+    Bool is4DWHead = prx.sof                          && unpack(prx.data[29]);  // fmt[0] indicates 4DW head vs. 3DW head
+
+    TLPPacketFormat tpf = unpack(prx.data[30:29]);
+    TLPLength       len = unpack(prx.data[9:0]);
+    if (prx.sof) begin
+      rxHeadF.enq(TLPHeadInfo {hit:prx.hit, length:len, pfmt:tpf});
+    end
+
+    // Now supply the rxDws with the goods...
     Vector#(4, Bit#(32)) vdw = unpack(prx.data);
-    if (prx.sof && !rxBubble) begin
-      vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data (non-header)
-    end 
-    /*
-    else begin
-      vdw[0] = reverseBYTES(vdw[0]);
-      vdw[1] = reverseBYTES(vdw[1]);
-      vdw[2] = reverseBYTES(vdw[2]);
-      vdw[3] = reverseBYTES(vdw[3]);
-    end
-    */
 
-    if (rxSerPos==0 && !rxBubble) begin
-      rxOutF.enq(TLPData {                   // Enq directly to rxOutF...
-        sof:  prx.sof,
-        eof:  prx.eof,
-        hit:  truncate(rxBarF.first),
-        be:   reverseBits(prx.be),
-        data: reverseDWORDS(pack(vdw)) });
-        rxOutValCount <= rxOutValCount + 1;
-        if (!rxOutF.notFull) rxOutOvfCount <= rxOutOvfCount + 1; // record unguarded OVF
-        if (prx.sof) rxOutSofCount <= rxOutSofCount + 1;
-        if (prx.eof) begin
-          rxSerPos <= 0;
-          rxOutEofCount <= rxOutEofCount + 1;
-        end
-    end else begin 
-      rxSerPos <= rxSerPos + 3;
-      rxStageF.enq(TLPData {                 // Enq in the Stage Fifo...
-        sof:  prx.sof,
-        eof:  prx.eof,
-        hit:  0,
-        be:   prx.be,
-        data: pack(vdw) });
+    if (prx.sof)  // Only muck with the header (non-data) in the first word - Make header Bytes little-endian with each DWORD
+      for (Integer i=0; i<(is4DWHead?4:3); i=i+1)
+        vdw[i] = reverseBYTES(vdw[i]);
+
+    UInt#(3) enqCount = 0;  // enqCount is how many DWORDs we push into rxDws on this cycle
+    if      ( prx.sof && tpf==MEM_READ_3DW_NO_DATA)            enqCount = 3; // 3DW of header
+    else if ( prx.sof && tpf==MEM_READ_4DW_NO_DATA)            enqCount = 4; // 4DW of header
+    else if ( prx.sof && tpf==MEM_WRITE_3DW_DATA && !rxBubble) enqCount = 4; // 3DW of header + 1 DW of payload
+    else if ( prx.sof && tpf==MEM_WRITE_3DW_DATA &&  rxBubble) enqCount = 3; // 3DW of header + 0 DW of payload
+    else if (!prx.sof && !prx.eof)                             enqCount = 4; //                 4 DW of payload
+    else if (             prx.eof &&  prx.empty)               enqCount = 2; //                 2 DW of payload (at end)
+    else if (             prx.eof && !prx.empty)               enqCount = 4; //                 4 DW of payload (at end)
+    else                                                       enqCount = 0; // default
+    rxDws.enq(enqCount, vdw); 
+
+    UInt#(3) rxNxtAccu = rxPushAccu + enqCount; // keep track of how many DW pused so we can calculate remainder
+    rxPushAccu <= rxNxtAccu;
+
+    if (prx.eof) begin
+      rxEofF.enq(rxNxtAccu % 4); // signal that the message is over and what we pushed to make it complete
     end
-    if (prx.eof) rxBarF.deq;
+
+    // Note we have not used the BE supplied from the Avalon RX core
+
   endrule
 
-  rule rx_destage (rxStageF.notEmpty);
-    let prx = rxInF.first; rxInF.deq();
-    let stg = rxStageF.first;
-    // TODO: Add correct "pick" from rxSerPos
-    Bit#(16)  be   = { prx.be[3:0],    stg.be[11:0] };
-    Bit#(128) data = { reverseBYTES(prx.data[31:0]), stg.data[95:0] };  // FIXME for general case, not just 1DW alligned PIO
-    Bool sof = prx.sof || stg.sof;
-    Bool eof = prx.eof || stg.eof;
-    // TODO: Add enq to rxStageF
-    rxOutF.enq(TLPData {                    // Enq composite in rxOutF
+
+  // These rx_destage operations are about making PCIe generic specific to the TRN big-endian uNoC format.
+  // It is not until there are 4 DWORDs available (or an packet eof) that we fire this rule on a predicate
+  // And the implicit conditions include the rxHeadF being ready; meaning that we have a pending SOF
+  rule rx_destage (rxDws.dwords_available >= 4 || rxEofF.notEmpty);
+    let rxh = rxHeadF.first; // peek at the rxHeadF; will deq when the packet is done
+
+    Bool sof = !rxInFlight;   
+    Bool eof = rxEofF.notEmpty;
+
+    Vector#(4, Bit#(32)) vdw = rxDws.dwords_out;                   // Pick up the 16B from the rxDws
+    vdw = unpack(reverseDWORDS(pack(vdw)));                        // Make DWORDs Big-Endian
+    for (Integer i=0; i<4; i=i+1) vdw[i] = reverseBYTES(vdw[i]);   // Make Bytes with each DWORD Big-Endian
+
+    // Assumption is that rxEofF will never exceed 4, even though maxBound is 7, by modulus operator on enq
+    rxDws.deq(eof?rxEofF.first:4); // if eof, only deq as many as we added; otherwise take 4 DWORDs
+
+    Bit#(16) mask = '1; // all Bytes are valid on non-eof
+    if (eof)
+      case (rxEofF.first)
+        0 : mask = 16'h0000;
+        1 : mask = 16'h000F;
+        2 : mask = 16'h00FF;
+        3 : mask = 16'h0FFF;
+        4 : mask = 16'hFFFF;
+      endcase
+
+    rxOutF.enq(TLPData { 
       sof:  sof,
       eof:  eof,
-      hit:  truncate(rxBarF.first),
-      be:   reverseBits(be),
-      data: reverseDWORDS(data) });
-    if (!rxOutF.notFull) rxOutOvfCount <= rxOutOvfCount + 1; // record unguarded OVF
-    rxStageF.deq;
-    rxOutValCount <= rxOutValCount + 1;
-    if (sof) rxOutSofCount <= rxOutSofCount + 1;
+      hit:  truncate(rxh.hit),
+      be:   reverseBits(mask),  // Turn the little-endian mask to big-endian
+      data: pack(vdw) });
+
     if (eof) begin
-      rxSerPos <= 0;
-      rxBarF.deq;
-      rxOutEofCount <= rxOutEofCount + 1;
+      rxHeadF.deq;  // done with this packet's header
+      rxEofF.deq;   // done with this packet's eof indication
     end
+    rxInFlight <= !eof; // packet is in flight until we encounter eof
+
   endrule
 
 
+  //
   // Upstream TRN to Avalon-ST...
 
   rule tx_enstage (pcie_ep.ava_tx.tready && !txStageF.notEmpty && !txSeqGuard);
@@ -2237,7 +2257,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     interface Reset    usr_rst = pcie_ep.ava.usr_rst;
     method    Bool     alive   = pcie_ep.ava.alive;
     method    Bool     lnk_up  = pcie_ep.ava.lnk_up;
-    method    Bit#(32) debug   = pcie_ep.ava.debug | rxInValCount | rxInSopCount | rxInEopCount | rxOutValCount | rxOutSofCount | rxOutEofCount | rxOutOvfCount;
+    method    Bit#(32) debug   = pcie_ep.ava.debug | extend(pack(rxPushAccu)) | extend(pack(rxInFlight));
   endinterface
 
   interface PCIE_TRN_RECV16 trn_rx;  // downstream...

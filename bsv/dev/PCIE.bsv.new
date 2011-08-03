@@ -2075,6 +2075,9 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   // When RX packets are available in rxInF, we consume then and then enstage enq into HeadF, Dws, and Eof...
 
   // These rx_enstage operations are about removing the Avalon Spexcificiity and making PCIe generic...
+  // All DWORDs from insatge are LE; but the header-only is Byte-Wise BE
+  // We will Byte-Reverse ONLY the Header, so EVERYTHING enqueued into rxDws is both DWORD and BYTE wise Little-Endian
+
   rule rx_enstage (rxDws.space_available >= 4);  // enstage is only ready when 4 or more locations are open in rxDws (the max we may need)
     let prx = rxInF.first; rxInF.deq();
 
@@ -2089,16 +2092,13 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
     // Now supply the rxDws with the goods...
     Vector#(4, Bit#(32)) vdw = unpack(prx.data);
-    if (prx.sof && !rxBubble && tpf==MEM_WRITE_3DW_DATA) begin
-      vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data (non-header) in the first word
+
+    if (prx.sof) begin   // TODO: Add conditonal for 4DW headers
+      vdw[2] = reverseBYTES(vdw[2]);   // Only muck with the header (non-data) in the first word - Make Header LE
+      vdw[1] = reverseBYTES(vdw[1]);   // Only muck with the header (non-data) in the first word
+      vdw[0] = reverseBYTES(vdw[0]);   // Only muck with the header (non-data) in the first word
     end 
-    if (!prx.sof) begin
-      vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data in the payload
-      vdw[2] = reverseBYTES(vdw[2]);
-      vdw[1] = reverseBYTES(vdw[1]);
-      vdw[0] = reverseBYTES(vdw[0]);
-    end 
-    vdw = unpack(reverseDWORDS(pack(vdw)));    // Make Big endian for TRN
+
     UInt#(3)                                                   enqCount = 0;
     if      ( prx.sof && tpf==MEM_READ_3DW_NO_DATA)            enqCount = 3;
     else if ( prx.sof && tpf==MEM_READ_4DW_NO_DATA)            enqCount = 4;
@@ -2116,9 +2116,10 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
       rxEofF.enq(rxNxtAccu); // signal that the message is over and what we pushed to make it complete
     end
 
-    // Note we have not used tge BE supplied from the Avalon RX core
+    // Note we have not used the BE supplied from the Avalon RX core
 
   endrule
+
 
   // These rx_destage operations are about making PCIe generic specific to the TRN uNoC format...
   rule rx_destage;
@@ -2128,6 +2129,11 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     Bool eof = rxEofF.notEmpty;
 
     Vector#(4, Bit#(32)) vdw = rxDws.dwords_out;
+    vdw = unpack(reverseDWORDS(pack(vdw)));    // Make DW Big endian for TRN
+    vdw[3] = reverseBYTES(vdw[3]);   //  Make Byte Big Endian
+    vdw[2] = reverseBYTES(vdw[2]);   // 
+    vdw[1] = reverseBYTES(vdw[1]);   // 
+    vdw[0] = reverseBYTES(vdw[0]);   // 
     // Calculate deq amount
 
     rxOutF.enq(TLPData { 

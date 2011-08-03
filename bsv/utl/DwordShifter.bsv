@@ -2,8 +2,8 @@ package DwordShifter;
 
 // This is a FIFO-like utility that allows a variable number of dwords
 // to be enqueued at once and a variable number to be dequeued.
-// Derived from ByteShifter, should be made into n-bit thing Shifter; originally by Jeff Newbern at Bluespec Inc.
-// Bastardized at Atomic Rules, etc
+// Derived from ByteShifter, should be made into generic Bits Type Shifter; originally by Jeff Newbern at Bluespec Inc.
+// Adopted at Atomic Rules by Shep Siegel
 
 import Vector :: *;
 
