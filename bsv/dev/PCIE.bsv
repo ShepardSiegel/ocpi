@@ -2034,10 +2034,19 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   DwordShifter#(4,4,8)            rxDws       <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
   FIFOF#(UInt#(3))                rxEofF      <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
   FIFOF#(TLPData#(16))            rxOutF      <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(3))                  rxPushAccu  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(Bool)                      rxInFlight  <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(11))                 rxDwrEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(11))                 rxDwrDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+
+  Reg#(UInt#(16))                 rxDbgInstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 rxDbgEnstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 rxDbgDestage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 rxDbgEnSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 rxDbgEnEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 rxDbgDeSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 rxDbgDeEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 rxDbgEnEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 rxDbgDeDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST TX qword-allignment bubble insertion
   FIFOF#(TLPData#(16))         txInF          <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
@@ -2076,6 +2085,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
       hit:   bar,                      // bar/hit is only valid on sop/sof
       be:    pcie_ep.ava_rx.be,        // 16b BEs qualify the data (true=valid) in little-endian format' when empty asserted, only lower 8b are valid
       data:  pcie_ep.ava_rx.data });   // 16B data is little-endian; except PCIe header bytes are byte-wise big-endian within each DWORD
+
+    rxDbgInstage <= rxDbgInstage + 1;
   endrule
 
   // When RX packets are available in rxInF, we consume then and then enstage enq into HeadF, Dws, and Eof
@@ -2088,19 +2099,20 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     let prx = rxInF.first; rxInF.deq();  // take a packet-fragment from rxInF
 
     // bit 2 of the request address at Header Byte 11 - bubble when alligned (and a MEM_WRITE); If we are a read request, we are not a bubble...
-    Bool rxBubble  = prx.sof && !unpack(prx.data[66]) && unpack(prx.data[30]);  // fmt[1] indicates "with data" (e.g. MemWrt)
-    Bool is4DWHead = prx.sof                          && unpack(prx.data[29]);  // fmt[0] indicates 4DW head vs. 3DW head
+    Bool rxBubble   = prx.sof && !unpack(prx.data[66]) && unpack(prx.data[30]);  // fmt[1] indicates "with data" (e.g. MemWrt)
+    Bool is4DWHead  = prx.sof                          && unpack(prx.data[29]);  // fmt[0] indicates 4DW head vs. 3DW head
+    Bool hasPayload = prx.sof                          && unpack(prx.data[30]);  // fmt[1] indicates "with data" (e.g. MemWrt)
 
     // Regardless of "bubbles" and "straddling" the information in length conveys exactly how many DWORDs are in this packet
     // This is useful for the rule on the downstream side to know exactly how many DWORDs to take out...
     TLPPacketFormat tpf = unpack(prx.data[30:29]);
     TLPLength       len = unpack(prx.data[9:0]);
     UInt#(11) realDWlength = ?;
-    case (tpf)
-      MEM_WRITE_3DW_DATA   : realDWlength = 3 + decodeDWlength(len); 
-      MEM_WRITE_4DW_DATA   : realDWlength = 4 + decodeDWlength(len);
-      MEM_READ_3DW_NO_DATA : realDWlength = 3;
-      MEM_READ_4DW_NO_DATA : realDWlength = 4;
+    case ({pack(is4DWHead), pack(hasPayload)})
+      2'b01 : realDWlength = 3 + decodeDWlength(len); 
+      2'b11 : realDWlength = 4 + decodeDWlength(len);
+      2'b00 : realDWlength = 3;
+      2'b10 : realDWlength = 4;
     endcase
     if (prx.sof) rxHeadF.enq(TLPHeadInfo {hit:prx.hit, tlpLen:len, pfmt:tpf, length:realDWlength}); //TODO: trim tlplen and pfmt 
 
@@ -2112,22 +2124,25 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
         vdw[i] = reverseBYTES(vdw[i]);
 
     UInt#(3) enqCount = 0;  // enqCount is how many DWORDs we push into rxDws on this cycle
-    if      ( prx.sof && tpf==MEM_READ_3DW_NO_DATA)            enqCount = 3; // 3DW of header
-    else if ( prx.sof && tpf==MEM_READ_4DW_NO_DATA)            enqCount = 4; // 4DW of header
-    else if ( prx.sof && tpf==MEM_WRITE_4DW_DATA)              enqCount = 4; // 4DW of header
-    else if ( prx.sof && tpf==MEM_WRITE_3DW_DATA && !rxBubble) enqCount = 4; // 3DW of header + 1 DW of payload
-    else if ( prx.sof && tpf==MEM_WRITE_3DW_DATA &&  rxBubble) enqCount = 3; // 3DW of header + 0 DW of payload
-    else if (!prx.sof && !prx.empty && prx.be==16'hFFFF)       enqCount = 4; //                 4 DW of payload
-    else if (!prx.sof && !prx.empty && prx.be==16'h0FFF)       enqCount = 3; //                 3 DW of payload
-    else if (!prx.sof &&  prx.empty && prx.be[7:0]==8'hFF)     enqCount = 2; //                 2 DW of payload
-    else if (!prx.sof &&  prx.empty && prx.be[7:0]==8'h0F)     enqCount = 1; //                 1 DW of payload
-    else                                                       enqCount = 0; // default 0
+    if      ( prx.sof && !hasPayload && !is4DWHead)              enqCount = 3; // 3DW of header
+    else if ( prx.sof &&                 is4DWHead)              enqCount = 4; // 4DW of header + N DW of payload
+    else if ( prx.sof &&  hasPayload && !is4DWHead && !rxBubble) enqCount = 4; // 3DW of header + 1 DW of payload
+    else if ( prx.sof &&  hasPayload && !is4DWHead &&  rxBubble) enqCount = 3; // 3DW of header + 0 DW of payload
+    else if (!prx.sof && !prx.empty  && prx.be==16'hFFFF)        enqCount = 4; //                 4 DW of payload
+    else if (!prx.sof && !prx.empty  && prx.be==16'h0FFF)        enqCount = 3; //                 3 DW of payload
+    else if (!prx.sof &&  prx.empty  && prx.be[7:0]==8'hFF)      enqCount = 2; //                 2 DW of payload
+    else if (!prx.sof &&  prx.empty  && prx.be[7:0]==8'h0F)      enqCount = 1; //                 1 DW of payload
+    else                                                         enqCount = 0; // default 0
     rxDws.enq(enqCount, vdw); 
+    rxDbgEnEnq <= rxDbgEnEnq + extend(enqCount);
 
     if (prx.eof) begin
       rxEofF.enq(?); // signal that the message is over
     end
 
+    rxDbgEnstage <= rxDbgEnstage + 1;
+    if (prx.sof) rxDbgEnSof <= rxDbgEnSof + 1;
+    if (prx.eof) rxDbgEnEof <= rxDbgEnEof + 1;
   endrule
 
 
@@ -2150,6 +2165,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     // The state variable keeps track of how many more DWORDs to go by subtracting away the deqAmount...
     rxDwrDeq <= sof ? (eof ? 0 : rxh.length-extend(deqAmount)) : rxDwrDeq-extend(deqAmount);
     rxDws.deq(deqAmount);
+    rxDbgDeDeq <= rxDbgDeDeq + extend(deqAmount);
 
     Bit#(16) mask = '1;
     case (deqAmount)
@@ -2173,6 +2189,9 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     end
     rxInFlight <= !eof; // packet is in flight until we encounter eof
 
+    rxDbgDestage <= rxDbgDestage + 1;
+    if (sof) rxDbgDeSof <= rxDbgDeSof + 1;
+    if (eof) rxDbgDeEof <= rxDbgDeEof + 1;
   endrule
 
 
@@ -2272,7 +2291,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     interface Reset    usr_rst = pcie_ep.ava.usr_rst;
     method    Bool     alive   = pcie_ep.ava.alive;
     method    Bool     lnk_up  = pcie_ep.ava.lnk_up;
-    method    Bit#(32) debug   = pcie_ep.ava.debug | extend(pack(rxPushAccu)) | extend(pack(rxInFlight));
+    method    Bit#(32) debug   = pcie_ep.ava.debug | extend(pack(rxInFlight)) | extend(pack(rxDbgInstage)) | extend(pack(rxDbgEnstage)) | extend(pack(rxDbgDestage)) 
+     | extend(pack(rxDbgEnSof))| extend(pack(rxDbgEnEof)) | extend(pack(rxDbgDeSof)) | extend(pack(rxDbgDeEof)) | extend(pack(rxDbgEnEnq)) | extend(pack(rxDbgDeDeq)) ;
   endinterface
 
   interface PCIE_TRN_RECV16 trn_rx;  // downstream...
