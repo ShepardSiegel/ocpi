@@ -2130,11 +2130,14 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     else if ( prx.sof &&  hasPayload && !is4DWHead &&  rxBubble) enqCount = 3; // 3DW of header + 0 DW of payload
     else if (!prx.sof && !prx.empty  && prx.be==16'hFFFF)        enqCount = 4; //                 4 DW of payload
     else if (!prx.sof && !prx.empty  && prx.be==16'h0FFF)        enqCount = 3; //                 3 DW of payload
-    else if (!prx.sof &&  prx.empty  && prx.be[7:0]==8'hFF)      enqCount = 2; //                 2 DW of payload
-    else if (!prx.sof &&  prx.empty  && prx.be[7:0]==8'h0F)      enqCount = 1; //                 1 DW of payload
+    else if (!prx.sof &&  prx.empty  && prx.be[15:8]==8'hFF)     enqCount = 2; //                 2 DW of payload (*1)
+    else if (!prx.sof &&  prx.empty  && prx.be[15:8]==8'h0F)     enqCount = 1; //                 1 DW of payload (*1)
     else                                                         enqCount = 0; // default 0
     rxDws.enq(enqCount, vdw); 
     rxDbgEnEnq <= rxDbgEnEnq + extend(enqCount);
+
+    // (*1) While the Altera documentation suggests that prx.be[7:0] should be observed when empty is asserted;
+    // SignalTap investigation shows the pattern 0x0FFF for 1 DW of maessage payload and 0x0F0F for 1 DW of data payload
 
     if (prx.eof) begin
       rxEofF.enq(?); // signal that the message is over
@@ -2153,7 +2156,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     let rxh = rxHeadF.first; // peek at the rxHeadF; will deq when the packet is done
 
     Bool sof = !rxInFlight;   
-    Bool eof = rxEofF.notEmpty;
+    Bool eof = rxEofF.notEmpty && (rxDws.dwords_available <= 4);
 
     Vector#(4, Bit#(32)) vdw = rxDws.dwords_out;                   // Pick up the 16B from the rxDws
     vdw = unpack(reverseDWORDS(pack(vdw)));                        // Make DWORDs Big-Endian
