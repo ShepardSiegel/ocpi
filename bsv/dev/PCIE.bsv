@@ -2029,14 +2029,14 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   Wire#(Bool)       avaTxErr    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST RX qword-allignment bubble removal
-  FIFOLevelIfc#(TLPDataA#(16), 3) rxInF       <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // Pusposefully depth-3 for Avalon variable latency flow control
-  FIFOF#(TLPHeadInfo)             rxHeadF     <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
-  DwordShifter#(4,4,8)            rxDws       <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
-  FIFOF#(UInt#(3))                rxEofF      <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
-  FIFOF#(TLPData#(16))            rxOutF      <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bool)                      rxInFlight  <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(11))                 rxDwrEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(11))                 rxDwrDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOLevelIfc#(TLPDataA#(16), 3) rxInF         <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // Pusposefully depth-3 for Avalon variable latency flow control
+  FIFOF#(TLPHeadInfo)             rxHeadF       <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  DwordShifter#(4,4,8)            rxDws         <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(UInt#(3))                rxEofF        <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPData#(16))            rxOutF        <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                      rxInFlight    <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                 rxDwrEnq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                 rxDwrDeq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
   Reg#(UInt#(16))                 rxDbgInstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(16))                 rxDbgEnstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
@@ -2049,19 +2049,33 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   Reg#(UInt#(16))                 rxDbgDeDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST TX qword-allignment bubble insertion
-  FIFOF#(TLPData#(16))         txInF          <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
-  FIFOF#(TLPData#(16))         txStageF       <- mkFIFOF1(    clocked_by ava125Clk, reset_by ava125Rst); 
-  Reg#(Bit#(2))                txSerPos       <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bool)                   txHeadPushed   <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bool)                   txSeqGuard     <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPData#(16))            txInF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
+  FIFOF#(TLPHeadInfo)             txHeadF       <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
+  DwordShifter#(4,4,8)            txDws         <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(UInt#(3))                txEofF        <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPDataA#(16))           txOutF        <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                      txInFlight    <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                 txDwrEnq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                 txDwrDeq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
-  Reg#(PciId)                  deviceReg      <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgEnstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgDestage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgExstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgEnSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgEnEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgDeSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgDeEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgEnEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                 txDbgDeDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+
+  Reg#(PciId)                     deviceReg     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Configuration capture logic...
   rule capture_deviceid (pcie_ep.cfg.addr == 4'hF); // capture cfg_busdev
     deviceReg <= PciId { bus:pcie_ep.cfg.data[12:5], dev:pcie_ep.cfg.data[4:0], func:0 } ;
   endrule
 
+  //
   // Downstream Avalon-ST to TRN
 
   rule connect_ava_rx_mask;
@@ -2095,6 +2109,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   // All DWORDs from insatge are LE; but the header-only is Byte-Wise BE
   // We will Byte-Reverse ONLY the Header, so EVERYTHING enqueued into rxDws is both DWORD and BYTE wise Little-Endian
 
+  // AV-ST to PCIe... 
   rule rx_enstage (rxDws.space_available >= 4);  // enstage is only ready when 4 or more locations are open in rxDws (the max we may need)
     let prx = rxInF.first; rxInF.deq();  // take a packet-fragment from rxInF
 
@@ -2107,13 +2122,15 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     // This is useful for the rule on the downstream side to know exactly how many DWORDs to take out...
     TLPPacketFormat tpf = unpack(prx.data[30:29]);
     TLPLength       len = unpack(prx.data[9:0]);
-    UInt#(11) realDWlength = ?;
-    case ({pack(is4DWHead), pack(hasPayload)})
-      2'b01 : realDWlength = 3 + decodeDWlength(len); 
-      2'b11 : realDWlength = 4 + decodeDWlength(len);
-      2'b00 : realDWlength = 3;
-      2'b10 : realDWlength = 4;
+    UInt#(11) realDWlength = (is4DWHead?4:3) + (hasPayload?decodeDWlength(len):0); // Header Length + Payload Length (if any)
+    /*
+    case (tuple2(is4DWHead,hasPayload)) matches
+      {False, True}  : realDWlength = 3 + decodeDWlength(len); 
+      {True,  True}  : realDWlength = 4 + decodeDWlength(len);
+      {False, False} : realDWlength = 3;
+      {True,  False} : realDWlength = 4;
     endcase
+    */
     if (prx.sof) rxHeadF.enq(TLPHeadInfo {hit:prx.hit, tlpLen:len, pfmt:tpf, length:realDWlength}); //TODO: trim tlplen and pfmt 
 
     // Now supply the rxDws with the goods...
@@ -2139,9 +2156,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     // (*1) While the Altera documentation suggests that prx.be[7:0] should be observed when empty is asserted;
     // SignalTap investigation shows the pattern 0x0FFF for 1 DW of maessage payload and 0x0F0F for 1 DW of data payload
 
-    if (prx.eof) begin
-      rxEofF.enq(?); // signal that the message is over
-    end
+    if (prx.eof) rxEofF.enq(?); // signal that the message is over
 
     rxDbgEnstage <= rxDbgEnstage + 1;
     if (prx.sof) rxDbgEnSof <= rxDbgEnSof + 1;
@@ -2152,6 +2167,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   // These rx_destage operations are about making PCIe generic specific to the TRN big-endian uNoC format.
   // It is not until there are 4 DWORDs available (or an packet eof) that we fire this rule on a predicate
   // And the implicit conditions include the rxHeadF being ready; meaning that we have a pending SOF
+  // PCIe to TRN...
   rule rx_destage (rxDws.dwords_available >= 4 || rxEofF.notEmpty);
     let rxh = rxHeadF.first; // peek at the rxHeadF; will deq when the packet is done
 
@@ -2200,81 +2216,112 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   //
   // Upstream TRN to Avalon-ST...
+  //
+  // These tx_enstage operations remove the TRN Specificity and make the packet PCIe generic
+  // As TRN is uniformly big-endian; the work done here includes converting both DWORDs and Bytes to Little-Endian
+  // TRN to PCIe...
+  rule tx_enstage (txDws.space_available >= 4);
+    let ptx = txInF.first; txInF.deq();  // take a packet-fragment from txInF
 
-  rule tx_enstage (pcie_ep.ava_tx.tready && !txStageF.notEmpty && !txSeqGuard);
-    let tx = txInF.first;
-    TLPCompletionHeader txAsCompl = unpack(tx.data);
-    //Bool txBubble = tx.sof && !unpack(tx.data[66]); // bit 2 of the lower address at Header Byte 11 - bubble when alligned
-    Bool txBubble = tx.sof && txAsCompl.loweraddr[2]==0;
+    Bool hasPayload = ptx.sof && unpack(ptx.data[126]);  // fmt[1] indicates "with data" (e.g. MemWrt)
+    Bool is4DWHead  = ptx.sof && unpack(ptx.data[125]);  // fmt[0] indicates 4DW head vs. 3DW head
 
-    if (!txBubble) txInF.deq;
-    else txSeqGuard <= True;
+    TLPPacketFormat tpf = unpack(ptx.data[126:125]);
+    TLPLength       len = unpack(ptx.data[105:96]);
+    UInt#(11) realDWlength = (is4DWHead?4:3) + (hasPayload?decodeDWlength(len):0); // Header Length + Payload Length (if any)
 
-    Bit#(16)  be   = ?;
-    Bit#(128) data = ?;
+    if (ptx.sof) txHeadF.enq(TLPHeadInfo {hit:0, tlpLen:len, pfmt:tpf, length:realDWlength}); //TODO: trim tlplen and pfmt 
 
-    be   = reverseBits(tx.be);
-    data = reverseDWORDS(tx.data);
+    // Uniformly convert TRN DWORD and Byte Big-Endianness to Little-endian...
+    Vector#(4, Bit#(32)) vdw = unpack(pack(ptx.data));             // Pick up the 16B from the txInF
+    vdw = unpack(reverseDWORDS(pack(vdw)));                        // Make DWORDs Little-Endian
+    for (Integer i=0; i<4; i=i+1) vdw[i] = reverseBYTES(vdw[i]);   // Make Bytes with each DWORD Little-Endian
 
-    Vector#(4, Bit#(32)) vdw = unpack(data);
+    UInt#(3) enqCount = 0;  // enqCount is how many DWORDs we push into txDws on this cycle
+    if      ( ptx.sof && !hasPayload && !is4DWHead)                            enqCount = 3; // 3DW of header
+    else if ( ptx.sof &&                 is4DWHead)                            enqCount = 4; // 4DW of header + N DW of payload
+    else if ( ptx.sof &&  hasPayload && !is4DWHead && ptx.be==16'hFFFF)        enqCount = 4; // 3DW of header + 1 DW of payload
+    else if ( ptx.sof &&  hasPayload && !is4DWHead && ptx.be==16'hFFF0)        enqCount = 3; // 3DW of header + 0 DW of payload
+    else if (!ptx.sof &&                              ptx.be==16'hFFFF)        enqCount = 4; //                 4 DW of payload
+    else if (!ptx.sof &&                              ptx.be==16'hFFF0)        enqCount = 3; //                 3 DW of payload
+    else if (!ptx.sof &&                              ptx.be==16'hFF00)        enqCount = 2; //                 2 DW of payload
+    else if (!ptx.sof &&                              ptx.be==16'hF000)        enqCount = 1; //                 1 DW of payload
+    else                                                                       enqCount = 0; // default 0
+    txDws.enq(enqCount, vdw); 
+    txDbgEnEnq <= txDbgEnEnq + extend(enqCount);
 
-    if (!txBubble) begin
-      vdw[3] = reverseBYTES(vdw[3]);   // Only muck with the data (non-header)
-    end else begin
-      txStageF.enq(tx);
-    end
+    if (ptx.eof) txEofF.enq(?); // signal that the message is over
 
-    avaTxValid  <=  True;
-    avaTxSop    <=  tx.sof;
-    avaTxEop    <= (tx.eof && !txBubble);
-    avaTxEmpty  <=  False;
-
-    //pcie_ep.ava_tx.empty(False); //FIXME: Assert when TLP ends in lower 64b of 128b
-    //pcie_ep.ava_tx.tstrb(be);
-
-    pcie_ep.ava_tx.data(pack(vdw));
-
-    if (tx.eof && !txBubble) begin
-      txSerPos <= 0;
-      txHeadPushed <= False;
-    end
+    txDbgEnstage <= txDbgEnstage + 1;
+    if (ptx.sof) txDbgEnSof <= txDbgEnSof + 1;
+    if (ptx.eof) txDbgEnEof <= txDbgEnEof + 1;
   endrule
 
-  //TODO: Bubble insertion on TX
 
-  rule tx_destage (pcie_ep.ava_tx.tready && txStageF.notEmpty && txSeqGuard);
-    let tx = txInF.first; txInF.deq;
-    let ts = txStageF.first; txStageF.deq;
-    Bit#(16)  be   = ?;
-    Bit#(128) data = ?;
-    //be   = {reverseBits(tx.be)[15:4],       reverseBits(ts.be)[3:0]};
-    //data = {reverseDWORDS(tx.data)[127:32], reverseDWORDS(ts.data)[31:0]};
-    be   = {tx.be[15:4],     ts.be[3:0]};
-    //data = {tx.data[127:32], ts.data[31:0]};
+  // These tx_destage operations take the PCIe generic data and specialize them for the Avalon-ST format.
+  // This includes + Byte-Reversal ONLY of the Header DWORDs
+  //               + Adding a tx "bubble" cycle to force the 64b-allignment of data
+  // PCIe to AV-ST...
+  rule tx_destage (txDws.dwords_available >= 4 || txEofF.notEmpty);
+    let txh = txHeadF.first; // peek at the txHeadF; will deq when the packet is done
 
-    // This is always data, so reverse Bytes...
-    Vector#(4, Bit#(32)) vdw = unpack({tx.data[127:32], ts.data[31:0]});
-      vdw[0] = reverseBYTES(vdw[0]);
-      vdw[1] = reverseBYTES(vdw[1]);
-      vdw[2] = reverseBYTES(vdw[2]);
-      vdw[3] = reverseBYTES(vdw[3]);
-      data = pack(vdw);
+    Bool sof = !txInFlight;   
+    Bool eof = txEofF.notEmpty && (txDws.dwords_available <= 4);
+    Bool is4DWHead  = sof && unpack(pack(txh.pfmt)[0]);  // fmt[0] indicates 4DW head vs. 3DW head
 
-    avaTxValid  <=  True;
-    avaTxSop    <=  False;
-    avaTxEop    <=  True;
-    avaTxEmpty  <=  True;
+    Vector#(4, Bit#(32)) vdw = txDws.dwords_out;  
+    if (sof)  // Only muck with the header (non-data) in the first word - Make header Bytes big-endian with each DWORD
+      for (Integer i=0; i<(is4DWHead?4:3); i=i+1)
+        vdw[i] = reverseBYTES(vdw[i]);
 
-    //pcie_ep.ava_tx.empty(True); //FIXME: Assert when TLP ends in lower 64b of 128b
-    //pcie_ep.ava_tx.tstrb(be);
-    pcie_ep.ava_tx.data(data);
+    Bit#(128) raw = pack(vdw); // We need the data to peek at bit 66 to see if we are 64b memory-alligned or not
+    Bool txBubble = sof && !unpack(raw[66]) && unpack(raw[30]);
 
-    if (tx.eof) begin
-      txSerPos <= 0;
-      txHeadPushed <= False;
+    // The deqAmount is how many DWORDs we will deq from txDws this cycle. It can never be more than 4, 3 if a txBubble
+    // and in the case of SOF, we get it directly from txh.length instead of the state variable...
+    UInt#(3) deqAmount =  truncate(min(txBubble?3:4, sof?txh.length:txDwrDeq));
+    // The state variable keeps track of how many more DWORDs to go by subtracting away the deqAmount...
+    txDwrDeq <= sof ? (eof ? 0 : txh.length-extend(deqAmount)) : txDwrDeq-extend(deqAmount);
+    txDws.deq(deqAmount);
+    txDbgDeDeq <= txDbgDeDeq + extend(deqAmount);
+
+    Bit#(16) mask = '1;
+    case (deqAmount)
+      0 : mask = 16'h0000;
+      1 : mask = 16'h000F;
+      2 : mask = 16'h00FF;
+      3 : mask = 16'h0FFF;
+      4 : mask = 16'hFFFF;
+    endcase
+
+    txOutF.enq(TLPDataA { 
+      empty: (deqAmount<3),
+      sof:   sof,
+      eof:   eof,
+      hit:   0,
+      be:    mask,
+      data:  pack(vdw) });
+
+    if (eof) begin
+      txHeadF.deq;  // done with this packet's header
+      txEofF.deq;   // done with this packet's eof indication
     end
+    txInFlight <= !eof; // packet is in flight until we encounter eof
 
-    txSeqGuard <= False;
+    txDbgDestage <= txDbgDestage + 1;
+    if (sof) txDbgDeSof <= txDbgDeSof + 1;
+    if (eof) txDbgDeEof <= txDbgDeEof + 1;
+  endrule
+
+  // Move the AV-ST format data from txOutF to the PCIe core...
+  rule tx_exstage (pcie_ep.ava_tx.tready);
+    let tex = txOutF.first; txOutF.deq;
+    pcie_ep.ava_tx.data(tex.data);
+    avaTxValid   <=  True;
+    avaTxSop     <=  tex.sof;
+    avaTxEop     <=  tex.eof;
+    avaTxEmpty   <=  tex.empty;
+    txDbgExstage <= txDbgExstage + 1;
   endrule
 
   (* no_implicit_conditions, fire_when_enabled *)
@@ -2295,7 +2342,9 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     method    Bool     alive   = pcie_ep.ava.alive;
     method    Bool     lnk_up  = pcie_ep.ava.lnk_up;
     method    Bit#(32) debug   = pcie_ep.ava.debug | extend(pack(rxInFlight)) | extend(pack(rxDbgInstage)) | extend(pack(rxDbgEnstage)) | extend(pack(rxDbgDestage)) 
-     | extend(pack(rxDbgEnSof))| extend(pack(rxDbgEnEof)) | extend(pack(rxDbgDeSof)) | extend(pack(rxDbgDeEof)) | extend(pack(rxDbgEnEnq)) | extend(pack(rxDbgDeDeq)) ;
+     | extend(pack(rxDbgEnSof))| extend(pack(rxDbgEnEof)) | extend(pack(rxDbgDeSof)) | extend(pack(rxDbgDeEof)) | extend(pack(rxDbgEnEnq)) | extend(pack(rxDbgDeDeq)) 
+                                                   | extend(pack(txInFlight)) | extend(pack(txDbgExstage)) | extend(pack(txDbgEnstage)) | extend(pack(txDbgDestage)) 
+     | extend(pack(txDbgEnSof))| extend(pack(txDbgEnEof)) | extend(pack(txDbgDeSof)) | extend(pack(txDbgDeEof)) | extend(pack(txDbgEnEnq)) | extend(pack(txDbgDeDeq)) ;
   endinterface
 
   interface PCIE_TRN_RECV16 trn_rx;  // downstream...
