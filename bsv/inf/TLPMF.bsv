@@ -17,7 +17,7 @@
 
 // For use with Bluesim, you need to undefine USE_SRLFIFO, as mkSRLFIFO is not yet a BSV 
 // primative, it is importBVI of Atomic Rules Verilog...
-`define USE_SRLFIFO
+//`define USE_SRLFIFO
 
 package TLPMF;
 import SRLFIFO::*;

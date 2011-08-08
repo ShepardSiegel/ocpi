@@ -367,6 +367,7 @@ platform_ml555: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
 		-D USE_NDW1 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML555).bsv
 
 ######################################################################
@@ -380,6 +381,7 @@ platform_schist: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
 		-D USE_NDW1 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_SCHIST).bsv
 
 
@@ -393,6 +395,7 @@ platform_nf10: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW1 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_NF10).bsv
 
 
@@ -407,6 +410,7 @@ platform_xupv5: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
 		-D USE_NDW1 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_XUPV5).bsv
 
 
@@ -420,6 +424,7 @@ platform_ml605: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML605).bsv
 
 ######################################################################
@@ -432,6 +437,7 @@ platform_kc705: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_KC705).bsv
 
 ######################################################################
@@ -444,6 +450,7 @@ platform_vc707: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_VC707).bsv
 
 ######################################################################
@@ -456,6 +463,7 @@ platform_alst4: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW1 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ALST4).bsv
 
 ######################################################################
@@ -468,6 +476,7 @@ platform_htgs4: $(OBJ)
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW1 \
+		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_HTGS4).bsv
 
 $(OBJ):
