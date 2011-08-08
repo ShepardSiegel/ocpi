@@ -1,15 +1,15 @@
 #!/bin/csh
 # used for DMA throughput testing
 echo > result.log
-sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 16   -i 10 -z 0000:04:00.0 >>& result.log
-sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 32   -i 10 -z 0000:04:00.0 >>& result.log
-sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 64   -i 10 -z 0000:04:00.0 >>& result.log
-sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 128  -i 10 -z 0000:04:00.0 >>& result.log
-sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 256  -i 10 -z 0000:04:00.0 >>& result.log
-sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 512  -i 10 -z 0000:04:00.0 >>& result.log
-#sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 1024 -i 100 -z 0000:04:00.0 >>& result.log
-#sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 2048 -i 100 -z 0000:04:00.0 >>& result.log
-#sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 4096 -i 100 -z 0000:04:00.0 >>& result.log
-#sudo -E ./testRpl -r1im -r3om -N0o 4 -N6i 4 -I 8192 -i 100 -z 0000:04:00.0 >>& result.log
+sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 16   -i 3 -z 0000:04:00.0 >>& result.log
+sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 32   -i 3 -z 0000:04:00.0 >>& result.log
+sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 64   -i 3 -z 0000:04:00.0 >>& result.log
+sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 128  -i 3 -z 0000:04:00.0 >>& result.log
+sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 256  -i 3 -z 0000:04:00.0 >>& result.log
+sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 512  -i 3 -z 0000:04:00.0 >>& result.log
+#sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 1024 -i 3 -z 0000:04:00.0 >>& result.log
+#sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 2048 -i 3 -z 0000:04:00.0 >>& result.log
+#sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 4096 -i 3 -z 0000:04:00.0 >>& result.log
+#sudo -E ./testRpl -r1im -r3om -N0o 3 -N6i 3 -I 8192 -i 3 -z 0000:04:00.0 >>& result.log
 grep Framesize result.log
 
