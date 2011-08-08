@@ -7,7 +7,7 @@
     <position_info>
       <single attribute="active tab" value="0"/>
       <single attribute="data horizontal scroll position" value="0"/>
-      <single attribute="data vertical scroll position" value="12"/>
+      <single attribute="data vertical scroll position" value="11"/>
       <single attribute="setup horizontal scroll position" value="0"/>
       <single attribute="setup vertical scroll position" value="0"/>
       <single attribute="zoom level denominator" value="1"/>
@@ -15,7 +15,7 @@
       <single attribute="zoom offset denominator" value="1"/>
       <single attribute="zoom offset numerator" value="65472"/>
     </position_info>
-    <signal_set global_temp="1" name="signal_set: 2011/08/04 18:21:47  #0">
+    <signal_set global_temp="1" name="signal_set: 2011/08/08 11:36:31  #0">
       <clock name="mkFTop_alst4:ftop|p125clk" polarity="posedge" tap_mode="classic"/>
       <config ram_type="AUTO" reserved_data_nodes="0" reserved_storage_qualifier_nodes="0" reserved_trigger_nodes="0" sample_depth="64" trigger_in_enable="no" trigger_out_enable="no"/>
       <top_entity/>
@@ -1041,6 +1041,17 @@
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[7]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[8]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[10]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[9]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[0]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[1]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[2]" tap_mode="classic" type="register"/>
@@ -2075,6 +2086,17 @@
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[7]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[8]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[10]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[9]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[0]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[1]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[2]" tap_mode="classic" type="register"/>
@@ -3109,6 +3131,17 @@
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[7]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[8]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDbgExstage[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[10]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[9]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[0]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[1]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_empty[2]" tap_mode="classic" type="register"/>
@@ -3964,6 +3997,19 @@
             <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_full[2]"/>
             <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_full[1]"/>
             <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDws_num_full[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[10]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[9]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[8]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[7]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[6]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[5]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[4]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[3]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[2]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[1]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[0]"/>
           </bus>
           <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|pciw_pci0_txDbgDestage" order="msb_to_lsb" radix="hex" state="collapse" type="register">
             <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDbgDestage[15]"/>
@@ -5311,9 +5357,22 @@
           <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txInF$ENQ"/>
           <net is_signal_inverted="no" name="mkFTop_alst4:ftop|FIFO2:pciw_pci0_txInF|FULL_N"/>
           <net is_signal_inverted="no" name="mkFTop_alst4:ftop|FIFO2:pciw_pci0_txInF|EMPTY_N"/>
+          <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[10]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[9]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[8]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[7]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[6]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[5]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[4]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[3]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[2]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[1]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[0]"/>
+          </bus>
         </setup_view>
       </presentation>
-      <trigger attribute_mem_mode="false" gap_record="true" global_temp="1" name="trigger: 2011/08/04 18:21:48  #0" position="center" power_up_trigger_mode="false" record_data_gap="true" segment_size="64" storage_mode="off" storage_qualifier_disabled="no" storage_qualifier_port_is_pin="false" storage_qualifier_port_name="auto_stp_external_storage_qualifier" storage_qualifier_port_tap_mode="classic" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+      <trigger attribute_mem_mode="false" gap_record="true" global_temp="1" name="trigger: 2011/08/08 11:36:31  #1" position="center" power_up_trigger_mode="false" record_data_gap="true" segment_size="64" storage_mode="off" storage_qualifier_disabled="no" storage_qualifier_port_is_pin="true" storage_qualifier_port_name="auto_stp_external_storage_qualifier" storage_qualifier_port_tap_mode="classic" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
         <power_up_trigger position="pre" storage_qualifier_disabled="no" trigger_in="dont_care" trigger_out="active high"/>
         <events use_custom_flow_control="no">
           <level enabled="yes" name="condition1" type="basic">'mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpActive' == high
@@ -5323,8 +5382,8 @@
           </level>
         </events>
         <storage_qualifier_events>
-          <transitional>000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-            <pwr_up_transitional>000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</pwr_up_transitional>
+          <transitional>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+            <pwr_up_transitional>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</pwr_up_transitional>
           </transitional>
           <storage_qualifier_level type="basic">
             <power_up>
@@ -5355,7 +5414,7 @@
     <single attribute="hierarchy widget visible" value="0"/>
     <single attribute="instance widget visible" value="1"/>
     <single attribute="jtag widget visible" value="1"/>
-    <multi attribute="column width" size="23" value="34,34,216,74,68,70,88,88,98,98,88,88,110,101,101,101,101,101,101,101,101,107,78"/>
+    <multi attribute="column width" size="23" value="34,34,343,74,68,70,88,88,98,98,88,88,439,101,101,101,101,101,101,101,101,107,78"/>
     <multi attribute="frame size" size="2" value="1920,1125"/>
     <multi attribute="jtag widget size" size="2" value="793,145"/>
   </global_info>

@@ -2029,46 +2029,47 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   Wire#(Bool)       avaTxErr    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST RX qword-allignment bubble removal
-  FIFOLevelIfc#(TLPDataA#(16), 3) rxInF         <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // Pusposefully depth-3 for Avalon variable latency flow control
-  FIFOF#(TLPHeadInfo)             rxHeadF       <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
-  DwordShifter#(4,4,8)            rxDws         <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
-  FIFOF#(UInt#(3))                rxEofF        <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
-  FIFOF#(TLPData#(16))            rxOutF        <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bool)                      rxInFlight    <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(11))                 rxDwrEnq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(11))                 rxDwrDeq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOLevelIfc#(TLPDataA#(16), 32) rxInF         <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // Purposefully depth-3 for Avalon variable latency flow control
+  FIFOF#(TLPHeadInfo)              rxHeadF       <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  DwordShifter#(4,4,8)             rxDws         <- mkDwordShifter( clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(UInt#(3))                 rxEofF        <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPData#(16))             rxOutF        <- mkFIFOF    ( clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                       rxInFlight    <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                  rxDwrEnq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                  rxDwrDeq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
-  Reg#(UInt#(16))                 rxDbgInstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 rxDbgEnstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 rxDbgDestage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 rxDbgEnSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 rxDbgEnEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 rxDbgDeSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 rxDbgDeEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 rxDbgEnEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 rxDbgDeDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgInstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgEnstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgDestage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgEnSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgEnEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgDeSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgDeEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgEnEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  rxDbgDeDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST TX qword-allignment bubble insertion
-  FIFOF#(TLPData#(16))            txInF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
-  FIFOF#(TLPHeadInfo)             txHeadF       <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
-  DwordShifter#(4,4,8)            txDws         <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
-  FIFOF#(UInt#(3))                txEofF        <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
-  FIFOF#(TLPDataA#(16))           txOutF        <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(Bool)                      txInFlight    <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(11))                 txDwrEnq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(11))                 txDwrDeq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(TLPData#(16))             txInF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst); 
+  FIFOF#(TLPHeadInfo)              txHeadF       <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
+  DwordShifter#(4,4,8)             txDws         <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(UInt#(3))                 txEofF        <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
+  FIFOF#(UInt#(1))                 txExF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);  // Signals OK to tx_exstage
+  FIFOLevelIfc#(TLPDataA#(16),514) txOutF        <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // 512 x 16B = 4KB + 2 words
+  Reg#(Bool)                       txInFlight    <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                  txDwrEnq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(11))                  txDwrDeq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
 
-  Reg#(UInt#(16))                 txDbgEnstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 txDbgDestage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 txDbgExstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 txDbgEnSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 txDbgEnEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 txDbgDeSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 txDbgDeEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 txDbgEnEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-  Reg#(UInt#(16))                 txDbgDeDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
-
-  Reg#(PciId)                     deviceReg     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgEnstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgDestage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgExstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgEnSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgEnEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgDeSof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgDeEof    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgEnEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(UInt#(16))                  txDbgDeDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+ 
+  Reg#(PciId)                      deviceReg     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
 
   // Configuration capture logic...
   rule capture_deviceid (pcie_ep.cfg.addr == 4'hF); // capture cfg_busdev
@@ -2083,7 +2084,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   endrule
 
   rule connect_ava_rx_rdy;
-    pcie_ep.ava_rx.rdy(rxInF.isLessThan(2)); // 1 element in rxInF means at least 2 more may follow after Avalon-Ready is de-asserted
+    pcie_ep.ava_rx.rdy(rxInF.isLessThan(30)); // 1 element in rxInF means at least 2 more may follow after Avalon-Ready is de-asserted
   endrule
 
   rule rx_instage (pcie_ep.ava_rx.valid);  // instage brings guarded FIFO semantics to Avalon-ST (removes variable read latency)
@@ -2266,7 +2267,6 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     let txh = txHeadF.first; // peek at the txHeadF; will deq when the packet is done
 
     Bool sof = !txInFlight;   
-    Bool eof = txEofF.notEmpty && (txDws.dwords_available <= 4);
     Bool is4DWHead  = sof && unpack(pack(txh.pfmt)[0]);  // fmt[0] indicates 4DW head vs. 3DW head
 
     Vector#(4, Bit#(32)) vdw = txDws.dwords_out;  
@@ -2276,6 +2276,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
     Bit#(128) raw = pack(vdw); // We need the data to peek at bit 66 to see if we are 64b memory-alligned or not
     Bool txBubble = sof && !unpack(raw[66]) && unpack(raw[30]);
+    Bool eof = txEofF.notEmpty && (txDws.dwords_available <= 4) && !txBubble; // Cant end on a txBubble
 
     // The deqAmount is how many DWORDs we will deq from txDws this cycle. It can never be more than 4, 3 if a txBubble
     // and in the case of SOF, we get it directly from txh.length instead of the state variable...
@@ -2285,26 +2286,18 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     txDws.deq(deqAmount);
     txDbgDeDeq <= txDbgDeDeq + extend(deqAmount);
 
-    Bit#(16) mask = '1;
-    case (deqAmount)
-      0 : mask = 16'h0000;
-      1 : mask = 16'h000F;
-      2 : mask = 16'h00FF;
-      3 : mask = 16'h0FFF;
-      4 : mask = 16'hFFFF;
-    endcase
-
     txOutF.enq(TLPDataA { 
       empty: (deqAmount<3),
       sof:   sof,
       eof:   eof,
-      hit:   0,
-      be:    mask,
+      hit:   0,   // hit is not used for AV-ST TX
+      be:    0,   // be-mask is not used for AV-ST TX
       data:  pack(vdw) });
 
     if (eof) begin
       txHeadF.deq;  // done with this packet's header
       txEofF.deq;   // done with this packet's eof indication
+      txExF.enq(0); // signal to tx_exstage the message is ready
     end
     txInFlight <= !eof; // packet is in flight until we encounter eof
 
@@ -2314,7 +2307,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   endrule
 
   // Move the AV-ST format data from txOutF to the PCIe core...
-  rule tx_exstage (pcie_ep.ava_tx.tready);
+  rule tx_exstage (pcie_ep.ava_tx.tready && txExF.notEmpty); // cant start egress until we have the whole message (AV-ST)
     let tex = txOutF.first; txOutF.deq;
     pcie_ep.ava_tx.data(tex.data);
     avaTxValid   <=  True;
@@ -2322,6 +2315,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
     avaTxEop     <=  tex.eof;
     avaTxEmpty   <=  tex.empty;
     txDbgExstage <= txDbgExstage + 1;
+    if (tex.eof) txExF.deq; // message is done
   endrule
 
   (* no_implicit_conditions, fire_when_enabled *)
