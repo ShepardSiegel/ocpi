@@ -16,7 +16,7 @@ sudo ./swctl $SLOT4_BAR0 $SLOT4_BAR1 admin
 #./testDMA "p f m" "3" "0 4112 8176" "100" $*
 #./testDMA "p f m" "3" "0 4096 8192" "500" $*
 
-./testDMA "m" "3" "0 4 16 20 32 64 128 256 512 1024 2048 4096 8192" "1 2 3" $*
+./testDMA "m" "3" "0 4 16 20 32 64 128 256 512 1024 2048 4096 8192" "1000" $*
 
 # TODO: Understand system "hiccup" or full stall with 4096 or 8192 and 100+ iterations
 # observed only with m+m
