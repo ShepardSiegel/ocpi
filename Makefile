@@ -517,6 +517,10 @@ clean-all:
 	echo Removing build directory and sub-directories
 	rm -fR build
 
+bsv_v6:
+	cd scripts/buildhdl; xst -ifn bsvprims_v6.xst
+	cp scripts/buildhdl/xst/bsv/bsv* lib/hdl/bsv/bsv_v6
+
 ml555:
 	mkdir -p build
 	rm -rf build/tmp-ml555
