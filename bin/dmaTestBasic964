@@ -1,6 +1,7 @@
 #!/bin/sh
 # dmaTestBasic - a script for dma "sanity" that runs in less than a minute
 
+rm *.log
 lspci -d 10ee:4243 -v
 
 SLOT3_BAR0=0xF1000000
@@ -12,10 +13,14 @@ echo "admin probe "
 sudo ./swctl $SLOT4_BAR0 $SLOT4_BAR1 settime
 sudo ./swctl $SLOT4_BAR0 $SLOT4_BAR1 admin
 
+echo " *** FIXME sub-set testcase in use ***"
+
 #./testDMA "p f m" "3" "0 4112 8176" "100" $*
 #./testDMA "p f m" "3" "0 4096 8192" "500" $*
-./testDMA "p f m" "3" "0 16 4096" "500" $*
+#./testDMA "p f m" "3" "0 16 32" "500" $*
+./testDMA "p m" "3" "16 4096" "500" $*
 
 # TODO: Understand system "hiccup" or full stall with 4096 or 8192 and 100+ iterations
 # observed only with m+m
 # seems to happen much less when size is not exactly big 2^n (try +/- 16B)
+grep should *.log

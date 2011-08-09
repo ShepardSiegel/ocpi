@@ -5,17 +5,17 @@
   <instance entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
     <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="6"/>
     <position_info>
-      <single attribute="active tab" value="0"/>
+      <single attribute="active tab" value="1"/>
       <single attribute="data horizontal scroll position" value="0"/>
-      <single attribute="data vertical scroll position" value="11"/>
+      <single attribute="data vertical scroll position" value="28"/>
       <single attribute="setup horizontal scroll position" value="0"/>
       <single attribute="setup vertical scroll position" value="0"/>
       <single attribute="zoom level denominator" value="1"/>
-      <single attribute="zoom level numerator" value="2"/>
+      <single attribute="zoom level numerator" value="1"/>
       <single attribute="zoom offset denominator" value="1"/>
-      <single attribute="zoom offset numerator" value="65472"/>
+      <single attribute="zoom offset numerator" value="130944"/>
     </position_info>
-    <signal_set global_temp="1" name="signal_set: 2011/08/08 11:36:31  #0">
+    <signal_set global_temp="1" name="signal_set: 2011/08/09 16:22:00  #0">
       <clock name="mkFTop_alst4:ftop|p125clk" polarity="posedge" tap_mode="classic"/>
       <config ram_type="AUTO" reserved_data_nodes="0" reserved_storage_qualifier_nodes="0" reserved_trigger_nodes="0" sample_depth="64" trigger_in_enable="no" trigger_out_enable="no"/>
       <top_entity/>
@@ -723,6 +723,43 @@
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[7]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[8]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullRequestFarMesg" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseBody" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseHeader" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullTailEvent" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRequestFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespBodyFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespHeadFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[10]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[11]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[12]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[13]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[14]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[15]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[3]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_eop0" tap_mode="classic" type="combinatorial"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_sop0" tap_mode="classic" type="combinatorial"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_valid0" tap_mode="classic" type="combinatorial"/>
@@ -1768,6 +1805,43 @@
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[7]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[8]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullRequestFarMesg" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseBody" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseHeader" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullTailEvent" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRequestFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespBodyFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespHeadFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[10]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[11]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[12]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[13]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[14]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[15]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[3]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_eop0" tap_mode="classic" type="combinatorial"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_sop0" tap_mode="classic" type="combinatorial"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_valid0" tap_mode="classic" type="combinatorial"/>
@@ -2813,6 +2887,43 @@
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[7]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[8]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpUnroll[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullRequestFarMesg" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseBody" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseHeader" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullTailEvent" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRequestFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespBodyFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespHeadFarMeta" tap_mode="classic" type="combinatorial"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[10]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[11]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[12]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[13]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[14]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[15]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[3]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[4]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[5]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[6]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[7]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[8]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[9]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[0]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[1]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[2]" tap_mode="classic" type="register"/>
+          <wire name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[3]" tap_mode="classic" type="register"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_eop0" tap_mode="classic" type="combinatorial"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_sop0" tap_mode="classic" type="combinatorial"/>
           <wire name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_valid0" tap_mode="classic" type="combinatorial"/>
@@ -4263,6 +4374,49 @@
             <net is_signal_inverted="no" name="mkFTop_alst4:ftop|FIFO2:pciw_pci0_txOutF|D_OUT[1]"/>
             <net is_signal_inverted="no" name="mkFTop_alst4:ftop|FIFO2:pciw_pci0_txOutF|D_OUT[0]"/>
           </bus>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRequestFarMeta"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespHeadFarMeta"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespBodyFarMeta"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullRequestFarMesg"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseHeader"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseBody"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullTailEvent"/>
+          <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[9]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[8]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[7]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[6]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[5]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[4]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[3]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[2]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[1]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[15]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[14]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[13]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[12]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[11]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[10]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[9]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[8]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[7]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[6]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[5]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[4]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[3]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[2]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[1]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[3]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[2]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[1]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[0]"/>
+          </bus>
         </data_view>
         <setup_view>
           <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pcie_hip_s4gx_gen2_x4_128_wrapper:pciw_pci0_pcie_ep|rx_st_sop0"/>
@@ -5370,20 +5524,63 @@
             <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[1]"/>
             <net is_signal_inverted="no" name="mkFTop_alst4:ftop|pciw_pci0_txDwrDeq[0]"/>
           </bus>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRequestFarMeta"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespBodyFarMeta"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaRespHeadFarMeta"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullRequestFarMesg"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseBody"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullResponseHeader"/>
+          <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullTailEvent"/>
+          <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[9]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[8]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[7]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[6]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[5]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[4]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[3]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[2]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[1]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_dmaPullRemainDWLen[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[15]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[14]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[13]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[12]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[11]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[10]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[9]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[8]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[7]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[6]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[5]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[4]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[3]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[2]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[1]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|bml_remDones[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[3]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[2]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[1]"/>
+            <net is_signal_inverted="no" name="mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|tlp_postSeqDwell[0]"/>
+          </bus>
         </setup_view>
       </presentation>
-      <trigger attribute_mem_mode="false" gap_record="true" global_temp="1" name="trigger: 2011/08/08 11:36:31  #1" position="center" power_up_trigger_mode="false" record_data_gap="true" segment_size="64" storage_mode="off" storage_qualifier_disabled="no" storage_qualifier_port_is_pin="true" storage_qualifier_port_name="auto_stp_external_storage_qualifier" storage_qualifier_port_tap_mode="classic" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+      <trigger attribute_mem_mode="false" gap_record="true" global_temp="1" name="trigger: 2011/08/09 16:22:00  #1" position="center" power_up_trigger_mode="false" record_data_gap="true" segment_size="64" storage_mode="off" storage_qualifier_disabled="yes" storage_qualifier_port_is_pin="true" storage_qualifier_port_name="auto_stp_external_storage_qualifier" storage_qualifier_port_tap_mode="classic" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
         <power_up_trigger position="pre" storage_qualifier_disabled="no" trigger_in="dont_care" trigger_out="active high"/>
         <events use_custom_flow_control="no">
-          <level enabled="yes" name="condition1" type="basic">'mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCCP:cp|tlp_tlpActive' == high
+          <level enabled="yes" name="condition1" type="basic">'mkFTop_alst4:ftop|mkCTop4B:ctop|mkOCInf4B:inf|mkOCDP4B:dp0|WILL_FIRE_RL_tlp_dmaPullRequestFarMesg' == high
             <power_up enabled="yes">
             </power_up>
             <op_node/>
           </level>
         </events>
         <storage_qualifier_events>
-          <transitional>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-            <pwr_up_transitional>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</pwr_up_transitional>
+          <transitional>000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+            <pwr_up_transitional>000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</pwr_up_transitional>
           </transitional>
           <storage_qualifier_level type="basic">
             <power_up>
@@ -5414,8 +5611,8 @@
     <single attribute="hierarchy widget visible" value="0"/>
     <single attribute="instance widget visible" value="1"/>
     <single attribute="jtag widget visible" value="1"/>
-    <multi attribute="column width" size="23" value="34,34,343,74,68,70,88,88,98,98,88,88,439,101,101,101,101,101,101,101,101,107,78"/>
+    <multi attribute="column width" size="23" value="34,34,196,74,68,70,88,88,98,98,88,88,110,101,101,101,101,101,101,101,101,107,92"/>
     <multi attribute="frame size" size="2" value="1920,1125"/>
-    <multi attribute="jtag widget size" size="2" value="793,145"/>
+    <multi attribute="jtag widget size" size="2" value="376,145"/>
   </global_info>
 </session>

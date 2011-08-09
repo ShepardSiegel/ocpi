@@ -339,7 +339,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // TODO
   // - consider use of taggged union/pattern matching instead of functions in rule predicate
   // - need ID-based completion routing
-  // (* descending_urgency = "dmaPullTailEvent, dmaPullResponseBody, dmaPullResponseHeader, dmaPullResponseHeaderTag, dmaPullRequestFarMesg, dmaRespBodyFarMeta, dmaRespHeadFarMeta, dmaRequestFarMeta" *)
+  //(* descending_urgency = "dmaTailEventSender, dmaPullTailEvent, dmaPullResponseBody, dmaPullResponseHeader, dmaPullResponseHeaderTag, dmaPullRequestFarMesg, dmaRespBodyFarMeta, dmaRespHeadFarMeta, dmaRequestFarMeta" *)
 
   // Request the metadata from the far-side fabric node...
   rule dmaRequestFarMeta (hasPull && actMesgC && !tlpXmtBusy && !reqMetaInFlight && !reqMetaBodyInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
