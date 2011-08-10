@@ -114,6 +114,7 @@ module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
        'h64 : rdat = extend(pack(bml.i_fabFlowSize));
        'h68 : rdat = extend(pack(dpControl));
        //'h6C : rdat = extend(pack(tlp.i_flowDiagCount));
+       'h70 : rdat = extend(pack(tlp.i_debug));
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);
