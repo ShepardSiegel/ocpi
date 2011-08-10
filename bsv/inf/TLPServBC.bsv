@@ -361,6 +361,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     dmaTag    <= dmaTag + 1; 
     outF.enq(w);
     lastRuleFired <= R_dmaRequestFarMeta;
+    complTimerRunning <= True;
     $display("[%0d]: %m: dmaRequestFarMeta FCactMesg-Step1/5", $time);
   endrule
 
@@ -382,6 +383,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     MemReqPacket mpkt = WriteHeader(wreq);
     mReqF.enq(mpkt);
     lastRuleFired <= R_dmaRespHeadFarMeta;
+    complTimerRunning <= False;
     $display("[%0d]: %m: dmaRespHeadFarMeta FPactMesg-Step2a/N fabMeta:%0x", $time, byteSwap(pw.data[31:0]));
   endrule
 
