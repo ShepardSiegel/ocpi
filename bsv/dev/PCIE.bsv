@@ -2069,10 +2069,18 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   Reg#(UInt#(16))                  txDbgEnEnq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(16))                  txDbgDeDeq    <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
  
+  Reg#(Bool)                       cfgDataWr     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                       cfgSample     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(PciId)                      deviceReg     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
 
+  // Make a cfgSample pulse on the edge after dataWrite changes...
+  rule cfg_sample;
+    cfgDataWr <= pcie_ep.cfg.dataWrite;
+    cfgSample <= (cfgDataWr != pcie_ep.cfg.dataWrite);
+  endrule
+
   // Configuration capture logic...
-  rule capture_deviceid (pcie_ep.cfg.addr == 4'hF); // capture cfg_busdev
+  rule capture_deviceid (cfgSample && pcie_ep.cfg.addr == 4'hF); // capture cfg_busdev
     deviceReg <= PciId { bus:pcie_ep.cfg.data[12:5], dev:pcie_ep.cfg.data[4:0], func:0 } ;
   endrule
 
