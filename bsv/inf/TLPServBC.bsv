@@ -161,6 +161,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bit#(13))           maxReadReqSize       <- mkReg(4096); // 512B Typical - Must not exceed 4096B
   Reg#(Bit#(32))           flowDiagCount        <- mkReg(0);
   Reg#(DmaPullRules)       lastRuleFired        <- mkReg(R_none);
+  Reg#(Bool)               complTimerRunning    <- mkReg(False);
+  Reg#(UInt#(12))          complTimerCount      <- mkReg(0);
 
   // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
   // This is because with only one read in-flight at once, we wish to amortize the serial latency over as large a request as possible.
@@ -424,6 +426,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     dmaTag      <= dmaTag + 1; 
     outF.enq(w);
     lastRuleFired <= R_dmaPullRequestFarMesg;
+    complTimerRunning <= True;
     $display("[%0d]: %m: dmaPullRequestFarMesg FCactMesg-Step3/5", $time);
   endrule
 
@@ -460,6 +463,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     updatePullState(endOfSubCompletion, endOfReqCompletion);
     mesgComplReceived <= mesgComplReceived + 4;
     lastRuleFired <= R_dmaPullResponseHeader;
+    complTimerRunning <= False;
     $display("[%0d]: %m: dmaPullResponseHeader FPactMesg-Step4a/5", $time);
   endrule
 
@@ -499,6 +503,10 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     outF.enq(w);
     lastRuleFired  <= R_dmaTailEventSender;
     $display("[%0d]: %m: dmaTailEventSender - generic", $time);
+  endrule
+
+  rule completionTimer;
+    complTimerCount <= (complTimerRunning) ? complTimerCount + 1 : 0 ;
   endrule
 
   // Push and Pull rule schedules (rules later in sequence have higher urgency)...
@@ -729,7 +737,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     //$display("[%0d] TLP Mem: Next nDW read response enqueued (data %x) (raw %x) (idx %x)", $time, rdata, pack(vResps), idx);
   endrule
 
-  Bit#(32) tlpDebug = {28'hFEED_000, pack(lastRuleFired)};
+  Bit#(32) tlpDebug = {4'h0, pack(complTimerCount), 12'h0, pack(lastRuleFired)};
 
   interface Server server;
     interface request  = toPut(inF);
