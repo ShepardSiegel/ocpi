@@ -2054,7 +2054,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   DwordShifter#(4,4,8)             txDws         <- mkDwordShifter ( clocked_by ava125Clk, reset_by ava125Rst);
   FIFOF#(UInt#(3))                 txEofF        <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);
   FIFOF#(UInt#(1))                 txExF         <- mkFIFOF(     clocked_by ava125Clk, reset_by ava125Rst);  // Signals OK to tx_exstage
-  FIFOLevelIfc#(TLPDataA#(16),514) txOutF        <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // 512 x 16B = 4KB + 2 words
+  FIFOLevelIfc#(TLPDataA#(16),515) txOutF        <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // 512 x 16B = 4KB + 3 words
   Reg#(Bool)                       txInFlight    <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(11))                  txDwrEnq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(11))                  txDwrDeq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);

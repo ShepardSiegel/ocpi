@@ -331,11 +331,11 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // FPactFlow - Fabric Consumer Sending Doorbells
   // 
   // Send Doorbells to tell the far side of our near buffer availability...
-  rule dmaXmtDoorbell (actFlow && creditReady);
+  rule dmaXmtDoorbell (actFlow && creditReady && postSeqDwell==0);  // FIXME: Race from remStart->OCBufQ->creditReady is gated by postSeqDwell
     remStart      <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
-    //postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
+    postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic (and to gate race noted above)
     flowDiagCount <= flowDiagCount + 1;
-    tailEventF.enq(0);  // Send a tail event with no remDone
+    tailEventF.enq(0);        // Send a tail event with no remDone
     $display("[%0d]: %m: dmaXmtDoorbell FC/FPactFlow-Step1/1", $time);
   endrule
 
