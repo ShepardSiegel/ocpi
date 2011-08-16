@@ -8,6 +8,7 @@ ssiegel 2010-12-28 AXI *removed* from WIP. "WIP" (WCI,WSI,WMI,etc.) now implies 
 ssiegel 2011-01-14 Board Targets become platforms 
 ssiegel 2011-03-03 ISE 13.1
 ssiegel 2011-03-13 Took Dan Zhang's patch changes (see FAQ) 
+ssiegel 2011-08-16 ISE 13.2, Quartus 11.0(sp1)
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
@@ -18,7 +19,9 @@ OpenCPI website: www.opencpi.org
 
   To build a bitstream, first make sure the appropriate tools are installed
     e.g. Install Xilinx ISE 13.x to build Xilinx bitstreams
-    As of 2011-03-03 ISE 13.1 or greater is required for Xilinx builds.
+    e.g. Install Altera Quartus 11 to build Altera bitstreams
+    As of 2011-08-16 ISE 13.2 or greater is required for Xilinx builds.
+    As of 2011-08-16 Quartus 11.0(sp1) or greater is required for Altera builds.
     If you are not using the same tools version as the distribution, you may need to rebuild XST libraries
 
   Source code is under git verson control - if you care, install git and say
@@ -30,7 +33,7 @@ OpenCPI website: www.opencpi.org
     e.g. setenv OCPI_DIR $(HOME)/projects/ocpi
 
   You may need to set certain environment variables, for example...
-    source /opt/Xilinx/13.1/ISE_DS/settings64.csh
+    source /opt/Xilinx/13.2/ISE_DS/settings64.csh
     setenv XIL_PAR_DESIGN_CHECK_VERBOSE 1
     setenv XIL_TIMING_ALLOW_IMPOSSIBLE  1
 
@@ -38,7 +41,7 @@ OpenCPI website: www.opencpi.org
 
   From $(OCPI_DIR) say
     $ make <target>
-  where <target> is one of these platform names..
+  where <target> is one of these board platform names...
      ml555
      alder
      schist
@@ -49,6 +52,7 @@ OpenCPI website: www.opencpi.org
      ml605
      sp605
      alcy4
+     alst4
      htgs4
 
   Make will copy files into $(OCPI_DIR)/build/tmp-<target> and run the vendor tools. When the build sucessfully completes, the build/tmp-<target> directory will be remaned build/<target>-<timestamp>
@@ -124,6 +128,12 @@ OpenCPI website: www.opencpi.org
       CTop.bsv :  ( set NDW4)
       OCApp.bsv : ( set NDW4, NumAlias)
      Thank you Dan! -Shep
+
+  "ISE 13.2 map crashes at the end of operation"
+    Try executing this line in a bash shell after X is running but before map:
+      export LD_PRELOAD=/opt/Xilinx/13.2/ISE_DS/ISE/lib/lin64/libAntlr.so
+      See the link on the next line:
+      http://forums.xilinx.com/t5/Implementation/ISE-13-1-MAP-crashes-on-Ubuntu-11-04/m-p/158198#M3304
 
   "What's up with the multiple GIT repos?"
     This work started out in this (once private) disti as an upstream sandbox:
