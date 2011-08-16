@@ -3,3 +3,5 @@
 This directory was used for early, tactical development of
 the Altera PCIe EP on the platforms "htgs4" and "alst4"
 
+1. The remaining directories were the last "known working" 
+2. The .qsf constraint files were stripped of SignalTap and copied to ucf/<platform>.qsf

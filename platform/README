@@ -1,0 +1,3 @@
+Each subdirectory is the name of an OpenCPI platform.
+That subdirectory contains files that are related to that platform.
+They are not needed for build; just kept here for reference.
