@@ -5,7 +5,7 @@ set_global_assignment -name FAMILY "Stratix IV"
 set_global_assignment -name DEVICE EP4SGX230KF40C2
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "10.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:29:49  FEBRUARY 11, 2011"
-set_global_assignment -name LAST_QUARTUS_VERSION 11.0
+set_global_assignment -name LAST_QUARTUS_VERSION "11.0 SP1"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
@@ -20,7 +20,7 @@ set_global_assignment -name SDC_FILE fpgaTop_alst4.sdc
 #set_global_assignment -name QIP_FILE fpgaTop_alst4.qip
 
 set_global_assignment -name SEARCH_PATH ../../../coregen/pcie_4243_hip_s4gx_gen2_x4_128
-set_global_assignment -name SEARCH_PATH ../../../coregen/pcie_4243_hip_s4gx_gen2_x4_128/pci_express_compiler-library
+set_global_assignment -name SEARCH_PATH "../../../coregen/pcie_4243_hip_s4gx_gen2_x4_128/pci_express_compiler-library"
 set_global_assignment -name SEARCH_PATH ../../../rtl
 set_global_assignment -name SEARCH_PATH ../../../libsrc/hdl/bsv
 set_global_assignment -name SEARCH_PATH ../../../libsrc/hdl/ocpi
@@ -37,11 +37,11 @@ set_global_assignment -name VERILOG_FILE altpcie_rs_serdes.v
 
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED WITH WEAK PULL-UP"
 
-set_location_assignment PIN_A21  -to sys0_clk    # 100 MHz top
-set_location_assignment PIN_AK35 -to sys0_rstn   # User PB0
+set_location_assignment PIN_A21 -to sys0_clk
+set_location_assignment PIN_AK35 -to sys0_rstn
 
-set_location_assignment PIN_AN38 -to pcie_clk    # 100 MHz PCIe refclk from U29 jitter atten (DIV5)
-set_location_assignment PIN_R32 -to pcie_rstn    # active-low primary reset input from PCIe
+set_location_assignment PIN_AN38 -to pcie_clk
+set_location_assignment PIN_R32 -to pcie_rstn
 set_location_assignment PIN_AU38 -to pcie_rx[0]
 set_location_assignment PIN_AR38 -to pcie_rx[1]
 set_location_assignment PIN_AJ38 -to pcie_rx[2]
@@ -61,37 +61,37 @@ set_location_assignment PIN_AF36 -to pcie_tx[3]
 
 set_location_assignment PIN_AL35 -to usr_sw[0]
 set_location_assignment PIN_AC35 -to usr_sw[1]
-set_location_assignment PIN_J34  -to usr_sw[2]
+set_location_assignment PIN_J34 -to usr_sw[2]
 set_location_assignment PIN_AN35 -to usr_sw[3]
-set_location_assignment PIN_G33  -to usr_sw[4]
-set_location_assignment PIN_K35  -to usr_sw[5]
+set_location_assignment PIN_G33 -to usr_sw[4]
+set_location_assignment PIN_K35 -to usr_sw[5]
 set_location_assignment PIN_AG34 -to usr_sw[6]
 set_location_assignment PIN_AG31 -to usr_sw[7]
 
-set_location_assignment PIN_F33  -to led[0]
+set_location_assignment PIN_F33 -to led[0]
 set_location_assignment PIN_AK33 -to led[1]
-set_location_assignment PIN_W28  -to led[2]
-set_location_assignment PIN_L34  -to led[3]
+set_location_assignment PIN_W28 -to led[2]
+set_location_assignment PIN_L34 -to led[3]
 set_location_assignment PIN_AM34 -to led[4]
-set_location_assignment PIN_M32  -to led[5]
-set_location_assignment PIN_L35  -to led[6]
+set_location_assignment PIN_M32 -to led[5]
+set_location_assignment PIN_L35 -to led[6]
 set_location_assignment PIN_AM35 -to led[7]
-set_location_assignment PIN_N34  -to led[8]
-set_location_assignment PIN_W35  -to led[9]
+set_location_assignment PIN_N34 -to led[8]
+set_location_assignment PIN_W35 -to led[9]
 set_location_assignment PIN_AE30 -to led[10]
-set_location_assignment PIN_V30  -to led[11]
+set_location_assignment PIN_V30 -to led[11]
 set_location_assignment PIN_AG30 -to led[12]
 set_location_assignment PIN_AD29 -to led[13]
-set_location_assignment PIN_U31  -to led[14]
-set_location_assignment PIN_U35  -to led[15]
+set_location_assignment PIN_U31 -to led[14]
+set_location_assignment PIN_U35 -to led[15]
 
-set_instance_assignment -name IO_STANDARD LVDS      -to sys0_clk
+set_instance_assignment -name IO_STANDARD LVDS -to sys0_clk
 set_instance_assignment -name INPUT_TERMINATION OFF -to sys0_clk
-set_instance_assignment -name IO_STANDARD "2.5 V"   -to sys0_rstn
+set_instance_assignment -name IO_STANDARD "2.5 V" -to sys0_rstn
 
-set_instance_assignment -name IO_STANDARD HCSL         -to pcie_clk
-set_instance_assignment -name INPUT_TERMINATION OFF    -to pcie_clk
-set_instance_assignment -name IO_STANDARD "2.5 V"      -to pcie_rstn
+set_instance_assignment -name IO_STANDARD HCSL -to pcie_clk
+set_instance_assignment -name INPUT_TERMINATION OFF -to pcie_clk
+set_instance_assignment -name IO_STANDARD "2.5 V" -to pcie_rstn
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[0]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[1]
 set_instance_assignment -name IO_STANDARD "1.4-V PCML" -to pcie_rx[2]
@@ -154,5 +154,3 @@ set_instance_assignment -name SLEW_RATE 0 -to led[*]
 #set_instance_assignment -name SLEW_RATE 0 -to led[5]
 #set_instance_assignment -name SLEW_RATE 0 -to led[6]
 #set_instance_assignment -name SLEW_RATE 0 -to led[7]
-
-
