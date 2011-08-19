@@ -32,7 +32,8 @@ typedef struct {
     deltaTimeLS,
     refPerPPS,
     buf4C,
-    buf50,buf54,buf58,buf5C,
+    dnaLS, dnaMS,
+    buf58,buf5C,
     buf60,buf64,buf68,buf6C,
     buf70,buf74,buf78,
     numDPMemRegions,
@@ -300,6 +301,8 @@ admin(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
   printf(" deltaTimeMS:  0x%08x\n", p->admin.deltaTimeMS);
   printf(" deltaTimeLS:  0x%08x\n", p->admin.deltaTimeLS);
   printf(" refPerPPS:    0x%08x (%d)\n", p->admin.refPerPPS, p->admin.refPerPPS);
+  printf(" dnaLS:        0x%08x\n", p->admin.dnaLS);
+  printf(" dnaMS:        0x%08x\n", p->admin.dnaMS);
   printf(" numDPMemReg:  0x%08x (%d)\n", p->admin.numDPMemRegions, p->admin.numDPMemRegions);
   if (p->admin.numDPMemRegions < 16) 
     for (k=0; k<p->admin.numDPMemRegions; k++)
