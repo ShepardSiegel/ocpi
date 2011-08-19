@@ -63,6 +63,10 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   mkConnection(app.wmiM0, inf.wmiDP0);
   mkConnection(app.wmiM1, inf.wmiDP1);
 
+  rule connect_devdna;
+    inf.deviceDNA(app.deviceDNA);
+  endrule // Pass the deviceDNA from the application to the infrastructure
+
   interface Server server     = inf.server;  // Pass the sever interface provided by OCInf straight through
   method led                  = inf.led;
   method switch               = inf.switch;

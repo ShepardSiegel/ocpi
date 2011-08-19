@@ -425,6 +425,7 @@ platform_ml605: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
 		-D USE_SRLFIFO \
+		-D HAS_DEVICE_DNA \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML605).bsv
 
 ######################################################################

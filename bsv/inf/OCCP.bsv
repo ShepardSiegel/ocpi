@@ -43,6 +43,7 @@ interface OCCPIfc#(numeric type nWci);
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
   (* always_ready, always_enabled *) method Action  uuid   (Bit#(512) arg);
+  method Action deviceDNA (Bit#(64) arg);
 endinterface
 
 typedef union tagged {
@@ -73,7 +74,8 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   TimeServerIfc     timeServ     <- mkTimeServer(defaultValue, sys0_clk, sys0_rst); // Instance the Time Server
   Reg#(GPS64_t)     deltaTime    <- mkReg(0.0);
 
-  Wire#(Vector#(16, Bit#(32))) uuidV <- mkWire; // uuid as a Vector of 16 32b DWORDs
+  Wire#(Vector#(16, Bit#(32))) uuidV   <- mkWire; // uuid   as a Vector of 16 32b DWORDs
+  Wire#(Vector#(2,  Bit#(32))) devDNAV <- mkWire; // devDNA as a Vector of 2  32b DWORDs
 
   function makeWciMaster (Integer i);
     //return (i<5||i>12) ? mkWciMaster : mkWciMasterNull;  // only instance the 7 (0:4,13:14) we need
@@ -149,6 +151,9 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
       'h40 : return Valid(pack(fxptGetInt(deltaTime)));           // Measured deltaTime Integer Seconds
       'h44 : return Valid(pack(fxptGetFrac(deltaTime)));          // Measured deltaTime Fractional Seconds
       'h48 : return Valid(pack(timeServ.tRefPerPps));             // rplTimeRefPerPPS (frequency counter)
+
+      'h50 : return Valid(pack(devDNAV[0]));          // LSBs of devDNA
+      'h54 : return Valid(pack(devDNAV[1]));          // MSBs of devDNA
 
       'h7C : return Valid(32'd2);
       'h80 : return Valid(pack(dpMemRegion0));  
@@ -240,8 +245,9 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   //interface Vector wci_Em = map(get_wci_Em, wci);
   interface Vector wci_Vm = wci_Emv;
   method led       = scratch24[1:0];
-  method Action  switch (Bit#(3) x);     switch_d <= x;         endmethod
-  method Action  uuid   (Bit#(512) arg); uuidV <= unpack(arg);  endmethod
+  method Action  switch    (Bit#(3) x);     switch_d <= x;           endmethod
+  method Action  uuid      (Bit#(512) arg); uuidV   <= unpack(arg);  endmethod
+  method Action  deviceDNA (Bit#(64) arg);  devDNAV <= unpack(arg);  endmethod
 
 endmodule: mkOCCP
 endpackage: OCCP

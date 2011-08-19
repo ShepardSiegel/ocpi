@@ -5,6 +5,7 @@ package OCApp;
 
 import OCWip::*;
 //import ProtocolMonitor::*;
+import DNA::*;
 
 
 import BiasWorker::*;
@@ -42,12 +43,17 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi, n
   interface WmemiEM16B                                      wmemiM0;
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)      wsi_s_adc;   
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)      wsi_m_dac;  
+  method Bit#(64) deviceDNA;
 endinterface
 
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi,ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)),    // by shep
     Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))),                          // by bsc output
     NumAlias#(ndw, `DEFINE_NDW) ); // by joe (modified by Dan)
+
+`ifdef HAS_DEVICE_DNA
+  DNAIfc dna <- mkDNA; // Instance the device DNA reader core if we have one
+`endif
 
   /*
   WciMonitorIfc            wciMonW3         <- mkWciMonitor(8'h42); // monId=h42
@@ -164,6 +170,12 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
   interface wsi_s_adc = appW2.wsiS0;    // The ADC data to the   W2 SMAdapter WSI-S0 Slave Port
   interface wsi_m_dac = appW4.wsiM0;    // The DAC data from the W4 SMAdapter WSI-M0 Master Port
+
+`ifdef HAS_DEVICE_DNA
+  method Bit#(64) deviceDNA = extend(dna.deviceID);
+`else
+  method Bit#(64) deviceDNA = 64'h0badc0de_0badc0de;
+`endif
 
 endmodule : mkOCApp_poly
 
