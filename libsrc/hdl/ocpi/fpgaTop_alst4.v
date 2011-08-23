@@ -11,27 +11,30 @@ module fpgaTop (
   output wire [ 3:0]  pcie_tx,
   input  wire [ 7:0]  usr_sw,         // dip-switches
   output wire [15:0]  led,            // leds
-  input  wire [18:0]  hsmc_in,        // HSMC_Inputs  D0 :17
-  output wire [18:0]  hsmc_out,       // HSMC_Outputs D18:37
+  input  wire [15:0]  hsmc_in,        // HSMC_Inputs  D0 :15
+  output wire [15:0]  hsmc_out,       // HSMC_Outputs D16:31
   output wire [19:0]  led_cathode,    // LED cathodes
   output wire [19:0]  led_anode,      // LED anodes,
-  output wire [25:1]  fsm_addr,       // Shared FLASH and SRAM address
-  inout  wire [31:0]  fsm_data,       // Shared FLASH[15:0]and SRAM[31:0] data
+  output wire [25:0]  fsm_a,          // Shared FLASH and SRAM address
+  inout  wire [31:0]  fsm_d,          // Shared FLASH[15:0]and SRAM[31:0] data
   output wire         sram_clk,       // SRAM clock
   output wire         sram_oen,       // SRAM output enable
   output wire         sram_cen,       // SRAM chip enable
-  output wire [3:0]   sram_bwn,       // SRAM Byte Write enable
+  inout  wire [3:0]   sram_dqp,       // SRAM data bus parity bits
+  output wire         sram_bwen,      // SRAM Byte Write enable
+  output wire [3:0]   sram_bwn,       // SRAM Byte Lane Write enables
   output wire         sram_gwn,       // SRAM Global Write enable
   output wire         sram_adscn,     // SRAM Address Status Controller
   output wire         sram_adspn,     // SRAM Address Status Processor
   output wire         sram_advn,      // SRAM Address Valid
   output wire         sram_zz,        // SRAM Sleep
   output wire         flash_clk,      // FLASH clock
-  output wire         flash_rstn,     // FLASH reset
+  output wire         flash_resetn,   // FLASH reset
   output wire         flash_cen,      // FLASH chip enable
   output wire         flash_oen,      // FLASH output enable
+  output wire         flash_wen,      // FLASH write enable
   output wire         flash_advn,     // FLASH Address Valid
-  input  wire         flash_rdyn      // FLASH Ready
+  input  wire         flash_rdybsyn   // FLASH Ready
 );
 
 // Instance and connect mkFTop...
@@ -51,11 +54,13 @@ module fpgaTop (
   .hsmc_out          (hsmc_out),
   .led_cathode       (led_cathode),
   .led_anode         (led_anode),
-  .fsm_addr          (fsm_addr),
-  .fsm_data          (fsm_data),
+  .fsm_a             (fsm_a),
+  .fsm_d             (fsm_d),
   .sram_clk          (sram_clk),
   .sram_oen          (sram_oen),
   .sram_cen          (sram_cen),
+  .sram_dqp          (sram_dqp),
+  .sram_bwen         (sram_bwen),
   .sram_bwn          (sram_bwn),
   .sram_gwn          (sram_gwn),
   .sram_adscn        (sram_adscn),
@@ -63,11 +68,12 @@ module fpgaTop (
   .sram_advn         (sram_advn),
   .sram_zz           (sram_zz),
   .flash_clk         (flash_clk),
-  .flash_rstn        (flash_rstn),
+  .flash_resetn      (flash_resetn),
   .flash_cen         (flash_cen),
   .flash_oen         (flash_oen),
+  .flash_wen         (flash_wen),
   .flash_advn        (flash_advn),
-  .flash_rdyn        (flash_rdyn)
+  .flash_rdybsyn     (flash_rdybsyn)
 );
 
 endmodule
