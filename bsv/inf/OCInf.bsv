@@ -10,7 +10,6 @@ import OCDP::*;
 import TimeService::*;
 import TLPMF::*;
 import UNoC::*;
-import UUID::*;
 
 import PCIE::*;
 import FIFO::*;
@@ -43,7 +42,7 @@ interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
   interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiDP1;  
   method    GPS64_t   cpNow;
   interface GPSIfc    gps;
-  method Action deviceDNA (Bit#(64) arg);
+  method Action uuid (Bit#(512) arg);
 endinterface
 
 module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci_ctop,ndw))
@@ -51,9 +50,6 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
     NumAlias#(ndw,`DEFINE_NDW) ); // by joe
 
   OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst); // control plane
-  UUIDIfc         id   <- mkUUID;
-  rule assign_uuid; cp.uuid(id.uuid); endrule
-
   UNoCIfc         noc  <- mkUNoC;                                // uNoC Netword-on-Chip
 
   // Intercept the highest-numbered WCI for infrastructure control and properties...
@@ -108,7 +104,7 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   interface Vector   wci_m  = take(vWci);
   interface          wmiDP0 = dp0.wmiS0;
   interface          wmiDP1 = dp1.wmiS0;
-  method Action deviceDNA (Bit#(64) arg) = cp.deviceDNA(arg); // Pass the DNA from the infrastrucrture down to the control plane
+  method Action uuid (Bit#(512) arg) = cp.uuid(arg); // Pass the UUID from the infrastrucrture down to the control plane
 
 endmodule : mkOCInf_poly
 

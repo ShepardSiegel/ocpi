@@ -36,7 +36,6 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)), // by shep
     Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))));                       ///by bsc output
 
-
   Bool hasDebugLogic = True;
 
   //OCInfIfc#(Nwci_ctop,ndw) inf <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
@@ -63,9 +62,9 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   mkConnection(app.wmiM0, inf.wmiDP0);
   mkConnection(app.wmiM1, inf.wmiDP1);
 
-  rule connect_devdna;
-    inf.deviceDNA(app.deviceDNA);
-  endrule // Pass the deviceDNA from the application to the infrastructure
+  rule connect_uuid;
+    inf.uuid(app.uuid);
+  endrule // Pass the uuid from the application to the infrastructure
 
   interface Server server     = inf.server;  // Pass the sever interface provided by OCInf straight through
   method led                  = inf.led;

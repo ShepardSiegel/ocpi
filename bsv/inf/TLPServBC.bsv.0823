@@ -1,5 +1,9 @@
 // TLPServBC.bsv - TLP Server, BRAM Client
-// Copyright (c) 2009,2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+
+// For use with Bluesim, you need to undefine USE_SRLFIFO, as mkSRLFIFO is not yet a BSV 
+// primative, it is importBVI of Atomic Rules Verilog...
+//`define USE_SRLFIFO
 
 import TLPMF::*;
 import OCBufQ::*;
@@ -79,19 +83,33 @@ typedef union tagged {
 
 typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b is optional; 11b with phantom-tags stealing 3b device num
 
+// Rule naming for Pull debug...
+typedef enum {
+  R_none                  = 15,
+  R_dmaRequestFarMeta     = 1,
+  R_dmaRespHeadFarMeta    = 2,
+  R_dmaRespBodyFarMeta    = 3,
+  R_dmaPullRequestFarMesg = 4,
+  R_dmaPullResponseHeader = 5,
+  R_dmaPullResponseBody   = 6,
+  R_dmaPullTailEvent      = 7,
+  R_dmaTailEventSender    = 8
+  } DmaPullRules deriving (Bits,Eq);
+
 module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(32) wci, Bool hasPush, Bool hasPull) (TLPServBCIfc);
 
-  // TODO: Implement and test *registered* SRLFIFO for "best of both worlds"
-  Bool useSRL = True; // Set to True to use SRLFIFO primitive (more storage, fewer DFFs, more MSLICES/SRLs )
-  //Bool useSRL = False; // Set to False to get faster c->q and su on FIFO primitives
+`ifdef USE_SRLFIFO
+  Bool useSRL = True;  // Set to True to use SRLFIFOD primitive (more storage, fewer DFFs, more MSLICES/SRLs ) (needs Verilog simulator)
+`else
+  Bool useSRL = False; // Set to False to allow for Bluesim simulation)
+`endif
 
-  FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-  FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-  FIFOF#(MemReqPacket)     mReqF                <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-//FIFOF#(MemRespPacket)    mRespF               <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-  FIFOF#(MemRespPacket)    mRespF               <- mkFIFOF; // Use mkFIFOF for mRespF as mkSRLFIFO has 2-level long c->q on a critical path through rule dmaPushResponseBody
-  FIFOF#(ReadReq)          readReq              <- useSRL ? mkSRLFIFO(4) : mkFIFOF;
-  FIFOF#(Bit#(0))          tailEventF           <- mkFIFOF;
+  FIFOF#(PTW16)            inF                  <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;
+  FIFOF#(PTW16)            outF                 <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;
+  FIFOF#(MemReqPacket)     mReqF                <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;
+  FIFOF#(MemRespPacket)    mRespF               <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;
+  FIFOF#(ReadReq)          readReq              <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;
+  FIFOF#(Bit#(1))          tailEventF           <- mkFIFOF;
 
   Reg#(Bool)               inIgnorePkt          <- mkRegU;
   Reg#(Bit#(10))           outDwRemain          <- mkRegU;
@@ -140,8 +158,16 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bit#(17))           mesgLengthRemainPull <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path) (for Pull Logic)
   Reg#(Bit#(17))           mesgComplReceived    <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
   Reg#(Bit#(13))           maxPayloadSize       <- mkReg(128);  // 128B Typical - Must not exceed 4096B
-  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(512);  // 512B Typical - Must not exceed 4096B
+  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(4096); // 512B Typical - Must not exceed 4096B
   Reg#(Bit#(32))           flowDiagCount        <- mkReg(0);
+  Reg#(DmaPullRules)       lastRuleFired        <- mkReg(R_none);
+  Reg#(Bool)               complTimerRunning    <- mkReg(False);
+  Reg#(UInt#(12))          complTimerCount      <- mkReg(0);
+
+  // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
+  // This is because with only one read in-flight at once, we wish to amortize the serial latency over as large a request as possible.
+  // When moving to two or more read-requests per DMA engine in flight at once, we may wish to lower maReadReqSize from the maximum.
+  // The team thanks Dan Zhang for bringing this issues front and center. -Shep Siegel 2011-03-10
 
   Bool actMesgP = (dpControl==fProdActMesg);
   Bool actMesgC = (dpControl==fConsActMesg);
@@ -153,7 +179,6 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //
   // FPactMesg - Fabric Producer Push DMA Sequence...
   //
-  //(* descending_urgency = "dmaXmtTailEvent, dmaXmtMetaBody, dmaXmtMetaHead, dmaPushResponseBody, dmaPushResponseHeader, dmaPushRequestMesg, dmaResponseNearMetaBody, dmaResponseNearMetaHead, dmaRequestNearMeta" *)
 
   // Request the metadata for the remote-facing ready buffer...
   rule dmaRequestNearMeta (hasPush && actMesgP && !tlpRcvBusy && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
@@ -190,6 +215,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     reqMetaInFlight <= False;
     fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemainPush), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
     xmtMetaOK <= (mesgLengthRemainPush==0); // Skip over Message Movement phases and just send metadata if mesgLength is zero
+    mesgLengthRemainPush <= (mesgLengthRemainPush+3) & ~3; // DWORD roundup - shep owes Jim a beer
     remMesgAccu <= remMesgAddr;  // Load the message rem address accumulator so we can locally manage message segments
     srcMesgAccu <= fabMesgAddr;  // Load the message src address accumulator so we can locally manage message segments
     fabMesgAccu <= fabMesgAddr;  // Load the message fab address accumulator so we can locally manage message segments
@@ -227,14 +253,14 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transform the local read response header to a PCIe posted write request header for push DMA...
-  rule dmaPushResponseHeader (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==DMASrc);
+  rule dmaPushResponseHeader (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==DMASrc && !tlpXmtBusy && postSeqDwell == 0);
     mRespF.deq;
     Bool onlyBeatInSegment = (rres.dwLength==1);
     Bool lastSegmentInMesg = (rres.tag==8'h01); 
     MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, False); // TODO: Byte Enable Support
     let w = PTW16 { data : {pack(h), fabMesgAccu, rres.data}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
     outF.enq(w);
-    fabMesgAccu <= fabMesgAccu + extend(rres.dwLength<<2);  // increment the fabric address accumulator
+    fabMesgAccu <= fabMesgAccu + (extend(rres.dwLength)<<2);  // increment the fabric address accumulator
     outDwRemain <= rres.dwLength - 1;                       // load DW remaining in this segment
     if (!onlyBeatInSegment) tlpXmtBusy <= True;             // acquire outbound mutex
     if ( onlyBeatInSegment && lastSegmentInMesg) begin
@@ -263,7 +289,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transmit the Metadata header...
-  rule dmaXmtMetaHead (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && !xmtMetaInFlight && xmtMetaOK);
+  rule dmaXmtMetaHead (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && !xmtMetaInFlight && xmtMetaOK && postSeqDwell == 0);
     xmtMetaInFlight <= True;
     tlpXmtBusy      <= True;
     doXmtMetaBody   <= True;
@@ -291,12 +317,10 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transmit the DMA-PUSH TailEvent...
-  rule dmaXmtTailEvent (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && tlpMetaSent && postSeqDwell==0);
+  rule dmaXmtTailEvent (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& tlpMetaSent);
     xmtMetaInFlight <= False;
     tlpMetaSent     <= False;
-    fabMeta         <= (Invalid);
-    postSeqDwell    <= psDwell;
-    tailEventF.enq(?);  // Send a generic tail event
+    tailEventF.enq(0);  // Send a tail event that does NOT generate a remDone (done in dmaXmtMetaBody)
     $display("[%0d]: %m: dmaXmtTailEvent FPactMesg-Step7/7", $time);
   endrule
 
@@ -307,22 +331,17 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // FPactFlow - Fabric Consumer Sending Doorbells
   // 
   // Send Doorbells to tell the far side of our near buffer availability...
-  rule dmaXmtDoorbell (actFlow && !tlpXmtBusy && postSeqDwell==0 && creditReady);
+  rule dmaXmtDoorbell (actFlow && creditReady && postSeqDwell==0);  // FIXME: Race from remStart->OCBufQ->creditReady is gated by postSeqDwell
     remStart      <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
-    postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic
+    postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic (and to gate race noted above)
     flowDiagCount <= flowDiagCount + 1;
-    tailEventF.enq(?);  // Send a generic tail event
+    tailEventF.enq(0);        // Send a tail event with no remDone
     $display("[%0d]: %m: dmaXmtDoorbell FC/FPactFlow-Step1/1", $time);
   endrule
 
   function Bool tagCompletionMatch(PciId rid, Bit#(8) tagm, PTW16 t);
     CompletionHdr ch = unpack(t.data[127:32]);
-    //FIXME: Testing Only!!!
-    // The return(True) tactic helps timing by removing the tag and rid comparisons
-    // But it introduces a race condition where an inbound request could advance as a completion!
-    //
     return(tagm==ch.tag && ch.requesterID==rid);
-    //return(True); // TODO: restore comparison and split inbound requests from completions
   endfunction 
 
   //
@@ -331,7 +350,6 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // TODO
   // - consider use of taggged union/pattern matching instead of functions in rule predicate
   // - need ID-based completion routing
-  // (* descending_urgency = "dmaPullTailEvent, dmaPullResponseBody, dmaPullResponseHeader, dmaPullResponseHeaderTag, dmaPullRequestFarMesg, dmaRespBodyFarMeta, dmaRespHeadFarMeta, dmaRequestFarMeta" *)
 
   // Request the metadata from the far-side fabric node...
   rule dmaRequestFarMeta (hasPull && actMesgC && !tlpXmtBusy && !reqMetaInFlight && !reqMetaBodyInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
@@ -342,6 +360,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     dmaReqTag <= dmaTag;
     dmaTag    <= dmaTag + 1; 
     outF.enq(w);
+    lastRuleFired <= R_dmaRequestFarMeta;
+    complTimerRunning <= True;
     $display("[%0d]: %m: dmaRequestFarMeta FCactMesg-Step1/5", $time);
   endrule
 
@@ -362,6 +382,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       lastBE   : '1 };
     MemReqPacket mpkt = WriteHeader(wreq);
     mReqF.enq(mpkt);
+    lastRuleFired <= R_dmaRespHeadFarMeta;
+    complTimerRunning <= False;
     $display("[%0d]: %m: dmaRespHeadFarMeta FPactMesg-Step2a/N fabMeta:%0x", $time, byteSwap(pw.data[31:0]));
   endrule
 
@@ -377,11 +399,13 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Bit#(32) nowLS   = byteSwap(vWords[2]);
     fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemainPull), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
     dmaDoTailEvent <= (mesgLengthRemainPull==0); // Skip over Message Movement pull phases if mesgLength is zero
+    mesgLengthRemainPull <= (mesgLengthRemainPull+3) & ~3; // DWORD roundup - shep owes Jim a beer
     mesgComplReceived <= 0;                  // Used to form the barrier-sync before isssuing pull tail event
     remMesgAccu <= remMesgAddr;              // Load the accumulator of rem address for sub-completions and multiple requests
     fabMesgAccu <= fabMesgAddr;              // Load the accumulator of fabric starting addresses over multiple requests
     MemReqPacket mpkt = WriteData(pw.data);
     mReqF.enq(mpkt);
+    lastRuleFired <= R_dmaRespBodyFarMeta;
     $display("[%0d]: %m: dmaRespBodyFarMeta FPactMesg-Step2b/N opcode:%0x nowMS:%0x nowLS:%0x", $time, opcode, nowMS, nowLS);
   endrule
 
@@ -403,6 +427,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     dmaReqTag   <= dmaTag;
     dmaTag      <= dmaTag + 1; 
     outF.enq(w);
+    lastRuleFired <= R_dmaPullRequestFarMesg;
+    complTimerRunning <= True;
     $display("[%0d]: %m: dmaPullRequestFarMesg FCactMesg-Step3/5", $time);
   endrule
 
@@ -423,7 +449,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     inF.deq;
     Ptw16Hdr p = unpack(pw.data);
     CompletionHdr ch = unpack(pw.data[127:32]);
-    remMesgAccu <= remMesgAccu + extend(ch.length<<2);  // increment the rem address accumulator
+    remMesgAccu <= remMesgAccu + (extend(ch.length)<<2);  // increment the rem address accumulator
     WriteReq wreq = WriteReq {
       dwAddr   : truncate(remMesgAccu>>2),   //
       dwLength : ch.length,                  // the length in DW of this (possibly sub-) completion of the request
@@ -438,6 +464,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Bool endOfReqCompletion = (dmaPullRemainDWLen==1);
     updatePullState(endOfSubCompletion, endOfReqCompletion);
     mesgComplReceived <= mesgComplReceived + 4;
+    lastRuleFired <= R_dmaPullResponseHeader;
+    complTimerRunning <= False;
     $display("[%0d]: %m: dmaPullResponseHeader FPactMesg-Step4a/5", $time);
   endrule
 
@@ -452,32 +480,40 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     dmaPullRemainDWLen    <=  endOfSubCompletion ? dmaPullRemainDWLen-dmaPullRemainDWSub : dmaPullRemainDWLen-4;   
     dmaPullRemainDWSub    <=  endOfSubCompletion ? 0 : dmaPullRemainDWSub-4;
     updatePullState(endOfSubCompletion, endOfReqCompletion);
-    mesgComplReceived <= mesgComplReceived + (endOfSubCompletion ? extend(dmaPullRemainDWSub<<2) : 16);
+    mesgComplReceived <= mesgComplReceived + (endOfSubCompletion ? (extend(dmaPullRemainDWSub)<<2) : 16);
+    lastRuleFired <= R_dmaPullResponseBody;
     $display("[%0d]: %m: dmaPullResponseBody FPactMesg-Step4b/5", $time);
   endrule
 
   // We use the target-side "mesgComplReceived" accumulating to the full message length as the barrier-sync for the tail event.
-
-  // Transmit the DMA-PULL TailEvent...
-  rule dmaPullTailEvent (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived==truncate(meta.length)));
-    remDone         <= True;  // Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
+  // Enq tailEventF to transmit the DMA-PULL TailEvent...
+  rule dmaPullTailEvent (hasPull && actMesgC &&& fabMeta matches tagged Valid .meta &&& dmaDoTailEvent &&& postSeqDwell==0 &&& (mesgComplReceived>=truncate(meta.length)));
     dmaDoTailEvent  <= False;
-    fabMeta         <= (Invalid);
-    postSeqDwell    <= psDwell;
-    tailEventF.enq(?);  // Send a generic tail event
+    tailEventF.enq(1);  // Send a tail event that generates a remDone
+    lastRuleFired <= R_dmaPullTailEvent;
     $display("[%0d]: %m: dmaPullTailEvent FPactMesg-Step5/5", $time);
   endrule
 
-
   // Generic TailEvent Sender (Used at end of push, pull, and for flow signal to fabFlowAddr)...
-  rule dmaTailEventSender;
+  rule dmaTailEventSender(!tlpXmtBusy && postSeqDwell==0);
     tailEventF.deq;
+    if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
+    postSeqDwell   <= psDwell;
+    fabMeta        <= (Invalid);
     MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
     let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
     outF.enq(w);
+    lastRuleFired  <= R_dmaTailEventSender;
     $display("[%0d]: %m: dmaTailEventSender - generic", $time);
   endrule
 
+  rule completionTimer;
+    complTimerCount <= (complTimerRunning) ? complTimerCount + 1 : 0 ;
+  endrule
+
+  // Push and Pull rule schedules (rules later in sequence have higher urgency)...
+  //(* descending_urgency = "dmaXmtTailEvent, dmaXmtMetaBody, dmaXmtMetaHead, dmaPushResponseBody, dmaPushResponseHeader, dmaPushRequestMesg, dmaResponseNearMetaBody, dmaResponseNearMetaHead, dmaRequestNearMeta" *)
+  //(* descending_urgency = "dmaTailEventSender, dmaPullTailEvent, dmaPullResponseBody, dmaPullResponseHeader, dmaPullResponseHeaderTag, dmaPullRequestFarMesg, dmaRespBodyFarMeta, dmaRespHeadFarMeta, dmaRequestFarMeta" *)
 
   rule tlpRcv (!reqMetaInFlight && !reqMesgInFlight && !reqMetaBodyInFlight); // TODO: Replace these guards with monitors
     PTW16 pw = inF.first;
@@ -689,7 +725,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     // For example we may get DCBE from our BRAM where B is the "first" data when idx=1
     // The reverse transformation gets us EBCD; the rotateBy gets us BCDE, which is correct
 
-    UInt#(2)  idx  =  unpack(readNxtDWAddr[1:0]);
+    Bit#(2)   nxtDWAddr = truncate(rreq.dwAddr) + 1;
+    UInt#(2)  idx  =  unpack(nxtDWAddr[1:0]);
     Bit#(128) rdata = pack(rotateBy(reverse(vResps),idx));
 
     let pkt = ReadBody(ReadPayld{role:rreq.role, tag:rreq.tag, data:rdata});
@@ -701,6 +738,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     mRespF.enq(pkt);
     //$display("[%0d] TLP Mem: Next nDW read response enqueued (data %x) (raw %x) (idx %x)", $time, rdata, pack(vResps), idx);
   endrule
+
+  Bit#(32) tlpDebug = {4'h0, pack(complTimerCount), 12'h0, pack(lastRuleFired)};
 
   interface Server server;
     interface request  = toPut(inF);
@@ -725,7 +764,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // expose register interface so WCI can set/get these config properties...
   method Action dpCtrl (DPControl dc) = dpControl._write(dc);
   method i_flowDiagCount = flowDiagCount;
-  method i_debug = 0;
+  method i_debug = tlpDebug;
 
 endmodule
 

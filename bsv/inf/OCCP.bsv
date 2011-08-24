@@ -9,6 +9,7 @@ import TLPMF::*;
 import TLPSerializer::*;
 import Config::*;
 import CompileTime::*;
+import DNA::*;
 import PCIE::*;
 
 import DefaultValue::*;
@@ -43,7 +44,6 @@ interface OCCPIfc#(numeric type nWci);
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
   (* always_ready, always_enabled *) method Action  uuid   (Bit#(512) arg);
-  method Action deviceDNA (Bit#(64) arg);
 endinterface
 
 typedef union tagged {
@@ -74,8 +74,20 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   TimeServerIfc     timeServ     <- mkTimeServer(defaultValue, sys0_clk, sys0_rst); // Instance the Time Server
   Reg#(GPS64_t)     deltaTime    <- mkReg(0.0);
 
-  Wire#(Vector#(16, Bit#(32))) uuidV   <- mkWire; // uuid   as a Vector of 16 32b DWORDs
+  Wire#(Bit#(64))   deviceDNA    <-mkDWire(64'h0badc0de_0badc0de);
   Wire#(Vector#(2,  Bit#(32))) devDNAV <- mkWire; // devDNA as a Vector of 2  32b DWORDs
+
+`ifdef HAS_DEVICE_DNA
+  DNAIfc dna <- mkDNA; // Instance the device DNA reader core if we have one
+  rule assign_deviceDNA;
+    deviceDNA <= extend(dna.deviceID);
+  endrule
+  rule assign_devDNAV;
+    devDNAV <= unpack(deviceDNA); // place 64b in 2 DWORD structure
+  endrule
+`endif
+
+  Wire#(Vector#(16, Bit#(32))) uuidV   <- mkWire; // uuid   as a Vector of 16 32b DWORDs
 
   function makeWciMaster (Integer i);
     //return (i<5||i>12) ? mkWciMaster : mkWciMasterNull;  // only instance the 7 (0:4,13:14) we need
@@ -93,6 +105,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   DWord cpRevision  = 32'h0000_0001;
   DWord cpBirthday  = compileTime;
   DWord cpStatus    = extend(pack(rogueTLP));
+
 
 
   function Action setAdminReg(Bit#(8) bAddr, DWord wd);
@@ -161,7 +174,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
 
       'hC0,'hC4,'hC8,'hCC,'hD0,'hD4,'hD8,'hDC,'hE0,'hE4,'hE8,'hEC,'hF0,'hF4,'hF8,'hFC : begin 
          Bit#(4) dwIdx = truncate(dwAddr);
-         return Valid(pack(uuidV[dwIdx]));
+         return Valid(pack(reverse(uuidV)[dwIdx]));
        end
 
       default: return Invalid;
@@ -247,7 +260,6 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   method led       = scratch24[1:0];
   method Action  switch    (Bit#(3) x);     switch_d <= x;           endmethod
   method Action  uuid      (Bit#(512) arg); uuidV   <= unpack(arg);  endmethod
-  method Action  deviceDNA (Bit#(64) arg);  devDNAV <= unpack(arg);  endmethod
 
 endmodule: mkOCCP
 endpackage: OCCP

@@ -21,7 +21,6 @@ interface TLPServBCIfc;
   interface BufQCIfc             bufq;
   method Action dpCtrl (DPControl dc);
   method Bit#(32) i_flowDiagCount;
-  method Bit#(32) i_debug;
 endinterface
 
 typedef struct {
@@ -725,7 +724,6 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // expose register interface so WCI can set/get these config properties...
   method Action dpCtrl (DPControl dc) = dpControl._write(dc);
   method i_flowDiagCount = flowDiagCount;
-  method i_debug = 0;
 
 endmodule
 
