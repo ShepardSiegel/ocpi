@@ -2058,6 +2058,7 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   Reg#(Bool)                       txInFlight    <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(11))                  txDwrEnq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(11))                  txDwrDeq      <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
+  Reg#(Bool)                       txReadyD      <- mkReg(False, clocked_by ava125Clk, reset_by ava125Rst);
 
   Reg#(UInt#(16))                  txDbgEnstage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(UInt#(16))                  txDbgDestage  <- mkReg(0,     clocked_by ava125Clk, reset_by ava125Rst);
@@ -2072,6 +2073,10 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   Reg#(Bool)                       cfgDataWr     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(Bool)                       cfgSample     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
   Reg#(PciId)                      deviceReg     <- mkReg(?,     clocked_by ava125Clk, reset_by ava125Rst);
+
+  rule update_txReadyD; // one cycle delay of tx_st_ready per Altera spec  (table 5-4 page 5-15 IP Compiler PCIe guide May 2011)
+    txReadyD <= pcie_ep.ava_tx.tready;
+  endrule
 
   // Make a cfgSample pulse on the edge after dataWrite changes...
   rule cfg_sample;
@@ -2315,7 +2320,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   endrule
 
   // Move the AV-ST format data from txOutF to the PCIe core...
-  rule tx_exstage (pcie_ep.ava_tx.tready && txExF.notEmpty); // cant start egress until we have the whole message (AV-ST)
+  // AvalonST readLatency=2 ; one cycle from txReadyD, one cycle from tx_enstage rule firing
+  rule tx_exstage (txReadyD && txExF.notEmpty);  // can not advance upstream until we have the whole message (AV-ST)
     let tex = txOutF.first; txOutF.deq;
     pcie_ep.ava_tx.data(tex.data);
     avaTxValid   <=  True;

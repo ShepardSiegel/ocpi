@@ -483,7 +483,6 @@ $(OBJ):
 
 ######################################################################
 clean:
-	du -s
 	sim/tb/cleanall
 	rm -fR $(OBJ) dump* *.sched bsv/*~ rtl/*~
 	rm -fR novas.rc nWaveLog schedule* vfastLog veriwell*
@@ -504,7 +503,6 @@ clean:
 	rm -fR bin/*.log
 	rm -fR scripts/_impactbatch.log
 	mkdir obj
-	du -s
 
 clean-isim:
 	rm -fR isim.* isim fuse.log runsim runsim.*
