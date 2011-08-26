@@ -82,10 +82,10 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   rule assign_deviceDNA;
     deviceDNA <= extend(dna.deviceID);
   endrule
+`endif
   rule assign_devDNAV;
     devDNAV <= unpack(deviceDNA); // place 64b in 2 DWORD structure
   endrule
-`endif
 
   Wire#(Vector#(16, Bit#(32))) uuidV   <- mkWire; // uuid   as a Vector of 16 32b DWORDs
 

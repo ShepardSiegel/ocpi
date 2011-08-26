@@ -2022,11 +2022,13 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   Clock             ava125Clk   = pcie_ep.ava.clk; 
   Reset             ava125Rst   = pcie_ep.ava.usr_rst;
 
+  // Was DWire, made DReg to add one cycle of readLatency
+  //Reg#(TLPDataA#(16)) avaTxD     <- mkDReg(unpack(0), clocked_by ava125Clk, reset_by ava125Rst);
+  Wire#(Bool)       avaTxValid  <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
+  Wire#(Bool)       avaTxErr    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
   Wire#(Bool)       avaTxSop    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
   Wire#(Bool)       avaTxEop    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
   Wire#(Bool)       avaTxEmpty  <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
-  Wire#(Bool)       avaTxValid  <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
-  Wire#(Bool)       avaTxErr    <- mkDWire(False, clocked_by ava125Clk, reset_by ava125Rst);
 
   // Avalon-ST RX qword-allignment bubble removal
   FIFOLevelIfc#(TLPDataA#(16), 32) rxInF         <- mkFIFOLevel( clocked_by ava125Clk, reset_by ava125Rst);  // Purposefully depth-3 for Avalon variable latency flow control
@@ -2323,8 +2325,9 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
   // AvalonST readLatency=2 ; one cycle from txReadyD, one cycle from tx_enstage rule firing
   rule tx_exstage (txReadyD && txExF.notEmpty);  // can not advance upstream until we have the whole message (AV-ST)
     let tex = txOutF.first; txOutF.deq;
-    pcie_ep.ava_tx.data(tex.data);
     avaTxValid   <=  True;
+    //avaTxD       <=  tex;
+    pcie_ep.ava_tx.data (tex.data);
     avaTxSop     <=  tex.sof;
     avaTxEop     <=  tex.eof;
     avaTxEmpty   <=  tex.empty;
@@ -2334,11 +2337,12 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
   (* no_implicit_conditions, fire_when_enabled *)
   rule connect_ava_tx;
-    pcie_ep.ava_tx.sop(avaTxSop);
-    pcie_ep.ava_tx.eop(avaTxEop);
-    pcie_ep.ava_tx.empty(avaTxEmpty);
     pcie_ep.ava_tx.valid(avaTxValid);
-    pcie_ep.ava_tx.err(avaTxErr);
+    //pcie_ep.ava_tx.data (avaTxD.data);
+    pcie_ep.ava_tx.sop  (avaTxSop);
+    pcie_ep.ava_tx.eop  (avaTxEop);
+    pcie_ep.ava_tx.empty(avaTxEmpty);
+    pcie_ep.ava_tx.err  (avaTxErr);
   endrule
 
 
