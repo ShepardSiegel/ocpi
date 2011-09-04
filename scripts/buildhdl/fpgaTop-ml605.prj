@@ -104,6 +104,7 @@ verilog work "../../rtl/mkCTop16B.v"
 
 verilog work "../../rtl/mkWciMonitor.v"
 
+verilog work "../../rtl/mkLCDController.v"
 verilog work "../../rtl/mkFTop_ml605.v"
 
 verilog work "../../libsrc/hdl/ocpi/fpgaTop_ml605.v"

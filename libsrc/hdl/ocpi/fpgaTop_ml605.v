@@ -15,6 +15,10 @@ module fpgaTop(
   input  wire [3:0]  pci_exp_rxn,
 
   output wire [12:0] led,            // LEDs ml605
+  output wire [ 3:0] lcd_db,         // LCD databus
+  output wire        lcd_e,          // LCD enable
+  output wire        lcd_rs,         // LCD register-select
+  output wire        lcd_rw,         // LCD read-not-write
   input  wire        ppsExtIn,       // PPS in
   output wire        ppsOut,         // PPS out
 
@@ -83,6 +87,10 @@ module fpgaTop(
   .pcie_txn          (pci_exp_txn),
 
   .led               (led),
+  .lcd_db            (lcd_db),
+  .lcd_e             (lcd_e),
+  .lcd_rs            (lcd_rs),
+  .lcd_rw            (lcd_rw),
   .gps_ppsSyncIn_x   (ppsExtIn),
   .gps_ppsSyncOut    (ppsOut),
 

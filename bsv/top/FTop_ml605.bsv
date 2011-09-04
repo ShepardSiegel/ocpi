@@ -23,6 +23,7 @@ import Connectable       ::*;
 import DefaultValue      ::*;
 import FIFO              ::*;
 import GetPut            ::*;
+import LCDController     ::*;
 import TieOff            ::*;
 import PCIE              ::*;
 import PCIEInterrupt     ::*;
@@ -34,6 +35,7 @@ interface FTop_ml605Ifc;
   interface Clock                  p125clk;
   interface Reset                  p125rst;
   (*always_ready*) method Bit#(13) led;
+  interface LCD                    lcd;
   interface GPSIfc                 gps;
   interface DDR3_64                dram;
   interface FLASH_IO#(24,16)       flash;
@@ -60,6 +62,9 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   Reset            sys1_rst   <- mkAsyncReset(1, p125Rst , sys1_clk);
 
   (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
+
+  LCDController    lcd_ctrl   <- mkLCDController(clocked_by p125Clk, reset_by p125Rst);
+  Reg#(Bool)       needs_init <- mkReg(True,     clocked_by p125Clk, reset_by p125Rst);
 
   // Poly approach...
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
@@ -102,12 +107,21 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   // Wmemi...
   mkConnection(ctop.wmemiM0, dram0.wmemiS0);
 
+  rule init_lcd if (needs_init);  // Paint the 16x2 LCD...
+     Vector#(16,Bit#(8))  text1 = lcdLine("  Atomic Rules  ");
+     Vector#(16,Bit#(8))  text2 = lcdLine("OpenCPI : ml605 ");
+     lcd_ctrl.setLine1(text1);
+     lcd_ctrl.setLine2(text2);
+     needs_init <= False;
+   endrule
+
   // Interfaces and Methods provided...
   interface PCI_EXP  pcie    = pciw.pcie;
   interface Clock    p125clk = p125Clk;
   interface Reset    p125rst = p125Rst;
   method  led   =
     {5'b10100, 2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
+  interface LCD      lcd     = lcd_ctrl.ifc;
   interface GPSIfc   gps     = ctop.gps;
   interface FLASH_IO flash   = flash0.flash;
   interface DDR3_64  dram    = dram0.dram;

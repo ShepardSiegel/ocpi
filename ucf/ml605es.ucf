@@ -71,6 +71,13 @@ NET "led[12]"   LOC = AD21   | IOSTANDARD = "LVCMOS25"; ## User West
 #NET "pb_sw[2]"  LOC = A19    | IOSTANDARD = "LVCMOS25"; ## User North
 #NET "pb_sw[3]"  LOC = A18    | IOSTANDARD = "LVCMOS25"; ## User South
 #NET "pb_sw[4]"  LOC = H17    | IOSTANDARD = "LVCMOS25"; ## User West
+NET  "lcd_db[3]" LOC = AE12 | IOSTANDARD = LVCMOS25 ;
+NET  "lcd_db[2]" LOC = AJ11 | IOSTANDARD = LVCMOS25 ;
+NET  "lcd_db[1]" LOC = AK11 | IOSTANDARD = LVCMOS25 ;
+NET  "lcd_db[0]" LOC = AD14 | IOSTANDARD = LVCMOS25 ;
+NET  "lcd_e"     LOC = AK12 | IOSTANDARD = LVCMOS25 ;
+NET  "lcd_rs"    LOC = T28  | IOSTANDARD = LVCMOS25 ;
+NET  "lcd_rw"    LOC = AC14 | IOSTANDARD = LVCMOS25 ;
 
 #NET  "ppsExtIn"  LOC = H30  | IOSTANDARD = "LVCMOS25"; #FMC LPC H8 on J63
 #NET  "ppsOut"    LOC = AD20 | IOSTANDARD = "LVCMOS25"; #FMC HPC H8 on J64
