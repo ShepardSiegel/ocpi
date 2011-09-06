@@ -38,7 +38,7 @@ typedef struct {
 
 typedef struct {
   Bool       isRead; // request is read
-  Bit#(32)   addr;   // memory address
+  Bit#(32)   addr;   // memory Byte address
   Bit#(16)   be;     // byte-lane write enables (active-high)
   Bit#(128)  data;   // write data (16B)
  } DramReq16B deriving (Bits, Eq);
@@ -98,23 +98,18 @@ interface DramControllerIfc;
   interface Reset         afi_rstn;  // AFI reset
 endinterface: DramControllerIfc
 
-interface DRAM_USR16B;                             // 16B Usr interface
+interface DRAM_USR16B;                             // 16B User interface
   method    Bool                   initComplete;   // memory server ready
-  method    Bool                   appFull;
-  method    Bool                   wdfFull;
-  method    Bool                   firBeat;
-  method    Bool                   secBeat;
-  interface Put#(DramReq16B)       request;        // 16B dram request
+  interface Put#(DramReq16B)       request;        // 16B dram request (cmd + optional write data)
   interface Get#(Bit#(128))        response;       // 16B read data response
 endinterface
 
 interface DramControllerUiIfc;
-  interface DDR3_16              dram;      // dram pins
-  interface DRAM_USR16B          usr;       // user interface
-  //interface DRAM_DBG_32B         dbg;       // debug port
-  interface Clock                uclk;      // user-facing clock
-  interface Reset                urst_n;    // user-facing reset
-  method Bit#(16) reqCount;
+  interface DDR3_16      dram;       // dram pins
+  interface DRAM_USR16B  usr;        // user interface
+  interface Clock        uclk;       // user-facing clock
+  interface Reset        urst_n;     // user-facing reset
+  method Bit#(32)        reqCount;   // request counter
 endinterface: DramControllerUiIfc
 
 import "BVI" ddr3_s4_uniphy = 
@@ -123,8 +118,8 @@ module vMkS4DDR3#(Clock pllref_clk)(DramControllerIfc);
   default_clock clk(pll_ref_clk);     // 125 MHz Clock In
   default_reset rst(global_reset_n); 
 
-  output_clock    afi_full  (afi_clk);       // 300 MHz
-  output_clock    afi_half  (afi_half_clk);  // 150 MHz
+  output_clock    afi_full  (afi_clk);       // 350 MHz
+  output_clock    afi_half  (afi_half_clk);  // 175 MHz
   output_reset    afi_rstn  (afi_reset_n) clocked_by (afi_half); 
 
   interface DDR3_16 dram;
@@ -175,122 +170,50 @@ module vMkS4DDR3#(Clock pllref_clk)(DramControllerIfc);
     (avl_rdy, avl_rdata_valid, avl_rdata, avl_read_req, avl_write_req, avl_burstbegin, avl_addr, avl_wdata, avl_be, avl_size,
       status_init_done, status_cal_success, status_cal_fail);
 
-
-
 endmodule: vMkS4DDR3
 
-`ifdef HLC_DRAM
 
-module mkDramController#(Clock sys0_clk, Clock mem_clk) (DramControllerIfc);
+module mkDramController#(Clock sys0_clk) (DramControllerIfc);
   Clock                 clk           <-  exposeCurrentClock;
   Reset                 rst_n         <-  exposeCurrentReset;
-  Reset                 rst_p         <-  mkResetInverter(rst_n);                  
-  Reset                 mem_rst_p     <-  mkAsyncReset(2, rst_p, sys0_clk); // active-high for importBVI use
-  let _m <- vMkV6DDR3(sys0_clk, mem_clk, clocked_by sys0_clk, reset_by mem_rst_p);
+  let _m <- vMkS4DDR3(sys0_clk, clocked_by sys0_clk, reset_by rst_n);
   return(_m);
 endmodule: mkDramController
 
-module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
+module mkDramControllerUi#(Clock sys0_clk) (DramControllerUiIfc);
   Reset                 rst_n         <- exposeCurrentReset;
-  Reset                 rst_p         <- mkResetInverter(rst_n);                  
-  Reset                 mem_rst_p     <- mkAsyncReset(16, rst_p, sys0_clk); // active-high for importBVI use
-  DramControllerIfc     memc          <- vMkV6DDR3(sys0_clk, mem_clk, clocked_by sys0_clk, reset_by mem_rst_p);
-  FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
-  FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
-  Reg#(Bit#(16))        requestCount  <- mkReg(0,       clocked_by memc.uclk, reset_by memc.urst_n);
-  Reg#(Bool)            firstBeat     <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
-  Reg#(Bool)            secondBeat    <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
-  FIFOF#(Bit#(2))       rdpF          <- mkSRLFIFOD(4,  clocked_by memc.uclk, reset_by memc.urst_n);
-  Wire#(Bool)           wdfWren       <- mkDWire(False, clocked_by memc.uclk, reset_by memc.urst_n);
-  Wire#(Bool)           wdfEnd        <- mkDWire(False, clocked_by memc.uclk, reset_by memc.urst_n);
+  DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  clocked_by sys0_clk, reset_by rst_n);
+  FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Reg#(Bit#(32))        dbg_reqCount  <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  FIFO#(Bit#(2))        rdpF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bool)           wdfWren       <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bool)           wdfEnd        <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
 
-  // Fires request for read and write...
-  (* fire_when_enabled *)
-  rule advance_request (unpack(memc.app.init_complete) && !firstBeat && !secondBeat);
+  Bool okToOperate = memc.status.init_done && memc.status.cal_success;
+
+  rule advance_request (okToOperate);
     let r = reqF.first;
-    memc.app.addr(extend(r.addr>>2));        // convert byte address to 64B/16B address //TODO: Check shift 
-    memc.app.cmd (r.isRead?3'b001:3'b000);   // Set the command
-    memc.app.en();                           // Assert the command enable
-    if (unpack(memc.app.cmd_rdy)) begin      // When the command is (finally) accepted...
-      if (r.isRead) begin                    // Read...
-        rdpF.enq(r.addr[5:4]);               // push 2b of 16B/64B read-phase to rdpF
-        reqF.deq();                          // Deq for read (we are done with read request)
-      end else begin                         // Write...
-        firstBeat <= True;                   // Advance to W0
-      end
-      requestCount <= requestCount + 1;      // Bump the requestCounter
-    end
+    dbg_reqCount <= dbg_reqCount + 1; 
   endrule
 
-  // Fires with the firstBeat of write, with the W0 data...
-  rule advance_write0 (unpack(memc.app.init_complete) && firstBeat && !secondBeat);
+  rule advance_write (okToOperate);
     let r = reqF.first;
-    memc.app.wdf_data ({r.data,r.data});     // Replicate the 16B write data to 32B 
-    Bit#(32) myBE = '0;                      // Calculate the BE (default no enable)
-    case (r.addr[5:4])
-      2'b00: myBE = {16'h0000,r.be};         // 16B-0 into W0 LS
-      2'b01: myBE = {r.be,16'h0000};         // 16B-1 into W0 MS
-    endcase
-    memc.app.wdf_mask (~myBE);               // Invert myBE to be a "mask"
-    wdfWren <= True;                         // Assert the write data enable (W0)
-    if (unpack(memc.app.wdf_rdy)) begin      // When the write-data W0 is (finally) accepted...
-      firstBeat  <= False;                   // Clear firstBeat
-      secondBeat <= True;                    // Writes need a second beat
-    end
   endrule
 
-  // Fires with the secondBeat of write, with the W1 data...
-  rule advance_write1 (unpack(memc.app.init_complete) && !firstBeat && secondBeat);
-    let r = reqF.first;
-    memc.app.wdf_data ({r.data,r.data});     // Replicate the 16B write data to 32B
-    Bit#(32) myBE = '0;                      // Calculate the BE (default no enable)
-    case (r.addr[5:4])
-      2'b10: myBE = {16'h0000,r.be};         // 16B-2 into W1 LS
-      2'b11: myBE = {r.be,16'h0000};         // 16B-3 into W1 MS
-    endcase
-    memc.app.wdf_mask (~myBE);               // Invert myBE to be a "mask"
-    wdfWren <= True;                         // Assert the write data enable (W1)
-    wdfEnd  <= True;                         // Assert wdf end
-    if (unpack(memc.app.wdf_rdy)) begin     // When the write-data W1 is (finally) accepted...
-      secondBeat <= False;                   // Clear the secondBeat state
-      reqF.deq();                            // Deq, we are done with write request
-    end
-  endrule
-  
-  rule drive_wdf_wren (wdfWren); memc.app.wdf_wren();    endrule
-  rule drive_wdf_end;  memc.app.wdf_end (pack(wdfEnd));  endrule
-
-  // Fires on the two beats of each word read response; rdpF selects where to select 16B from 64B
-  // TODO: Understand 16B-1/3 reversal
-  // TODO: Guard the maximum number of Read Responses in flight so as not to overflow the respF;
-  // The DRAM controntroller read channel does not respect backpressure!
-  rule advance_readData (unpack(memc.app.init_complete) && unpack(memc.app.rd_data_valid));
-    let p = rdpF.first;
-    case({unpack(memc.app.rd_data_end),p})
-      3'b000: respF.enq(memc.app.rd_data[127:0]  );  //16B-0 from W0 LS
-      3'b101: respF.enq(memc.app.rd_data[255:128]);  //16B-1 from W1 MS **
-      3'b110: respF.enq(memc.app.rd_data[127:0]  );  //16B-2 from W1 LS
-      3'b011: respF.enq(memc.app.rd_data[255:128]);  //16B-3 from W0 MS **
-    endcase
-    if (unpack(memc.app.rd_data_end)) rdpF.deq; // we are done with this read response, deq the rdpF
+  rule advance_read  (okToOperate); 
+    noAction;
   endrule
 
   interface DRAM_USR16B usr;
-    method    Bool initComplete = unpack(memc.app.init_complete);
-    method    Bool appFull      = !unpack(memc.app.cmd_rdy);
-    method    Bool wdfFull      = !unpack(memc.app.wdf_rdy);
-    method    Bool firBeat      = firstBeat;
-    method    Bool secBeat      = secondBeat;
+    method    Bool initComplete = okToOperate;
     interface Put  request      = toPut(reqF);
     interface Get  response     = toGet(respF);
   endinterface
-  interface DDR3_64        dram    = memc.dram;    // pass-through other interfaces...
-  interface DRAM_DBG_32B   dbg     = memc.dbg;
-  interface Clock          uclk    = memc.uclk;
-  interface Reset          urst_n  = memc.urst_n;
-  method Bit#(16) reqCount = requestCount;
+  interface DDR3_16  dram       = memc.dram;
+  interface Clock    uclk       = memc.afi_half;
+  interface Reset    urst_n     = memc.afi_rstn;
+  method Bit#(32)    reqCount   = dbg_reqCount;
 endmodule: mkDramControllerUi
-
-`endif
 
 endpackage: DRAM_s4

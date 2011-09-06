@@ -89,7 +89,6 @@ set_location_assignment PIN_U31 -to led[14]
 set_location_assignment PIN_U35 -to led[15]
 
 set_instance_assignment -name IO_STANDARD LVDS -to sys0_clk
-#set_instance_assignment -name INPUT_TERMINATION DIFFERENTIAL -to sys0_clk -disable
 set_instance_assignment -name INPUT_TERMINATION OFF -to sys0_clk
 set_instance_assignment -name IO_STANDARD "2.5 V" -to sys0_rstn
 
@@ -362,3 +361,91 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to flash_advn
 set_instance_assignment -name IO_STANDARD "2.5 V" -to flash_rdybsyn
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to fsm_a
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to fsm_d
+
+
+# DDR3 DRAM TOP (16b x1)
+set_location_assignment PIN_C19 -to ddr3top_wen
+set_location_assignment PIN_A24 -to ddr3top_rasn
+set_location_assignment PIN_B19 -to ddr3top_casn
+set_location_assignment PIN_D24 -to ddr3top_ck_p
+set_location_assignment PIN_C24 -to ddr3top_ck_n
+set_location_assignment PIN_A25 -to ddr3top_cke
+set_location_assignment PIN_D15 -to ddr3top_csn
+set_location_assignment PIN_L20 -to ddr3top_rstn
+set_location_assignment PIN_K15 -to ddr3top_odt
+set_location_assignment PIN_D14 -to ddr3top_dqs_p[0]
+set_location_assignment PIN_C14 -to ddr3top_dqs_n[0]
+set_location_assignment PIN_J23 -to ddr3top_dqs_p[1]
+set_location_assignment PIN_H23 -to ddr3top_dqs_n[1]
+set_location_assignment PIN_A10 -to ddr3top_dq[0]
+set_location_assignment PIN_D11 -to ddr3top_dq[1]
+set_location_assignment PIN_B10 -to ddr3top_dq[2]
+set_location_assignment PIN_C12 -to ddr3top_dq[3]
+set_location_assignment PIN_C11 -to ddr3top_dq[4]
+set_location_assignment PIN_C13 -to ddr3top_dq[5]
+set_location_assignment PIN_A11 -to ddr3top_dq[6]
+set_location_assignment PIN_B13 -to ddr3top_dq[7]
+set_location_assignment PIN_K22 -to ddr3top_dq[8]
+set_location_assignment PIN_D22 -to ddr3top_dq[9]
+set_location_assignment PIN_J22 -to ddr3top_dq[10]
+set_location_assignment PIN_E22 -to ddr3top_dq[11]
+set_location_assignment PIN_G22 -to ddr3top_dq[12]
+set_location_assignment PIN_F23 -to ddr3top_dq[13]
+set_location_assignment PIN_H22 -to ddr3top_dq[14]
+set_location_assignment PIN_D23 -to ddr3top_dq[15]
+set_location_assignment PIN_D19 -to ddr3top_a[0]
+set_location_assignment PIN_C22 -to ddr3top_a[1]
+set_location_assignment PIN_N19 -to ddr3top_a[2]
+set_location_assignment PIN_R20 -to ddr3top_a[3]
+set_location_assignment PIN_D21 -to ddr3top_a[4]
+set_location_assignment PIN_P19 -to ddr3top_a[5]
+set_location_assignment PIN_G21 -to ddr3top_a[6]
+set_location_assignment PIN_M20 -to ddr3top_a[7]
+set_location_assignment PIN_F21 -to ddr3top_a[8]
+set_location_assignment PIN_M21 -to ddr3top_a[9]
+set_location_assignment PIN_B23 -to ddr3top_a[10]
+set_location_assignment PIN_A19 -to ddr3top_a[11]
+set_location_assignment PIN_A23 -to ddr3top_a[12]
+set_location_assignment PIN_M22 -to ddr3top_a[13]
+set_location_assignment PIN_B20 -to ddr3top_a[14]
+set_location_assignment PIN_B14 -to ddr3top_ba[0]
+set_location_assignment PIN_E23 -to ddr3top_ba[1]
+set_location_assignment PIN_A14 -to ddr3top_ba[2]
+set_location_assignment PIN_B11 -to ddr3top_dm[0]
+set_location_assignment PIN_G23 -to ddr3top_dm[1]
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_ba
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dqs_p
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dqs_n
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dm
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_wen
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_rasn
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_casn
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_ck_p
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_ck_n
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_cke
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_csn
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_rstn
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_odt
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_a
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ba
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_p
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_n
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dm
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_wen
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_rasn
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_casn
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ck_p
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ck_n
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_cke
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_csn
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_rstn
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_odt
+set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dq
+set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dqs_p
+set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dqs_n
+set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dq
+set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dqs_p
+set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dqs_n
