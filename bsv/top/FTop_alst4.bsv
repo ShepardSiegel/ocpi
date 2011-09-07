@@ -4,6 +4,7 @@
 // Application Imports...
 import Config            ::*;
 import CTop              ::*;
+import DramServer_s4     ::*;
 import FlashWorker       ::*;
 import OCWip             ::*;
 import TimeService       ::*;
@@ -39,6 +40,7 @@ interface FTop_altst4Ifc;
   interface LCD              lcd;
   interface GPSIfc           gps;
   interface FLASH_IO#(24,16) flash;
+  interface DDR3_16          dram;
 endinterface: FTop_altst4Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
@@ -71,8 +73,10 @@ module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
   mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
 
   Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
+
   // FTop Level device-workers..
-  FlashWorkerIfc   flash0   <- mkFlashWorker(clocked_by p125Clk, reset_by(vWci[1].mReset_n));
+  FlashWorkerIfc   flash0   <- mkFlashWorker(                       clocked_by p125Clk, reset_by(vWci[1].mReset_n));
+  DramServer_s4Ifc dram0    <- mkDramServer_s4(sys0_clk, sys0_rstn, clocked_by p125Clk, reset_by(vWci[4].mReset_n));
 
   // WCI...
   //mkConnection(vWci[0], icap.wciS0);    // worker 8
@@ -80,7 +84,7 @@ module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
   mkConnection(vWci[1], flash0.wciS0);   // worker 9
   //mkConnection(vWci[2], gbe0.wciS0);     // worker 10 
   //mkConnection(vWci[3], gbe0.wciS1);     // worker 11
-  //mkConnection(vWci[4], dram0.wciS0);    // worker 12
+  mkConnection(vWci[4], dram0.wciS0);    // worker 12
 
   // WTI...
   //TimeClientIfc  tcGbe0  <- mkTimeClient(sys0_clk, sys0_rst, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by p125Rst ); 
@@ -88,7 +92,7 @@ module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
   //mkConnection(tcGbe0.wti_m, gbe0.wtiS0); 
 
   // Wmemi...
-  //mkConnection(ctop.wmemiM0, dram0.wmemiS0);
+  mkConnection(ctop.wmemiM0, dram0.wmemiS0);
 
 
   rule init_lcd if (needs_init);  // Paint the 16x2 LCD...
@@ -121,4 +125,5 @@ module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
   interface LCD          lcd   = lcd_ctrl.ifc;
   interface GPSIfc       gps   = ctop.gps;
   interface FLASH_IO     flash = flash0.flash;
+  interface DDR3_16      dram  = dram0.dram;
 endmodule: mkFTop_alst4

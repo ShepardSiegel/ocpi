@@ -64,6 +64,8 @@ interface DRAM_DDR#(numeric type rowWidth, numeric type bankWidth, numeric type 
   interface Inout#(Bit#(dqsWidth)) io_dqs_n;
   method  Bit#(ckWidth)            ck_p;
   method  Bit#(ckWidth)            ck_n;
+  method  Action rdn (Bool i);
+  method  Action rup (Bool i);
 endinterface: DRAM_DDR
 typedef DRAM_DDR#(13,3,1,1,1,2,16,2) DDR3_16;  // As in the Altera alst4 platform single-chip 16b "DDR3TOP" device
 
@@ -113,31 +115,33 @@ interface DramControllerUiIfc;
 endinterface: DramControllerUiIfc
 
 import "BVI" ddr3_s4_uniphy = 
-module vMkS4DDR3#(Clock pllref_clk)(DramControllerIfc);
+module vMkS4DDR3#(Clock sys0_clk, Reset sys0_rstn)(DramControllerIfc);
 
-  default_clock clk(pll_ref_clk);     // 125 MHz Clock In
-  default_reset rst(global_reset_n); 
+  default_clock clk(pll_ref_clk)     = sys0_clk;     // 125 MHz Clock In
+  default_reset rst(global_reset_n)  = sys0_rstn; 
 
   output_clock    afi_full  (afi_clk);       // 350 MHz
   output_clock    afi_half  (afi_half_clk);  // 175 MHz
   output_reset    afi_rstn  (afi_reset_n) clocked_by (afi_half); 
 
   interface DDR3_16 dram;
-    ifc_inout  io_dq(ddr3_dq)       clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_addr     addr      clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_ba       ba        clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_ras_n    ras_n     clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_cas_n    cas_n     clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_we_n     we_n      clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_reset_n  reset_n   clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_cs_n     cs_n      clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_odt      odt       clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_cke      cke       clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_dm       dm        clocked_by(no_clock) reset_by(no_reset);
-    ifc_inout  io_dqs_p(ddr3_dqs_p) clocked_by(no_clock) reset_by(no_reset);
-    ifc_inout  io_dqs_n(ddr3_dqs_n) clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_ck_p     ck_p      clocked_by(no_clock) reset_by(no_reset);
-    method  ddr3_ck_n     ck_n      clocked_by(no_clock) reset_by(no_reset);
+    ifc_inout  io_dq(mem_dq)       clocked_by(no_clock) reset_by(no_reset);
+    method  mem_a        addr      clocked_by(no_clock) reset_by(no_reset);
+    method  mem_ba       ba        clocked_by(no_clock) reset_by(no_reset);
+    method  mem_ras_n    ras_n     clocked_by(no_clock) reset_by(no_reset);
+    method  mem_cas_n    cas_n     clocked_by(no_clock) reset_by(no_reset);
+    method  mem_we_n     we_n      clocked_by(no_clock) reset_by(no_reset);
+    method  mem_reset_n  reset_n   clocked_by(no_clock) reset_by(no_reset);
+    method  mem_cs_n     cs_n      clocked_by(no_clock) reset_by(no_reset);
+    method  mem_odt      odt       clocked_by(no_clock) reset_by(no_reset);
+    method  mem_cke      cke       clocked_by(no_clock) reset_by(no_reset);
+    method  mem_dm       dm        clocked_by(no_clock) reset_by(no_reset);
+    ifc_inout  io_dqs_p(mem_dqs  ) clocked_by(no_clock) reset_by(no_reset);
+    ifc_inout  io_dqs_n(mem_dqs_n) clocked_by(no_clock) reset_by(no_reset);
+    method  mem_ck       ck_p      clocked_by(no_clock) reset_by(no_reset);
+    method  mem_ck_n     ck_n      clocked_by(no_clock) reset_by(no_reset);
+    method  rdn (oct_rdn) enable((*inhigh*)ena6) clocked_by(clk) reset_by(rst);  // Pass the oct_rdn, _rup inputs in here
+    method  rup (oct_rup) enable((*inhigh*)ena7) clocked_by(clk) reset_by(rst);
   endinterface: dram
 
   interface DRAM_AVL_8B avl;
@@ -160,9 +164,9 @@ module vMkS4DDR3#(Clock pllref_clk)(DramControllerIfc);
   endinterface: status
 
   schedule 
-    (dram_addr, dram_ba, dram_ras_n, dram_cas_n, dram_we_n, dram_cs_n, dram_odt, dram_cke, dram_dm, dram_ck_p, dram_ck_n, dram_reset_n)
+    (dram_addr, dram_ba, dram_ras_n, dram_cas_n, dram_we_n, dram_cs_n, dram_odt, dram_cke, dram_dm, dram_ck_p, dram_ck_n, dram_reset_n, dram_rdn, dram_rup)
     CF
-    (dram_addr, dram_ba, dram_ras_n, dram_cas_n, dram_we_n, dram_cs_n, dram_odt, dram_cke, dram_dm, dram_ck_p, dram_ck_n, dram_reset_n);
+    (dram_addr, dram_ba, dram_ras_n, dram_cas_n, dram_we_n, dram_cs_n, dram_odt, dram_cke, dram_dm, dram_ck_p, dram_ck_n, dram_reset_n, dram_rdn, dram_rup);
   schedule
     (avl_rdy, avl_rdata_valid, avl_rdata, avl_read_req, avl_write_req, avl_burstbegin, avl_addr, avl_wdata, avl_be, avl_size,
       status_init_done, status_cal_success, status_cal_fail)
@@ -173,16 +177,16 @@ module vMkS4DDR3#(Clock pllref_clk)(DramControllerIfc);
 endmodule: vMkS4DDR3
 
 
-module mkDramController#(Clock sys0_clk) (DramControllerIfc);
+module mkDramController#(Clock sys0_clk, Reset sys0_rstn) (DramControllerIfc);
   Clock                 clk           <-  exposeCurrentClock;
   Reset                 rst_n         <-  exposeCurrentReset;
-  let _m <- vMkS4DDR3(sys0_clk, clocked_by sys0_clk, reset_by rst_n);
+  let _m <- vMkS4DDR3(sys0_clk, sys0_rstn, clocked_by clk, reset_by rst_n);
   return(_m);
 endmodule: mkDramController
 
-module mkDramControllerUi#(Clock sys0_clk) (DramControllerUiIfc);
+module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc);
   Reset                 rst_n         <- exposeCurrentReset;
-  DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  clocked_by sys0_clk, reset_by rst_n);
+  DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  sys0_rstn, clocked_by sys0_clk, reset_by sys0_rstn);
   FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Reg#(Bit#(32))        dbg_reqCount  <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);

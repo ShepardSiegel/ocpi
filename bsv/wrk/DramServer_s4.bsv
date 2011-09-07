@@ -25,10 +25,10 @@ interface DramServer_s4Ifc;
 endinterface
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rst) (DramServer_s4Ifc);
+module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rstn) (DramServer_s4Ifc);
 
   WciESlaveIfc                     wci                        <- mkWciESlave;
-  DramControllerUiIfc              memc                       <- mkDramControllerUi(sys0_clk, sys0_clk);
+  DramControllerUiIfc              memc                       <- mkDramControllerUi(sys0_clk, sys0_rstn);
   WmemiSlaveIfc#(36,12,128,16)     wmemi                      <- mkWmemiSlave; 
   Reg#(Bit#(32))                   dramCtrl                   <- mkReg(0);
   Clock                            uclk                       =  memc.uclk;
@@ -43,7 +43,7 @@ module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rst) (DramServer_s4Ifc);
   Reg#(Bit#(32))                   dbgCtrl                    <- mkReg(0, clocked_by uclk, reset_by urst_n);
   Reg#(Bit#(8))                    respCount                  <- mkReg(0);
   Reg#(Bool)                       splitReadInFlight          <- mkReg(False); 
-  FIFOF#(Bit#(2))                  splaF                      <- mkFIFO;
+  FIFOF#(Bit#(2))                  splaF                      <- mkFIFOF;
 
   Reg#(Bit#(16))                   requestCount               <- mkSyncRegToCC(0, uclk, urst_n);
 
@@ -66,44 +66,12 @@ module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rst) (DramServer_s4Ifc);
 
   rule update_memIsReset;   memIsResetCC.send(pack(memIsReset)); endrule
   rule update_initComplete; initComplete.send(pack(memc.usr.initComplete)); endrule
-  rule update_appFull;      appFull.send(pack(memc.usr.appFull)); endrule
-  rule update_wdfFull;      wdfFull.send(pack(memc.usr.wdfFull)); endrule
-  rule update_firBeat;      firBeat.send(pack(memc.usr.firBeat)); endrule
-  rule update_secBeat;      secBeat.send(pack(memc.usr.secBeat)); endrule
 
   //FIXME
   /*
   //(* no_implicit_conditions, fire_when_enabled *)
   rule update_debug (True);
-     dbg_wl_dqs_inverted       <= memc.dbg.wl_dqs_inverted;
-     dbg_wr_calib_clk_delay    <= memc.dbg.wr_calib_clk_delay;
-     dbg_wl_odelay_dqs_tap_cnt <= memc.dbg.wl_odelay_dqs_tap_cnt;
-     dbg_wl_odelay_dq_tap_cnt  <= memc.dbg.wl_odelay_dq_tap_cnt;
-     dbg_rdlvl_done            <= memc.dbg.rdlvl_done;
-     dbg_rdlvl_err             <= memc.dbg.rdlvl_err;
-     dbg_cpt_tap_cnt           <= memc.dbg.cpt_tap_cnt;
-     dbg_cpt_first_edge_cnt    <= memc.dbg.cpt_first_edge_cnt;
-     dbg_cpt_second_edge_cnt   <= memc.dbg.cpt_second_edge_cnt;
-     dbg_rd_bitslip_cnt        <= memc.dbg.rd_bitslip_cnt;
-     dbg_rd_clkdly_cnt         <= memc.dbg.rd_clkdly_cnt;
-     dbg_rd_active_dly         <= memc.dbg.rd_active_dly;
-     dbg_dqs_p_tap_cnt         <= memc.dbg.dqs_p_tap_cnt;
-     dbg_dqs_n_tap_cnt         <= memc.dbg.dqs_n_tap_cnt;
-     dbg_dq_tap_cnt            <= memc.dbg.dq_tap_cnt;
-     dbg_rddata                <= memc.dbg.rddata;
      requestCount              <= memc.reqCount;
-  endrule
-
-  rule debug_update;
-    memc.dbg.pd_off(0);
-    memc.dbg.pd_maintain_off(0);
-    memc.dbg.pd_maintain_0_only(0);
-    memc.dbg.ocb_mon_off(0);
-    memc.dbg.inc_cpt(0);
-    memc.dbg.dec_cpt(0);
-    memc.dbg.inc_rd_dqs(0);
-    memc.dbg.dec_rd_dqs(0);
-    memc.dbg.inc_dec_sel(0);
   endrule
   */
 
@@ -200,22 +168,6 @@ endrule
      case (wciReq.addr[7:0]) matches
        'h00 : rdat = dramStatus;
        'h04 : rdat = pack(dramCtrl);
-       'h08 : rdat = extend(dbg_wl_dqs_inverted);
-       'h0C : rdat = extend(dbg_wr_calib_clk_delay);
-       'h10 : rdat = truncate(dbg_wl_odelay_dqs_tap_cnt);
-       'h14 : rdat = truncate(dbg_wl_odelay_dq_tap_cnt);
-       'h18 : rdat = extend(dbg_rdlvl_done);
-       'h1C : rdat = extend(dbg_rdlvl_err);
-       'h20 : rdat = truncate(dbg_cpt_tap_cnt );
-       'h24 : rdat = truncate(dbg_cpt_first_edge_cnt);
-       'h28 : rdat = truncate(dbg_cpt_second_edge_cnt);
-       'h2C : rdat = extend(dbg_rd_bitslip_cnt);
-       'h30 : rdat = extend(dbg_rd_clkdly_cnt);
-       'h34 : rdat = extend(dbg_rd_active_dly);
-       'h38 : rdat = truncate(dbg_dqs_p_tap_cnt);
-       'h3C : rdat = truncate(dbg_dqs_n_tap_cnt);
-       'h40 : rdat = truncate(dbg_dq_tap_cnt);
-       'h44 : rdat = (dbg_rddata);
        'h48 : rdat = extend(requestCount);
        'h50 : rdat = extend(pReg);
        'h5C : rdat = extend(mReg);
@@ -251,7 +203,7 @@ endrule
 
   interface WciES       wciS0    = wci.slv;
   interface WmemiES16B  wmemiS0  = wmemi_Es;
-  interface DDR3_64     dram     = memc.dram; 
+  interface DDR3_16     dram     = memc.dram;  // 16b DDR3 interface to pins
 
 endmodule : mkDramServer_s4
 
