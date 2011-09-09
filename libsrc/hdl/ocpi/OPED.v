@@ -30,10 +30,10 @@
 module OPED # 
 
   ( // OPED accepts the MPD-named paramater specifications...
-  parameter                              C_M_AXIS_DAT_DATA_WIDTH = 32,
-  parameter                              C_S_AXIS_DAT_DATA_WIDTH = 32,
-  parameter                              C_M_AXIS_DAT_USER_WIDTH = 128,
-  parameter                              C_S_AXIS_DAT_USER_WIDTH = 128)
+  parameter                              C_M_AXIS_DATA_WIDTH  = 32,
+  parameter                              C_S_AXIS_DATA_WIDTH  = 32,
+  parameter                              C_M_AXIS_TUSER_WIDTH = 128,
+  parameter                              C_S_AXIS_TUSER_WIDTH = 128)
 
   ( // OPED uses the MPD-specified signal names for the AXI user-facing ports...
   input                                  PCIE_CLKP,           // PCIe connections...
@@ -67,16 +67,16 @@ module OPED #
   input                                  M_AXI_RVALID,
   output                                 M_AXI_RREADY,
 
-  output [C_M_AXIS_DAT_DATA_WIDTH-1:0]   M_AXIS_DAT_TDATA,    // AXI4-Stream (Ingress from PCIe) Master-Producer...
-  output [C_M_AXIS_DAT_DATA_WIDTH/8-1:0] M_AXIS_DAT_TSTRB,
-  output [C_M_AXIS_DAT_USER_WIDTH-1:0]   M_AXIS_DAT_TUSER, 
+  output [C_M_AXIS_DATA_WIDTH-1:0]       M_AXIS_DAT_TDATA,    // AXI4-Stream (Ingress from PCIe) Master-Producer...
+  output [C_M_AXIS_DATA_WIDTH/8-1:0]     M_AXIS_DAT_TSTRB,
+  output [C_M_AXIS_TUSER_WIDTH-1:0]      M_AXIS_DAT_TUSER, 
   output                                 M_AXIS_DAT_TLAST,
   output                                 M_AXIS_DAT_TVALID,
   input                                  M_AXIS_DAT_TREADY,
 
-  input  [C_S_AXIS_DAT_DATA_WIDTH-1:0]   S_AXIS_DAT_TDATA,    // AXI4-Stream (Egress to PCIe) Slave-Consumer...
-  input  [C_S_AXIS_DAT_DATA_WIDTH/8-1:0] S_AXIS_DAT_TSTRB,
-  input  [C_S_AXIS_DAT_USER_WIDTH-1:0]   S_AXIS_DAT_TUSER, 
+  input  [C_S_AXIS_DATA_WIDTH-1:0]       S_AXIS_DAT_TDATA,    // AXI4-Stream (Egress to PCIe) Slave-Consumer...
+  input  [C_S_AXIS_DATA_WIDTH/8-1:0]     S_AXIS_DAT_TSTRB,
+  input  [C_S_AXIS_TUSER_WIDTH-1:0]      S_AXIS_DAT_TUSER, 
   input                                  S_AXIS_DAT_TLAST,
   input                                  S_AXIS_DAT_TVALID,
   output                                 S_AXIS_DAT_TREADY,
@@ -94,10 +94,10 @@ module OPED #
 
 // Compile time check for expected paramaters...
 initial begin
-  if (C_M_AXIS_DAT_DATA_WIDTH != 32)  begin $display("Unsupported M_AXIS_DAT DATA width"); $finish; end
-  if (C_S_AXIS_DAT_DATA_WIDTH != 32)  begin $display("Unsupported S_AXIS_DAT DATA width"); $finish; end
-  if (C_M_AXIS_DAT_USER_WIDTH != 128) begin $display("Unsupported M_AXIS_DAT USER width"); $finish; end
-  if (C_S_AXIS_DAT_USER_WIDTH != 128) begin $display("Unsupported S_AXIS_DAT USER width"); $finish; end
+  if (C_M_AXIS_DATA_WIDTH != 32)   begin $display("Unsupported M_AXIS_DATA width");  $finish; end
+  if (C_S_AXIS_DATA_WIDTH != 32)   begin $display("Unsupported S_AXIS_DATA width");  $finish; end
+  if (C_M_AXIS_TUSER_WIDTH != 128) begin $display("Unsupported M_AXIS_TUSER width"); $finish; end
+  if (C_S_AXIS_TUSER_WIDTH != 128) begin $display("Unsupported S_AXIS_TUSER width"); $finish; end
 end
 
  mkOPED_v5 oped (
