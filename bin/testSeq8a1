@@ -31,13 +31,14 @@ echo "start workers"
 ./swctl 0xDE000000 0xDFFF0000 wop  2 start
 
 #echo "Read Memory Controler Status"
-./swctl 0xDE000000 0xDFFF0000 wread 12 0 19
+./swctl 0xDE000000 0xDFFF0000 wread 12 0 20
 
 # wait for controller ready...
-sleep 1
+echo "Waiting for the ten second calibration"
+sleep 11
 
 echo "Read Memory Controler Status"
-./swctl 0xDE000000 0xDFFF0000 wread 12 0 19
+./swctl 0xDE000000 0xDFFF0000 wread 12 0 20
 
 # mask
 #./swctl 0xDE000000 0xDFFF0000 wwrite 12 0x5C 0x0000FFFF  # mask (1=BE;0=Masked)
