@@ -448,30 +448,30 @@ set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq
 set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_dqs_p
 set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_dqs_n
 set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dm
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_wen -tag __ddr3_s4_uniphy_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_wen
 set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_rasn
 set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_casn
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_ck_p -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_ck_n -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_cke -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_csn -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD 1.5V -to ddr3top_rstn -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_odt -tag __ddr3_s4_uniphy_p0
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_a
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ba
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_ck_p
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_ck_n
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_cke
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_csn
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_rstn
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_odt
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_a
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ba
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_p
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_n
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dm
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_wen
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_wen
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_rasn
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_casn
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to ddr3top_ck_p -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to ddr3top_ck_n -tag __ddr3_s4_uniphy_p0
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_cke
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_csn
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_rstn
-#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_odt
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ck_p
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ck_n
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_cke
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_csn
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_rstn
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_odt
 #set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dq
 #set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dqs_p
 #set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dqs_n
@@ -486,101 +486,3 @@ set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRAT
 #set_location_assignment PIN_AF25 -to termination_blk2~_rup_pad
 #set_location_assignment PIN_AG25 -to termination_blk2~_rdn_pad
 
-
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[2] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[2] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[2] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[3] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[3] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[3] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[4] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[4] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[4] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[5] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[5] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[5] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[6] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[6] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[6] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[7] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[7] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[7] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[8] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[8] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[8] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[9] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[9] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[9] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[10] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[10] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[10] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[11] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[11] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[11] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[12] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[12] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[12] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[13] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[13] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[13] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[14] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[14] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[14] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[15] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[15] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[15] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_dqs_p[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dqs_p[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_p[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_dqs_p[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dqs_p[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_p[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_dqs_n[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dqs_n[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_n[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_dqs_n[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dqs_n[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_n[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[10] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[10] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[11] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[11] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[12] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[12] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[2] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[2] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[3] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[3] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[4] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[4] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[5] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[5] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[6] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[6] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[7] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[7] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[8] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[8] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a[9] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_a[9] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_ba[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_ba[0] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_ba[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_ba[1] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_ba[2] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_ba[2] -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_csn -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_wen -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_cke -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_odt -tag __ddr3_s4_uniphy_p0
-set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to ddr3top_rstn -tag __ddr3_s4_uniphy_p0

@@ -101,7 +101,10 @@ interface DramControllerIfc;
 endinterface: DramControllerIfc
 
 interface DRAM_USR16B;                             // 16B User interface
-  method    Bool                   initComplete;   // memory server ready
+  method    Bool                   initDone;       // initialization done
+  method    Bool                   calSuccess;     // calibration succeded
+  method    Bool                   calFail;        // calibration failed
+  method    Bit#(3)                clkOk;          // 3-bit clock activity
   interface Put#(DramReq16B)       request;        // 16B dram request (cmd + optional write data)
   interface Get#(Bit#(128))        response;       // 16B read data response
 endinterface
@@ -115,10 +118,12 @@ interface DramControllerUiIfc;
 endinterface: DramControllerUiIfc
 
 import "BVI" ddr3_s4_uniphy = 
-module vMkS4DDR3#(Clock sys0_clk, Reset sys0_rstn)(DramControllerIfc);
+module vMkS4DDR3#(Clock sys0_clk, Reset sys0_rstn, Reset soft_rstn)(DramControllerIfc);
 
   default_clock clk(pll_ref_clk)     = sys0_clk;     // 125 MHz Clock In
   default_reset rst(global_reset_n)  = sys0_rstn; 
+
+  input_reset softrst(soft_reset_n) clocked_by(no_clock) = soft_rstn;  // hookup the soft_reset_n port
 
   output_clock    afi_full  (afi_clk);       // 350 MHz
   output_clock    afi_half  (afi_half_clk);  // 175 MHz
@@ -177,22 +182,37 @@ module vMkS4DDR3#(Clock sys0_clk, Reset sys0_rstn)(DramControllerIfc);
 endmodule: vMkS4DDR3
 
 
-module mkDramController#(Clock sys0_clk, Reset sys0_rstn) (DramControllerIfc);
+module mkDramController#(Clock sys0_clk, Reset sys0_rstn, Reset soft_rstn) (DramControllerIfc);
   Clock                 clk           <-  exposeCurrentClock;
   Reset                 rst_n         <-  exposeCurrentReset;
-  let _m <- vMkS4DDR3(sys0_clk, sys0_rstn, clocked_by clk, reset_by rst_n);
+  let _m <- vMkS4DDR3(sys0_clk, sys0_rstn, sys0_rstn, clocked_by clk, reset_by rst_n);
   return(_m);
 endmodule: mkDramController
 
 module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc);
   Reset                 rst_n         <- exposeCurrentReset;
-  DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  sys0_rstn, clocked_by sys0_clk, reset_by sys0_rstn);
+  DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  sys0_rstn, rst_n, clocked_by sys0_clk, reset_by sys0_rstn);
   FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Reg#(Bit#(32))        dbg_reqCount  <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);
   FIFO#(Bit#(2))        rdpF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Wire#(Bool)           wdfWren       <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Wire#(Bool)           wdfEnd        <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
+
+  Reg#(Bit#(4))         curCount      <- mkReg(0);
+  Reg#(Bit#(4))         sysCount      <- mkReg(0,       clocked_by sys0_clk,      reset_by sys0_rstn);
+  Reg#(Bit#(4))         afiCount      <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  SyncBitIfc#(Bit#(1))  sysActive     <- mkSyncBitToCC(sys0_clk, sys0_rstn);
+  SyncBitIfc#(Bit#(1))  afiActive     <- mkSyncBitToCC(memc.afi_half, memc.afi_rstn);
+
+  rule count_cur_always; curCount <= curCount + 1; endrule  // in Current Clock domain
+  rule count_sys_always; sysCount <= sysCount + 1; endrule  // in sys0_clk domain
+  rule count_afi_always; afiCount <= afiCount + 1; endrule  // in afi_half domain
+
+  rule update_sysActive;   sysActive.send(sysCount[3]); endrule
+  rule update_afiActive;   afiActive.send(afiCount[3]); endrule
+
+  Bit#(3) activeBits = {curCount[3], sysActive.read, afiActive.read};
 
   Bool okToOperate = memc.status.init_done && memc.status.cal_success;
 
@@ -210,7 +230,10 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   endrule
 
   interface DRAM_USR16B usr;
-    method    Bool initComplete = okToOperate;
+    method    Bool initDone     = memc.status.init_done;
+    method    Bool calSuccess   = memc.status.cal_success;
+    method    Bool calFail      = memc.status.cal_fail;
+    method    Bit#(3) clkOk     = activeBits;
     interface Put  request      = toPut(reqF);
     interface Get  response     = toGet(respF);
   endinterface

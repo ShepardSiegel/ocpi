@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<pin_planner>
+	<pin_info>
+		<pin name="ddr3top_ck_n" direction="Output" source="Hierarchy Database" diff_pair_node="ddr3top_ck_p" >
+		</pin>
+		<pin name="ddr3top_ck_p" direction="Output" source="Hierarchy Database" diff_pair_node="ddr3top_ck_n" >
+		</pin>
+		<pin name="ddr3top_dqs_n[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr3top_dqs_p[1]" >
+		</pin>
+		<pin name="ddr3top_dqs_n[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr3top_dqs_p[0]" >
+		</pin>
+		<pin name="ddr3top_dqs_p[1]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr3top_dqs_n[1]" >
+		</pin>
+		<pin name="ddr3top_dqs_p[0]" direction="Bidir" source="Hierarchy Database" diff_pair_node="ddr3top_dqs_n[0]" >
+		</pin>
+	</pin_info>
+	<buses>
+	</buses>
+	<group_file_association>
+	</group_file_association>
+	<pin_planner_file_specifies>
+	</pin_planner_file_specifies>
+</pin_planner>

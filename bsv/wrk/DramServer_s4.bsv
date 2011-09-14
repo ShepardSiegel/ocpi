@@ -27,19 +27,24 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rstn) (DramServer_s4Ifc);
 
-  WciESlaveIfc                     wci                        <- mkWciESlave;
+  // On the Altera alst4 board, the default on sysclk0 is 100 MHz - it can be programmed by USB
+  // The jitter is uncertain. So here we take the questionable approach of using the PCIe-derrived 125 MHz
+  // as the reference clock to the DRAM controller -
+//Clock                            clk125                     <-  exposeCurrentClock;
+//Reset                            rst125                     <-  exposeCurrentReset;
   DramControllerUiIfc              memc                       <- mkDramControllerUi(sys0_clk, sys0_rstn);
+//DramControllerUiIfc              memc                       <- mkDramControllerUi(clk125, rst125);
+
+  WciESlaveIfc                     wci                        <- mkWciESlave;
   WmemiSlaveIfc#(36,12,128,16)     wmemi                      <- mkWmemiSlave; 
   Reg#(Bit#(32))                   dramCtrl                   <- mkReg(0);
   Clock                            uclk                       =  memc.uclk;
   Reset                            urst_n                     =  memc.urst_n;
   ReadOnly#(Bool)                  memIsReset                 <- isResetAsserted(clocked_by uclk, reset_by urst_n);
   SyncBitIfc#(Bit#(1))             memIsResetCC               <- mkSyncBitToCC(uclk, urst_n);
-  SyncBitIfc#(Bit#(1))             initComplete               <- mkSyncBitToCC(uclk, urst_n);
-  SyncBitIfc#(Bit#(1))             appFull                    <- mkSyncBitToCC(uclk, urst_n);
-  SyncBitIfc#(Bit#(1))             wdfFull                    <- mkSyncBitToCC(uclk, urst_n);
-  SyncBitIfc#(Bit#(1))             firBeat                    <- mkSyncBitToCC(uclk, urst_n);
-  SyncBitIfc#(Bit#(1))             secBeat                    <- mkSyncBitToCC(uclk, urst_n);
+  SyncBitIfc#(Bit#(1))             initDone                   <- mkSyncBitToCC(uclk, urst_n);
+  SyncBitIfc#(Bit#(1))             calSuccess                 <- mkSyncBitToCC(uclk, urst_n);
+  SyncBitIfc#(Bit#(1))             calFail                    <- mkSyncBitToCC(uclk, urst_n);
   Reg#(Bit#(32))                   dbgCtrl                    <- mkReg(0, clocked_by uclk, reset_by urst_n);
   Reg#(Bit#(8))                    respCount                  <- mkReg(0);
   Reg#(Bool)                       splitReadInFlight          <- mkReg(False); 
@@ -60,12 +65,12 @@ module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rstn) (DramServer_s4Ifc);
   Reg#(Bit#(32))                   wmemiRdReq                 <- mkReg(0);
   Reg#(Bit#(32))                   wmemiRdResp                <- mkReg(0);
 
-  rule operating_actions (wci.isOperating);
-     wmemi.operate();
-  endrule
+  rule operating_actions (wci.isOperating); wmemi.operate(); endrule
 
-  rule update_memIsReset;   memIsResetCC.send(pack(memIsReset)); endrule
-  rule update_initComplete; initComplete.send(pack(memc.usr.initComplete)); endrule
+  rule update_memIsReset;   memIsResetCC.send(pack(memIsReset));        endrule
+  rule update_initDone;     initDone.send(pack(memc.usr.initDone));     endrule
+  rule update_calSuccess;   calSuccess.send(pack(memc.usr.calSuccess)); endrule
+  rule update_calFail;      calFail.send(pack(memc.usr.calFail));       endrule
 
   //FIXME
   /*
@@ -79,8 +84,8 @@ module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rstn) (DramServer_s4Ifc);
   mkConnection(memc.usr.response, toPut(lrespF));
 
   Bit#(32) dramStatus = extend({respCount, 
-    2'h0, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read});
-  //      5                  4             3             2             1             0
+    1'h0, memc.usr.clkOk, memIsResetCC.read, calFail.read, calSuccess.read, initDone.read});
+  //      654             3                  2             1                0
 
 
 // Connection to the Wmemi...
@@ -169,6 +174,7 @@ endrule
        'h00 : rdat = dramStatus;
        'h04 : rdat = pack(dramCtrl);
        'h48 : rdat = extend(requestCount);
+       'h4C : rdat = 32'hc0de_4000; // code-4000 magic cookie
        'h50 : rdat = extend(pReg);
        'h5C : rdat = extend(mReg);
        'h60 : rdat = wdReg[0];
