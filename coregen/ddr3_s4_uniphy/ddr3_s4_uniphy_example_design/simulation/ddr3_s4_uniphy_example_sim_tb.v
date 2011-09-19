@@ -18,7 +18,7 @@ ddr3_s4_uniphy_example_sim dut (
 );
 
 
-always #(8000/2) clk <= ~clk;
+always #(10000/2) clk <= ~clk;
 
 initial
 begin

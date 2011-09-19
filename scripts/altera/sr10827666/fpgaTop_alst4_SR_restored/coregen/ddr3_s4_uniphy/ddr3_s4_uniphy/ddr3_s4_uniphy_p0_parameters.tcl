@@ -11,8 +11,8 @@ set ::GLOBAL_ddr3_s4_uniphy_p0_number_of_dqs_groups 2
 set ::GLOBAL_ddr3_s4_uniphy_p0_dqs_group_size 8
 set ::GLOBAL_ddr3_s4_uniphy_p0_number_of_ck_pins 1
 set ::GLOBAL_ddr3_s4_uniphy_p0_number_of_dm_pins 2
-set ::GLOBAL_ddr3_s4_uniphy_p0_dqs_delay_chain_length 2
-set ::GLOBAL_ddr3_s4_uniphy_p0_uniphy_temp_ver_code 1067881293
+set ::GLOBAL_ddr3_s4_uniphy_p0_dqs_delay_chain_length 3
+set ::GLOBAL_ddr3_s4_uniphy_p0_uniphy_temp_ver_code 298979826
 # PLL Parameters
 
 #USER W A R N I N G !
@@ -23,29 +23,29 @@ set ::GLOBAL_ddr3_s4_uniphy_p0_uniphy_temp_ver_code 1067881293
 #USER apply those changes to the PLL parameters in this file
 
 set ::GLOBAL_ddr3_s4_uniphy_p0_num_pll_clock 7
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(0) 7
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(0) 5
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(0) 3
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(0) 2
 set ::GLOBAL_ddr3_s4_uniphy_p0_pll_phase(0) 0
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(1) 14
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(1) 5
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(1) 3
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(1) 1
 set ::GLOBAL_ddr3_s4_uniphy_p0_pll_phase(1) 0
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(2) 14
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(2) 5
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(2) 3
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(2) 1
 set ::GLOBAL_ddr3_s4_uniphy_p0_pll_phase(2) 90
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(3) 7
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(3) 5
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(3) 3
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(3) 2
 set ::GLOBAL_ddr3_s4_uniphy_p0_pll_phase(3) 270
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(4) 7
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(4) 10
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(4) 3
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(4) 4
 set ::GLOBAL_ddr3_s4_uniphy_p0_pll_phase(4) 0
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(5) 7
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(5) 10
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(5) 3
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(5) 4
 set ::GLOBAL_ddr3_s4_uniphy_p0_pll_phase(5) 0
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(6) 7
-set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(6) 40
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_mult(6) 1
+set ::GLOBAL_ddr3_s4_uniphy_p0_pll_div(6) 4
 set ::GLOBAL_ddr3_s4_uniphy_p0_pll_phase(6) 0
 
-set ::GLOBAL_ddr3_s4_uniphy_p0_leveling_capture_phase 72.0
+set ::GLOBAL_ddr3_s4_uniphy_p0_leveling_capture_phase 60.0
 
 ##############################################################
 ## IP options
@@ -54,7 +54,7 @@ set ::GLOBAL_ddr3_s4_uniphy_p0_leveling_capture_phase 72.0
 set IP(write_dcc) "static"
 set IP(write_deskew_range) 15
 set IP(read_deskew_range) 15
-set IP(write_deskew_range_setup) 3
+set IP(write_deskew_range_setup) 6
 set IP(write_deskew_range_hold) 15
 set IP(read_deskew_range_setup) 15
 set IP(read_deskew_range_hold) 15

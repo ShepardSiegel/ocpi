@@ -1,5 +1,5 @@
 //alt_oct_power CBX_AUTO_BLACKBOX="ALL" CBX_SINGLE_OUTPUT_FILE="ON" device_family="Stratix IV" parallelterminationcontrol rdn rup seriesterminationcontrol
-//VERSION_BEGIN 11.0SP1 cbx_alt_oct_power 2011:07:03:21:05:23:SJ cbx_cycloneii 2011:07:03:21:05:23:SJ cbx_lpm_add_sub 2011:07:03:21:05:23:SJ cbx_lpm_compare 2011:07:03:21:05:23:SJ cbx_lpm_counter 2011:07:03:21:05:23:SJ cbx_lpm_decode 2011:07:03:21:05:23:SJ cbx_mgl 2011:07:03:21:17:37:SJ cbx_stratix 2011:07:03:21:05:23:SJ cbx_stratixii 2011:07:03:21:05:23:SJ cbx_stratixiii 2011:07:03:21:05:23:SJ  VERSION_END
+//VERSION_BEGIN 11.0SP1 cbx_alt_oct_power 2011:07:03:21:10:32:SJ cbx_cycloneii 2011:07:03:21:10:33:SJ cbx_lpm_add_sub 2011:07:03:21:10:33:SJ cbx_lpm_compare 2011:07:03:21:10:33:SJ cbx_lpm_counter 2011:07:03:21:10:33:SJ cbx_lpm_decode 2011:07:03:21:10:33:SJ cbx_mgl 2011:07:03:21:11:41:SJ cbx_stratix 2011:07:03:21:10:33:SJ cbx_stratixii 2011:07:03:21:10:33:SJ cbx_stratixiii 2011:07:03:21:10:33:SJ  VERSION_END
 // synthesis VERILOG_INPUT_VERSION VERILOG_2001
 // altera message_off 10463
 

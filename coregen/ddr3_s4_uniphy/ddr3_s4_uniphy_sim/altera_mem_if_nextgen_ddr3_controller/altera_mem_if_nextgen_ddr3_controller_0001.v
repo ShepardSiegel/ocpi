@@ -3,7 +3,7 @@
 // This file was auto-generated from alt_mem_if_nextgen_ddr3_controller_hw.tcl.  If you edit it your changes
 // will probably be lost.
 // 
-// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.06.09:01:56
+// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.15.13:59:34
 
 `timescale 1 ps / 1 ps
 module altera_mem_if_nextgen_ddr3_controller_0001 (
@@ -84,15 +84,15 @@ module altera_mem_if_nextgen_ddr3_controller_0001 (
 		.MEM_IF_BANKADDR_WIDTH           (3),
 		.MEM_IF_DQ_WIDTH                 (16),
 		.MEM_IF_CLK_PAIR_COUNT           (1),
-		.MEM_TRC                         (18),
-		.MEM_TRAS                        (13),
+		.MEM_TRC                         (15),
+		.MEM_TRAS                        (11),
 		.MEM_TRCD                        (5),
 		.MEM_TRP                         (5),
-		.MEM_TREFI                       (2731),
-		.MEM_TRFC                        (39),
-		.MEM_TWR                         (6),
-		.MEM_TFAW                        (11),
-		.MEM_TRRD                        (3),
+		.MEM_TREFI                       (2341),
+		.MEM_TRFC                        (34),
+		.MEM_TWR                         (5),
+		.MEM_TFAW                        (10),
+		.MEM_TRRD                        (2),
 		.MEM_TRTP                        (3),
 		.MEM_IF_ODT_WIDTH                (1),
 		.MEM_WTCL_INT                    (6),

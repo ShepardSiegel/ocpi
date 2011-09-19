@@ -191,7 +191,8 @@ endmodule: mkDramController
 
 module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc);
   Reset                 rst_n         <- exposeCurrentReset;
-  DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  sys0_rstn, rst_n, clocked_by sys0_clk, reset_by sys0_rstn);
+  Reset                 drstn         <- mkAsyncResetFromCR(4, sys0_clk);
+  DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  drstn, rst_n, clocked_by sys0_clk, reset_by drstn);
   FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Reg#(Bit#(32))        dbg_reqCount  <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);

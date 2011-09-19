@@ -214,7 +214,7 @@ endmodule
 // Retrieval info: 	<generic name="CTL_CMD_QUEUE_DEPTH" value="8" />
 // Retrieval info: 	<generic name="CTL_CSR_READ_ONLY" value="1" />
 // Retrieval info: 	<generic name="CFG_DATA_REORDERING_TYPE" value="INTER_BANK" />
-// Retrieval info: 	<generic name="REF_CLK_FREQ" value="125.0" />
+// Retrieval info: 	<generic name="REF_CLK_FREQ" value="100.0" />
 // Retrieval info: 	<generic name="REF_CLK_FREQ_PARAM_VALID" value="false" />
 // Retrieval info: 	<generic name="REF_CLK_FREQ_MIN_PARAM" value="0.0" />
 // Retrieval info: 	<generic name="REF_CLK_FREQ_MAX_PARAM" value="0.0" />
@@ -338,7 +338,7 @@ endmodule
 // Retrieval info: 	<generic name="TIMING_BOARD_AC_SKEW" value="0.02" />
 // Retrieval info: 	<generic name="TIMING_BOARD_AC_TO_CK_SKEW" value="0.0" />
 // Retrieval info: 	<generic name="RATE" value="Half" />
-// Retrieval info: 	<generic name="MEM_CLK_FREQ" value="350.0" />
+// Retrieval info: 	<generic name="MEM_CLK_FREQ" value="300.0" />
 // Retrieval info: 	<generic name="DQS_TRK_ENABLED" value="false" />
 // Retrieval info: 	<generic name="SYS_INFO_DEVICE_FAMILY" value="Stratix IV" />
 // Retrieval info: 	<generic name="PARSE_FRIENDLY_DEVICE_FAMILY_PARAM_VALID" value="false" />

@@ -3,7 +3,7 @@
 // This file was auto-generated from alt_mem_if_ddr3_emif_hw.tcl.  If you edit it your changes
 // will probably be lost.
 // 
-// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.06.09:01:11
+// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.15.13:58:49
 
 `timescale 1 ps / 1 ps
 module ddr3_s4_uniphy_example_if0 (

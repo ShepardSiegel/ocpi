@@ -18,7 +18,7 @@
 #
 # Quartus II
 # Version 11.0 Build 208 07/03/2011 Service Pack 1 SJ Full Version
-# Date created = 09:01:50  September 06, 2011
+# Date created = 13:59:28  September 15, 2011
 #
 # -------------------------------------------------------------------------- #
 #
@@ -39,7 +39,7 @@
 set_global_assignment -name FAMILY STRATIXIV
 set_global_assignment -name DEVICE EP4SGX70HF35C2
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "11.0 SP1"
-set_global_assignment -name PROJECT_CREATION_TIME_DATE "09:01:50  SEPTEMBER 06, 2011"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:59:28  SEPTEMBER 15, 2011"
 set_global_assignment -name LAST_QUARTUS_VERSION "11.0 SP1"
 set_global_assignment -name TOP_LEVEL_ENTITY ddr3_s4_uniphy_example
 set_global_assignment -name TEXT_FILE ../params.txt

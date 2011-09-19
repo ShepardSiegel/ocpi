@@ -1,5 +1,5 @@
 // Flash.bsv - BSV code to provide Flash memory access functionality
-// Copyright (c) 2010  Atomic Rules LCC ALL RIGHTS RESERVED
+// Copyright (c) 2010,2011  Atomic Rules LCC ALL RIGHTS RESERVED
 
 package Flash;
 
@@ -19,13 +19,13 @@ typedef struct {
 interface FLASH_IO#(numeric type na, numeric type nd);
   interface Inout#(Bit#(nd))  io_dq;
   method  Bit#(na)            addr;
-  method  Bit#(1)             ce_n;
-  method  Bit#(1)             oe_n;
-  method  Bit#(1)             we_n;
-  method  Bit#(1)             wp_n;
-  method  Bit#(1)             rst_n;
-  method  Bit#(1)             adv_n;
-  method  Action              fwait (Bit#(1) i);
+  method  Bool                ce_n;
+  method  Bool                oe_n;
+  method  Bool                we_n;
+  method  Bool                wp_n;
+  method  Bool                rst_n;
+  method  Bool                adv_n;
+  method  Action              fwait (Bool i);
 endinterface: FLASH_IO
 
 interface FLASH_USR#(numeric type na, numeric type nd);
@@ -39,7 +39,9 @@ interface FlashControllerIfc#(numeric type na, numeric type nd);
   interface FLASH_USR#(na,nd)      user;
 endinterface: FlashControllerIfc
 
-module mkFlashController (FlashControllerIfc#(na,nd));
+module mkFlashController (FlashControllerIfc#(na,nd))
+  provisos(Add#(a_, 8, nd));  // Make sure nd is at least 8b
+
   FIFO#(FlashReq#(na,nd))   reqF      <- mkFIFO;
   FIFO#(Bit#(nd))           respF     <- mkFIFO;
   Reg#(Bit#(na))            aReg      <- mkReg(0);
@@ -50,6 +52,7 @@ module mkFlashController (FlashControllerIfc#(na,nd));
   Reg#(Bool)                weReg     <- mkReg(False);
   Reg#(Bool)                tsOE      <- mkReg(False);
   Reg#(Bit#(nd))            tsWD      <- mkReg(0);
+  Reg#(Bit#(nd))            tmpWD     <- mkReg(0);
   Reg#(Bool)                waitReg   <- mkRegU;
   TriState#(Bit#(nd))       tsd       <- mkTriState(tsOE, tsWD);
 
@@ -64,36 +67,51 @@ module mkFlashController (FlashControllerIfc#(na,nd));
   FSM rseqFsm <- mkFSMWithPred(rseq, isRead);
 
   Stmt wseq = seq     // Flash Write Access Sequence...
-    ceReg  <= True;      // Assert CE
-    tsOE   <= True;      // Assert Write Data
-    weReg  <= True;      // Assert Write Enable
-    delay(15);           // Wait Access Time
-    weReg  <= False;     // DeAssert Write Enable
-    tsOE   <= False;     // DeAssert Write Data
-    ceReg  <= False;     // DeAssert CE 
+    tsWD   <= extend(8'h40);  // Word Program Setup 
+    ceReg  <= True;           // Assert CE
+    tsOE   <= True;           // Assert Write Data
+    weReg  <= True;           // Assert Write Enable
+    delay(7);                 // Satisfy 50 nS we# pulse width
+    weReg  <= False;          // DeAssert Write Enable
+    ceReg  <= False;          // DeAssert CE 
+    delay(1);                 // Satisfy 17 nS min ce# high
+    tsWD   <= tmpWD;          // Apply Write Data
+    ceReg  <= True;           // Assert CE
+    weReg  <= True;           // Assert Write Enable
+    delay(7);                 // Satisfy 50 nS we# pulse width
+    weReg  <= False;          // DeAssert Write Enable
+    ceReg  <= False;          // DeAssert CE 
+    tsOE   <= False;          // DeAssert Write Data
+    delay(1);                 // Satisfy 17 nS min ce# high
+                              // Read Array Command to finish write cycle
+    ceReg  <= True;           // Assert CE
+    oeReg  <= True;           // Assert OE
+    delay(7);                 // Wait Access Time
+    oeReg  <= False;          // DeAssert OE
+    ceReg  <= False;          // DeAssert CE 
   endseq;
   FSM wseqFsm <- mkFSMWithPred(wseq, !isRead);
 
   // Allow a new request to begin only when a prior one is not active...
   rule nextRequest (rseqFsm.done && wseqFsm.done);
     let r = reqF.first; reqF.deq();  // pop the request
-    aReg   <= r.addr;                // flash address
-    tsWD   <= r.data;                // flash write data
-    isRead <= r.isRead;              // set the read/write bit
+    aReg    <= r.addr;               // flash address
+    tmpWD   <= r.data;               // flash write data
+    isRead  <= r.isRead;             // set the read/write bit
     let start_access <- (r.isRead) ? rseqFsm.start : wseqFsm.start;
   endrule
 
   interface FLASH_IO flash;
     interface Inout io_dq    =  tsd.io;
     method  Bit#(na)  addr   =  aReg;
-    method  Bit#(1)   ce_n   =  pack(!ceReg);
-    method  Bit#(1)   oe_n   =  pack(!oeReg);
-    method  Bit#(1)   we_n   =  pack(!weReg);
-    method  Bit#(1)   wp_n   =  1'b1;
-    method  Bit#(1)   rst_n  =  1'b1;
-    method  Bit#(1)   adv_n  =  1'b1;
-    method  Action    fwait (Bit#(1) i); 
-      waitReg <= unpack(i);
+    method  Bool      ce_n   =  !ceReg;
+    method  Bool      oe_n   =  !oeReg;
+    method  Bool      we_n   =  !weReg;
+    method  Bool      wp_n   =  True;
+    method  Bool      rst_n  =  True;
+    method  Bool      adv_n  =  False;  // Low allows address to pass-through
+    method  Action    fwait (Bool i); 
+      waitReg <= i;
     endmethod
   endinterface
   interface FLASH_USR user;

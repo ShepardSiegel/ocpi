@@ -127,35 +127,35 @@ module altera_mem_if_ddr3_phy_0001_pll_memphy (
 				.vcounderrange ());
 	defparam
 		altpll_component.bandwidth_type = "AUTO",
-		altpll_component.clk0_divide_by = 5,
+		altpll_component.clk0_divide_by = 2,
 		altpll_component.clk0_duty_cycle = 50,
-		altpll_component.clk0_multiply_by = 7,
+		altpll_component.clk0_multiply_by = 3,
 		altpll_component.clk0_phase_shift = "0",
-		altpll_component.clk1_divide_by = 5,
+		altpll_component.clk1_divide_by = 1,
 		altpll_component.clk1_duty_cycle = 50,
-		altpll_component.clk1_multiply_by = 14,
+		altpll_component.clk1_multiply_by = 3,
 		altpll_component.clk1_phase_shift = "0",
-		altpll_component.clk2_divide_by = 5,
+		altpll_component.clk2_divide_by = 1,
 		altpll_component.clk2_duty_cycle = 50,
-		altpll_component.clk2_multiply_by = 14,
-		altpll_component.clk2_phase_shift = "714",
-		altpll_component.clk3_divide_by = 5,
+		altpll_component.clk2_multiply_by = 3,
+		altpll_component.clk2_phase_shift = "833",
+		altpll_component.clk3_divide_by = 2,
 		altpll_component.clk3_duty_cycle = 50,
-		altpll_component.clk3_multiply_by = 7,
-		altpll_component.clk3_phase_shift = "4286",
-		altpll_component.clk4_divide_by = 10,
+		altpll_component.clk3_multiply_by = 3,
+		altpll_component.clk3_phase_shift = "5000",
+		altpll_component.clk4_divide_by = 4,
 		altpll_component.clk4_duty_cycle = 50,
-		altpll_component.clk4_multiply_by = 7,
+		altpll_component.clk4_multiply_by = 3,
 		altpll_component.clk4_phase_shift = "0",
-		altpll_component.clk5_divide_by = 10,
+		altpll_component.clk5_divide_by = 4,
 		altpll_component.clk5_duty_cycle = 50,
-		altpll_component.clk5_multiply_by = 7,
+		altpll_component.clk5_multiply_by = 3,
 		altpll_component.clk5_phase_shift = "0",
-		altpll_component.clk6_divide_by = 40,
+		altpll_component.clk6_divide_by = 4,
 		altpll_component.clk6_duty_cycle = 50,
-		altpll_component.clk6_multiply_by = 7,
+		altpll_component.clk6_multiply_by = 1,
 		altpll_component.clk6_phase_shift = "0",
-		altpll_component.inclk0_input_frequency = 8000,
+		altpll_component.inclk0_input_frequency = 10000,
 		altpll_component.intended_device_family = "Stratix IV",
 		altpll_component.lpm_hint = "CBX_MODULE_PREFIX=altera_mem_if_ddr3_phy_0001_pll_memphy",
 		altpll_component.lpm_type = "altpll",
@@ -229,13 +229,13 @@ endmodule
 // Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c0"
 // Retrieval info: PRIVATE: CUR_FBIN_CLK STRING "c0"
 // Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "Any"
-// Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "5"
-// Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "5"
-// Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "5"
-// Retrieval info: PRIVATE: DIV_FACTOR3 NUMERIC "5"
-// Retrieval info: PRIVATE: DIV_FACTOR4 NUMERIC "10"
-// Retrieval info: PRIVATE: DIV_FACTOR5 NUMERIC "10"
-// Retrieval info: PRIVATE: DIV_FACTOR6 NUMERIC "40"
+// Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "2"
+// Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "1"
+// Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "1"
+// Retrieval info: PRIVATE: DIV_FACTOR3 NUMERIC "2"
+// Retrieval info: PRIVATE: DIV_FACTOR4 NUMERIC "4"
+// Retrieval info: PRIVATE: DIV_FACTOR5 NUMERIC "4"
+// Retrieval info: PRIVATE: DIV_FACTOR6 NUMERIC "4"
 // Retrieval info: PRIVATE: DUTY_CYCLE0 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE1 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE2 STRING "50.00000000"
@@ -243,13 +243,13 @@ endmodule
 // Retrieval info: PRIVATE: DUTY_CYCLE4 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE5 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE6 STRING "50.00000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "175.000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "350.000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE2 STRING "350.000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE3 STRING "175.000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE4 STRING "87.500000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE5 STRING "87.500000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE6 STRING "21.875000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "150.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "300.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE2 STRING "300.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE3 STRING "150.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE4 STRING "75.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE5 STRING "75.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE6 STRING "25.000000"
 // Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
 // Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
 // Retrieval info: PRIVATE: GLOCKED_COUNTER_EDIT_CHANGED STRING "1"
@@ -257,7 +257,7 @@ endmodule
 // Retrieval info: PRIVATE: GLOCKED_MODE_CHECK STRING "0"
 // Retrieval info: PRIVATE: GLOCK_COUNTER_EDIT NUMERIC "1048575"
 // Retrieval info: PRIVATE: HAS_MANUAL_SWITCHOVER STRING "1"
-// Retrieval info: PRIVATE: INCLK0_FREQ_EDIT STRING "8000.000"
+// Retrieval info: PRIVATE: INCLK0_FREQ_EDIT STRING "10000.000"
 // Retrieval info: PRIVATE: INCLK0_FREQ_UNIT_COMBO STRING "ps"
 // Retrieval info: PRIVATE: INCLK1_FREQ_EDIT STRING "100.000"
 // Retrieval info: PRIVATE: INCLK1_FREQ_EDIT_CHANGED STRING "1"
@@ -277,13 +277,13 @@ endmodule
 // Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT5 STRING "ps"
 // Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT6 STRING "ps"
 // Retrieval info: PRIVATE: MIG_DEVICE_SPEED_GRADE STRING "Any"
-// Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "7"
-// Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "14"
-// Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "14"
-// Retrieval info: PRIVATE: MULT_FACTOR3 NUMERIC "7"
-// Retrieval info: PRIVATE: MULT_FACTOR4 NUMERIC "7"
-// Retrieval info: PRIVATE: MULT_FACTOR5 NUMERIC "7"
-// Retrieval info: PRIVATE: MULT_FACTOR6 NUMERIC "7"
+// Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "3"
+// Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "3"
+// Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "3"
+// Retrieval info: PRIVATE: MULT_FACTOR3 NUMERIC "3"
+// Retrieval info: PRIVATE: MULT_FACTOR4 NUMERIC "3"
+// Retrieval info: PRIVATE: MULT_FACTOR5 NUMERIC "3"
+// Retrieval info: PRIVATE: MULT_FACTOR6 NUMERIC "1"
 // Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "0"
 // Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "100.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "100.00000000"
@@ -310,8 +310,8 @@ endmodule
 // Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "0.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "0.00000000"
-// Retrieval info: PRIVATE: PHASE_SHIFT2 STRING "714.00000000"
-// Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "4286.00000000"
+// Retrieval info: PRIVATE: PHASE_SHIFT2 STRING "833.00000000"
+// Retrieval info: PRIVATE: PHASE_SHIFT3 STRING "5000.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT4 STRING "0.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT5 STRING "0.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT6 STRING "0.00000000"
@@ -365,35 +365,35 @@ endmodule
 // Retrieval info: PRIVATE: ZERO_DELAY_RADIO STRING "0"
 // Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
 // Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "AUTO"
-// Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "5"
+// Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "2"
 // Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "7"
+// Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "3"
 // Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "5"
+// Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "1"
 // Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "14"
+// Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "3"
 // Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "5"
+// Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "1"
 // Retrieval info: CONSTANT: CLK2_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "14"
-// Retrieval info: CONSTANT: CLK2_PHASE_SHIFT STRING "714"
-// Retrieval info: CONSTANT: CLK3_DIVIDE_BY NUMERIC "5"
+// Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "3"
+// Retrieval info: CONSTANT: CLK2_PHASE_SHIFT STRING "833"
+// Retrieval info: CONSTANT: CLK3_DIVIDE_BY NUMERIC "2"
 // Retrieval info: CONSTANT: CLK3_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK3_MULTIPLY_BY NUMERIC "7"
-// Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "4286"
-// Retrieval info: CONSTANT: CLK4_DIVIDE_BY NUMERIC "10"
+// Retrieval info: CONSTANT: CLK3_MULTIPLY_BY NUMERIC "3"
+// Retrieval info: CONSTANT: CLK3_PHASE_SHIFT STRING "5000"
+// Retrieval info: CONSTANT: CLK4_DIVIDE_BY NUMERIC "4"
 // Retrieval info: CONSTANT: CLK4_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK4_MULTIPLY_BY NUMERIC "7"
+// Retrieval info: CONSTANT: CLK4_MULTIPLY_BY NUMERIC "3"
 // Retrieval info: CONSTANT: CLK4_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: CLK5_DIVIDE_BY NUMERIC "10"
+// Retrieval info: CONSTANT: CLK5_DIVIDE_BY NUMERIC "4"
 // Retrieval info: CONSTANT: CLK5_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK5_MULTIPLY_BY NUMERIC "7"
+// Retrieval info: CONSTANT: CLK5_MULTIPLY_BY NUMERIC "3"
 // Retrieval info: CONSTANT: CLK5_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: CLK6_DIVIDE_BY NUMERIC "40"
+// Retrieval info: CONSTANT: CLK6_DIVIDE_BY NUMERIC "4"
 // Retrieval info: CONSTANT: CLK6_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK6_MULTIPLY_BY NUMERIC "7"
+// Retrieval info: CONSTANT: CLK6_MULTIPLY_BY NUMERIC "1"
 // Retrieval info: CONSTANT: CLK6_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "8000"
+// Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "10000"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Stratix IV"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "NO_COMPENSATION"
