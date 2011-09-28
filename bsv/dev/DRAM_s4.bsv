@@ -78,8 +78,8 @@ interface DRAM_AVL#(numeric type datWidth, numeric type adrWidth, numeric type b
   method Bit#(datWidth)      rdata;
   method Action              wdata        (Bit#(datWidth) i);
   method Action              be           (Bit#(beWidth)  i);
-  method Bool                read_req;
-  method Bool                write_req;
+  method Action              read_req     (Bool i);   
+  method Action              write_req    (Bool i);
   method Action              size         (Bit#(brstWidth)  i);
 endinterface: DRAM_AVL
 typedef DRAM_AVL#(64,24,8,3) DRAM_AVL_8B;
@@ -145,8 +145,8 @@ module vMkS4DDR3#(Clock sys0_clk, Reset sys0_rstn, Reset soft_rstn)(DramControll
     ifc_inout  io_dqs_n(mem_dqs_n) clocked_by(no_clock) reset_by(no_reset);
     method  mem_ck       ck_p      clocked_by(no_clock) reset_by(no_reset);
     method  mem_ck_n     ck_n      clocked_by(no_clock) reset_by(no_reset);
-    method  rdn (oct_rdn) enable((*inhigh*)ena6) clocked_by(clk) reset_by(rst);  // Pass the oct_rdn, _rup inputs in here
-    method  rup (oct_rup) enable((*inhigh*)ena7) clocked_by(clk) reset_by(rst);
+    method  rdn (oct_rdn) enable((*inhigh*)ena8) clocked_by(clk) reset_by(rst);  // Pass the oct_rdn, _rup inputs in here
+    method  rup (oct_rup) enable((*inhigh*)ena9) clocked_by(clk) reset_by(rst);
   endinterface: dram
 
   interface DRAM_AVL_8B avl;
@@ -157,9 +157,9 @@ module vMkS4DDR3#(Clock sys0_clk, Reset sys0_rstn, Reset soft_rstn)(DramControll
     method avl_rdata          rdata                                                   clocked_by(afi_half) reset_by(afi_rstn);
     method                    wdata      (avl_wdata)           enable((*inhigh*)ena3) clocked_by(afi_half) reset_by(afi_rstn); 
     method                    be         (avl_be   )           enable((*inhigh*)ena4) clocked_by(afi_half) reset_by(afi_rstn); 
-    method avl_read_req       read_req                                                clocked_by(afi_half) reset_by(afi_rstn);
-    method avl_write_req      write_req                                               clocked_by(afi_half) reset_by(afi_rstn);
-    method                    size       (avl_size)            enable((*inhigh*)ena5) clocked_by(afi_half) reset_by(afi_rstn); 
+    method                    read_req   (avl_read_req)        enable((*inhigh*)ena5) clocked_by(afi_half) reset_by(afi_rstn);
+    method                    write_req  (avl_write_req)       enable((*inhigh*)ena6) clocked_by(afi_half) reset_by(afi_rstn);
+    method                    size       (avl_size)            enable((*inhigh*)ena7) clocked_by(afi_half) reset_by(afi_rstn); 
   endinterface: avl
 
   interface DRAM_STATUS status;
@@ -209,6 +209,17 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   rule count_cur_always; curCount <= curCount + 1; endrule  // in Current Clock domain
   rule count_sys_always; sysCount <= sysCount + 1; endrule  // in sys0_clk domain
   rule count_afi_always; afiCount <= afiCount + 1; endrule  // in afi_half domain
+
+  rule passify_Avalon;
+    memc.avl.burstbegin(False);
+    memc.avl.addr(0);
+    memc.avl.wdata(0);
+    memc.avl.be(0);
+    memc.avl.read_req(False);
+    memc.avl.write_req(False);
+    memc.avl.size(0);
+  endrule
+
 
   rule update_sysActive;   sysActive.send(sysCount[3]); endrule
   rule update_afiActive;   afiActive.send(afiCount[3]); endrule
