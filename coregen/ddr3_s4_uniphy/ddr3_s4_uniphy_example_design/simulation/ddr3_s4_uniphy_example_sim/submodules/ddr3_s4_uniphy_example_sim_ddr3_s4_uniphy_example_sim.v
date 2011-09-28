@@ -3,7 +3,7 @@
 // This file was auto-generated from alt_mem_if_ddr3_tg_eds_hw.tcl.  If you edit it your changes
 // will probably be lost.
 // 
-// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.15.13:57:27
+// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.28.12:47:26
 
 `timescale 1 ps / 1 ps
 module ddr3_s4_uniphy_example_sim_ddr3_s4_uniphy_example_sim #(
@@ -119,8 +119,8 @@ module ddr3_s4_uniphy_example_sim_ddr3_s4_uniphy_example_sim #(
 		.MEM_IF_CK_WIDTH              (1),
 		.MEM_IF_CLK_EN_WIDTH          (1),
 		.DEVICE_WIDTH                 (1),
-		.MEM_TRCD                     (5),
-		.MEM_TRTP                     (3),
+		.MEM_TRCD                     (8),
+		.MEM_TRTP                     (4),
 		.MEM_DQS_TO_CLK_CAPTURE_DELAY (100),
 		.MEM_CLK_TO_DQS_CAPTURE_DELAY (100000),
 		.MEM_IF_ODT_WIDTH             (1),

@@ -3,7 +3,7 @@
 // This file was auto-generated from qsys_sequencer_110_hw.tcl.  If you edit it your changes
 // will probably be lost.
 // 
-// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.15.13:59:55
+// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.28.12:49:55
 
 `timescale 1 ps / 1 ps
 module altera_mem_if_ddr3_phy_0001_qsys_sequencer (
@@ -622,7 +622,7 @@ module altera_mem_if_ddr3_phy_0001_qsys_sequencer (
 		.MEM_WRITE_DQS_WIDTH    (2),
 		.MEM_DQ_WIDTH           (16),
 		.MEM_DM_WIDTH           (2),
-		.DLL_DELAY_CHAIN_LENGTH (12),
+		.DLL_DELAY_CHAIN_LENGTH (8),
 		.FAMILY                 ("STRATIXIV"),
 		.DQS_TRK_ENABLED        (0)
 	) sequencer_scc_mgr_inst (

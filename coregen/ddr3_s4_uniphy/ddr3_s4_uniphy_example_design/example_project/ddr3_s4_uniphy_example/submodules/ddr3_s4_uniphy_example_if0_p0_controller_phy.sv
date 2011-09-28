@@ -150,17 +150,17 @@ parameter NUM_AC_FR_CYCLE_SHIFTS = 0;
 localparam INIT_COUNT_WIDTH      = 19;
 
 
-parameter MEM_TINIT_CK							= 150000;
+parameter MEM_TINIT_CK							= 266500;
 parameter MEM_TMRD_CK							= 4;
 parameter RDIMM										= 0;
 parameter MR0_BL                              	= 1;
 parameter MR0_BT                              	= 0;
 parameter MR0_CAS_LATENCY                     	= 3;
 parameter MR0_DLL                             	= 1;
-parameter MR0_WR                              	= 1;
-parameter MR0_PD                              	= 0;
+parameter MR0_WR                              	= 4;
+parameter MR0_PD                              	= 1;
 parameter MR1_DLL                             	= 0;
-parameter MR1_ODS                             	= 0;
+parameter MR1_ODS                             	= 1;
 parameter MR1_RTT                             	= 0;
 parameter MR1_AL                              	= 0;
 parameter MR1_WL                              	= 0;
@@ -169,7 +169,7 @@ parameter MR1_QOFF                            	= 0;
 parameter MR2_CWL                             	= 1;
 parameter MR2_ASR                             	= 0;
 parameter MR2_SRT                             	= 0;
-parameter MR2_RTT_WR                          	= 0;
+parameter MR2_RTT_WR                          	= 1;
 parameter MR3_MPR_RF                          	= 0;
 parameter MR3_MPR                             	= 0;
 parameter RDIMM_CONFIG                        	= 0;
@@ -184,9 +184,9 @@ parameter SEQ_BURST_COUNT_WIDTH = 1;
 
 parameter VCALIB_COUNT_WIDTH = 2;
 
-parameter DELAY_PER_OPA_TAP 					= 277;
+parameter DELAY_PER_OPA_TAP 					= 234;
 parameter DELAY_PER_DCHAIN_TAP 				= 50;
-parameter DLL_DELAY_CHAIN_LENGTH 			= 12;
+parameter DLL_DELAY_CHAIN_LENGTH 			= 8;
 parameter MEM_NUMBER_OF_RANKS 				= 1;
 parameter MEM_MIRROR_ADDRESSING 				= 0;
 
@@ -196,27 +196,27 @@ parameter DLL_OFFSET_CTRL_WIDTH = 6;
 // The PLL Phase counter width
 parameter PLL_PHASE_COUNTER_WIDTH = 4;
 
-parameter ALTDQDQS_INPUT_FREQ = 300.0;
+parameter ALTDQDQS_INPUT_FREQ = 533.0;
 parameter ALTDQDQS_DELAY_CHAIN_BUFFER_MODE = "HIGH";
-parameter ALTDQDQS_DQS_PHASE_SETTING = 3;
+parameter ALTDQDQS_DQS_PHASE_SETTING = 2;
 parameter ALTDQDQS_DQS_PHASE_SHIFT = 9000;
 parameter ALTDQDQS_DELAYED_CLOCK_PHASE_SETTING = 2;
 parameter CALIB_VFIFO_OFFSET = 14;
 parameter CALIB_LFIFO_OFFSET = 5;
 parameter AFI_DEBUG_INFO_WIDTH = 32;
 parameter REF_CLK_FREQ       = "100.0 MHz";
-parameter AFI_CLK_FREQ       = "150.0 MHz";
-parameter MEM_CLK_FREQ       = "300.0 MHz";
-parameter WRITE_CLK_FREQ     = "300.0 MHz";
-parameter ADDR_CMD_CLK_FREQ  = "150.0 MHz";
-parameter AFI_HALF_CLK_FREQ  = "75.0 MHz";
-parameter AVL_CLK_FREQ       = "75.0 MHz";
-parameter CONFIG_CLK_FREQ    = "25.0 MHz";
+parameter AFI_CLK_FREQ       = "266.25 MHz";
+parameter MEM_CLK_FREQ       = "532.5 MHz";
+parameter WRITE_CLK_FREQ     = "532.5 MHz";
+parameter ADDR_CMD_CLK_FREQ  = "266.25 MHz";
+parameter AFI_HALF_CLK_FREQ  = "133.125 MHz";
+parameter AVL_CLK_FREQ       = "88.75 MHz";
+parameter CONFIG_CLK_FREQ    = "22.1875 MHz";
 
 parameter AFI_CLK_PHASE      = "0 ps";
 parameter MEM_CLK_PHASE      = "0 ps";
-parameter WRITE_CLK_PHASE    = "833 ps";
-parameter ADDR_CMD_CLK_PHASE = "5000 ps";
+parameter WRITE_CLK_PHASE    = "235 ps";
+parameter ADDR_CMD_CLK_PHASE = "2817 ps";
 parameter AFI_HALF_CLK_PHASE = "0 ps";
 parameter AVL_CLK_PHASE      = "0 ps";
 parameter CONFIG_CLK_PHASE   = "0 ps";

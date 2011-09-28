@@ -3,7 +3,7 @@
 // This file was auto-generated from qsys_sequencer_110_hw.tcl.  If you edit it your changes
 // will probably be lost.
 // 
-// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.15.13:58:06
+// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.28.12:48:05
 
 `timescale 1 ps / 1 ps
 module ddr3_s4_uniphy_example_sim_ddr3_s4_uniphy_example_sim_e0_if0_p0_qsys_sequencer (
@@ -622,7 +622,7 @@ module ddr3_s4_uniphy_example_sim_ddr3_s4_uniphy_example_sim_e0_if0_p0_qsys_sequ
 		.MEM_WRITE_DQS_WIDTH    (2),
 		.MEM_DQ_WIDTH           (16),
 		.MEM_DM_WIDTH           (2),
-		.DLL_DELAY_CHAIN_LENGTH (12),
+		.DLL_DELAY_CHAIN_LENGTH (8),
 		.FAMILY                 ("STRATIXIV"),
 		.DQS_TRK_ENABLED        (0)
 	) sequencer_scc_mgr_inst (

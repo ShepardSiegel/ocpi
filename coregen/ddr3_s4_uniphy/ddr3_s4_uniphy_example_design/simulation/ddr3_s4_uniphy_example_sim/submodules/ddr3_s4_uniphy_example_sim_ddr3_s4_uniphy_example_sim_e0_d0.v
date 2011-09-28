@@ -3,7 +3,7 @@
 // This file was auto-generated from altera_avalon_mm_traffic_generator_hw.tcl.  If you edit it your changes
 // will probably be lost.
 // 
-// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.15.13:57:45
+// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.28.12:47:44
 
 `timescale 1 ps / 1 ps
 module ddr3_s4_uniphy_example_sim_ddr3_s4_uniphy_example_sim_e0_d0 #(

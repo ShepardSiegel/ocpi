@@ -1,4 +1,4 @@
-# system info ddr3_s4_uniphy_example_sim on 2011.09.15.13:58:22
+# system info ddr3_s4_uniphy_example_sim on 2011.09.28.12:48:21
 system_info:
 name,value
 DEVICE,
@@ -6,7 +6,7 @@ DEVICE_FAMILY,Stratix IV
 GENERATION_ID,
 #
 #
-# Files generated for ddr3_s4_uniphy_example_sim on 2011.09.15.13:58:22
+# Files generated for ddr3_s4_uniphy_example_sim on 2011.09.28.12:48:21
 files:
 filepath,kind,attributes,module,is_top
 ddr3_s4_uniphy_example_sim/ddr3_s4_uniphy_example_sim.v,VERILOG,,ddr3_s4_uniphy_example_sim,true

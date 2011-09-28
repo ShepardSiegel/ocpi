@@ -1,11 +1,11 @@
 // megafunction wizard: %DDR3 SDRAM Controller with UniPHY v11.0%
 // GENERATION: XML
-// ddr3_s4_uniphy.v
+// ddr3_x16.v
 
 // 
 
 `timescale 1 ps / 1 ps
-module ddr3_s4_uniphy (
+module ddr3_x16 (
 		input  wire        pll_ref_clk,       //     pll_ref_clk.clk
 		input  wire        global_reset_n,    //    global_reset.reset_n
 		input  wire        soft_reset_n,      //      soft_reset.reset_n
@@ -46,7 +46,7 @@ module ddr3_s4_uniphy (
 		input  wire        local_powerdn_req  //                .local_powerdn_req
 	);
 
-	ddr3_s4_uniphy_0002 ddr3_s4_uniphy_inst (
+	ddr3_x16_0002 ddr3_x16_inst (
 		.pll_ref_clk       (pll_ref_clk),       //     pll_ref_clk.clk
 		.global_reset_n    (global_reset_n),    //    global_reset.reset_n
 		.soft_reset_n      (soft_reset_n),      //      soft_reset.reset_n

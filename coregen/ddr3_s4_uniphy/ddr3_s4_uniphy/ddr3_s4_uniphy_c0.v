@@ -3,7 +3,7 @@
 // This file was auto-generated from alt_mem_if_nextgen_ddr3_controller_hw.tcl.  If you edit it your changes
 // will probably be lost.
 // 
-// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.15.13:55:33
+// Generated using SOPC Builder version 11.0sp1 208 at 2011.09.28.12:45:35
 
 `timescale 1 ps / 1 ps
 module ddr3_s4_uniphy_c0 (
@@ -84,16 +84,16 @@ module ddr3_s4_uniphy_c0 (
 		.MEM_IF_BANKADDR_WIDTH           (3),
 		.MEM_IF_DQ_WIDTH                 (16),
 		.MEM_IF_CLK_PAIR_COUNT           (1),
-		.MEM_TRC                         (15),
-		.MEM_TRAS                        (11),
-		.MEM_TRCD                        (5),
-		.MEM_TRP                         (5),
-		.MEM_TREFI                       (2341),
-		.MEM_TRFC                        (34),
-		.MEM_TWR                         (5),
-		.MEM_TFAW                        (10),
-		.MEM_TRRD                        (2),
-		.MEM_TRTP                        (3),
+		.MEM_TRC                         (27),
+		.MEM_TRAS                        (20),
+		.MEM_TRCD                        (8),
+		.MEM_TRP                         (8),
+		.MEM_TREFI                       (4158),
+		.MEM_TRFC                        (59),
+		.MEM_TWR                         (8),
+		.MEM_TFAW                        (16),
+		.MEM_TRRD                        (4),
+		.MEM_TRTP                        (4),
 		.MEM_IF_ODT_WIDTH                (1),
 		.MEM_WTCL_INT                    (6),
 		.MEM_IF_RD_TO_WR_TURNAROUND_OCT  (2),
@@ -120,7 +120,7 @@ module ddr3_s4_uniphy_c0 (
 		.CFG_INTERFACE_WIDTH             (16),
 		.CFG_BURST_LENGTH                (8),
 		.CFG_ADDR_ORDER                  (0),
-		.CFG_PDN_EXIT_CYCLES             (10),
+		.CFG_PDN_EXIT_CYCLES             (3),
 		.CFG_SELF_RFSH_EXIT_CYCLES       (512),
 		.CFG_PORT_WIDTH_WRITE_ODT_CHIP   (1),
 		.CFG_PORT_WIDTH_READ_ODT_CHIP    (1),
