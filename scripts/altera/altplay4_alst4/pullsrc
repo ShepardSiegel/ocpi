@@ -1,2 +1,3 @@
+echo "copying over qsf and top level verilog"
 cp ../../../ucf/alst4.qsf fpgaTop_alst4.qsf
 cp ../../../libsrc/hdl/ocpi/fpgaTop_alst4.v fpgaTop_alst4.v

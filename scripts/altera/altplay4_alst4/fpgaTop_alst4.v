@@ -44,7 +44,7 @@ module fpgaTop (
   output wire         flash_advn,      // FLASH Address Valid
   input  wire         flash_rdybsyn,   // FLASH Ready
 
-  output wire [14:0]  ddr3top_a,       // DDR3-DRAM (TOP) .mem_a
+  output wire [12:0]  ddr3top_a,       // DDR3-DRAM (TOP) .mem_a
   output wire [2:0]   ddr3top_ba,      // DDR3-DRAM (TOP) .mem_ba
   output wire         ddr3top_ck_p,    // DDR3-DRAM (TOP) .mem_ck
   output wire         ddr3top_ck_n,    // DDR3-DRAM (TOP) .mem_ck_n
@@ -59,8 +59,8 @@ module fpgaTop (
   inout  wire [1:0]   ddr3top_dqs_p,   // DDR3-DRAM (TOP) .mem_dqs
   inout  wire [1:0]   ddr3top_dqs_n,   // DDR3-DRAM (TOP) .mem_dqs_n
   output wire         ddr3top_odt,     // DDR3-DRAM (TOP) .mem_odt
-  input  wire         rdn_pad, 
-  input  wire         rup_pad 
+  input  wire         oct_rdn, 
+  input  wire         oct_rup 
 );
 
 // Instance and connect mkFTop...
@@ -111,26 +111,25 @@ module fpgaTop (
 //  .flash_advn        (flash_advn),
   .flash_fwait_i     (flash_rdybsyn),
 
-  .dram_addr         (ddr3top_a[12:0]),
+  .dram_addr         (ddr3top_a),
   .dram_ba           (ddr3top_ba),
   .dram_ck_p         (ddr3top_ck_p),
   .dram_ck_n         (ddr3top_ck_n),
   .dram_cke          (ddr3top_cke),
   .dram_cs_n         (ddr3top_csn),
-  .dram_dm           (dr3top_dm),
-  .dram_ras_n        (dr3top_rasn),
-  .dram_cas_n        (dr3top_casn),
+  .dram_dm           (ddr3top_dm),
+  .dram_ras_n        (ddr3top_rasn),
+  .dram_cas_n        (ddr3top_casn),
   .dram_we_n         (ddr3top_wen),
   .dram_reset_n      (ddr3top_rstn),
   .dram_io_dq        (ddr3top_dq),
   .dram_io_dqs_p     (ddr3top_dqs_p),
   .dram_io_dqs_n     (ddr3top_dqs_n),
   .dram_odt          (ddr3top_odt),
-  .dram_rdn_i        (rdn_pad), 
-  .dram_rup_i        (rup_pad) 
+  .dram_rdn_i        (oct_rdn), 
+  .dram_rup_i        (oct_rup) 
 );
 
 assign fsm_a[25:24]     = 0;
-//assign ddr3top_a[14:13] = 0;
 
 endmodule

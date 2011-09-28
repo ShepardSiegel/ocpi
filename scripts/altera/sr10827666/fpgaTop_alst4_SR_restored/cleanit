@@ -1,1 +1,0 @@
-rm -rf *.done *.hexout *.rpt *.summary *.smsg db incremental_db *.pof *.sof *.map *.cof *.jdi *.flash *.pin *.txt *.qip *.ppf 

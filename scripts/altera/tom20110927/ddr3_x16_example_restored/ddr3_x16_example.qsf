@@ -1,0 +1,387 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2011 Altera Corporation
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, Altera MegaCore Function License 
+# Agreement, or other applicable license agreement, including, 
+# without limitation, that your use is for the sole purpose of 
+# programming logic devices manufactured by Altera and sold by 
+# Altera or its authorized distributors.  Please refer to the 
+# applicable agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus II
+# Version 11.0 Build 208 07/03/2011 Service Pack 1 SJ Full Version
+# Date created = 09:41:43  September 27, 2011
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		ddr3_x16_example_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus II software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+
+set_global_assignment -name FAMILY STRATIXIV
+set_global_assignment -name DEVICE EP4SGX230KF40C2
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "11.0 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "09:41:43  SEPTEMBER 27, 2011"
+set_global_assignment -name LAST_QUARTUS_VERSION "11.0 SP1.10"
+set_global_assignment -name TOP_LEVEL_ENTITY ddr3_x16_example
+set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
+set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
+set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_NAME uniphy_rtl_simulation -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME dut -section_id uniphy_rtl_simulation
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME ddr3_x16_example_tb -section_id uniphy_rtl_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH uniphy_rtl_simulation -section_id eda_simulation
+set_global_assignment -name EDA_MAP_ILLEGAL_CHARACTERS ON -section_id eda_simulation
+set_global_assignment -name EDA_ENABLE_GLITCH_FILTERING ON -section_id eda_simulation
+set_global_assignment -name EDA_WRITE_NODES_FOR_POWER_ESTIMATION ALL_NODES -section_id eda_simulation
+
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "1.5 V"
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_location_assignment PIN_A21 -to pll_ref_clk
+set_instance_assignment -name IO_STANDARD LVDS -to pll_ref_clk
+set_location_assignment PIN_V34 -to global_reset_n
+set_instance_assignment -name IO_STANDARD "2.5 V" -to global_reset_n
+set_location_assignment PIN_M34 -to soft_reset_n
+set_instance_assignment -name IO_STANDARD "2.5 V" -to soft_reset_n
+#set_location_assignment PIN_N26 -to termination_blk0~_rdn_pad
+#set_location_assignment PIN_P26 -to termination_blk0~_rup_pad
+set_location_assignment PIN_N26 -to oct_rdn
+set_location_assignment PIN_P26 -to oct_rup
+
+set_location_assignment PIN_D19 -to mem_a[0]
+set_location_assignment PIN_C22 -to mem_a[1]
+set_location_assignment PIN_N19 -to mem_a[2]
+set_location_assignment PIN_R20 -to mem_a[3]
+set_location_assignment PIN_D21 -to mem_a[4]
+set_location_assignment PIN_P19 -to mem_a[5]
+set_location_assignment PIN_G21 -to mem_a[6]
+set_location_assignment PIN_M20 -to mem_a[7]
+set_location_assignment PIN_F21 -to mem_a[8]
+set_location_assignment PIN_M21 -to mem_a[9]
+set_location_assignment PIN_B23 -to mem_a[10]
+set_location_assignment PIN_A19 -to mem_a[11]
+set_location_assignment PIN_A23 -to mem_a[12]
+set_location_assignment PIN_B14 -to mem_ba[0]
+set_location_assignment PIN_E23 -to mem_ba[1]
+set_location_assignment PIN_A14 -to mem_ba[2]
+set_location_assignment PIN_B19 -to mem_cas_n
+set_location_assignment PIN_A25 -to mem_cke
+set_location_assignment PIN_D24 -to mem_ck
+set_location_assignment PIN_C24 -to mem_ck_n
+set_location_assignment PIN_D15 -to mem_cs_n
+set_location_assignment PIN_B11 -to mem_dm[0]
+set_location_assignment PIN_G23 -to mem_dm[1]
+set_location_assignment PIN_A10 -to mem_dq[0]
+set_location_assignment PIN_D11 -to mem_dq[1]
+set_location_assignment PIN_B10 -to mem_dq[2]
+set_location_assignment PIN_C12 -to mem_dq[3]
+set_location_assignment PIN_C11 -to mem_dq[4]
+set_location_assignment PIN_C13 -to mem_dq[5]
+set_location_assignment PIN_A11 -to mem_dq[6]
+set_location_assignment PIN_B13 -to mem_dq[7]
+set_location_assignment PIN_K22 -to mem_dq[8]
+set_location_assignment PIN_D22 -to mem_dq[9]
+set_location_assignment PIN_J22 -to mem_dq[10]
+set_location_assignment PIN_E22 -to mem_dq[11]
+set_location_assignment PIN_G22 -to mem_dq[12]
+set_location_assignment PIN_F23 -to mem_dq[13]
+set_location_assignment PIN_H22 -to mem_dq[14]
+set_location_assignment PIN_D23 -to mem_dq[15]
+set_location_assignment PIN_D14 -to mem_dqs[0]
+set_location_assignment PIN_J23 -to mem_dqs[1]
+set_location_assignment PIN_C14 -to mem_dqs_n[0]
+set_location_assignment PIN_H23 -to mem_dqs_n[1]
+set_location_assignment PIN_K15 -to mem_odt
+set_location_assignment PIN_A24 -to mem_ras_n
+set_location_assignment PIN_L20 -to mem_reset_n
+set_location_assignment PIN_C19 -to mem_we_n
+
+#set_instance_assignment -name IO_STANDARD "2.5 V" -to local_init_done
+#set_instance_assignment -name IO_STANDARD "2.5 V" -to local_cal_success
+#set_instance_assignment -name IO_STANDARD "2.5 V" -to local_cal_fail
+#set_instance_assignment -name IO_STANDARD "2.5 V" -to drv_status_pass
+#set_instance_assignment -name IO_STANDARD "2.5 V" -to drv_status_fail
+#set_instance_assignment -name IO_STANDARD "2.5 V" -to drv_status_test_complete
+#set_location_assignment PIN_F33 -to local_init_done
+#set_location_assignment PIN_AK33 -to local_cal_success
+#set_location_assignment PIN_W28 -to local_cal_fail
+#set_location_assignment PIN_L34 -to drv_status_pass
+#set_location_assignment PIN_AM34 -to drv_status_fail
+#set_location_assignment PIN_M32 -to drv_status_test_complete
+
+set_instance_assignment -name IO_STANDARD "2.5 V" -to user_dipsw
+set_location_assignment PIN_AL35 -to user_dipsw[0]
+set_location_assignment PIN_AC35 -to user_dipsw[1]
+set_location_assignment PIN_J34 -to user_dipsw[2]
+set_location_assignment PIN_AN35 -to user_dipsw[3]
+set_location_assignment PIN_G33 -to user_dipsw[4]
+set_location_assignment PIN_K35 -to user_dipsw[5]
+set_location_assignment PIN_AG34 -to user_dipsw[6]
+set_location_assignment PIN_AG31 -to user_dipsw[7]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to user_led
+set_location_assignment PIN_F33 -to user_led[0]
+set_location_assignment PIN_AK33 -to user_led[1]
+set_location_assignment PIN_W28 -to user_led[2]
+set_location_assignment PIN_L34 -to user_led[3]
+set_location_assignment PIN_AM34 -to user_led[4]
+set_location_assignment PIN_M32 -to user_led[5]
+set_location_assignment PIN_L35 -to user_led[6]
+set_location_assignment PIN_AM35 -to user_led[7]
+set_location_assignment PIN_N34 -to user_led[8]
+set_location_assignment PIN_W35 -to user_led[9]
+set_location_assignment PIN_AE30 -to user_led[10]
+set_location_assignment PIN_V30 -to user_led[11]
+set_location_assignment PIN_AG30 -to user_led[12]
+set_location_assignment PIN_AD29 -to user_led[13]
+set_location_assignment PIN_U31 -to user_led[14]
+set_location_assignment PIN_U35 -to user_led[15]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to user_pb
+set_location_assignment PIN_AK35 -to user_pb[0]
+set_location_assignment PIN_W32 -to user_pb[1]
+#set_location_assignment PIN_M34 -to user_pb[2]
+set_location_assignment PIN_AC34 -to clkin_50
+set_instance_assignment -name IO_STANDARD "2.5 V" -to clkin_50
+#set_instance_assignment -name IO_STANDARD "2.5 V" -to cpu_resetn
+#set_location_assignment PIN_V34 -to cpu_resetn
+
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[3] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[3] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[3] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[4] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[4] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[4] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[5] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[5] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[5] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[6] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[6] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[6] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[7] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[7] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[7] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[8] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[8] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[8] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[9] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[9] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[9] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[10] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[10] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[10] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[11] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[11] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[11] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[12] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[12] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[12] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[13] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[13] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[13] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[14] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[14] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[14] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dq[15] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dq[15] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dq[15] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to mem_dqs[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to mem_dqs[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to mem_dqs_n[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs_n[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs_n[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to mem_dqs_n[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to mem_dqs_n[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dqs_n[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to mem_ck -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to mem_ck -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to mem_ck_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITHOUT CALIBRATION" -to mem_ck_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[10] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[10] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[11] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[11] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[12] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[12] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[3] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[3] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[4] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[4] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[5] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[5] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[6] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[6] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[7] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[7] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[8] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[8] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_a[9] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_a[9] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_ba[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_ba[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_ba[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_ba[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_ba[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_ba[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_cs_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cs_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_we_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_we_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_ras_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_ras_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_cas_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cas_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_cke -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_cke -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_odt -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_odt -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD 1.5V -to mem_reset_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to mem_reset_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dm[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dm[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to mem_dm[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to mem_dm[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[3] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[4] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[5] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[6] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dq[7] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[8] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[9] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[10] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[11] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[12] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[13] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[14] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dq[15] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[0] -to mem_dm[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name DQ_GROUP 9 -from mem_dqs[1] -to mem_dm[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[3] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[4] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[5] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[6] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[7] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[8] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[9] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[10] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[11] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[12] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[13] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[14] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dq[15] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dm[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dm[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dqs[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dqs[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dqs_n[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name MEM_INTERFACE_DELAY_CHAIN_CONFIG FLEXIBLE_TIMING -to mem_dqs_n[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to if0|p0|controller_phy_inst|memphy_top_inst|upll_memphy|altpll_component|auto_generated|wire_pll1_clk[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to if0|p0|controller_phy_inst|memphy_top_inst|upll_memphy|altpll_component|auto_generated|wire_pll1_clk[2] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL "DUAL-REGIONAL CLOCK" -to if0|p0|controller_phy_inst|memphy_top_inst|upll_memphy|altpll_component|auto_generated|wire_pll1_clk[3] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL "DUAL-REGIONAL CLOCK" -to if0|p0|controller_phy_inst|memphy_top_inst|upll_memphy|altpll_component|auto_generated|wire_pll1_clk[5] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL "DUAL-REGIONAL CLOCK" -to if0|p0|controller_phy_inst|memphy_top_inst|upll_memphy|altpll_component|auto_generated|wire_pll1_clk[6] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|ureset|phy_reset_mem_stable_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|ureset|phy_reset_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|usequencer|sequencer_inst|sequencer_rw_mgr_inst|rw_mgr_inst|rw_mgr_core_inst|rw_soft_reset_n -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|uread_datapath|reset_n_fifo_write_side[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|uread_datapath|reset_n_fifo_wraddress[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|uread_datapath|reset_n_fifo_write_side[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|uread_datapath|reset_n_fifo_wraddress[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|uread_datapath|read_capture_clk_div2[0] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name GLOBAL_SIGNAL OFF -to if0|p0|controller_phy_inst|memphy_top_inst|umemphy|uread_datapath|read_capture_clk_div2[1] -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name ENABLE_BENEFICIAL_SKEW_OPTIMIZATION_FOR_NON_GLOBAL_CLOCKS ON -to if0|p0 -tag __ddr3_x16_example_if0_p0
+set_instance_assignment -name PLL_ENFORCE_USER_PHASE_SHIFT ON -to if0|p0|controller_phy_inst|memphy_top_inst|upll_memphy|altpll_component|auto_generated|pll1 -tag __ddr3_x16_example_if0_p0
+set_global_assignment -name UNIPHY_SEQUENCER_DQS_CONFIG_ENABLE ON
+set_global_assignment -name UNIPHY_TEMP_VER_CODE 225179112
+set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name USE_SIGNALTAP_FILE 4401/s5_11_1/ddr_core_example_design/example_project/debug.stp
+set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "ddr3_x16_example_d0:d0|clk" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=6" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=6" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=805334528" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=00000000000000000000000000000000000000000" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=41" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=512" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ATTRIBUTE_MEM_MODE=OFF" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_FLOW_USE_GENERATED=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_BITS=11" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BUFFER_FULL_STOP=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_CURRENT_RESOURCE_WIDTH=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=60158" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=512" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "ddr3_x16_example_d0:d0|fail" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "ddr3_x16_example_d0:d0|pass" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "ddr3_x16_example_d0:d0|test_complete" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "ddr3_x16_example_if0:if0|local_cal_fail" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "ddr3_x16_example_if0:if0|local_cal_success" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "ddr3_x16_example_if0:if0|local_init_done" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to "ddr3_x16_example_d0:d0|fail" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to "ddr3_x16_example_d0:d0|pass" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "ddr3_x16_example_d0:d0|test_complete" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "ddr3_x16_example_if0:if0|local_cal_fail" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "ddr3_x16_example_if0:if0|local_cal_success" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "ddr3_x16_example_if0:if0|local_init_done" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=41962" -section_id auto_signaltap_0
+set_global_assignment -name TEXT_FILE params.txt
+set_global_assignment -name QIP_FILE ddr3_x16_example.qip
+set_global_assignment -name SIGNALTAP_FILE 4401/s5_11_1/ddr_core_example_design/example_project/debug.stp
+set_global_assignment -name SEARCH_PATH 4401/S5_ddr3_test/ddr_core_example_design/example_project/ddr_core_example/submodules/ -tag from_archive
+set_global_assignment -name SEARCH_PATH 4401/s5_11_1/ddr_core_example_design/example_project/ -tag from_archive
+set_global_assignment -name SEARCH_PATH ddr3_x16_example/ -tag from_archive
+set_global_assignment -name SEARCH_PATH ddr3_x16_example/submodules/ -tag from_archive
+set_global_assignment -name SEARCH_PATH ddr3_x16_example/submodules/software/ -tag from_archive
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

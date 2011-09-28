@@ -1,0 +1,5 @@
+PLL_Name	ddr3_x16_example_if0:if0|ddr3_x16_example_if0_p0:p0|ddr3_x16_example_if0_p0_controller_phy:controller_phy_inst|ddr3_x16_example_if0_p0_memphy_top:memphy_top_inst|ddr3_x16_example_if0_p0_pll_memphy:upll_memphy|altpll:altpll_component|ddr3_x16_example_if0_p0_pll_memphy_altpll:auto_generated|pll1
+PLLJITTER	NA
+PLLSPEmax	40
+PLLSPEmin	-40
+

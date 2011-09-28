@@ -44,7 +44,7 @@ module fpgaTop (
   output wire         flash_advn,      // FLASH Address Valid
   input  wire         flash_rdybsyn,   // FLASH Ready
 
-  output wire [14:0]  ddr3top_a,       // DDR3-DRAM (TOP) .mem_a
+  output wire [12:0]  ddr3top_a,       // DDR3-DRAM (TOP) .mem_a
   output wire [2:0]   ddr3top_ba,      // DDR3-DRAM (TOP) .mem_ba
   output wire         ddr3top_ck_p,    // DDR3-DRAM (TOP) .mem_ck
   output wire         ddr3top_ck_n,    // DDR3-DRAM (TOP) .mem_ck_n
@@ -111,7 +111,7 @@ module fpgaTop (
 //  .flash_advn        (flash_advn),
   .flash_fwait_i     (flash_rdybsyn),
 
-  .dram_addr         (ddr3top_a[12:0]),
+  .dram_addr         (ddr3top_a),
   .dram_ba           (ddr3top_ba),
   .dram_ck_p         (ddr3top_ck_p),
   .dram_ck_n         (ddr3top_ck_n),
@@ -131,6 +131,5 @@ module fpgaTop (
 );
 
 assign fsm_a[25:24]     = 0;
-//assign ddr3top_a[14:13] = 0;
 
 endmodule

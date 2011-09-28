@@ -4,20 +4,24 @@
 # This file used to be named fpgaTop_alst4.qsf when it was in the tactical build dir.
 # The SignalTap statements were trimmed off; and the file placed in the "ucf" dir
 
-set_global_assignment -name FAMILY "Stratix IV"
+set_global_assignment -name FAMILY "STRATIXIV"
 set_global_assignment -name DEVICE EP4SGX230KF40C2
-set_global_assignment -name ORIGINAL_QUARTUS_VERSION "10.1 SP1"
-set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:29:49  FEBRUARY 11, 2011"
-set_global_assignment -name LAST_QUARTUS_VERSION "11.0 SP1"
-set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
-set_global_assignment -name OPTIMIZATION_TECHNIQUE SPEED
-set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 2
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "11.0 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "09:41:43  SEPTEMBER 27, 2011"
+set_global_assignment -name LAST_QUARTUS_VERSION "11.0 SP1.10"
+
+set_global_assignment -name TOP_LEVEL_ENTITY fpgaTop
+
+#set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+#set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+#set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+#set_global_assignment -name OPTIMIZATION_TECHNIQUE SPEED
+#set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 2
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "1.5 V"
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
-set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
-set_global_assignment -name ENABLE_CLOCK_LATENCY ON
-set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON
+#set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+#set_global_assignment -name ENABLE_CLOCK_LATENCY ON
+#set_global_assignment -name ENABLE_RECOVERY_REMOVAL_ANALYSIS ON
 
 set_global_assignment -name SDC_FILE fpgaTop_alst4.sdc
 #set_global_assignment -name QIP_FILE fpgaTop_alst4.qip
@@ -29,7 +33,6 @@ set_global_assignment -name SEARCH_PATH ../../../coregen/ddr3_s4_uniphy/ddr3_s4_
 set_global_assignment -name SEARCH_PATH ../../../rtl
 set_global_assignment -name SEARCH_PATH ../../../libsrc/hdl/bsv
 set_global_assignment -name SEARCH_PATH ../../../libsrc/hdl/ocpi
-set_global_assignment -name TOP_LEVEL_ENTITY fpgaTop
 set_global_assignment -name VERILOG_FILE fpgaTop_alst4.v
 set_global_assignment -name VERILOG_FILE pcie_hip_s4gx_gen2_x4_128_wrapper.v
 set_global_assignment -name VERILOG_FILE pcie_hip_s4gx_gen2_x4_128.v
@@ -54,10 +57,12 @@ set_global_assignment -name VERILOG_FILE alt_mem_ddrx_ecc_encoder_decoder_wrappe
 set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED WITH WEAK PULL-UP"
 
 set_location_assignment PIN_A21 -to sys0_clk
+set_instance_assignment -name IO_STANDARD LVDS -to sys0_clk
 set_location_assignment PIN_AK35 -to sys0_rstn
+set_instance_assignment -name IO_STANDARD "2.5 V" -to sys0_rstn
 
 set_location_assignment PIN_AN38 -to pcie_clk
-set_location_assignment PIN_R32 -to pcie_rstn
+set_location_assignment PIN_R32  -to pcie_rstn
 set_location_assignment PIN_AU38 -to pcie_rx[0]
 set_location_assignment PIN_AR38 -to pcie_rx[1]
 set_location_assignment PIN_AJ38 -to pcie_rx[2]
@@ -77,33 +82,29 @@ set_location_assignment PIN_AF36 -to pcie_tx[3]
 
 set_location_assignment PIN_AL35 -to usr_sw[0]
 set_location_assignment PIN_AC35 -to usr_sw[1]
-set_location_assignment PIN_J34 -to usr_sw[2]
+set_location_assignment PIN_J34  -to usr_sw[2]
 set_location_assignment PIN_AN35 -to usr_sw[3]
-set_location_assignment PIN_G33 -to usr_sw[4]
-set_location_assignment PIN_K35 -to usr_sw[5]
+set_location_assignment PIN_G33  -to usr_sw[4]
+set_location_assignment PIN_K35  -to usr_sw[5]
 set_location_assignment PIN_AG34 -to usr_sw[6]
 set_location_assignment PIN_AG31 -to usr_sw[7]
 
-set_location_assignment PIN_F33 -to led[0]
+set_location_assignment PIN_F33  -to led[0]
 set_location_assignment PIN_AK33 -to led[1]
-set_location_assignment PIN_W28 -to led[2]
-set_location_assignment PIN_L34 -to led[3]
+set_location_assignment PIN_W28  -to led[2]
+set_location_assignment PIN_L34  -to led[3]
 set_location_assignment PIN_AM34 -to led[4]
-set_location_assignment PIN_M32 -to led[5]
-set_location_assignment PIN_L35 -to led[6]
+set_location_assignment PIN_M32  -to led[5]
+set_location_assignment PIN_L35  -to led[6]
 set_location_assignment PIN_AM35 -to led[7]
-set_location_assignment PIN_N34 -to led[8]
-set_location_assignment PIN_W35 -to led[9]
+set_location_assignment PIN_N34  -to led[8]
+set_location_assignment PIN_W35  -to led[9]
 set_location_assignment PIN_AE30 -to led[10]
-set_location_assignment PIN_V30 -to led[11]
+set_location_assignment PIN_V30  -to led[11]
 set_location_assignment PIN_AG30 -to led[12]
 set_location_assignment PIN_AD29 -to led[13]
-set_location_assignment PIN_U31 -to led[14]
-set_location_assignment PIN_U35 -to led[15]
-
-set_instance_assignment -name IO_STANDARD LVDS -to sys0_clk
-set_instance_assignment -name INPUT_TERMINATION OFF -to sys0_clk
-set_instance_assignment -name IO_STANDARD "2.5 V" -to sys0_rstn
+set_location_assignment PIN_U31  -to led[14]
+set_location_assignment PIN_U35  -to led[15]
 
 set_instance_assignment -name IO_STANDARD HCSL -to pcie_clk
 set_instance_assignment -name INPUT_TERMINATION OFF -to pcie_clk
@@ -190,52 +191,42 @@ set_instance_assignment -name SLEW_RATE 0              -to ppsOut
 
 
 # LED assignemnt from HSMA_D40 to D79... 
-
 set_location_assignment PIN_AG8  -to led_cathode[0]
 set_location_assignment PIN_AP6  -to led_anode[0]
 set_location_assignment PIN_AG7  -to led_cathode[1]
 set_location_assignment PIN_AP5  -to led_anode[1]
-
 set_location_assignment PIN_AG10 -to led_cathode[2]
 set_location_assignment PIN_AN6  -to led_anode[2]
 set_location_assignment PIN_AG9  -to led_cathode[3]
 set_location_assignment PIN_AN5  -to led_anode[3]
-
 set_location_assignment PIN_AF11 -to led_cathode[4]
 set_location_assignment PIN_AM6  -to led_anode[4]
 set_location_assignment PIN_AF10 -to led_cathode[5]
 set_location_assignment PIN_AM5  -to led_anode[5]
-
 set_location_assignment PIN_AD10 -to led_cathode[6]
 set_location_assignment PIN_AL6  -to led_anode[6]
 set_location_assignment PIN_AD9  -to led_cathode[7]
 set_location_assignment PIN_AL5  -to led_anode[7]
-
 set_location_assignment PIN_AE11 -to led_cathode[8]
 set_location_assignment PIN_AK6  -to led_anode[8]
 set_location_assignment PIN_AE10 -to led_cathode[9]
 set_location_assignment PIN_AK5  -to led_anode[9]
-
 set_location_assignment PIN_AD13 -to led_cathode[10]
 set_location_assignment PIN_AJ6  -to led_anode[10]
 set_location_assignment PIN_AD12 -to led_cathode[11]
 set_location_assignment PIN_AJ5  -to led_anode[11]
-
 set_location_assignment PIN_AB13 -to led_cathode[12]
 set_location_assignment PIN_AH6  -to led_anode[12]
 set_location_assignment PIN_AB12 -to led_cathode[13]
 set_location_assignment PIN_AH5  -to led_anode[13]
-
 set_location_assignment PIN_AB11 -to led_cathode[14]
 set_location_assignment PIN_AG6  -to led_anode[14]
 set_location_assignment PIN_AB10 -to led_cathode[15]
 set_location_assignment PIN_AG5  -to led_anode[15]
-
 set_location_assignment PIN_AC11 -to led_cathode[16]
 set_location_assignment PIN_AB9  -to led_anode[16]
 set_location_assignment PIN_AC10 -to led_cathode[17]
 set_location_assignment PIN_AC8  -to led_anode[17]
-
 set_location_assignment PIN_AF13 -to led_cathode[18]
 set_location_assignment PIN_AF6  -to led_anode[18]
 set_location_assignment PIN_AG13 -to led_cathode[19]
@@ -248,7 +239,7 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to led_anode
 set_instance_assignment -name SLEW_RATE 0              -to led_cathode
 set_instance_assignment -name SLEW_RATE 0              -to led_anode
 
-# LCD
+# LCD...
 # Note, we only use the 4b databus on the MSBs here...
 #set_location_assignment PIN_AD31 -to lcd_data[0]
 #set_location_assignment PIN_AJ34 -to lcd_data[1]
@@ -278,8 +269,7 @@ set_instance_assignment -name SLEW_RATE 0              -to lcd_e
 set_instance_assignment -name SLEW_RATE 0              -to lcd_rs
 set_instance_assignment -name SLEW_RATE 0              -to lcd_rw
 
-# Flash and SRAM 
-
+# Flash and SRAM...
 set_location_assignment PIN_AN32 -to fsm_a[0]
 set_location_assignment PIN_AP33 -to fsm_a[1]
 set_location_assignment PIN_AC26 -to fsm_a[2]
@@ -382,14 +372,14 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to flash_oen
 set_instance_assignment -name IO_STANDARD "2.5 V" -to flash_wen
 set_instance_assignment -name IO_STANDARD "2.5 V" -to flash_advn
 set_instance_assignment -name IO_STANDARD "2.5 V" -to flash_rdybsyn
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to fsm_a
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to fsm_d
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_clk
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_resetn
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_cen
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_oen
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_wen
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_advn
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to fsm_a
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to fsm_d
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_clk
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_resetn
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_cen
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_oen
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_wen
+#set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to flash_advn
 
 
 ## DDR3 DRAM TOP (16b x1)
@@ -435,54 +425,13 @@ set_location_assignment PIN_M21 -to ddr3top_a[9]
 set_location_assignment PIN_B23 -to ddr3top_a[10]
 set_location_assignment PIN_A19 -to ddr3top_a[11]
 set_location_assignment PIN_A23 -to ddr3top_a[12]
-set_location_assignment PIN_M22 -to ddr3top_a[13]
-set_location_assignment PIN_B20 -to ddr3top_a[14]
+#set_location_assignment PIN_M22 -to ddr3top_a[13]
+#set_location_assignment PIN_B20 -to ddr3top_a[14]
 set_location_assignment PIN_B14 -to ddr3top_ba[0]
 set_location_assignment PIN_E23 -to ddr3top_ba[1]
 set_location_assignment PIN_A14 -to ddr3top_ba[2]
 set_location_assignment PIN_B11 -to ddr3top_dm[0]
 set_location_assignment PIN_G23 -to ddr3top_dm[1]
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_ba
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_dqs_p
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_dqs_n
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dm
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_wen
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_rasn
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_casn
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_ck_p
-set_instance_assignment -name IO_STANDARD "DIFFERENTIAL 1.5-V SSTL CLASS I" -to ddr3top_ck_n
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_cke
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_csn
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_rstn
-set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_odt
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_a
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ba
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_p
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dqs_n
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dm
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_wen
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_rasn
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_casn
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ck_p
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_ck_n
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_cke
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_csn
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_rstn
-set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_odt
-#set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dq
-#set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dqs_p
-#set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dqs_n
-#set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dq
-#set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dqs_p
-#set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dqs_n
-
-#set_location_assignment PIN_AU34 -to termination_blk0~_rup_pad
-#set_location_assignment PIN_AV34 -to termination_blk0~_rdn_pad
-#set_location_assignment PIN_P26  -to termination_blk1~_rup_pad
-#set_location_assignment PIN_N26  -to termination_blk1~_rdn_pad
-#set_location_assignment PIN_AF25 -to termination_blk2~_rup_pad
-#set_location_assignment PIN_AG25 -to termination_blk2~_rdn_pad
+set_location_assignment PIN_N26 -to oct_rdn
+set_location_assignment PIN_P26 -to oct_rup
 

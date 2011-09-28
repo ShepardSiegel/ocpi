@@ -210,13 +210,16 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   rule count_sys_always; sysCount <= sysCount + 1; endrule  // in sys0_clk domain
   rule count_afi_always; afiCount <= afiCount + 1; endrule  // in afi_half domain
 
-  rule passify_Avalon;
+  Bool okToOperate = memc.status.init_done && memc.status.cal_success;
+
+  // Keep the Avalon inetrface from dissolving...
+  rule busyWork_Avalon;
     memc.avl.burstbegin(False);
-    memc.avl.addr(0);
-    memc.avl.wdata(0);
+    memc.avl.addr(extend(afiCount));
+    memc.avl.wdata(memc.avl.rdata);
     memc.avl.be(0);
-    memc.avl.read_req(False);
-    memc.avl.write_req(False);
+    memc.avl.read_req (okToOperate && afiCount==0);
+    memc.avl.write_req(okToOperate && afiCount==7);
     memc.avl.size(0);
   endrule
 
@@ -226,7 +229,6 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
 
   Bit#(3) activeBits = {curCount[3], sysActive.read, afiActive.read};
 
-  Bool okToOperate = memc.status.init_done && memc.status.cal_success;
 
   rule advance_request (okToOperate);
     let r = reqF.first;
