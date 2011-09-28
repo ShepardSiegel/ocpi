@@ -425,6 +425,10 @@ set_location_assignment PIN_E23 -to ddr3top_ba[1]
 set_location_assignment PIN_A14 -to ddr3top_ba[2]
 set_location_assignment PIN_B11 -to ddr3top_dm[0]
 set_location_assignment PIN_G23 -to ddr3top_dm[1]
+
+set_location_assignment PIN_N26 -to oct_rdn
+set_location_assignment PIN_P26 -to oct_rup
+
 set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_a
 set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_ba
 set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq
@@ -453,19 +457,7 @@ set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_csn -disable
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_rstn -disable
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_odt -disable
-#set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dq
-#set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dqs_p
-#set_instance_assignment -name OUTPUT_ENABLE_GROUP 7766 -to ddr3top_dqs_n
-#set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dq
-#set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dqs_p
-#set_instance_assignment -name DYNAMIC_OCT_CONTROL_GROUP 7766 -to ddr3top_dqs_n
 
-#set_location_assignment PIN_AU34 -to termination_blk0~_rup_pad
-#set_location_assignment PIN_AV34 -to termination_blk0~_rdn_pad
-#set_location_assignment PIN_P26  -to termination_blk1~_rup_pad
-#set_location_assignment PIN_N26  -to termination_blk1~_rdn_pad
-#set_location_assignment PIN_AF25 -to termination_blk2~_rup_pad
-#set_location_assignment PIN_AG25 -to termination_blk2~_rdn_pad
 
 
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top

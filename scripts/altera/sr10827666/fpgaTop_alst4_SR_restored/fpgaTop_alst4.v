@@ -59,8 +59,8 @@ module fpgaTop (
   inout  wire [1:0]   ddr3top_dqs_p,   // DDR3-DRAM (TOP) .mem_dqs
   inout  wire [1:0]   ddr3top_dqs_n,   // DDR3-DRAM (TOP) .mem_dqs_n
   output wire         ddr3top_odt,     // DDR3-DRAM (TOP) .mem_odt
-  input  wire         rdn_pad, 
-  input  wire         rup_pad 
+  input  wire         oct_rdn, 
+  input  wire         oct_rup 
 );
 
 // Instance and connect mkFTop...
@@ -126,8 +126,8 @@ module fpgaTop (
   .dram_io_dqs_p     (ddr3top_dqs_p),
   .dram_io_dqs_n     (ddr3top_dqs_n),
   .dram_odt          (ddr3top_odt),
-  .dram_rdn_i        (rdn_pad), 
-  .dram_rup_i        (rup_pad) 
+  .dram_rdn_i        (oct_rdn), 
+  .dram_rup_i        (oct_rup) 
 );
 
 assign fsm_a[25:24]     = 0;
