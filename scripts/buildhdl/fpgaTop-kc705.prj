@@ -104,6 +104,7 @@ verilog work "../../rtl/mkBiasWorker4B.v"
 verilog work "../../rtl/mkBiasWorker16B.v"
 verilog work "../../rtl/mkGbeWorker.v"
 verilog work "../../rtl/mkICAPWorker.v"
+verilog work "../../rtl/mkLCDController.v"
 verilog work "../../rtl/mkFlashWorker.v"
 verilog work "../../rtl/mkDramServer_k7.v"
 

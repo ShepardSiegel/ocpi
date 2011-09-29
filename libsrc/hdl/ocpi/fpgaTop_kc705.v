@@ -5,38 +5,45 @@
 module fpgaTop (
   input  wire        sys0_clkp,      // sys0 Clock +
   input  wire        sys0_clkn,      // sys0 Clock -
-  input  wire        sys1_clkp,      // sys1 Clock +
-  input  wire        sys1_clkn,      // sys1 Clock -
+  input  wire        sys0_rst,       // sys0 Reset (active high)
 
-  input  wire        pci0_clkp,      // PCIe Clock +
-  input  wire        pci0_clkn,      // PCIe Clock -
-  input  wire        pci0_reset_n,   // PCIe Reset
-  output wire [3:0]  pci_exp_txp,    // PCIe lanes...
-  output wire [3:0]  pci_exp_txn,
-  input  wire [3:0]  pci_exp_rxp,
-  input  wire [3:0]  pci_exp_rxn,
+  //input  wire        sys1_clkp,      // sys1 Clock +
+  //input  wire        sys1_clkn,      // sys1 Clock -
 
-  input  wire        ppsExtIn,       // PPS in
-  output wire        ppsOut,         // PPS out
+  //input  wire        pci0_clkp,      // PCIe Clock +
+  //input  wire        pci0_clkn,      // PCIe Clock -
+  //input  wire        pci0_reset_n,   // PCIe Reset
+  //output wire [3:0]  pci_exp_txp,    // PCIe lanes...
+  //output wire [3:0]  pci_exp_txn,
+  //input  wire [3:0]  pci_exp_rxp,
+  //input  wire [3:0]  pci_exp_rxn,
+
+  //input  wire        ppsExtIn,       // PPS in
+  //output wire        ppsOut,         // PPS out
+  //
   input  wire [ 7:0] usr_sw,         // dip-switches
   output wire [ 7:0] led,            // leds
-  output wire [31:0] debug,          // debug
+  output wire [ 3:0] lcd_db,         // LCD databus
+  output wire        lcd_e,          // LCD enable
+  output wire        lcd_rs,         // LCD register-select
+  output wire        lcd_rw,         // LCD read-not-write
+  output wire [15:0] debug           // debug
 
-	output wire [7:0]  gmii_txd,       // Alaska GMII...
-	output wire        gmii_tx_en,
-	output wire        gmii_tx_er,
-	input  wire [7:0]  gmii_rxd,
-	input  wire        gmii_rx_dv,
-	input  wire        gmii_rx_er,
-	output wire        gmii_tx_clk,
-	input  wire        gmii_rx_clk,
+	//output wire [7:0]  gmii_txd,       // Alaska GMII...
+	//output wire        gmii_tx_en,
+	//output wire        gmii_tx_er,
+	//input  wire [7:0]  gmii_rxd,
+	//input  wire        gmii_rx_dv,
+	//input  wire        gmii_rx_er,
+	//output wire        gmii_tx_clk,
+	//input  wire        gmii_rx_clk,
 
-  output wire [23:0] flash_addr,
-  inout  wire [15:0] flash_io_dq,
-  input  wire        flash_wait,
-  output wire        flash_we_n,
-  output wire        flash_oe_n,
-  output wire        flash_ce_n
+  //output wire [23:0] flash_addr,
+  //inout  wire [15:0] flash_io_dq,
+  //input  wire        flash_wait,
+  //output wire        flash_we_n,
+  //output wire        flash_oe_n,
+  //output wire        flash_ce_n
 
   //inout  wire [63:0] ddr3_dq,        // DDR3 DRAM...
   //output wire [12:0] ddr3_addr,
@@ -75,38 +82,44 @@ module fpgaTop (
  mkFTop_kc705 ftop(
   .sys0_clkp         (sys0_clkp),
   .sys0_clkn         (sys0_clkn),
-  .sys1_clkp         (sys1_clkp),
-  .sys1_clkn         (sys1_clkn),
+  .sys0_rstn         (!sys0_rst),   // Invert to make active-low
 
-  .pci0_clkp         (pci0_clkp),
-  .pci0_clkn         (pci0_clkn),
-  .pci0_rstn         (pci0_reset_n),
-  .pcie_rxp_i        (pci_exp_rxp),
-  .pcie_rxn_i        (pci_exp_rxn),
-  .pcie_txp          (pci_exp_txp),
-  .pcie_txn          (pci_exp_txn),
+  //.sys1_clkp         (sys1_clkp),
+  //.sys1_clkn         (sys1_clkn),
+
+  //.pci0_clkp         (pci0_clkp),
+  //.pci0_clkn         (pci0_clkn),
+  //.pci0_rstn         (pci0_reset_n),
+  //.pcie_rxp_i        (pci_exp_rxp),
+  //.pcie_rxn_i        (pci_exp_rxn),
+  //.pcie_txp          (pci_exp_txp),
+  //.pcie_txn          (pci_exp_txn),
 
   .led               (led),
-  .gps_ppsSyncIn_x   (ppsExtIn),
-  .gps_ppsSyncOut    (ppsOut),
+  .lcd_db            (lcd_db),
+  .lcd_e             (lcd_e),
+  .lcd_rs            (lcd_rs),
+  .lcd_rw            (lcd_rw),
+  //.gps_ppsSyncIn_x   (ppsExtIn),
+  //.gps_ppsSyncOut    (ppsOut),
   .usr_sw_i          (usr_sw),
-  .debug             (debug),
+  .debug             (debug)
 
-	.gmii_txd          (gmii_txd),
-	.gmii_tx_en        (gmii_tx_en),
-	.gmii_tx_er        (gmii_tx_er),
-	.gmii_rxd_i        (gmii_rxd),
-	.gmii_rx_dv_i      (gmii_rx_dv),
-	.gmii_rx_er_i      (gmii_rx_er),
-	.gmii_tx_clk       (gmii_tx_clk),
-	.gmii_rx_clk       (gmii_rx_clk),
+	//.gmii_txd          (gmii_txd),
+	//.gmii_tx_en        (gmii_tx_en),
+	//.gmii_tx_er        (gmii_tx_er),
+	//.gmii_rxd_i        (gmii_rxd),
+	//.gmii_rx_dv_i      (gmii_rx_dv),
+	//.gmii_rx_er_i      (gmii_rx_er),
+	//.gmii_tx_clk       (gmii_tx_clk),
+	//.gmii_rx_clk       (gmii_rx_clk),
 
-  .flash_addr        (flash_addr),
-  .flash_io_dq       (flash_io_dq),
-  .flash_fwait_i     (flash_wait),
-  .flash_we_n        (flash_we_n),
-  .flash_oe_n        (flash_oe_n),
-  .flash_ce_n        (flash_ce_n)
+  //.flash_addr        (flash_addr),
+  //.flash_io_dq       (flash_io_dq),
+  //.flash_fwait_i     (flash_wait),
+  //.flash_we_n        (flash_we_n),
+  //.flash_oe_n        (flash_oe_n),
+  //.flash_ce_n        (flash_ce_n)
 
   //.dram_io_dq        (ddr3_dq), 
   //.dram_addr         (ddr3_addr),
