@@ -100,7 +100,7 @@ function MemReqHdr1 makeWrReqHdr (PciId rid, Bit#(10) len, Bit#(4) firstBE, Bit#
     hasDigest:     False,
     isPoisoned:    False,
     attrOrdering:  False,
-    attrNoSnoop:   True,
+    attrNoSnoop:   False,
     length:        len,
     requesterID:   rid,
     tag:           '0,
@@ -394,7 +394,7 @@ function MemReqHdr1 makeRdReqHdr (PciId rid, Bit#(8) tag, Bit#(10) len, Bit#(4) 
     hasDigest     : False,
     isPoisoned    : False,
     attrOrdering  : False,  // When set (relaxed): Read Completions are allowed to pass Memory Writes or Messages
-    attrNoSnoop   : True,   // When set, NoSnoop means transactions targeting host memory don't need to snoop cache
+    attrNoSnoop   : False,  // When set, NoSnoop means transactions targeting host memory don't need to snoop cache
     length        : len,
     requesterID   : rid,
     tag           : tag,
