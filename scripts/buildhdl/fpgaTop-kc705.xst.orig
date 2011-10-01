@@ -1,10 +1,10 @@
-set -xsthdpini ocpihdp_v6.ini
+set -xsthdpini ocpihdp_v7.ini
 run
--ifn fpgaTop-ml605.prj
+-ifn fpgaTop-kc705.prj
 -ifmt mixed
 -ofn fpgaTop
 -ofmt NGC
--p xc6vlx240t-ff1156-1
+-p xc7k325t-ffg900-1
 -top fpgaTop
 -opt_mode Speed
 -opt_level 2
@@ -49,4 +49,3 @@ run
 -iob auto
 -equivalent_register_removal YES
 -slice_utilization_ratio_maxmargin 5
--change_error_to_warning "HDLCompiler:532 HDLCompiler:597"

@@ -129,7 +129,7 @@ OpenCPI website: www.opencpi.org
       OCApp.bsv : ( set NDW4, NumAlias)
      Thank you Dan! -Shep
 
-  "ISE 13.2 map crashes at the end of operation"
+  "ISE 13.2 or ISE 13.3 map crashes at the end of operation"
     Try executing this line in a bash shell after X is running but before map:
       export LD_PRELOAD=/opt/Xilinx/13.2/ISE_DS/ISE/lib/lin64/libAntlr.so
       See the link on the next line:
@@ -150,3 +150,4 @@ OpenCPI website: www.opencpi.org
 2011-03-03 ISE 13.1 Libraries
 2011-03-13 Switch back to 16B (4DW) baseline
 2011-04-20 Multiple GIT repos
+2011-09-30 ISE 13.3 Libraries

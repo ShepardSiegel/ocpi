@@ -134,7 +134,7 @@ endif
 
 #map -p $PART -w -logic_opt on -ol high -xe n -mt on -t 1 \
 map -p $PART -w -logic_opt on -xe n -mt on -t 1 \
-  -register_duplication on -global_opt off -ir off \
+  -register_duplication on -ir off \
   -pr off -lc off -power off -o fpgaTop_map.ncd fpgaTop.ngd fpgaTop.pcf 
 if ($status != 0) then
   echo MAP returned non-zero status

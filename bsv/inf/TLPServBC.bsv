@@ -24,8 +24,9 @@ interface TLPServBCIfc;
   interface Server#(PTW16,PTW16) server;
   interface BufQCIfc             bufq;
   method Action dpCtrl (DPControl dc);
-  method Bit#(32) i_flowDiagCount;
-  method Bit#(32) i_debug;
+  method Bit#(32)            i_flowDiagCount;
+  method Bit#(32)            i_debug;
+  method Vector#(4,Bit#(32)) i_meta;
 endinterface
 
 typedef struct {
@@ -164,6 +165,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)               complTimerRunning    <- mkReg(False);
   Reg#(UInt#(12))          complTimerCount      <- mkReg(0);
 
+  Vector#(4,Reg#(Bit#(32))) lastMetaV   <- replicateM(mkReg(0));
+
+
   // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
   // This is because with only one read in-flight at once, we wish to amortize the serial latency over as large a request as possible.
   // When moving to two or more read-requests per DMA engine in flight at once, we may wish to lower maReadReqSize from the maximum.
@@ -202,6 +206,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule dmaResponseNearMetaHead (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==Metadata);
     mRespF.deq;
     mesgLengthRemainPush <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
+    lastMetaV[0]         <=          byteSwap(rres.data);   // push length
     $display("[%0d]: %m: dmaResponseNearMetaHead FPactMesg-Step2a/7 mesgLength:%0x", $time, byteSwap(rres.data));
   endrule
 
@@ -209,9 +214,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule dmaResponseNearMetaBody (hasPush && actMesgP &&& mRespF.first matches tagged ReadBody .rres &&& rres.role==Metadata);
     mRespF.deq;
     Vector#(4, DWord) vWords = reverse(unpack(rres.data));
-    Bit#(32) opcode   = byteSwap(vWords[0]);
-    Bit#(32) nowMS    = byteSwap(vWords[1]);
-    Bit#(32) nowLS    = byteSwap(vWords[2]);
+    Bit#(32) opcode  = byteSwap(vWords[0]); lastMetaV[1] <= opcode;
+    Bit#(32) nowMS   = byteSwap(vWords[1]); lastMetaV[2] <= nowMS;
+    Bit#(32) nowLS   = byteSwap(vWords[2]); lastMetaV[3] <= nowLS;
     reqMetaInFlight <= False;
     fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemainPush), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
     xmtMetaOK <= (mesgLengthRemainPush==0); // Skip over Message Movement phases and just send metadata if mesgLength is zero
@@ -372,6 +377,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     reqMetaInFlight     <= False;
     reqMetaBodyInFlight <= True;
     mesgLengthRemainPull <=     truncate(byteSwap(pw.data[31:0]));  // Source of Pull demand
+    lastMetaV[0]         <=              byteSwap(pw.data[31:0]);   // Source of Pull demand
     inF.deq;
     // Push the 1st of the metadata into local buffer...
     WriteReq wreq = WriteReq {
@@ -394,9 +400,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     reqMetaBodyInFlight <= False;
     inF.deq;
     Vector#(4, DWord) vWords = reverse(unpack(pw.data));
-    Bit#(32) opcode  = byteSwap(vWords[0]);
-    Bit#(32) nowMS   = byteSwap(vWords[1]);
-    Bit#(32) nowLS   = byteSwap(vWords[2]);
+    Bit#(32) opcode = byteSwap(vWords[0]); lastMetaV[1] <= opcode;
+    Bit#(32) nowMS  = byteSwap(vWords[1]); lastMetaV[2] <= nowMS;
+    Bit#(32) nowLS  = byteSwap(vWords[2]); lastMetaV[3] <= nowLS;
     fabMeta <= (Valid (MesgMeta{length:extend(mesgLengthRemainPull), opcode:opcode, nowMS:nowMS, nowLS:nowLS}));
     dmaDoTailEvent <= (mesgLengthRemainPull==0); // Skip over Message Movement pull phases if mesgLength is zero
     mesgLengthRemainPull <= (mesgLengthRemainPull+3) & ~3; // DWORD roundup - shep owes Jim a beer
@@ -763,8 +769,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // expose register interface so WCI can set/get these config properties...
   method Action dpCtrl (DPControl dc) = dpControl._write(dc);
-  method i_flowDiagCount = flowDiagCount;
-  method i_debug = tlpDebug;
+  method Bit#(32)            i_flowDiagCount = flowDiagCount;
+  method Bit#(32)            i_debug = tlpDebug;
+  method Vector#(4,Bit#(32)) i_meta  = readVReg(lastMetaV);
 
 endmodule
 
