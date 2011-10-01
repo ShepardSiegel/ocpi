@@ -119,6 +119,7 @@ module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
        'h84 : rdat = extend(pack(tlp.i_meta[1]));
        'h88 : rdat = extend(pack(tlp.i_meta[2]));
        'h8C : rdat = extend(pack(tlp.i_meta[3]));
+       'h90 : rdat = 32'hC0DE_0111; // for OPED pcore 1_11
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);
