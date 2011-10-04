@@ -159,7 +159,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bit#(17))           mesgLengthRemainPull <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path) (for Pull Logic)
   Reg#(Bit#(17))           mesgComplReceived    <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
   Reg#(Bit#(13))           maxPayloadSize       <- mkReg(128);  // 128B Typical - Must not exceed 4096B
-  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(4096); // 512B Typical - Must not exceed 4096B
+  Reg#(Bit#(13))           maxReadReqSize       <- mkReg(512);  // 512B Typical - Must not exceed 4096B
   Reg#(Bit#(32))           flowDiagCount        <- mkReg(0);
   Reg#(DmaPullRules)       lastRuleFired        <- mkReg(R_none);
   Reg#(Bool)               complTimerRunning    <- mkReg(False);
@@ -471,7 +471,6 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     updatePullState(endOfSubCompletion, endOfReqCompletion);
     mesgComplReceived <= mesgComplReceived + 4;
     lastRuleFired <= R_dmaPullResponseHeader;
-    complTimerRunning <= False;
     $display("[%0d]: %m: dmaPullResponseHeader FPactMesg-Step4a/5", $time);
   endrule
 
@@ -497,6 +496,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     dmaDoTailEvent  <= False;
     tailEventF.enq(1);  // Send a tail event that generates a remDone
     lastRuleFired <= R_dmaPullTailEvent;
+    complTimerRunning <= False;  // Stop Completion Timer Here
     $display("[%0d]: %m: dmaPullTailEvent FPactMesg-Step5/5", $time);
   endrule
 
