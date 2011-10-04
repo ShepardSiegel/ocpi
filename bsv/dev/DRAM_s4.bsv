@@ -198,6 +198,15 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   Reg#(Bool)            secondBeat    <- mkReg(False,   clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Reg#(Bit#(32))        dbg_reqCount  <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);
   FIFO#(Bit#(2))        rdpF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
+
+  Wire#(Bool)           avlBurstBegin <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bit#(24))       avlAddr       <- mkDWire(0,     clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bit#(64))       avlWData      <- mkDWire(0    , clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bit#(8))        avlBE         <- mkDWire(0    , clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bool)           avlReadReq    <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bool)           avlWriteReq   <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bit#(3))        avlSize       <- mkDWire(0    , clocked_by memc.afi_half, reset_by memc.afi_rstn);
+
   Wire#(Bool)           wdfWren       <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Wire#(Bool)           wdfEnd        <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
 
@@ -213,15 +222,16 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
 
   Bool okToOperate = memc.status.init_done && memc.status.cal_success;
 
-  // Keep the Avalon inetrface from dissolving...
-  rule debug_busyWork_Avalon (False);  
-    memc.avl.burstbegin(False);
-    memc.avl.addr(extend(afiCount));
-    memc.avl.wdata(memc.avl.rdata);
-    memc.avl.be(0);
-    memc.avl.read_req (okToOperate && afiCount==0);
-    memc.avl.write_req(okToOperate && afiCount==7);
-    memc.avl.size(0);
+  // Connect the DWires to the always-enabled lower-level Action inputs to provide defaults...
+  (* fire_when_enabled, no_implicit_conditions *)
+  rule connect_avalon_defaults;
+    memc.avl.burstbegin(avlBurstBegin);
+    memc.avl.addr      (avlAddr);
+    memc.avl.wdata     (avlWData);
+    memc.avl.be        (avlBE);
+    memc.avl.read_req  (avlReadReq);
+    memc.avl.write_req (avlWriteReq);
+    memc.avl.size      (avlSize);
   endrule
 
   rule update_sysActive;   sysActive.send(sysCount[3]); endrule
@@ -235,31 +245,31 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   (* fire_when_enabled *)
   rule advance_request (okToOperate && !secondBeat && memc.avl.rdy);
     let r = reqF.first;
-    memc.avl.addr(truncate(r.addr>>2))       // convert Byte address to xxx address //TODO: Check shift 
-    memc.avl.size(2);                        // Two 8B/64b words for 16B/128b burst
+    avlAddr <= truncate(r.addr>>2); // convert Byte address to xxx address //TODO: Check shift 
+    avlSize <= 2;                   // Two 8B/64b words for 16B/128b burst
     if (r.isRead) begin
-      memc.avl.read_req(True);
-      reqF.deq();                            // Deq for read (we are done with read request)
+      avlReadReq <= True;
+      reqF.deq();                   // Deq for read (we are done with read request)
     end else begin
-      memc.avl.write_req(True);
-      memc.avl.wdata(r.data[63:0]);          // Write LS data to lower-address (little-endian)
-      memc.avl.be(r.be[7:0]);                // Take lower BEs
-      secondBeat <= True;                    // Writes need a second beat
+      avlWriteReq <= True;
+      avlWData <= r.data[63:0];     // Write LS data to lower-address (little-endian)
+      avlBE <= r.be[7:0];           // Take lower BEs
+      secondBeat <= True;           // Writes need a second beat
     end
-    dbg_reqCount <= dbg_reqCount + 1;        // Bump the requestCounter
+    dbg_reqCount <= dbg_reqCount + 1;
   endrule
 
   // Fires with the secondBeat of write, with the W1 data...
   (* fire_when_enabled *)
   rule advance_write1 (okToOperate && secondBeat);
     let r = reqF.first;
-    memc.avl.addr(truncate(r.addr>>2))       // convert Byte address to xxx address //TODO: Check shift 
-    memc.avl.size(2);                        // Two 8B/64b words for 16B/128b burst
-    memc.avl.write_req(True);
-    memc.avl.wdata(r.data[127:64]);          // Write MS data to upper-address (little-endian)
-    memc.avl.be(r.be[15:8]);                 // Take upper BEs
-    secondBeat <= False;                     // Burst over
-    reqF.deq();                              // Deq for write (we are done with write request)
+    avlAddr <= truncate(r.addr>>2); // convert Byte address to xxx address //TODO: Check shift 
+    avlSize <= 2;                   // Two 8B/64b words for 16B/128b burst
+    avlWriteReq <= True;
+    avlWData <= r.data[127:64];     // Write MS data to upper-address (little-endian)
+    avlBE <= r.be[15:8];            // Take lower BEs
+    secondBeat <= False;            // Burst over
+    reqF.deq();                     // Deq for write (we are done with write request)
   endrule
 
 
