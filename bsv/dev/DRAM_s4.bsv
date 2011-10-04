@@ -195,6 +195,7 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  drstn, rst_n, clocked_by sys0_clk, reset_by drstn);
   FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Reg#(Bool)            secondBeat    <- mkReg(False,   clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Reg#(Bit#(32))        dbg_reqCount  <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);
   FIFO#(Bit#(2))        rdpF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
   Wire#(Bool)           wdfWren       <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
@@ -213,7 +214,7 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   Bool okToOperate = memc.status.init_done && memc.status.cal_success;
 
   // Keep the Avalon inetrface from dissolving...
-  rule busyWork_Avalon;
+  rule debug_busyWork_Avalon (False);  
     memc.avl.burstbegin(False);
     memc.avl.addr(extend(afiCount));
     memc.avl.wdata(memc.avl.rdata);
@@ -223,25 +224,44 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
     memc.avl.size(0);
   endrule
 
-
   rule update_sysActive;   sysActive.send(sysCount[3]); endrule
   rule update_afiActive;   afiActive.send(afiCount[3]); endrule
 
   Bit#(3) activeBits = {curCount[3], sysActive.read, afiActive.read};
 
+  // The code that follows specializes the generic DRAM_USR16B interface to the Avalon Interface
 
-  rule advance_request (okToOperate);
+  // Fires request for read and write...
+  (* fire_when_enabled *)
+  rule advance_request (okToOperate && !secondBeat && memc.avl.rdy);
     let r = reqF.first;
-    dbg_reqCount <= dbg_reqCount + 1; 
+    memc.avl.addr(truncate(r.addr>>2))       // convert Byte address to xxx address //TODO: Check shift 
+    memc.avl.size(2);                        // Two 8B/64b words for 16B/128b burst
+    if (r.isRead) begin
+      memc.avl.read_req(True);
+      reqF.deq();                            // Deq for read (we are done with read request)
+    end else begin
+      memc.avl.write_req(True);
+      memc.avl.wdata(r.data[63:0]);          // Write LS data to lower-address (little-endian)
+      memc.avl.be(r.be[7:0]);                // Take lower BEs
+      secondBeat <= True;                    // Writes need a second beat
+    end
+    dbg_reqCount <= dbg_reqCount + 1;        // Bump the requestCounter
   endrule
 
-  rule advance_write (okToOperate);
+  // Fires with the secondBeat of write, with the W1 data...
+  (* fire_when_enabled *)
+  rule advance_write1 (okToOperate && secondBeat);
     let r = reqF.first;
+    memc.avl.addr(truncate(r.addr>>2))       // convert Byte address to xxx address //TODO: Check shift 
+    memc.avl.size(2);                        // Two 8B/64b words for 16B/128b burst
+    memc.avl.write_req(True);
+    memc.avl.wdata(r.data[127:64]);          // Write MS data to upper-address (little-endian)
+    memc.avl.be(r.be[15:8]);                 // Take upper BEs
+    secondBeat <= False;                     // Burst over
+    reqF.deq();                              // Deq for write (we are done with write request)
   endrule
 
-  rule advance_read  (okToOperate); 
-    noAction;
-  endrule
 
   interface DRAM_USR16B usr;
     method    Bool initDone     = memc.status.init_done;

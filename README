@@ -9,6 +9,7 @@ ssiegel 2011-01-14 Board Targets become platforms
 ssiegel 2011-03-03 ISE 13.1
 ssiegel 2011-03-13 Took Dan Zhang's patch changes (see FAQ) 
 ssiegel 2011-08-16 ISE 13.2, Quartus 11.0(sp1)
+ssiegel 2011-10-04 USE 13.3 prep
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
