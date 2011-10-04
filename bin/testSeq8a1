@@ -34,8 +34,8 @@ echo "start workers"
 ./swctl 0xDE000000 0xDFFF0000 wread 12 0 20
 
 # wait for controller ready...
-echo "Waiting for the ten second calibration"
-sleep 11
+echo "Waiting for the one second calibration"
+sleep 2
 
 echo "Read Memory Controler Status"
 ./swctl 0xDE000000 0xDFFF0000 wread 12 0 20
