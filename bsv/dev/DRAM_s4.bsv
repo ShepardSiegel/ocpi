@@ -241,7 +241,7 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   rule advance_request (okToOperate && !secondWrBeat && !secondRdBeat && memc.avl.rdy);
     let r = reqF.first;
     avlBurstBegin <= True;          // Start of Burst Request (read or write)
-    avlAddr <= truncate(r.addr>>2); // convert from 16B r.addr to 8B Avalon half-width
+    avlAddr <= truncate(r.addr>>3); // convert from 16B r.addr to 8B Avalon half-width
     avlSize <= 2;                   // Two 8B/64b words for 16B/128b burst
     if (r.isRead) begin
       avlReadReq <= True;
@@ -259,7 +259,7 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   (* fire_when_enabled *)
   rule advance_write1 (okToOperate && secondWrBeat);
     let r = reqF.first;
-    avlAddr <= truncate(r.addr>>2); // convert from 16B r.addr to 8B Avalon half-width
+    avlAddr <= truncate(r.addr>>3); // convert from 16B r.addr to 8B Avalon half-width
     avlSize <= 2;                   // Two 8B/64b words for 16B/128b burst
     avlWriteReq <= True;
     avlWData <= r.data[127:64];     // Write MS data to upper-address (little-endian)
