@@ -72,13 +72,10 @@ module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rstn) (DramServer_s4Ifc);
   rule update_calSuccess;   calSuccess.send(pack(memc.usr.calSuccess)); endrule
   rule update_calFail;      calFail.send(pack(memc.usr.calFail));       endrule
 
-  //FIXME
-  /*
   //(* no_implicit_conditions, fire_when_enabled *)
   rule update_debug (True);
      requestCount              <= memc.reqCount;
   endrule
-  */
 
   mkConnection(toGet(lreqF), memc.usr.request);
   mkConnection(memc.usr.response, toPut(lrespF));
@@ -174,7 +171,7 @@ endrule
        'h00 : rdat = dramStatus;
        'h04 : rdat = pack(dramCtrl);
        'h48 : rdat = extend(requestCount);
-       'h4C : rdat = 32'hc0de_4000; // code-4000 magic cookie
+       'h4C : rdat = 32'hc0de_4002; // code-4002 magic cookie
        'h50 : rdat = extend(pReg);
        'h5C : rdat = extend(mReg);
        'h60 : rdat = wdReg[0];

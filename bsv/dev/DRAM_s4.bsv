@@ -95,8 +95,7 @@ interface DramControllerIfc;
   interface DDR3_16       dram;      // the dram-facing ios
   interface DRAM_AVL_8B   avl;       // the explicit Avalon MM interface
   interface DRAM_STATUS   status;    // the status interface
-  interface Clock         afi_full;  // AFI clock
-  interface Clock         afi_half;  // AFI half-clock (this is the clock for the avl interface)
+  interface Clock         avl_hclk;  // AFI half-clock (this is the clock for the avl interface)
   interface Reset         afi_rstn;  // AFI reset
 endinterface: DramControllerIfc
 
@@ -114,7 +113,7 @@ interface DramControllerUiIfc;
   interface DRAM_USR16B  usr;        // user interface
   interface Clock        uclk;       // user-facing clock
   interface Reset        urst_n;     // user-facing reset
-  method Bit#(32)        reqCount;   // request counter
+  method Bit#(16)        reqCount;   // request counter
 endinterface: DramControllerUiIfc
 
 import "BVI" ddr3_s4_uniphy = 
@@ -125,9 +124,8 @@ module vMkS4DDR3#(Clock sys0_clk, Reset sys0_rstn, Reset soft_rstn)(DramControll
 
   input_reset softrst(soft_reset_n) clocked_by(no_clock) = soft_rstn;  // hookup the soft_reset_n port
 
-  output_clock    afi_full  (afi_clk);       // 350 MHz
-  output_clock    afi_half  (afi_half_clk);  // 175 MHz
-  output_reset    afi_rstn  (afi_reset_n) clocked_by (afi_half); 
+  output_clock    avl_hclk  (afi_clk);       // 533/2 = 266 MHz Half-Clock by configuration
+  output_reset    afi_rstn  (afi_reset_n) clocked_by (avl_hclk); 
 
   interface DDR3_16 dram;
     ifc_inout  io_dq(mem_dq)       clocked_by(no_clock) reset_by(no_reset);
@@ -150,22 +148,22 @@ module vMkS4DDR3#(Clock sys0_clk, Reset sys0_rstn, Reset soft_rstn)(DramControll
   endinterface: dram
 
   interface DRAM_AVL_8B avl;
-    method avl_ready          rdy                                                     clocked_by(afi_half) reset_by(afi_rstn);
-    method                    burstbegin (avl_burstbegin)      enable((*inhigh*)ena1) clocked_by(afi_half) reset_by(afi_rstn);
-    method                    addr       (avl_addr)            enable((*inhigh*)ena2) clocked_by(afi_half) reset_by(afi_rstn); 
-    method avl_rdata_valid    rdata_valid                                             clocked_by(afi_half) reset_by(afi_rstn);
-    method avl_rdata          rdata                                                   clocked_by(afi_half) reset_by(afi_rstn);
-    method                    wdata      (avl_wdata)           enable((*inhigh*)ena3) clocked_by(afi_half) reset_by(afi_rstn); 
-    method                    be         (avl_be   )           enable((*inhigh*)ena4) clocked_by(afi_half) reset_by(afi_rstn); 
-    method                    read_req   (avl_read_req)        enable((*inhigh*)ena5) clocked_by(afi_half) reset_by(afi_rstn);
-    method                    write_req  (avl_write_req)       enable((*inhigh*)ena6) clocked_by(afi_half) reset_by(afi_rstn);
-    method                    size       (avl_size)            enable((*inhigh*)ena7) clocked_by(afi_half) reset_by(afi_rstn); 
+    method avl_ready          rdy                                                     clocked_by(avl_hclk) reset_by(afi_rstn);
+    method                    burstbegin (avl_burstbegin)      enable((*inhigh*)ena1) clocked_by(avl_hclk) reset_by(afi_rstn);
+    method                    addr       (avl_addr)            enable((*inhigh*)ena2) clocked_by(avl_hclk) reset_by(afi_rstn); 
+    method avl_rdata_valid    rdata_valid                                             clocked_by(avl_hclk) reset_by(afi_rstn);
+    method avl_rdata          rdata                                                   clocked_by(avl_hclk) reset_by(afi_rstn);
+    method                    wdata      (avl_wdata)           enable((*inhigh*)ena3) clocked_by(avl_hclk) reset_by(afi_rstn); 
+    method                    be         (avl_be   )           enable((*inhigh*)ena4) clocked_by(avl_hclk) reset_by(afi_rstn); 
+    method                    read_req   (avl_read_req)        enable((*inhigh*)ena5) clocked_by(avl_hclk) reset_by(afi_rstn);
+    method                    write_req  (avl_write_req)       enable((*inhigh*)ena6) clocked_by(avl_hclk) reset_by(afi_rstn);
+    method                    size       (avl_size)            enable((*inhigh*)ena7) clocked_by(avl_hclk) reset_by(afi_rstn); 
   endinterface: avl
 
   interface DRAM_STATUS status;
-    method local_init_done   init_done                                                clocked_by(afi_half) reset_by(afi_rstn);
-    method local_cal_success cal_success                                              clocked_by(afi_half) reset_by(afi_rstn);
-    method local_cal_fail    cal_fail                                                 clocked_by(afi_half) reset_by(afi_rstn);
+    method local_init_done   init_done                                                clocked_by(avl_hclk) reset_by(afi_rstn);
+    method local_cal_success cal_success                                              clocked_by(avl_hclk) reset_by(afi_rstn);
+    method local_cal_fail    cal_fail                                                 clocked_by(avl_hclk) reset_by(afi_rstn);
   endinterface: status
 
   schedule 
@@ -193,32 +191,30 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   Reset                 rst_n         <- exposeCurrentReset;
   Reset                 drstn         <- mkAsyncResetFromCR(4, sys0_clk);
   DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  drstn, rst_n, clocked_by sys0_clk, reset_by drstn);
-  FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Reg#(Bool)            secondBeat    <- mkReg(False,   clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Reg#(Bit#(32))        dbg_reqCount  <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  FIFO#(Bit#(2))        rdpF          <- mkFIFO(        clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Reg#(Bool)            secondWrBeat  <- mkReg(False,   clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Reg#(Bool)            secondRdBeat  <- mkReg(False,   clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Reg#(Bit#(64))        rdStageLS     <- mkRegU(        clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Reg#(Bit#(16))        dbg_reqCount  <- mkReg(0,       clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
 
-  Wire#(Bool)           avlBurstBegin <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Wire#(Bit#(24))       avlAddr       <- mkDWire(0,     clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Wire#(Bit#(64))       avlWData      <- mkDWire(0    , clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Wire#(Bit#(8))        avlBE         <- mkDWire(0    , clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Wire#(Bool)           avlReadReq    <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Wire#(Bool)           avlWriteReq   <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Wire#(Bit#(3))        avlSize       <- mkDWire(0    , clocked_by memc.afi_half, reset_by memc.afi_rstn);
-
-  Wire#(Bool)           wdfWren       <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
-  Wire#(Bool)           wdfEnd        <- mkDWire(False, clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Wire#(Bool)           avlBurstBegin <- mkDWire(False, clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Wire#(Bit#(24))       avlAddr       <- mkDWire(0,     clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Wire#(Bit#(64))       avlWData      <- mkDWire(0    , clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Wire#(Bit#(8))        avlBE         <- mkDWire(0    , clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Wire#(Bool)           avlReadReq    <- mkDWire(False, clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Wire#(Bool)           avlWriteReq   <- mkDWire(False, clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Wire#(Bit#(3))        avlSize       <- mkDWire(0    , clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
 
   Reg#(Bit#(4))         curCount      <- mkReg(0);
   Reg#(Bit#(4))         sysCount      <- mkReg(0,       clocked_by sys0_clk,      reset_by sys0_rstn);
-  Reg#(Bit#(4))         afiCount      <- mkReg(0,       clocked_by memc.afi_half, reset_by memc.afi_rstn);
+  Reg#(Bit#(4))         afiCount      <- mkReg(0,       clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
   SyncBitIfc#(Bit#(1))  sysActive     <- mkSyncBitToCC(sys0_clk, sys0_rstn);
-  SyncBitIfc#(Bit#(1))  afiActive     <- mkSyncBitToCC(memc.afi_half, memc.afi_rstn);
+  SyncBitIfc#(Bit#(1))  afiActive     <- mkSyncBitToCC(memc.avl_hclk, memc.afi_rstn);
 
   rule count_cur_always; curCount <= curCount + 1; endrule  // in Current Clock domain
   rule count_sys_always; sysCount <= sysCount + 1; endrule  // in sys0_clk domain
-  rule count_afi_always; afiCount <= afiCount + 1; endrule  // in afi_half domain
+  rule count_afi_always; afiCount <= afiCount + 1; endrule  // in avl_hclk domain
 
   Bool okToOperate = memc.status.init_done && memc.status.cal_success;
 
@@ -242,10 +238,10 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   // The code that follows specializes the generic DRAM_USR16B interface to the Avalon Interface
 
   // Fires request for read and write...
-  (* fire_when_enabled *)
-  rule advance_request (okToOperate && !secondBeat && memc.avl.rdy);
+  rule advance_request (okToOperate && !secondWrBeat && !secondRdBeat && memc.avl.rdy);
     let r = reqF.first;
-    avlAddr <= truncate(r.addr>>2); // convert Byte address to xxx address //TODO: Check shift 
+    avlBurstBegin <= True;          // Start of Burst Request (read or write)
+    avlAddr <= truncate(r.addr>>2); // convert from 16B r.addr to 8B Avalon half-width
     avlSize <= 2;                   // Two 8B/64b words for 16B/128b burst
     if (r.isRead) begin
       avlReadReq <= True;
@@ -254,22 +250,32 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
       avlWriteReq <= True;
       avlWData <= r.data[63:0];     // Write LS data to lower-address (little-endian)
       avlBE <= r.be[7:0];           // Take lower BEs
-      secondBeat <= True;           // Writes need a second beat
+      secondWrBeat <= True;         // Writes need a second beat
     end
     dbg_reqCount <= dbg_reqCount + 1;
   endrule
 
   // Fires with the secondBeat of write, with the W1 data...
   (* fire_when_enabled *)
-  rule advance_write1 (okToOperate && secondBeat);
+  rule advance_write1 (okToOperate && secondWrBeat);
     let r = reqF.first;
-    avlAddr <= truncate(r.addr>>2); // convert Byte address to xxx address //TODO: Check shift 
+    avlAddr <= truncate(r.addr>>2); // convert from 16B r.addr to 8B Avalon half-width
     avlSize <= 2;                   // Two 8B/64b words for 16B/128b burst
     avlWriteReq <= True;
     avlWData <= r.data[127:64];     // Write MS data to upper-address (little-endian)
     avlBE <= r.be[15:8];            // Take lower BEs
-    secondBeat <= False;            // Burst over
+    secondWrBeat <= False;          // Burst over
     reqF.deq();                     // Deq for write (we are done with write request)
+  endrule
+
+  rule advance_readResponse (okToOperate && memc.avl.rdata_valid);
+    if (!secondRdBeat) begin
+      rdStageLS <= memc.avl.rdata;            // Stage the LS data
+      secondRdBeat <= True;
+    end else begin
+      respF.enq({memc.avl.rdata,rdStageLS});  // Merge the MS and LS and enq response
+      secondRdBeat <= False;
+    end
   endrule
 
 
@@ -282,9 +288,9 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
     interface Get  response     = toGet(respF);
   endinterface
   interface DDR3_16  dram       = memc.dram;
-  interface Clock    uclk       = memc.afi_half;
+  interface Clock    uclk       = memc.avl_hclk;
   interface Reset    urst_n     = memc.afi_rstn;
-  method Bit#(32)    reqCount   = dbg_reqCount;
+  method Bit#(16)    reqCount   = dbg_reqCount;
 endmodule: mkDramControllerUi
 
 endpackage: DRAM_s4
