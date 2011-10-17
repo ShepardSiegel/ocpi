@@ -1,8 +1,9 @@
 // OCApp.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package OCApp;
 
+import UUID::*;
 import OCWip::*;
 
 import BiasWorker::*;
@@ -28,6 +29,7 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
   interface WmemiEM16B          wmemiM0;
   interface WsiES4B             wsi_s_adc;
   interface WsiEM4B             wsi_m_dac;
+  (*always_ready*) method Bit#(512) uuid;
 endinterface
 
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
@@ -36,6 +38,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   SMAdapter4BIfc    appW2    <-  mkSMAdapter4B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
   BiasWorker4BIfc   appW3    <-  mkBiasWorker4B (              hasDebugLogic, reset_by(rst[3])); // Bias ahead of first SMAdapter
   SMAdapter4BIfc    appW4    <-  mkSMAdapter4B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+  UUIDIfc           id       <- mkUUID;
 
   // TODO: Use Default for tieOff...
   WciES tieOff0 <- mkWciSlaveENull;
@@ -73,6 +76,8 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
   interface wsi_s_adc = appW2.wsiS0;  // The ADC data to the   W2 SMAdapter WSI-S0 Slave Port
   interface wsi_m_dac = appW4.wsiM0;  // The DAC data from the W4 SMAdapter WSI-M0 Master Port
+
+  method Bit#(512) uuid = id.uuid;     // The always-ready UUID value
 
 endmodule : mkOCApp_poly
 

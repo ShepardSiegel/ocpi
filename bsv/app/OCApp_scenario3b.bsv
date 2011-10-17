@@ -3,6 +3,7 @@
 
 package OCApp;
 
+import UUID::*;
 import OCWip::*;
 
 import DelayWorker::*;
@@ -30,6 +31,7 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
   interface WmemiEM16B           wmemiM0;
   interface WsiES4B              wsi_s_adc;
   interface WsiEM4B              wsi_m_dac;
+  (*always_ready*) method Bit#(512) uuid;
 endinterface
 
 module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
@@ -41,6 +43,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   WsiSplitter2x24BIfc appW5    <-  mkWsiSplitter2x24B  (32'h00000000, hasDebugLogic, reset_by(rst[5])); // WsiSplitter
   FrameGate4BIfc      appW6    <-  mkFrameGate4B       (32'h00000000, hasDebugLogic, reset_by(rst[6])); // FrameGate
   PSDIfc              appW7    <-  mkPSD               (32'h00000000, hasDebugLogic, reset_by(rst[7])); // PSD
+  UUIDIfc             id       <-  mkUUID;
 
   // TODO: Use Default for tieOff...
   WciES  tieOff0  <- mkWciSlaveENull;
@@ -76,6 +79,8 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
   interface wsi_s_adc = appW5.wsiS1;  // The ADC data to the   W5 WsiSplitter WSI-S1 Slave Port
   interface wsi_m_dac = appW4.wsiM0;  // The DAC data from the W4 SMAdapter   WSI-M0 Master Port
+
+  method Bit#(512) uuid = id.uuid;     // The always-ready UUID value
 
 endmodule : mkOCApp_poly
 
