@@ -1,0 +1,20 @@
+Worker               Debug  Width(B)
+
+ADCWorker.bsv          Y    4
+BiasWorker.bsv         Y    4,8,16,32
+DACWorker.bsv          Y    4
+DDCWorker.bsv          Y    4
+DelayWorker.bsv        Y    4,8,16,32
+DramServer_k7.bsv      Y    16 (WMemI)
+DramServer_s4.bsv      Y    16 (WMemI)
+DramServer_v5.bsv      Y    16 (WMemI)
+DramServer_v6.bsv      Y    16 (WMemI)
+FFTWorker.bsv          Y    4
+FlashWorker.bsv        Y    N/A
+GbeWorker.bsv          Y    4
+GCDWorker.bsv          Y    4,8,16,32
+ICAPWorker.bsv         Y    N/A
+PSD.bsv                Y    4
+SMAdapter.bsv          Y    4,8,16,32
+
+Notes: Width is of WSI port(s) unless otherwise noted
