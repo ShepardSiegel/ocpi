@@ -25,7 +25,7 @@ interface DramServer_s4Ifc;
 endinterface
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDramServer_s4#(Clock sys0_clk, Reset sys0_rstn) (DramServer_s4Ifc);
+module mkDramServer_s4#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0_rstn) (DramServer_s4Ifc);
 
   // On the Altera alst4 board, the default on sysclk0 is 100 MHz - it can be programmed by USB
   // The jitter is uncertain. So here we take the questionable approach of using the PCIe-derrived 125 MHz

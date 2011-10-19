@@ -13,7 +13,7 @@ interface GCDWorkerIfc;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkGCDWorker#(Bit#(4) ordinalId) (GCDWorkerIfc);
+module mkGCDWorker#(parameter Bool hasDebugLogic, Bit#(4) ordinalId) (GCDWorkerIfc);
   WciESlaveIfc            wci        <- mkWciESlave;
   Reg#(Bit#(32))          r0         <- mkReg(0);
   Reg#(Bit#(32))          r4         <- mkReg(0);

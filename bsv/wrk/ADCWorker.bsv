@@ -33,7 +33,8 @@ interface ADCWorkerIfc;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkADCWorker#(Clock sys0_clk, Reset sys0_rst, Clock adc_clk, Clock adc0_clk, Clock adc1_clk, Reset adcx_rst) (ADCWorkerIfc);
+module mkADCWorker#(parameter Bool hasDebugLogic,
+  Clock sys0_clk, Reset sys0_rst, Clock adc_clk, Clock adc0_clk, Clock adc1_clk, Reset adcx_rst) (ADCWorkerIfc);
   WciESlaveIfc         wci                <-  mkWciESlave;              // WCI
   Reg#(Bool)           sFlagState         <-  mkReg(False);             // Worker Attention
   Reg#(Bool)           splitReadInFlight  <-  mkReg(False);             // Asserted for Split Reads

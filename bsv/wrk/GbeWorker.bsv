@@ -28,7 +28,7 @@ interface GbeWorkerIfc;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkGbeWorker#(Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeWorkerIfc);
+module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeWorkerIfc);
 
   WciESlaveIfc                wciRx        <-  mkWciESlave; 
   WciESlaveIfc                wciTx        <-  mkWciESlave; 

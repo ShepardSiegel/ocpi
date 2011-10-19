@@ -29,7 +29,7 @@ typedef 4 DqsWidth;
 typedef 8 DqsPerDqs;
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDramServer_v5#(Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys1_rst) (DramServer_v5Ifc);
+module mkDramServer_v5#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0_rst, Clock sys1_clk, Reset sys1_rst) (DramServer_v5Ifc);
 
   WciESlaveIfc                     wci                        <- mkWciESlave;
   DramControllerUiV5Ifc            memc                       <- mkDramControllerV5Ui(sys0_clk, sys0_rst, sys1_clk);

@@ -27,7 +27,7 @@ interface DACWorkerIfc;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkDACWorker#(Clock dac_clk, Reset dac_rst) (DACWorkerIfc);
+module mkDACWorker#(parameter Bool hasDebugLogic, Clock dac_clk, Reset dac_rst) (DACWorkerIfc);
   WciESlaveIfc                wci                 <-  mkWciESlave;              // WCI
   WtiSlaveIfc#(64)            wti                 <-  mkWtiSlave(clocked_by dac_clk, reset_by dac_rst); 
   Reg#(Bool)                  sFlagState          <-  mkReg(False);             // Worker Attention
