@@ -59,7 +59,7 @@ generate
   //genvar byteWidth;
   //byteWidth = WMI_M0_DATAPATH_WIDTH/8;
 
-  case (WMI_M0_DATAPATH_WIDTH/8)
+  case (WSI_M0_DATAPATH_WIDTH/8)
     4:
       mkBiasWorker4B #(
       .hasDebugLogic (HAS_DEBUG_LOGIC))
