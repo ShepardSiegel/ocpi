@@ -1,7 +1,7 @@
 // DelayWorker.v - DelayWorker with parmeterization
 // Copyright (c) 2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-module BiasWorker # ( 
+module DelayWorker # ( 
   parameter integer                      WSI_S0_DATAPATH_WIDTH  = 32,
   parameter integer                      WSI_M0_DATAPATH_WIDTH  = 32,
   parameter integer                      WORKER_CTRL_INIT       = 1,
@@ -75,7 +75,7 @@ generate
   //genvar byteWidth;
   //byteWidth = WMI_M0_DATAPATH_WIDTH/8;
 
-  case (WMI_M0_DATAPATH_WIDTH/8)
+  case (WSI_M0_DATAPATH_WIDTH/8)
     4:
       mkDelayWorker4B #(
       .dlyCtrlInit   (WORKER_CTRL_INIT),
