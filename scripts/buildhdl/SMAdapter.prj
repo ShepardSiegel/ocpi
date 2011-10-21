@@ -1,0 +1,11 @@
+verilog work "../../libsrc/hdl/bsv/BRAM2.v"
+verilog work "../../libsrc/hdl/bsv/FIFO10.v"
+verilog work "../../libsrc/hdl/bsv/FIFO2.v"
+verilog work "../../libsrc/hdl/bsv/SizedFIFO.v"
+
+verilog work "../../rtl/mkSMAdapter4B.v"
+verilog work "../../rtl/mkSMAdapter8B.v"
+verilog work "../../rtl/mkSMAdapter16B.v"
+verilog work "../../rtl/mkSMAdapter32B.v"
+
+verilog work "../../libsrc/hdl/ocpi/SMAdapter.v"

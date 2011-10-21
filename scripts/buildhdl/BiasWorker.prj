@@ -1,0 +1,11 @@
+verilog work "../../libsrc/hdl/bsv/BRAM2.v"
+verilog work "../../libsrc/hdl/bsv/FIFO10.v"
+verilog work "../../libsrc/hdl/bsv/FIFO2.v"
+verilog work "../../libsrc/hdl/bsv/SizedFIFO.v"
+
+verilog work "../../rtl/mkBiasWorker4B.v"
+verilog work "../../rtl/mkBiasWorker8B.v"
+verilog work "../../rtl/mkBiasWorker16B.v"
+verilog work "../../rtl/mkBiasWorker32B.v"
+
+verilog work "../../libsrc/hdl/ocpi/BiasWorker.v"

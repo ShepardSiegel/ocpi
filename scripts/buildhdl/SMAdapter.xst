@@ -1,0 +1,7 @@
+run
+-ifn SMAdapter.prj
+-ofn SMAdapter
+-top SMAdapter
+-generics {WMI_M0_DATAPATH_WIDTH=32, WSI_S0_DATAPATH_WIDTH=32, WSI_M0_DATAPATH_WIDTH=32, HAS_DEBUG_LOGIC=1}
+-p virtex6
+-iobuf NO
