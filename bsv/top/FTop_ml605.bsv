@@ -70,9 +70,13 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
   // Static approach..
 `ifdef USE_NDW1
-  CTop4BIfc ctop <- mkCTop4B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
+  CTop4BIfc ctop  <- mkCTop4B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
+`elsif USE_NDW2
+  CTop8BIfc ctop  <- mkCTop8B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
 `elsif USE_NDW4
   CTop16BIfc ctop <- mkCTop16B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
+`elsif USE_NDW8
+  CTop32BIfc ctop <- mkCTop32B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
 `endif
    
   mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
@@ -82,10 +86,10 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level board-specific workers..
-  ICAPWorkerIfc    icap     <- mkICAPWorker(True,True,                      clocked_by p125Clk , reset_by(vWci[0].mReset_n));
-  FlashWorkerIfc   flash0   <- mkFlashWorker(                               clocked_by p125Clk , reset_by(vWci[1].mReset_n));
-  GbeWorkerIfc     gbe0     <- mkGbeWorker(gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
-  DramServer_v6Ifc dram0    <- mkDramServer_v6(sys0_clk, sys0_rst,          clocked_by p125Clk , reset_by(vWci[4].mReset_n));
+  ICAPWorkerIfc    icap   <- mkICAPWorker(True,True,                      clocked_by p125Clk , reset_by(vWci[0].mReset_n));
+  FlashWorkerIfc   flash0 <- mkFlashWorker(True,                          clocked_by p125Clk , reset_by(vWci[1].mReset_n));
+  GbeWorkerIfc     gbe0  <- mkGbeWorker(True,gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
+  DramServer_v6Ifc dram0 <- mkDramServer_v6(True,sys0_clk, sys0_rst,          clocked_by p125Clk , reset_by(vWci[4].mReset_n));
 
   WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
   PMEMMonitorIfc           pmemMonW8        <- mkPMEMMonitor(      clocked_by p125Clk , reset_by p125Rst );

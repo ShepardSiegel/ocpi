@@ -23,7 +23,7 @@ interface FlashWorkerIfc;
 endinterface
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkFlashWorker (parameter Bool hasDebugLogic, FlashWorkerIfc);
+module mkFlashWorker#(parameter Bool hasDebugLogic) (FlashWorkerIfc);
 
   WciESlaveIfc                 wci         <- mkWciESlave;
   FlashControllerIfc#(24,16)   flashC      <- mkFlashController;

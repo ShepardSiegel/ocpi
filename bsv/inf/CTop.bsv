@@ -40,9 +40,13 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
 
   //OCInfIfc#(Nwci_ctop,ndw) inf <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
 `ifdef USE_NDW1
-  OCInf4BIfc inf <- mkOCInf4B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+  OCInf4BIfc inf  <- mkOCInf4B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+`elsif USE_NDW2
+  OCInf8BIfc inf  <- mkOCInf8B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
 `elsif USE_NDW4
   OCInf16BIfc inf <- mkOCInf16B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
+`elsif USE_NDW8
+  OCInf32BIfc inf <- mkOCInf32B(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
 `endif
 
   Vector#(iNwci_ctop, Reset) resetVec = newVector;                                   // Vector of WCI Resets
@@ -51,8 +55,12 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   //OCAppIfc#(Nwci_app,Nwmi,Nwmemi,ndw) app  <- mkOCApp_poly(resetVec,hasDebugLogic);  // Instance the Application
 `ifdef USE_NDW1
   OCApp4BIfc  app  <- mkOCApp4B(resetVec,hasDebugLogic);  // Instance the Application
+`elsif USE_NDW2
+  OCApp8BIfc app   <- mkOCApp8B(resetVec,hasDebugLogic);  // Instance the Application
 `elsif USE_NDW4
   OCApp16BIfc app  <- mkOCApp16B(resetVec,hasDebugLogic);  // Instance the Application
+`elsif USE_NDW8
+  OCApp32BIfc app  <- mkOCApp32B(resetVec,hasDebugLogic);  // Instance the Application
 `endif
 
   for (Integer i=0; i<iNwci_app; i=i+1) mkConnection(inf.wci_m[i], app.wci_s[i]);   // Connect WCI between INF/APP

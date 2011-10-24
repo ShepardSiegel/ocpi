@@ -75,7 +75,7 @@ module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
   Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level device-workers..
-  FlashWorkerIfc   flash0   <- mkFlashWorker(                       clocked_by p125Clk, reset_by(vWci[1].mReset_n));
+  FlashWorkerIfc   flash0   <- mkFlashWorker(True,                  clocked_by p125Clk, reset_by(vWci[1].mReset_n));
   DramServer_s4Ifc dram0    <- mkDramServer_s4(sys0_clk, sys0_rstn, clocked_by p125Clk, reset_by(vWci[4].mReset_n));
 
   // WCI...

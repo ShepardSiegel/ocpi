@@ -99,9 +99,9 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn)
 
   // FTop Level board-specific workers..
   //ICAPWorkerIfc    icap     <- mkICAPWorker(True,True,                      clocked_by p125Clk , reset_by(vWci[0].mReset_n));
-  //FlashWorkerIfc   flash0   <- mkFlashWorker(                               clocked_by p125Clk , reset_by(vWci[1].mReset_n));
-  //GbeWorkerIfc     gbe0     <- mkGbeWorker(gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
-  //DramServer_k7Ifc dram0    <- mkDramServer_k7(sys0_clk, sys0_rst,          clocked_by p125Clk , reset_by(vWci[4].mReset_n));
+  //FlashWorkerIfc   flash0   <- mkFlashWorker(True,                          clocked_by p125Clk , reset_by(vWci[1].mReset_n));
+  //GbeWorkerIfc     gbe0     <- mkGbeWorker(True, gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
+  //DramServer_k7Ifc dram0    <- mkDramServer_k7(True, sys0_clk, sys0_rst,          clocked_by p125Clk , reset_by(vWci[4].mReset_n));
 
   //WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
   //PMEMMonitorIfc           pmemMonW8        <- mkPMEMMonitor(      clocked_by p125Clk , reset_by p125Rst );

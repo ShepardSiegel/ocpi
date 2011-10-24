@@ -66,11 +66,21 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   //DelayWorker4BIfc appW3   <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   BiasWorker4BIfc appW3   <-  mkBiasWorker4B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapter4BIfc   appW4   <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`elsif USE_NDW2
+  SMAdapter8BIfc   appW2   <-  mkSMAdapter8B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  //DelayWorker8BIfc appW3   <-  mkDelayWorker8B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  BiasWorker8BIfc appW3   <-  mkBiasWorker8B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapter8BIfc   appW4   <-  mkSMAdapter8B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `elsif USE_NDW4
   SMAdapter16BIfc   appW2   <-  mkSMAdapter16B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
   //DelayWorker16BIfc appW3   <-  mkDelayWorker16B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   BiasWorker16BIfc appW3   <-  mkBiasWorker16B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapter16BIfc   appW4   <-  mkSMAdapter16B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+`elsif USE_NDW8
+  SMAdapter32BIfc   appW2   <-  mkSMAdapter32B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  //DelayWorker32BIfc appW3   <-  mkDelayWorker32B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  BiasWorker32BIfc appW3   <-  mkBiasWorker32B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapter32BIfc   appW4   <-  mkSMAdapter32B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `endif
 
   // 'PLAN A': This compiles and functions; but does not allows us to have synthesis bounds at each worker as required...

@@ -418,12 +418,12 @@ platform_xupv5: $(OBJ)
 platform_ml605: $(OBJ)
 
 	# compile to verilog backend for RTL
-	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		-D USE_NDW1 \
+		-D USE_NDW8 \
 		-D USE_SRLFIFO \
 		-D HAS_DEVICE_DNA \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML605).bsv

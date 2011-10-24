@@ -32,7 +32,7 @@ interface OCDPIfc#(numeric type ndw);
   interface Server#(PTW16,PTW16) server;   // facing the infrastructure (remote)
 endinterface
 
-module mkOCDP#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDPIfc#(ndw))
+module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, parameter Bool hasDebugLogic) (OCDPIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)));
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;          // Width in Bytes
@@ -153,29 +153,29 @@ endmodule
 `ifdef USE_NDW1
 typedef OCDPIfc#(1) OCDP4BIfc;
 (* synthesize *)
-module mkOCDP4B#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDP4BIfc);
-  OCDP4BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull); return _a;
+module mkOCDP4B#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, parameter Bool hasDebugLogic) (OCDP4BIfc);
+  OCDP4BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull,hasDebugLogic); return _a;
 endmodule
 
 `elsif USE_NDW2
 typedef OCDPIfc#(2) OCDP8BIfc;
 (* synthesize *)
-module mkOCDP8B#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDP8BIfc);
-  OCDP8BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull); return _a;
+module mkOCDP8B#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, parameter Bool hasDebugLogic) (OCDP8BIfc);
+  OCDP8BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull,hasDebugLogic); return _a;
 endmodule
 
 `elsif USE_NDW4
 typedef OCDPIfc#(4) OCDP16BIfc;
 (* synthesize *)
-module mkOCDP16B#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDP16BIfc);
-  OCDP16BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull); return _a;
+module mkOCDP16B#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, parameter Bool hasDebugLogic) (OCDP16BIfc);
+  OCDP16BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull,hasDebugLogic); return _a;
 endmodule
 
 `elsif USE_NDW8
 typedef OCDPIfc#(8) OCDP32BIfc;
 (* synthesize *)
-module mkOCDP32B#(PciId pciDevice, Bool hasPush, Bool hasPull) (OCDP32BIfc);
-  OCDP32BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull); return _a;
+module mkOCDP32B#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, parameter Bool hasDebugLogic) (OCDP32BIfc);
+  OCDP32BIfc _a <- mkOCDP(pciDevice,hasPush,hasPull,hasDebugLogic); return _a;
 endmodule
 `endif
 
