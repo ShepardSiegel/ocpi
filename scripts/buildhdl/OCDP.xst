@@ -1,0 +1,7 @@
+run
+-ifn OCDP.prj
+-ofn OCDP
+-top OCDP
+-generics {WMI_S0_DATAPATH_WIDTH=32, HAS_PUSH_LOGIC=1, HAS_PULL_LOGIC=1, HAS_DEBUG_LOGIC=1}
+-p virtex6
+-iobuf NO

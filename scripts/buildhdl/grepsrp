@@ -1,0 +1,5 @@
+#!/bin/csh
+set file = $argv[1]
+grep "Maximum Frequency" $file
+grep "Slice Registers" $file
+grep "Slice LUTs" $file
