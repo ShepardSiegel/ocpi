@@ -115,7 +115,7 @@ typedef struct {
 
 
 typedef int func(volatile OCCP_Space *, char **, volatile OCCP_WorkerControl *, volatile uint8_t *, volatile OCDP_Space *);
-static func admin, wdump, wread, wwrite, wadmin, radmin, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset;
+static func admin, wdump, wread, wwrite, wadmin, radmin, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset, mwpost;
 
 typedef struct {
   char *name;
@@ -143,6 +143,7 @@ static OCCP_Command commands[] = {
   {"dwrite", dwrite},        // Write some data plane
   {"wunreset", wunreset, 1}, // deassert reset for worker
   {"wreset", wreset, 1},     // assert reset for worker
+  {"mwpost", mwpost},        // meassure write post rate
   {0}
 };
 
@@ -816,5 +817,29 @@ dwrite(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volati
     uint32_t val = atoi_any(*ap++, 0);
     *mp++ = val;
   }
+  return 0;
+}
+
+ static int
+ mwpost(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  unsigned off = atoi_any(*ap++, 0);
+  unsigned val = atoi_any(*ap, 0);
+  uint32_t *pv = (uint32_t *)((uint8_t *)&p->admin + off);
+  struct timeval tv0, tv1;
+  unsigned i;
+  printf("Admin space, offset 0x%x, writing value: 0x%x\n", off, val);
+
+  gettimeofday(&tv0, NULL); 
+  for (i=0;i<1000000;i++) {
+    *pv = val;
+  }
+  gettimeofday(&tv1, NULL); 
+
+  uint64_t t0 = tv0.tv_sec * 1000000LL + tv0.tv_usec;
+  uint64_t t1 = tv1.tv_sec * 1000000LL + tv1.tv_usec;
+  uint64_t dt = t1 - t0;
+  printf("1M DWORD writes in %lld uS (%f MB/S)\n", dt, 4000000.0/(double)dt);
+
   return 0;
 }
