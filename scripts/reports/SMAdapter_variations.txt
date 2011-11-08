@@ -1,0 +1,49 @@
+argv 1 is 23
+Variation: Width:32 Debug:0
+  Slice Registers: 819
+  Slice LUTs: 1638
+  Number of IOs: 426
+  Block RAM/FIFO: 4
+  Maximum Frequency: 270
+Variation: Width:32 Debug:1
+  Slice Registers: 1197
+  Slice LUTs: 2075
+  Number of IOs: 426
+  Block RAM/FIFO: 4
+  Maximum Frequency: 277
+Variation: Width:64 Debug:0
+  Slice Registers: 1099
+  Slice LUTs: 2101
+  Number of IOs: 578
+  Block RAM/FIFO: 6
+  Maximum Frequency: 278
+Variation: Width:64 Debug:1
+  Slice Registers: 1478
+  Slice LUTs: 2280
+  Number of IOs: 578
+  Block RAM/FIFO: 6
+  Maximum Frequency: 277
+Variation: Width:128 Debug:0
+  Slice Registers: 1659
+  Slice LUTs: 2365
+  Number of IOs: 882
+  Block RAM/FIFO: 10
+  Maximum Frequency: 259
+Variation: Width:128 Debug:1
+  Slice Registers: 2034
+  Slice LUTs: 3080
+  Number of IOs: 882
+  Block RAM/FIFO: 10
+  Maximum Frequency: 258
+Variation: Width:256 Debug:0
+  Slice Registers: 2775
+  Slice LUTs: 4035
+  Number of IOs: 1490
+  Block RAM/FIFO: 18
+  Maximum Frequency: 222
+Variation: Width:256 Debug:1
+  Slice Registers: 3151
+  Slice LUTs: 4365
+  Number of IOs: 1490
+  Block RAM/FIFO: 18
+  Maximum Frequency: 222

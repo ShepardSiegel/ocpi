@@ -1,0 +1,1097 @@
+Release 13.3 - xst O.76xb (lin64)
+Copyright (c) 1995-2011 Xilinx, Inc.  All rights reserved.
+--> 
+
+TABLE OF CONTENTS
+  1) Synthesis Options Summary
+  2) HDL Parsing
+  3) HDL Elaboration
+  4) HDL Synthesis
+       4.1) HDL Synthesis Report
+  5) Advanced HDL Synthesis
+       5.1) Advanced HDL Synthesis Report
+  6) Low Level Synthesis
+  7) Partition Report
+  8) Design Summary
+       8.1) Primitive and Black Box Usage
+       8.2) Device utilization summary
+       8.3) Partition Resource Summary
+       8.4) Timing Report
+            8.4.1) Clock Information
+            8.4.2) Asynchronous Control Signals Information
+            8.4.3) Timing Summary
+            8.4.4) Timing Details
+            8.4.5) Cross Clock Domains Report
+
+
+=========================================================================
+*                      Synthesis Options Summary                        *
+=========================================================================
+---- Source Parameters
+Input File Name                    : "SMAdapter.prj"
+
+---- Target Parameters
+Output File Name                   : "SMAdapter"
+Target Device                      : Virtex6
+
+---- Source Options
+Top Module Name                    : SMAdapter
+Generics, Parameters               : {WMI_M0_DATAPATH_WIDTH=128, WSI_S0_DATAPATH_WIDTH=128, WSI_M0_DATAPATH_WIDTH=128, HAS_DEBUG_LOGIC=1}
+
+---- Target Options
+Add IO Buffers                     : NO
+
+=========================================================================
+
+WARNING:Xst:29 - Optimization Effort not specified
+The following parameters have been added:
+Optimization Goal                  : SPEED
+
+=========================================================================
+
+=========================================================================
+*                          HDL Parsing                                  *
+=========================================================================
+Analyzing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/BRAM2.v" into library work
+Parsing module <BRAM2>.
+Analyzing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/FIFO10.v" into library work
+Parsing module <FIFO10>.
+Analyzing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/FIFO2.v" into library work
+Parsing module <FIFO2>.
+Analyzing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/bsv/SizedFIFO.v" into library work
+Parsing module <SizedFIFO>.
+Analyzing Verilog file "/home/shep/projects/ocpi/rtl/mkSMAdapter4B.v" into library work
+Parsing module <mkSMAdapter4B>.
+Analyzing Verilog file "/home/shep/projects/ocpi/rtl/mkSMAdapter8B.v" into library work
+Parsing module <mkSMAdapter8B>.
+Analyzing Verilog file "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" into library work
+Parsing module <mkSMAdapter16B>.
+Analyzing Verilog file "/home/shep/projects/ocpi/rtl/mkSMAdapter32B.v" into library work
+Parsing module <mkSMAdapter32B>.
+Analyzing Verilog file "/home/shep/projects/ocpi/libsrc/hdl/ocpi/SMAdapter.v" into library work
+Parsing module <SMAdapter>.
+
+=========================================================================
+*                            HDL Elaboration                            *
+=========================================================================
+
+Elaborating module <SMAdapter(WMI_M0_DATAPATH_WIDTH=128,WSI_S0_DATAPATH_WIDTH=128,WSI_M0_DATAPATH_WIDTH=128,HAS_DEBUG_LOGIC=1)>.
+
+Elaborating module <mkSMAdapter16B(smaCtrlInit=1,hasDebugLogic=1)>.
+
+Elaborating module <FIFO10(guarded=32'b01)>.
+
+Elaborating module <BRAM2(PIPELINED=1'b0,ADDR_WIDTH=32'b01011,DATA_WIDTH=32'b010101001,MEMSIZE=12'b100000000000)>.
+
+Elaborating module <SizedFIFO(p1width=32'b01001000,p2depth=32'b011,p3cntr_width=32'b01,guarded=32'b01)>.
+
+Elaborating module <FIFO2(width=32'b010000010,guarded=32'b01)>.
+
+Elaborating module <SizedFIFO(p1width=32'b010101001,p2depth=32'b011,p3cntr_width=32'b01,guarded=32'b01)>.
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1552: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1635: Assignment to wci_wslv_wciReq$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1636: Assignment to wci_wslv_respF_x_wire$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1640: Assignment to wci_wslv_wEdge$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1641: Assignment to wci_wslv_wEdge$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1642: Assignment to wci_wslv_sFlagReg_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1643: Assignment to wci_wslv_sFlagReg_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1644: Assignment to wci_wslv_ctlAckReg_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1648: Assignment to wci_wci_Es_mCmd_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1649: Assignment to wci_wci_Es_mCmd_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1650: Assignment to wci_wci_Es_mAddrSpace_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1651: Assignment to wci_wci_Es_mAddrSpace_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1652: Assignment to wci_wci_Es_mAddr_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1653: Assignment to wci_wci_Es_mAddr_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1654: Assignment to wci_wci_Es_mData_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1655: Assignment to wci_wci_Es_mData_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1656: Assignment to wci_wci_Es_mByteEn_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1657: Assignment to wci_wci_Es_mByteEn_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1658: Assignment to wmi_reqF_x_wire$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1662: Assignment to wmi_mFlagF_x_wire$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1663: Assignment to wmi_mFlagF_x_wire$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1664: Assignment to wmi_dhF_x_wire$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1665: Assignment to wmi_dhF_x_wire$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1667: Assignment to wmi_wmiResponse$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1668: Assignment to wmi_sThreadBusy_d_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1669: Assignment to wmi_sThreadBusy_d_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1670: Assignment to wmi_sDataThreadBusy_d_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1671: Assignment to wmi_sDataThreadBusy_d_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1672: Assignment to wmi_operateD_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1673: Assignment to wmi_operateD_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1674: Assignment to wmi_peerIsReady_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1675: Assignment to wmi_peerIsReady_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1676: Assignment to wsiM_reqFifo_x_wire$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1677: Assignment to wsiM_reqFifo_x_wire$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1678: Assignment to wsiM_operateD_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1679: Assignment to wsiM_operateD_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1680: Assignment to wsiM_peerIsReady_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1681: Assignment to wsiM_peerIsReady_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1690: Assignment to wsiS_wsiReq$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1691: Assignment to wsiS_operateD_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1692: Assignment to wsiS_operateD_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1693: Assignment to wsiS_peerIsReady_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1694: Assignment to wsiS_peerIsReady_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1698: Assignment to fabRespCredit_acc_v1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1699: Assignment to fabRespCredit_acc_v1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1700: Assignment to fabRespCredit_acc_v2$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1701: Assignment to fabRespCredit_acc_v2$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1702: Assignment to mesgPreRequest_1$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1703: Assignment to mesgPreRequest_1$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1712: Assignment to respF_wDataIn$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1713: Assignment to respF_wDataOut$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1714: Assignment to respF_wDataOut$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1715: Assignment to wsi_Es_mCmd_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1716: Assignment to wsi_Es_mCmd_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1717: Assignment to wsi_Es_mBurstLength_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1718: Assignment to wsi_Es_mBurstLength_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1719: Assignment to wsi_Es_mData_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1720: Assignment to wsi_Es_mData_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1721: Assignment to wsi_Es_mByteEn_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1722: Assignment to wsi_Es_mByteEn_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1723: Assignment to wsi_Es_mReqInfo_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1724: Assignment to wsi_Es_mReqInfo_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1725: Assignment to wmi_Em_sResp_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1726: Assignment to wmi_Em_sResp_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1727: Assignment to wmi_Em_sData_w$wget ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1728: Assignment to wmi_Em_sData_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1729: Assignment to wci_wslv_reqF_r_enq$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1733: Assignment to wci_wslv_reqF_r_clr$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1737: Assignment to wci_wslv_respF_dequeueing$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1738: Assignment to wci_wslv_sThreadBusy_pw$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1760: Assignment to wmi_dhF_enqueueing$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1770: Assignment to wsiM_reqFifo_dequeueing$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1771: Assignment to wsiM_sThreadBusy_pw$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1772: Assignment to wsiS_reqFifo_r_enq$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1776: Assignment to wsiS_reqFifo_r_clr$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1777: Assignment to wsiS_reqFifo_doResetEnq$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1778: Assignment to wsiS_reqFifo_doResetDeq$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1779: Assignment to wsiS_reqFifo_doResetClr$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1780: Assignment to respF_pwDequeue$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1783: Assignment to wsi_Es_mReqLast_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1784: Assignment to wsi_Es_mBurstPrecise_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1785: Assignment to wsi_Es_mDataInfo_w$whas ignored, since the identifier is never used
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1856: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 1955: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2062: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2086: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2130: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2151: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2189: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2208: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2244: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2264: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2370: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1311 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2393: Found parallel_case directive. Use of parallel_case directives may cause differences between RTL and post-synthesis simulation
+WARNING:HDLCompiler:1127 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" Line 2807: Assignment to firstMsgReq ignored, since the identifier is never used
+WARNING:HDLCompiler:189 - "/home/shep/projects/ocpi/libsrc/hdl/ocpi/SMAdapter.v" Line 236: Size mismatch in connection of port <wmiM0_MDataByteEn>. Formal port size is 16-bit while actual signal size is 32-bit.
+WARNING:HDLCompiler:189 - "/home/shep/projects/ocpi/libsrc/hdl/ocpi/SMAdapter.v" Line 240: Size mismatch in connection of port <wsiS0_MByteEn>. Formal port size is 16-bit while actual signal size is 32-bit.
+WARNING:HDLCompiler:189 - "/home/shep/projects/ocpi/libsrc/hdl/ocpi/SMAdapter.v" Line 256: Size mismatch in connection of port <wsiM0_MByteEn>. Formal port size is 16-bit while actual signal size is 32-bit.
+
+=========================================================================
+*                           HDL Synthesis                               *
+=========================================================================
+
+Synthesizing Unit <SMAdapter>.
+    Related source file is "/home/shep/projects/ocpi/libsrc/hdl/ocpi/SMAdapter.v".
+        WMI_M0_DATAPATH_WIDTH = 128
+        WSI_S0_DATAPATH_WIDTH = 128
+        WSI_M0_DATAPATH_WIDTH = 128
+        WORKER_CTRL_INIT = 1
+        HAS_DEBUG_LOGIC = 1
+WARNING:Xst:647 - Input <wsiS0_MByteEn<31:16>> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+    Summary:
+	no macro.
+Unit <SMAdapter> synthesized.
+
+Synthesizing Unit <mkSMAdapter16B>.
+    Related source file is "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v".
+        smaCtrlInit = 32'b00000000000000000000000000000001
+        hasDebugLogic = 1'b1
+WARNING:Xst:647 - Input <wciS0_MFlag<1:0>> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:647 - Input <wmiM0_SRespLast> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+INFO:Xst:3210 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" line 1164: Output port <DOA> of the instance <respF_memory> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "/home/shep/projects/ocpi/rtl/mkSMAdapter16B.v" line 1181: Output port <FULL_N> of the instance <wci_wslv_reqF> is unconnected or connected to loadless signal.
+    Register <wsiM_operateD> equivalent to <wmi_operateD> has been removed
+    Register <wsiS_operateD> equivalent to <wmi_operateD> has been removed
+    Found 1-bit register for signal <wmi_isReset_isInReset>.
+    Found 1-bit register for signal <wsiM_isReset_isInReset>.
+    Found 1-bit register for signal <wsiS_isReset_isInReset>.
+    Found 1-bit register for signal <wci_wslv_isReset_isInReset>.
+    Found 1-bit register for signal <doAbort>.
+    Found 1-bit register for signal <endOfMessage>.
+    Found 12-bit register for signal <fabRespCredit_value>.
+    Found 14-bit register for signal <fabWordsRemain>.
+    Found 32-bit register for signal <lastMesg>.
+    Found 32-bit register for signal <mesgCount>.
+    Found 14-bit register for signal <mesgLengthSoFar>.
+    Found 1-bit register for signal <mesgPreRequest>.
+    Found 1-bit register for signal <mesgReqOK>.
+    Found 9-bit register for signal <opcode>.
+    Found 1-bit register for signal <readyToPush>.
+    Found 182-bit register for signal <respF_rCache>.
+    Found 12-bit register for signal <respF_rRdPtr>.
+    Found 12-bit register for signal <respF_rWrPtr>.
+    Found 32-bit register for signal <smaCtrl>.
+    Found 32-bit register for signal <thisMesg>.
+    Found 16-bit register for signal <unrollCnt>.
+    Found 3-bit register for signal <wci_wslv_cState>.
+    Found 1-bit register for signal <wci_wslv_ctlAckReg>.
+    Found 1-bit register for signal <wci_wslv_ctlOpActive>.
+    Found 1-bit register for signal <wci_wslv_illegalEdge>.
+    Found 3-bit register for signal <wci_wslv_nState>.
+    Found 2-bit register for signal <wci_wslv_reqF_countReg>.
+    Found 2-bit register for signal <wci_wslv_respF_c_r>.
+    Found 34-bit register for signal <wci_wslv_respF_q_0>.
+    Found 34-bit register for signal <wci_wslv_respF_q_1>.
+    Found 2-bit register for signal <wmi_dhF_c_r>.
+    Found 146-bit register for signal <wmi_dhF_q_0>.
+    Found 146-bit register for signal <wmi_dhF_q_1>.
+    Found 2-bit register for signal <wmi_mFlagF_c_r>.
+    Found 32-bit register for signal <wmi_mFlagF_q_0>.
+    Found 32-bit register for signal <wmi_mFlagF_q_1>.
+    Found 1-bit register for signal <wmi_operateD>.
+    Found 1-bit register for signal <wmi_peerIsReady>.
+    Found 2-bit register for signal <wmi_reqF_c_r>.
+    Found 32-bit register for signal <wmi_reqF_q_0>.
+    Found 32-bit register for signal <wmi_reqF_q_1>.
+    Found 1-bit register for signal <wmi_sDataThreadBusy_d>.
+    Found 32-bit register for signal <wmi_sFlagReg>.
+    Found 1-bit register for signal <wmi_sThreadBusy_d>.
+    Found 32-bit register for signal <wmwtBeginCount>.
+    Found 32-bit register for signal <wmwtFinalCount>.
+    Found 32-bit register for signal <wmwtPushCount>.
+    Found 2-bit register for signal <wsiM_burstKind>.
+    Found 1-bit register for signal <wsiM_errorSticky>.
+    Found 32-bit register for signal <rdat__h24578>.
+    Found 32-bit register for signal <rdat__h24564>.
+    Found 1-bit register for signal <wsiM_peerIsReady>.
+    Found 2-bit register for signal <wsiM_reqFifo_c_r>.
+    Found 169-bit register for signal <wsiM_reqFifo_q_0>.
+    Found 169-bit register for signal <wsiM_reqFifo_q_1>.
+    Found 1-bit register for signal <wsiM_sThreadBusy_d>.
+    Found 32-bit register for signal <rdat__h24586>.
+    Found 1-bit register for signal <wsiM_trafficSticky>.
+    Found 2-bit register for signal <wsiS_burstKind>.
+    Found 1-bit register for signal <wsiS_errorSticky>.
+    Found 32-bit register for signal <rdat__h24550>.
+    Found 32-bit register for signal <rdat__h24536>.
+    Found 1-bit register for signal <wsiS_peerIsReady>.
+    Found 2-bit register for signal <wsiS_reqFifo_countReg>.
+    Found 32-bit register for signal <rdat__h24558>.
+    Found 1-bit register for signal <wsiS_trafficSticky>.
+    Found 14-bit register for signal <fabWordsCurReq>.
+    Found 14-bit register for signal <mesgReqAddr>.
+    Found 8-bit register for signal <wsiM_statusR>.
+    Found 8-bit register for signal <wsiS_statusR>.
+    Found 32-bit register for signal <abortCount>.
+    Found 14-bit subtractor for signal <MUX_fabWordsRemain$write_1__VAL_2> created at line 1523.
+    Found 16-bit subtractor for signal <MUX_unrollCnt$write_1__VAL_2> created at line 1536.
+    Found 2-bit subtractor for signal <MUX_wci_wslv_respF_c_r$write_1__VAL_2> created at line 1542.
+    Found 2-bit subtractor for signal <MUX_wmi_dhF_c_r$write_1__VAL_2> created at line 1573.
+    Found 2-bit subtractor for signal <MUX_wmi_mFlagF_c_r$write_1__VAL_2> created at line 1583.
+    Found 2-bit subtractor for signal <MUX_wmi_reqF_c_r$write_1__VAL_2> created at line 1591.
+    Found 2-bit subtractor for signal <MUX_wsiM_reqFifo_c_r$write_1__VAL_2> created at line 1609.
+    Found 2-bit subtractor for signal <wci_wslv_reqF_countReg[1]_GND_2_o_sub_276_OUT> created at line 2041.
+    Found 2-bit subtractor for signal <wsiS_reqFifo_countReg[1]_GND_2_o_sub_381_OUT> created at line 2485.
+    Found 12-bit subtractor for signal <b__h15090> created at line 2575.
+    Found 12-bit adder for signal <n1765> created at line 1518.
+    Found 12-bit adder for signal <MUX_fabRespCredit_value$write_1__VAL_2> created at line 1518.
+    Found 32-bit adder for signal <MUX_mesgCount$write_1__VAL_1> created at line 1524.
+    Found 14-bit adder for signal <MUX_mesgLengthSoFar$write_1__VAL_1> created at line 1526.
+    Found 14-bit adder for signal <MUX_mesgReqAddr$write_1__VAL_2> created at line 1528.
+    Found 2-bit adder for signal <MUX_wci_wslv_respF_c_r$write_1__VAL_1> created at line 1541.
+    Found 2-bit adder for signal <MUX_wmi_dhF_c_r$write_1__VAL_1> created at line 1572.
+    Found 2-bit adder for signal <MUX_wmi_mFlagF_c_r$write_1__VAL_1> created at line 1582.
+    Found 2-bit adder for signal <MUX_wmi_reqF_c_r$write_1__VAL_1> created at line 1590.
+    Found 2-bit adder for signal <MUX_wsiM_reqFifo_c_r$write_1__VAL_1> created at line 1608.
+    Found 32-bit adder for signal <abortCount$D_IN> created at line 1792.
+    Found 12-bit adder for signal <respF_rWrPtr$D_IN> created at line 1941.
+    Found 2-bit adder for signal <wci_wslv_reqF_countReg[1]_GND_2_o_add_274_OUT> created at line 2040.
+    Found 32-bit adder for signal <wmwtBeginCount$D_IN> created at line 2299.
+    Found 32-bit adder for signal <wmwtFinalCount$D_IN> created at line 2303.
+    Found 32-bit adder for signal <wmwtPushCount$D_IN> created at line 2307.
+    Found 32-bit adder for signal <wsiM_iMesgCount$D_IN> created at line 2327.
+    Found 32-bit adder for signal <wsiM_pMesgCount$D_IN> created at line 2343.
+    Found 32-bit adder for signal <wsiM_tBusyCount$D_IN> created at line 2427.
+    Found 32-bit adder for signal <wsiS_iMesgCount$D_IN> created at line 2453.
+    Found 32-bit adder for signal <wsiS_pMesgCount$D_IN> created at line 2472.
+    Found 2-bit adder for signal <wsiS_reqFifo_countReg[1]_GND_2_o_add_379_OUT> created at line 2484.
+    Found 32-bit adder for signal <wsiS_tBusyCount$D_IN> created at line 2510.
+    Found 24-bit adder for signal <b__h17902> created at line 2576.
+    Found 5-bit adder for signal <x__h22523[4]_y__h22524[4]_add_407_OUT> created at line 2587.
+    Found 12-bit adder for signal <respF_rRdPtr[11]_GND_2_o_add_435_OUT> created at line 2620.
+    Found 12-bit adder for signal <x__h16444> created at line 2627.
+    Found 5-bit adder for signal <x__h22523> created at line 2737.
+    Found 5-bit adder for signal <x__h22535> created at line 2738.
+    Found 5-bit adder for signal <x__h22547> created at line 2739.
+    Found 5-bit adder for signal <x__h22559> created at line 2740.
+    Found 5-bit adder for signal <x__h22571> created at line 2741.
+    Found 5-bit adder for signal <x__h22583> created at line 2742.
+    Found 5-bit adder for signal <x__h22595> created at line 2743.
+    Found 5-bit adder for signal <x__h22607> created at line 2744.
+    Found 5-bit adder for signal <x__h22619> created at line 2745.
+    Found 5-bit adder for signal <x__h22631> created at line 2746.
+    Found 5-bit adder for signal <x__h22643> created at line 2747.
+    Found 5-bit adder for signal <x__h22655> created at line 2748.
+    Found 5-bit adder for signal <x__h22667> created at line 2749.
+    Found 5-bit adder for signal <x__h22679> created at line 2750.
+    Found 4x3-bit Read Only RAM for signal <_n1954>
+    Found 2-bit comparator greater for signal <GND_2_o_wci_wslv_reqF_countReg[1]_LessThan_3_o> created at line 1077
+    Found 12-bit comparator greater for signal <PWR_2_o_fabRespCredit_value[11]_LessThan_22_o> created at line 1222
+    Found 12-bit comparator not equal for signal <n0155> created at line 1390
+    Found 12-bit comparator equal for signal <respF_rCache[180]_respF_rRdPtr[11]_equal_183_o> created at line 1624
+    Found 2-bit comparator greater for signal <wsiS_sThreadBusy_dw$wget> created at line 1695
+    Found 14-bit comparator lessequal for signal <n0537> created at line 1823
+    Found 1-bit comparator not equal for signal <n0620> created at line 2043
+    Found 1-bit comparator not equal for signal <n0760> created at line 2487
+    Found 12-bit comparator not equal for signal <n1009> created at line 2620
+    Found 14-bit comparator equal for signal <x__h18446> created at line 2629
+    Found 4-bit comparator lessequal for signal <n1029> created at line 2633
+    Found 4-bit comparator lessequal for signal <n1031> created at line 2635
+    Found 4-bit comparator lessequal for signal <n1033> created at line 2637
+    Found 4-bit comparator lessequal for signal <n1035> created at line 2639
+    Found 4-bit comparator lessequal for signal <n1037> created at line 2641
+    Found 4-bit comparator lessequal for signal <n1039> created at line 2643
+    Found 4-bit comparator lessequal for signal <n1041> created at line 2645
+    Found 4-bit comparator lessequal for signal <n1043> created at line 2647
+    Found 4-bit comparator lessequal for signal <n1045> created at line 2649
+    Found 4-bit comparator lessequal for signal <n1047> created at line 2651
+    Found 4-bit comparator lessequal for signal <n1049> created at line 2654
+    Found 4-bit comparator lessequal for signal <n1051> created at line 2657
+    Found 4-bit comparator lessequal for signal <n1053> created at line 2660
+    Found 4-bit comparator lessequal for signal <n1055> created at line 2664
+    WARNING:Xst:2404 -  FFs/Latches <wci_wslv_sFlagReg<0:0>> (without init value) have a constant value of 0 in block <mkSMAdapter16B>.
+    Summary:
+	inferred   1 RAM(s).
+	inferred  44 Adder/Subtractor(s).
+	inferred 1668 D-type flip-flop(s).
+	inferred  24 Comparator(s).
+	inferred  56 Multiplexer(s).
+Unit <mkSMAdapter16B> synthesized.
+
+Synthesizing Unit <FIFO10>.
+    Related source file is "/home/shep/projects/ocpi/libsrc/hdl/bsv/FIFO10.v".
+        guarded = 32'b00000000000000000000000000000001
+    Found 1-bit register for signal <empty_reg>.
+    Summary:
+	inferred   1 D-type flip-flop(s).
+Unit <FIFO10> synthesized.
+
+Synthesizing Unit <BRAM2>.
+    Related source file is "/home/shep/projects/ocpi/libsrc/hdl/bsv/BRAM2.v".
+        PIPELINED = 1'b0
+        ADDR_WIDTH = 32'b00000000000000000000000000001011
+        DATA_WIDTH = 32'b00000000000000000000000010101001
+        MEMSIZE = 12'b100000000000
+    Set property "syn_ramstyle = no_rw_check" for signal <RAM>.
+    Found 2048x169-bit dual-port RAM <Mram_RAM> for signal <RAM>.
+    Found 169-bit register for signal <DOB_R>.
+    Found 169-bit register for signal <DOA_R>.
+    Summary:
+	inferred   1 RAM(s).
+	inferred 338 D-type flip-flop(s).
+Unit <BRAM2> synthesized.
+
+Synthesizing Unit <SizedFIFO_1>.
+    Related source file is "/home/shep/projects/ocpi/libsrc/hdl/bsv/SizedFIFO.v".
+        p1width = 32'b00000000000000000000000001001000
+        p2depth = 32'b00000000000000000000000000000011
+        p3cntr_width = 32'b00000000000000000000000000000001
+        guarded = 32'b00000000000000000000000000000001
+    Found 2x72-bit dual-port RAM <Mram_arr> for signal <arr>.
+    Found 1-bit register for signal <tail>.
+    Found 1-bit register for signal <ring_empty>.
+    Found 1-bit register for signal <not_ring_full>.
+    Found 1-bit register for signal <hasodata>.
+    Found 72-bit register for signal <D_OUT>.
+    Found 1-bit register for signal <head>.
+    Found 1-bit adder for signal <incr_tail> created at line 72.
+    Found 1-bit adder for signal <incr_head> created at line 73.
+    Found 1-bit comparator equal for signal <next_head[0]_tail[0]_equal_10_o> created at line 171
+    Found 1-bit comparator not equal for signal <next_tail[0]_head[0]_equal_12_o> created at line 190
+    Summary:
+	inferred   1 RAM(s).
+	inferred   2 Adder/Subtractor(s).
+	inferred  77 D-type flip-flop(s).
+	inferred   2 Comparator(s).
+	inferred   9 Multiplexer(s).
+Unit <SizedFIFO_1> synthesized.
+
+Synthesizing Unit <FIFO2>.
+    Related source file is "/home/shep/projects/ocpi/libsrc/hdl/bsv/FIFO2.v".
+        width = 32'b00000000000000000000000010000010
+        guarded = 32'b00000000000000000000000000000001
+    Found 1-bit register for signal <full_reg>.
+    Found 130-bit register for signal <data0_reg>.
+    Found 130-bit register for signal <data1_reg>.
+    Found 1-bit register for signal <empty_reg>.
+    Summary:
+	inferred 262 D-type flip-flop(s).
+	inferred   1 Multiplexer(s).
+Unit <FIFO2> synthesized.
+
+Synthesizing Unit <SizedFIFO_2>.
+    Related source file is "/home/shep/projects/ocpi/libsrc/hdl/bsv/SizedFIFO.v".
+        p1width = 32'b00000000000000000000000010101001
+        p2depth = 32'b00000000000000000000000000000011
+        p3cntr_width = 32'b00000000000000000000000000000001
+        guarded = 32'b00000000000000000000000000000001
+    Found 2x169-bit dual-port RAM <Mram_arr> for signal <arr>.
+    Found 1-bit register for signal <tail>.
+    Found 1-bit register for signal <ring_empty>.
+    Found 1-bit register for signal <not_ring_full>.
+    Found 1-bit register for signal <hasodata>.
+    Found 169-bit register for signal <D_OUT>.
+    Found 1-bit register for signal <head>.
+    Found 1-bit adder for signal <incr_tail> created at line 72.
+    Found 1-bit adder for signal <incr_head> created at line 73.
+    Found 1-bit comparator equal for signal <next_head[0]_tail[0]_equal_10_o> created at line 171
+    Found 1-bit comparator not equal for signal <next_tail[0]_head[0]_equal_12_o> created at line 190
+    Summary:
+	inferred   1 RAM(s).
+	inferred   2 Adder/Subtractor(s).
+	inferred 174 D-type flip-flop(s).
+	inferred   2 Comparator(s).
+	inferred   6 Multiplexer(s).
+Unit <SizedFIFO_2> synthesized.
+
+=========================================================================
+HDL Synthesis Report
+
+Macro Statistics
+# RAMs                                                 : 4
+ 2048x169-bit dual-port RAM                            : 1
+ 2x169-bit dual-port RAM                               : 1
+ 2x72-bit dual-port RAM                                : 1
+ 4x3-bit single-port Read Only RAM                     : 1
+# Adders/Subtractors                                   : 48
+ 1-bit adder                                           : 4
+ 12-bit adder                                          : 5
+ 12-bit subtractor                                     : 1
+ 14-bit adder                                          : 2
+ 14-bit subtractor                                     : 1
+ 16-bit subtractor                                     : 1
+ 2-bit addsub                                          : 7
+ 24-bit adder                                          : 1
+ 32-bit adder                                          : 11
+ 5-bit adder                                           : 15
+# Registers                                            : 90
+ 1-bit register                                        : 36
+ 12-bit register                                       : 3
+ 130-bit register                                      : 2
+ 14-bit register                                       : 4
+ 146-bit register                                      : 2
+ 16-bit register                                       : 1
+ 169-bit register                                      : 5
+ 182-bit register                                      : 1
+ 2-bit register                                        : 9
+ 3-bit register                                        : 2
+ 32-bit register                                       : 19
+ 34-bit register                                       : 2
+ 72-bit register                                       : 1
+ 8-bit register                                        : 2
+ 9-bit register                                        : 1
+# Comparators                                          : 28
+ 1-bit comparator equal                                : 2
+ 1-bit comparator not equal                            : 4
+ 12-bit comparator equal                               : 1
+ 12-bit comparator greater                             : 1
+ 12-bit comparator not equal                           : 2
+ 14-bit comparator equal                               : 1
+ 14-bit comparator lessequal                           : 1
+ 2-bit comparator greater                              : 2
+ 4-bit comparator lessequal                            : 14
+# Multiplexers                                         : 72
+ 1-bit 2-to-1 multiplexer                              : 23
+ 11-bit 2-to-1 multiplexer                             : 1
+ 12-bit 2-to-1 multiplexer                             : 5
+ 128-bit 2-to-1 multiplexer                            : 1
+ 14-bit 2-to-1 multiplexer                             : 4
+ 16-bit 2-to-1 multiplexer                             : 5
+ 24-bit 2-to-1 multiplexer                             : 1
+ 3-bit 2-to-1 multiplexer                              : 2
+ 32-bit 2-to-1 multiplexer                             : 22
+ 34-bit 2-to-1 multiplexer                             : 2
+ 72-bit 2-to-1 multiplexer                             : 3
+ 8-bit 2-to-1 multiplexer                              : 2
+ 9-bit 2-to-1 multiplexer                              : 1
+# Xors                                                 : 1
+ 12-bit xor2                                           : 1
+
+=========================================================================
+
+=========================================================================
+*                       Advanced HDL Synthesis                          *
+=========================================================================
+
+
+Synthesizing (advanced) Unit <BRAM2>.
+INFO:Xst:3226 - The RAM <Mram_RAM> will be implemented as a BLOCK RAM, absorbing the following register(s): <DOA_R> <DOB_R>
+    -----------------------------------------------------------------------
+    | ram_type           | Block                               |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 2048-word x 169-bit                 |          |
+    |     mode           | read-first                          |          |
+    |     clkA           | connected to signal <CLKA>          | rise     |
+    |     weA            | connected to signal <WEA>           | high     |
+    |     addrA          | connected to signal <ADDRA>         |          |
+    |     diA            | connected to signal <DIA>           |          |
+    |     doA            | connected to signal <DOA_R>         |          |
+    -----------------------------------------------------------------------
+    | optimization       | speed                               |          |
+    -----------------------------------------------------------------------
+    | Port B                                                              |
+    |     aspect ratio   | 2048-word x 169-bit                 |          |
+    |     mode           | write-first                         |          |
+    |     clkB           | connected to signal <CLKB>          | rise     |
+    |     weB            | connected to signal <GND>           | high     |
+    |     addrB          | connected to signal <ADDRB>         |          |
+    |     diB            | connected to signal <"0101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010"> |          |
+    |     doB            | connected to signal <DOB_R>         |          |
+    -----------------------------------------------------------------------
+    | optimization       | speed                               |          |
+    -----------------------------------------------------------------------
+Unit <BRAM2> synthesized (advanced).
+
+Synthesizing (advanced) Unit <SizedFIFO_1>.
+The following registers are absorbed into counter <tail_0>: 1 register on signal <tail_0>.
+The following registers are absorbed into counter <head_0>: 1 register on signal <head_0>.
+INFO:Xst:3218 - HDL ADVISOR - The RAM <Mram_arr> will be implemented on LUTs either because you have described an asynchronous read or because of currently unsupported block RAM features. If you have described an asynchronous read, making it synchronous would allow you to take advantage of available block RAM resources, for optimized device usage and improved timings. Please refer to your documentation for coding guidelines.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 2-word x 72-bit                     |          |
+    |     clkA           | connected to signal <CLK>           | rise     |
+    |     weA            | connected to internal node          | high     |
+    |     addrA          | connected to signal <tail>          |          |
+    |     diA            | connected to signal <D_IN>          |          |
+    -----------------------------------------------------------------------
+    | Port B                                                              |
+    |     aspect ratio   | 2-word x 72-bit                     |          |
+    |     addrB          | connected to signal <head>          |          |
+    |     doB            | connected to internal node          |          |
+    -----------------------------------------------------------------------
+Unit <SizedFIFO_1> synthesized (advanced).
+
+Synthesizing (advanced) Unit <SizedFIFO_2>.
+The following registers are absorbed into counter <tail_0>: 1 register on signal <tail_0>.
+The following registers are absorbed into counter <head_0>: 1 register on signal <head_0>.
+INFO:Xst:3218 - HDL ADVISOR - The RAM <Mram_arr> will be implemented on LUTs either because you have described an asynchronous read or because of currently unsupported block RAM features. If you have described an asynchronous read, making it synchronous would allow you to take advantage of available block RAM resources, for optimized device usage and improved timings. Please refer to your documentation for coding guidelines.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 2-word x 169-bit                    |          |
+    |     clkA           | connected to signal <CLK>           | rise     |
+    |     weA            | connected to internal node          | high     |
+    |     addrA          | connected to signal <tail>          |          |
+    |     diA            | connected to signal <D_IN>          |          |
+    -----------------------------------------------------------------------
+    | Port B                                                              |
+    |     aspect ratio   | 2-word x 169-bit                    |          |
+    |     addrB          | connected to signal <head>          |          |
+    |     doB            | connected to internal node          |          |
+    -----------------------------------------------------------------------
+Unit <SizedFIFO_2> synthesized (advanced).
+
+Synthesizing (advanced) Unit <mkSMAdapter16B>.
+The following registers are absorbed into accumulator <mesgLengthSoFar>: 1 register on signal <mesgLengthSoFar>.
+The following registers are absorbed into accumulator <fabRespCredit_value>: 1 register on signal <fabRespCredit_value>.
+The following registers are absorbed into accumulator <mesgReqAddr>: 1 register on signal <mesgReqAddr>.
+The following registers are absorbed into accumulator <fabWordsRemain>: 1 register on signal <fabWordsRemain>.
+The following registers are absorbed into counter <respF_rRdPtr>: 1 register on signal <respF_rRdPtr>.
+The following registers are absorbed into counter <respF_rWrPtr>: 1 register on signal <respF_rWrPtr>.
+The following registers are absorbed into counter <wci_wslv_reqF_countReg>: 1 register on signal <wci_wslv_reqF_countReg>.
+The following registers are absorbed into counter <wci_wslv_respF_c_r>: 1 register on signal <wci_wslv_respF_c_r>.
+The following registers are absorbed into counter <wmi_dhF_c_r>: 1 register on signal <wmi_dhF_c_r>.
+The following registers are absorbed into counter <wmi_mFlagF_c_r>: 1 register on signal <wmi_mFlagF_c_r>.
+The following registers are absorbed into counter <wmi_reqF_c_r>: 1 register on signal <wmi_reqF_c_r>.
+The following registers are absorbed into counter <wmwtBeginCount>: 1 register on signal <wmwtBeginCount>.
+The following registers are absorbed into counter <wmwtFinalCount>: 1 register on signal <wmwtFinalCount>.
+The following registers are absorbed into counter <wsiM_iMesgCount>: 1 register on signal <wsiM_iMesgCount>.
+The following registers are absorbed into counter <wmwtPushCount>: 1 register on signal <wmwtPushCount>.
+The following registers are absorbed into counter <wsiM_pMesgCount>: 1 register on signal <wsiM_pMesgCount>.
+The following registers are absorbed into counter <wsiM_tBusyCount>: 1 register on signal <wsiM_tBusyCount>.
+The following registers are absorbed into counter <wsiM_reqFifo_c_r>: 1 register on signal <wsiM_reqFifo_c_r>.
+The following registers are absorbed into counter <wsiS_iMesgCount>: 1 register on signal <wsiS_iMesgCount>.
+The following registers are absorbed into counter <wsiS_reqFifo_countReg>: 1 register on signal <wsiS_reqFifo_countReg>.
+The following registers are absorbed into counter <wsiS_pMesgCount>: 1 register on signal <wsiS_pMesgCount>.
+The following registers are absorbed into counter <wsiS_tBusyCount>: 1 register on signal <wsiS_tBusyCount>.
+The following registers are absorbed into counter <abortCount>: 1 register on signal <abortCount>.
+The following registers are absorbed into counter <unrollCnt>: 1 register on signal <unrollCnt>.
+	The following adders/subtractors are grouped into adder tree <Madd_x__h22523[4]_y__h22524[4]_add_407_OUT_Madd1> :
+ 	<Madd_x__h22679> in block <mkSMAdapter16B>, 	<Madd_x__h22655_Madd> in block <mkSMAdapter16B>, 	<Madd_x__h22631_Madd> in block <mkSMAdapter16B>, 	<Madd_x__h22607_Madd> in block <mkSMAdapter16B>, 	<Madd_x__h22583_Madd> in block <mkSMAdapter16B>, 	<Madd_x__h22559_Madd> in block <mkSMAdapter16B>, 	<Madd_x__h22535_Madd> in block <mkSMAdapter16B>, 	<Madd_x__h22523[4]_y__h22524[4]_add_407_OUT_Madd> in block <mkSMAdapter16B>.
+INFO:Xst:3231 - The small RAM <Mram__n1954> will be implemented on LUTs in order to maximize performance and save block RAM resources. If you want to force its implementation on block, use option/constraint ram_style.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 4-word x 3-bit                      |          |
+    |     weA            | connected to signal <GND>           | high     |
+    |     addrA          | connected to signal <wci_wslv_reqF$D_OUT<35:34>> |          |
+    |     diA            | connected to signal <GND>           |          |
+    |     doA            | connected to internal node          |          |
+    -----------------------------------------------------------------------
+Unit <mkSMAdapter16B> synthesized (advanced).
+
+=========================================================================
+Advanced HDL Synthesis Report
+
+Macro Statistics
+# RAMs                                                 : 4
+ 2048x169-bit dual-port block RAM                      : 1
+ 2x169-bit dual-port distributed RAM                   : 1
+ 2x72-bit dual-port distributed RAM                    : 1
+ 4x3-bit single-port distributed Read Only RAM         : 1
+# Adders/Subtractors                                   : 10
+ 1-bit adder                                           : 4
+ 12-bit adder                                          : 2
+ 12-bit subtractor                                     : 1
+ 14-bit adder                                          : 1
+ 16-bit adder                                          : 1
+ 32-bit adder                                          : 1
+# Adder Trees                                          : 1
+ 5-bit / 9-inputs adder tree                           : 1
+# Counters                                             : 24
+ 1-bit up counter                                      : 4
+ 12-bit up counter                                     : 2
+ 16-bit down counter                                   : 1
+ 2-bit updown counter                                  : 7
+ 32-bit up counter                                     : 10
+# Accumulators                                         : 4
+ 12-bit up accumulator cin                             : 1
+ 14-bit down loadable accumulator                      : 1
+ 14-bit up accumulator                                 : 2
+# Registers                                            : 1750
+ Flip-Flops                                            : 1750
+# Comparators                                          : 28
+ 1-bit comparator equal                                : 2
+ 1-bit comparator not equal                            : 4
+ 12-bit comparator equal                               : 1
+ 12-bit comparator greater                             : 1
+ 12-bit comparator not equal                           : 2
+ 14-bit comparator equal                               : 1
+ 14-bit comparator lessequal                           : 1
+ 2-bit comparator greater                              : 2
+ 4-bit comparator lessequal                            : 14
+# Multiplexers                                         : 164
+ 1-bit 2-to-1 multiplexer                              : 120
+ 11-bit 2-to-1 multiplexer                             : 1
+ 12-bit 2-to-1 multiplexer                             : 5
+ 128-bit 2-to-1 multiplexer                            : 1
+ 14-bit 2-to-1 multiplexer                             : 3
+ 16-bit 2-to-1 multiplexer                             : 4
+ 24-bit 2-to-1 multiplexer                             : 1
+ 3-bit 2-to-1 multiplexer                              : 2
+ 32-bit 2-to-1 multiplexer                             : 20
+ 34-bit 2-to-1 multiplexer                             : 1
+ 72-bit 2-to-1 multiplexer                             : 3
+ 8-bit 2-to-1 multiplexer                              : 2
+ 9-bit 2-to-1 multiplexer                              : 1
+# Xors                                                 : 1
+ 12-bit xor2                                           : 1
+
+=========================================================================
+
+=========================================================================
+*                         Low Level Synthesis                           *
+=========================================================================
+WARNING:Xst:1710 - FF/Latch <wsiM_errorSticky> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wsiS_errorSticky> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <doAbort> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wsiM_statusR_1> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wsiS_statusR_1> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <respF_rCache_168> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wsiM_statusR_4> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wsiS_statusR_4> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+INFO:Xst:2261 - The FF/Latch <wsiM_statusR_5> in Unit <mkSMAdapter16B> is equivalent to the following FF/Latch, which will be removed : <wsiS_statusR_5> 
+WARNING:Xst:1710 - FF/Latch <wci_wslv_nState_2> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wci_wslv_cState_2> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1710 - FF/Latch <abortCount_12> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_13> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_14> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_15> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_16> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_17> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_18> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_19> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_20> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_21> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_22> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_23> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_24> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_25> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_26> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_27> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_28> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_29> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_30> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_31> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <mesgReqAddr_0> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <mesgReqAddr_1> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <mesgReqAddr_2> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <mesgReqAddr_3> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_reqF_q_0_26> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_0_14> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_0_16> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_0_18> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_0_20> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_0_22> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_1_14> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_1_16> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_1_18> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_1_20> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_mFlagF_q_1_22> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <wmi_reqF_q_1_26> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_0> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_1> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_2> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_3> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_4> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_5> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_6> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_7> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_8> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_9> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_10> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <abortCount_11> (without init value) has a constant value of 0 in block <mkSMAdapter16B>. This FF/Latch will be trimmed during the optimization process.
+
+Optimizing unit <SMAdapter> ...
+
+Optimizing unit <mkSMAdapter16B> ...
+INFO:Xst:2261 - The FF/Latch <wmi_mFlagF_q_1_15> in Unit <mkSMAdapter16B> is equivalent to the following 4 FFs/Latches, which will be removed : <wmi_mFlagF_q_1_17> <wmi_mFlagF_q_1_19> <wmi_mFlagF_q_1_21> <wmi_mFlagF_q_1_23> 
+INFO:Xst:2261 - The FF/Latch <wmi_mFlagF_q_0_15> in Unit <mkSMAdapter16B> is equivalent to the following 4 FFs/Latches, which will be removed : <wmi_mFlagF_q_0_17> <wmi_mFlagF_q_0_19> <wmi_mFlagF_q_0_21> <wmi_mFlagF_q_0_23> 
+INFO:Xst:2261 - The FF/Latch <wmi_mFlagF_q_0_15> in Unit <mkSMAdapter16B> is equivalent to the following 4 FFs/Latches, which will be removed : <wmi_mFlagF_q_0_17> <wmi_mFlagF_q_0_19> <wmi_mFlagF_q_0_21> <wmi_mFlagF_q_0_23> 
+
+Optimizing unit <SizedFIFO_1> ...
+
+Optimizing unit <FIFO2> ...
+
+Optimizing unit <SizedFIFO_2> ...
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/Mram_arr11> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/Mram_arr10> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/Mram_arr8> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/Mram_arr9> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_67> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_66> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_65> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_64> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_63> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_62> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_61> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_60> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_59> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_58> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_57> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_56> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_55> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_54> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_53> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_52> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_51> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_50> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_49> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_48> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_47> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_46> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_45> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_44> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_43> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_42> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_41> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wci_wslv_reqF/D_OUT_40> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wmi_respF/data0_reg_129> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wmi_respF/data0_reg_128> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wmi_respF/data1_reg_129> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:2677 - Node <SMAdapter16B_i/wmi_respF/data1_reg_128> of sequential type is unconnected in block <SMAdapter>.
+WARNING:Xst:1710 - FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_16> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_15> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_14> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_13> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_12> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_11> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_10> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_9> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_8> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_7> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_6> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_5> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_4> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_3> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_2> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_1> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_0> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wmi_reqF_q_1_31> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wmi_reqF_q_1_11> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wmi_reqF_q_0_31> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wmi_reqF_q_0_11> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_c_r_1> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/fabWordsCurReq_13> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/fabWordsCurReq_12> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/fabWordsCurReq_11> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_33> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_32> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_31> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_30> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_29> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_28> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_27> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_26> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_25> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_24> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_23> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_22> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_21> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_20> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_19> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_18> (without init value) has a constant value of 0 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <SMAdapter16B_i/wci_wslv_respF_q_1_17> (without init value) has a constant value of 1 in block <SMAdapter>. This FF/Latch will be trimmed during the optimization process.
+INFO:Xst:2261 - The FF/Latch <SMAdapter16B_i/mesgTokenF/empty_reg> in Unit <SMAdapter> is equivalent to the following FF/Latch, which will be removed : <SMAdapter16B_i/opcode_8> 
+INFO:Xst:2261 - The FF/Latch <SMAdapter16B_i/wsiS_statusR_7> in Unit <SMAdapter> is equivalent to the following FF/Latch, which will be removed : <SMAdapter16B_i/wsiM_statusR_7> 
+INFO:Xst:2261 - The FF/Latch <SMAdapter16B_i/wci_wslv_respF_c_r_0> in Unit <SMAdapter> is equivalent to the following FF/Latch, which will be removed : <SMAdapter16B_i/wci_wslv_respF_q_0_32> 
+INFO:Xst:2261 - The FF/Latch <SMAdapter16B_i/respF_rCache_181> in Unit <SMAdapter> is equivalent to the following FF/Latch, which will be removed : <SMAdapter16B_i/respF_rCache_166> 
+INFO:Xst:3203 - The FF/Latch <SMAdapter16B_i/respF_rWrPtr_0> in Unit <SMAdapter> is the opposite to the following FF/Latch, which will be removed : <SMAdapter16B_i/respF_rCache_169> 
+INFO:Xst:3203 - The FF/Latch <SMAdapter16B_i/respF_rCache_181> in Unit <SMAdapter> is the opposite to the following FF/Latch, which will be removed : <SMAdapter16B_i/respF_rCache_167> 
+
+Mapping all equations...
+Building and optimizing final netlist ...
+Found area constraint ratio of 100 (+ 0) on block SMAdapter, actual ratio is 7.
+INFO:Xst:2260 - The FF/Latch <SMAdapter16B_i/wci_wslv_isReset_isInReset> in Unit <SMAdapter> is equivalent to the following 3 FFs/Latches : <SMAdapter16B_i/wsiS_isReset_isInReset> <SMAdapter16B_i/wmi_isReset_isInReset> <SMAdapter16B_i/wsiM_isReset_isInReset> 
+INFO:Xst:2261 - The FF/Latch <SMAdapter16B_i/wci_wslv_isReset_isInReset> in Unit <SMAdapter> is equivalent to the following 3 FFs/Latches, which will be removed : <SMAdapter16B_i/wsiS_isReset_isInReset> <SMAdapter16B_i/wmi_isReset_isInReset> <SMAdapter16B_i/wsiM_isReset_isInReset> 
+FlipFlop SMAdapter16B_i/wsiM_reqFifo_c_r_0 has been replicated 1 time(s)
+FlipFlop SMAdapter16B_i/wsiS_reqFifo/D_OUT_165 has been replicated 1 time(s)
+
+Final Macro Processing ...
+
+=========================================================================
+Final Register Report
+
+Macro Statistics
+# Registers                                            : 2034
+ Flip-Flops                                            : 2034
+
+=========================================================================
+
+=========================================================================
+*                           Partition Report                            *
+=========================================================================
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+=========================================================================
+*                            Design Summary                             *
+=========================================================================
+
+Top Level Output File Name         : SMAdapter.ngc
+
+Primitive and Black Box Usage:
+------------------------------
+# BELS                             : 3866
+#      GND                         : 1
+#      INV                         : 53
+#      LUT1                        : 376
+#      LUT2                        : 301
+#      LUT3                        : 310
+#      LUT4                        : 146
+#      LUT5                        : 886
+#      LUT6                        : 862
+#      MUXCY                       : 460
+#      MUXF7                       : 7
+#      VCC                         : 1
+#      XORCY                       : 463
+# FlipFlops/Latches                : 2034
+#      FD                          : 145
+#      FDE                         : 353
+#      FDP                         : 1
+#      FDR                         : 102
+#      FDRE                        : 1118
+#      FDS                         : 4
+#      FDSE                        : 311
+# RAMS                             : 47
+#      RAM32M                      : 36
+#      RAM32X1D                    : 1
+#      RAMB18E1                    : 1
+#      RAMB36E1                    : 9
+
+Device utilization summary:
+---------------------------
+
+Selected Device : 6vcx75tff484-2 
+
+
+Slice Logic Utilization: 
+ Number of Slice Registers:            2034  out of  93120     2%  
+ Number of Slice LUTs:                 3080  out of  46560     6%  
+    Number used as Logic:              2934  out of  46560     6%  
+    Number used as Memory:              146  out of  16720     0%  
+       Number used as RAM:              146
+
+Slice Logic Distribution: 
+ Number of LUT Flip Flop pairs used:   3279
+   Number with an unused Flip Flop:    1245  out of   3279    37%  
+   Number with an unused LUT:           199  out of   3279     6%  
+   Number of fully used LUT-FF pairs:  1835  out of   3279    55%  
+   Number of unique control sets:        46
+
+IO Utilization: 
+ Number of IOs:                         882
+ Number of bonded IOBs:                   0  out of    240     0%  
+
+Specific Feature Utilization:
+ Number of Block RAM/FIFO:               10  out of    156     6%  
+    Number using Block RAM only:         10
+
+---------------------------
+Partition Resource Summary:
+---------------------------
+
+  No Partitions were found in this design.
+
+---------------------------
+
+
+=========================================================================
+Timing Report
+
+NOTE: THESE TIMING NUMBERS ARE ONLY A SYNTHESIS ESTIMATE.
+      FOR ACCURATE TIMING INFORMATION PLEASE REFER TO THE TRACE REPORT
+      GENERATED AFTER PLACE-and-ROUTE.
+
+Clock Information:
+------------------
+-----------------------------------+-------------------------------------------+-------+
+Clock Signal                       | Clock buffer(FF name)                     | Load  |
+-----------------------------------+-------------------------------------------+-------+
+wciS0_Clk                          | NONE(SMAdapter16B_i/fabRespCredit_value_0)| 2081  |
+-----------------------------------+-------------------------------------------+-------+
+INFO:Xst:2169 - HDL ADVISOR - Some clock signals were not automatically buffered by XST with BUFG/BUFR resources. Please use the buffer_type constraint in order to insert these buffers to the clock signals to help prevent skew problems.
+
+Asynchronous Control Signals Information:
+----------------------------------------
+---------------------------------------------------------------------------+---------------------------------------------+-------+
+Control Signal                                                             | Buffer(FF name)                             | Load  |
+---------------------------------------------------------------------------+---------------------------------------------+-------+
+SMAdapter16B_i/respF_pwEnqueue$whas(SMAdapter16B_i/respF_pwEnqueue$whas1:O)| NONE(SMAdapter16B_i/respF_memory/Mram_RAM10)| 2     |
+---------------------------------------------------------------------------+---------------------------------------------+-------+
+
+Timing Summary:
+---------------
+Speed Grade: -2
+
+   Minimum period: 3.873ns (Maximum Frequency: 258.208MHz)
+   Minimum input arrival time before clock: 1.908ns
+   Maximum output required time after clock: 1.033ns
+   Maximum combinational path delay: No path found
+
+Timing Details:
+---------------
+All values displayed in nanoseconds (ns)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'wciS0_Clk'
+  Clock period: 3.873ns (frequency: 258.208MHz)
+  Total number of paths / destination ports: 308764 / 4225
+-------------------------------------------------------------------------
+Delay:               3.873ns (Levels of Logic = 13)
+  Source:            SMAdapter16B_i/wsiS_reqFifo/D_OUT_18 (FF)
+  Destination:       SMAdapter16B_i/wmi_mFlagF_q_0_7 (FF)
+  Source Clock:      wciS0_Clk rising
+  Destination Clock: wciS0_Clk rising
+
+  Data Path: SMAdapter16B_i/wsiS_reqFifo/D_OUT_18 to SMAdapter16B_i/wmi_mFlagF_q_0_7
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDE:C->Q             14   0.317   0.766  SMAdapter16B_i/wsiS_reqFifo/D_OUT_18 (SMAdapter16B_i/wsiS_reqFifo/D_OUT_18)
+     LUT5:I0->O            1   0.061   0.357  SMAdapter16B_i/ADDERTREE_INTERNAL_Madd3_lut<0>1_SW0 (N470)
+     LUT6:I5->O            3   0.061   0.524  SMAdapter16B_i/ADDERTREE_INTERNAL_Madd72 (SMAdapter16B_i/ADDERTREE_INTERNAL_Madd7)
+     LUT6:I3->O            6   0.061   0.385  SMAdapter16B_i/ADDERTREE_INTERNAL_Madd7_cy<0>21 (SMAdapter16B_i/ADDERTREE_INTERNAL_Madd7_cy<0>1)
+     LUT5:I4->O            1   0.061   0.000  SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_lut<2> (SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_lut<2>)
+     MUXCY:S->O            1   0.248   0.000  SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<2> (SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<2>)
+     MUXCY:CI->O           1   0.017   0.000  SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<3> (SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<3>)
+     MUXCY:CI->O           1   0.017   0.000  SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<4> (SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<4>)
+     MUXCY:CI->O           1   0.017   0.000  SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<5> (SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<5>)
+     MUXCY:CI->O           1   0.017   0.000  SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<6> (SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_cy<6>)
+     XORCY:CI->O           3   0.204   0.369  SMAdapter16B_i/Madd_MUX_mesgLengthSoFar$write_1__VAL_1_xor<7> (SMAdapter16B_i/MUX_mesgLengthSoFar$write_1__VAL_1<7>)
+     LUT4:I3->O            1   0.061   0.000  SMAdapter16B_i/wmi_mFlagF_q_0$D_IN<7>_lut (SMAdapter16B_i/wmi_mFlagF_q_0$D_IN<7>_lut)
+     MUXCY:S->O            1   0.248   0.000  SMAdapter16B_i/wmi_mFlagF_q_0$D_IN<7>_cy (SMAdapter16B_i/wmi_mFlagF_q_0$D_IN<11>1_l1)
+     MUXCY:CI->O           1   0.081   0.000  SMAdapter16B_i/wmi_mFlagF_q_0$D_IN<7>_cy1 (SMAdapter16B_i/wmi_mFlagF_q_0$D_IN<7>)
+     FDRE:D                   -0.002          SMAdapter16B_i/wmi_mFlagF_q_0_7
+    ----------------------------------------
+    Total                      3.873ns (1.471ns logic, 2.402ns route)
+                                       (38.0% logic, 62.0% route)
+
+=========================================================================
+Timing constraint: Default OFFSET IN BEFORE for Clock 'wciS0_Clk'
+  Total number of paths / destination ports: 5004 / 2723
+-------------------------------------------------------------------------
+Offset:              1.908ns (Levels of Logic = 2)
+  Source:            wciS0_MCmd<1> (PAD)
+  Destination:       SMAdapter16B_i/wci_wslv_reqF/Mram_arr12 (RAM)
+  Destination Clock: wciS0_Clk rising
+
+  Data Path: wciS0_MCmd<1> to SMAdapter16B_i/wci_wslv_reqF/Mram_arr12
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     LUT3:I0->O           49   0.061   0.827  SMAdapter16B_i/wci_wslv_reqF$ENQ1 (SMAdapter16B_i/wci_wslv_reqF$ENQ)
+     LUT6:I1->O            8   0.061   0.378  SMAdapter16B_i/wci_wslv_reqF/Mmux_BUS_000311 (SMAdapter16B_i/wci_wslv_reqF/BUS_0003)
+     RAM32M:WE                 0.408          SMAdapter16B_i/wci_wslv_reqF/Mram_arr1
+    ----------------------------------------
+    Total                      1.908ns (0.703ns logic, 1.205ns route)
+                                       (36.8% logic, 63.2% route)
+
+=========================================================================
+Timing constraint: Default OFFSET OUT AFTER for Clock 'wciS0_Clk'
+  Total number of paths / destination ports: 643 / 410
+-------------------------------------------------------------------------
+Offset:              1.033ns (Levels of Logic = 1)
+  Source:            SMAdapter16B_i/wmi_operateD (FF)
+  Destination:       wsiS0_SThreadBusy (PAD)
+  Source Clock:      wciS0_Clk rising
+
+  Data Path: SMAdapter16B_i/wmi_operateD to wsiS0_SThreadBusy
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDR:C->Q            101   0.317   0.655  SMAdapter16B_i/wmi_operateD (SMAdapter16B_i/wmi_operateD)
+     LUT3:I0->O            1   0.061   0.000  SMAdapter16B_i/wsiS0_SThreadBusy1 (wsiS0_SThreadBusy)
+    ----------------------------------------
+    Total                      1.033ns (0.378ns logic, 0.655ns route)
+                                       (36.6% logic, 63.4% route)
+
+=========================================================================
+
+Cross Clock Domains Report:
+--------------------------
+
+Clock to Setup on destination clock wciS0_Clk
+---------------+---------+---------+---------+---------+
+               | Src:Rise| Src:Fall| Src:Rise| Src:Fall|
+Source Clock   |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
+---------------+---------+---------+---------+---------+
+wciS0_Clk      |    3.873|         |         |         |
+---------------+---------+---------+---------+---------+
+
+=========================================================================
+
+
+Total REAL time to Xst completion: 28.00 secs
+Total CPU time to Xst completion: 27.86 secs
+ 
+--> 
+
+
+Total memory usage is 501180 kilobytes
+
+Number of errors   :    0 (   0 filtered)
+Number of warnings :  239 (   0 filtered)
+Number of infos    :   19 (   0 filtered)
+
