@@ -3,6 +3,9 @@ verilog work "../../libsrc/hdl/bsv/FIFO10.v"
 verilog work "../../libsrc/hdl/bsv/FIFO2.v"
 verilog work "../../libsrc/hdl/bsv/SizedFIFO.v"
 
+verilog work "../../libsrc/hdl/ocpi/arSRLFIFO.v"
+verilog work "../../libsrc/hdl/ocpi/arSRLFIFOD.v"
+
 verilog work "../../rtl/mkOCDP4B.v"
 verilog work "../../rtl/mkOCDP8B.v"
 verilog work "../../rtl/mkOCDP16B.v"
