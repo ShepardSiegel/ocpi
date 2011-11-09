@@ -12,7 +12,7 @@ module = 'SMAdapter'
 
 def build_xst_commands(module, w, d):
   """
-  Build a Xilinx XSR command file to control synthesis
+  Build a Xilinx XST command file to control synthesis
   """
   print 'Variation: ' + 'Width:' + str(w) + ' Debug:' + str(d)
   f = open('xst_tmp.xst', 'w')
@@ -64,11 +64,14 @@ def cleanup_files():
   return(0)
 
 def bench_sweep():
+  """
+  Sweep synthesis over the benchmark dimensions and parse results
+  """
   for w in WidthList:
     for d in DebugList:
       build_xst_commands(module, w, d);
       suffixString =  'Width' + str(w) + '_Debug' + str(d)
-      reportFile = module + '_'  +suffixString  + '.srp'
+      reportFile = module + '_'  + suffixString  + '.srp'
       cmd = ["xst", "-ifn", "xst_tmp.xst", "-ofn", reportFile]
       xstout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
       dm = parse_srp(xstout)
