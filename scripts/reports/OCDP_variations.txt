@@ -1,0 +1,194 @@
+argv 1 is 23
+Variation: Width:32_Push0_Pull0_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 237
+  Slice LUTs: 4938
+  Slice Registers: 2143
+  Number of IOs: 683
+Variation: Width:32_Push0_Pull0_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 237
+  Slice LUTs: 4938
+  Slice Registers: 2143
+  Number of IOs: 683
+Variation: Width:32_Push0_Pull1_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 206
+  Slice LUTs: 5560
+  Slice Registers: 2673
+  Number of IOs: 683
+Variation: Width:32_Push0_Pull1_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 206
+  Slice LUTs: 5560
+  Slice Registers: 2673
+  Number of IOs: 683
+Variation: Width:32_Push1_Pull0_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 205
+  Slice LUTs: 5264
+  Slice Registers: 2731
+  Number of IOs: 683
+Variation: Width:32_Push1_Pull0_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 205
+  Slice LUTs: 5264
+  Slice Registers: 2731
+  Number of IOs: 683
+Variation: Width:32_Push1_Pull1_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 197
+  Slice LUTs: 5975
+  Slice Registers: 2814
+  Number of IOs: 683
+Variation: Width:32_Push1_Pull1_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 197
+  Slice LUTs: 5975
+  Slice Registers: 2814
+  Number of IOs: 683
+Variation: Width:64_Push0_Pull0_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 241
+  Slice LUTs: 4919
+  Slice Registers: 2180
+  Number of IOs: 755
+Variation: Width:64_Push0_Pull0_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 241
+  Slice LUTs: 4919
+  Slice Registers: 2180
+  Number of IOs: 755
+Variation: Width:64_Push0_Pull1_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 204
+  Slice LUTs: 5314
+  Slice Registers: 2710
+  Number of IOs: 755
+Variation: Width:64_Push0_Pull1_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 204
+  Slice LUTs: 5314
+  Slice Registers: 2710
+  Number of IOs: 755
+Variation: Width:64_Push1_Pull0_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 203
+  Slice LUTs: 5291
+  Slice Registers: 2768
+  Number of IOs: 755
+Variation: Width:64_Push1_Pull0_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 203
+  Slice LUTs: 5291
+  Slice Registers: 2768
+  Number of IOs: 755
+Variation: Width:64_Push1_Pull1_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 203
+  Slice LUTs: 5896
+  Slice Registers: 2855
+  Number of IOs: 755
+Variation: Width:64_Push1_Pull1_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 203
+  Slice LUTs: 5896
+  Slice Registers: 2855
+  Number of IOs: 755
+Variation: Width:128_Push0_Pull0_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 241
+  Slice LUTs: 4950
+  Slice Registers: 2292
+  Number of IOs: 899
+Variation: Width:128_Push0_Pull0_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 241
+  Slice LUTs: 4950
+  Slice Registers: 2292
+  Number of IOs: 899
+Variation: Width:128_Push0_Pull1_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 204
+  Slice LUTs: 5365
+  Slice Registers: 2822
+  Number of IOs: 899
+Variation: Width:128_Push0_Pull1_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 204
+  Slice LUTs: 5365
+  Slice Registers: 2822
+  Number of IOs: 899
+Variation: Width:128_Push1_Pull0_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 200
+  Slice LUTs: 5337
+  Slice Registers: 2880
+  Number of IOs: 899
+Variation: Width:128_Push1_Pull0_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 200
+  Slice LUTs: 5337
+  Slice Registers: 2880
+  Number of IOs: 899
+Variation: Width:128_Push1_Pull1_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 194
+  Slice LUTs: 5954
+  Slice Registers: 2967
+  Number of IOs: 899
+Variation: Width:128_Push1_Pull1_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 194
+  Slice LUTs: 5954
+  Slice Registers: 2967
+  Number of IOs: 899
+Variation: Width:256_Push0_Pull0_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 241
+  Slice LUTs: 4283
+  Slice Registers: 1878
+  Number of IOs: 1187
+Variation: Width:256_Push0_Pull0_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 241
+  Slice LUTs: 4283
+  Slice Registers: 1878
+  Number of IOs: 1187
+Variation: Width:256_Push0_Pull1_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 188
+  Slice LUTs: 4621
+  Slice Registers: 2408
+  Number of IOs: 1187
+Variation: Width:256_Push0_Pull1_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 188
+  Slice LUTs: 4621
+  Slice Registers: 2408
+  Number of IOs: 1187
+Variation: Width:256_Push1_Pull0_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 206
+  Slice LUTs: 4720
+  Slice Registers: 2465
+  Number of IOs: 1187
+Variation: Width:256_Push1_Pull0_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 206
+  Slice LUTs: 4720
+  Slice Registers: 2465
+  Number of IOs: 1187
+Variation: Width:256_Push1_Pull1_Debug0
+  Block RAM/FIFO: 8
+  Maximum Frequency: 196
+  Slice LUTs: 5167
+  Slice Registers: 2550
+  Number of IOs: 1187
+Variation: Width:256_Push1_Pull1_Debug1
+  Block RAM/FIFO: 8
+  Maximum Frequency: 196
+  Slice LUTs: 5167
+  Slice Registers: 2550
+  Number of IOs: 1187
+
