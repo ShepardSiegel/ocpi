@@ -5,14 +5,6 @@
 import os
 import subprocess
 import sys
-
-module = 'OCDP'
-#SweepList   = [WidthList[], HasPushList[], HasPullList[], DebugList[]]
-WidthList   = [32, 64, 128, 256]
-HasPushList = [0, 1]
-HasPullList = [0, 1]
-DebugList   = [0, 1]
-
 from copy import deepcopy
 
 class Sweep:
@@ -129,11 +121,11 @@ def parse_srp(srp):
         dm[m] = v                        # add the key and value for this metric
   return(dm)                             # return the metric dictionary for this parse
 
-def cleanup_files():
+def cleanup_files(module_name):
   nuke = ['xst_tmp.xst',
-          module + '.ngc',
-          module + '.lso',
-          module + '_xst.xrpt',
+          module_name + '.ngc',
+          module_name + '.lso',
+          module_name + '_xst.xrpt',
           '_xmsgs',
           'xst']
   for x in nuke:
@@ -150,7 +142,7 @@ def bench_sweep(S):
     print 'Variation: ' + ', '.join(S['sweepList']) + ': ' + str(T)
     build_xst_commands(S, T);
     suffixString = build_suffixString(S, T)
-    reportFile = module + '_'  + suffixString  + '.srp'
+    reportFile = S['moduleName'] + '_'  + suffixString  + '.srp'
     cmd = ["xst", "-ifn", "xst_tmp.xst", "-ofn", reportFile]
     xstout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     dm = parse_srp(xstout)
@@ -169,7 +161,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
     S = build_sweep_ocdp()
     S = process_sweep(S)
     bench_sweep(S)
-    cleanup_files()
+    cleanup_files(S['moduleName'])
     sys.exit(0)
 
 prog_name = os.path.basename(sys.argv[0])
