@@ -176,6 +176,9 @@ module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
   Reg#(Bit#(32))      fabMesgBase     <- mkReg(32'hFFFF_0000);  // Fabric message  base address (in Bytes)
   Reg#(Bit#(32))      fabMetaBase     <- mkReg(32'hFFFF_3800);  // Fabric metadata base address (in Bytes)
   Reg#(Bit#(32))      fabFlowBase     <- mkReg(32'hFFFF_0018);  // Fabric flowctrl base address (in Bytes)
+  Reg#(Bit#(32))      fabMesgBaseMS   <- mkReg(32'h0000_0000);  // Fabric message  base address MS (in 2^32 Bytes)
+  Reg#(Bit#(32))      fabMetaBaseMS   <- mkReg(32'h0000_0000);  // Fabric metadata base address MS (in 2^32 Bytes)
+  Reg#(Bit#(32))      fabFlowBaseMS   <- mkReg(32'h0000_0000);  // Fabric flowctrl base address MS (in 2^32 Bytes)
   Wire#(DPControl)    dpControl       <- mkWire;
 
   (* fire_when_enabled *)

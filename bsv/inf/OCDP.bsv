@@ -65,20 +65,23 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
   rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
    let wciReq <- wci.reqGet.get;
      case (wciReq.addr[7:0]) matches
-       'h00 : bml.i_lclNumBufs  <= truncate(unpack(wciReq.data));
-       'h04 : bml.i_fabNumBufs  <= truncate(unpack(wciReq.data));
-       'h08 : bml.i_mesgBase    <= truncate(unpack(wciReq.data));
-       'h0C : bml.i_metaBase    <= truncate(unpack(wciReq.data));
-       'h10 : bml.i_mesgSize    <= truncate(unpack(wciReq.data));
-       'h14 : bml.i_metaSize    <= truncate(unpack(wciReq.data));
+       'h00 : bml.i_lclNumBufs    <= truncate(unpack(wciReq.data));
+       'h04 : bml.i_fabNumBufs    <= truncate(unpack(wciReq.data));
+       'h08 : bml.i_mesgBase      <= truncate(unpack(wciReq.data));
+       'h0C : bml.i_metaBase      <= truncate(unpack(wciReq.data));
+       'h10 : bml.i_mesgSize      <= truncate(unpack(wciReq.data));
+       'h14 : bml.i_metaSize      <= truncate(unpack(wciReq.data));
        'h18 : begin bml.rem.fabric;  $display("[%0d] %m: fabDoneAvail Event",$time); end
-       'h50 : bml.i_fabMesgBase <= truncate(unpack(wciReq.data));
-       'h54 : bml.i_fabMetaBase <= truncate(unpack(wciReq.data));
-       'h58 : bml.i_fabMesgSize <= truncate(unpack(wciReq.data));
-       'h5C : bml.i_fabMetaSize <= truncate(unpack(wciReq.data));
-       'h60 : bml.i_fabFlowBase <= truncate(unpack(wciReq.data));
-       'h64 : bml.i_fabFlowSize <= truncate(unpack(wciReq.data));
-       'h68 : dpControl         <= unpack(truncate(wciReq.data));
+       'h50 : bml.i_fabMesgBase   <= truncate(unpack(wciReq.data));
+       'h54 : bml.i_fabMetaBase   <= truncate(unpack(wciReq.data));
+       'h58 : bml.i_fabMesgSize   <= truncate(unpack(wciReq.data));
+       'h5C : bml.i_fabMetaSize   <= truncate(unpack(wciReq.data));
+       'h60 : bml.i_fabFlowBase   <= truncate(unpack(wciReq.data));
+       'h64 : bml.i_fabFlowSize   <= truncate(unpack(wciReq.data));
+       'h68 : dpControl           <= unpack(truncate(wciReq.data));
+       'h94 : bml.i_fabMesgBaseMS <= truncate(unpack(wciReq.data));
+       'h98 : bml.i_fabMetaBaseMS <= truncate(unpack(wciReq.data));
+       'h9C : bml.i_fabFlowBaseMS <= truncate(unpack(wciReq.data));
      endcase
      $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
      wci.respPut.put(wciOKResponse); // write response
@@ -95,16 +98,16 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h10 : rdat = extend(pack(bml.i_mesgSize));
        'h14 : rdat = extend(pack(bml.i_metaSize));
        'h20 : rdat = pack(extend(bml.bs.lbcf));
-       'h24 : rdat = 32'hF00D_FACE;
+       'h24 : rdat = !hasDebugLogic ? 0 : 32'hF00D_FACE;
        'h28 : rdat = pack({bml.bs.lbar,      bml.bs.rba});
        'h2C : rdat = pack({bml.bs.remIndex,  bml.bs.lclIndex});
        'h30 : rdat = pack({bml.bs.lclStarts, bml.bs.lclDones});
        'h34 : rdat = pack({bml.bs.remStarts, bml.bs.remDones});
-       'h38 : rdat = pack(v[3]);  // thisMesg
-       'h3C : rdat = pack(v[2]);  // lastMesg
-       'h40 : rdat = pack(v[1]);  // req/wrt Count
-       'h44 : rdat = pack(v[0]);  // wrtData
-       'h48 : rdat = 32'hDADE_BABE;
+       'h38 : rdat = !hasDebugLogic ? 0 : pack(v[3]);  // thisMesg
+       'h3C : rdat = !hasDebugLogic ? 0 : pack(v[2]);  // lastMesg
+       'h40 : rdat = !hasDebugLogic ? 0 : pack(v[1]);  // req/wrt Count
+       'h44 : rdat = !hasDebugLogic ? 0 : pack(v[0]);  // wrtData
+       'h48 : rdat = !hasDebugLogic ? 0 : 32'hDADE_BABE;
        'h4C : rdat = 32'h0000_8000;  // 2^15 32KB TODO: This location returns the bufferExtent (memory size)
        'h50 : rdat = extend(pack(bml.i_fabMesgBase));
        'h54 : rdat = extend(pack(bml.i_fabMetaBase));
@@ -113,13 +116,16 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h60 : rdat = extend(pack(bml.i_fabFlowBase));
        'h64 : rdat = extend(pack(bml.i_fabFlowSize));
        'h68 : rdat = extend(pack(dpControl));
-       'h6C : rdat = extend(pack(tlp.i_flowDiagCount));
-       'h70 : rdat = extend(pack(tlp.i_debug));
-       'h80 : rdat = extend(pack(tlp.i_meta[0]));
-       'h84 : rdat = extend(pack(tlp.i_meta[1]));
-       'h88 : rdat = extend(pack(tlp.i_meta[2]));
-       'h8C : rdat = extend(pack(tlp.i_meta[3]));
-       'h90 : rdat = 32'hC0DE_0111; // for OPED pcore 1_11
+       'h6C : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_flowDiagCount));
+       'h70 : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_debug));
+       'h80 : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_meta[0]));
+       'h84 : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_meta[1]));
+       'h88 : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_meta[2]));
+       'h8C : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_meta[3]));
+       'h90 : rdat = !hasDebugLogic ? 0 : 32'hC0DE_0111; // for OPED pcore 1_11
+       'h94 : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabMesgBaseMS));
+       'h98 : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabMetaBaseMS));
+       'h9C : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabFlowBaseMS));
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);
