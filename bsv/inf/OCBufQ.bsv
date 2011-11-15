@@ -63,18 +63,21 @@ DPControl fProdActMesg     = DPControl{moveData:?    , moveMeta:?    , sendTail:
 DPControl fConsActMesg     = DPControl{moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FConsumer, role:ActMesg}; 
 */
 
-interface BufQSIfc;          // Provided by mkFabPC to each the local and remote
-  method Action    start;    // Start of Message Movement Pulse
-  method Action    done;     // Done with Message Movement Pulse
-  method Action    fabric;   // Fabric Event Pulse
-  method Bool      rdy;      // Buffer Ready Indication (Level)
-  method Bool      frdy;     // Far-Side Buffer Ready Indication (Level)
-  method Bool      credit;   // Permission to send credits
-  method Bit#(16)  bufMeta;  // Current buffer meta data Byte address
-  method Bit#(16)  bufMesg;  // Current buffer mesg data Byte address
-  method Bit#(32)  fabMeta;  // Current fabric meta data Byte address
-  method Bit#(32)  fabMesg;  // Current fabric mesg data Byte address
-  method Bit#(32)  fabFlow;  // Current fabric flow ctrl Byte address
+interface BufQSIfc;            // Provided by mkFabPC to each the local and remote
+  method Action    start;      // Start of Message Movement Pulse
+  method Action    done;       // Done with Message Movement Pulse
+  method Action    fabric;     // Fabric Event Pulse
+  method Bool      rdy;        // Buffer Ready Indication (Level)
+  method Bool      frdy;       // Far-Side Buffer Ready Indication (Level)
+  method Bool      credit;     // Permission to send credits
+  method Bit#(16)  bufMeta;    // Current buffer meta data Byte address
+  method Bit#(16)  bufMesg;    // Current buffer mesg data Byte address
+  method Bit#(32)  fabMeta;    // Current fabric meta data Byte address
+  method Bit#(32)  fabMesg;    // Current fabric mesg data Byte address
+  method Bit#(32)  fabFlow;    // Current fabric flow ctrl Byte address
+  method Bit#(32)  fabMetaMS;  // Current fabric meta data Byte address
+  method Bit#(32)  fabMesgMS;  // Current fabric mesg data Byte address
+  method Bit#(32)  fabFlowMS;  // Current fabric flow ctrl Byte address
 endinterface
 
 interface BufQCIfc;          // Provided by the local and remote (client dual of server above)
@@ -84,11 +87,14 @@ interface BufQCIfc;          // Provided by the local and remote (client dual of
   method Action    rdy;
   method Action    frdy;
   method Action    credit;
-  method Action    bufMeta (Bit#(16) bMeta);
-  method Action    bufMesg (Bit#(16) bMesg);
-  method Action    fabMeta (Bit#(32) fMeta);
-  method Action    fabMesg (Bit#(32) fMesg);
-  method Action    fabFlow (Bit#(32) fFlow);
+  method Action    bufMeta   (Bit#(16) bMeta);
+  method Action    bufMesg   (Bit#(16) bMesg);
+  method Action    fabMeta   (Bit#(32) fMeta);
+  method Action    fabMesg   (Bit#(32) fMesg);
+  method Action    fabFlow   (Bit#(32) fFlow);
+  method Action    fabMetaMS (Bit#(32) fMetaMS);
+  method Action    fabMesgMS (Bit#(32) fMesgMS);
+  method Action    fabFlowMS (Bit#(32) fFlowMS);
 endinterface
 
 instance Connectable#( BufQSIfc, BufQCIfc );
@@ -101,9 +107,12 @@ instance Connectable#( BufQSIfc, BufQCIfc );
     rule rCredit (server.credit);  client.credit;  endrule
     rule rBMeta;  client.bufMeta(server.bufMeta);  endrule
     rule rBMesg;  client.bufMesg(server.bufMesg);  endrule
-    rule rFMeta;  client.fabMeta(server.fabMeta);  endrule
-    rule rFMesg;  client.fabMesg(server.fabMesg);  endrule
-    rule rFFlow;  client.fabFlow(server.fabFlow);  endrule
+    rule rFMeta;    client.fabMeta(server.fabMeta);      endrule
+    rule rFMesg;    client.fabMesg(server.fabMesg);      endrule
+    rule rFFlow;    client.fabFlow(server.fabFlow);      endrule
+    rule rFMetaMS;  client.fabMetaMS(server.fabMetaMS);  endrule
+    rule rFMesgMS;  client.fabMesgMS(server.fabMesgMS);  endrule
+    rule rFFlowMS;  client.fabFlowMS(server.fabFlowMS);  endrule
   endmodule
 endinstance
 
@@ -135,6 +144,9 @@ interface FabPCIfc;
   interface Reg#(Bit#(32)) i_fabMesgBase;   
   interface Reg#(Bit#(32)) i_fabMetaBase;   
   interface Reg#(Bit#(32)) i_fabFlowBase;   
+  interface Reg#(Bit#(32)) i_fabMesgBaseMS;   
+  interface Reg#(Bit#(32)) i_fabMetaBaseMS;   
+  interface Reg#(Bit#(32)) i_fabFlowBaseMS;   
   method Action dpCtrl (DPControl dc);
 endinterface 
 
@@ -164,6 +176,9 @@ module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
   Reg#(Bit#(32))      fabMetaAddr     <- mkRegU;                // The fabric metadata   address accumulator
   Reg#(Bit#(32))      fabMesgAddr     <- mkRegU;                // The fabric mesgbuffer address accumulator
   Reg#(Bit#(32))      fabFlowAddr     <- mkRegU;                // The fabric flow ctrl  address accumulator
+  Reg#(Bit#(32))      fabMetaAddrMS   <- mkRegU;                // The fabric metadata   address accumulator
+  Reg#(Bit#(32))      fabMesgAddrMS   <- mkRegU;                // The fabric mesgbuffer address accumulator
+  Reg#(Bit#(32))      fabFlowAddrMS   <- mkRegU;                // The fabric flow ctrl  address accumulator
   Reg#(Bit#(16))      lclNumBufs      <- mkReg(1);              // the number of local  buffers
   Reg#(Bit#(16))      fabNumBufs      <- mkReg(1);              // the number of fabric buffers
   Reg#(Bit#(16))      mesgSize        <- mkReg(16'h0800);       // message size (in Bytes)
@@ -285,46 +300,55 @@ method BufState bs = BufState { lbar:lclBufsAR, lbcf:lclBufsCF, rba:fabBufsAvail
   remIndex:extend(remBuf), lclStarts:lclStarts, lclDones:lclDones, remStarts:remStarts, remDones:remDones }; 
 
 interface BufQSIfc lcl;
-  method Action    start   = lclBufStart._write(True); // Start of local access to queue head (pulse)
-  method Action    done    = lclBufDone._write(True);  // End of local access to queue head (pulse)
-  method Action    fabric  = noAction;
-  method Bool      rdy     = (wci.isOperating && lclBufsAR!=0); // Local ready
-  method Bool      frdy    = ?;                        // Not Used
-  method Bool      credit  = ?;                        // Not Used
-  method Bit#(16)  bufMeta = lclMetaAddr;              // the local-facing metadata address
-  method Bit#(16)  bufMesg = lclMesgAddr;              // the local-facing message  address
-  method Bit#(32)  fabMeta = ?;                        // Not Used
-  method Bit#(32)  fabMesg = ?;                        // Not Used
-  method Bit#(32)  fabFlow = ?;                        // Not Used
+  method Action    start     = lclBufStart._write(True); // Start of local access to queue head (pulse)
+  method Action    done      = lclBufDone._write(True);  // End of local access to queue head (pulse)
+  method Action    fabric    = noAction;
+  method Bool      rdy       = (wci.isOperating && lclBufsAR!=0); // Local ready
+  method Bool      frdy      = ?;                        // Not Used
+  method Bool      credit    = ?;                        // Not Used
+  method Bit#(16)  bufMeta   = lclMetaAddr;              // the local-facing metadata address
+  method Bit#(16)  bufMesg   = lclMesgAddr;              // the local-facing message  address
+  method Bit#(32)  fabMeta   = ?;                        // Not Used
+  method Bit#(32)  fabMesg   = ?;                        // Not Used
+  method Bit#(32)  fabFlow   = ?;                        // Not Used
+  method Bit#(32)  fabMetaMS = ?;                        // Not Used
+  method Bit#(32)  fabMesgMS = ?;                        // Not Used
+  method Bit#(32)  fabFlowMS = ?;                        // Not Used
 endinterface
 
 interface BufQSIfc rem;
-  method Action    start   = remStart._write(True);    // Ngress (local DMA or remote access) has started (pulse)
-  method Action    done    = remDone._write(True);     // Ngress is Done
-  method Action    fabric  = (dpControl.role==ActMesg)?fabAvail._write(True):fabDone._write(True);
-  method Bool      rdy     = (wci.isOperating) && lclBufsCF   !=0;  // Near-side is Ready
-  method Bool      frdy    = (wci.isOperating) && fabBufsAvail!=0;  // Far-side is Ready
-  method Bool      credit  = (wci.isOperating) && lclCredit   !=0;  // Credits are Ready
-  method Bit#(16)  bufMeta = remMetaAddr;              // the remote-facing metadata address
-  method Bit#(16)  bufMesg = remMesgAddr;              // the remote-facing message  address
-  method Bit#(32)  fabMeta = fabMetaAddr;              // the fabric metadata address
-  method Bit#(32)  fabMesg = fabMesgAddr;              // the fabric message  address
-  method Bit#(32)  fabFlow = fabFlowAddr;              // the fabric flowctrl address
+  method Action    start     = remStart._write(True);    // Ngress (local DMA or remote access) has started (pulse)
+  method Action    done      = remDone._write(True);     // Ngress is Done
+  method Action    fabric    = (dpControl.role==ActMesg)?fabAvail._write(True):fabDone._write(True);
+  method Bool      rdy       = (wci.isOperating) && lclBufsCF   !=0;  // Near-side is Ready
+  method Bool      frdy      = (wci.isOperating) && fabBufsAvail!=0;  // Far-side is Ready
+  method Bool      credit    = (wci.isOperating) && lclCredit   !=0;  // Credits are Ready
+  method Bit#(16)  bufMeta   = remMetaAddr;              // the remote-facing metadata address
+  method Bit#(16)  bufMesg   = remMesgAddr;              // the remote-facing message  address
+  method Bit#(32)  fabMeta   = fabMetaAddr;              // the fabric metadata address
+  method Bit#(32)  fabMesg   = fabMesgAddr;              // the fabric message  address
+  method Bit#(32)  fabFlow   = fabFlowAddr;              // the fabric flowctrl address
+  method Bit#(32)  fabMetaMS = fabMetaAddrMS;            // the fabric metadata address MS
+  method Bit#(32)  fabMesgMS = fabMesgAddrMS;            // the fabric message  address MS
+  method Bit#(32)  fabFlowMS = fabFlowAddrMS;            // the fabric flowctrl address MS
 endinterface
 
 // expose register interface so WCI can set/get config properties...
-interface Reg i_lclNumBufs   = lclNumBufs;
-interface Reg i_fabNumBufs   = fabNumBufs;
-interface Reg i_mesgSize     = mesgSize;
-interface Reg i_metaSize     = metaSize;
-interface Reg i_mesgBase     = mesgBase;   
-interface Reg i_metaBase     = metaBase;   
-interface Reg i_fabMesgSize  = fabMesgSize;
-interface Reg i_fabMetaSize  = fabMetaSize;
-interface Reg i_fabFlowSize  = fabFlowSize;
-interface Reg i_fabMesgBase  = fabMesgBase;   
-interface Reg i_fabMetaBase  = fabMetaBase;   
-interface Reg i_fabFlowBase  = fabFlowBase;   
+interface Reg i_lclNumBufs     = lclNumBufs;
+interface Reg i_fabNumBufs     = fabNumBufs;
+interface Reg i_mesgSize       = mesgSize;
+interface Reg i_metaSize       = metaSize;
+interface Reg i_mesgBase       = mesgBase;   
+interface Reg i_metaBase       = metaBase;   
+interface Reg i_fabMesgSize    = fabMesgSize;
+interface Reg i_fabMetaSize    = fabMetaSize;
+interface Reg i_fabFlowSize    = fabFlowSize;
+interface Reg i_fabMesgBase    = fabMesgBase;   
+interface Reg i_fabMetaBase    = fabMetaBase;   
+interface Reg i_fabFlowBase    = fabFlowBase;   
+interface Reg i_fabMesgBaseMS  = fabMesgBaseMS;   
+interface Reg i_fabMetaBaseMS  = fabMetaBaseMS;   
+interface Reg i_fabFlowBaseMS  = fabFlowBaseMS;   
 method Action dpCtrl (DPControl dc) = dpControl._write(dc);
 
 endmodule: mkFabPC
