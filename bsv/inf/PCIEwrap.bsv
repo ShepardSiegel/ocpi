@@ -53,7 +53,7 @@ module mkPCIEwrap#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_r
     "V5"    : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 5
     "V6"    : _a  <- mkPCIEwrapV6(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6
     "X6"    : _a  <- mkPCIEwrapX6(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6 with AXI Interface
- // "X7"    : _a  <- mkPCIEwrapX7(pci0_clkp, pci0_clkn, pci0_rstn);  // Xilinx Series 7 AXI (Artex, Kintex, Virtex)
+    "X7"    : _a  <- mkPCIEwrapX7(pci0_clkp, pci0_clkn, pci0_rstn);  // Xilinx Series 7 AXI (Artex, Kintex, Virtex)
     default : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);
   endcase
   return _a;
@@ -181,6 +181,59 @@ module mkPCIEwrapX6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrap
   method Bool  linkUp = unpack(pciLinkUp.read);
   method PciId device = pciDevice;
 endmodule: mkPCIEwrapX6
+
+
+// This Xilinx X7 specifc implementation takes 16B/125MHz interface and connects it to 16B/125MHz...
+//(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
+module mkPCIEwrapX7#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
+  Clock                 pci0_clk    <- mkClockIBUFDS_GTXE1(True, pci0_clkp, pci0_clkn);
+  //Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
+  PCIExpressX7#(lanes)  pci0        <- mkPCIExpressEndpointX6(?,clocked_by pci0_clk,reset_by pci0_rstn);
+  Clock                 p125clk     =  pci0.trn.clk2; // 125 MHz (the div/2 clock from the pcie core)
+  Reset                 p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
+                                      // Place LinkUp and pciDevice in p125clk domain
+  Bool                  pLinkUp     =  pci0.trn.link_up;
+  SyncBitIfc#(Bit#(1))  pciLinkUp   <- mkSyncBit(p250clk, p250rst, p125clk);  // single-bit synchronizer 250 to 125 MHz
+  PciId                 pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
+  Reg#(PciId)           pciDevice   <- mkSyncReg(unpack(0), p250clk, p250rst, p125clk); // multi-bit sync 250 to 125 MHz
+
+  (* fire_when_enabled, no_implicit_conditions *) rule send_pciLinkup; pciLinkUp.send(pack(pLinkUp)); endrule 
+  (* fire_when_enabled *) rule capture_pciDevice; pciDevice <= pciDev;  endrule 
+
+  //InterruptControl pcie_irq   <- mkInterruptController(p250clk, p250rst, clocked_by p250clk, reset_by p250rst);
+  ClockInvToBoolIfc preEdge   <- vMkClockInvToBool(p125clk , clocked_by p250clk, reset_by p250rst);  //true when trn2 will rise on next edge
+
+  Store#(UInt#(0),TLPData#(16),0) p2iS    <- mkRegStore(p250clk, p125clk );
+  AlignedFIFO#(TLPData#(16))      p2iAF   <- mkAlignedFIFO(p250clk,p250rst,p125clk ,p125rst ,p2iS,preEdge,True);
+  Store#(UInt#(0),TLPData#(16),0) i2pS    <- mkRegStore(p125clk , p250clk);
+  AlignedFIFO#(TLPData#(16))      i2pAF   <- mkAlignedFIFO(p125clk ,p125rst ,p250clk,p250rst,i2pS,True,preEdge);
+  FIFO#(TLPData#(8))              fP2I    <- mkSizedFIFO(4,    clocked_by p250clk, reset_by p250rst  );
+  FIFO#(TLPData#(8))              fI2P    <- mkSizedFIFO(4,    clocked_by p250clk, reset_by p250rst  );
+
+  // Inbound  PCIe (8B@250MHz) -> CTOP (16B@125MHz)...
+  mkConnection(pci0.trn_rx,  toPut(fP2I),  clocked_by p250clk,  reset_by p250rst);  // 8B      250 MHz
+  mkConnection(toGet(fP2I),  toPut(p2iAF), clocked_by p250clk,  reset_by p250rst);  // 8B->16B 250 MHz
+
+  // Outbound CTOP (16B@125MHz) -> PCIe (8B@250MHz)...
+  mkConnection(toGet(i2pAF), toPut(fI2P),  clocked_by p250clk,  reset_by p250rst);  // 16B->8B 250 MHz
+  mkConnection(toGet(fI2P),  pci0.trn_tx,  clocked_by p250clk,  reset_by p250rst);  // 8B      250 MHz
+
+  // TODO: Implement me when these interfaces are exposed
+  //mkConnection(pci0.cfg_interrupt, pcie_irq.pcie_irq);
+  //mkTieOff(pci0.cfg);
+  //mkTieOff(pci0.cfg_err);
+
+  // Interfaces and Methods provided...
+  interface PCI_EXP pcie     = pci0.pcie;
+  interface Clock   pClk     = p125clk ;
+  interface Reset   pRst     = p125rst ;
+  interface Client client;
+    interface request  = toGet(p2iAF); // 16B-125MHz requests  towards uNoC infrastructre
+    interface response = toPut(i2pAF); // 16B-125MHz responses towards PCIe fabric
+  endinterface
+  method Bool  linkUp = unpack(pciLinkUp.read);
+  method PciId device = pciDevice;
+endmodule: mkPCIEwrapX7
 
 
 

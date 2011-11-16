@@ -27,9 +27,27 @@ NET  "sys0_rst"      LOC = AB7  | IOSTANDARD = LVCMOS15; # Bank  34 VCCO - VCC1V
 #NET  PCIE_WAKE_B_LS            LOC =  F23; # Bank  16 - IO_0_16
 #NET  PCIE_PERST_LS             LOC =  G25; # Bank  16 - IO_25_16
 
-#NET  "pci0_clkp"     LOC = U8;  # 100 MHz direct from PCIe edge   
-#NET  "pci0_clkn"     LOC = U7;
-#NET  "pci0_reset_n"  LOC = G25 | IOSTANDARD = LVCMOS18;
+INST "pcie_clk_ibuf" LOC = IBUFDS_GTE2_X0Y1;
+NET  "pci0_clkp"     LOC = U8;  # 100 MHz direct from PCIe edge   
+NET  "pci0_clkn"     LOC = U7;
+NET  "pci0_reset_n"  TIG;
+NET  "pci0_reset_n"  LOC = G25 | IOSTANDARD = LVCMOS18 | PULLUP | NODELAY;
+
+INST "*/pcie_top_i/pcie_7x_i/pcie_block_i" LOC = PCIE_X0Y0;
+INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y7;
+INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[1].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y6;
+INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[2].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y5;
+INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[3].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y4;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[3].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X5Y35;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[2].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y36;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[1].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y35;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[0].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y34;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[0].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y33;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[1].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y32;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[2].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y31;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[3].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y30;
+
+
 
 # LEDs and Switches...
 #NET  GPIO_LED_0_LS             LOC = AB8  | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L2N_T0_33
@@ -56,21 +74,21 @@ NET  "sys0_rst"      LOC = AB7  | IOSTANDARD = LVCMOS15; # Bank  34 VCCO - VCC1V
 #NET  LCD_DB5_LS                LOC = AA10 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L5N_T0_33
 #NET  LCD_DB6_LS                LOC = AA11 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L5P_T0_33
 #NET  LCD_DB7_LS                LOC = Y10  | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L4N_T0_33
-NET "led[0]"    LOC = AB8  | IOSTANDARD = LVCMOS15; ## User D0
-NET "led[1]"    LOC = AA8  | IOSTANDARD = LVCMOS15; ## User D1
-NET "led[2]"    LOC = AC9  | IOSTANDARD = LVCMOS15; ## User D2
-NET "led[3]"    LOC = AB9  | IOSTANDARD = LVCMOS15; ## User D3
-NET "led[4]"    LOC = AE26 | IOSTANDARD = LVCMOS15; ## User D4
-NET "led[5]"    LOC = G19  | IOSTANDARD = LVCMOS15; ## User D5
-NET "led[6]"    LOC = E18  | IOSTANDARD = LVCMOS15; ## User D6
-NET "led[7]"    LOC = F16  | IOSTANDARD = LVCMOS15; ## User D7
-NET "lcd_db[3]" LOC = Y10  | IOSTANDARD = LVCMOS15;
-NET "lcd_db[2]" LOC = AA11 | IOSTANDARD = LVCMOS15;
-NET "lcd_db[1]" LOC = AA10 | IOSTANDARD = LVCMOS15;
-NET "lcd_db[0]" LOC = AA13 | IOSTANDARD = LVCMOS15;
-NET "lcd_e"     LOC = AB10 | IOSTANDARD = LVCMOS15;
-NET "lcd_rs"    LOC = Y11  | IOSTANDARD = LVCMOS15;
-NET "lcd_rw"    LOC = AB13 | IOSTANDARD = LVCMOS15;
+NET "led[0]"    LOC = AB8  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D0 rightmost
+NET "led[1]"    LOC = AA8  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D1
+NET "led[2]"    LOC = AC9  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D2
+NET "led[3]"    LOC = AB9  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D3
+NET "led[4]"    LOC = AE26 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D4
+NET "led[5]"    LOC = G19  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D5
+NET "led[6]"    LOC = E18  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D6
+NET "led[7]"    LOC = F16  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D7 leftmost
+NET "lcd_db[3]" LOC = Y10  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_db[2]" LOC = AA11 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_db[1]" LOC = AA10 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_db[0]" LOC = AA13 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_e"     LOC = AB10 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_rs"    LOC = Y11  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_rw"    LOC = AB13 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
 
 
 #NET  FMC_LPC_LA20_P            LOC = AF26 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L23P_T3_13

@@ -31,9 +31,9 @@ import Vector            ::*;
 import XilinxCells       ::*;
 
 interface FTop_kc705Ifc;
- // interface PCIE_EXP#(4)          pcie;
- // interface Clock                 p125clk;
- // interface Reset                 p125rst;
+  interface PCIE_EXP#(4)          pcie;
+  interface Clock                 p125clk;
+  interface Reset                 p125rst;
   method Action                   usr_sw (Bit#(8) i);
   (*always_ready*) method Bit#(8) led;
   interface LCD                   lcd;
@@ -46,16 +46,16 @@ interface FTop_kc705Ifc;
 endinterface: FTop_kc705Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn)
+module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
  //                    Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
-    //                 Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
+                     Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     (FTop_kc705Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
-  //PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("X7", pci0_clkp, pci0_clkn, pci0_rstn);
-  //Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
-  //Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
-  //Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
+  PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("X7", pci0_clkp, pci0_clkn, pci0_rstn);
+  Clock            p125Clk    =  pciw.pClk;  // Nominal 125 MHz
+  Reset            p125Rst    =  pciw.pRst;  // Reset for pClk domain
+  Reg#(PciId)      pciDevice  <- mkReg(unpack(0), clocked_by p125Clk, reset_by p125Rst);
 
   Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn); // Non-PCIe clocks and resets used...
   Reset            sys0_rst   <- mkAsyncReset(16, sys0_rstn , sys0_clk);
@@ -64,14 +64,14 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn)
   //Clock            sys1_clk   <- mkClockBUFG(clocked_by sys1_clki);
   //Reset            sys1_rst   <- mkAsyncReset(1, p125Rst , sys1_clk);
 
-  //(* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
+  (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
 
   //LCDController    lcd_ctrl   <- mkLCDController(clocked_by p125Clk, reset_by p125Rst);
   //Reg#(Bool)       needs_init <- mkReg(True,     clocked_by p125Clk, reset_by p125Rst);
   LCDController    lcd_ctrl   <- mkLCDController(clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       needs_init <- mkReg(True,     clocked_by sys0_clk, reset_by sys0_rst);
 
-  Reg#(UInt#(16))    freeCnt <- mkReg(0,     clocked_by sys0_clk, reset_by sys0_rst);
+  Reg#(UInt#(16))    freeCnt <- mkReg(0,     clocked_by p125Clk, reset_by p125);
 
   rule inc_freecnt;
     freeCnt <= freeCnt + 1;
@@ -82,15 +82,13 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn)
   // Poly approach...
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
   // Static approach..
-  /*
 `ifdef USE_NDW1
   CTop4BIfc ctop <- mkCTop4B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
 `elsif USE_NDW4
   CTop16BIfc ctop <- mkCTop16B(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
 `endif
-*/
    
-  //mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
+  mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
  
 
   //ReadOnly#(Bit#(2)) infLed    <- mkNullCrossingWire(noClock, ctop.led);
@@ -124,7 +122,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn)
   //mkConnection(ctop.wmemiM0, dram0.wmemiS0);
 
   rule init_lcd if (needs_init);  // Paint the 16x2 LCD...
-     Vector#(16,Bit#(8))  text1 = lcdLine("  Atomic Rules  ");
+     Vector#(16,Bit#(8))  text1 = lcdLine("Atomic Rules v42");
      Vector#(16,Bit#(8))  text2 = lcdLine("OpenCPI : kc705 ");
      lcd_ctrl.setLine1(text1);
      lcd_ctrl.setLine2(text2);
@@ -132,10 +130,10 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn)
    endrule
 
   // Interfaces and Methods provided...
-  //interface PCI_EXP  pcie    = pciw.pcie;
-  //interface Clock    p125clk = p125Clk;
-  //interface Reset    p125rst = p125Rst;
-  method  debug  = pack(freeCnt);
+  interface PCI_EXP  pcie    = pciw.pcie;
+  interface Clock    p125clk = p125Clk;
+  interface Reset    p125rst = p125Rst;
+  method             debug   = pack(freeCnt);
   interface LCD      lcd     = lcd_ctrl.ifc;
   //interface GPSIfc   gps     = ctop.gps;
   //interface FLASH_IO flash   = flash0.flash;

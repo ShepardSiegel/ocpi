@@ -10,13 +10,13 @@ module fpgaTop (
   //input  wire        sys1_clkp,      // sys1 Clock +
   //input  wire        sys1_clkn,      // sys1 Clock -
 
-  //input  wire        pci0_clkp,      // PCIe Clock +
-  //input  wire        pci0_clkn,      // PCIe Clock -
-  //input  wire        pci0_reset_n,   // PCIe Reset
-  //output wire [3:0]  pci_exp_txp,    // PCIe lanes...
-  //output wire [3:0]  pci_exp_txn,
-  //input  wire [3:0]  pci_exp_rxp,
-  //input  wire [3:0]  pci_exp_rxn,
+  input  wire        pci0_clkp,      // PCIe Clock +
+  input  wire        pci0_clkn,      // PCIe Clock -
+  input  wire        pci0_reset_n,   // PCIe Reset
+  output wire [3:0]  pci_exp_txp,    // PCIe lanes...
+  output wire [3:0]  pci_exp_txn,
+  input  wire [3:0]  pci_exp_rxp,
+  input  wire [3:0]  pci_exp_rxn,
 
   //input  wire        ppsExtIn,       // PPS in
   //output wire        ppsOut,         // PPS out
@@ -87,13 +87,13 @@ module fpgaTop (
   //.sys1_clkp         (sys1_clkp),
   //.sys1_clkn         (sys1_clkn),
 
-  //.pci0_clkp         (pci0_clkp),
-  //.pci0_clkn         (pci0_clkn),
-  //.pci0_rstn         (pci0_reset_n),
-  //.pcie_rxp_i        (pci_exp_rxp),
-  //.pcie_rxn_i        (pci_exp_rxn),
-  //.pcie_txp          (pci_exp_txp),
-  //.pcie_txn          (pci_exp_txn),
+  .pci0_clkp         (pci0_clkp),
+  .pci0_clkn         (pci0_clkn),
+  .pci0_rstn         (pci0_reset_n),
+  .pcie_rxp_i        (pci_exp_rxp),
+  .pcie_rxn_i        (pci_exp_rxn),
+  .pcie_txp          (pci_exp_txp),
+  .pcie_txn          (pci_exp_txn),
 
   .led               (led),
   .lcd_db            (lcd_db),
