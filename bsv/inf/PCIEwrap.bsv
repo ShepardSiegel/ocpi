@@ -188,7 +188,7 @@ endmodule: mkPCIEwrapX6
 module mkPCIEwrapX7#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
   Clock                 pci0_clk    <- mkClockIBUFDS_GTXE1(True, pci0_clkp, pci0_clkn);
   //Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
-  PCIExpressX7#(lanes)  pci0        <- mkPCIExpressEndpointX6(?,clocked_by pci0_clk,reset_by pci0_rstn);
+  PCIExpressV6#(lanes)  pci0        <- mkPCIExpressEndpointX7(?,clocked_by pci0_clk,reset_by pci0_rstn);
   Clock                 p125clk     =  pci0.trn.clk2; // 125 MHz (the div/2 clock from the pcie core)
   Reset                 p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
                                       // Place LinkUp and pciDevice in p125clk domain
