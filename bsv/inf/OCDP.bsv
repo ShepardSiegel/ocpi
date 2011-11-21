@@ -1,5 +1,5 @@
 // OCDP.bsv
-// Copyright (c) 2009 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Module Argument or Provided Interface
 // In the current implementation the Vectors of BRAMServers bramsA and bramsB are passed as
@@ -99,16 +99,16 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h14 : rdat = extend(pack(bml.i_metaSize));
        'h20 : rdat = pack(extend(bml.bs.lbcf));
        'h24 : rdat = !hasDebugLogic ? 0 : 32'hF00D_FACE;
-       'h28 : rdat = pack({bml.bs.lbar,      bml.bs.rba});
-       'h2C : rdat = pack({bml.bs.remIndex,  bml.bs.lclIndex});
-       'h30 : rdat = pack({bml.bs.lclStarts, bml.bs.lclDones});
-       'h34 : rdat = pack({bml.bs.remStarts, bml.bs.remDones});
+       'h28 : rdat = !hasDebugLogic ? 0 : pack({bml.bs.lbar,      bml.bs.rba});
+       'h2C : rdat = !hasDebugLogic ? 0 : pack({bml.bs.remIndex,  bml.bs.lclIndex});
+       'h30 : rdat = !hasDebugLogic ? 0 : pack({bml.bs.lclStarts, bml.bs.lclDones});
+       'h34 : rdat = !hasDebugLogic ? 0 : pack({bml.bs.remStarts, bml.bs.remDones});
        'h38 : rdat = !hasDebugLogic ? 0 : pack(v[3]);  // thisMesg
        'h3C : rdat = !hasDebugLogic ? 0 : pack(v[2]);  // lastMesg
        'h40 : rdat = !hasDebugLogic ? 0 : pack(v[1]);  // req/wrt Count
        'h44 : rdat = !hasDebugLogic ? 0 : pack(v[0]);  // wrtData
        'h48 : rdat = !hasDebugLogic ? 0 : 32'hDADE_BABE;
-       'h4C : rdat = 32'h0000_8000;  // 2^15 32KB TODO: This location returns the bufferExtent (memory size)
+       'h4C : rdat = !hasDebugLogic ? 0 : 32'h0000_8000;  // 2^15 32KB TODO: This location returns the bufferExtent (memory size)
        'h50 : rdat = extend(pack(bml.i_fabMesgBase));
        'h54 : rdat = extend(pack(bml.i_fabMetaBase));
        'h58 : rdat = extend(pack(bml.i_fabMesgSize));
@@ -123,7 +123,7 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h88 : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_meta[2]));
        'h8C : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_meta[3]));
        'h90 : rdat = !hasDebugLogic ? 0 : 32'hC0DE_0111; // for OPED pcore 1_11
-       'h94 : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabMesgBaseMS));
+       'h94 : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabMesgBaseMS)); // TODO 64b logic is removed when no debug
        'h98 : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabMetaBaseMS));
        'h9C : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabFlowBaseMS));
      endcase

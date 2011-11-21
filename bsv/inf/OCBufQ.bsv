@@ -1,5 +1,5 @@
 // OCBufQ.bsv
-// Copyright (c) 2009 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // We distinguish between four possible roles:
 // Fabric Producer vs. Fabric Consumer (eg Fabric Source or Sink of message data)
@@ -42,15 +42,20 @@ typedef Bit#(DPLogBufSizeHWords) DPBufHWAddr;  // A DP Buffer HW   Address
 typedef enum {Disabled,FProducer,FConsumer,Rsvd} DPDirection deriving (Bits,Eq);
 typedef enum {Passive,ActMesg,ActFlow,Rsvd}      DPRole      deriving (Bits,Eq);
 typedef struct {
+  Bool        m64b;
+  Bool        lowLatency;
+  Bit#(4)     pad;
   DPDirection dir;
   DPRole      role;
 } DPControl deriving (Bits,Eq);
-DPControl defaultDPControl = DPControl{dir:Disabled,  role:Passive}; 
-DPControl fProdActMesg     = DPControl{dir:FProducer, role:ActMesg}; 
-DPControl fConsActMesg     = DPControl{dir:FConsumer, role:ActMesg}; 
+DPControl defaultDPControl = DPControl{m64b:False, lowLatency:False, pad:0, dir:Disabled,  role:Passive}; 
+DPControl fProdActMesg     = DPControl{m64b:False, lowLatency:False, pad:0, dir:FProducer, role:ActMesg}; 
+DPControl fConsActMesg     = DPControl{m64b:False, lowLatency:False, pad:0, dir:FConsumer, role:ActMesg}; 
 
 /* Embellished version for future use...
 typedef struct {
+  Bool        m64b;
+  Bool        lowLatency;
   Bool        moveData;
   Bool        moveMeta;
   Bool        sendTail;
@@ -58,9 +63,9 @@ typedef struct {
   DPDirection dir;
   DPRole      role;
 } DPControl deriving (Bits,Eq);
-DPControl defaultDPControl = DPControl{moveData:False, moveMeta:False, sendTail:False, sendInterrupt:False, dir:Disabled,  role:Passive}; 
-DPControl fProdActMesg     = DPControl{moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FProducer, role:ActMesg}; 
-DPControl fConsActMesg     = DPControl{moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FConsumer, role:ActMesg}; 
+DPControl defaultDPControl = DPControl{lowLatency:False, moveData:False, moveMeta:False, sendTail:False, sendInterrupt:False, dir:Disabled,  role:Passive}; 
+DPControl fProdActMesg     = DPControl{lowLatency:False, moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FProducer, role:ActMesg}; 
+DPControl fConsActMesg     = DPControl{lowLatency:False, moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FConsumer, role:ActMesg}; 
 */
 
 interface BufQSIfc;            // Provided by mkFabPC to each the local and remote

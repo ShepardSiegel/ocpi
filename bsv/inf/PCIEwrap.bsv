@@ -53,7 +53,7 @@ module mkPCIEwrap#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_r
     "V5"    : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 5
     "V6"    : _a  <- mkPCIEwrapV6(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6
     "X6"    : _a  <- mkPCIEwrapX6(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6 with AXI Interface
-    "X7"    : _a  <- mkPCIEwrapX7(pci0_clkp, pci0_clkn, pci0_rstn);  // Xilinx Series 7 AXI (Artex, Kintex, Virtex)
+ //   "X7"    : _a  <- mkPCIEwrapX7(pci0_clkp, pci0_clkn, pci0_rstn);  // Xilinx Series 7 AXI (Artex, Kintex, Virtex)
     default : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);
   endcase
   return _a;
@@ -183,6 +183,8 @@ module mkPCIEwrapX6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrap
 endmodule: mkPCIEwrapX6
 
 
+`ifdef IMPLEMENT_KC705
+
 // This Xilinx X7 specifc implementation takes 16B/125MHz interface and connects it to 16B/125MHz...
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
 module mkPCIEwrapX7#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
@@ -235,7 +237,7 @@ module mkPCIEwrapX7#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrap
   method PciId device = pciDevice;
 endmodule: mkPCIEwrapX7
 
-
+`endif
 
 // This Xilinx V6 specifc implementation takes 8B/250MHz interface and converts it to 16B/125MHz...
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
