@@ -1,0 +1,6 @@
+run
+-ifn OCCP.prj
+-ofn OCCP
+-top mkOCCP
+-p virtex6
+-iobuf NO

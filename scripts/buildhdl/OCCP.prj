@@ -1,0 +1,15 @@
+verilog work "../../libsrc/hdl/bsv/BRAM2.v"
+verilog work "../../libsrc/hdl/bsv/FIFO10.v"
+verilog work "../../libsrc/hdl/bsv/FIFO1.v"
+verilog work "../../libsrc/hdl/bsv/FIFO2.v"
+verilog work "../../libsrc/hdl/bsv/MakeResetA.v"
+verilog work "../../libsrc/hdl/bsv/SyncResetA.v"
+verilog work "../../libsrc/hdl/bsv/SizedFIFO.v"
+verilog work "../../libsrc/hdl/bsv/SyncFIFO.v"
+verilog work "../../libsrc/hdl/bsv/SyncHandshake.v"
+verilog work "../../libsrc/hdl/bsv/SyncRegister.v"
+
+verilog work "../../libsrc/hdl/ocpi/arSRLFIFO.v"
+verilog work "../../libsrc/hdl/ocpi/arSRLFIFOD.v"
+
+verilog work "../../rtl/mkOCCP.v"
