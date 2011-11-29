@@ -15,6 +15,7 @@ import PCIE::*;
 import DefaultValue::*;
 import DReg::*;	
 import FIFO::*;
+import FIFOF::*;
 import FixedPoint::*;
 import GetPut::*;
 import ClientServer::*;
@@ -58,24 +59,28 @@ typedef union tagged {
 (* synthesize *)
 module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit));
 
-  TLPSerializerIfc  tlp  <- mkTLPSerializer(pciDevice);       // TLP-facing DW serializer
-  Reg#(CPReq)       cpReq        <- mkReg(tagged Idle);       // reqeust pending
-  Reg#(Bool)        dispatched   <- mkReg(False);             // Set when current cpReq is dispatched
-  Reg#(Bit#(4))     wrkAct       <- mkReg(0);                 // Number of Active Worker
-  Reg#(DWord)       scratch20    <- mkReg(0);                 // Scratch register at 0x20
-  Reg#(DWord)       scratch24    <- mkReg(0);                 // Scratch register at 0x24
-  Reg#(DWord)       cpControl    <- mkReg(0);                 // 32b for cpControl
-  Reg#(Bit#(32))    td           <- mkRegU;                   // Temp DW used for 8B writes
-  //Reg#(DWord)       msiAddrMs    <- mkRegU;                   // PCIe MSI Address MS [63:32]
-  //Reg#(DWord)       msiAddrLs    <- mkRegU;                   // PCIe MSI Address LS [31:2],2'b0
-  //Reg#(Bit#(16))    msiMesgD     <- mkRegU;                   // PCIe MSI Message Data
-  Reg#(UInt#(4))    rogueTLP     <- mkReg(0);                 // Running count of unhandled TLPs
-  Reg#(Bit#(3))     switch_d     <- mkRegU;                   // Debounce switch 
-  TimeServerIfc     timeServ     <- mkTimeServer(defaultValue, sys0_clk, sys0_rst); // Instance the Time Server
-  Reg#(GPS64_t)     deltaTime    <- mkReg(0.0);
-
-  Wire#(Bit#(64))   deviceDNA    <-mkDWire(64'h0badc0de_0badc0de);
-  Wire#(Vector#(2,  Bit#(32))) devDNAV <- mkWire; // devDNA as a Vector of 2  32b DWORDs
+  TLPSerializerIfc  tlp  <- mkTLPSerializer(pciDevice);      // TLP-facing DW serializer
+  Reg#(CPReq)       cpReq        <-  mkReg(tagged Idle);     // reqeust pending
+  Reg#(Bool)        dispatched   <-  mkReg(False);           // Set when current cpReq is dispatched
+  Reg#(Bit#(4))     wrkAct       <-  mkReg(0);               // Number of Active Worker
+  Reg#(DWord)       scratch20    <-  mkReg(0);               // Scratch register at 0x20
+  Reg#(DWord)       scratch24    <-  mkReg(0);               // Scratch register at 0x24
+  Reg#(DWord)       cpControl    <-  mkReg(0);               // 32b for cpControl
+  Reg#(Bit#(32))    td           <-  mkRegU;                 // Temp DW used for 8B writes
+//Reg#(DWord)       msiAddrMs    <-  mkRegU;                 // PCIe MSI Address MS [63:32]
+//Reg#(DWord)       msiAddrLs    <-  mkRegU;                 // PCIe MSI Address LS [31:2],2'b0
+//Reg#(Bit#(16))    msiMesgD     <-  mkRegU;                 // PCIe MSI Message Data
+  Reg#(UInt#(4))    rogueTLP     <-  mkReg(0);               // Running count of unhandled TLPs
+  Reg#(Bit#(3))     switch_d     <-  mkRegU;                 // Debounce switch 
+  TimeServerIfc     timeServ     <-  mkTimeServer(defaultValue, sys0_clk, sys0_rst); // Instance the Time Server
+  Reg#(GPS64_t)     deltaTime    <-  mkReg(0.0);
+  Wire#(Bit#(64))   deviceDNA    <-  mkDWire(64'h0badc0de_0badc0de);
+  Wire#(Vector#(2,Bit#(32))) devDNAV <- mkWire;              // devDNA as a Vector of 2  32b DWORDs
+  Reg#(Bit#(8))     seqTag       <-  mkRegU;                 // sequential, single-threaded, tag storage 
+  FIFOF#(DWordM)    adminResp1F  <-  mkFIFOF1;               // Admin region read-response FIFO - region 1
+  FIFOF#(DWordM)    adminResp2F  <-  mkFIFOF1;               // Admin region read-response FIFO - region 2
+  FIFOF#(DWordM)    adminResp3F  <-  mkFIFOF1;               // Admin region read-response FIFO - region 3
+  FIFO#(DWordM)     adminRespF   <-  mkFIFO1;                // Admin region read-response FIFO - aggregate
 
 `ifdef HAS_DEVICE_DNA
   DNAIfc dna <- mkDNA; // Instance the device DNA reader core if we have one
@@ -105,7 +110,6 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   DWord cpRevision  = 32'h0000_0001;
   DWord cpBirthday  = compileTime;
   DWord cpStatus    = extend(pack(rogueTLP));
-
 
 
   function Action setAdminReg(Bit#(8) bAddr, DWord wd);
@@ -140,55 +144,90 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   endaction
   endfunction
 
-  function Maybe#(DWord) getAdminReg(Bit#(8) bAddr);
-    Bit#(6) dwAddr = truncate(bAddr>>2);
-    case (bAddr)
-      'h00 : return Valid(32'h_4F_70_65_6E);          // Open
-      'h04 : return Valid(32'h_43_50_49_00);          // CPI
-      'h08 : return Valid(cpRevision);                // IP Revsion Code
-      'h0C : return Valid(cpBirthday);                // Compile Epoch
-      'h10 : return Valid(extend(wrkPresent));        // Bitmask of Present Workers (1=present)
-      'h14 : return Valid(extend(pack(pciDevice)));   // Assigned PCI device ID
-      'h18 : return Valid(extend(wrkAttn));           // Worker Attention
-      'h1C : return Valid(cpStatus);                  // CP status
-      'h20 : return Valid(scratch20);                 // Scratch register
-      'h24 : return Valid(scratch24);                 // Scratch register
-      'h28 : return Valid(cpControl);                 // Cp control
-      'h2C : return Valid(0);
+  // To avoid congestion of a largish N:1 32b multiplexer, we have split the Admin read into three
+  // groups each less than about 16:1 . This elastic registered result is then collected in a 3:1 merge 
 
-       // TimeServer Get Actions...
-      'h30 : return Valid(timeServ.getStatus);                    // rplTimeStatus
-      'h34 : return Valid(timeServ.getControl);                   // rplTimeControl
-      'h38 : return Valid(pack(fxptGetInt (timeServ.gpsTimeCC))); // Time Integer Seconds
-      'h3C : return Valid(pack(fxptGetFrac(timeServ.gpsTimeCC))); // Time Fractional Seconds
-      'h40 : return Valid(pack(fxptGetInt(deltaTime)));           // Measured deltaTime Integer Seconds
-      'h44 : return Valid(pack(fxptGetFrac(deltaTime)));          // Measured deltaTime Fractional Seconds
-      'h48 : return Valid(pack(timeServ.tRefPerPps));             // rplTimeRefPerPPS (frequency counter)
-
-      'h50 : return Valid(pack(devDNAV[0]));          // LSBs of devDNA
-      'h54 : return Valid(pack(devDNAV[1]));          // MSBs of devDNA
-
-      'h7C : return Valid(32'd2);
-      'h80 : return Valid(pack(dpMemRegion0));  
-      'h84 : return Valid(pack(dpMemRegion1));  
-
-      'hC0,'hC4,'hC8,'hCC,'hD0,'hD4,'hD8,'hDC,'hE0,'hE4,'hE8,'hEC,'hF0,'hF4,'hF8,'hFC : begin 
-         Bit#(4) dwIdx = truncate(dwAddr);
-         return Valid(pack(reverse(uuidV)[dwIdx]));
-       end
-
-      default: return Invalid;
-    endcase
-  endfunction
-
-  function Action completeAdminRd(Bit#(24) bAddr, Bit#(8) tag);
+  function Action getAdminReg1(Bit#(8) bAddr); 
   action
-    DWord rtnData = fromMaybe(32'hDEAD_C0DE, getAdminReg(truncate(bAddr)));
-    CpReadResp crr = CpReadResp { tag:tag, data:rtnData };
-    tlp.client.response.put(crr);
-    cpReq  <= tagged Idle;
+    DWordM rv = Invalid;
+    case (bAddr)
+      'h00 : rv = Valid(32'h_4F_70_65_6E);                      // Open
+      'h04 : rv = Valid(32'h_43_50_49_00);                      // CPI
+      'h08 : rv = Valid(cpRevision);                            // IP Revsion Code
+      'h0C : rv = Valid(cpBirthday);                            // Compile Epoch
+      'h10 : rv = Valid(extend(wrkPresent));                    // Bitmask of Present Workers (1=present)
+      'h14 : rv = Valid(extend(pack(pciDevice)));               // Assigned PCI device ID
+      'h18 : rv = Valid(extend(wrkAttn));                       // Worker Attention
+      'h1C : rv = Valid(cpStatus);                              // CP status
+      'h20 : rv = Valid(scratch20);                             // Scratch register
+      'h24 : rv = Valid(scratch24);                             // Scratch register
+      'h28 : rv = Valid(cpControl);                             // Cp control
+      'h2C : rv = Valid(0);
+      default: rv = Invalid;
+    endcase
+    adminResp1F.enq(rv);
   endaction
   endfunction
+
+  function Action getAdminReg2(Bit#(8) bAddr);
+  action
+    DWordM rv = Invalid;
+    case (bAddr)
+      'h30 : rv = Valid(timeServ.getStatus);                    // rplTimeStatus
+      'h34 : rv = Valid(timeServ.getControl);                   // rplTimeControl
+      'h38 : rv = Valid(pack(fxptGetInt (timeServ.gpsTimeCC))); // Time Integer Seconds
+      'h3C : rv = Valid(pack(fxptGetFrac(timeServ.gpsTimeCC))); // Time Fractional Seconds
+      'h40 : rv = Valid(pack(fxptGetInt(deltaTime)));           // Measured deltaTime Integer Seconds
+      'h44 : rv = Valid(pack(fxptGetFrac(deltaTime)));          // Measured deltaTime Fractional Seconds
+      'h48 : rv = Valid(pack(timeServ.tRefPerPps));             // rplTimeRefPerPPS (frequency counter)
+      'h50 : rv = Valid(pack(devDNAV[0]));                      // LSBs of devDNA
+      'h54 : rv = Valid(pack(devDNAV[1]));                      // MSBs of devDNA
+      'h7C : rv = Valid(32'd2);                                 // DP Mem Region Descriptors...
+      'h80 : rv = Valid(pack(dpMemRegion0));  
+      'h84 : rv = Valid(pack(dpMemRegion1));  
+      default: rv = Invalid;
+    endcase
+    adminResp2F.enq(rv);
+  endaction
+  endfunction
+
+  function Action getAdminReg3(Bit#(8) bAddr);
+  action
+    Bit#(6) dwAddr = truncate(bAddr>>2);
+    DWordM rv = Invalid;
+    case (bAddr)
+      'hC0,'hC4,'hC8,'hCC,'hD0,'hD4,'hD8,'hDC,'hE0,'hE4,'hE8,'hEC,'hF0,'hF4,'hF8,'hFC : begin 
+         Bit#(4) dwIdx = truncate(dwAddr);
+         rv =  Valid(pack(reverse(uuidV)[dwIdx]));
+       end
+      default: rv = Invalid;
+    endcase
+    adminResp3F.enq(rv);
+  endaction
+  endfunction
+
+  function Action requestAdminRd(Bit#(24) bAddr, Bit#(8) tag);
+  action
+    seqTag <= tag;  // Set tag aside for response - Implicit single-issue of reads
+    Bit#(8) a = truncate(bAddr);
+    if      (a <  8'h30)                getAdminReg1(a);
+    else if (a >= 8'h30 && a < 8'hC0)   getAdminReg2(a);
+    else                                getAdminReg3(a);
+  endaction
+  endfunction
+
+  rule readAdminResponseCollect;
+    if      (adminResp1F.notEmpty) begin adminRespF.enq(adminResp1F.first); adminResp1F.deq; end
+    else if (adminResp2F.notEmpty) begin adminRespF.enq(adminResp2F.first); adminResp2F.deq; end
+    else if (adminResp3F.notEmpty) begin adminRespF.enq(adminResp3F.first); adminResp3F.deq; end
+  endrule
+
+  rule responseAdminRd;
+    DWordM arr = adminRespF.first; adminRespF.deq;  // Pop the admin response collection FIFO
+    CpReadResp crr = CpReadResp { tag:seqTag, data:fromMaybe(32'hDEAD_C0DE, arr) };  // use tag from seqTag
+    tlp.client.response.put(crr);
+    cpReq  <= tagged Idle;
+  endrule
 
   function WCI_SPACE decodeCP(Bit#(22) dwAddr); // 16MB CP Decode Policy
     if      (dwAddr[21:14]=='0) return(Admin);
@@ -202,7 +241,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
     (* split *)
     case (cpReq) matches
       tagged AdminWt {wData:.wd, bAddr:.ba}:  setAdminReg(truncate(ba),  wd); 
-      tagged AdminRd  {tag:.tag, bAddr:.ba}:  completeAdminRd(ba, tag);
+      tagged AdminRd  {tag:.tag, bAddr:.ba}:  requestAdminRd(ba, tag);
       tagged WrkWt   {sp:.s, wData:.wd, bAddr:.ba, be:.be}:  reqWorker(s, True,  ba, wd, be);
       tagged WrkRd   {sp:.s, tag:.tag,  bAddr:.ba, be:.be}:  reqWorker(s, False, ba, ?,  be);
     endcase

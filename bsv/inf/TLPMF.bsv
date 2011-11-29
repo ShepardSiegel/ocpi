@@ -32,8 +32,9 @@ import GetPut::*;
 import ClientServer::*;
 import Connectable::*;
 
-typedef Bit#(32)     DWord;
-typedef TLPData#(16) PTW16;
+typedef Bit#(32)      DWord;
+typedef Maybe#(DWord) DWordM;
+typedef TLPData#(16)  PTW16;
 
 interface OCTGIfc;
   interface Client#(PTW16,PTW16) client;
