@@ -123,9 +123,9 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h88 : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_meta[2]));
        'h8C : rdat = !hasDebugLogic ? 0 : extend(pack(tlp.i_meta[3]));
        'h90 : rdat = !hasDebugLogic ? 0 : 32'hC0DE_0111; // for OPED pcore 1_11
-       'h94 : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabMesgBaseMS)); // TODO 64b logic is removed when no debug
-       'h98 : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabMetaBaseMS));
-       'h9C : rdat = !hasDebugLogic ? 0 : extend(pack(bml.i_fabFlowBaseMS));
+       'h94 : rdat = extend(pack(bml.i_fabMesgBaseMS)); 
+       'h98 : rdat = extend(pack(bml.i_fabMetaBaseMS));
+       'h9C : rdat = extend(pack(bml.i_fabFlowBaseMS));
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);

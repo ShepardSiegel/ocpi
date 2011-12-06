@@ -42,19 +42,17 @@ typedef Bit#(DPLogBufSizeHWords) DPBufHWAddr;  // A DP Buffer HW   Address
 typedef enum {Disabled,FProducer,FConsumer,Rsvd} DPDirection deriving (Bits,Eq);
 typedef enum {Passive,ActMesg,ActFlow,Rsvd}      DPRole      deriving (Bits,Eq);
 typedef struct {
-  Bool        m64b;
   Bool        lowLatency;
   Bit#(4)     pad;
   DPDirection dir;
   DPRole      role;
 } DPControl deriving (Bits,Eq);
-DPControl defaultDPControl = DPControl{m64b:False, lowLatency:False, pad:0, dir:Disabled,  role:Passive}; 
-DPControl fProdActMesg     = DPControl{m64b:False, lowLatency:False, pad:0, dir:FProducer, role:ActMesg}; 
-DPControl fConsActMesg     = DPControl{m64b:False, lowLatency:False, pad:0, dir:FConsumer, role:ActMesg}; 
+DPControl defaultDPControl = DPControl{lowLatency:False, pad:0, dir:Disabled,  role:Passive}; 
+DPControl fProdActMesg     = DPControl{lowLatency:False, pad:0, dir:FProducer, role:ActMesg}; 
+DPControl fConsActMesg     = DPControl{lowLatency:False, pad:0, dir:FConsumer, role:ActMesg}; 
 
 /* Embellished version for future use...
 typedef struct {
-  Bool        m64b;
   Bool        lowLatency;
   Bool        moveData;
   Bool        moveMeta;
