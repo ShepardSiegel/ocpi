@@ -89,6 +89,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)                 reqMesgInFlight      <- mkReg(False);
   Reg#(Bool)                 xmtMetaOK            <- mkReg(False);
   Reg#(Bool)                 tlpMetaSent          <- mkReg(False);
+  Reg#(Bool)                 sentTail4DWHeader    <- mkReg(False);
   Reg#(Maybe#(MesgMeta))     fabMeta              <- mkReg(Invalid);
   Wire#(DPControl)           dpControl            <- mkWire;
   Reg#(Bit#(NtagBits))       dmaTag               <- mkReg(0); 
@@ -466,14 +467,32 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Generic TailEvent Sender (Used at end of push, pull, and for flow signal to fabFlowAddr)...
+  // This rule will fire twice in the 4DW (64b addr) case
   rule dmaTailEventSender(!tlpXmtBusy && postSeqDwell==0);
-    tailEventF.deq;
-    if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
-    postSeqDwell   <= psDwell;
-    fabMeta        <= (Invalid);
-    MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
-    let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
-    outF.enq(w); // Out goes the tail event write 3DW + 1 DW 0x0000_0001 non-zero
+    if (fabFlowAddrMS=='0) begin
+      if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
+      postSeqDwell   <= psDwell;
+      fabMeta        <= (Invalid);
+      tailEventF.deq;
+      MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
+      let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
+      outF.enq(w); // Out goes the tail event write 3DW + 1 DW 0x0000_0001 non-zero
+    end else begin
+      if (!sentTail4DWHeader) begin
+        MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, True);
+        let w = PTW16 { data : {pack(h), fabFlowAddr, fabFlowAddrMS}, be:'1, hit:7'h1, sof:True, eof:False };
+        outF.enq(w); // Out goes the tail event write 4DW 
+        sentTail4DWHeader <= True;
+      end else begin
+        if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
+        postSeqDwell   <= psDwell;
+        fabMeta        <= (Invalid);
+        tailEventF.deq;
+        let w = PTW16 {data:{byteSwap(32'h0000_0001), byteSwap(0), byteSwap(0), byteSwap(0)}, be:16'hF000, hit:7'h2, sof:False, eof:True };
+        outF.enq(w);  
+        sentTail4DWHeader <= False;
+      end
+    end
     lastRuleFired  <= R_dmaTailEventSender;
     $display("[%0d]: %m: dmaTailEventSender - generic", $time);
   endrule
