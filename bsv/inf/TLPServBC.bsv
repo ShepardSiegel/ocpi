@@ -5,20 +5,20 @@
 // primative, it is importBVI of Atomic Rules Verilog...
 //`define USE_SRLFIFO
 
-import TLPMF::*;
 import OCBufQ::*;
 import OCWip::*;
-
 import PCIE::*;
-import GetPut::*;
-import FIFO::*;
-import FIFOF::*;
 import SRLFIFO::*;
-import Vector::*;
+import TLPBRAM::*;
+import TLPMF::*;
+
 import BRAM::*;
 import ClientServer::*; 
 import DReg::*;
-import Gearbox::*;
+import FIFO::*;
+import FIFOF::*;
+import GetPut::*;
+import Vector::*;
 
 interface TLPServBCIfc;
   interface Server#(PTW16,PTW16) server;
@@ -29,66 +29,10 @@ interface TLPServBCIfc;
   method Vector#(4,Bit#(32)) i_meta;
 endinterface
 
-// 2011-12-06 The TLP Side of the BRAM now supports a feature to make it work more naturally with both 3DW and 4DW PCIe requests
-// We've added the bools skipHeadData, skipRespData, and hasRespData to the WriteReq, ReadReq, and ReadResp structures respectively.
-// The idea is that in your Write or Read Request you can "skip" the 1DW of data that normally piggybacks with a 3DW write or completion.
-// The utility of this "skip" is that allows the write or read data to directly line up with 4DW PCIe transactions w/o the need for a rotator.
-
-typedef struct {
-  Bool        skipHeadData;  // Set True to skip writing the data included with this request
-  DPBufDWAddr dwAddr;
-  Bit#(10)    dwLength;
-  Bit#(4)     firstBE;
-  Bit#(4)     lastBE;
-  DWord       data;
-} WriteReq deriving (Bits);
-
-typedef enum {None,ComplTgt,DMASrc,Metadata} ReadRole deriving (Bits,Eq);
 typedef enum {Idle,NearReqMeta,NearRespMeta,NearReqMesg,PushMesgHead,PushMesgBody,
   PushMetaHead,PushMetaBody,TailEvent,PostDwell} PushDMAState deriving (Bits,Eq);
 typedef enum {Idle,FarReqMeta, FarRespMeta, FarReqMesg, PullMesgHead,PullMesgBody,
   TailEvent,PostDwell} PullDMAState deriving (Bits,Eq);
-
-typedef struct {
-  Bool        skipRespData;  // Set True to skip including the data included with the first response
-  ReadRole    role;
-  PciId       reqID;
-  DPBufDWAddr dwAddr;
-  Bit#(10)    dwLength;
-  Bit#(4)     firstBE;
-  Bit#(4)     lastBE;
-  Bit#(8)     tag;
-  Bit#(3)     tc;
-} ReadReq deriving (Bits);
-
-typedef union tagged {
-  WriteReq    WriteHeader;
-  Bit#(128)   WriteData;
-  ReadReq     ReadHeader;
-} MemReqPacket deriving (Bits);
-
-typedef struct {
-  Bool     hasRespData; // Set True when the data does contain a first 1DW response
-  ReadRole role;
-  PciId    reqID;
-  Bit#(10) dwLength;
-  Bit#(7)  lowAddr;
-  Bit#(12) byteCount;
-  Bit#(8)  tag;
-  Bit#(3)  tc;
-  DWord    data;
-} ReadResp deriving (Bits);
-
-typedef struct {
-  ReadRole  role;
-  Bit#(8)   tag;
-  Bit#(128) data;
-} ReadPayld deriving (Bits);
-
-typedef union tagged {
-  ReadResp   ReadHead;
-  ReadPayld  ReadBody;
-} MemRespPacket deriving (Bits);
 
 typedef 5 NtagBits; // Must match PCIe configureation: 5b tag is the default; 8b is optional; 11b with phantom-tags stealing 3b device num
 
@@ -115,23 +59,12 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   FIFOF#(PTW16)              inF                  <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // The PTW16 inbound from the NoC
   FIFOF#(PTW16)              outF                 <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // The PTW16 outbound to the NoC
-  FIFOF#(MemReqPacket)       mReqF                <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // Requests to local BRAM
-  FIFOF#(MemRespPacket)      mRespF               <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // Responses from local BRAM
-  FIFOF#(ReadReq)            readReq              <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // Read Req/Resp FIFO - for flat map, e.g. tag
+  TLPBRAMIfc                 tlpBRAM              <- mkTLPBRAM(mem);
   FIFOF#(Bit#(1))            tailEventF           <- mkFIFOF;
   Reg#(Bool)                 inIgnorePkt          <- mkRegU;
   Reg#(Bit#(10))             outDwRemain          <- mkRegU;
-  Reg#(DPBufDWAddr)          writeDWAddr          <- mkRegU;
-  Reg#(Bit#(10))             writeRemainDWLen     <- mkRegU;
-  Reg#(Bit#(4))              writeLastBE          <- mkRegU;
-  Reg#(Bool)                 readStarted          <- mkReg(False);
-  Reg#(Bool)                 readHeaderSent       <- mkReg(False);
-  Reg#(Bit#(10))             rdRespDwRemain       <- mkRegU;
-  Reg#(Bit#(10))             readRemainDWLen      <- mkRegU;
-  Reg#(DPBufDWAddr)          readNxtDWAddr        <- mkRegU;
   Reg#(Bool)                 tlpRcvBusy           <- mkReg(False);
   Reg#(Bool)                 tlpXmtBusy           <- mkReg(False);
-  Reg#(Bit#(128))            debugBdata           <- mkReg(0);
   Reg#(Bool)                 remStart             <- mkDReg(False);
   Reg#(Bool)                 remDone              <- mkDReg(False);
   Reg#(Bool)                 nearBufReady         <- mkDReg(False);
@@ -195,34 +128,34 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // Request the metadata for the remote-facing ready buffer...
   rule dmaRequestNearMeta (hasPush && actMesgP && !tlpRcvBusy && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
-    remStart        <= True;  // Indicate to buffer-management remote move start
+    remStart        <= True;   // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
     ReadReq rreq = ReadReq {
       skipRespData : False,
       role         : Metadata,
       reqID        : PciId {bus:255, dev:31, func:0},
-      dwLength     : 4,           // Request all 4DW of metadata (One alligned 16B superword)
+      dwLength     : 4,        // Request all 4DW of metadata (One alligned 16B superword)
       tag          : ?,
       tc           : ?,
       dwAddr       : truncate(remMetaAddr>>2),
       firstBE      : '1,
       lastBE       : '1 };
     MemReqPacket mpkt = ReadHeader(rreq);
-    mReqF.enq(mpkt);  // Enqueue BRAM read request for metadata
+    tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM read request for metadata
     $display("[%0d]: %m: dmaRequestNearMeta FPactMesg-Step1/7", $time);
   endrule
 
   // Accept the first DW metadata back... 
-  rule dmaResponseNearMetaHead (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==Metadata);
-    mRespF.deq;
+  rule dmaResponseNearMetaHead (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==Metadata);
+    tlpBRAM.getsResp.deq;
     mesgLengthRemainPush <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
     lastMetaV[0]         <=          byteSwap(rres.data);   // push length
     $display("[%0d]: %m: dmaResponseNearMetaHead FPactMesg-Step2a/7 mesgLength:%0x", $time, byteSwap(rres.data));
   endrule
 
   // Accept the remaining metadata back and then commit to MesgMeta format..
-  rule dmaResponseNearMetaBody (hasPush && actMesgP &&& mRespF.first matches tagged ReadBody .rres &&& rres.role==Metadata);
-    mRespF.deq;
+  rule dmaResponseNearMetaBody (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadBody .rres &&& rres.role==Metadata);
+    tlpBRAM.getsResp.deq;
     Vector#(4, DWord) vWords = reverse(unpack(rres.data));
     Bit#(32) opcode  = byteSwap(vWords[0]); lastMetaV[1] <= opcode;
     Bit#(32) nowMS   = byteSwap(vWords[1]); lastMetaV[2] <= nowMS;
@@ -252,7 +185,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     mesgLengthRemainPush  <= mesgLengthRemainPush - extend(thisRequestLength);
     //lastSegmentOfMessage <= (mesgLengthRemainPush - extend(thisRequestLength)) < min(maxPayloadSize, f(spanToNextPage) TODO: Needs work to pipeline critical path to EoM tag
     ReadReq rreq = ReadReq {
-      skipRespData : (fabMesgAddrMS!='0),  // skip when non-zero MesgMS Addr
+      skipRespData : (fabMesgAddrMS!='0),  // skip when non-zero MesgMS Addr; This is the special behavior taken for 64b Mesg addr in this rule
       role         : DMASrc,
       reqID        : PciId {bus:255, dev:31, func:0},
       dwLength     : truncate(thisRequestLength>>2),
@@ -264,40 +197,40 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     MemReqPacket mpkt = ReadHeader(rreq);
     srcMesgAccu <= srcMesgAccu + extend(thisRequestLength);  // increment src side of the message dest address
     remMesgAccu <= remMesgAccu + extend(thisRequestLength);  // increment the rem address accumulator
-    mReqF.enq(mpkt);  // Enqueue BRAM read request for message data
+    tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM read request for message data
     $display("[%0d]: %m: dmaPushRequestMesg FPactMesg-Step3/7", $time);
   endrule
 
   // Transform the local read response header to a PCIe posted write request header for push DMA...
-  rule dmaPushResponseHeader (hasPush && actMesgP &&& mRespF.first matches tagged ReadHead .rres &&& rres.role==DMASrc && !tlpXmtBusy && postSeqDwell == 0);
+  rule dmaPushResponseHeader (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==DMASrc && !tlpXmtBusy && postSeqDwell==0);
     Bool onlyBeatInSegment = (rres.dwLength==1);
     Bool lastSegmentInMesg = (rres.tag==8'h01); 
-    if (fabMesgAddrMS=='0) begin
+    // This rule has two different behaviors depending on if we must make a 32b or 64b MWr request
+    if (fabMesgAddrMS=='0) begin  // 32b addr, use 3DW and send 1DW data...
       MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, False); // TODO: Byte Enable Support
       let w = PTW16 { data : {pack(h), fabMesgAccu, rres.data}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
       outF.enq(w);  // Out goes the 3DW request + 1 DW write data
       fabMesgAccu <= fabMesgAccu + (extend(rres.dwLength)<<2);  // increment the fabric address accumulator
       outDwRemain <= rres.dwLength - 1;                         // load DW remaining in this segment
-    end else begin
+    end else begin               // 64b addr, use 4DW and no data in this MWr...
       onlyBeatInSegment = False;
       MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, True); // 4DW MWr
       let w = PTW16 { data : {pack(h), fabMesgAccu, fabMesgAddrMS}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
-      outF.enq(w);  // Out goes the 4DW request
+      outF.enq(w);  // Out goes the 4DW request + no data
     end
     if (!onlyBeatInSegment) tlpXmtBusy <= True;               // acquire outbound mutex
     if ( onlyBeatInSegment && lastSegmentInMesg) begin
       xmtMetaOK  <= True;   // message sent, move on to metadata
       tlpXmtBusy <= False;  // release outbound mutex
     end
-    mRespF.deq;
+    tlpBRAM.getsResp.deq;
     $display("[%0d]: %m: dmaPushResponseHeader FPactMesg-Step4a/7", $time);
   endrule
 
-  //FIXME : Stopping here for the evening 2011-12-06
-
   // continue the transformation for the local-read to fabric-write payload body...
-  rule dmaPushResponseBody (hasPush && actMesgP &&& mRespF.first matches tagged ReadBody .rbody &&& rbody.role==DMASrc);
-    mRespF.deq;
+  // this rule finishes up the push without regard to message address space
+  rule dmaPushResponseBody (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadBody .rbody &&& rbody.role==DMASrc);
+    tlpBRAM.getsResp.deq;
     Bool lastBeatInSegment = (outDwRemain <= 4);
     Bool lastSegmentInMesg = (rbody.tag==8'h01); 
     PTW16 w = TLPData {
@@ -314,16 +247,21 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Transmit the Metadata header...
-  rule dmaXmtMetaHead (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && !xmtMetaInFlight && xmtMetaOK && postSeqDwell == 0);
+  rule dmaXmtMetaHead (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& !tlpXmtBusy && !xmtMetaInFlight && xmtMetaOK && postSeqDwell==0);
     xmtMetaInFlight <= True;
     tlpXmtBusy      <= True;
     doXmtMetaBody   <= True;
     xmtMetaOK       <= False;
-    MemReqHdr1 h = makeWrReqHdr(pciDevice, 4, '1, '1, False); // Move 4 DW for Metdata
-    let w = PTW16 {
-      data : {pack(h), fabMetaAddr, byteSwap(extend(meta.length))},
-      be:'1, hit:7'h2, sof:True, eof:False };
-    outF.enq(w);  // Out goes 3DW header + 1 DW of metadata
+    // This rule has two different behaviors depending on if we must make a 32b or 64b MWr request
+    if (fabMetaAddrMS=='0) begin
+      MemReqHdr1 h = makeWrReqHdr(pciDevice, 4, '1, '1, False); 
+      let w = PTW16 { data : {pack(h), fabMetaAddr, byteSwap(extend(meta.length))}, be:'1, hit:7'h2, sof:True, eof:False };
+      outF.enq(w);  // Out goes 3DW header + 1 DW of metadata
+    end else begin
+      MemReqHdr1 h = makeWrReqHdr(pciDevice, 4, '1, '1, True); 
+      let w = PTW16 { data : {pack(h), fabMetaAddr, fabMetaAddrMS}, be:'1, hit:7'h2, sof:True, eof:False };
+      outF.enq(w);  // Out goes 4DW header + 0 Data
+    end
     $display("[%0d]: %m: dmaXmtMetaHead FPactMesg-Step5/7", $time);
   endrule
 
@@ -336,8 +274,13 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Bit#(32) opcode  = meta.opcode;
     Bit#(32) nowMS   = meta.nowMS;
     Bit#(32) nowLS   = meta.nowLS;
-    let w = PTW16 {data:{byteSwap(opcode), byteSwap(nowMS), byteSwap(nowLS), 32'b0}, be:16'hFFF0, hit:7'h2, sof:False, eof:True };
-    outF.enq(w);  // Out goes the rest of metadata write
+    if (fabMetaAddrMS=='0) begin
+      let w = PTW16 {data:{byteSwap(opcode), byteSwap(nowMS), byteSwap(nowLS), 32'b0}, be:16'hFFF0, hit:7'h2, sof:False, eof:True };
+      outF.enq(w);  // Out goes the rest of metadata write
+    end else begin
+      let w = PTW16 {data:{byteSwap(extend(meta.length)), byteSwap(opcode), byteSwap(nowMS), byteSwap(nowLS)}, be:16'hFFFF, hit:7'h2, sof:False, eof:True };
+      outF.enq(w);  // Out goes all of metadata write
+    end
     $display("[%0d]: %m: dmaXmtMetaBody FPactMesg-Step6/7", $time);
   endrule
 
@@ -381,7 +324,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     remStart        <= True;  // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
     // TODO: request needs the correct function number to facilitate completion routing (see comments in OCInf.bsv)
-    PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMetaAddr>>2), extend(dmaTag), 4); // Read Request 4DW of metadata
+    PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMetaAddr>>2), extend(dmaTag), 4, fabMetaAddrMS); // Read Request 4DW of metadata
     dmaReqTag <= dmaTag;
     dmaTag    <= dmaTag + 1; 
     outF.enq(w);  // Out goes the read request of far metdata
@@ -408,7 +351,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       firstBE      : '1,
       lastBE       : '1 };
     MemReqPacket mpkt = WriteHeader(wreq);
-    mReqF.enq(mpkt);  // Enqueue BRAM write request header to store metadata
+    tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM write request header to store metadata
     lastRuleFired <= R_dmaRespHeadFarMeta;
     complTimerRunning <= False;
     $display("[%0d]: %m: dmaRespHeadFarMeta FPactMesg-Step2a/N fabMeta:%0x", $time, byteSwap(pw.data[31:0]));
@@ -431,7 +374,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     remMesgAccu <= remMesgAddr;              // Load the accumulator of rem address for sub-completions and multiple requests
     fabMesgAccu <= fabMesgAddr;              // Load the accumulator of fabric starting addresses over multiple requests
     MemReqPacket mpkt = WriteData(pw.data);
-    mReqF.enq(mpkt);  // Enqueue BRAM write request body to store metadata
+    tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM write request body to store metadata
     lastRuleFired <= R_dmaRespBodyFarMeta;
     $display("[%0d]: %m: dmaRespBodyFarMeta FPactMesg-Step2b/N opcode:%0x nowMS:%0x nowLS:%0x", $time, opcode, nowMS, nowLS);
   endrule
@@ -449,7 +392,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     fabMesgAccu <= fabMesgAccu + extend(thisRequestLength);                                                        // increment the fabric address accumulator
     reqMesgInFlight   <= True;  // Asserted while individual requests, with one or more (sub)completions, are in flight
     gotResponseHeader <= False;
-    PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMesgAccu>>2), extend(dmaTag), truncate(thisRequestLength>>2));
+    PTW16 w = makeRdNDwReqTLP(pciDevice, 7'h2, truncate(fabMesgAccu>>2), extend(dmaTag), truncate(thisRequestLength>>2), fabMesgAddrMS);
     dmaPullRemainDWLen <= truncate(thisRequestLength>>2); // How many DW remain in this request
     dmaReqTag   <= dmaTag;
     dmaTag      <= dmaTag + 1; 
@@ -485,7 +428,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       firstBE      : '1,
       lastBE       : '1 };
     MemReqPacket mpkt = WriteHeader(wreq);
-    mReqF.enq(mpkt);  // Enqueue BRAM write request header to store message
+    tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM write request header to store message
     dmaPullRemainDWLen  <= dmaPullRemainDWLen - 1;
     dmaPullRemainDWSub  <= ch.length - 1;
     Bool endOfSubCompletion = (ch.length==1);
@@ -501,7 +444,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     PTW16 pw = inF.first;
     inF.deq;
     MemReqPacket pkt = WriteData(pw.data); //16B Data still in PCI/NBO format
-    mReqF.enq(pkt); // Enqueue BRAM write request body to store message
+    tlpBRAM.putReq.put(pkt); // Enqueue BRAM write request body to store message
     Bool endOfSubCompletion = dmaPullRemainDWSub<=4;
     Bool endOfReqCompletion = endOfSubCompletion && (dmaPullRemainDWLen<=dmaPullRemainDWSub);
     dmaPullRemainDWLen    <=  endOfSubCompletion ? dmaPullRemainDWLen-dmaPullRemainDWSub : dmaPullRemainDWLen-4;   
@@ -543,6 +486,10 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //(* descending_urgency = "dmaXmtTailEvent, dmaXmtMetaBody, dmaXmtMetaHead, dmaPushResponseBody, dmaPushResponseHeader, dmaPushRequestMesg, dmaResponseNearMetaBody, dmaResponseNearMetaHead, dmaRequestNearMeta" *)
   //(* descending_urgency = "dmaTailEventSender, dmaPullTailEvent, dmaPullResponseBody, dmaPullResponseHeader, dmaPullResponseHeaderTag, dmaPullRequestFarMesg, dmaRespBodyFarMeta, dmaRespHeadFarMeta, dmaRequestFarMeta" *)
 
+  //
+  // uNoC Access of BRAM by BAR1...
+  //
+
   rule tlpRcv (!reqMetaInFlight && !reqMesgInFlight && !reqMetaBodyInFlight); // TODO: Replace these guards with monitors
     PTW16 pw = inF.first;
     Ptw16Hdr p = unpack(pw.data);
@@ -569,7 +516,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
             firstBE      : firstBE,
             lastBE       : lastBE };
             MemReqPacket mpkt = WriteHeader(wreq);
-            mReqF.enq(mpkt);  // BRAM Write request from NoC with 1DW goes along
+            tlpBRAM.putReq.put(mpkt);  // BRAM Write request from NoC with 1DW goes along
             //if (pw.eof) $display("[%0d] Mem: Finished single-cycle write (addr %x)", $time, {dwAddr,2'b00});
         end else begin
           ReadReq rreq = ReadReq {
@@ -583,7 +530,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
             firstBE      : firstBE,
             lastBE       : lastBE };
             MemReqPacket mpkt = ReadHeader(rreq);
-            mReqF.enq(mpkt); // BRAM Read request from NoC
+            tlpBRAM.putReq.put(mpkt); // BRAM Read request from NoC
         end
       end
     // Update state in case there are multiple write data beats...
@@ -591,7 +538,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     end else begin 
       if (!inIgnorePkt) begin
         MemReqPacket pkt = WriteData(pw.data); //16B Data still in PCI/NBO format
-        mReqF.enq(pkt);  // BRAM Write payload from NoC
+        tlpBRAM.putReq.put(pkt);  // BRAM Write payload from NoC
         //if (pw.eof) $display("[%0d] Mem: Finished multi-cycle write (addr %x)", $time, {dwAddr,2'b00});
       end
     end
@@ -599,8 +546,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     inF.deq;
   endrule
    
-  rule dataXmt_Header (mRespF.first matches tagged ReadHead .rres &&& rres.role==ComplTgt);
-    mRespF.deq;
+  rule dataXmt_Header (tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==ComplTgt);
+    tlpBRAM.getsResp.deq;
     CompletionHdr hdr =
       makeReadCompletionHdr(pciDevice, rres.reqID, rres.dwLength, rres.tag, rres.tc, rres.lowAddr, rres.byteCount);
     Bit#(128) pkt = { pack(hdr), rres.data };
@@ -615,8 +562,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     if (rres.dwLength>1) tlpXmtBusy <= True;
   endrule
 
- rule dataXmt_Body (mRespF.first matches tagged ReadBody .rbody &&& rbody.role==ComplTgt);
-    mRespF.deq;
+ rule dataXmt_Body (tlpBRAM.getsResp.first matches tagged ReadBody .rbody &&& rbody.role==ComplTgt);
+    tlpBRAM.getsResp.deq;
     Bool isLastTLP = (outDwRemain <= 4);
     PTW16 w = TLPData {
                 data : rbody.data,
@@ -627,147 +574,6 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     outF.enq(w);  // Out goes remaining completion data
     outDwRemain <= outDwRemain - 4;
     if (isLastTLP) tlpXmtBusy <= False;
-  endrule
-
-  // On the mReqF.deq  side we unwind the PCI/NetworkByteOrder...
-  // On the mRespF.enq side we format the data for PCI/NBO...
-
-  // Perform the first memory write...
-  rule writeReq (mReqF.first matches tagged WriteHeader .wreq);
-    mReqF.deq;
-    writeDWAddr       <= wreq.dwAddr   + (wreq.skipHeadData ? 0 : 1);
-    writeRemainDWLen  <= wreq.dwLength - (wreq.skipHeadData ? 0 : 1);
-    writeLastBE       <= wreq.lastBE;
-    //let req = BRAMRequestBE { writeen:wreq.firstBE, address:wreq.dwAddr[11:2], datain:byteSwap(wreq.data), responseOnWrite:False };
-    let req = BRAMRequest { write:True, address:truncate(wreq.dwAddr>>2), datain:byteSwap(wreq.data), responseOnWrite:False };
-    if (!wreq.skipHeadData) mem[wreq.dwAddr[1:0]].request.put(req);  // We can write the 1st DW right away
-    //$display("[%0d] Mem: Writing first word (addr %x) data %x", $time, {wreq.dwAddr,2'b00}, byteSwap(wreq.data));
-    //$display("Writing %0h to addr %0h of mem %0d", req.datain, req.address, wreq.dwAddr[1:0]);
-  endrule
-
-  // Perform any subsequent memory writes...
-  rule writeData (mReqF.first matches tagged WriteData .wrdata);
-    mReqF.deq;
-    Vector#(4, DWord)       vWords   = reverse(unpack(wrdata)); // place low-addr DW at LS
-    Vector#(4, DPBufHWAddr) vAddrs   = ?;
-    Vector#(4, Bool)        vInclude = ?;
-    Vector#(4, Bit#(4))     vByteEn  = ?;
-
-    for (Integer i=0; i<4; i=i+1) begin
-      //vAddrs[i]   = (writeDWAddr + fromInteger(i))[11:2];
-      vAddrs[i]   = truncate((writeDWAddr + fromInteger(i))>>2);
-      vInclude[i] =  writeRemainDWLen  > fromInteger(i);
-      vByteEn[i]  = (writeRemainDWLen  == fromInteger(i+1)) ?  writeLastBE : 4'hF ;
-    end
-
-    for (Integer i=0; i<4; i=i+1) begin
-      Bit#(2) idx = fromInteger(i) - writeDWAddr[1:0];
-      //let req = BRAMRequestBE { writeen:vByteEn[idx], address:vAddrs[idx], datain:byteSwap(vWords[idx]), responseOnWrite:False };
-      let req = BRAMRequest { write:True, address:vAddrs[idx], datain:byteSwap(vWords[idx]), responseOnWrite:False };
-      if (vInclude[idx]) begin
-        mem[i].request.put(req);
-        //$display("Writing %0h to addr %0h of mem %0d",req.datain, req.address, i);
-      end
-    end
-
-    writeDWAddr       <= writeDWAddr      + 4;
-    writeRemainDWLen  <= writeRemainDWLen - 4;
-    //$display("[%0d] Mem: Writing next words (addr %x, dwLen %0d)", $time, {writeDWAddr,2'b00}, writeRemainDWLen );
-  endrule
-
-
-  // Perform the first memory read request...
-  rule read_FirstReq (!readStarted &&& mReqF.first matches tagged ReadHeader .rreq);
-    readReq.enq(rreq);
-    if (rreq.dwLength == 1 && !rreq.skipRespData) mReqF.deq;
-    else readStarted <= True;
-    //let req = BRAMRequestBE { writeen:4'd0, address:rreq.dwAddr[11:2], datain:'0, responseOnWrite:False };
-    let req = BRAMRequest { write:False, address:truncate(rreq.dwAddr>>2), datain:'0, responseOnWrite:False };
-    if (!rreq.skipRespData) mem[rreq.dwAddr[1:0]].request.put(req);
-    readRemainDWLen  <= rreq.dwLength - (rreq.skipRespData ? 0 : 1);
-    readNxtDWAddr    <= rreq.dwAddr   + (rreq.skipRespData ? 0 : 1) ;
-    //$display("[%0d] TLP Mem: First DW read request (addr %x, dwLen %0d)", $time, {rreq.dwAddr,2'b00}, rreq.dwLength);
-    //$display("Reading addr %0x of mem %0d", req.address, rreq.dwAddr[1:0]);
-  endrule
-
-  // Perform any subsequent read requests...
-  rule read_NextReq (readStarted &&& mReqF.first matches tagged ReadHeader .rreq);
-    if (readRemainDWLen  <= 4) begin
-      readStarted <= False;
-      mReqF.deq;
-    end
-    readRemainDWLen  <= readRemainDWLen - 4;
-    readNxtDWAddr    <= readNxtDWAddr   + 4;
-    //$display("[%0d] TLP Mem: Next nDW read request (addr %x, dwLen %0d)", $time, {readNxtDWAddr,2'b00}, readRemainDWLen );
-
-    Vector#(4, DPBufHWAddr) vAddrs = ?;
-    for (Integer i=0; i<4; i=i+1)
-      //vAddrs[i] = (readNxtDWAddr + fromInteger(i))[11:2];
-      vAddrs[i] = truncate((readNxtDWAddr + fromInteger(i))>>2);
-
-    for (Integer i=0; i<4; i=i+1) begin
-      Bit#(2) idx = fromInteger(i) - readNxtDWAddr[1:0];
-      //let req = BRAMRequestBE { writeen:4'd0, address:vAddrs[idx], datain:'0, responseOnWrite:False };
-      let req = BRAMRequest { write:False, address:vAddrs[idx], datain:'0, responseOnWrite:False };
-      mem[i].request.put(req);
-      //$display("Reading addr %0x of mem %0d", req.address, i);
-    end
-  endrule
-
-  // Process the first read response...
-  rule read_FirstResp (!readHeaderSent);
-    let rreq = readReq.first;
-    Bit#(32) data <- mem[rreq.dwAddr[1:0]].response.get;
-    Bit#(2) lowAddr10 = byteEnToLowAddr(rreq.firstBE);
-    Bit#(7) lowAddr = {truncate(rreq.dwAddr), lowAddr10};
-    Bit#(12) byteCount = computeByteCount(rreq.dwLength, rreq.firstBE, rreq.lastBE);
-    let rresp = ReadResp { hasRespData : !rreq.skipRespData,
-                           role        :  rreq.role,
-                           reqID       :  rreq.reqID,
-                           dwLength    :  rreq.dwLength,
-                           lowAddr     :  lowAddr,
-                           byteCount   :  byteCount,
-                           tag         :  rreq.tag,
-                           tc          :  rreq.tc,
-                           data        :  byteSwap(data) }; // byteSwap to PCI TLP
-    let pkt = ReadHead(rresp);
-    mRespF.enq(pkt);
-    rdRespDwRemain <= rreq.dwLength - (rreq.skipRespData ? 0 : 1);
-    if (rreq.dwLength==1 && !rreq.skipRespData) readReq.deq;
-    else readHeaderSent <= True;
-    //$display("[%0d] TLP Mem: First DW read response enqueued (data %x)", $time, data);
-  endrule
-
-  // Process any subsequent read responses...
-  rule read_NextResp (readHeaderSent);
-    let rreq = readReq.first;
-    Vector#(4, Bit#(32)) vResps = ?;
-    Bit#(32) dw = ?;
-    for (Integer i=0; i<4; i=i+1) begin
-      dw <- mem[i].response.get;
-      vResps[i] = byteSwap(dw);  // convert each DW into PCIe big-endian format
-    end
-    debugBdata <= pack(vResps);  // Capture the data from the four BRAMs for debug
-
-    // The data from the BRAM is stored little-endian. That is the first DWORD is in the LSBs.
-    // Two transformations are needed to put this in TLP/PCI completion order:
-    // i) First, we reverse the DWORDs so that the first DWORD in the MSBs
-    // ii) Next, we rotateBy to move up the first DWORD as needed
-    // For example we may get DCBE from our BRAM where B is the "first" data when idx=1
-    // The reverse transformation gets us EBCD; the rotateBy gets us BCDE, which is correct
-
-    Bit#(2)   nxtDWAddr = truncate(rreq.dwAddr) + 1;
-    UInt#(2)  idx  =  unpack(nxtDWAddr[1:0]);
-    Bit#(128) rdata = pack(rotateBy(reverse(vResps),idx));
-
-    let pkt = ReadBody(ReadPayld{role:rreq.role, tag:rreq.tag, data:rdata});
-    rdRespDwRemain <= rdRespDwRemain - 4;
-    if (rdRespDwRemain<=4) begin
-      readReq.deq;
-      readHeaderSent <= False;
-    end
-    mRespF.enq(pkt);
-    //$display("[%0d] TLP Mem: Next nDW read response enqueued (data %x) (raw %x) (idx %x)", $time, rdata, pack(vResps), idx);
   endrule
 
   Bit#(32) tlpDebug = {4'h0, pack(complTimerCount), 12'h0, pack(lastRuleFired)};

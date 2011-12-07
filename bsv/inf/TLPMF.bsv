@@ -380,10 +380,14 @@ function PTW16 makeRdDwReqTLP(Bit#(7) bar, Bit#(30) a, Bit#(8) tag);
     eof  : True };
 endfunction
 
-function PTW16 makeRdNDwReqTLP(PciId rid, Bit#(7) bar, Bit#(30) a, Bit#(8) tag, Bit#(10) dwLen);
-  MemReqHdr1 h = makeRdReqHdr(rid, tag, dwLen, '1, (dwLen==1)?'0:'1, False);
-  return PTW16 {
-    data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:'0}), be:remFromDW(3), hit:bar, sof:True, eof:True }; // 3DW Request
+function PTW16 makeRdNDwReqTLP(PciId rid, Bit#(7) bar, Bit#(30) a, Bit#(8) tag, Bit#(10) dwLen, Bit#(32) aMS);
+  if (aMS==0) begin
+    MemReqHdr1 h = makeRdReqHdr(rid, tag, dwLen, '1, (dwLen==1)?'0:'1, False);
+    return PTW16 { data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:'0}),  be:remFromDW(3), hit:bar, sof:True, eof:True }; // 3DW Request
+  end else begin
+    MemReqHdr1 h = makeRdReqHdr(rid, tag, dwLen, '1, (dwLen==1)?'0:'1, True);
+    return PTW16 { data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:aMS}), be:'1,           hit:bar, sof:True, eof:True }; // 4DW Request
+  end
 endfunction
 
 function MemReqHdr1 makeRdReqHdr (PciId rid, Bit#(8) tag, Bit#(10) len, Bit#(4) firstBE, Bit#(4) lastBE, Bool is64b);
