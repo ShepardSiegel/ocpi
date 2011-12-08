@@ -46,7 +46,9 @@ typedef enum {
   R_dmaPullResponseHeader = 5,
   R_dmaPullResponseBody   = 6,
   R_dmaPullTailEvent      = 7,
-  R_dmaTailEventSender    = 8
+  R_dmaTailEventSender32  = 8,
+  R_dmaTailEventSender64a = 9,
+  R_dmaTailEventSender64b = 10
   } DmaPullRules deriving (Bits,Eq);
 
 module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(32) wci, Bool hasPush, Bool hasPull) (TLPServBCIfc);
@@ -475,25 +477,27 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       fabMeta        <= (Invalid);
       tailEventF.deq;
       MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
-      let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h1, sof:True, eof:True };
+      let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h2, sof:True, eof:True };
       outF.enq(w); // Out goes the tail event write 3DW + 1 DW 0x0000_0001 non-zero
+      lastRuleFired  <= R_dmaTailEventSender32;
     end else begin
       if (!sentTail4DWHeader) begin
+        if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
         MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, True);
-        let w = PTW16 { data : {pack(h), fabFlowAddr, fabFlowAddrMS}, be:'1, hit:7'h1, sof:True, eof:False };
+        let w = PTW16 { data : {pack(h), fabFlowAddr, fabFlowAddrMS}, be:'1, hit:7'h2, sof:True, eof:False };
         outF.enq(w); // Out goes the tail event write 4DW 
+        lastRuleFired  <= R_dmaTailEventSender64a;
         sentTail4DWHeader <= True;
       end else begin
-        if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
-        postSeqDwell   <= psDwell;
+        postSeqDwell   <= psDwell; 
         fabMeta        <= (Invalid);
         tailEventF.deq;
         let w = PTW16 {data:{byteSwap(32'h0000_0001), byteSwap(0), byteSwap(0), byteSwap(0)}, be:16'hF000, hit:7'h2, sof:False, eof:True };
         outF.enq(w);  
+        lastRuleFired  <= R_dmaTailEventSender64b;
         sentTail4DWHeader <= False;
       end
     end
-    lastRuleFired  <= R_dmaTailEventSender;
     $display("[%0d]: %m: dmaTailEventSender - generic", $time);
   endrule
 
