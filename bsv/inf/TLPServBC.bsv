@@ -218,7 +218,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     end else begin               // 64b addr, use 4DW and no data in this MWr...
       onlyBeatInSegment = False;
       MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, True); // 4DW MWr
-      let w = PTW16 { data : {pack(h), fabMesgAccu, fabMesgAddrMS}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
+      let w = PTW16 { data : {pack(h), fabMesgAddrMS, fabMesgAccu}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
       outF.enq(w);  // Out goes the 4DW request + no data
     end
     if (!onlyBeatInSegment) tlpXmtBusy <= True;               // acquire outbound mutex
@@ -262,7 +262,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       outF.enq(w);  // Out goes 3DW header + 1 DW of metadata
     end else begin
       MemReqHdr1 h = makeWrReqHdr(pciDevice, 4, '1, '1, True); 
-      let w = PTW16 { data : {pack(h), fabMetaAddr, fabMetaAddrMS}, be:'1, hit:7'h2, sof:True, eof:False };
+      let w = PTW16 { data : {pack(h), fabMetaAddrMS, fabMetaAddr}, be:'1, hit:7'h2, sof:True, eof:False };
       outF.enq(w);  // Out goes 4DW header + 0 Data
     end
     $display("[%0d]: %m: dmaXmtMetaHead FPactMesg-Step5/7", $time);
@@ -484,7 +484,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       if (!sentTail4DWHeader) begin
         if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
         MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, True);
-        let w = PTW16 { data : {pack(h), fabFlowAddr, fabFlowAddrMS}, be:'1, hit:7'h2, sof:True, eof:False };
+        let w = PTW16 { data : {pack(h), fabFlowAddrMS, fabFlowAddr}, be:'1, hit:7'h2, sof:True, eof:False };
         outF.enq(w); // Out goes the tail event write 4DW 
         lastRuleFired  <= R_dmaTailEventSender64a;
         sentTail4DWHeader <= True;

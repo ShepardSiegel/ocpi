@@ -53,8 +53,8 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
   WmiServBCIfc#(ndw)  wmi  <- mkWmiServBC(bramsB);                               // The ndw-Byte WMI to Memory adaptation
   FabPCIfc            bml  <- mkFabPC(wci);                                      // Buffer Management Logic
 
-  mkConnection(bml.lcl, wmi.bufq);       // Buffer Managment signals with local  WMI
-  mkConnection(bml.rem, tlp.bufq);       // Buffer Managment signals with remote TLP
+  mkConnection(bml.lcl,  wmi.bufq);       // Buffer Managment signals with local  WMI
+  mkConnection(bml.remo, tlp.bufq);       // Buffer Managment signals with remote TLP
 
   Reg#(DPControl)  dpControl <- mkReg(defaultDPControl);
 
@@ -71,7 +71,7 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h0C : bml.i_metaBase      <= truncate(unpack(wciReq.data));
        'h10 : bml.i_mesgSize      <= truncate(unpack(wciReq.data));
        'h14 : bml.i_metaSize      <= truncate(unpack(wciReq.data));
-       'h18 : begin bml.rem.fabric;  $display("[%0d] %m: fabDoneAvail Event",$time); end
+       'h18 : begin bml.remo.fabric;  $display("[%0d] %m: fabDoneAvail Event",$time); end
        'h50 : bml.i_fabMesgBase   <= truncate(unpack(wciReq.data));
        'h54 : bml.i_fabMetaBase   <= truncate(unpack(wciReq.data));
        'h58 : bml.i_fabMesgSize   <= truncate(unpack(wciReq.data));

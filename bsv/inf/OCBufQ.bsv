@@ -134,7 +134,7 @@ typedef struct {
 interface FabPCIfc;
   method BufState bs;       // Provide the internal state
   interface BufQSIfc lcl;   // Provide the BufQ Server Interface to the Local WMI Side
-  interface BufQSIfc rem;   // Provide the BufQ Server Interface to the Remote TLP Side
+  interface BufQSIfc remo;  // Provide the BufQ Server Interface to the Remote TLP Side
   interface Reg#(Bit#(16)) i_lclNumBufs;
   interface Reg#(Bit#(16)) i_fabNumBufs;
   interface Reg#(Bit#(16)) i_mesgSize;
@@ -179,9 +179,9 @@ module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
   Reg#(Bit#(32))      fabMetaAddr     <- mkRegU;                // The fabric metadata   address accumulator
   Reg#(Bit#(32))      fabMesgAddr     <- mkRegU;                // The fabric mesgbuffer address accumulator
   Reg#(Bit#(32))      fabFlowAddr     <- mkRegU;                // The fabric flow ctrl  address accumulator
-  Reg#(Bit#(32))      fabMetaAddrMS   <- mkRegU;                // The fabric metadata   address accumulator
-  Reg#(Bit#(32))      fabMesgAddrMS   <- mkRegU;                // The fabric mesgbuffer address accumulator
-  Reg#(Bit#(32))      fabFlowAddrMS   <- mkRegU;                // The fabric flow ctrl  address accumulator
+//Reg#(Bit#(32))      fabMetaAddrMS   <- mkRegU;                // The fabric metadata   address accumulator
+//Reg#(Bit#(32))      fabMesgAddrMS   <- mkRegU;                // The fabric mesgbuffer address accumulator
+//Reg#(Bit#(32))      fabFlowAddrMS   <- mkRegU;                // The fabric flow ctrl  address accumulator
   Reg#(Bit#(16))      lclNumBufs      <- mkReg(1);              // the number of local  buffers
   Reg#(Bit#(16))      fabNumBufs      <- mkReg(1);              // the number of fabric buffers
   Reg#(Bit#(16))      mesgSize        <- mkReg(16'h0800);       // message size (in Bytes)
@@ -319,7 +319,7 @@ interface BufQSIfc lcl;
   method Bit#(32)  fabFlowMS = ?;                        // Not Used
 endinterface
 
-interface BufQSIfc rem;
+interface BufQSIfc remo;
   method Action    start     = remStart._write(True);    // Ngress (local DMA or remote access) has started (pulse)
   method Action    done      = remDone._write(True);     // Ngress is Done
   method Action    fabric    = (dpControl.role==ActMesg)?fabAvail._write(True):fabDone._write(True);
@@ -331,9 +331,11 @@ interface BufQSIfc rem;
   method Bit#(32)  fabMeta   = fabMetaAddr;              // the fabric metadata address
   method Bit#(32)  fabMesg   = fabMesgAddr;              // the fabric message  address
   method Bit#(32)  fabFlow   = fabFlowAddr;              // the fabric flowctrl address
-  method Bit#(32)  fabMetaMS = fabMetaAddrMS;            // the fabric metadata address MS
-  method Bit#(32)  fabMesgMS = fabMesgAddrMS;            // the fabric message  address MS
-  method Bit#(32)  fabFlowMS = fabFlowAddrMS;            // the fabric flowctrl address MS
+  // We make the assumption that the upper 32b of a 64b address will be *static* for a given transfer...
+  // Without this assumption, we would need to manage 64b accumulatoirs for each meta, mesg, and flow...
+  method Bit#(32)  fabMetaMS = fabMetaBaseMS;            // the fabric metadata address MS
+  method Bit#(32)  fabMesgMS = fabMesgBaseMS;            // the fabric message  address MS
+  method Bit#(32)  fabFlowMS = fabFlowBaseMS;            // the fabric flowctrl address MS
 endinterface
 
 // expose register interface so WCI can set/get config properties...

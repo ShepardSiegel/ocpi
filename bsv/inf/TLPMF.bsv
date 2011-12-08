@@ -331,6 +331,24 @@ instance Bits#(Ptw16Hdr,128);
 endinstance
 
 
+// Ptw64Hdr: 2DW Header + 2DW Address 
+typedef struct {
+  MemReqHdr1 hdr;    // 2DW PCIE header
+  Bit#(32)   msAddr; // Address [63:32]
+  Bit#(30)   dwAddr; // DWord Address 31:2
+} Ptw64Hdr;
+//} Ptw64Hdr deriving (Bits);
+
+instance Bits#(Ptw64Hdr,128);
+  function Bit#(128) pack(Ptw64Hdr ph);
+    return {pack(ph.hdr), pack(ph.msAddr), pack(ph.dwAddr), 2'b00};
+  endfunction
+  function Ptw64Hdr unpack(Bit#(128) w);
+    return (Ptw64Hdr {hdr:unpack(w[127:64]), msAddr:unpack(w[63:32]), dwAddr:unpack(w[31:2])});
+  endfunction
+endinstance
+
+
 // Ptw16CompletionHdr: 3DW Header + 1DW Data...
 typedef struct {
   CompletionHdr hdr;    // 3DW PCIE Completion Header / Transaction Descriptor
@@ -386,7 +404,7 @@ function PTW16 makeRdNDwReqTLP(PciId rid, Bit#(7) bar, Bit#(30) a, Bit#(8) tag, 
     return PTW16 { data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:'0}),  be:remFromDW(3), hit:bar, sof:True, eof:True }; // 3DW Request
   end else begin
     MemReqHdr1 h = makeRdReqHdr(rid, tag, dwLen, '1, (dwLen==1)?'0:'1, True);
-    return PTW16 { data : pack(Ptw16Hdr{hdr:h, dwAddr:a, data:aMS}), be:'1,           hit:bar, sof:True, eof:True }; // 4DW Request
+    return PTW16 { data : pack(Ptw64Hdr{hdr:h, msAddr:aMS, dwAddr:a}), be:'1,         hit:bar, sof:True, eof:True }; // 4DW Request
   end
 endfunction
 
