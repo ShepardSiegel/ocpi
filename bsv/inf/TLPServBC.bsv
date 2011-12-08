@@ -226,7 +226,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       xmtMetaOK  <= True;   // message sent, move on to metadata
       tlpXmtBusy <= False;  // release outbound mutex
     end
-    tlpBRAM.getsResp.deq;
+    tlpBRAM.getsResp.deq; // Consume the BRAM response, even if there was no data and just header
     $display("[%0d]: %m: dmaPushResponseHeader FPactMesg-Step4a/7", $time);
   endrule
 

@@ -146,7 +146,7 @@ module mkTLPBRAM#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (TLPBRAMIfc)
     else readStarted <= True;
     //let req = BRAMRequestBE { writeen:4'd0, address:rreq.dwAddr[11:2], datain:'0, responseOnWrite:False };
     let req = BRAMRequest { write:False, address:truncate(rreq.dwAddr>>2), datain:'0, responseOnWrite:False };
-    if (!rreq.skipRespData) mem[rreq.dwAddr[1:0]].request.put(req);
+    if (!rreq.skipRespData) mem[rreq.dwAddr[1:0]].request.put(req); // if we skip the read request, dont look for response
     readRemainDWLen  <= rreq.dwLength - (rreq.skipRespData ? 0 : 1);
     readNxtDWAddr    <= rreq.dwAddr   + (rreq.skipRespData ? 0 : 1) ;
     //$display("[%0d] TLP Mem: First DW read request (addr %x, dwLen %0d)", $time, {rreq.dwAddr,2'b00}, rreq.dwLength);
@@ -180,7 +180,8 @@ module mkTLPBRAM#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (TLPBRAMIfc)
   // Process the first read response...
   rule read_FirstResp (!readHeaderSent);
     let rreq = readReq.first;
-    Bit#(32) data <- mem[rreq.dwAddr[1:0]].response.get;
+    Bit#(32) data = ?;
+    if (!rreq.skipRespData) data <- mem[rreq.dwAddr[1:0]].response.get; // get data if we didn't skip
     Bit#(2) lowAddr10 = byteEnToLowAddr(rreq.firstBE);
     Bit#(7) lowAddr = {truncate(rreq.dwAddr), lowAddr10};
     Bit#(12) byteCount = computeByteCount(rreq.dwLength, rreq.firstBE, rreq.lastBE);
