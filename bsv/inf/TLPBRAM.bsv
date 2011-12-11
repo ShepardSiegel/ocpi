@@ -42,14 +42,14 @@ typedef struct {
   Bit#(3)     tc;
 } ReadReq deriving (Bits);
 
-typedef union tagged {
-  WriteReq    WriteHeader;
-  Bit#(128)   WriteData;
-  ReadReq     ReadHeader;
+typedef union tagged {      // Three kinds of requests the TLPBRAM may receive
+  WriteReq    WriteHeader;  // A write header, with or without 1 DWORD of data (no response produced)
+  Bit#(128)   WriteData;    // Write data, 4DW that follow a write header (no response produced)
+  ReadReq     ReadHeader;   // A read request header, 1 read response + n read body (first response w or w/o data)
 } MemReqPacket deriving (Bits);
 
 typedef struct {
-  Bool     hasRespData; // Set True when the data does contain a first 1DW response
+  Bool     hasRespData;      // Set True when the data does contain a first 1DW response
   ReadRole role;
   PciId    reqID;
   Bit#(10) dwLength;
@@ -66,9 +66,9 @@ typedef struct {
   Bit#(128) data;
 } ReadPayld deriving (Bits);
 
-typedef union tagged {
-  ReadResp   ReadHead;
-  ReadPayld  ReadBody;
+typedef union tagged {  // Responses produced by the TLPBRAM...
+  ReadResp   ReadHead;  // The header, with or without 1 DWORD of read data
+  ReadPayld  ReadBody;  // The body 4DW of data
 } MemRespPacket deriving (Bits);
 
 interface TLPBRAMIfc;
@@ -103,7 +103,7 @@ module mkTLPBRAM#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (TLPBRAMIfc)
     writeLastBE       <= wreq.lastBE;
     //let req = BRAMRequestBE { writeen:wreq.firstBE, address:wreq.dwAddr[11:2], datain:byteSwap(wreq.data), responseOnWrite:False };
     let req = BRAMRequest { write:True, address:truncate(wreq.dwAddr>>2), datain:byteSwap(wreq.data), responseOnWrite:False };
-    if (!wreq.skipHeadData) mem[wreq.dwAddr[1:0]].request.put(req);  // We can write the 1st DW right away
+    if (!wreq.skipHeadData) mem[wreq.dwAddr[1:0]].request.put(req);  // We can write the 1st DW right away if we aren't skipping it
     //$display("[%0d] Mem: Writing first word (addr %x) data %x", $time, {wreq.dwAddr,2'b00}, byteSwap(wreq.data));
     //$display("Writing %0h to addr %0h of mem %0d", req.datain, req.address, wreq.dwAddr[1:0]);
   endrule
@@ -141,7 +141,7 @@ module mkTLPBRAM#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (TLPBRAMIfc)
 
   // Perform the first memory read request...
   rule read_FirstReq (!readStarted &&& mReqF.first matches tagged ReadHeader .rreq);
-    readReq.enq(rreq);
+    readReq.enq(rreq); 
     if (rreq.dwLength == 1 && !rreq.skipRespData) mReqF.deq;
     else readStarted <= True;
     //let req = BRAMRequestBE { writeen:4'd0, address:rreq.dwAddr[11:2], datain:'0, responseOnWrite:False };
@@ -180,8 +180,7 @@ module mkTLPBRAM#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem) (TLPBRAMIfc)
   // Process the first read response...
   rule read_FirstResp (!readHeaderSent);
     let rreq = readReq.first;
-    Bit#(32) data = ?;
-    if (!rreq.skipRespData) data <- mem[rreq.dwAddr[1:0]].response.get; // get data if we didn't skip
+    let data <- (!rreq.skipRespData ? mem[rreq.dwAddr[1:0]].response.get() : ?);  // get data if we didn't skip
     Bit#(2) lowAddr10 = byteEnToLowAddr(rreq.firstBE);
     Bit#(7) lowAddr = {truncate(rreq.dwAddr), lowAddr10};
     Bit#(12) byteCount = computeByteCount(rreq.dwLength, rreq.firstBE, rreq.lastBE);
