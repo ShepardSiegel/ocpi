@@ -10,6 +10,7 @@ ssiegel 2011-03-03 ISE 13.1
 ssiegel 2011-03-13 Took Dan Zhang's patch changes (see FAQ) 
 ssiegel 2011-08-16 ISE 13.2, Quartus 11.0(sp1)
 ssiegel 2011-10-04 USE 13.3 prep
+ssiegel 2011-12-12 64b Host address capability
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
@@ -71,6 +72,16 @@ OpenCPI website: www.opencpi.org
    5.2 Set env vars to use that memory (still using old version in some programs)
      setenv CPI_DMA_MEMORY        256M\$0x5f700000     # depricated use on 2010-05-25
      setenv OCPI_DMA_MEMORY       256M\$0x5f700000
+   5.3 Either 32b of 64b host addreses may be used. The FPGA hardware will use the appropriare 3DW or 4DW
+   signalling depending on if the host address is below or above 4 GB. Be sure to follow the getting started
+   guide for determining the correct address to reserve on the host. For 32b vs 64 testing; a common set seen
+   with 16GB systems has been:
+     32b host address on 16GB machine:
+     export CPI_DMA_MEMORY=512M\$0x7f790000     # depricated use on 2010-05-25
+     export OCPI_DMA_MEMORY=512M\$0x7f790000
+     64b host address on 16GB machine:
+     export CPI_DMA_MEMORY=512M\$0x340000000     # depricated use on 2010-05-25
+     export OCPI_DMA_MEMORY=512M\$0x340000000
 
  6. Running a DMA Sanity Test from $(OCPI_DIR)/bin (you probably need set addresses in script)
       [shep@core960 bin]$ ./dmaTestBasic
