@@ -8,8 +8,8 @@ import sys
 
 def main(argv):
   fileObject = open('srcData.bin','wb');
-  for num in range(2048):
-    data = struct.pack('i', num);
+  for num in range(16):
+    data = struct.pack('B', num);
     fileObject.write(data)
   fileObject.close()
 
