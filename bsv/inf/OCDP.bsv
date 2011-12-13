@@ -98,7 +98,7 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h10 : rdat = extend(pack(bml.i_mesgSize));
        'h14 : rdat = extend(pack(bml.i_metaSize));
        'h20 : rdat = pack(extend(bml.bs.lbcf));
-       'h24 : rdat = !hasDebugLogic ? 0 : 32'hF00D_FACE;
+       'h24 : rdat = 32'hF00D_FACE;  // required by OpenCPI testRpl software as of 2011-12-13
        'h28 : rdat = !hasDebugLogic ? 0 : pack({bml.bs.lbar,      bml.bs.rba});
        'h2C : rdat = !hasDebugLogic ? 0 : pack({bml.bs.remIndex,  bml.bs.lclIndex});
        'h30 : rdat = !hasDebugLogic ? 0 : pack({bml.bs.lclStarts, bml.bs.lclDones});
@@ -108,7 +108,7 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h40 : rdat = !hasDebugLogic ? 0 : pack(v[1]);  // req/wrt Count
        'h44 : rdat = !hasDebugLogic ? 0 : pack(v[0]);  // wrtData
        'h48 : rdat = !hasDebugLogic ? 0 : 32'hDADE_BABE;
-       'h4C : rdat = !hasDebugLogic ? 0 : 32'h0000_8000;  // 2^15 32KB TODO: This location returns the bufferExtent (memory size)
+       'h4C : rdat = 32'h0000_8000;  // 2^15 32KB TODO: This location returns the bufferExtent (memory size)
        'h50 : rdat = extend(pack(bml.i_fabMesgBase));
        'h54 : rdat = extend(pack(bml.i_fabMetaBase));
        'h58 : rdat = extend(pack(bml.i_fabMesgSize));
