@@ -469,8 +469,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Generic TailEvent Sender (Used at end of push, pull, and for flow signal to fabFlowAddr)...
-  // This rule will fire twice in the 4DW (64b addr) case
-  rule dmaTailEventSender(!tlpXmtBusy && postSeqDwell==0);
+  // This rule will fire twice in the 4DW (64b addr) case; make sure the two PTW16s come sequentially
+  rule dmaTailEventSender( (!tlpXmtBusy && !sentTail4DWHeader && postSeqDwell==0) || (tlpXmtBusy && sentTail4DWHeader));
     if (fabFlowAddrMS=='0) begin
       if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
       postSeqDwell   <= psDwell;
@@ -487,7 +487,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
         let w = PTW16 { data : {pack(h), fabFlowAddrMS, fabFlowAddr}, be:'1, hit:7'h2, sof:True, eof:False };
         outF.enq(w); // Out goes the tail event write 4DW 
         lastRuleFired  <= R_dmaTailEventSender64a;
-        sentTail4DWHeader <= True;
+        sentTail4DWHeader <= True;  // enable second term of rule predacate
+        tlpXmtBusy        <= True;
       end else begin
         postSeqDwell   <= psDwell; 
         fabMeta        <= (Invalid);
@@ -496,6 +497,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
         outF.enq(w);  
         lastRuleFired  <= R_dmaTailEventSender64b;
         sentTail4DWHeader <= False;
+        tlpXmtBusy     <= False;
       end
     end
     $display("[%0d]: %m: dmaTailEventSender - generic", $time);
