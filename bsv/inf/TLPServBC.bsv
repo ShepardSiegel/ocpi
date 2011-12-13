@@ -220,6 +220,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
       MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, True); // 4DW MWr
       let w = PTW16 { data : {pack(h), fabMesgAddrMS, fabMesgAccu}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
       outF.enq(w);  // Out goes the 4DW request + no data
+      outDwRemain <= rres.dwLength;                             // load DW remaining in this segment
     end
     if (!onlyBeatInSegment) tlpXmtBusy <= True;               // acquire outbound mutex
     if ( onlyBeatInSegment && lastSegmentInMesg) begin
