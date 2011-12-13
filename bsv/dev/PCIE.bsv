@@ -2166,18 +2166,35 @@ module mkPCIExpressEndpointV6#(PCIEParams params)(PCIExpressV6#(lanes))
    Clock                                     trn2clk              = pcie_ep.trn.clk2;   // 125 MHz trn_clk/2
    Reset                                     trnrst_n             = pcie_ep.trn.reset_n;
 
-   PulseWire                                 pwTrnTx             <- mkPulseWire(clocked_by trnclk, reset_by noReset);
-   PulseWire                                 pwTrnRx             <- mkPulseWire(clocked_by trnclk, reset_by noReset);
+   PulseWire                                 pwTrnTx             <- mkPulseWire(    clocked_by trnclk, reset_by noReset);
+   Wire#(Bool)                               wTrnTxSof_n         <- mkDWire(True,   clocked_by trnclk, reset_by noReset);
+   Wire#(Bool)                               wTrnTxEof_n         <- mkDWire(True,   clocked_by trnclk, reset_by noReset);
+   Wire#(Bool)                               wTrnTxDsc_n         <- mkDWire(True,   clocked_by trnclk, reset_by noReset);
+   Wire#(Bool)                               wTrnTxRem_n         <- mkDWire(True,   clocked_by trnclk, reset_by noReset);
+   Wire#(Bit#(64))                           wTrnTxDat           <- mkDWire(64'h00, clocked_by trnclk, reset_by noReset);
+
+   PulseWire                                 pwTrnRx             <- mkPulseWire(    clocked_by trnclk, reset_by noReset);
+   Wire#(Bool)                               wTrnRxNpOk_n        <- mkDWire(True,   clocked_by trnclk, reset_by noReset);
+   Wire#(Bool)                               wTrnRxCplS_n        <- mkDWire(True,   clocked_by trnclk, reset_by noReset);
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Rules
    ////////////////////////////////////////////////////////////////////////////////
+
    rule connect_trn_tx;
+      pcie_ep.trn_tx.tsof_n(pack(wTrnTxSof_n));
+      pcie_ep.trn_tx.teof_n(pack(wTrnTxEof_n));
+      pcie_ep.trn_tx.tsrc_dsc_n(pack(wTrnTxDsc_n));
+      pcie_ep.trn_tx.trem_n(pack(wTrnTxRem_n));
+      pcie_ep.trn_tx.td(wTrnTxDat);
       pcie_ep.trn_tx.tsrc_rdy_n(pack(!pwTrnTx));
+      pcie_ep.trn_tx.terrfwd_n('1);
    endrule
 
    rule connect_trn_rx;
       pcie_ep.trn_rx.rdst_rdy_n(pack(!pwTrnRx));
+      pcie_ep.trn_rx.rnp_ok_n(pack(wTrnRxNpOk_n));
+      //pcie_ep.trn_rx.rcpl_streaming_n(pack(wTrnRxCplS_n));
    endrule
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -2194,13 +2211,14 @@ module mkPCIExpressEndpointV6#(PCIEParams params)(PCIExpressV6#(lanes))
 
    interface PCIE_TRN_XMIT_V6 trn_tx;
       method Action xmit(discontinue, data) if (pcie_ep.trn_tx.tdst_rdy_n == 0);
-         pcie_ep.trn_tx.tsof_n(pack(!data.sof));
-         pcie_ep.trn_tx.teof_n(pack(!data.eof));
-         pcie_ep.trn_tx.tsrc_dsc_n(pack(!discontinue));
-         pcie_ep.trn_tx.trem_n(pack(data.be != '1));
-         pcie_ep.trn_tx.td(data.data);
+         wTrnTxSof_n <= !data.sof;
+         wTrnTxEof_n <= !data.eof;
+         wTrnTxDsc_n <= !discontinue;
+         wTrnTxRem_n <= (data.be != '1);
+         wTrnTxDat   <= data.data;
          pwTrnTx.send;
       endmethod
+      //method discontinued      = (pcie_ep.trn_tx.tdst_dsc_n == 0);
       method dropped                           = (pcie_ep.trn_tx.terr_drop_n == 0);
       method buffers_available                 = pcie_ep.trn_tx.tbuf_av;
       method cut_through_mode(i)               = pcie_ep.trn_tx.tstr_n(pack(!i));
@@ -2222,7 +2240,10 @@ module mkPCIExpressEndpointV6#(PCIEParams params)(PCIExpressV6#(lanes))
       endmethod
       method error_forward         = (pcie_ep.trn_rx.rerrfwd_n == 0);
       method source_discontinue    = (pcie_ep.trn_rx.rsrc_dsc_n == 0);
-      method non_posted_ready(i)   = pcie_ep.trn_rx.rnp_ok_n(pack(!i));
+      //method non_posted_ready(i)   = pcie_ep.trn_rx.rnp_ok_n(pack(!i));
+      method Action non_posted_ready(i);
+         wTrnRxNpOk_n <= !i;
+      endmethod
    endinterface
 
    interface pl            = pcie_ep.pl;
