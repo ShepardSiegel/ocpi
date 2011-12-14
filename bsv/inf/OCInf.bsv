@@ -49,6 +49,12 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)),
     NumAlias#(ndw,`DEFINE_NDW) ); // by joe
 
+`ifdef USE_DEBUGLOGIC
+  Bool hasDebugLogic = True;
+`else
+  Bool hasDebugLogic = False;
+`endif
+
   OCCPIfc#(Nwcit) cp   <- mkOCCP(pciDevice, sys0_clk, sys0_rst); // control plane
   UNoCIfc         noc  <- mkUNoC;                                // uNoC Netword-on-Chip
 
@@ -67,17 +73,17 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
 
                                                     // push  pull debug
 `ifdef USE_NDW1
-  OCDP4BIfc  dp0  <- mkOCDP4B (insertFNum(pciDevice,0),False,True, True, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
-  OCDP4BIfc  dp1  <- mkOCDP4B (insertFNum(pciDevice,1),True, False,True, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
+  OCDP4BIfc  dp0  <- mkOCDP4B (insertFNum(pciDevice,0),False,True, hasDebugLogic, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
+  OCDP4BIfc  dp1  <- mkOCDP4B (insertFNum(pciDevice,1),True, False,hasDebugLogic, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
 `elsif USE_NDW2
-  OCDP8BIfc  dp0  <- mkOCDP8B (insertFNum(pciDevice,0),False,True, True, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
-  OCDP8BIfc  dp1  <- mkOCDP8B (insertFNum(pciDevice,1),True, False,True, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
+  OCDP8BIfc  dp0  <- mkOCDP8B (insertFNum(pciDevice,0),False,True, hasDebugLogic, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
+  OCDP8BIfc  dp1  <- mkOCDP8B (insertFNum(pciDevice,1),True, False,hasDebugLogic, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
 `elsif USE_NDW4
-  OCDP16BIfc dp0  <- mkOCDP16B(insertFNum(pciDevice,0),False,True, True, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
-  OCDP16BIfc dp1  <- mkOCDP16B(insertFNum(pciDevice,1),True, False,True, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
+  OCDP16BIfc dp0  <- mkOCDP16B(insertFNum(pciDevice,0),False,True, hasDebugLogic, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
+  OCDP16BIfc dp1  <- mkOCDP16B(insertFNum(pciDevice,1),True, False,hasDebugLogic, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
 `elsif USE_NDW8
-  OCDP32BIfc dp0  <- mkOCDP32B(insertFNum(pciDevice,0),False,True, True, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
-  OCDP32BIfc dp1  <- mkOCDP32B(insertFNum(pciDevice,1),True, False,True, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
+  OCDP32BIfc dp0  <- mkOCDP32B(insertFNum(pciDevice,0),False,True, hasDebugLogic, reset_by rst[13]); // data-plane memory (fabric consumer in example app)  PULL Only
+  OCDP32BIfc dp1  <- mkOCDP32B(insertFNum(pciDevice,1),True, False,hasDebugLogic, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
 `endif
 
   // uNoC connections...

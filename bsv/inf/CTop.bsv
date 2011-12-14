@@ -1,5 +1,5 @@
 // CTop.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package CTop;
 
@@ -36,7 +36,11 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)), // by shep
     Add#(1, a__, TAdd#(3, TAdd#(1, TAdd#(1, TAdd#(12, TAdd#(TMul#(ndw, 32), TAdd#(TMul#(ndw, 4), 8))))))));                       ///by bsc output
 
+`ifdef USE_DEBUGLOGIC
   Bool hasDebugLogic = True;
+`else
+  Bool hasDebugLogic = False;
+`endif
 
   //OCInfIfc#(Nwci_ctop,ndw) inf <- mkOCInf_poly(pciDevice, sys0_clk, sys0_rst);       // Instance the Infrastructre
 `ifdef USE_NDW1
