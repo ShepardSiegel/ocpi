@@ -111,6 +111,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)                 complTimerRunning    <- mkReg(False);
   Reg#(UInt#(12))            complTimerCount      <- mkReg(0);
   Vector#(4,Reg#(Bit#(32)))  lastMetaV            <- replicateM(mkReg(0));
+  Reg#(Bit#(4))              psDwell              <- mkDReg(15);   
 
 
   // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
@@ -122,8 +123,11 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Bool actMesgC = (dpControl==fConsActMesg);
   Bool actFlow  = (dpControl.role==ActFlow);
 
-  //TODO: Understand why psDwell=1 failed dmaTestBasic4 on 2010-11-02
-  Bit#(4) psDwell = 15; // Purposeful backend serialization "dwell" cycles [3~15] 
+  //Bit#(4) psDwell = 15;
+  rule update_psDwell;
+    //TODO: Understand why psDwell=1 failed dmaTestBasic4 on 2010-11-02
+    psDwell <= 15 - dpControl.latReduce; // Purposeful backend serialization "dwell" cycles [3~15] 
+  endrule
 
   //
   // FPactMesg - Fabric Producer Push DMA Sequence...
