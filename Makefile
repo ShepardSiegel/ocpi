@@ -514,24 +514,24 @@ platform_ml605_ndw1_debug: $(OBJ)
 		-D HAS_DEVICE_DNA \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML605).bsv
 
-platform_ml605_ndw2_nodebug: $(OBJ)
+platform_ml605_ndw4_nodebug: $(OBJ)
 
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		-D USE_NDW2 \
+		-D USE_NDW4 \
 		-D USE_SRLFIFO \
 		-D HAS_DEVICE_DNA \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML605).bsv
 
-platform_ml605_ndw2_debug: $(OBJ)
+platform_ml605_ndw4_debug: $(OBJ)
 
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
-		-D USE_NDW2 \
+		-D USE_NDW4 \
 		-D USE_DEBUGLOGIC \
 		-D USE_SRLFIFO \
 		-D HAS_DEVICE_DNA \
