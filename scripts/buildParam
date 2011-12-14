@@ -1,0 +1,17 @@
+#!/bin/csh
+
+#make clean
+#make platform_ml605_ndw1_nodebug
+#make ml605
+
+#make clean
+#make platform_ml605_ndw1_debug
+#make ml605
+
+make clean
+make platform_ml605_ndw4_nodebug
+make ml605
+
+make clean
+make platform_ml605_ndw4_debug
+make ml605
