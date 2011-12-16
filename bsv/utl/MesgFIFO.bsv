@@ -5,28 +5,28 @@
   A Message FIFO is a module that operates upon messages.
   A message is composed of data and metadata:
   Each message may have 0 to N words of data associated with it.
-  Each message has exactly one metadata word assoacted with it.
+  Each message has exactly one metadata word associated with it.
   The metadata always contains a UInt specifying the length of its data message in words.
-  The metadata may contain additional per-message user information .
+  The metadata may (optionally) contain additional per-message user information.
   Both data and metadata arrive and depart in their own parallel, strictly FIFO sequence.
   There is no enforced relation between data and metadata arrival and departure.
   Data may arrive before metadata, or visa versa.
 
-  The utility of this module is that it faciliates the allignment of data and metadata
-  to suit the meassage protocol needs of each side of the MesgFIFO. For example, messages
+  The utility of this module is that it facilitates the alignment of data and metadata
+  to suit the message protocol needs of each side of the MesgFIFO. For example, messages
   might arrive at the MesgFIFO with data first and metadata following. This is common in cases
   where the upstream side has to calculate a variable message length. But the downstream
-  side may require knowing the message length from the metadata prior to eading out the data.
-  The MesgFIFO eases this task of protocol adapation.
+  side may require knowing the message length from the metadata prior to reading out the data.
+  The MesgFIFO eases this task of protocol adaptation.
 
   Auxiliary methods amplify the fundamental MesgFIFO semantics by providing information that
   can reduce or remove the need for external circuity to do the same:
 
     + The dataPutAvail method exposes how much data space is available so that an upstream read
-    requestor could ask for no more data than can be accepted by (and Put to) the MesgFIFO.
+    requester could ask for no more data than can be accepted by (and Put to) the MesgFIFO.
 
     + The metaPutAvail method exposes how much meta space is available so that an upstream read
-    requestor could ask for no more metadata than can be accepted by (and Put to) the MesgFIFO.
+    requester could ask for no more metadata than can be accepted by (and Put to) the MesgFIFO.
 
     + The dataGetAvail method exposes how much data is available so that a downstream
     device can take (and Get from) the MesgFIFO parts of message.
