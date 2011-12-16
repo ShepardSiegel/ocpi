@@ -81,21 +81,100 @@ function GetS#(a) toGetS(FIFOCountIfc#(a,b) f);
      endinterface);
 endfunction
 
-// This is one basic implementation based on using mkFIFOCount...
+function GetS#(a) toGetSWith(FIFOCountIfc#(a,b) f, Action a);
+  return
+    (interface GetS;
+       method a      first = f.first;
+       method Action deq;
+         f.deq();
+         a;
+       endmethod
+     endinterface);
+endfunction
 
+function GetS#(a) toGetSPulse(FIFOCountIfc#(a,b) f, PulseWire pw);
+  return
+    (interface GetS;
+       method a      first = f.first;
+       method Action deq;
+         f.deq();
+         pw.send;
+       endmethod
+     endinterface);
+endfunction
+
+
+// This is a basic implementation based on using mkFIFOCount...
 module mkMesgFIFO(MesgFIFOIfc#(data_width,meta_width,data_buf_sz,meta_buf_sz))
-  provisos( Log#(TAdd#(data_buf_sz,1),data_bufcount)
-          , Log#(TAdd#(meta_buf_sz,1),meta_bufcount)
+  provisos( Log#(TAdd#(data_buf_sz,1),data_bufcount)  // Size of data counter
+          , Log#(TAdd#(meta_buf_sz,1),meta_bufcount)  // Size of meta counter
+          , Bits#(UInt#(meta_bufcount), meta_width)
+          , Add#(a_, meta_width, TLog#(TAdd#(data_buf_sz, 1)))
           );
 
-  FIFOCountIfc#(Bit#(data_width),data_buf_sz)  dataF     <-  mkFIFOCount;
-  FIFOCountIfc#(Bit#(meta_width),meta_buf_sz)  metaF     <-  mkFIFOCount;
-  Reg#(Bit#(meta_bufcount))                    mesgCnt   <-  mkReg(0);
+  FIFOCountIfc#(Bit#(data_width),data_buf_sz)  dataF       <-  mkFIFOCount;
+  FIFOCountIfc#(Bit#(meta_width),meta_buf_sz)  metaF       <-  mkFIFOCount;
+  Reg#(UInt#(data_bufcount))                   dataCnt     <-  mkReg(0);
+  Reg#(UInt#(meta_bufcount))                   metaCnt     <-  mkReg(0);
+  Wire#(UInt#(meta_bufcount))                  mesgLength  <-  mkDWire(maxBound);
+
+  rule get_mesgLength;
+    mesgLength <= unpack(metaF.first); // Use a DWire to make mesgLength always_ready
+  endrule
 
   interface Put  putData  = toPut(dataF);
   interface Put  putMeta  = toPut(metaF);
   interface GetS getsData = toGetS(dataF);
   interface GetS getsMeta = toGetS(metaF);
+
+  method UInt#(data_bufcount) dataPutAvail = fromInteger(valueOf(data_buf_sz)) - dataF.count;
+  method UInt#(meta_bufcount) metaPutAvail = fromInteger(valueOf(meta_buf_sz)) - metaF.count;
+  method UInt#(data_bufcount) dataGetAvail = dataF.count;
+  method UInt#(meta_bufcount) metaGetAvail = metaF.count;
+  method Bool mesgReady = ((metaF.count>0) && (dataF.count>=extend(mesgLength)));
+
+endmodule
+
+
+// In this implementation we start to form a message count based on our own data and meta counts...
+module mkMesgFIFO_Count(MesgFIFOIfc#(data_width,meta_width,data_buf_sz,meta_buf_sz))
+  provisos( Log#(TAdd#(data_buf_sz,1),data_bufcount)  // Size of data counter
+          , Log#(TAdd#(meta_buf_sz,1),meta_bufcount)  // Size of meta counter
+          , Add#(meta_bufcount, a_, data_bufcount)    // data must be deeper than meta
+          , Bits#(UInt#(meta_bufcount), meta_width)
+          );
+
+  FIFOCountIfc#(Bit#(data_width),data_buf_sz)  dataF       <-  mkFIFOCount;
+  FIFOCountIfc#(Bit#(meta_width),meta_buf_sz)  metaF       <-  mkFIFOCount;
+  Reg#(UInt#(data_bufcount))                   dataCnt     <-  mkReg(0);
+  Reg#(UInt#(meta_bufcount))                   metaCnt     <-  mkReg(0);
+  Reg#(UInt#(meta_bufcount))                   mesgCnt     <-  mkReg(0);
+  PulseWire                                    dataEnq     <-  mkPulseWire;
+  PulseWire                                    metaEnq     <-  mkPulseWire;
+  PulseWire                                    dataDeq     <-  mkPulseWire;
+  PulseWire                                    metaDeq     <-  mkPulseWire;
+  Wire#(UInt#(meta_bufcount))                  mesgLength  <-  mkDWire(maxBound);
+
+  rule get_mesgLength;
+    mesgLength <= unpack(metaF.first); // Use a DWire to make mesgLength always_ready
+  endrule
+
+  (* fire_when_enabled, no_implicit_conditions *)
+  rule update;
+    dataCnt <= dataCnt + (dataEnq ? 1:0) - (dataDeq ? 1:0);
+    metaCnt <= metaCnt + (metaEnq ? 1:0) - (metaDeq ? 1:0);
+    Bool incMesgCnt = metaEnq && (dataCnt >= extend(mesgLength));
+    mesgCnt <= metaCnt + (incMesgCnt ? 1:0) - (metaDeq ? 1:0);
+  endrule
+
+  interface Put  putData;
+    method Action put(a); dataF.enq(a); dataEnq.send; endmethod
+  endinterface
+  interface Put  putMeta;
+    method Action put(a); metaF.enq(a); metaEnq.send; endmethod
+  endinterface
+  interface GetS getsData = toGetSPulse(dataF, dataDeq);
+  interface GetS getsMeta = toGetSPulse(metaF, metaDeq);
 
   method UInt#(data_bufcount) dataPutAvail = fromInteger(valueOf(data_buf_sz)) - dataF.count;
   method UInt#(meta_bufcount) metaPutAvail = fromInteger(valueOf(meta_buf_sz)) - metaF.count;
