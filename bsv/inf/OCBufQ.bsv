@@ -42,18 +42,16 @@ typedef Bit#(DPLogBufSizeHWords) DPBufHWAddr;  // A DP Buffer HW   Address
 typedef enum {Disabled,FProducer,FConsumer,Rsvd} DPDirection deriving (Bits,Eq);
 typedef enum {Passive,ActMesg,ActFlow,Rsvd}      DPRole      deriving (Bits,Eq);
 typedef struct {
-  Bit#(4)     latReduce;
   Bit#(4)     pad; // for control bits future
   DPDirection dir;
   DPRole      role;
 } DPControl deriving (Bits,Eq);
-DPControl defaultDPControl = DPControl{latReduce:0, pad:0, dir:Disabled,  role:Passive}; 
-DPControl fProdActMesg     = DPControl{latReduce:0, pad:0, dir:FProducer, role:ActMesg}; 
-DPControl fConsActMesg     = DPControl{latReduce:0, pad:0, dir:FConsumer, role:ActMesg}; 
+DPControl defaultDPControl = DPControl{pad:0, dir:Disabled,  role:Passive}; 
+DPControl fProdActMesg     = DPControl{pad:0, dir:FProducer, role:ActMesg}; 
+DPControl fConsActMesg     = DPControl{pad:0, dir:FConsumer, role:ActMesg}; 
 
 /* Embellished version for future use...
 typedef struct {
-  Bool        latReduce;
   Bool        moveData;
   Bool        moveMeta;
   Bool        sendTail;
@@ -61,9 +59,9 @@ typedef struct {
   DPDirection dir;
   DPRole      role;
 } DPControl deriving (Bits,Eq);
-DPControl defaultDPControl = DPControl{latReduce:0, moveData:False, moveMeta:False, sendTail:False, sendInterrupt:False, dir:Disabled,  role:Passive}; 
-DPControl fProdActMesg     = DPControl{latReduce:0, moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FProducer, role:ActMesg}; 
-DPControl fConsActMesg     = DPControl{latReduce:0, moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FConsumer, role:ActMesg}; 
+DPControl defaultDPControl = DPControl{moveData:False, moveMeta:False, sendTail:False, sendInterrupt:False, dir:Disabled,  role:Passive}; 
+DPControl fProdActMesg     = DPControl{moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FProducer, role:ActMesg}; 
+DPControl fConsActMesg     = DPControl{moveData:?    , moveMeta:?    , sendTail:?    , sendInterrupt:?    , dir:FConsumer, role:ActMesg}; 
 */
 
 interface BufQSIfc;            // Provided by mkFabPC to each the local and remote
@@ -179,9 +177,6 @@ module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
   Reg#(Bit#(32))      fabMetaAddr     <- mkRegU;                // The fabric metadata   address accumulator
   Reg#(Bit#(32))      fabMesgAddr     <- mkRegU;                // The fabric mesgbuffer address accumulator
   Reg#(Bit#(32))      fabFlowAddr     <- mkRegU;                // The fabric flow ctrl  address accumulator
-//Reg#(Bit#(32))      fabMetaAddrMS   <- mkRegU;                // The fabric metadata   address accumulator
-//Reg#(Bit#(32))      fabMesgAddrMS   <- mkRegU;                // The fabric mesgbuffer address accumulator
-//Reg#(Bit#(32))      fabFlowAddrMS   <- mkRegU;                // The fabric flow ctrl  address accumulator
   Reg#(Bit#(16))      lclNumBufs      <- mkReg(1);              // the number of local  buffers
   Reg#(Bit#(16))      fabNumBufs      <- mkReg(1);              // the number of fabric buffers
   Reg#(Bit#(16))      mesgSize        <- mkReg(16'h0800);       // message size (in Bytes)
@@ -299,6 +294,8 @@ module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
     else if (!lclBufDone  &&  remStart)  lclCredit <= lclCredit - 1;
   endrule
 
+Bool updateComplete = True;
+
 method BufState bs = BufState { lbar:lclBufsAR, lbcf:lclBufsCF, rba:fabBufsAvail, lclIndex:extend(lclBuf),
   remIndex:extend(remBuf), lclStarts:lclStarts, lclDones:lclDones, remStarts:remStarts, remDones:remDones }; 
 
@@ -306,31 +303,31 @@ interface BufQSIfc lcl;
   method Action    start     = lclBufStart._write(True); // Start of local access to queue head (pulse)
   method Action    done      = lclBufDone._write(True);  // End of local access to queue head (pulse)
   method Action    fabric    = noAction;
-  method Bool      rdy       = (wci.isOperating && lclBufsAR!=0); // Local ready
-  method Bool      frdy      = ?;                        // Not Used
-  method Bool      credit    = ?;                        // Not Used
-  method Bit#(16)  bufMeta   = lclMetaAddr;              // the local-facing metadata address
-  method Bit#(16)  bufMesg   = lclMesgAddr;              // the local-facing message  address
-  method Bit#(32)  fabMeta   = ?;                        // Not Used
-  method Bit#(32)  fabMesg   = ?;                        // Not Used
-  method Bit#(32)  fabFlow   = ?;                        // Not Used
-  method Bit#(32)  fabMetaMS = ?;                        // Not Used
-  method Bit#(32)  fabMesgMS = ?;                        // Not Used
-  method Bit#(32)  fabFlowMS = ?;                        // Not Used
+  method Bool      rdy       if (updateComplete) = (wci.isOperating && lclBufsAR!=0); // Local ready
+  method Bool      frdy      if (updateComplete) = ?;                        // Not Used
+  method Bool      credit    if (updateComplete) = ?;                        // Not Used
+  method Bit#(16)  bufMeta   if (updateComplete) = lclMetaAddr;              // the local-facing metadata address
+  method Bit#(16)  bufMesg   if (updateComplete) = lclMesgAddr;              // the local-facing message  address
+  method Bit#(32)  fabMeta   if (updateComplete) = ?;                        // Not Used
+  method Bit#(32)  fabMesg   if (updateComplete) = ?;                        // Not Used
+  method Bit#(32)  fabFlow   if (updateComplete) = ?;                        // Not Used
+  method Bit#(32)  fabMetaMS if (updateComplete) = ?;                        // Not Used
+  method Bit#(32)  fabMesgMS if (updateComplete) = ?;                        // Not Used
+  method Bit#(32)  fabFlowMS if (updateComplete) = ?;                        // Not Used
 endinterface
 
 interface BufQSIfc remo;
   method Action    start     = remStart._write(True);    // Ngress (local DMA or remote access) has started (pulse)
   method Action    done      = remDone._write(True);     // Ngress is Done
   method Action    fabric    = (dpControl.role==ActMesg)?fabAvail._write(True):fabDone._write(True);
-  method Bool      rdy       = (wci.isOperating) && lclBufsCF   !=0;  // Near-side is Ready
-  method Bool      frdy      = (wci.isOperating) && fabBufsAvail!=0;  // Far-side is Ready
-  method Bool      credit    = (wci.isOperating) && lclCredit   !=0;  // Credits are Ready
-  method Bit#(16)  bufMeta   = remMetaAddr;              // the remote-facing metadata address
-  method Bit#(16)  bufMesg   = remMesgAddr;              // the remote-facing message  address
-  method Bit#(32)  fabMeta   = fabMetaAddr;              // the fabric metadata address
-  method Bit#(32)  fabMesg   = fabMesgAddr;              // the fabric message  address
-  method Bit#(32)  fabFlow   = fabFlowAddr;              // the fabric flowctrl address
+  method Bool      rdy       if (updateComplete) = (wci.isOperating) && lclBufsCF   !=0;  // Near-side is Ready
+  method Bool      frdy      if (updateComplete) = (wci.isOperating) && fabBufsAvail!=0;  // Far-side is Ready
+  method Bool      credit    if (updateComplete) = (wci.isOperating) && lclCredit   !=0;  // Credits are Ready
+  method Bit#(16)  bufMeta   if (updateComplete) = remMetaAddr;              // the remote-facing metadata address
+  method Bit#(16)  bufMesg   if (updateComplete) = remMesgAddr;              // the remote-facing message  address
+  method Bit#(32)  fabMeta   if (updateComplete) = fabMetaAddr;              // the fabric metadata address
+  method Bit#(32)  fabMesg   if (updateComplete) = fabMesgAddr;              // the fabric message  address
+  method Bit#(32)  fabFlow   if (updateComplete) = fabFlowAddr;              // the fabric flowctrl address
   // We make the assumption that the upper 32b of a 64b address will be *static* for a given transfer...
   // Without this assumption, we would need to manage 64b accumulatoirs for each meta, mesg, and flow...
   method Bit#(32)  fabMetaMS = fabMetaBaseMS;            // the fabric metadata address MS
