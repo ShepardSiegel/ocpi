@@ -1,6 +1,14 @@
 // BiasWorker.bsv 
 // Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
+// 2011-12-20 Changing the BiasWorker so that it remains polymorphic on a number of DWORDS (ndw) for 
+// datapath width. But the data type is always 32b integer. So with a 1 DW path we have one adder,
+// with two DW we have two, etc. This is a parallel implementation that adds function units (adders) as needed.
+// We have pullled out the code that operates on each word of data in the function addBias.
+// As addBias is mapped over the Vector dvec, we get as many adders as we have ndw's.
+
+// Note that no change to the byte-enables takes place; and bias is oblivious to their state
+
 import OCWip::*;
 
 import Connectable::*;
@@ -16,7 +24,11 @@ interface BiasWorkerIfc#(numeric type ndw);
 endinterface 
 
 module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
-  provisos (DWordWidth#(ndw), NumAlias#(TMul#(ndw,32),nd), Add#(a_,32,nd), NumAlias#(TMul#(ndw,4),nbe), Add#(1,b_,TMul#(ndw,32)));
+  provisos (DWordWidth#(ndw)
+          , NumAlias#(TMul#(ndw,32),nd)
+          , Add#(a_,32,nd)
+          , NumAlias#(TMul#(ndw,4),nbe)
+          , Add#(1,b_,TMul#(ndw,32)));
 
   Bit#(8)  myByteWidth  = fromInteger(valueOf(ndw))<<2;          // Width in Bytes
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));    // Shift amount between Bytes and ndw-wide Words
@@ -32,12 +44,20 @@ module mkBiasWorker#(parameter Bool hasDebugLogic) (BiasWorkerIfc#(ndw))
     wsiS.operate();
     wsiM.operate();
   endrule
+
+  // This function operares on the fixed Bit#(32) datatype...
+  function Bit#(32) addBias (Bit#(32) arg);
+    return (arg + biasValue);
+  endfunction
   
-  // Each firing of this rule processes exactly one word and applies the biasValue...
-  // Note that no change to the byte-enables takes place; and bias is oblivious to their state
+  // Each firing of this rule processes exactly one WSI word and applies the biasValue...
+  // Note that the datatype is fixed as 32b DWORDs, so we add biasValue to every DWORD, even if
+  // there are more than 1 (e.g. 2, 4, 8, etc) DWORDs on each WSI word.
   rule doMessagePush (wci.isOperating);
     WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;   // get the request from the slave-cosumer
-    r.data = r.data + extend(biasValue);           // apply the biasValue to the data
+    Vector#(ndw,Bit#(32)) dvec = unpack(r.data);   // Intrepret the data as ndw DWORDs
+    dvec = map(addBias, dvec);                     // Apply the addBias function to each element of dvec
+    r.data = pack(dvec);                           // Place the result back in the data field
     wsiM.reqPut.put(r);                            // put the request to the master-producer
   endrule
 
