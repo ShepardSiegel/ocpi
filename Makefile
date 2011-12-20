@@ -2,6 +2,7 @@
 ## Makefile
 ##
 BTEST     ?= TB2
+BTEST1    ?= TB1
 BTEST7    ?= TB7
 BTEST8    ?= TB8
 ITEST     ?= TB2
@@ -102,6 +103,26 @@ bsim: $(OBJ)
 
 	# run bluesim executable
 	$(OBJ)/mk$(BTEST).bexe -V
+
+
+######################################################################
+bsim1: $(OBJ)
+
+	# compile to bluesim backend
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
+	bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(BTEST1).bsv
+
+	# create bluesim executable
+	bsc -sim -keep-inlined-boundaries \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-o $(OBJ)/mk$(BTEST1).bexe -e mk$(BTEST1) $(OBJ)/*.ba
+
+	# run bluesim executable
+	$(OBJ)/mk$(BTEST1).bexe -V
 
 
 ######################################################################
