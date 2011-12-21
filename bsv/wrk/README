@@ -16,5 +16,6 @@ GCDWorker.bsv          Y    4,8,16,32
 ICAPWorker.bsv         Y    N/A
 PSD.bsv                Y    4
 SMAdapter.bsv          Y    4,8,16,32
+WSICaptureWorker.bsv   Y    4,8,18,32,...
 
 Notes: Width is of WSI port(s) unless otherwise noted

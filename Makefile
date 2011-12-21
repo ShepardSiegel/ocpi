@@ -5,6 +5,7 @@ BTEST     ?= TB2
 BTEST1    ?= TB1
 BTEST7    ?= TB7
 BTEST8    ?= TB8
+BTEST14   ?= TB14
 ITEST     ?= TB2
 ITEST1    ?= TB1
 ITEST7    ?= TB7
@@ -163,6 +164,25 @@ bsim8: $(OBJ)
 
 	# run bluesim executable
 	$(OBJ)/mk$(BTEST8).bexe -V
+
+######################################################################
+bsim14: $(OBJ)
+
+	# compile to bluesim backend
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
+	bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(BTEST14).bsv
+
+	# create bluesim executable
+	bsc -sim -keep-inlined-boundaries \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-o $(OBJ)/mk$(BTEST14).bexe -e mk$(BTEST14) $(OBJ)/*.ba
+
+	# run bluesim executable
+	$(OBJ)/mk$(BTEST14).bexe -V
 
 ######################################################################
 vcs: $(OBJ)
