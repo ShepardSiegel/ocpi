@@ -76,9 +76,11 @@ module mkTB14();
     wsiM.operate();
   endrule
 
+  Bit#(16) numSrcMessages = 2;
+
   // WSI Interaction
   // Producer Stream...
-  rule wsi_source (enWsiSource);
+  rule wsi_source (enWsiSource && (srcMesgCount < numSrcMessages));
     Bool lastWord  = (srcUnrollCnt == 1);
     wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                              reqLast : lastWord,

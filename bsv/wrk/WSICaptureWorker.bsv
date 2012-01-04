@@ -37,6 +37,7 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   Reg#(Bit#(32))                dataCount    <- mkRegU;          // Rolling count of data words
   Reg#(Bit#(32))                nextWrite    <- mkRegU;          // Next address to write
   Wire#(Bit#(32))               statusReg    <- mkDWire(0);
+  Reg#(Bool)                    isFirst      <- mkReg(True);     // First word of messgge
 
 
   // Capture Buffer Instantiation...
@@ -60,8 +61,20 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
     wsiS.operate();
   endrule
 
+  Bool captureEnabeld = unpack(controlReg[0]);
+
   rule doMessageAccept (wci.isOperating);
     WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;   // get the request from the slave-cosumer
+    if (captureEnabled)
+      let wreq  = BRAMRequest { write:True, address:truncate(nextWrite), datain:r.data, responseOnWrite:False };
+      em[addr[3:2]].request.put(req4); 
+
+      if (r.burstPrecise) begin
+        $display("[%0d]: %m: CaptureWorker PRECISE mesgCount:%0x WSI burstLength:%0x reqInfo:%0x", $time, mesgCount, r.burstLength, r.reqInfo);
+      end else begin
+        $display("[%0d]: %m: CaptureWorker IMPRECISE mesgCount:%0x", $time, mesgCount);
+      end
+    end
   endrule
 
   // Control and Configuration operations...
