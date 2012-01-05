@@ -28,6 +28,10 @@ module mkTB14();
   mkConnection(wci.mas,  captWorker.wciS0);             // connect the WCI Master to the DUT
   mkConnection(toWsiEM(wsiM.mas), captWorker.wsiS0);    // connect the Source wsiM to the captWorker wsi-S input
 
+  rule driveNow;
+    captWorker.now(extend(simCycle));
+  endrule
+
   // WCI Interaction
   // A sequence of control-configuration operartions to be performed...
   Stmt wciSeq = 
@@ -59,6 +63,10 @@ module mkTB14();
     wci.req(Control, False, 20'h00_0004, ?, ?);
     action let r <- wci.resp; endaction
 
+    $display("[%0d]: %m: Write Capture Enable Bit", $time);
+    wci.req(Config, True, 20'h00_0000, 32'h0000_0001, 'hF);
+    action let r <- wci.resp; endaction
+
     srcUnrollCnt  <= srcMesgLen;
     testOperating <= True;
     enWsiSource   <= True;
@@ -71,12 +79,147 @@ module mkTB14();
     wciSeqOnce.start;
   endrule
 
+  Stmt wciDumpSeq = 
+  seq
+    $display("[%0d]: %m: Read Dataplane Config Properties: controlReg", $time);
+    wci.req(Config, False, 20'h00_0000, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Dataplane Config Properties: mesgCount", $time);
+    wci.req(Config, False, 20'h00_0004, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Dataplane Config Properties: dataCount", $time);
+    wci.req(Config, False, 20'h00_0008, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Dataplane Config Properties: statusReg", $time);
+    wci.req(Config, False, 20'h00_0010, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Setting Worker Control Page Register to 'h001...", $time);
+    wci.req(Admin, True,  20'h00_0030, 'h0000_0001, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0000, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0004, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0008, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_000C, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0010, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0014, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0018, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_001C, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0020, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0024, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0028, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_002C, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+
+    $display("[%0d]: %m: Setting Worker Control Page Register to 'h002...", $time);
+    wci.req(Admin, True,  20'h00_0030, 'h0000_0002, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0000, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0004, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0008, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_000C, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0010, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0014, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0018, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_001C, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0020, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0024, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_0028, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+    $display("[%0d]: %m: Read Data Buffer", $time);
+    wci.req(Config, False, 20'h00_002C, ?, 'hF);
+    action let r <- wci.resp; endaction
+
+
+
+  endseq;
+  FSM  wciDumpSeqFsm  <- mkFSM(wciDumpSeq);
+  Once wciDumpSeqOnce <- mkOnce(wciDumpSeqFsm.start);
+
+  // Start of the WCI sequence...
+  rule runWciDumpSeq (simCycle==200);
+    wciDumpSeqOnce.start;
+  endrule
+
+
   // This rule inhibits dataflow on the WSI ports until the WCI port isOperating...
   rule operating_actions (testOperating);
     wsiM.operate();
   endrule
 
-  Bit#(16) numSrcMessages = 2;
+  Bit#(16) numSrcMessages = 3;
 
   // WSI Interaction
   // Producer Stream...
@@ -94,8 +237,8 @@ module mkTB14();
     if (lastWord) begin
       srcMesgCount <= srcMesgCount + 1;
       $display("[%0d]: %m: wsi_source: End of WSI Producer Egress: srcMesgCount:%0x srcOpcode:%0x srcMesgLen:%0x", $time, srcMesgCount, srcOpcode, srcMesgLen);
-      srcMesgLen <= srcMesgLen + 4;
-      srcUnrollCnt <= srcMesgLen;
+      srcMesgLen   <= srcMesgLen + 4;
+      srcUnrollCnt <= srcMesgLen + 4;
       srcOpcode <= srcOpcode + 1;
     end else begin
       srcUnrollCnt <= srcUnrollCnt - 1;
