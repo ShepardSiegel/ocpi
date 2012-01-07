@@ -9,6 +9,26 @@ import FIFO        ::*;
 import GetPut      ::*;
 import Vector      ::*;
 
+
+typedef struct {
+  Bit#(8) pad;
+  Bit#(4) l2BytesPerDataWord;
+  Bit#(4) l2BytesPerMetaWord;
+  Bit#(8) l2NumberDataWords;
+  Bit#(8) l2NumberMetaWords;
+} StatusReg deriving (Bits);
+
+instance DefaultValue#(StatusReg);
+  defaultValue = StatusReg {
+    pad                : 0,
+    l2BytesPerDataWord : 2,  //  4B per word
+    l2BytesPerMetaWord : 4,  // 16B per meta
+    l2NumberDataWords  : 10, // 1K data words
+    l2NumberMetaWords  : 10  // 1K meta words
+  };
+endinstance
+
+
 interface WSICaptureWorkerIfc#(numeric type ndw);
   interface WciES                                       wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
@@ -38,7 +58,6 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   Reg#(Bit#(32))                controlReg          <- mkRegU;          // storage for the controlReg
   Reg#(Bit#(32))                mesgCount           <- mkRegU;          // Rolling count of messages (metadata)
   Reg#(Bit#(32))                dataCount           <- mkRegU;          // Rolling count of data words
-  Wire#(Bit#(32))               statusReg           <- mkDWire(0);      // Status readback
   Wire#(Bit#(64))               nowW                <- mkDWire(0);      // Time Now
   Reg#(Bool)                    isFirst             <- mkReg(True);     // First word of messgge
   Reg#(Bit#(14))                mesgLengthSoFar     <- mkReg(0);        // in Bytes up to 2^14 -1
@@ -102,6 +121,10 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
 
     end
   endrule
+
+
+  StatusReg statusReg = defaultValue;
+
 
   // Control and Configuration operations...
   
