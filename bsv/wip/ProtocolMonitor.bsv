@@ -1,4 +1,4 @@
-// ProtocolMonitor.bsv - Protocol Monotor defintions and utlities
+// ProtocolMonitor.bsv - Protocol Monotor defintions and utilities
 // Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package ProtocolMonitor;

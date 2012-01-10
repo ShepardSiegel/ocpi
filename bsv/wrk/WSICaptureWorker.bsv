@@ -2,10 +2,12 @@
 // Copyright (c) 2011 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import OCWip       ::*;
+import TimeService ::*;
 
 import BRAM        ::*;
 import Connectable ::*;
 import FIFO        ::*;
+import FixedPoint  ::*;
 import GetPut      ::*;
 import Vector      ::*;
 
@@ -32,7 +34,7 @@ endinstance
 interface WSICaptureWorkerIfc#(numeric type ndw);
   interface WciES                                       wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
-  method Action now (Bit#(64) arg);                               // Time
+  method Action now (GPS64_t arg);                                // Time
 endinterface 
 
 // Capture Buffer Sizing...
@@ -58,7 +60,7 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   Reg#(Bit#(32))                controlReg          <- mkRegU;          // storage for the controlReg
   Reg#(Bit#(32))                mesgCount           <- mkRegU;          // Rolling count of messages (metadata)
   Reg#(Bit#(32))                dataCount           <- mkRegU;          // Rolling count of data words
-  Wire#(Bit#(64))               nowW                <- mkDWire(0);      // Time Now
+  Wire#(GPS64_t)                nowW                <- mkDWire(0);      // Time Now
   Reg#(Bool)                    isFirst             <- mkReg(True);     // First word of messgge
   Reg#(Bit#(14))                mesgLengthSoFar     <- mkReg(0);        // in Bytes up to 2^14 -1
   Reg#(Bool)                    splitReadInFlight   <- mkReg(False);    // Truen when split read
@@ -87,6 +89,7 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   endrule
 
   Bool captureEnabled = unpack(controlReg[0]);
+  Bool wrapInhibit    = unpack(controlReg[1]);
 
   rule doMessageAccept (wci.isOperating);
     WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;     // get the request from the slave-cosumer
@@ -98,11 +101,11 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
     Bit#(14) mlB   = mesgLengthSoFar + mlInc;                // Current messageLength in Bytes
     mesgLengthSoFar <= (dwm) ? 0 : mlB;                      // Update or clear the length accumulator
 
-    let meta = MesgMeta {length:extend(mlB), opcode:extend(r.reqInfo), nowMS:nowW[63:32], nowLS:nowW[31:0]};
+    let meta = MesgMeta {length:extend(mlB), opcode:extend(r.reqInfo), nowMS:pack(fxptGetInt(nowW)), nowLS:pack(fxptGetFrac(nowW))};
     Vector#(4,Bit#(32))  mvWord = reverse(unpack(pack(meta))); // reverse makes mkWord[0] len; [1] opcode; [2] nowMS; [3] nowLS
 
     // When captureEnabled, we take data on every available cycle; and metadata at end...
-    if (captureEnabled) begin
+    if (captureEnabled && (!wrapInhibit || (wrapInhibit && (mesgCount<1024 || dataCount<1024)))) begin
 
       dataCount <= dataCount + 1;  // Increment Data Capture Address
       for (Integer i=0; i<valueOf(ndw); i=i+1) begin   // Connect each WSI incident DWORD to its respective BRAM write port...
@@ -168,12 +171,16 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
        'h2C : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.tBusyCount);
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   end else if (wciReq.addr[31:20] == 'h001) begin
-     let req  = BRAMRequest { write:False, address:wciReq.addr[13:4], datain:'0, responseOnWrite:False };
-     dataBramsB[mSel].request.put(req); 
-     splaF.enq(tuple2(True, mSel));
+   end else if (wciReq.addr[31:20] == 'h001) begin // Data Region...
+     //TODO: Make mSel, etc poly on ndw 1,2,4,8
+     //let req  = BRAMRequest { write:False, address:wciReq.addr[13:4], datain:'0, responseOnWrite:False };
+     //dataBramsB[mSel].request.put(req); 
+     //splaF.enq(tuple2(True, mSel));
+     let req  = BRAMRequest { write:False, address:wciReq.addr[11:2], datain:'0, responseOnWrite:False };
+     dataBramsB[0].request.put(req); 
+     splaF.enq(tuple2(True, 0));
      splitRead = True;
-   end else if (wciReq.addr[31:20] == 'h002) begin
+   end else if (wciReq.addr[31:20] == 'h002) begin // Meta Region...
      let req  = BRAMRequest { write:False, address:wciReq.addr[13:4], datain:'0, responseOnWrite:False };
      metaBramsB[mSel].request.put(req); 
      splaF.enq(tuple2(False, mSel));
@@ -197,7 +204,7 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   Wsi_Es#(12,nd,nbe,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);  // Convert the conventional to explicit 
   interface wciS0 = wci.slv;
   interface wsiS0 = wsi_Es;
-  method Action now (Bit#(64) arg); 
+  method Action now (GPS64_t arg); 
     nowW <= arg;
   endmethod
 

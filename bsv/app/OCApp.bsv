@@ -4,14 +4,15 @@
 package OCApp;
 
 import OCWip::*;
-//import ProtocolMonitor::*;
+import ProtocolMonitor::*;
 import UUID::*;
 
-
 import BiasWorker::*;
+import Config::*;
 //import DelayWorker::*;
 import SMAdapter::*;
-import Config::*;
+import WSICaptureWorker::*;
+
 
 import Clocks::*;
 import FIFO::*;
@@ -53,11 +54,12 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
   UUIDIfc         id   <- mkUUID;
 
-  /*
-  WciMonitorIfc            wciMonW3         <- mkWciMonitor(8'h42); // monId=h42
-  PMEMMonitorIfc              pmemMonW3        <- mkPMEMMonitor;
-  mkConnection(wciMonW3.pmem, pmemMonW3.pmem);  // Connect the wciMon to an event monitor
-  */
+  // Place a WSICaptureWorker on the BiasWorker...
+  WciMonitorIfc               wciMonW3         <- mkWciMonitor(8'h42); // monId=h42
+  //PMEMMonitorIfc              pmemMonW3        <- mkPMEMMonitor;
+  //mkConnection(wciMonW3.pmem, pmemMonW3.pmem);    // Connect the wciMon to an event monitor
+  WSICaptureWorker4BIfc       captWorker0       <- mkWSICaptureWorker(True, reset_by(rst[5]));
+  mkConnection(wciMonW3.pmem, captWorker0.wsiS0);    // connect the Source wsiM to the captWorker wsi-S input
 
   // Instance the workers in this application container...
 
@@ -147,7 +149,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   // TODO: Use Default for tieOff...
   Wci_Es#(32) tieOff0  <- mkWciSlaveENull;
   Wci_Es#(32) tieOff1  <- mkWciSlaveENull;
-  Wci_Es#(32) tieOff5  <- mkWciSlaveENull;
+  //Wci_Es#(32) tieOff5  <- mkWciSlaveENull;
   Wci_Es#(32) tieOff6  <- mkWciSlaveENull;
   Wci_Es#(32) tieOff7  <- mkWciSlaveENull;
 
@@ -159,7 +161,8 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   vWci[3] = appW3.wciS0;
   //mkConnectionMSO(wciM3,  appW3.wciS0, wciMonW3.wciO0);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
   vWci[4] = appW4.wciS0;
-  vWci[5] = tieOff5;
+  //vWci[5] = tieOff5;
+  vWci[5] = captWorker0.wciS0;
   vWci[6] = tieOff6;
   vWci[7] = tieOff7;
 
