@@ -78,6 +78,10 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
     inf.uuid(app.uuid);
   endrule // Pass the uuid from the application to the infrastructure
 
+  rule connect_time;
+    app.now(inf.cpNow);
+  endrule // Pass the time from the inf to the app
+
   interface Server server     = inf.server;  // Pass the sever interface provided by OCInf straight through
   method led                  = inf.led;
   method switch               = inf.switch;

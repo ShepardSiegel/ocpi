@@ -54,5 +54,12 @@ package Config;
   typedef 1 Nwmemi;
   Integer iNwmemi = valueOf(Nwmemi);
 
+  // WTI...
+
+  // Set number of WTI slave interfaces in the application
+  typedef 3 Nwti_app;
+  Integer iNwti_app = valueOf(Nwti_app);
+
+
 endpackage: Config
  

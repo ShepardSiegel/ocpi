@@ -34,7 +34,7 @@ endinstance
 interface WSICaptureWorkerIfc#(numeric type ndw);
   interface WciES                                       wciS0;    // Worker Control and Configuration 
   interface Wsi_Es#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsiS0;    // WSI-S Stream Input
-  method Action now (GPS64_t arg);                                // Time
+  interface Wti_Es#(64)                                 wtiS0;    // WTI-S Time Input
 endinterface 
 
 // Capture Buffer Sizing...
@@ -56,7 +56,8 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(ndw)));    // Shift amount between Bytes and ndw-wide Words
 
   WciESlaveIfc                  wci                 <- mkWciESlave;     // WCI-Slave  convienenice logic
-  WsiSlaveIfc #(12,nd,nbe,8,0)  wsiS                <- mkWsiSlave;      // WSI-Slave  convienenice logic
+  WsiSlaveIfc#(12,nd,nbe,8,0)   wsiS                <- mkWsiSlave;      // WSI-Slave  convienenice logic
+  WtiSlaveIfc#(64)              wtiS                <- mkWtiSlave;      // WTI-Slave  convienenice logic
   Reg#(Bit#(32))                controlReg          <- mkRegU;          // storage for the controlReg
   Reg#(Bit#(32))                mesgCount           <- mkRegU;          // Rolling count of messages (metadata)
   Reg#(Bit#(32))                dataCount           <- mkRegU;          // Rolling count of data words
@@ -86,6 +87,10 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
 
   rule operating_actions (wci.isOperating);
     wsiS.operate();
+  endrule
+
+  rule getTime;
+    nowW <= unpack(wtiS.now);
   endrule
 
   Bool captureEnabled = unpack(controlReg[0]);
@@ -202,11 +207,10 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
   Wsi_Es#(12,nd,nbe,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);  // Convert the conventional to explicit 
+  Wti_Es#(64)            wti_Es <- mkWtiStoES(wtiS.slv);  // Convert the conventional to explicit 
   interface wciS0 = wci.slv;
   interface wsiS0 = wsi_Es;
-  method Action now (GPS64_t arg); 
-    nowW <= arg;
-  endmethod
+  interface wtiS0 = wti_Es;
 
 endmodule: mkWSICaptureWorker
 
