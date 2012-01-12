@@ -78,9 +78,27 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
     inf.uuid(app.uuid);
   endrule // Pass the uuid from the application to the infrastructure
 
-  rule connect_time;
-    app.now(inf.cpNow);
-  endrule // Pass the time from the inf to the app
+  // Time repeaters...
+  Vector#(Nwti_app, WtiMasterIfc#(64)) wtiM <- replicateM(mkWtiMaster);
+
+  // Connect WTI masters to app...
+  // One way to do this is to use a for loop and iterate over the subinterfaces and interfaces
+  // for (Integer i=0; i<iNwti_app; i=i+1) mkConnection(wtiM[i].mas, app.wti_s[i]); 
+
+  // We can't quite use these functions as is as per 2012-01-12 dialog with Joe Stoy
+  // zipWithM(mkConnection, wtiM.mas, app.wti_s); // mkConnection zipped over argumernts
+  // mkConnection(wtiM.mas, app.wti_s);           // mkConnection understands Vectors of Connectable
+
+  // So we write a functon to select the desired subinterface of the master...
+  function Wti_m#(64) masF(WtiMasterIfc#(64) x) = x.mas; // select the mas subinterface of WtiMasterIfc
+  mkConnection (map(masF,wtiM), app.wti_s);
+
+  rule timeSource;
+    for (Integer i=0; i<iNwti_app; i=i+1) begin
+      wtiM[i].reqPut.put(WtiReq{cmd:WR, data:pack(inf.cpNow)});
+    end
+  endrule
+
 
   interface Server server     = inf.server;  // Pass the sever interface provided by OCInf straight through
   method led                  = inf.led;
