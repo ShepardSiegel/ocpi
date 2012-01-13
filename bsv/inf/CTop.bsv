@@ -78,6 +78,10 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
     inf.uuid(app.uuid);
   endrule // Pass the uuid from the application to the infrastructure
 
+  // We could instance N mkTimeClient's, each with ther own clock crossing and WtiMaster
+  // But instead, we go the low-level route and instance N WtiMasters by themselves
+  // and a single synchronizer feeding them all. It's perhaps not such a big difference
+
   // Time repeaters...
   Vector#(Nwti_app, WtiMasterIfc#(64)) wtiM <- replicateM(mkWtiMaster);
 
@@ -93,11 +97,23 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   function Wti_m#(64) masF(WtiMasterIfc#(64) x) = x.mas; // select the mas subinterface of WtiMasterIfc
   mkConnection (map(masF,wtiM), app.wti_s);
 
-  rule timeSource;
-    for (Integer i=0; i<iNwti_app; i=i+1) begin
-      wtiM[i].reqPut.put(WtiReq{cmd:WR, data:pack(inf.cpNow)});
-    end
-  endrule
+  Clock app_clk <- exposeCurrentClock;
+  Reset app_rst <- exposeCurrentReset;
+  Reg#(GPS64_t)     ctNow   <- mkSyncReg(unpack(0), sys0_clk, sys0_rst, app_clk);  // Our single sys0 -> app_clk syncReg
+
+  rule send_time; ctNow._write(inf.cpNow); endrule  // Write inf.cpNow to our synchronizer
+
+  // Instead of the Rule timeSource below, we can again be clever and use mkConnection and map
+  // rule timeSource;
+  //   for (Integer i=0; i<iNwti_app; i=i+1) begin
+  //     wtiM[i].reqPut.put(WtiReq{cmd:WR, data:pack(ctNow)});
+  //   end
+  // endrule
+
+  function Put#(WtiReq#(64)) reqPutF(WtiMasterIfc#(64) x) = x.reqPut;                 // select the reqPut Put subinterface of WtiMasterIfc
+  Vector#(Nwti_app, WtiReq#(64)) vFoo = replicate(WtiReq{cmd:WR, data:pack(ctNow)});  // Make our Vector of Requests
+  mkConnection (map(toGet,vFoo), map(reqPutF,wtiM));                                  // Connect the values to the Puts
+
 
 
   interface Server server     = inf.server;  // Pass the sever interface provided by OCInf straight through
