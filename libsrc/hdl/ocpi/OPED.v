@@ -33,7 +33,8 @@ module OPED #
   parameter                              C_M_AXIS_DATA_WIDTH  = 32,
   parameter                              C_S_AXIS_DATA_WIDTH  = 32,
   parameter                              C_M_AXIS_TUSER_WIDTH = 128,
-  parameter                              C_S_AXIS_TUSER_WIDTH = 128)
+  parameter                              C_S_AXIS_TUSER_WIDTH = 128,
+  parameter                              HAS_DEBUG_LOGIC      = 0)  // 0 = no debug logic, 1= debug logic
 
   ( // OPED uses the MPD-specified signal names for the AXI user-facing ports...
   input                                  PCIE_CLKP,           // PCIe connections...
@@ -100,7 +101,11 @@ initial begin
   if (C_S_AXIS_TUSER_WIDTH != 128) begin $display("Unsupported S_AXIS_TUSER width"); $finish; end
 end
 
- mkOPED_v5 oped (
+ mkOPED_v5 oped #
+   (
+     parameter hasDebugLogic = HAS_DEBUG_LOGIC      // Set to 0 for no debug logic; Set to 1 for debug logic
+   )
+   (
   .pci0_clkp         (PCIE_CLKP),
   .pci0_clkn         (PCIE_CLKN),
   .RST_N_pci0_rstn   (PCIE_RSTN),

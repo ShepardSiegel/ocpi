@@ -38,21 +38,20 @@ interface OPEDIfc#(numeric type lanes);
 endinterface: OPEDIfc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="" *)
-module mkOPED_v5#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (OPEDIfc#(8));
-  OPEDIfc#(8) _a <- mkOPED("V5",pci0_clkp,pci0_clkn,pci0_rstn); return _a;
+module mkOPED_v5#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn, parameter Bool hasDebugLogic) (OPEDIfc#(8)); // 8 Gen1 PCIe Lanes
+  OPEDIfc#(8) _a <- mkOPED("V5",pci0_clkp,pci0_clkn,pci0_rstn,hasDebugLogic); return _a;
 endmodule
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="" *)
-module mkOPED_v6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn) (OPEDIfc#(4));
-  OPEDIfc#(4) _a <- mkOPED("V6",pci0_clkp,pci0_clkn,pci0_rstn); return _a;
+module mkOPED_v6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn, parameter Bool hasDebugLogic) (OPEDIfc#(4)); // 4 Gen2 PCIe Lanes
+  OPEDIfc#(4) _a <- mkOPED("V6",pci0_clkp,pci0_clkn,pci0_rstn,hasDebugLogic); return _a;
 endmodule
 
 // This top-level wrapper module has no default clock or reset...
-module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
+module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn, parameter Bool hasDebugLogic)(OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
   PCIEwrapIfc#(lanes) pciw  <- mkPCIEwrap(family,pci0_clkp, pci0_clkn, pci0_rstn);
   Clock p125Clk = pciw.pClk;
   Reset p125Rst = pciw.pRst;
-  Bool hasDebugLogic = True;
 
   // This is the inner body of mkOPED, which enjoys having the default 125 MHz Clock and Reset provided...
   module mkOPED_inner (OPEDIfc#(lanes)) provisos(Add#(1,z,lanes));
@@ -66,8 +65,8 @@ module mkOPED#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
 
     WCIS2A4LMIfc  wci2axi <- mkWCIS2A4LM(hasDebugLogic,reset_by rst[0]);           // W0: WCI to AXI4-Lite Bridge
     mkConnection(vWci[0], wci2axi.wciS0);                                          // Connect the WCI to W0, the wci2axi bridge
-    OCDP4BIfc dp0 <- mkOCDP(insertFNum(pciDevice,0),False,True, reset_by rst[13]); // W13: data-plane fabric consumer PULL Only
-    OCDP4BIfc dp1 <- mkOCDP(insertFNum(pciDevice,1),True,False, reset_by rst[14]); // W14: data-plane fabric producer PUSH Only
+    OCDP4BIfc dp0 <- mkOCDP(insertFNum(pciDevice,0),False,True,hasDebugLogic, reset_by rst[13]); // W13: data-plane fabric consumer PULL Only
+    OCDP4BIfc dp1 <- mkOCDP(insertFNum(pciDevice,1),True,False,hasDebugLogic, reset_by rst[14]); // W14: data-plane fabric producer PUSH Only
     mkConnection(vWci[13], dp0.wci_s);
     mkConnection(vWci[14], dp1.wci_s);
 
