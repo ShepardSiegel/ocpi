@@ -168,8 +168,12 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   vWci[0] = tieOff0;
   vWci[1] = tieOff1;
   vWci[2] = appW2.wciS0;
+
   vWci[3] = appW3.wciS0;
-  //mkConnectionMSO(wciM3,  appW3.wciS0, wciMonW3.wciO0);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
+  //Wci_Em#(32) wci3 = ?;
+  //mkConnection(wci3, vWci[3]);
+  //mkConnectionMSO(wci3,  appW3.wciS0, wciMonW3.observe);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
+
   vWci[4] = appW4.wciS0;
   //vWci[5] = tieOff5;
   //vWci[6] = tieOff6;
@@ -185,8 +189,8 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   vWti[2] = captWorker2.wtiS0;
 
   // Connect co-located WSI ports...
-  mkConnection(appW2.wsiM0, appW3.wsiS0);  // W2 SMAdapter WSI-M0   feeding W3 DelayWorker WSI-S0
-  mkConnection(appW3.wsiM0, appW4.wsiS0);  // W3 DelayWorker WSI-M0 feeding W4 SMAdapter WSI-S0
+  mkConnectionMSO(appW2.wsiM0, appW3.wsiS0 ,wsisMonW3.observe);  // W2 SMAdapter WSI-M0   feeding W3 DelayWorker WSI-S0
+  mkConnectionMSO(appW3.wsiM0, appW4.wsiS0 ,wsimMonW3.observe);  // W3 DelayWorker WSI-M0 feeding W4 SMAdapter WSI-S0
 
   interface wci_s     = vWci;
   interface wti_s     = vWti;
