@@ -674,7 +674,7 @@ wunreset(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, vola
 {
   volatile uint32_t *p32 = (uint32_t *)&w->control;
   uint32_t val = *p32;
-  printf("Worker %ld, writing control register value to unreset: 0x%x\n", (OCCP_WorkerControlSpace *)w - p->control, val | 0x8000000);
+  printf("Worker %ld, writing control register value to unreset: 0x%x\n", (OCCP_WorkerControlSpace *)w - p->control, val | 0x80000000);
   
   *p32 = val | 0x80000000;
   return 0;
@@ -685,7 +685,7 @@ wreset(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volati
 {
   volatile uint32_t *p32 = (uint32_t *)&w->control;
   uint32_t val = *p32;
-  printf("Worker %ld, writing control register value to reset: 0x%x\n", (OCCP_WorkerControlSpace *)w - p->control, val & ~0x8000000);
+  printf("Worker %ld, writing control register value to reset: 0x%x\n", (OCCP_WorkerControlSpace *)w - p->control, val & ~0x80000000);
   
   *p32 = val & ~0x80000000;
   return 0;

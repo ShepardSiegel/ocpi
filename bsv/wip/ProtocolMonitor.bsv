@@ -58,7 +58,7 @@ module mkPMEMSend#(parameter Bit#(8) srcID)  (PMEMSendIfc);
     Bool eom = (idx==len);
     wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                              reqLast : (eom),
-                             reqInfo : 0,
+                             reqInfo : 0,       // TODO: This reqInfo could supply useful opcode, etc
                         burstPrecise : False,
                          burstLength : extend(len),
                                data  : case (idx)
@@ -163,7 +163,12 @@ interface WsiMonitorIfc#(numeric type nb, numeric type nd, numeric type ng, nume
 endinterface
 
 //(* synthesize *)
-module mkWsiMonitor#(parameter Bit#(8) monId)  (WsiMonitorIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Add#(ng,0,4));
+module mkWsiMonitor#(parameter Bit#(8) monId)  (WsiMonitorIfc#(nb,nd,ng,nh,ni))
+  provisos( Add#(nd,0,32)
+          , Add#(ng,0,4)
+          , Add#(nh,a_,32)
+          , Add#(b_,4,nh)
+          );
   WsiObserverIfc#(nb,nd,ng,nh,ni) observer <- mkWsiObserver;
   PMEMSendIfc                     pmsender <- mkPMEMSend(monId);
 

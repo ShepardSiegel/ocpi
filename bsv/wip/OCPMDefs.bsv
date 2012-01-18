@@ -31,6 +31,9 @@ typedef enum {
   PMEV_REQUEST_ERROR      = 8'h80,
   PMEV_RESPONSE_ERROR     = 8'h90,
   PMEV_XACTION_ERROR      = 8'hA0,
+  PMEV_WSI_FIRST          = 8'hB0,
+  PMEV_WSI_LAST           = 8'hC0,
+  PMEV_WSI_FIRSTLAST      = 8'hD0,
   PMEV_PAD                = 255
  } PMEvent deriving (Bits, Eq);
 

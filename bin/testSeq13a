@@ -1,0 +1,82 @@
+#!/bin/sh
+# Script tstseq13a for bringing up WSICapture
+
+echo "admin probe"
+./swctl 0xDE000000 0xDFFF0000 settime
+./swctl 0xDE000000 0xDFFF0000 admin
+
+echo "Reset workers"
+./swctl 0xDE000000 0xDFFF0000 wreset  7 0
+./swctl 0xDE000000 0xDFFF0000 wreset  6 0
+./swctl 0xDE000000 0xDFFF0000 wreset  5 0
+./swctl 0xDE000000 0xDFFF0000 wreset  4 0
+./swctl 0xDE000000 0xDFFF0000 wreset  3 0
+./swctl 0xDE000000 0xDFFF0000 wreset  2 0
+./swctl 0xDE000000 0xDFFF0000 wreset 10 0
+./swctl 0xDE000000 0xDFFF0000 wreset 12 0
+
+echo "unreset workers"
+./swctl 0xDE000000 0xDFFF0000 wunreset  7 0x80000004
+./swctl 0xDE000000 0xDFFF0000 wunreset  6 0x80000004
+./swctl 0xDE000000 0xDFFF0000 wunreset  5 0x80000004
+./swctl 0xDE000000 0xDFFF0000 wunreset  4 0x80000004
+./swctl 0xDE000000 0xDFFF0000 wunreset  3 0x80000004
+./swctl 0xDE000000 0xDFFF0000 wunreset  2 0x80000004
+./swctl 0xDE000000 0xDFFF0000 wunreset 10 0x8000000F
+./swctl 0xDE000000 0xDFFF0000 wunreset 12 0x8000000F
+
+echo "initialize workers"
+./swctl 0xDE000000 0xDFFF0000 wop  7 initialize
+./swctl 0xDE000000 0xDFFF0000 wop  6 initialize
+./swctl 0xDE000000 0xDFFF0000 wop  5 initialize
+./swctl 0xDE000000 0xDFFF0000 wop  4 initialize
+./swctl 0xDE000000 0xDFFF0000 wop  3 initialize
+./swctl 0xDE000000 0xDFFF0000 wop  2 initialize
+./swctl 0xDE000000 0xDFFF0000 wop 10 initialize
+./swctl 0xDE000000 0xDFFF0000 wop 12 initialize
+
+echo "start workers"
+
+./swctl 0xDE000000 0xDFFF0000 wop 12 start
+./swctl 0xDE000000 0xDFFF0000 wop 10 start
+./swctl 0xDE000000 0xDFFF0000 wop  7 start
+./swctl 0xDE000000 0xDFFF0000 wop  6 start
+./swctl 0xDE000000 0xDFFF0000 wop  5 start
+./swctl 0xDE000000 0xDFFF0000 wop  4 start
+./swctl 0xDE000000 0xDFFF0000 wop  3 start
+./swctl 0xDE000000 0xDFFF0000 wop  2 start
+
+echo "Read WSICapture Status"
+#./swctl 0xDE000000 0xDFFF0000 wread 5 0 10
+./swctl 0xDE000000 0xDFFF0000 wread 6 0 10
+./swctl 0xDE000000 0xDFFF0000 wread 7 0 10
+
+echo "Enable WSICapture"
+#./swctl 0xDE000000 0xDFFF0000 wwrite 5 0 0x3
+./swctl 0xDE000000 0xDFFF0000 wwrite 6 0 0x3
+./swctl 0xDE000000 0xDFFF0000 wwrite 7 0 0x3
+
+echo "Read WSICapture Status"
+#./swctl 0xDE000000 0xDFFF0000 wread 5 0 12
+./swctl 0xDE000000 0xDFFF0000 wread 6 0 12
+./swctl 0xDE000000 0xDFFF0000 wread 7 0 12
+
+nft -m1 -r1 -b64 0000:04:00.0 > foo
+
+
+#./swctl 0xDE000000 0xDFFF0000 wread 5 0 12
+echo "Read WSICapture W6 Status"
+./swctl 0xDE000000 0xDFFF0000 wread 6 0 12
+echo "Read WSICapture W7 Status"
+./swctl 0xDE000000 0xDFFF0000 wread 7 0 12
+
+
+echo "WSICapture 6 Data Page"
+./swctl 0xDE000000 0xDFFF0000 wwpage 6 1
+./swctl 0xDE000000 0xDFFF0000 wread 6 0 16
+echo "WSICapture 6 Meta Page"
+./swctl 0xDE000000 0xDFFF0000 wwpage 6 2
+./swctl 0xDE000000 0xDFFF0000 wread 6 0 32
+
+./swctl 0xDE000000 0xDFFF0000 wwpage 6 0
+

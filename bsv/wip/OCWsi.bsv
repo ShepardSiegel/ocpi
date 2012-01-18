@@ -516,26 +516,38 @@ interface WsiObserverIfc#(numeric type nb, numeric type nd, numeric type ng, num
   interface Get#(PMEM)               seen;
 endinterface
 
-module mkWsiObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Add#(ng,0,4));
+module mkWsiObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) 
+  provisos( Add#(nd,0,32)
+          , Add#(ng,0,4)
+          , Add#(nh,a_,32)
+          , Add#(b_,4,nh)
+          );
+
+  Bit#(8)  myByteWidth  = fromInteger(valueOf(TDiv#(nd,32)))<<2;          // Width in Bytes
+  Bit#(8)  myWordShift  = fromInteger(2+valueOf(TLog#(TDiv#(nd,32))));    // Shift amount between Bytes and ndw-wide Words
+
   // Register the observer inputs to minimze and equalize the obseerved link's loading...
-  Reg#(Bit#(3))      r_mCmd          <-   mkReg(0);
-  Reg#(Bit#(1))      r_mReqLast      <-   mkDReg(0);
-  Reg#(Bit#(1))      r_mBurstPrecise <-   mkDReg(0);
-  Reg#(Bit#(nb))     r_mBurstLength  <-   mkReg(0);
-  Reg#(Bit#(nd))     r_mData         <-   mkReg(0);
-  Reg#(Bit#(ng))     r_mByteEn       <-   mkReg(0);
-  Reg#(Bit#(nh))     r_mReqInfo      <-   mkReg(0);
-  Reg#(Bit#(ni))     r_mDataInfo     <-   mkReg(0);
-  Reg#(Bit#(1))      r_sThreadBusy   <-   mkDReg(0);
-  Reg#(Bit#(1))      r_sReset_n      <-   mkDReg(0);
-  Reg#(Bit#(1))      r_mReset_n      <-   mkDReg(0);
+  Reg#(Bit#(3))      r_mCmd            <-   mkReg(0);
+  Reg#(Bit#(1))      r_mReqLast        <-   mkDReg(0);
+  Reg#(Bit#(1))      r_mBurstPrecise   <-   mkDReg(0);
+  Reg#(Bit#(nb))     r_mBurstLength    <-   mkReg(0);
+  Reg#(Bit#(nd))     r_mData           <-   mkReg(0);
+  Reg#(Bit#(ng))     r_mByteEn         <-   mkReg(0);
+  Reg#(Bit#(nh))     r_mReqInfo        <-   mkReg(0);
+  Reg#(Bit#(ni))     r_mDataInfo       <-   mkReg(0);
+  Reg#(Bit#(1))      r_sThreadBusy     <-   mkDReg(0);
+  Reg#(Bit#(1))      r_sReset_n        <-   mkDReg(0);
+  Reg#(Bit#(1))      r_mReset_n        <-   mkDReg(0);
 
-  FIFO#(PMEM)        evF             <-   mkFIFO;
-  Reg#(Bit#(3))      r_mCmdD         <-   mkReg(0);
-  Reg#(Bit#(1))      r_sResetnD      <-   mkReg(0);
-  Reg#(Bit#(1))      r_mResetnD      <-   mkReg(0);
+  FIFO#(PMEM)        evF               <-   mkFIFO;
+  Reg#(Bit#(3))      r_mCmdD           <-   mkReg(0);
+  Reg#(Bit#(1))      r_sResetnD        <-   mkReg(0);
+  Reg#(Bit#(1))      r_mResetnD        <-   mkReg(0);
 
-  BoolEdgeIfc        e_sThreadBusy   <-   mkBoolEdge(unpack(r_sThreadBusy));
+  BoolEdgeIfc        e_sThreadBusy     <-   mkBoolEdge(unpack(r_sThreadBusy));
+ 
+  Reg#(Bool)         mesgInFlight      <-   mkReg(False);
+  Reg#(Bit#(14))     mesgLengthSoFar   <-   mkReg(0);
 
   // For observing temporal changes
   (* fire_when_enabled, no_implicit_conditions *) rule doAlways (True);
@@ -544,6 +556,27 @@ module mkWsiObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Ad
     r_mResetnD     <= r_mReset_n;
   endrule
 
+  rule movement_detected (r_mCmd==pack(WR)); 
+    Bool dwm = unpack(r_mReqLast);                            // WSI ends with reqLast, used to make WMI DWM
+    Bool zlm = dwm && (r_mByteEn=='0) && mesgLengthSoFar==0;  // Zero Length Message is 0 BEs on DWM on the first WSI data cycle
+    Bit#(14) mlInc =(dwm) ? pack(extend(countOnes(r_mByteEn))) : extend(myByteWidth); // Increment by byteWidth except on last cycle use byteEn
+    Bit#(14) mlB   = mesgLengthSoFar + mlInc;                 // Current messageLength in Bytes
+    mesgLengthSoFar <= (dwm) ? 0 : mlB;                       // Update or clear the length accumulator
+
+    if (!mesgInFlight && !dwm) begin
+      evF.enq(PMEM_1DW (PM_1DW{eType:pmNibble(PMEV_WSI_FIRST,truncate(r_mReqInfo))}));  // place opcode from mReqInfo in pmNibble
+    end else if (!mesgInFlight && dwm) begin
+      evF.enq(PMEM_1DW (PM_1DW{eType:pmNibble(PMEV_WSI_FIRSTLAST,truncate(r_mReqInfo))}));  // place opcode from mReqInfo in pmNibble
+    end else if (mesgInFlight && dwm) begin
+      evF.enq(PMEM_2DW (PM_2DW{eType:pmNibble(PMEV_WSI_LAST,truncate(r_mReqInfo)), data0:extend(mlB)}));
+    end
+
+    mesgInFlight <= !unpack(r_mReqLast);
+  endrule
+
+
+// TODO: Provide a superior means to control what events are generated...
+`ifdef FANCY_WSI_DETECTION
   rule request_detected (r_mCmdD==pack(IDLE) && r_mCmd!=pack(IDLE)); 
     case (unpack(r_mCmd))
       WR : evF.enq(PMEM_2DW (PM_2DW{eType:pmNibble(PMEV_WRITE_REQUEST,r_mByteEn), data0:r_mData}));
@@ -561,6 +594,7 @@ module mkWsiObserver (WsiObserverIfc#(nb,nd,ng,nh,ni)) provisos(Add#(nd,0,32),Ad
   rule backpressure_trailing_detected (e_sThreadBusy.falling); 
     evF.enq(PMEM_1DW (PM_1DW{eType:PMEV_BPRESSURE_DEASSERT}));
   endrule
+`endif
 
   interface Wsi_Eo wsi;
     method Action   mCmd         (Bit#(3)  arg_cmd);          r_mCmd           <= arg_cmd;         endmethod

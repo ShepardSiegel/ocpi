@@ -260,6 +260,7 @@ instance ConnectableMSO#( Wci_Em#(na), Wci_Es#(na), Wci_Eo#(na) );
   endmodule
 endinstance
 
+
 //
 // The Four Connectable M/S instances..
 // Connect a Explicitly-named master to a Explicitly-named slave...
@@ -427,6 +428,25 @@ module mkWciStoES#(Wci_s#(na) arg) ( Wci_Es#(na));
   method         sFlag           = arg.sFlag;
   method Action  mFlag (Bit#(2) mf) = arg.mFlag(mf);
 endmodule
+
+/*
+// Connect a Explicitly-named slave to a Explicitly-named observer...
+instance Connectable#( Wci_Es#(na), Wci_Eo#(na) );
+  module mkConnection#(Wci_Es#(na) slave , Wci_Eo#(na) observer ) ();
+    rule mCmdConnect;    observer.mCmd(slave.mCmd);                        endrule 
+    rule mAddrSConnect;  observer.mAddrSpace(slave.mAddrSpace);            endrule 
+    rule mBEConnect;     observer.mByteEn(slave.mByteEn);                  endrule 
+    rule mAddrConnect;   observer.mAddr(slave.mAddr);                      endrule 
+    rule mDataConnect;   observer.mData(slave.mData);                      endrule 
+    rule sRespConnect;   observer.sResp(slave.sResp);                      endrule 
+    rule sDataConnect;   observer.sData(slave.sData);                      endrule
+    rule stbConnect      (observer.sThreadBusy); slave.sThreadBusy;        endrule
+    rule sFlagConnect;   observer.sFlag(slave.sFlag);                      endrule
+    rule mFlagConnect;   observer.mFlag(slave.mFlag);                      endrule
+  endmodule
+endinstance
+ */  
+
 
 //
 //

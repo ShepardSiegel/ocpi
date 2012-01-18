@@ -170,9 +170,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   vWci[2] = appW2.wciS0;
 
   vWci[3] = appW3.wciS0;
-  //Wci_Em#(32) wci3 = ?;
-  //mkConnection(wci3, vWci[3]);
-  //mkConnectionMSO(wci3,  appW3.wciS0, wciMonW3.observe);  // Connect the WCI Master to the DUT (using mkConnectionMSO to add PM Observer)
+  //mkConnectionMSO(vWci[3], appW3.wciS0, wciMonW3.observe);  // Connect the WCI Master to the DUT 
 
   vWci[4] = appW4.wciS0;
   //vWci[5] = tieOff5;

@@ -71,7 +71,6 @@ typeclass ConnectableMSO#(type a, type b, type c); // Master-Slave-Observer Conn
   module mkConnectionMSO#(a m, b s, c o) (Empty);
 endtypeclass
 
-
 //TODO: Move this convienience function somewhere more appropriate...
 import GetPut::*;
 import FIFOF::*;	
