@@ -14,6 +14,7 @@ module mkTB14();
   Reg#(Bit#(16))              simCycle       <- mkReg(0);       // simulation cycle counter
   WciEMasterIfc#(20,32)       wci            <- mkWciEMaster;   // WCI-OCP-Master convienenice logic
   WsiMasterIfc#(12,32,4,8,0)  wsiM           <- mkWsiMaster;    // WSI-OCP-Master convienenice logic
+  WtiMasterIfc#(64)           wtiM           <- mkWtiMaster;    // WTI time source
 
   WSICaptureWorker4BIfc       captWorker     <- mkWSICaptureWorker(True, reset_by wci.mas.mReset_n);   // instance the captWorker DUT
 
@@ -29,8 +30,10 @@ module mkTB14();
   mkConnection(toWsiEM(wsiM.mas), captWorker.wsiS0);    // connect the Source wsiM to the captWorker wsi-S input
 
   rule driveNow;
-    captWorker.now(extend(simCycle));
+    wtiM.reqPut.put( WtiReq{cmd:WR, data:extend(simCycle)});
   endrule
+
+  mkConnection(wtiM.mas, captWorker.wtiS0);
 
   // WCI Interaction
   // A sequence of control-configuration operartions to be performed...
@@ -55,8 +58,8 @@ module mkTB14();
     wci.req(Config, False, 20'h00_0000, ?, 'hF);
     action let r <- wci.resp; endaction
 
-    $display("[%0d]: %m: Read Dataplane Config Properties... (expect feedcode)", $time);
-    wci.req(Config, False, 20'h00_001C, ?, 'hF);
+    $display("[%0d]: %m: Read Status Register...", $time);
+    wci.req(Config, False, 20'h00_000C, ?, 'hF);
     action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: CONTROL-OP: -START- DUT...", $time);
@@ -85,7 +88,7 @@ module mkTB14();
     wci.req(Config, False, 20'h00_0000, ?, 'hF);
     action let r <- wci.resp; endaction
 
-    $display("[%0d]: %m: Read Dataplane Config Properties: mesgCount", $time);
+    $display("[%0d]: %m: Read Dataplane Config Properties: metaCount", $time);
     wci.req(Config, False, 20'h00_0004, ?, 'hF);
     action let r <- wci.resp; endaction
 
@@ -94,11 +97,11 @@ module mkTB14();
     action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Read Dataplane Config Properties: statusReg", $time);
-    wci.req(Config, False, 20'h00_0010, ?, 'hF);
+    wci.req(Config, False, 20'h00_000C, ?, 'hF);
     action let r <- wci.resp; endaction
 
-    $display("[%0d]: %m: Setting Worker Control Page Register to 'h001...", $time);
-    wci.req(Admin, True,  20'h00_0030, 'h0000_0001, 'hF);
+    $display("[%0d]: %m: Setting Worker Control Page Register to 'h800...", $time);
+    wci.req(Admin, True,  20'h00_0030, 'h0000_0800, 'hF);
     action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Read Data Buffer", $time);
@@ -150,8 +153,8 @@ module mkTB14();
     action let r <- wci.resp; endaction
 
 
-    $display("[%0d]: %m: Setting Worker Control Page Register to 'h002...", $time);
-    wci.req(Admin, True,  20'h00_0030, 'h0000_0002, 'hF);
+    $display("[%0d]: %m: Setting Worker Control Page Register to 'h400...", $time);
+    wci.req(Admin, True,  20'h00_0030, 'h0000_0400, 'hF);
     action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Read Data Buffer", $time);

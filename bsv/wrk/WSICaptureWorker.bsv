@@ -13,7 +13,11 @@ import Vector      ::*;
 
 
 typedef struct {
-  Bit#(8) pad;
+  Bit#(4) pad;
+  Bool    b27;
+  Bool    b26;
+  Bool    metaFull;
+  Bool    dataFull;
   Bit#(4) l2BytesPerDataWord;
   Bit#(4) l2BytesPerMetaWord;
   Bit#(8) l2NumberDataWords;
@@ -22,7 +26,11 @@ typedef struct {
 
 instance DefaultValue#(StatusReg);
   defaultValue = StatusReg {
-    pad                : 0,
+    pad                : 4'hA,
+    b27                : False,
+    b26                : False,
+    metaFull           : False,
+    dataFull           : False,
     l2BytesPerDataWord : 2,  //  4B per word
     l2BytesPerMetaWord : 4,  // 16B per meta
     l2NumberDataWords  : 10, // 1K data words
@@ -59,13 +67,14 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   WsiSlaveIfc#(12,nd,nbe,8,0)   wsiS                <- mkWsiSlave;      // WSI-Slave  convienenice logic
   WtiSlaveIfc#(64)              wtiS                <- mkWtiSlave;      // WTI-Slave  convienenice logic
   Reg#(Bit#(32))                controlReg          <- mkRegU;          // storage for the controlReg
-  Reg#(Bit#(32))                mesgCount           <- mkRegU;          // Rolling count of messages (metadata)
+  Reg#(Bit#(32))                metaCount           <- mkRegU;          // Rolling count of messages (metadata)
   Reg#(Bit#(32))                dataCount           <- mkRegU;          // Rolling count of data words
   Wire#(GPS64_t)                nowW                <- mkDWire(0);      // Time Now
   Reg#(Bool)                    isFirst             <- mkReg(True);     // First word of messgge
   Reg#(Bit#(14))                mesgLengthSoFar     <- mkReg(0);        // in Bytes up to 2^14 -1
   Reg#(Bool)                    splitReadInFlight   <- mkReg(False);    // Truen when split read
   FIFO#(Tuple2#(Bool,Bit#(2)))  splaF               <- mkFIFO;          // isData, LSBs of read in flight
+  Wire#(StatusReg)              statusReg_w         <- mkWire;
 
 
   // Capture Buffer Instantiation...
@@ -96,6 +105,9 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   Bool captureEnabled = unpack(controlReg[0]);
   Bool wrapInhibit    = unpack(controlReg[1]);
 
+  Bool metaFull = (metaCount>=1024);
+  Bool dataFull = (dataCount>=1024);
+
   rule doMessageAccept (wci.isOperating);
     WsiReq#(12,nd,nbe,8,0) r <- wsiS.reqGet.get;     // get the request from the slave-cosumer
     Vector#(ndw,Bit#(32)) dvWord = unpack(r.data);   // Stuff 1, 2, or 4 DWORDs into the vWord Vector
@@ -110,7 +122,7 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
     Vector#(4,Bit#(32))  mvWord = reverse(unpack(pack(meta))); // reverse makes mkWord[0] len; [1] opcode; [2] nowMS; [3] nowLS
 
     // When captureEnabled, we take data on every available cycle; and metadata at end...
-    if (captureEnabled && (!wrapInhibit || (wrapInhibit && (mesgCount<1024 || dataCount<1024)))) begin
+    if (captureEnabled && (!wrapInhibit || (wrapInhibit && !metaFull && !dataFull))) begin
 
       dataCount <= dataCount + 1;  // Increment Data Capture Address
       for (Integer i=0; i<valueOf(ndw); i=i+1) begin   // Connect each WSI incident DWORD to its respective BRAM write port...
@@ -119,19 +131,24 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
       end
 
       if (dwm) begin
-        mesgCount <= mesgCount + 1;  // Increment Metadata Capture Address
+        metaCount <= metaCount + 1;  // Increment Metadata Capture Address
         for (Integer i=0; i<4; i=i+1) begin
-          let mReq  = BRAMRequest { write:True, address:truncate(mesgCount), datain:mvWord[i], responseOnWrite:False };
+          let mReq  = BRAMRequest { write:True, address:truncate(metaCount), datain:mvWord[i], responseOnWrite:False };
           metaBramsA[i].request.put(mReq); 
         end
-        $display("[%0d]: %m: doMessageAccept DWM mesgCount:%0x WSI opcode:%0x length:%0x", $time, mesgCount, r.reqInfo, mlB);
+        $display("[%0d]: %m: doMessageAccept DWM metaCount:%0x WSI opcode:%0x length:%0x", $time, metaCount, r.reqInfo, mlB);
       end
 
     end
   endrule
 
 
-  StatusReg statusReg = defaultValue;
+  rule updateStatus;
+    StatusReg statusReg = defaultValue;
+    statusReg.metaFull = metaFull;
+    statusReg.dataFull = dataFull;
+    statusReg_w <= statusReg;
+  endrule
 
 
   // Control and Configuration operations...
@@ -151,7 +168,7 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
    let wciReq <- wci.reqGet.get;
      case (wciReq.addr[7:0]) matches
        'h00 : controlReg <= unpack(wciReq.data);
-       'h04 : mesgCount  <= unpack(wciReq.data);
+       'h04 : metaCount  <= unpack(wciReq.data);
        'h08 : dataCount  <= unpack(wciReq.data);
      endcase
      $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
@@ -165,18 +182,17 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
    if (wciReq.addr[31:20] == 'h000) begin
      case (wciReq.addr[7:0]) matches
        'h00 : rdat = pack(controlReg);
-       'h04 : rdat = pack(mesgCount);
+       'h04 : rdat = pack(metaCount);
        'h08 : rdat = pack(dataCount);
-       'h10 : rdat = pack(statusReg);
-       'h1C : rdat = 32'hfeed_c0de;
+       'h0C : rdat = pack(statusReg_w);
        // Diagnostic data from WSI slave port...
-       'h20 : rdat = !hasDebugLogic ? 0 : extend(pack(wsiS.status));
-       'h24 : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.pMesgCount);
-       'h28 : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.iMesgCount);
-       'h2C : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.tBusyCount);
+       'h10 : rdat = !hasDebugLogic ? 0 : extend(pack(wsiS.status));
+       'h14 : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.pMesgCount);
+       'h18 : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.iMesgCount);
+       'h1C : rdat = !hasDebugLogic ? 0 : pack(wsiS.extStatus.tBusyCount);
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   end else if (wciReq.addr[31:20] == 'h001) begin // Data Region...
+   end else if (wciReq.addr[31:20] == 'h800) begin // Data Region...
      //TODO: Make mSel, etc poly on ndw 1,2,4,8
      //let req  = BRAMRequest { write:False, address:wciReq.addr[13:4], datain:'0, responseOnWrite:False };
      //dataBramsB[mSel].request.put(req); 
@@ -185,7 +201,7 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
      dataBramsB[0].request.put(req); 
      splaF.enq(tuple2(True, 0));
      splitRead = True;
-   end else if (wciReq.addr[31:20] == 'h002) begin // Meta Region...
+   end else if (wciReq.addr[31:20] == 'h400) begin // Meta Region...
      let req  = BRAMRequest { write:False, address:wciReq.addr[13:4], datain:'0, responseOnWrite:False };
      metaBramsB[mSel].request.put(req); 
      splaF.enq(tuple2(False, mSel));
@@ -198,7 +214,7 @@ module mkWSICaptureWorker#(parameter Bool hasDebugLogic) (WSICaptureWorkerIfc#(n
   // This rule contains the operations that take place in the Exists->Initialized control edge...
   rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize);
     controlReg <= 0;  // initialize control register to zero
-    mesgCount  <= 0;  // initialize message count to zero
+    metaCount  <= 0;  // initialize message count to zero
     dataCount  <= 0;  // initialize data count to zero
     wci.ctlAck;       // acknowledge the initialization operation
   endrule

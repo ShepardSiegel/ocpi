@@ -564,11 +564,11 @@ module mkWsiObserver (WsiObserverIfc#(nb,nd,ng,nh,ni))
     mesgLengthSoFar <= (dwm) ? 0 : mlB;                       // Update or clear the length accumulator
 
     if (!mesgInFlight && !dwm) begin
-      evF.enq(PMEM_1DW (PM_1DW{eType:pmNibble(PMEV_WSI_FIRST,truncate(r_mReqInfo))}));  // place opcode from mReqInfo in pmNibble
+      evF.enq(PMEM_2DW (PM_2DW{eType:PMEV_WSI_FIRST,     data0:extend(r_mReqInfo[7:0])}));   // Insert 8b opcode
     end else if (!mesgInFlight && dwm) begin
-      evF.enq(PMEM_1DW (PM_1DW{eType:pmNibble(PMEV_WSI_FIRSTLAST,truncate(r_mReqInfo))}));  // place opcode from mReqInfo in pmNibble
+      evF.enq(PMEM_2DW (PM_2DW{eType:PMEV_WSI_FIRSTLAST, data0:extend(r_mReqInfo[7:0])}));   // Insert 8b opcode
     end else if (mesgInFlight && dwm) begin
-      evF.enq(PMEM_2DW (PM_2DW{eType:pmNibble(PMEV_WSI_LAST,truncate(r_mReqInfo)), data0:extend(mlB)}));
+      evF.enq(PMEM_2DW (PM_2DW{eType:PMEV_WSI_LAST,      data0:extend(mlB)}));  // Insert message length in Bytes
     end
 
     mesgInFlight <= !unpack(r_mReqLast);

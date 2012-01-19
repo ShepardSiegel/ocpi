@@ -1,0 +1,104 @@
+# compile to bluesim backend
+bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions \
+		-vdir rtl -bdir obj -simdir obj \
+		-p ./bsv/app:./bsv/axi:./bsv/dev:./bsv/inf:./bsv/prm:./bsv/top:./bsv/tst:./bsv/utl:./bsv/wip:./bsv/wrk:lib:+ \
+		bsv/tst/TB14.bsv
+checking package dependencies
+All packages are up to date.
+
+# create bluesim executable
+bsc -sim -keep-inlined-boundaries \
+		-vdir rtl -bdir obj -simdir obj \
+		-o obj/mkTB14.bexe -e mkTB14 obj/*.ba
+Bluesim object reused: obj/mkTB14.{h,o}
+Bluesim object created: obj/schedule.{h,o}
+Simulation shared library created: obj/mkTB14.bexe.so
+Simulation executable created: obj/mkTB14.bexe
+
+# run bluesim executable
+obj/mkTB14.bexe -V
+[20]: top: Checking for DUT presence...
+[40]: top: Taking DUT out of Reset...
+[70]: top: CONTROL-OP: -INITIALIZE- DUT...
+[80]: top: WORKER CONTROL ARM...
+[270]: top: WCI ControlOp: Starting-transition edge:0 from:0
+[280]: top: WCI ControlOp: Completed-transition edge:0 from:0 to:1
+[310]: top: Write Dataplane Config Properties...
+[340]: top: WCI CONFIG WRITE Addr:0 BE:f Data:0
+[370]: top: Read Dataplane Config Properties...
+[400]: top: WCI CONFIG READ Addr:0 BE:f Data:0
+[430]: top: Read Status Register...
+[460]: top: WCI CONFIG READ Addr:c BE:f Data:a0240a0a
+[490]: top: CONTROL-OP: -START- DUT...
+[500]: top: WORKER CONTROL ARM...
+[520]: top: WCI ControlOp: Starting-transition edge:1 from:1
+[530]: top: WCI ControlOp: Completed-transition edge:1 from:1 to:2
+[560]: top: Write Capture Enable Bit
+[590]: top: WCI CONFIG WRITE Addr:0 BE:f Data:1
+[810]: top: wsi_source: End of WSI Producer Egress: srcMesgCount:0 srcOpcode:0 srcMesgLen:10
+[830]: top: doMessageAccept DWM metaCount:0 WSI opcode:0 length:40
+[1010]: top: wsi_source: End of WSI Producer Egress: srcMesgCount:1 srcOpcode:1 srcMesgLen:14
+[1030]: top: doMessageAccept DWM metaCount:1 WSI opcode:1 length:50
+[1250]: top: wsi_source: End of WSI Producer Egress: srcMesgCount:2 srcOpcode:2 srcMesgLen:18
+[1270]: top: doMessageAccept DWM metaCount:2 WSI opcode:2 length:60
+[2020]: top: Read Dataplane Config Properties: controlReg
+[2050]: top: WCI CONFIG READ Addr:0 BE:f Data:1
+[2080]: top: Read Dataplane Config Properties: metaCount
+[2110]: top: WCI CONFIG READ Addr:4 BE:f Data:3
+[2140]: top: Read Dataplane Config Properties: dataCount
+[2170]: top: WCI CONFIG READ Addr:8 BE:f Data:3c
+[2200]: top: Read Dataplane Config Properties: statusReg
+[2230]: top: WCI CONFIG READ Addr:c BE:f Data:a0240a0a
+[2260]: top: Setting Worker Control Page Register to 'h800...
+[2290]: top: Read Data Buffer
+[2330]: top: WCI SPLIT READ Data:0
+[2360]: top: Read Data Buffer
+[2400]: top: WCI SPLIT READ Data:1
+[2430]: top: Read Data Buffer
+[2470]: top: WCI SPLIT READ Data:2
+[2500]: top: Read Data Buffer
+[2540]: top: WCI SPLIT READ Data:3
+[2570]: top: Read Data Buffer
+[2610]: top: WCI SPLIT READ Data:4
+[2640]: top: Read Data Buffer
+[2680]: top: WCI SPLIT READ Data:5
+[2710]: top: Read Data Buffer
+[2750]: top: WCI SPLIT READ Data:6
+[2780]: top: Read Data Buffer
+[2820]: top: WCI SPLIT READ Data:7
+[2850]: top: Read Data Buffer
+[2890]: top: WCI SPLIT READ Data:8
+[2920]: top: Read Data Buffer
+[2960]: top: WCI SPLIT READ Data:9
+[2990]: top: Read Data Buffer
+[3030]: top: WCI SPLIT READ Data:a
+[3060]: top: Read Data Buffer
+[3100]: top: WCI SPLIT READ Data:b
+[3130]: top: Setting Worker Control Page Register to 'h400...
+[3160]: top: Read Data Buffer
+[3200]: top: WCI SPLIT READ Data:40
+[3230]: top: Read Data Buffer
+[3270]: top: WCI SPLIT READ Data:0
+[3300]: top: Read Data Buffer
+[3340]: top: WCI SPLIT READ Data:0
+[3370]: top: Read Data Buffer
+[3410]: top: WCI SPLIT READ Data:50
+[3440]: top: Read Data Buffer
+[3480]: top: WCI SPLIT READ Data:50
+[3510]: top: Read Data Buffer
+[3550]: top: WCI SPLIT READ Data:1
+[3580]: top: Read Data Buffer
+[3620]: top: WCI SPLIT READ Data:0
+[3650]: top: Read Data Buffer
+[3690]: top: WCI SPLIT READ Data:64
+[3720]: top: Read Data Buffer
+[3760]: top: WCI SPLIT READ Data:60
+[3790]: top: Read Data Buffer
+[3830]: top: WCI SPLIT READ Data:2
+[3860]: top: Read Data Buffer
+[3900]: top: WCI SPLIT READ Data:0
+[3930]: top: Read Data Buffer
+[3970]: top: WCI SPLIT READ Data:7c
+[5010]: top: mkTB14 termination
+mkTB14 PASSED OK
