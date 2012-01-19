@@ -11,7 +11,7 @@ ssiegel 2011-03-13 Took Dan Zhang's patch changes (see FAQ)
 ssiegel 2011-08-16 ISE 13.2, Quartus 11.0(sp1)
 ssiegel 2011-10-04 USE 13.3 prep
 ssiegel 2011-12-12 64b Host address capability
-ssiegel 2011-01-19 ISE 13.4 Library Build
+ssiegel 2012-01-19 ISE 13.4 Library Build
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
