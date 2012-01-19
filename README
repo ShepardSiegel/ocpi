@@ -11,6 +11,7 @@ ssiegel 2011-03-13 Took Dan Zhang's patch changes (see FAQ)
 ssiegel 2011-08-16 ISE 13.2, Quartus 11.0(sp1)
 ssiegel 2011-10-04 USE 13.3 prep
 ssiegel 2011-12-12 64b Host address capability
+ssiegel 2011-01-19 ISE 13.4 Library Build
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
@@ -22,8 +23,8 @@ OpenCPI website: www.opencpi.org
   To build a bitstream, first make sure the appropriate tools are installed
     e.g. Install Xilinx ISE 13.x to build Xilinx bitstreams
     e.g. Install Altera Quartus 11 to build Altera bitstreams
-    As of 2011-08-16 ISE 13.2 or greater is required for Xilinx builds.
-    As of 2011-08-16 Quartus 11.0(sp1) or greater is required for Altera builds.
+    As of 2012-01-19 ISE 13.4     or greater is required for Xilinx builds.
+    As of 2011-08-16 Quartus 11.1 or greater is required for Altera builds.
     If you are not using the same tools version as the distribution, you may need to rebuild XST libraries
 
   Source code is under git verson control - if you care, install git and say
@@ -35,7 +36,7 @@ OpenCPI website: www.opencpi.org
     e.g. setenv OCPI_DIR $(HOME)/projects/ocpi
 
   You may need to set certain environment variables, for example...
-    source /opt/Xilinx/13.2/ISE_DS/settings64.csh
+    source /opt/Xilinx/13.4/ISE_DS/settings64.csh
     setenv XIL_PAR_DESIGN_CHECK_VERBOSE 1
     setenv XIL_TIMING_ALLOW_IMPOSSIBLE  1
 
@@ -163,3 +164,4 @@ OpenCPI website: www.opencpi.org
 2011-03-13 Switch back to 16B (4DW) baseline
 2011-04-20 Multiple GIT repos
 2011-09-30 ISE 13.3 Libraries
+2012-01-19 ISE 13.4 Libraries
