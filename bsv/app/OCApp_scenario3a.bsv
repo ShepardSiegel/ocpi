@@ -1,5 +1,5 @@
 // OCApp.bsv - Scenario 3 configuration with WsiSplitter2x2
-// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package OCApp;
 
@@ -23,8 +23,9 @@ import Connectable::*;
 // nWmi - number of WMI Interfaces
 // Using numeric types, not types, so this is Polymorphic, unlike OCInf 
 
-interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
+interface OCAppIfc#(numeric type nWci, numeric type nWti, numeric type nWmi, numeric type nWmemi);
   interface Vector#(nWci,WciES)  wci_s;
+  interface Vector#(nWti,Wti_Es#(64)) wti_s;
   interface WmiEM4B              wmiM0;
   interface WmiEM4B              wmiM1;
   interface WmemiEM16B           wmemiM0;
@@ -33,7 +34,7 @@ interface OCAppIfc#(numeric type nWci, numeric type nWmi, numeric type nWmemi);
   (*always_ready*) method Bit#(512) uuid;
 endinterface
 
-module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWmi,nWmemi));
+module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(nWci,nWti,nWmi,nWmemi));
 
   // Instance the workers in this application container...
   SMAdapter4BIfc      appW2    <-  mkSMAdapter4B       (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
@@ -83,7 +84,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 endmodule : mkOCApp_poly
 
 (* synthesize *)
-module mkOCApp4B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(Nwci_app,Nwmi,Nwmemi));
+module mkOCApp4B#(Vector#(Nwci_app, Reset) rst, parameter Bool hasDebugLogic) (OCAppIfc#(Nwci_app,Nwti_app,Nwmi,Nwmemi));
    (*hide*)
    let _ifc <- mkOCApp_poly(rst, hasDebugLogic);
    return _ifc;

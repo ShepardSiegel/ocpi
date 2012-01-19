@@ -351,7 +351,7 @@ verilog_scenario2: $(OBJ)
 
 verilog_scenario3a: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 --D USE_DEBUGLOGIC verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3a).bsv
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 -D USE_DEBUGLOGIC -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S3a).bsv
 	cp $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario3a.v
 
 verilog_scenario3b: $(OBJ)
