@@ -1,7 +1,7 @@
-// arSRLFIFO_test1
+// arSRLFIFOD_test1
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-module arSRLFIFO_test1 # (
+module arSRLFIFOD_test1 # (
   parameter  width    = 128,
   parameter  l2depth  = 4)
   (
@@ -16,11 +16,11 @@ module arSRLFIFO_test1 # (
   output[width-1:0]  D_OUT
 );
 
- arSRLFIFO # (
+ arSRLFIFOD # (
     .width    (width),
     .l2depth  (l2depth)
    )
- arSRLFIFO_i0 (
+ arSRLFIFOD_i0 (
     .CLK      (CLK),
     .RST_N    (RST_N),
     .CLR      (CLR),
