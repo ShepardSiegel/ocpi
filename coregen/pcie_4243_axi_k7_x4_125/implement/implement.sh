@@ -7,6 +7,7 @@ mkdir results
 #Synthesize the Wrapper Files
 echo 'Synthesizing example design with XST';
 xst -ifn xilinx_pcie_2_1_ep_7x.xst -ofn xilinx_pcie_2_1_ep_7x.log
+
 cp xilinx_pcie_2_1_ep_7x.ngc ./results/
 
 cp xilinx_pcie_2_1_ep_7x.log xst.srp
@@ -19,11 +20,10 @@ cp xilinx_pcie_2_1_ep_7x.ngc ./results/
 rm -rf *.mgo xlnx_auto_0_xdb xlnx_auto_0.ise netlist.lst smart
 
 
-
 cd results
 
 echo 'Running ngdbuild'
-ngdbuild -verbose -uc ../../example_design/xilinx_pcie_2_1_ep_7x_04_lane_gen2_xc7k325t-fbg900-1-PCIE_X0Y0.ucf xilinx_pcie_2_1_ep_7x.ngc -sd .
+ngdbuild -verbose -uc ../../example_design/xilinx_pcie_2_1_ep_7x_04_lane_gen2_xc7k325t-ffg900-1_KC705_REVC.ucf xilinx_pcie_2_1_ep_7x.ngc -sd .
 
 
 echo 'Running map'
@@ -51,8 +51,8 @@ trce -u -e 100 \
 echo 'Running design through netgen'
 netgen -sim -ofmt verilog -ne -w -tm xilinx_pcie_2_1_ep_7x -sdf_path . routed.ncd
 
-# Uncomment to enable Bitgen.  To generate a bitfile, all I/O must be LOC'd to pin.
-# Refer to AR 41615 for more information
 #echo 'Running design through bitgen'
-#bitgen -w routed.ncd
+bitgen -w routed.ncd
 
+echo 'Generating PROM file for programming'
+promgen -w -p mcs -x xcf128x -data_width 16 -o ./ML705.mcs -u 0 ./routed.bit

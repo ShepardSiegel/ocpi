@@ -1,5 +1,5 @@
 run
--p xc7k325t-fbg900-1
+-p xc7k325t-ffg900-1
 -ifn xilinx_pcie_2_1_ep_7x.prj
 -ifmt VERILOG
 -ofn xilinx_pcie_2_1_ep_7x.ngc
@@ -9,7 +9,7 @@ run
 -opt_mode  SPEED
 -opt_level 2
 -max_fanout 100
-#-keep_hierarchy yes
+-keep_hierarchy yes
 -rtlview yes
 -use_sync_reset yes
 -uc xilinx_pcie_2_1_ep_7x.xcf

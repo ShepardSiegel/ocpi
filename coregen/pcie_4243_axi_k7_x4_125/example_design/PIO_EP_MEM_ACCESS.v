@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2010-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Series-7 Integrated Block for PCI Express
 // File       : PIO_EP_MEM_ACCESS.v
-// Version    : 1.2
+// Version    : 1.3
 //--
 //-- Description: Endpoint Memory Access Unit. This module provides access functions
 //--              to the Endpoint memory aperture.

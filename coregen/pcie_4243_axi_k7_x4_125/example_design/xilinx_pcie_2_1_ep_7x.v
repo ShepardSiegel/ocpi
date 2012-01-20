@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2010-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Series-7 Integrated Block for PCI Express
 // File       : xilinx_pcie_2_1_ep_7x.v
-// Version    : 1.2
+// Version    : 1.3
 //--
 //-- Description:  PCI Express Endpoint example FPGA design
 //--
@@ -58,22 +58,21 @@
 `timescale 1ns / 1ps
 
 module xilinx_pcie_2_1_ep_7x # (
-  parameter PL_FAST_TRAIN     = "FALSE",                             // Simulation Speedup
-  parameter PCIE_EXT_CLK      = "TRUE", // Use External Clocking Module
-  parameter C_DATA_WIDTH      = 128,                // RX/TX interface data width
-  parameter KEEP_WIDTH        = C_DATA_WIDTH / 8                     // TSTRB width
-)
-(
+   parameter PL_FAST_TRAIN     = "FALSE", // Simulation Speedup
+  parameter PCIE_EXT_CLK      = "TRUE",  // Use External Clocking Module
+  parameter C_DATA_WIDTH      = 128, // RX/TX interface data width
+  parameter KEEP_WIDTH        = C_DATA_WIDTH / 8 // TSTRB width
+) (
   output  [3:0]    pci_exp_txp,
   output  [3:0]    pci_exp_txn,
   input   [3:0]    pci_exp_rxp,
   input   [3:0]    pci_exp_rxn,
 
-`ifdef ENABLE_LEDS
   output                                      led_0,
   output                                      led_1,
   output                                      led_2,
-`endif
+  output                                      led_3,
+
   input                                       sys_clk_p,
   input                                       sys_clk_n,
   input                                       sys_rst_n
@@ -81,6 +80,7 @@ module xilinx_pcie_2_1_ep_7x # (
 
   localparam                                  TCQ = 1;
 
+  reg    [25:0]                               user_clk_heartbeat;
   wire                                        user_clk;
   wire                                        user_reset;
   wire                                        user_lnk_up;
@@ -207,10 +207,15 @@ module xilinx_pcie_2_1_ep_7x # (
   wire                                        PIPE_MMCM_LOCK_IN;
 
   wire                                        PIPE_TXOUTCLK_OUT;
-  wire [3:0]    PIPE_RXOUTCLK_OUT;
-  wire [3:0]    PIPE_PCLK_SEL_OUT;
+  wire [3:0]     PIPE_RXOUTCLK_OUT;
+  wire [3:0]     PIPE_PCLK_SEL_OUT;
   wire                                        PIPE_GEN3_OUT;
 
+ 
+  localparam USER_CLK_FREQ = 3;
+  localparam USER_CLK2_DIV2 = "TRUE";
+  localparam USERCLK2_FREQ = (USER_CLK2_DIV2 == "TRUE") ? (USER_CLK_FREQ == 4) ? 3 : (USER_CLK_FREQ == 3) ? 2 : USER_CLK_FREQ
+                                                                                   : USER_CLK_FREQ;
   //-------------------------------------------------------
   IBUF   sys_reset_n_ibuf (.O(sys_rst_n_c), .I(sys_rst_n));
 
@@ -220,11 +225,10 @@ module xilinx_pcie_2_1_ep_7x # (
     IBUFDS_GTE2 refclk_ibuf (.O(sys_clk), .ODIV2(), .I(sys_clk_p), .IB(sys_clk_n));
   `endif
 
-  `ifdef ENABLE_LEDS
-     OBUF   led_0_obuf (.O(led_0), .I(sys_rst_n_c));
-     OBUF   led_1_obuf (.O(led_1), .I(user_reset));
-     OBUF   led_2_obuf (.O(led_2), .I(!user_lnk_up));
-  `endif
+   OBUF   led_0_obuf (.O(led_0), .I(sys_rst_n_c));
+  OBUF   led_1_obuf (.O(led_1), .I(!user_reset));
+  OBUF   led_2_obuf (.O(led_2), .I(user_lnk_up));
+  OBUF   led_3_obuf (.O(led_3), .I(user_clk_heartbeat[25]));
 
   reg user_reset_q;
   reg user_lnk_up_q;
@@ -233,53 +237,67 @@ module xilinx_pcie_2_1_ep_7x # (
     user_lnk_up_q <= user_lnk_up;
   end
 
+  // Create a Clock Heartbeat on LED #3
+  always @(posedge user_clk) begin
+    if(!sys_rst_n_c) begin
+     user_clk_heartbeat <= #TCQ 26'd0;
+    end else begin
+      user_clk_heartbeat <= #TCQ user_clk_heartbeat + 1'b1;
+    end
+  end
+
+
+  
   // Generate External Clock Module if External Clocking is selected
   generate
     if (PCIE_EXT_CLK == "TRUE") begin : ext_clk
-      localparam USER_CLK_FREQ = 3;
-      localparam USER_CLK2_DIV2 = "TRUE";
-      localparam USERCLK2_FREQ = (USER_CLK2_DIV2 == "TRUE") ? (USER_CLK_FREQ == 4) ? 3 : (USER_CLK_FREQ == 3) ? 2 : USER_CLK_FREQ
-                                                                                  : USER_CLK_FREQ;
+
       //---------- PIPE Clock Module -------------------------------------------------
-      pcie_7x_v1_2_pipe_clock #
+      pcie_7x_v1_3_pipe_clock #
       (
-            .PCIE_USE_MODE                  ("1.0"),
-           .PCIE_ASYNC_EN                  ("FALSE"),              // PCIe async enable
-          .PCIE_TXBUF_EN                  ("FALSE"),              // PCIe TX buffer enable for Gen1/Gen2 only
-          .PCIE_LANE                      (6'h04),     // PCIe number of lanes
-          .PCIE_LINK_SPEED                (2),     // PCIe link speed
-          .PCIE_REFCLK_FREQ               (0),     // PCIe reference clock frequency
-          .PCIE_USERCLK1_FREQ             (USER_CLK_FREQ +1),     // PCIe user clock 1 frequency
-          .PCIE_USERCLK2_FREQ             (USERCLK2_FREQ +1)      // PCIe user clock 2 frequency
+          .PCIE_ASYNC_EN                  ( "FALSE" ),     // PCIe async enable
+          .PCIE_TXBUF_EN                  ( "FALSE" ),     // PCIe TX buffer enable for Gen1/Gen2 only
+          .PCIE_LANE                      ( 6'h04 ),     // PCIe number of lanes
+          `ifdef SIMULATION                                // PCIe Link Speed
+            .PCIE_LINK_SPEED              ( 2 ),
+          `else
+            .PCIE_LINK_SPEED              ( 3 ),
+          `endif
+          .PCIE_REFCLK_FREQ               ( 0 ),     // PCIe reference clock frequency
+          .PCIE_USERCLK1_FREQ             ( USER_CLK_FREQ +1 ),     // PCIe user clock 1 frequency
+          .PCIE_USERCLK2_FREQ             ( USERCLK2_FREQ +1 ),     // PCIe user clock 2 frequency
+          .PCIE_DEBUG_MODE                ( 0 )
       )
       pipe_clock_i
       (
 
           //---------- Input -------------------------------------
-          .CLK_CLK                        (sys_clk),
-          .CLK_TXOUTCLK                   (PIPE_TXOUTCLK_OUT),       // Reference clock from lane 0
-          .CLK_RXOUTCLK_IN                (PIPE_RXOUTCLK_OUT),
-          .CLK_RST_N                      (1'b1),
-          .CLK_PCLK_SEL                   (PIPE_PCLK_SEL_OUT),
-          .CLK_GEN3                       (PIPE_GEN3_OUT),
+          .CLK_CLK                        ( sys_clk ),
+          .CLK_TXOUTCLK                   ( PIPE_TXOUTCLK_OUT ),     // Reference clock from lane 0
+          .CLK_RXOUTCLK_IN                ( PIPE_RXOUTCLK_OUT ),
+          .CLK_RST_N                      ( 1'b1 ),
+          .CLK_PCLK_SEL                   ( PIPE_PCLK_SEL_OUT ),
+          .CLK_GEN3                       ( PIPE_GEN3_OUT ),
 
           //---------- Output ------------------------------------
-          .CLK_PCLK                       (PIPE_PCLK_IN),
-          .CLK_RXUSRCLK                   (PIPE_RXUSRCLK_IN),
-          .CLK_RXOUTCLK_OUT               (PIPE_RXOUTCLK_IN),
-          .CLK_DCLK                       (PIPE_DCLK_IN),
-          .CLK_USERCLK1                   (PIPE_USERCLK1_IN),
-          .CLK_USERCLK2                   (PIPE_USERCLK2_IN),
-          .CLK_MMCM_LOCK                  (PIPE_MMCM_LOCK_IN)
+          .CLK_PCLK                       ( PIPE_PCLK_IN ),
+          .CLK_RXUSRCLK                   ( PIPE_RXUSRCLK_IN ),
+          .CLK_RXOUTCLK_OUT               ( PIPE_RXOUTCLK_IN ),
+          .CLK_DCLK                       ( PIPE_DCLK_IN ),
+          .CLK_USERCLK1                   ( PIPE_USERCLK1_IN ),
+          .CLK_USERCLK2                   ( PIPE_USERCLK2_IN ),
+          .CLK_MMCM_LOCK                  ( PIPE_MMCM_LOCK_IN )
 
       );
     end
   endgenerate
 
-pcie_7x_v1_2 #(
+pcie_7x_v1_3 #(
   .PL_FAST_TRAIN      ( PL_FAST_TRAIN ),
   .PCIE_EXT_CLK       ( PCIE_EXT_CLK )
-) pcie_7x_v1_2_i (
+) pcie_7x_v1_3_i
+ (
+
   //----------------------------------------------------------------------------------------------------------------//
   // 1. PCI Express (pci_exp) Interface                                                                             //
   //----------------------------------------------------------------------------------------------------------------//
@@ -293,13 +311,14 @@ pcie_7x_v1_2 #(
   .pci_exp_rxp                                ( pci_exp_rxp ),
 
   //----------------------------------------------------------------------------------------------------------------//
-  // 2. Clocking Interface - For Partial Reconfig Support                                                           //
+  // 2. Clocking Interface                                                                                          //
   //----------------------------------------------------------------------------------------------------------------//
   .PIPE_PCLK_IN                              ( PIPE_PCLK_IN ),
   .PIPE_RXUSRCLK_IN                          ( PIPE_RXUSRCLK_IN ),
   .PIPE_RXOUTCLK_IN                          ( PIPE_RXOUTCLK_IN ),
   .PIPE_DCLK_IN                              ( PIPE_DCLK_IN ),
   .PIPE_USERCLK1_IN                          ( PIPE_USERCLK1_IN ),
+  .PIPE_OOBCLK_IN                            ( 1'b0 ),
   .PIPE_USERCLK2_IN                          ( PIPE_USERCLK2_IN ),
   .PIPE_MMCM_LOCK_IN                         ( PIPE_MMCM_LOCK_IN ),
 
@@ -524,6 +543,8 @@ pcie_7x_v1_2 #(
   //----------------------------------------------------------------------------------------------------------------//
 
   .cfg_vc_tcvc_map                            ( ),
+
+
   //----------------------------------------------------------------------------------------------------------------//
   // 8. System  (SYS) Interface                                                                                     //
   //----------------------------------------------------------------------------------------------------------------//

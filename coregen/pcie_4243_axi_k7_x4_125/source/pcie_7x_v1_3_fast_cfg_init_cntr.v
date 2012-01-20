@@ -48,82 +48,30 @@
 //
 //-----------------------------------------------------------------------------
 // Project    : Series-7 Integrated Block for PCI Express
-// File       : PIO_TO_CTRL.v
+// File       : pcie_7x_v1_3_fast_cfg_init_cntr.v
 // Version    : 1.3
 //--
-//-- Description: Turn-off Control Unit.
+//-- Description:  PCIe Fast Configuration Init Counter
 //--
-//--------------------------------------------------------------------------------
-
-`timescale 1ps/1ps
-
-module PIO_TO_CTRL #(
-  parameter TCQ = 1
+//------------------------------------------------------------------------------
+module pcie_7x_v1_3_fast_cfg_init_cntr #(
+  parameter PATTERN_WIDTH = 8,
+  parameter INIT_PATTERN  = 8'hA5,
+  parameter TCQ           = 1
 ) (
-  input               clk,
-  input               rst_n,
+  input                          clk,
+  input                          rst,
+  output reg [PATTERN_WIDTH-1:0] pattern_o
+);
 
-  input               req_compl,
-  input               compl_done,
-
-  input               cfg_to_turnoff,
-  output  reg         cfg_turnoff_ok
-  );
-
-  reg                 trn_pending;
-
-
-
-  //  Check if completion is pending
-
-
-  always @ ( posedge clk ) begin
-
-    if (!rst_n )
-    begin
-
-      trn_pending <= #TCQ 0;
-
+always @(posedge clk) begin
+  if(rst) begin
+    pattern_o <= #TCQ {PATTERN_WIDTH{1'b0}};
+  end else begin
+    if(pattern_o != INIT_PATTERN) begin
+      pattern_o <= #TCQ pattern_o + 1;
     end
-    else
-    begin
-
-      if (!trn_pending && req_compl)
-
-        trn_pending <= #TCQ 1'b1;
-
-      else if (compl_done)
-
-        trn_pending <= #TCQ 1'b0;
-
-    end
-
   end
+end
 
-
-  //  Turn-off OK if requested and no transaction is pending
-
-
-  always @ ( posedge clk ) begin
-
-    if (!rst_n )
-    begin
-
-      cfg_turnoff_ok <= #TCQ 1'b0;
-
-    end
-    else
-    begin
-
-      if ( cfg_to_turnoff  && !trn_pending)
-        cfg_turnoff_ok <= #TCQ 1'b1;
-      else
-        cfg_turnoff_ok <= #TCQ 1'b0;
-
-    end
-
-  end
-
-
-endmodule // PIO_TO_CTRL
-
+endmodule

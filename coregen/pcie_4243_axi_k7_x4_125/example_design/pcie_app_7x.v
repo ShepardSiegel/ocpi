@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-// (c) Copyright 2009-2010 Xilinx, Inc. All rights reserved.
+// (c) Copyright 2010-2011 Xilinx, Inc. All rights reserved.
 //
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -49,7 +49,7 @@
 //-----------------------------------------------------------------------------
 // Project    : Series-7 Integrated Block for PCI Express
 // File       : pcie_app_7x.v
-// Version    : 1.2
+// Version    : 1.3
 //--
 //-- Description:  PCI Express Endpoint sample application
 //--               design.
@@ -173,8 +173,8 @@ module  pcie_app_7x#(
   input   [1:0]                 pl_lane_reversal_mode,
   input                         pl_received_hot_rst,
 
-  output                        cfg_err_aer_headerlog,
-  output                        cfg_aer_interrupt_msgnum,
+  output [127:0]                cfg_err_aer_headerlog,
+  output   [4:0]                cfg_aer_interrupt_msgnum,
   input                         cfg_err_aer_headerlog_set,
   input                         cfg_aer_ecrc_check_en,
   input                         cfg_aer_ecrc_gen_en,
