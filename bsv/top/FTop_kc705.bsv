@@ -1,5 +1,5 @@
 // FTop_kc705.bsv
-// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
 import Config            ::*;
@@ -71,7 +71,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   LCDController    lcd_ctrl   <- mkLCDController(clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       needs_init <- mkReg(True,     clocked_by sys0_clk, reset_by sys0_rst);
 
-  Reg#(UInt#(16))    freeCnt <- mkReg(0,     clocked_by p125Clk, reset_by p125);
+  Reg#(UInt#(16))    freeCnt <- mkReg(0,     clocked_by p125Clk, reset_by p125Rst);
 
   rule inc_freecnt;
     freeCnt <= freeCnt + 1;

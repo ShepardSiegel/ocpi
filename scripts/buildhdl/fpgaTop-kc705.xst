@@ -1,4 +1,4 @@
-set -xsthdpini ocpihdp_v7.ini
+set -xsthdpini ocpihdp_s7.ini
 run
 -ifn fpgaTop-kc705.prj
 -ifmt mixed
