@@ -489,6 +489,7 @@ platform_kc705: $(OBJ)
 		-D USE_NDW1 \
 		-D USE_DEBUGLOGIC \
 		-D USE_SRLFIFO \
+		+RTS -K11M -RTS \
 		-verilog-filter basicinout $(BSVTOP)/$(P_KC705).bsv
 
 ######################################################################

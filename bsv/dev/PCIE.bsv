@@ -1,6 +1,6 @@
 // PCIE.bsv
 // Copyright (c) 2009  Bluespec, Inc.   ALL RIGHTS RESERVED.
-// Copyright (c) 2009-2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package PCIE;
 
@@ -1664,13 +1664,14 @@ module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_X6#(lanes))
 endmodule: vMkPCIExpressXilinxAXI
 
 
-`ifdef FOOP42
 // K7 AXI (X7)...
 // Note this imports the coregen top-level SOLUTION WRAPPER directly without the use of another Verilog wrapper;
 // thus this code may change if the ports and function change in future versions.
-import "BVI" pcie_7x_v1_2 =
-module vMkPCIExpressXilinx7AXI#(PCIEParams params)(PCIE_X7#(lanes))
+import "BVI" pcie_7x_v1_3 =
+module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
    provisos(Add#(1, z, lanes));
+
+   /*
 
    Reset reset <- invertCurrentReset;
 
@@ -1832,8 +1833,10 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params)(PCIE_X7#(lanes))
       method                            upstream_prefer_deemph(pl_upstream_prefer_deemph) enable((*inhigh*)en52) clocked_by(axi_clk)  reset_by(no_reset);
       method pl_received_hot_rst        received_hot_rst                                                         clocked_by(axi_clk)  reset_by(no_reset);
    endinterface
+   */
 
 
+   /*
    schedule (
      pcie_rxp, pcie_rxn, pcie_txp, pcie_txn,
      axi_lnk_up, axi_fc_cpld, axi_fc_cplh, axi_fc_npd, axi_fc_nph, axi_fc_pd, axi_fc_ph, axi_fc_sel, 
@@ -1868,10 +1871,12 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params)(PCIE_X7#(lanes))
      pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
      pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
      pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph, pl_received_hot_rst
-     );
+     */
 
+     );
 endmodule: vMkPCIExpressXilinx7AXI
-`endif
+
+
 
 // Altera Avalon-SX...
 import "BVI" pcie_hip_s4gx_gen2_x4_128_wrapper =
@@ -2369,7 +2374,6 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
 endmodule: mkPCIExpressEndpointX6
 
 
-`ifdef FOOP42
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -2483,9 +2487,8 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressV6#(lanes))       //
    interface cfg_interrupt = pcie_ep.cfg_interrupt;
    interface cfg_err       = pcie_ep.cfg_err;
    */
-
 endmodule: mkPCIExpressEndpointX7
-`endif
+
 
 // Not from PCIe spec but used for head communication...
 typedef struct {
