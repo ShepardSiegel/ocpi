@@ -758,8 +758,8 @@ endinterface
 
 (* always_ready, always_enabled *)
 interface PCIE_AXI;
-   interface Clock       clk;
-   interface Clock       drp;
+   interface Clock       clk;    // typ 250 MHz
+   interface Clock       clk2;   // typ 125 MHz
    interface Reset       usr_rst_p;
    method    Bool        lnk_up;
 endinterface
@@ -889,14 +889,18 @@ interface PCIE_AXI7_ERR;  // Error Interface...
    method    Action      cor            (Bool i);
    method    Action      egress_blocked (Bool i);
    method    Action      internal_cor   (Bool i);
+   method    Action      internal_uncor (Bool i);
+   method    Action      malformed      (Bool i);
    method    Action      mc_blocked     (Bool i);
    method    Action      poisoned       (Bool i);
    method    Action      no_recovery    (Bool i);
-   method    Action      tlp_cpl_header (Bit#(48) i);
-   method    Action      locked         (Bool i);
-   method    Action      acs            (Bool i);
-   method    Action      internal_uncor (Bool i);
+   method    Action      tlp_cpl_header (Bit#(48)  i);
    method    Bool        cpl_rdy;
+   method    Action      locked         (Bool i);
+   method    Action      aer_headerlog  (Bit#(128) i);
+   method    Bool        aer_headerlog_set;
+   method    Action      int_msgnum     (Bit#(5) i);
+   method    Action      acs            (Bool i);
 endinterface
 
 (* always_ready, always_enabled *)
@@ -1057,6 +1061,17 @@ interface PCIE_ERR_V6;
    method    Action      locked_n(Bit#(1) i);
 endinterface
 
+(* always_ready, always_enabled *)
+interface PCIE_DRP;
+   method    Action      clk     (Bool x);
+   method    Action      en      (Bool x);
+   method    Action      we      (Bool x);
+   method    Action      addr    (Bit#(9)  x);
+   method    Action      din     (Bit#(16) x);
+   method    Bool        rdy; 
+   method    Bit#(16)    dout; 
+endinterface
+
 // Altera-Specific PCIe Interfaces...
 
 (* always_ready, always_enabled *)
@@ -1154,6 +1169,7 @@ interface PCIE_X7#(numeric type lanes);  // V7 AXI (X7)
    interface PCIE_AXI7_CFG2   cfg2;
    interface PCIE_AXI7_CFG3   cfg3;
    interface PCIE_AXI7_INT    cfg_interrupt;
+   interface PCIE_DRP         drp;
    interface PCIE_PL_V6       pl;
 endinterface: PCIE_X7
 
@@ -1512,7 +1528,7 @@ module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_X6#(lanes))
 
    interface PCIE_AXI axi;
       output_clock                      clk(user_clk_out);
-      output_clock                      drp(drp_clk);
+      output_clock                      clk2(user_clk2_out);
       output_reset                      usr_rst_p(user_reset_out)                                                clocked_by(axi_clk);
       method user_lnk_up                lnk_up                                                                   clocked_by(no_clock) reset_by(no_reset);
    endinterface
@@ -1671,12 +1687,9 @@ import "BVI" pcie_7x_v1_3 =
 module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
    provisos(Add#(1, z, lanes));
 
-   /*
-
    Reset reset <- invertCurrentReset;
-
-   default_clock clk(sys_clk);
-   default_reset rst(sys_reset) = reset;  // sys_reset is active high
+   default_clock clk(sys_clk);            // System clock; typ 100 MHz (alt 125 or 250 MHz)
+   default_reset rst(sys_reset) = reset;  // System Reset; sys_reset is active high
 
    parameter PL_FAST_TRAIN = (params.fast_train_sim_only) ? "TRUE" : "FALSE";
 
@@ -1688,133 +1701,147 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
    endinterface
 
    interface PCIE_PIPE pipe;
-     method                             pClk      (PIPE_PCLK_IN)            enable((*inhigh*)en60)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             rxUserClk (PIPE_RXUSERCLK_IN)       enable((*inhigh*)en61)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             rxOutClkIn(PIPE_RXOUTCLK_IN)        enable((*inhigh*)en62)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             dxClk     (PIPE_DXCLK_IN)           enable((*inhigh*)en63)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             userClk1  (PIPE_USERCLK1_IN)        enable((*inhigh*)en64)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             userClk2  (PIPE_USERCLK2_IN)        enable((*inhigh*)en65)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             mmcmLock  (PIPE_MMCM_LOCK_IN)       enable((*inhigh*)en66)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method  PIPE_TXOUTCLK_OUT          txOutClk                                                    clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
-     method  PIPE_RXOUTCLK_OUT          rxOutClkOut                                                 clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
-     method  PIPE_PCLK_SEL_OUT          pclkSel                                                     clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
-     method  PIPE_GEN3_OUT              gen3                                                        clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
+     method                             pClk      (PIPE_PCLK_IN)            enable((*inhigh*)en100)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             rxUserClk (PIPE_RXUSERCLK_IN)       enable((*inhigh*)en101)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             rxOutClkIn(PIPE_RXOUTCLK_IN)        enable((*inhigh*)en102)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             dxClk     (PIPE_DXCLK_IN)           enable((*inhigh*)en103)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             userClk1  (PIPE_USERCLK1_IN)        enable((*inhigh*)en104)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             userClk2  (PIPE_USERCLK2_IN)        enable((*inhigh*)en105)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             mmcmLock  (PIPE_MMCM_LOCK_IN)       enable((*inhigh*)en106)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method  PIPE_TXOUTCLK_OUT          txOutClk                                                     clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
+     method  PIPE_RXOUTCLK_OUT          rxOutClkOut                                                  clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
+     method  PIPE_PCLK_SEL_OUT          pclkSel                                                      clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
+     method  PIPE_GEN3_OUT              gen3                                                         clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
    endinterface
 
    interface PCIE_AXI axi;
-      output_clock                      clk        (user_clk_out)
-      output_reset                      usr_rst_p  (user_reset_out)                                              clocked_by(axi_clk);
-      method user_lnk_up                lnk_up                                                                   clocked_by(no_clock) reset_by(no_reset);
+      output_clock                      clk        (user_clk_out);
+      output_clock                      clk2       (user_clk2_out);
+      output_reset                      usr_rst_p  (user_reset_out)                                               clocked_by(axi_clk);
+      method user_lnk_up                lnk_up                                                                    clocked_by(no_clock) reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI7_TX axi_tx;
-      method tx_buf_av                  tbuf_av                                                                  clocked_by(axi_clk)  reset_by(no_reset);
-      method tx_err_drop                terr_drop                                                                clocked_by(axi_clk)  reset_by(no_reset);
-      method tx_cfg_req                 tcfg_req                                                                 clocked_by(axi_clk)  reset_by(no_reset);
-      method s_axis_tx_tready           tready                                                                   clocked_by(axi_clk)  reset_by(no_reset);
-      method                            tdata   (s_axis_tx_tdata)                         enable((*inhigh*)en02) clocked_by(axi_clk)  reset_by(no_reset);
-      method                            tkeep   (s_axis_tx_tkeep)                         enable((*inhigh*)en03) clocked_by(axi_clk)  reset_by(no_reset);
-      method                            tuser   (s_axis_tx_tuser)                         enable((*inhigh*)en04) clocked_by(axi_clk)  reset_by(no_reset);
-      method                            tlast   (s_axis_tx_tlast)                         enable((*inhigh*)en05) clocked_by(axi_clk)  reset_by(no_reset);
-      method                            tvalid  (s_axis_tx_tvalid)                        enable((*inhigh*)en06) clocked_by(axi_clk)  reset_by(no_reset);
-      method                            cfg_gnt (tx_cfg_gnt)                              enable((*inhigh*)en07) clocked_by(axi_clk)  reset_by(no_reset);
+      method tx_buf_av                  tbuf_av                                                                   clocked_by(axi_clk)  reset_by(no_reset);
+      method tx_err_drop                terr_drop                                                                 clocked_by(axi_clk)  reset_by(no_reset);
+      method tx_cfg_req                 tcfg_req                                                                  clocked_by(axi_clk)  reset_by(no_reset);
+      method s_axis_tx_tready           tready                                                                    clocked_by(axi_clk)  reset_by(no_reset);
+      method                            tdata   (s_axis_tx_tdata)                         enable((*inhigh*)en107) clocked_by(axi_clk)  reset_by(no_reset);
+      method                            tkeep   (s_axis_tx_tkeep)                         enable((*inhigh*)en108) clocked_by(axi_clk)  reset_by(no_reset);
+      method                            tuser   (s_axis_tx_tuser)                         enable((*inhigh*)en109) clocked_by(axi_clk)  reset_by(no_reset);
+      method                            tlast   (s_axis_tx_tlast)                         enable((*inhigh*)en110) clocked_by(axi_clk)  reset_by(no_reset);
+      method                            tvalid  (s_axis_tx_tvalid)                        enable((*inhigh*)en111) clocked_by(axi_clk)  reset_by(no_reset);
+      method                            cfg_gnt (tx_cfg_gnt)                              enable((*inhigh*)en112) clocked_by(axi_clk)  reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI7_RX axi_rx;
-      method m_axis_rx_tdata            tdata                                                                    clocked_by(axi_clk)  reset_by(no_reset);
-      method m_axis_rx_tkeep            tkeep                                                                    clocked_by(axi_clk)  reset_by(no_reset);
-      method m_axis_rx_tlast            tlast                                                                    clocked_by(axi_clk)  reset_by(no_reset);
-      method m_axis_rx_tvalid           tvalid                                                                   clocked_by(axi_clk)  reset_by(no_reset);
-      method m_axis_rx_tuser            tuser                                                                    clocked_by(axi_clk)  reset_by(no_reset);
-      method                            tready (m_axis_rx_tready)                         enable((*inhigh*)en08) clocked_by(axi_clk)  reset_by(no_reset);
-      method                            np_ok  (rx_np_ok)                                 enable((*inhigh*)en09) clocked_by(axi_clk)  reset_by(no_reset);
-      method                            np_req (rx_np_req)                                enable((*inhigh*)en10) clocked_by(axi_clk)  reset_by(no_reset);
+      method m_axis_rx_tdata            tdata                                                                     clocked_by(axi_clk)  reset_by(no_reset);
+      method m_axis_rx_tkeep            tkeep                                                                     clocked_by(axi_clk)  reset_by(no_reset);
+      method m_axis_rx_tlast            tlast                                                                     clocked_by(axi_clk)  reset_by(no_reset);
+      method m_axis_rx_tvalid           tvalid                                                                    clocked_by(axi_clk)  reset_by(no_reset);
+      method m_axis_rx_tuser            tuser                                                                     clocked_by(axi_clk)  reset_by(no_reset);
+      method                            tready (m_axis_rx_tready)                         enable((*inhigh*)en113) clocked_by(axi_clk)  reset_by(no_reset);
+      method                            np_ok  (rx_np_ok)                                 enable((*inhigh*)en114) clocked_by(axi_clk)  reset_by(no_reset);
+      method                            np_req (rx_np_req)                                enable((*inhigh*)en115) clocked_by(axi_clk)  reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI_FC axi_fc;
-      method fc_cpld                    cpld                                                                     clocked_by(axi_clk)  reset_by(no_reset);
-      method fc_cplh                    cplh                                                                     clocked_by(axi_clk)  reset_by(no_reset);
-      method fc_npd                     npd                                                                      clocked_by(axi_clk)  reset_by(no_reset);
-      method fc_nph                     nph                                                                      clocked_by(axi_clk)  reset_by(no_reset);
-      method fc_pd                      pd                                                                       clocked_by(axi_clk)  reset_by(no_reset);
-      method fc_ph                      ph                                                                       clocked_by(axi_clk)  reset_by(no_reset);
-      method                            sel(fc_sel)                                       enable((*inhigh*)en11) clocked_by(axi_clk)  reset_by(no_reset);
+      method fc_cpld                    cpld                                                                      clocked_by(axi_clk)  reset_by(no_reset);
+      method fc_cplh                    cplh                                                                      clocked_by(axi_clk)  reset_by(no_reset);
+      method fc_npd                     npd                                                                       clocked_by(axi_clk)  reset_by(no_reset);
+      method fc_nph                     nph                                                                       clocked_by(axi_clk)  reset_by(no_reset);
+      method fc_pd                      pd                                                                        clocked_by(axi_clk)  reset_by(no_reset);
+      method fc_ph                      ph                                                                        clocked_by(axi_clk)  reset_by(no_reset);
+      method                            sel(fc_sel)                                       enable((*inhigh*)en116) clocked_by(axi_clk)  reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI7_CFG cfg;
-      method cfg_mgmt_do                dout                                                                     clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_mgmt_rd_wr_done        rd_wr_done                                                               clocked_by(axi_clk) reset_by(no_reset);
-      method                            di          (cfg_di)                              enable((*inhigh*)en12) clocked_by(axi_clk) reset_by(no_reset);
-      method                            byte_en     (cfg_mgmt_byte_en)                    enable((*inhigh*)en13) clocked_by(axi_clk) reset_by(no_reset);
-      method                            dwaddr      (cfg_mgmt_dwaddr)                     enable((*inhigh*)en14) clocked_by(axi_clk) reset_by(no_reset);
-      method                            wr_en       (cfg_mgmt_wr_en)                      enable((*inhigh*)en15) clocked_by(axi_clk) reset_by(no_reset);
-      method                            rd_en       (cfg_mgmt_rd_en)                      enable((*inhigh*)en16) clocked_by(axi_clk) reset_by(no_reset);
-      method                            wr_readonly (cfg_mgmt_wr_readonly)                enable((*inhigh*)en17) clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_mgmt_do                dout                                                                      clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_mgmt_rd_wr_done        rd_wr_done                                                                clocked_by(axi_clk) reset_by(no_reset);
+      method                            di          (cfg_di)                              enable((*inhigh*)en117) clocked_by(axi_clk) reset_by(no_reset);
+      method                            byte_en     (cfg_mgmt_byte_en)                    enable((*inhigh*)en118) clocked_by(axi_clk) reset_by(no_reset);
+      method                            dwaddr      (cfg_mgmt_dwaddr)                     enable((*inhigh*)en119) clocked_by(axi_clk) reset_by(no_reset);
+      method                            wr_en       (cfg_mgmt_wr_en)                      enable((*inhigh*)en120) clocked_by(axi_clk) reset_by(no_reset);
+      method                            rd_en       (cfg_mgmt_rd_en)                      enable((*inhigh*)en121) clocked_by(axi_clk) reset_by(no_reset);
+      method                            wr_readonly (cfg_mgmt_wr_readonly)                enable((*inhigh*)en122) clocked_by(axi_clk) reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI7_ERR cfg_error;
-      method                            ecrc           (cfg_err_ecrc)                     enable((*inhigh*)en18) clocked_by(axi_clk) reset_by(no_reset);
-      method                            ur             (cfg_err_ur)                       enable((*inhigh*)en19) clocked_by(axi_clk) reset_by(no_reset);
-      method                            cpl_timeout    (cfg_err_cpl_timeout)              enable((*inhigh*)en20) clocked_by(axi_clk) reset_by(no_reset);
-      method                            cpl_unexpect   (cfg_err_cpl_unexpect)             enable((*inhigh*)en21) clocked_by(axi_clk) reset_by(no_reset);
-      method                            cpl_abort      (cfg_err_cpl_abort)                enable((*inhigh*)en22) clocked_by(axi_clk) reset_by(no_reset);
-      method                            posted         (cfg_err_posted)                   enable((*inhigh*)en23) clocked_by(axi_clk) reset_by(no_reset);
-      method                            cor            (cfg_err_cor)                      enable((*inhigh*)en24) clocked_by(axi_clk) reset_by(no_reset);
-      method                            egress_blocked (cfg_err_atomic_egress_blocked)    enable((*inhigh*)en25) clocked_by(axi_clk) reset_by(no_reset);
-      method                            internal_cor   (cfg_err_internal_cor)             enable((*inhigh*)en26) clocked_by(axi_clk) reset_by(no_reset);
-      method                            malformed      (cfg_err_malformed)                enable((*inhigh*)en27) clocked_by(axi_clk) reset_by(no_reset);
-      method                            mc_blocked     (cfg_err_mc_blocked)               enable((*inhigh*)en28) clocked_by(axi_clk) reset_by(no_reset);
-      method                            poisoned       (cfg_err_poisoned)                 enable((*inhigh*)en29) clocked_by(axi_clk) reset_by(no_reset);
-      method                            norecovery     (cfg_err_norecovery)               enable((*inhigh*)en30) clocked_by(axi_clk) reset_by(no_reset);
-      method                            tlp_cpl_header (cfg_err_tlp_cpl_header)           enable((*inhigh*)en31) clocked_by(axi_clk) reset_by(no_reset);
-      method                            locked         (cfg_err_locked)                   enable((*inhigh*)en32) clocked_by(axi_clk) reset_by(no_reset);
-      method                            acs            (cfg_err_acs)                      enable((*inhigh*)en33) clocked_by(axi_clk) reset_by(no_reset);
-      method                            internal_uncor (cfg_err_internal_uncor)           enable((*inhigh*)en34) clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_err_cpl_rdy            cpl_rdy                                                                  clocked_by(axi_clk) reset_by(no_reset);
+      method                            ecrc           (cfg_err_ecrc)                     enable((*inhigh*)en300) clocked_by(axi_clk) reset_by(no_reset);
+      method                            ur             (cfg_err_ur)                       enable((*inhigh*)en301) clocked_by(axi_clk) reset_by(no_reset);
+      method                            cpl_timeout    (cfg_err_cpl_timeout)              enable((*inhigh*)en302) clocked_by(axi_clk) reset_by(no_reset);
+      method                            cpl_unexpect   (cfg_err_cpl_unexpect)             enable((*inhigh*)en303) clocked_by(axi_clk) reset_by(no_reset);
+      method                            cpl_abort      (cfg_err_cpl_abort)                enable((*inhigh*)en304) clocked_by(axi_clk) reset_by(no_reset);
+      method                            posted         (cfg_err_posted)                   enable((*inhigh*)en305) clocked_by(axi_clk) reset_by(no_reset);
+      method                            cor            (cfg_err_cor)                      enable((*inhigh*)en306) clocked_by(axi_clk) reset_by(no_reset);
+      method                            egress_blocked (cfg_err_atomic_egress_blocked)    enable((*inhigh*)en307) clocked_by(axi_clk) reset_by(no_reset);
+      method                            internal_cor   (cfg_err_internal_cor)             enable((*inhigh*)en308) clocked_by(axi_clk) reset_by(no_reset);
+      method                            internal_uncor (cfg_err_internal_uncor)           enable((*inhigh*)en309) clocked_by(axi_clk) reset_by(no_reset);
+      method                            malformed      (cfg_err_malformed)                enable((*inhigh*)en310) clocked_by(axi_clk) reset_by(no_reset);
+      method                            mc_blocked     (cfg_err_mc_blocked)               enable((*inhigh*)en311) clocked_by(axi_clk) reset_by(no_reset);
+      method                            poisoned       (cfg_err_poisoned)                 enable((*inhigh*)en312) clocked_by(axi_clk) reset_by(no_reset);
+      method                            no_recovery    (cfg_err_norecovery)               enable((*inhigh*)en313) clocked_by(axi_clk) reset_by(no_reset);
+      method                            tlp_cpl_header (cfg_err_tlp_cpl_header)           enable((*inhigh*)en314) clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_err_cpl_rdy            cpl_rdy                                                                   clocked_by(axi_clk) reset_by(no_reset);
+      method                            locked         (cfg_err_locked)                   enable((*inhigh*)e3115) clocked_by(axi_clk) reset_by(no_reset);
+      method                            aer_headerlog  (cfg_err_aer_headerlog)            enable((*inhigh*)e3116) clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_err_aer_headerlog_set  aer_headerlog_set                                                         clocked_by(axi_clk) reset_by(no_reset);
+      method                            int_msgnum     (cfg_err_interrupt_msgnum)         enable((*inhigh*)en317) clocked_by(axi_clk) reset_by(no_reset);
+      method                            acs            (cfg_err_acs)                      enable((*inhigh*)en318) clocked_by(axi_clk) reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI7_CFG2 cfg2;
-      method cfg_status                 status                                                                   clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_command                command                                                                  clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_dstatus                dstatus                                                                  clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_dcommand               dcommand                                                                 clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_lstatus                lstatus                                                                  clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_lcommand               lcommand                                                                 clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_dcommand2              dcommand2                                                                clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_pcie_link_state        pcie_link_state                                                          clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_pmcsr_pme_en           pmcsr_pme_en                                                             clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_pmcsr_powerstate       pmcsr_powerstate                                                         clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_pmcsr_pme_status       pmcsr_pme_status                                                         clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_received_func_lvl_rst  received_func_lvl_rst                                                    clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_status                 status                                                                    clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_command                command                                                                   clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_dstatus                dstatus                                                                   clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_dcommand               dcommand                                                                  clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_lstatus                lstatus                                                                   clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_lcommand               lcommand                                                                  clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_dcommand2              dcommand2                                                                 clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_pcie_link_state        pcie_link_state                                                           clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_pmcsr_pme_en           pmcsr_pme_en                                                              clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_pmcsr_powerstate       pmcsr_powerstate                                                          clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_pmcsr_pme_status       pmcsr_pme_status                                                          clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_received_func_lvl_rst  received_func_lvl_rst                                                     clocked_by(axi_clk) reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI7_CFG3 cfg3;
-      method cfg_to_turnoff             to_turnoff                                                               clocked_by(axi_clk) reset_by(no_reset);
-      method                            turnoff_ok        (cfg_turnoff_ok)                enable((*inhigh*)en35) clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_bus_number             bus_number                                                               clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_device_number          device_number                                                            clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_function_number        function_number                                                          clocked_by(axi_clk) reset_by(no_reset);
-      method                            pm_wake           (cfg_pm_wake)                   enable((*inhigh*)en36) clocked_by(axi_clk) reset_by(no_reset);
-      method                            trn_pending       (cfg_trn_pending)               enable((*inhigh*)en37) clocked_by(axi_clk) reset_by(no_reset);
-      method                            pm_halt_aspm_l0s  (cfg_pm_halt_aspm_l0s)          enable((*inhigh*)en38) clocked_by(axi_clk) reset_by(no_reset);
-      method                            pm_halt_aspm_l1   (cfg_pm_halt_aspm_l1)           enable((*inhigh*)en39) clocked_by(axi_clk) reset_by(no_reset);
-      method                            pm_force_state_en (cfg_pm_force_state_en)         enable((*inhigh*)en40) clocked_by(axi_clk) reset_by(no_reset);
-      method                            pm_force_state    (cfg_pm_force_state)            enable((*inhigh*)en41) clocked_by(axi_clk) reset_by(no_reset);
-      method                            dsn               (cfg_dsn)                       enable((*inhigh*)en42) clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_to_turnoff             to_turnoff                                                                clocked_by(axi_clk) reset_by(no_reset);
+      method                            turnoff_ok        (cfg_turnoff_ok)                enable((*inhigh*)en319) clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_bus_number             bus_number                                                                clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_device_number          device_number                                                             clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_function_number        function_number                                                           clocked_by(axi_clk) reset_by(no_reset);
+      method                            pm_wake           (cfg_pm_wake)                   enable((*inhigh*)en320) clocked_by(axi_clk) reset_by(no_reset);
+      method                            trn_pending       (cfg_trn_pending)               enable((*inhigh*)en321) clocked_by(axi_clk) reset_by(no_reset);
+      method                            pm_halt_aspm_l0s  (cfg_pm_halt_aspm_l0s)          enable((*inhigh*)en322) clocked_by(axi_clk) reset_by(no_reset);
+      method                            pm_halt_aspm_l1   (cfg_pm_halt_aspm_l1)           enable((*inhigh*)en323) clocked_by(axi_clk) reset_by(no_reset);
+      method                            pm_force_state_en (cfg_pm_force_state_en)         enable((*inhigh*)en324) clocked_by(axi_clk) reset_by(no_reset);
+      method                            pm_force_state    (cfg_pm_force_state)            enable((*inhigh*)en325) clocked_by(axi_clk) reset_by(no_reset);
+      method                            dsn               (cfg_dsn)                       enable((*inhigh*)en326) clocked_by(axi_clk) reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI7_INT cfg_interrupt;
-      method                            req               (cfg_interrupt)                 enable((*inhigh*)en43) clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_interrupt_rdy          rdy                                                                      clocked_by(axi_clk) reset_by(no_reset);
-      method                            iassert           (cfg_interrupt_assert)          enable((*inhigh*)en44) clocked_by(axi_clk) reset_by(no_reset);
-      method                            din               (cfg_interrupt_di)              enable((*inhigh*)en45) clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_interrupt_do           dout                                                                     clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_interrupt_mmenable     mmenable                                                                 clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_interrupt_msienable    msienable                                                                clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_interrupt_msixenable   msixenable                                                               clocked_by(axi_clk) reset_by(no_reset);
-      method cfg_interrupt_msixfm       msixfm                                                                   clocked_by(axi_clk) reset_by(no_reset);
-      method                            stat              (cfg_interrupt_stat)            enable((*inhigh*)en46) clocked_by(axi_clk) reset_by(no_reset);
-      method                            msgnum            (cfg_ipciecap_interrupt_msgnum) enable((*inhigh*)en47) clocked_by(axi_clk) reset_by(no_reset);
+      method                            req               (cfg_interrupt)                 enable((*inhigh*)en327) clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_interrupt_rdy          rdy                                                                       clocked_by(axi_clk) reset_by(no_reset);
+      method                            iassert           (cfg_interrupt_assert)          enable((*inhigh*)en328) clocked_by(axi_clk) reset_by(no_reset);
+      method                            din               (cfg_interrupt_di)              enable((*inhigh*)en329) clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_interrupt_do           dout                                                                      clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_interrupt_mmenable     mmenable                                                                  clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_interrupt_msienable    msienable                                                                 clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_interrupt_msixenable   msixenable                                                                clocked_by(axi_clk) reset_by(no_reset);
+      method cfg_interrupt_msixfm       msixfm                                                                    clocked_by(axi_clk) reset_by(no_reset);
+      method                            stat              (cfg_interrupt_stat)            enable((*inhigh*)en330) clocked_by(axi_clk) reset_by(no_reset);
+      method                            msgnum            (cfg_ipciecap_interrupt_msgnum) enable((*inhigh*)en331) clocked_by(axi_clk) reset_by(no_reset);
+   endinterface
+
+   interface PCIE_DRP drp;
+      method                            clk               (drp_clk)                       enable((*inhigh*)en332) clocked_by(axi_clk) reset_by(no_reset);
+      method                            en                (drp_en)                        enable((*inhigh*)en333) clocked_by(axi_clk) reset_by(no_reset);
+      method                            we                (drp_we)                        enable((*inhigh*)en334) clocked_by(axi_clk) reset_by(no_reset);
+      method                            addr              (drp_addr)                      enable((*inhigh*)en335) clocked_by(axi_clk) reset_by(no_reset);
+      method                            din               (drp_di)                        enable((*inhigh*)en336) clocked_by(axi_clk) reset_by(no_reset);
+      method drp_rdy                    rdy;
+      method drp_do                     dout;
    endinterface
 
    interface PCIE_PL_V6 pl;
@@ -1833,23 +1860,23 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
       method                            upstream_prefer_deemph(pl_upstream_prefer_deemph) enable((*inhigh*)en52) clocked_by(axi_clk)  reset_by(no_reset);
       method pl_received_hot_rst        received_hot_rst                                                         clocked_by(axi_clk)  reset_by(no_reset);
    endinterface
-   */
 
 
-   /*
+
+
    schedule (
      pcie_rxp, pcie_rxn, pcie_txp, pcie_txn,
      axi_lnk_up, axi_fc_cpld, axi_fc_cplh, axi_fc_npd, axi_fc_nph, axi_fc_pd, axi_fc_ph, axi_fc_sel, 
-     axi_tx_tbuf_av, axi_tx_terr_drop, axi_tx_tcfg_req, axi_tx_tready, axi_tx_tdata, axi_tx_tstrb, axi_tx_tuser, axi_tx_tlast, axi_tx_tvalid, axi_tx_cfg_gnt, 
-     axi_rx_tdata, axi_rx_tstrb, axi_rx_tlast, axi_rx_tvalid, axi_rx_tuser, axi_rx_tready, axi_rx_np_ok, 
-
-     cfg_dout, cfg_rd_wr_done, cfg_di, cfg_byte_en, cfg_dwaddr, cfg_wr_en, cfg_rd_en, 
-     cfg_error_cor, cfg_error_ur, cfg_error_ecrc, cfg_error_cpl_timeout, cfg_error_cpl_abort, cfg_error_cpl_unexpect, cfg_error_posted, cfg_error_locked, cfg_error_tlp_cpl_header, cfg_error_cpl_rdy, 
-     cfg_interrupt_req, cfg_interrupt_rdy, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_dout, cfg_interrupt_mmenable, cfg_interrupt_msienable, cfg_interrupt_msixenable, cfg_interrupt_msixfm, 
-     cfg2_turnoff_ok, cfg2_to_turnoff, cfg2_trn_pending, cfg2_pm_wake, cfg2_bus_number, cfg2_device_number, cfg2_function_number, cfg2_status,
-     cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_dsn,
-     cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
-
+     axi_tx_tbuf_av, axi_tx_terr_drop, axi_tx_tcfg_req, axi_tx_tready, axi_tx_tdata, axi_tx_tuser, axi_tx_tlast, axi_tx_tvalid, axi_tx_cfg_gnt, 
+     axi_rx_tdata, axi_rx_tlast, axi_rx_tvalid, axi_rx_tuser, axi_rx_tready, axi_rx_np_ok, 
+     cfg_di, cfg_byte_en, cfg_dwaddr, cfg_wr_en, cfg_rd_en, cfg_wr_readonly, 
+     cfg_error_ecrc, cfg_error_ur, cfg_error_cpl_timeout, cfg_error_cpl_unexpect, cfg_error_cpl_abort, cfg_error_posted, cfg_error_cor, cfg_error_egress_blocked, 
+     cfg_error_internal_cor, cfg_error_internal_uncor, cfg_error_malformed, cfg_error_mc_blocked, cfg_error_poisoned, cfg_error_no_recovery, 
+     cfg_error_tlp_cpl_header, cfg_error_locked, cfg_error_aer_headerlog, cfg_error_int_msgnum, cfg_error_acs, 
+     cfg_interrupt_req, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_stat, cfg_interrupt_msgnum, 
+     cfg2_status, cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
+     cfg3_turnoff_ok, cfg3_to_turnoff, cfg3_trn_pending, cfg3_pm_wake, cfg3_bus_number, cfg3_device_number, cfg3_function_number, cfg3_dsn, 
+     drp_clk, drp_en, drp_we, drp_addr, drp_din, drp_rdy, drp_dout,
      pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
      pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
      pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph, pl_received_hot_rst
@@ -1858,22 +1885,21 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
      (
      pcie_rxp, pcie_rxn, pcie_txp, pcie_txn,
      axi_lnk_up, axi_fc_cpld, axi_fc_cplh, axi_fc_npd, axi_fc_nph, axi_fc_pd, axi_fc_ph, axi_fc_sel, 
-     axi_tx_tbuf_av, axi_tx_terr_drop, axi_tx_tcfg_req, axi_tx_tready, axi_tx_tdata, axi_tx_tstrb, axi_tx_tuser, axi_tx_tlast, axi_tx_tvalid, axi_tx_cfg_gnt, 
-     axi_rx_tdata, axi_rx_tstrb, axi_rx_tlast, axi_rx_tvalid, axi_rx_tuser, axi_rx_tready, axi_rx_np_ok, 
-
-     cfg_dout, cfg_rd_wr_done, cfg_di, cfg_byte_en, cfg_dwaddr, cfg_wr_en, cfg_rd_en, 
-     cfg_error_cor, cfg_error_ur, cfg_error_ecrc, cfg_error_cpl_timeout, cfg_error_cpl_abort, cfg_error_cpl_unexpect, cfg_error_posted, cfg_error_locked, cfg_error_tlp_cpl_header, cfg_error_cpl_rdy, 
-     cfg_interrupt_req, cfg_interrupt_rdy, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_dout, cfg_interrupt_mmenable, cfg_interrupt_msienable, cfg_interrupt_msixenable, cfg_interrupt_msixfm, 
-     cfg2_turnoff_ok, cfg2_to_turnoff, cfg2_trn_pending, cfg2_pm_wake, cfg2_bus_number, cfg2_device_number, cfg2_function_number, cfg2_status,
-     cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_dsn,
-     cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
-
+     axi_tx_tbuf_av, axi_tx_terr_drop, axi_tx_tcfg_req, axi_tx_tready, axi_tx_tdata, axi_tx_tuser, axi_tx_tlast, axi_tx_tvalid, axi_tx_cfg_gnt, 
+     axi_rx_tdata, axi_rx_tlast, axi_rx_tvalid, axi_rx_tuser, axi_rx_tready, axi_rx_np_ok, 
+     cfg_di, cfg_byte_en, cfg_dwaddr, cfg_wr_en, cfg_rd_en, cfg_wr_readonly, 
+     cfg_error_ecrc, cfg_error_ur, cfg_error_cpl_timeout, cfg_error_cpl_unexpect, cfg_error_cpl_abort, cfg_error_posted, cfg_error_cor, cfg_error_egress_blocked, 
+     cfg_interrupt_req, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_stat, cfg_interrupt_msgnum, 
+     cfg_error_internal_cor, cfg_error_internal_uncor, cfg_error_malformed, cfg_error_mc_blocked, cfg_error_poisoned, cfg_error_no_recovery, 
+     cfg_error_tlp_cpl_header, cfg_error_locked, cfg_error_aer_headerlog, cfg_error_int_msgnum, cfg_error_acs, 
+     cfg2_status, cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
+     cfg3_turnoff_ok, cfg3_to_turnoff, cfg3_trn_pending, cfg3_pm_wake, cfg3_bus_number, cfg3_device_number, cfg3_function_number, cfg3_dsn, 
+     drp_clk, drp_en, drp_we, drp_addr, drp_din, drp_rdy, drp_dout,
      pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
      pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
      pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph, pl_received_hot_rst
-     */
-
      );
+
 endmodule: vMkPCIExpressXilinx7AXI
 
 
@@ -2030,6 +2056,17 @@ interface PCIExpressV6#(numeric type lanes);
    interface PCIE_ERR_V6        cfg_err;
    interface PCIE_PL_V6         pl;
 endinterface: PCIExpressV6
+
+interface PCIExpressX7#(numeric type lanes);
+   interface PCIE_EXP#(lanes)   pcie;
+   interface PCIE_TRN_COMMON_V6 trn;
+   interface PCIE_TRN_XMIT16    trn_tx;
+   interface PCIE_TRN_RECV16    trn_rx;
+   interface PCIE_CFG_V6        cfg;
+   interface PCIE_INT_V6        cfg_interrupt;
+   interface PCIE_ERR_V6        cfg_err;
+   interface PCIE_PL_V6         pl;
+endinterface: PCIExpressX7
 
 /* TODO: Modify to provide AXI, not TRN
 interface PCIExpressX6#(numeric type lanes);
@@ -2276,7 +2313,7 @@ module mkPCIExpressEndpointX6#(PCIEParams params)(PCIExpressV6#(lanes))       //
    ////////////////////////////////////////////////////////////////////////////////
    PCIE_X6#(lanes)       pcie_ep          <- vMkPCIExpressXilinxAXI(params);   // Instance the vMk layer
    Clock                 axiclk           = pcie_ep.axi.clk;    // 250 MHz
-   Clock                 axiclk2          = pcie_ep.axi.drp;    // 125 MHz
+   Clock                 axiclk2          = pcie_ep.axi.clk2;   // 125 MHz (was drp)
    Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
    Reset                 axiRst250        <- mkAsyncReset(2, usr_rst_n, axiclk);
    Reset                 axiRst125        <- mkAsyncReset(2, usr_rst_n, axiclk2);
@@ -2381,7 +2418,7 @@ endmodule: mkPCIExpressEndpointX6
 ///
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressV6#(lanes))       //TODO: Provide X7 (not TRN V7) as alternate implementation
+module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressX7#(lanes))       //TODO: Provide X7 (not TRN V7) as alternate implementation
    provisos(Add#(1, z, lanes));
 
 // This implementation has the interesting challenge of backward-migrating the AXI interface from the 2.3 V6/X6 PCIe core
@@ -2393,7 +2430,7 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressV6#(lanes))       //
    ////////////////////////////////////////////////////////////////////////////////
    PCIE_X7#(lanes)       pcie_ep          <- vMkPCIExpressXilinx7AXI(params);   // Instance the vMk layer
    Clock                 axiclk           = pcie_ep.axi.clk;    // 250 MHz
-   Clock                 axiclk2          = pcie_ep.axi.drp;    // 125 MHz
+   Clock                 axiclk2          = pcie_ep.axi.clk2;   // 125 MHz
    Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
    Reset                 axiRst250        <- mkAsyncReset(2, usr_rst_n, axiclk);
    Reset                 axiRst125        <- mkAsyncReset(2, usr_rst_n, axiclk2);
@@ -2430,9 +2467,10 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressV6#(lanes))       //
    rule fc_sel;   pcie_ep.axi_fc.sel(RECEIVE_BUFFER_AVAILABLE_SPACE);     endrule  // always look at rcv credit avail
    mkTieOff(pcie_ep.pl);
    mkTieOff(pcie_ep.cfg);
-   mkTieOff(pcie_ep.cfg2);
+   //mkTieOff(pcie_ep.cfg2);  // all value methods, nothing to tie off
    mkTieOff(pcie_ep.cfg_interrupt);
    mkTieOff(pcie_ep.cfg_error);
+   mkTieOff(pcie_ep.drp);
 
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -2447,37 +2485,28 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressV6#(lanes))       //
       method    Bool  link_up  = pcie_ep.axi.lnk_up;
    endinterface
 
-   interface PCIE_TRN_XMIT_V6 trn_tx;
+   interface PCIE_TRN_XMIT16 trn_tx;
       method Action xmit(discontinue, data) if (pcie_ep.axi_tx.tready); 
          //pcie_ep.trn_tx.tsof_n(pack(!data.sof));          // no sof for AXI
          pcie_ep.axi_tx.tlast(data.eof);                    // eof goes to tlast
          //pcie_ep.trn_tx.tsrc_dsc_n(pack(!discontinue));   // no xmt discontinue
-         pcie_ep.axi_tx.tstrb(reverseBits(data.be));        // active-high be's are strobes, TODO check reverseBits
+         //FIXME tstrb/be pcie_ep.axi_tx.tstrb(reverseBits(data.be));        // active-high be's are strobes, TODO check reverseBits
          pcie_ep.axi_tx.tdata(reverseDWORDS(data.data));    // reverse DWORDS
          pwAxiTx.send;
       endmethod
-      method dropped                           = pcie_ep.axi_tx.terr_drop;
-      method buffers_available                 = pcie_ep.axi_tx.tbuf_av;
-      //method cut_through_mode(i)               = pcie_ep.axi_tx.tstr_n(pack(!i));
-      //method configuration_completion_ready    = (pcie_ep.trn_tx.tcfg_req_n == 0);
-      //method configuration_completion_grant(i) = pcie_ep.trn_tx.tcfg_gnt_n(pack(!i));
-      //method error_forward(i)                  = pcie_ep.trn_tx.terrfwd_n(pack(!i));
    endinterface
 
-   interface PCIE_TRN_RECV_V6 trn_rx;
-      method ActionValue#(TLPData#(8)) recv() if (pcie_ep.axi_rx.tvalid);
-         TLPData#(8) retval = defaultValue;
+   interface PCIE_TRN_RECV16 trn_rx;
+      method ActionValue#(TLPData#(16)) recv() if (pcie_ep.axi_rx.tvalid);
+         TLPData#(16) retval = defaultValue;
          retval.sof  = pcie_ep.axi_rx.tvalid && !rcvPktActive; // Make SoF on first tvalid
          retval.eof  = pcie_ep.axi_rx.tlast;
          retval.hit  = pcie_ep.axi_rx.tuser[8:2]; // implementation specific choice where 7 bar bits are in tuser
-         retval.be   = reverseBits(pcie_ep.axi_rx.tstrb); //TODO check reverseBits
+         //FIXME tstrb/be retval.be   = reverseBits(pcie_ep.axi_rx.tstrb); //TODO check reverseBits
          retval.data = reverseDWORDS(pcie_ep.axi_rx.tdata);
          pwAxiRx.send;
          return retval;
       endmethod
-      //method error_forward         = (pcie_ep.trn_rx.rerrfwd_n == 0);
-      //method source_discontinue    = (pcie_ep.trn_rx.rsrc_dsc_n == 0);
-      //method non_posted_ready(i)   = pcie_ep.trn_rx.rnp_ok_n(pack(!i));
    endinterface
 
 
@@ -3601,5 +3630,67 @@ instance TieOff#(PCIE_PL_V6);
    endmodule
 endinstance
 
+instance TieOff#(PCIE_AXI7_CFG);
+   module mkTieOff#(PCIE_AXI7_CFG ifc)(Empty);
+      rule tie_off_inputs;
+         ifc.di          ('0);
+         ifc.byte_en     ('0);
+         ifc.dwaddr      ('0);
+         ifc.wr_en       (False);
+         ifc.rd_en       (False);
+         ifc.wr_readonly (False);
+      endrule
+   endmodule
+endinstance
+
+instance TieOff#(PCIE_AXI7_INT);
+   module mkTieOff#(PCIE_AXI7_INT ifc)(Empty);
+      rule tie_off_inputs;
+         ifc.req     (False);
+         ifc.iassert (False);
+         ifc.din     ('0);
+         ifc.stat    (False);
+         ifc.msgnum  ('0);
+      endrule
+   endmodule
+endinstance
+
+instance TieOff#(PCIE_DRP);
+   module mkTieOff#(PCIE_DRP ifc)(Empty);
+      rule tie_off_inputs;
+         ifc.clk     (False);
+         ifc.en      (False);
+         ifc.we      (False);
+         ifc.addr    ('0);
+         ifc.din     ('0);
+      endrule
+   endmodule
+endinstance
+
+instance TieOff#(PCIE_AXI7_ERR);
+   module mkTieOff#(PCIE_AXI7_ERR ifc)(Empty);
+      rule tie_off_inputs;
+         ifc.ecrc           (False);
+         ifc.ur             (False);
+         ifc.cpl_timeout    (False);
+         ifc.cpl_unexpect   (False);
+         ifc.cpl_abort      (False);
+         ifc.posted         (False);
+         ifc.cor            (False);
+         ifc.egress_blocked (False);
+         ifc.internal_cor   (False);
+         ifc.internal_uncor (False);
+         ifc.malformed      (False);
+         ifc.mc_blocked     (False);
+         ifc.poisoned       (False);
+         ifc.no_recovery    (False);
+         ifc.tlp_cpl_header ('0);
+         ifc.locked         (False);
+         ifc.aer_headerlog  ('0);
+         ifc.int_msgnum     ('0);
+         ifc.acs            (False);
+      endrule
+   endmodule
+endinstance
 
 endpackage: PCIE

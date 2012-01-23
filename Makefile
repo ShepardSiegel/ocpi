@@ -484,6 +484,7 @@ platform_kc705: $(OBJ)
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
+		-show-range-conflict \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW1 \

@@ -188,7 +188,9 @@ endmodule: mkPCIEwrapX6
 module mkPCIEwrapX7#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
   Clock                 pci0_clk    <- mkClockIBUFDS_GTXE1(True, pci0_clkp, pci0_clkn);
   //Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
-  PCIExpressV6#(lanes)  pci0        <- mkPCIExpressEndpointX7(?,clocked_by pci0_clk,reset_by pci0_rstn);   // TODO: V6 is TRN
+  PCIExpressX7#(lanes)  pci0        <- mkPCIExpressEndpointX7(?,clocked_by pci0_clk,reset_by pci0_rstn);
+  Clock                 p250clk     =  pci0.trn.clk;  // 250 MHz (the div/1 clock from the pcie core)
+  Reset                 p250rst     <- mkAsyncReset(1, pci0.trn.reset_n, p250clk);
   Clock                 p125clk     =  pci0.trn.clk2; // 125 MHz (the div/2 clock from the pcie core)
   Reset                 p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
                                       // Place LinkUp and pciDevice in p125clk domain
@@ -207,16 +209,16 @@ module mkPCIEwrapX7#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrap
   AlignedFIFO#(TLPData#(16))      p2iAF   <- mkAlignedFIFO(p250clk,p250rst,p125clk ,p125rst ,p2iS,preEdge,True);
   Store#(UInt#(0),TLPData#(16),0) i2pS    <- mkRegStore(p125clk , p250clk);
   AlignedFIFO#(TLPData#(16))      i2pAF   <- mkAlignedFIFO(p125clk ,p125rst ,p250clk,p250rst,i2pS,True,preEdge);
-  FIFO#(TLPData#(8))              fP2I    <- mkSizedFIFO(4,    clocked_by p250clk, reset_by p250rst  );
-  FIFO#(TLPData#(8))              fI2P    <- mkSizedFIFO(4,    clocked_by p250clk, reset_by p250rst  );
+  FIFO#(TLPData#(16))             fP2I    <- mkFIFO(clocked_by p250clk, reset_by p250rst);
+  FIFO#(TLPData#(16))             fI2P    <- mkFIFO(clocked_by p250clk, reset_by p250rst);
 
-  // Inbound  PCIe (8B@250MHz) -> CTOP (16B@125MHz)...
-  mkConnection(pci0.trn_rx,  toPut(fP2I),  clocked_by p250clk,  reset_by p250rst);  // 8B      250 MHz
-  mkConnection(toGet(fP2I),  toPut(p2iAF), clocked_by p250clk,  reset_by p250rst);  // 8B->16B 250 MHz
+  // Inbound  PCIe (16B@250MHz) -> CTOP (16B@125MHz)...
+  mkConnection(pci0.trn_rx,  toPut(fP2I),  clocked_by p250clk,  reset_by p250rst);  // 16B      250 MHz
+  mkConnection(toGet(fP2I),  toPut(p2iAF), clocked_by p250clk,  reset_by p250rst);  // 16B->16B 250 MHz
 
-  // Outbound CTOP (16B@125MHz) -> PCIe (8B@250MHz)...
-  mkConnection(toGet(i2pAF), toPut(fI2P),  clocked_by p250clk,  reset_by p250rst);  // 16B->8B 250 MHz
-  mkConnection(toGet(fI2P),  pci0.trn_tx,  clocked_by p250clk,  reset_by p250rst);  // 8B      250 MHz
+  // Outbound CTOP (16B@125MHz) -> PCIe (16B@250MHz)...
+  mkConnection(toGet(i2pAF), toPut(fI2P),  clocked_by p250clk,  reset_by p250rst);  // 16B->16B 250 MHz
+  mkConnection(toGet(fI2P),  pci0.trn_tx,  clocked_by p250clk,  reset_by p250rst);  // 16B      250 MHz
 
   // TODO: Implement me when these interfaces are exposed
   //mkConnection(pci0.cfg_interrupt, pcie_irq.pcie_irq);
