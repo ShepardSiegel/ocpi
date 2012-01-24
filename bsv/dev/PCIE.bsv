@@ -2476,7 +2476,7 @@ module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))     
    interface pcie       = pcie_ep.pcie;
 
    interface PCIE_TRN_COMMON_V6 trn;
-      interface Clock clk      = axiclk;    // 125 MHz
+      interface Clock clk      = axiclk;    // 125 MHz from core
       interface Reset reset_n  = usr_rst_n;
       method    Bool  link_up  = pcie_ep.axi.lnk_up;
    endinterface

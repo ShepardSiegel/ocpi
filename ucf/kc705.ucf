@@ -27,11 +27,11 @@ NET  "sys0_rst"      LOC = AB7  | IOSTANDARD = LVCMOS15; # Bank  34 VCCO - VCC1V
 #NET  PCIE_PERST_LS             LOC =  G25; # Bank  16 - IO_25_16
 
 NET  "pci0_reset_n"  TIG;
-NET  "pci0_reset_n"  LOC = G25 | IOSTANDARD = LVCMOS18 | PULLUP | NODELAY;
+NET  "pci0_reset_n"  LOC = G25 | IOSTANDARD = LVCMOS25 | PULLUP | NODELAY;  # Check LVCMOS18 vs LVCMOS25
 
-INST "ftop/pciw_pci0_clk" LOC = IBUFDS_GTE2_X0Y3;
-#NET  "pci0_clkp"     LOC = U8;  # 100 MHz direct from PCIe edge   
-#NET  "pci0_clkn"     LOC = U7;
+NET  "pci0_clkp"     LOC = U8;  # 100 MHz direct from PCIe edge   
+NET  "pci0_clkn"     LOC = U7;
+INST "ftop/pciw_pci0_clk" LOC = IBUFDS_GTE2_X0Y1; # Check XOY1 bs XOY3 - need to have U8/U7 +/- pair
 
 INST "*/pcie_top_i/pcie_7x_i/pcie_block_i" LOC = PCIE_X0Y0;
 INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y7;
