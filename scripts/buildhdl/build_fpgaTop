@@ -150,7 +150,13 @@ par -w -xe n fpgaTop_map.ncd fpgaTop.ncd fpgaTop.pcf
 
 trce -v 20 -fastpaths -xml fpgaTop.twx fpgaTop.ncd -o fpgaTop.twr fpgaTop.pcf 
 
-bitgen -f bitgen_bit.ut fpgaTop.ncd 
+if ($buildTarget == kc705) then
+  echo Using bitgen defaults
+  bitgen fpgaTop.ncd 
+else
+  echo Using bitgen options from file
+  bitgen -f bitgen_bit.ut fpgaTop.ncd 
+endif
 tar czvf fpgaTop-$buildTarget.bit.-gz fpgaTop.bit
 
 #bitgen -f bitgen_bin.ut fpgaTop.ncd 
