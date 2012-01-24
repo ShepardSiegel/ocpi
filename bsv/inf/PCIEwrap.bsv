@@ -186,7 +186,7 @@ endmodule: mkPCIEwrapX6
 // This Xilinx X7 specifc implementation takes 16B/125MHz interface and connects it to 16B/125MHz...
 //(* synthesize, no_default_clock, clock_prefix="", reset_prefix="" *)
 module mkPCIEwrapX7#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
-  Clock                 pci0_clk    <- mkClockIBUFDS_GTXE1(True, pci0_clkp, pci0_clkn);
+  Clock                 pci0_clk    <- mkClockIBUFDS_GTE2(True, pci0_clkp, pci0_clkn); // series 7 uses GTE2 refclk input
   //Reset                 pci0_rst    <- mkResetIBUF(clocked_by noClock, reset_by noReset);
   PCIExpressX7#(lanes)  pci0        <- mkPCIExpressEndpointX7(?,clocked_by pci0_clk,reset_by pci0_rstn);
   Clock                 p250clk     =  pci0.trn.clk;  // 250 MHz (the div/1 clock from the pcie core)

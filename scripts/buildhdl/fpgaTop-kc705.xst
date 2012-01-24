@@ -4,7 +4,7 @@ run
 -ifmt mixed
 -ofn fpgaTop
 -ofmt NGC
--p xc7k325tffg900-1
+-p xc7k325t-fbg900-1
 -top fpgaTop
 -opt_mode Speed
 -opt_level 2

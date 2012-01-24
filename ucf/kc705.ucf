@@ -2,8 +2,9 @@
 ## Shepard Siegel for Atomic Rules LLC
 ## 2011-03-22 Creation
 ## 2011-09-27 Edit for first KC705 arrival
+## 2012-01-24 PCIe debug with v1_3 PCIe EP
 
-CONFIG PART = XC7K325T-FFG900-1 ;
+CONFIG PART = xc7k325t-fbg900-1 ;
 
 # 200 MHz XTAL...
 #NET  SYSCLK_P                  LOC = AD12 | IOSTANDARD=LVDS;     # Bank  33 VCCO - VCC1V5_FPGA - IO_L12P_T1_MRCC_33
@@ -22,16 +23,15 @@ NET  "sys0_rst"      LOC = AB7  | IOSTANDARD = LVCMOS15; # Bank  34 VCCO - VCC1V
 
 
 # PCIe... 
-#NET  PCIE_CLK_QO_P             LOC = U8                        ; # Bank 115                 - MGTREFCLK1P_115
-#NET  PCIE_CLK_QO_N             LOC = U7                        ; # Bank 115                 - MGTREFCLK1N_115
 #NET  PCIE_WAKE_B_LS            LOC =  F23; # Bank  16 - IO_0_16
 #NET  PCIE_PERST_LS             LOC =  G25; # Bank  16 - IO_25_16
 
-INST "pcie_clk_ibuf" LOC = IBUFDS_GTE2_X0Y1;
-NET  "pci0_clkp"     LOC = U8;  # 100 MHz direct from PCIe edge   
-NET  "pci0_clkn"     LOC = U7;
 NET  "pci0_reset_n"  TIG;
 NET  "pci0_reset_n"  LOC = G25 | IOSTANDARD = LVCMOS18 | PULLUP | NODELAY;
+
+INST "ftop/pciw_pci0_clk" LOC = IBUFDS_GTE2_X0Y3;
+#NET  "pci0_clkp"     LOC = U8;  # 100 MHz direct from PCIe edge   
+#NET  "pci0_clkn"     LOC = U7;
 
 INST "*/pcie_top_i/pcie_7x_i/pcie_block_i" LOC = PCIE_X0Y0;
 INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y7;

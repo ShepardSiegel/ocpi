@@ -1,5 +1,5 @@
 // XilinxExtra.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package XilinxExtra;
 
@@ -680,5 +680,48 @@ module vClkIBUFDS#(Clock clk_p, Clock clk_n)(ClockBuffer);
    output_clock clkout(O);   
    same_family(clk_p, clkout);
 endmodule: vClkIBUFDS
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// IBUFDS_GTE2 - for series 7
+////////////////////////////////////////////////////////////////////////////////
+interface GTE2ClockGenIfc;
+   interface Clock gen_clk;
+   interface Clock gen_clk_div2;
+endinterface
+
+import "BVI" IBUFDS_GTE2 =
+module vMkClockIBUFDS_GTE2#(Bool enable, Clock clk_p, Clock clk_n)(GTE2ClockGenIfc);
+   default_clock no_clock;
+   default_reset no_reset;
+
+   input_clock clk_p(I)  = clk_p;
+   input_clock clk_n(IB) = clk_n;
+
+   port CEB = pack(!enable);
+
+   output_clock gen_clk(O);
+   output_clock gen_clk_div2(ODIV2);
+
+   path(I,  O);
+   path(IB, O);
+   path(I,  ODIV2);
+   path(IB, ODIV2);
+
+   same_family(clk_p, gen_clk);
+endmodule: vMkClockIBUFDS_GTE2
+
+module mkClockIBUFDS_GTE2#(Bool enable, Clock clk_p, Clock clk_n)(Clock);
+   let _m <- vMkClockIBUFDS_GTE2(enable, clk_p, clk_n);
+   return _m.gen_clk;
+endmodule: mkClockIBUFDS_GTE2
+
+module mkClockIBUFDS_GTE2_div2#(Bool enable, Clock clk_p, Clock clk_n)(Clock);
+   let _m <- vMkClockIBUFDS_GTE2(enable, clk_p, clk_n);
+   return _m.gen_clk_div2;
+endmodule: mkClockIBUFDS_GTE2_div2
+
+
+
 
 endpackage: XilinxExtra
