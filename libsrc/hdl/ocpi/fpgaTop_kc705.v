@@ -1,5 +1,5 @@
 // fpgaTop_kc705.v - the top-level Verilog for the Xilinx KC705 board
-// Copyright (c) 2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2011-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 //
 
 module fpgaTop (

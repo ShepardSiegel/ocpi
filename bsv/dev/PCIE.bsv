@@ -772,6 +772,7 @@ interface PCIE_PIPE;
   method  Action  dxClk      (Bool i);
   method  Action  userClk1   (Bool i);
   method  Action  userClk2   (Bool i);
+  method  Action  oobClk     (Bool i);
   method  Action  mmcmLock   (Bool i);
   method  Bit#(4) txOutClk;
   method  Bit#(4) rxOutClkOut;
@@ -899,7 +900,6 @@ interface PCIE_AXI7_ERR;  // Error Interface...
    method    Action      locked         (Bool i);
    method    Action      aer_headerlog  (Bit#(128) i);
    method    Bool        aer_headerlog_set;
-   method    Action      int_msgnum     (Bit#(5) i);
    method    Action      acs            (Bool i);
 endinterface
 
@@ -1169,7 +1169,7 @@ interface PCIE_X7#(numeric type lanes);  // V7 AXI (X7)
    interface PCIE_AXI7_CFG2   cfg2;
    interface PCIE_AXI7_CFG3   cfg3;
    interface PCIE_AXI7_INT    cfg_interrupt;
-   interface PCIE_DRP         drp;
+//   interface PCIE_DRP         drp;
    interface PCIE_PL_V6       pl;
 endinterface: PCIE_X7
 
@@ -1702,11 +1702,12 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
 
    interface PCIE_PIPE pipe;
      method                             pClk      (PIPE_PCLK_IN)            enable((*inhigh*)en100)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             rxUserClk (PIPE_RXUSERCLK_IN)       enable((*inhigh*)en101)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             rxUserClk (PIPE_RXUSRCLK_IN)        enable((*inhigh*)en101)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
      method                             rxOutClkIn(PIPE_RXOUTCLK_IN)        enable((*inhigh*)en102)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             dxClk     (PIPE_DXCLK_IN)           enable((*inhigh*)en103)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             dxClk     (PIPE_DCLK_IN)            enable((*inhigh*)en103)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
      method                             userClk1  (PIPE_USERCLK1_IN)        enable((*inhigh*)en104)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
      method                             userClk2  (PIPE_USERCLK2_IN)        enable((*inhigh*)en105)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
+     method                             oobClk    (PIPE_OOBCLK_IN)          enable((*inhigh*)en099)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
      method                             mmcmLock  (PIPE_MMCM_LOCK_IN)       enable((*inhigh*)en106)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
      method  PIPE_TXOUTCLK_OUT          txOutClk                                                     clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
      method  PIPE_RXOUTCLK_OUT          rxOutClkOut                                                  clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
@@ -1758,7 +1759,7 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
    interface PCIE_AXI7_CFG cfg;
       method cfg_mgmt_do                dout                                                                      clocked_by(axi_clk) reset_by(no_reset);
       method cfg_mgmt_rd_wr_done        rd_wr_done                                                                clocked_by(axi_clk) reset_by(no_reset);
-      method                            di          (cfg_di)                              enable((*inhigh*)en117) clocked_by(axi_clk) reset_by(no_reset);
+      method                            di          (cfg_mgmt_di)                         enable((*inhigh*)en117) clocked_by(axi_clk) reset_by(no_reset);
       method                            byte_en     (cfg_mgmt_byte_en)                    enable((*inhigh*)en118) clocked_by(axi_clk) reset_by(no_reset);
       method                            dwaddr      (cfg_mgmt_dwaddr)                     enable((*inhigh*)en119) clocked_by(axi_clk) reset_by(no_reset);
       method                            wr_en       (cfg_mgmt_wr_en)                      enable((*inhigh*)en120) clocked_by(axi_clk) reset_by(no_reset);
@@ -1786,7 +1787,6 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
       method                            locked         (cfg_err_locked)                   enable((*inhigh*)e3115) clocked_by(axi_clk) reset_by(no_reset);
       method                            aer_headerlog  (cfg_err_aer_headerlog)            enable((*inhigh*)e3116) clocked_by(axi_clk) reset_by(no_reset);
       method cfg_err_aer_headerlog_set  aer_headerlog_set                                                         clocked_by(axi_clk) reset_by(no_reset);
-      method                            int_msgnum     (cfg_err_interrupt_msgnum)         enable((*inhigh*)en317) clocked_by(axi_clk) reset_by(no_reset);
       method                            acs            (cfg_err_acs)                      enable((*inhigh*)en318) clocked_by(axi_clk) reset_by(no_reset);
    endinterface
 
@@ -1831,9 +1831,10 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
       method cfg_interrupt_msixenable   msixenable                                                                clocked_by(axi_clk) reset_by(no_reset);
       method cfg_interrupt_msixfm       msixfm                                                                    clocked_by(axi_clk) reset_by(no_reset);
       method                            stat              (cfg_interrupt_stat)            enable((*inhigh*)en330) clocked_by(axi_clk) reset_by(no_reset);
-      method                            msgnum            (cfg_ipciecap_interrupt_msgnum) enable((*inhigh*)en331) clocked_by(axi_clk) reset_by(no_reset);
+      method                            msgnum            (cfg_pciecap_interrupt_msgnum)  enable((*inhigh*)en331) clocked_by(axi_clk) reset_by(no_reset);
    endinterface
 
+   /*
    interface PCIE_DRP drp;
       method                            clk               (drp_clk)                       enable((*inhigh*)en332) clocked_by(axi_clk) reset_by(no_reset);
       method                            en                (drp_en)                        enable((*inhigh*)en333) clocked_by(axi_clk) reset_by(no_reset);
@@ -1843,15 +1844,16 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
       method drp_rdy                    rdy;
       method drp_do                     dout;
    endinterface
+   */
 
    interface PCIE_PL_V6 pl;
       method pl_initial_link_width      initial_link_width                                                       clocked_by(axi_clk)  reset_by(no_reset);
       method pl_lane_reversal_mode      lane_reversal_mode                                                       clocked_by(axi_clk)  reset_by(no_reset);
-      method pl_link_gen2_capable       link_gen2_capable                                                        clocked_by(axi_clk)  reset_by(no_reset);
+      method pl_link_gen2_cap           link_gen2_capable                                                        clocked_by(axi_clk)  reset_by(no_reset);
       method pl_link_partner_gen2_supported link_partner_gen2_supported                                          clocked_by(axi_clk)  reset_by(no_reset);
-      method pl_link_upcfg_capable      link_upcfg_capable                                                       clocked_by(axi_clk)  reset_by(no_reset);
-      method pl_sel_link_rate           sel_link_rate                                                            clocked_by(axi_clk)  reset_by(no_reset);
-      method pl_sel_link_width          sel_link_width                                                           clocked_by(axi_clk)  reset_by(no_reset);
+      method pl_link_upcfg_cap          link_upcfg_capable                                                       clocked_by(axi_clk)  reset_by(no_reset);
+      method pl_sel_lnk_rate            sel_link_rate                                                            clocked_by(axi_clk)  reset_by(no_reset);
+      method pl_sel_lnk_width           sel_link_width                                                           clocked_by(axi_clk)  reset_by(no_reset);
       method pl_ltssm_state             ltssm_state                                                              clocked_by(axi_clk)  reset_by(no_reset);
       method                            directed_link_auton(pl_directed_link_auton)       enable((*inhigh*)en48) clocked_by(axi_clk)  reset_by(no_reset);
       method                            directed_link_change(pl_directed_link_change)     enable((*inhigh*)en49) clocked_by(axi_clk)  reset_by(no_reset);
@@ -1862,8 +1864,6 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
    endinterface
 
 
-
-
    schedule (
      pcie_rxp, pcie_rxn, pcie_txp, pcie_txn,
      axi_lnk_up, axi_fc_cpld, axi_fc_cplh, axi_fc_npd, axi_fc_nph, axi_fc_pd, axi_fc_ph, axi_fc_sel, 
@@ -1872,11 +1872,11 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
      cfg_di, cfg_byte_en, cfg_dwaddr, cfg_wr_en, cfg_rd_en, cfg_wr_readonly, 
      cfg_error_ecrc, cfg_error_ur, cfg_error_cpl_timeout, cfg_error_cpl_unexpect, cfg_error_cpl_abort, cfg_error_posted, cfg_error_cor, cfg_error_egress_blocked, 
      cfg_error_internal_cor, cfg_error_internal_uncor, cfg_error_malformed, cfg_error_mc_blocked, cfg_error_poisoned, cfg_error_no_recovery, 
-     cfg_error_tlp_cpl_header, cfg_error_locked, cfg_error_aer_headerlog, cfg_error_int_msgnum, cfg_error_acs, 
+     cfg_error_tlp_cpl_header, cfg_error_locked, cfg_error_aer_headerlog, cfg_error_acs, 
      cfg_interrupt_req, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_stat, cfg_interrupt_msgnum, 
      cfg2_status, cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
      cfg3_turnoff_ok, cfg3_to_turnoff, cfg3_trn_pending, cfg3_pm_wake, cfg3_bus_number, cfg3_device_number, cfg3_function_number, cfg3_dsn, 
-     drp_clk, drp_en, drp_we, drp_addr, drp_din, drp_rdy, drp_dout,
+     //drp_clk, drp_en, drp_we, drp_addr, drp_din, drp_rdy, drp_dout,
      pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
      pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
      pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph, pl_received_hot_rst
@@ -1891,10 +1891,10 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
      cfg_error_ecrc, cfg_error_ur, cfg_error_cpl_timeout, cfg_error_cpl_unexpect, cfg_error_cpl_abort, cfg_error_posted, cfg_error_cor, cfg_error_egress_blocked, 
      cfg_interrupt_req, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_stat, cfg_interrupt_msgnum, 
      cfg_error_internal_cor, cfg_error_internal_uncor, cfg_error_malformed, cfg_error_mc_blocked, cfg_error_poisoned, cfg_error_no_recovery, 
-     cfg_error_tlp_cpl_header, cfg_error_locked, cfg_error_aer_headerlog, cfg_error_int_msgnum, cfg_error_acs, 
+     cfg_error_tlp_cpl_header, cfg_error_locked, cfg_error_aer_headerlog, cfg_error_acs, 
      cfg2_status, cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
      cfg3_turnoff_ok, cfg3_to_turnoff, cfg3_trn_pending, cfg3_pm_wake, cfg3_bus_number, cfg3_device_number, cfg3_function_number, cfg3_dsn, 
-     drp_clk, drp_en, drp_we, drp_addr, drp_din, drp_rdy, drp_dout,
+     //drp_clk, drp_en, drp_we, drp_addr, drp_din, drp_rdy, drp_dout,
      pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
      pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
      pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph, pl_received_hot_rst
@@ -2470,7 +2470,7 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressX7#(lanes))       //
    //mkTieOff(pcie_ep.cfg2);  // all value methods, nothing to tie off
    mkTieOff(pcie_ep.cfg_interrupt);
    mkTieOff(pcie_ep.cfg_error);
-   mkTieOff(pcie_ep.drp);
+   //mkTieOff(pcie_ep.drp);
 
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -3687,7 +3687,6 @@ instance TieOff#(PCIE_AXI7_ERR);
          ifc.tlp_cpl_header ('0);
          ifc.locked         (False);
          ifc.aer_headerlog  ('0);
-         ifc.int_msgnum     ('0);
          ifc.acs            (False);
       endrule
    endmodule
