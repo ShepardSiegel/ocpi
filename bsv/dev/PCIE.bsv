@@ -757,9 +757,16 @@ endinterface
 // AXI Interface definitions...
 
 (* always_ready, always_enabled *)
-interface PCIE_AXI;
-   interface Clock       clk;    // typ 250 MHz
-   interface Clock       clk2;   // typ 125 MHz
+interface PCIE_AXI250;
+   interface Clock       clk;    // 250 MHz
+   interface Clock       clk2;   // 125 MHz
+   interface Reset       usr_rst_p;
+   method    Bool        lnk_up;
+endinterface
+
+(* always_ready, always_enabled *)
+interface PCIE_AXI125;
+   interface Clock       clk;    // 125 MHz
    interface Reset       usr_rst_p;
    method    Bool        lnk_up;
 endinterface
@@ -1146,7 +1153,7 @@ endinterface: PCIE_V6
 
 interface PCIE_X6#(numeric type lanes);  // V6 AXI (X6)
    interface PCIE_EXP#(lanes) pcie;
-   interface PCIE_AXI         axi;
+   interface PCIE_AXI250      axi;
    interface PCIE_AXI_TX      axi_tx;
    interface PCIE_AXI_RX      axi_rx;
    interface PCIE_AXI_FC      axi_fc;
@@ -1160,7 +1167,7 @@ endinterface: PCIE_X6
 interface PCIE_X7#(numeric type lanes);  // V7 AXI (X7)
    interface PCIE_EXP#(lanes) pcie;
    interface PCIE_PIPE        pipe;
-   interface PCIE_AXI         axi;
+   interface PCIE_AXI125      axi;
    interface PCIE_AXI7_TX     axi_tx;
    interface PCIE_AXI7_RX     axi_rx;
    interface PCIE_AXI_FC      axi_fc;
@@ -1526,7 +1533,7 @@ module vMkPCIExpressXilinxAXI#(PCIEParams params)(PCIE_X6#(lanes))
       method                            rxn(pci_exp_rxn) enable((*inhigh*)en1)                                   reset_by(no_reset);
    endinterface
 
-   interface PCIE_AXI axi;
+   interface PCIE_AXI250 axi;
       output_clock                      clk(user_clk_out);
       output_clock                      clk2(user_clk2_out);
       output_reset                      usr_rst_p(user_reset_out)                                                clocked_by(axi_clk);
@@ -1715,9 +1722,8 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
      method  PIPE_GEN3_OUT              gen3                                                         clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
    endinterface
 
-   interface PCIE_AXI axi;
+   interface PCIE_AXI125 axi;
       output_clock                      clk        (user_clk_out);
-      output_clock                      clk2       (user_clk2_out);
       output_reset                      usr_rst_p  (user_reset_out)                                               clocked_by(axi_clk);
       method user_lnk_up                lnk_up                                                                    clocked_by(no_clock) reset_by(no_reset);
    endinterface
@@ -2418,7 +2424,7 @@ endmodule: mkPCIExpressEndpointX6
 ///
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressX7#(lanes))       //TODO: Provide X7 (not TRN V7) as alternate implementation
+module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))       //TODO: Provide X7 (not TRN V7) as alternate implementation
    provisos(Add#(1, z, lanes));
 
 // This implementation has the interesting challenge of backward-migrating the AXI interface from this K7 v1_3 core
@@ -2429,22 +2435,13 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressX7#(lanes))       //
    /// Design Elements
    ////////////////////////////////////////////////////////////////////////////////
    PCIE_X7#(lanes)       pcie_ep          <- vMkPCIExpressXilinx7AXI(params);   // Instance the vMk layer
-   Clock                 axiclk           = pcie_ep.axi.clk;    // 250 MHz
-   Clock                 axiclk2          = pcie_ep.axi.clk2;   // 125 MHz
+   Clock                 axiclk           = pcie_ep.axi.clk;    // 125 MHz
    Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
-   Reset                 axiRst250        <- mkAsyncReset(2, usr_rst_n, axiclk);
-   Reset                 axiRst125        <- mkAsyncReset(2, usr_rst_n, axiclk2);
+   Reset                 axiRst125        <- mkAsyncReset(2, usr_rst_n, axiclk);
    PulseWire             pwAxiTx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
    PulseWire             pwAxiRx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-   Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by axiRst250);
+   Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by axiRst125);
 
-   Reg#(UInt#(4))        dbpciCA          <- mkReg(1);                                             // 250 MHz source
-   Reg#(UInt#(4))        dbpciCB          <- mkReg(2, clocked_by axiclk,  reset_by axiRst250);     // 250 MHz from core
-   Reg#(UInt#(4))        dbpciCC          <- mkReg(3, clocked_by axiclk2, reset_by axiRst125);     // 125 MHz from core
-
-   rule cnt_ca; dbpciCA <= dbpciCA + 1; endrule
-   rule cnt_cb; dbpciCB <= dbpciCB + 1; endrule
-   rule cnt_cc; dbpciCC <= dbpciCC + 1; endrule
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Rules
@@ -2479,8 +2476,7 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressX7#(lanes))       //
    interface pcie       = pcie_ep.pcie;
 
    interface PCIE_TRN_COMMON_V6 trn;
-      interface Clock clk      = axiclk;    // 250 MHz
-      interface Clock clk2     = axiclk2;   // 125 MHz
+      interface Clock clk      = axiclk;    // 125 MHz
       interface Reset reset_n  = usr_rst_n;
       method    Bool  link_up  = pcie_ep.axi.lnk_up;
    endinterface
@@ -2516,7 +2512,7 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressX7#(lanes))       //
    interface cfg_interrupt = pcie_ep.cfg_interrupt;
    interface cfg_err       = pcie_ep.cfg_err;
    */
-endmodule: mkPCIExpressEndpointX7
+endmodule: mkPCIExpressEndpointX7_125
 
 
 // Not from PCIe spec but used for head communication...
