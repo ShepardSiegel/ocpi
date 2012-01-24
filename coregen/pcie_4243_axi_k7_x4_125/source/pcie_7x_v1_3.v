@@ -437,7 +437,6 @@ module pcie_7x_v1_3 # (
 
   // Common
   output                                     user_clk_out,
-  output                                     user_clk2_out,  // ssiegel added 2012-01-23
   output reg                                 user_reset_out,
   output reg                                 user_lnk_up,
 
