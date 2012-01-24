@@ -1687,7 +1687,7 @@ import "BVI" pcie_7x_v1_3 =
 module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
    provisos(Add#(1, z, lanes));
 
-   Reset reset <- invertCurrentReset;
+   Reset reset <- invertCurrentReset;     // Invert the module-level active-low Reset to make the signal "reset" active-high
    default_clock clk(sys_clk);            // System clock; typ 100 MHz (alt 125 or 250 MHz)
    default_reset rst(sys_reset) = reset;  // System Reset; sys_reset is active high
 
@@ -2421,7 +2421,7 @@ endmodule: mkPCIExpressEndpointX6
 module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressX7#(lanes))       //TODO: Provide X7 (not TRN V7) as alternate implementation
    provisos(Add#(1, z, lanes));
 
-// This implementation has the interesting challenge of backward-migrating the AXI interface from the 2.3 V6/X6 PCIe core
+// This implementation has the interesting challenge of backward-migrating the AXI interface from this K7 v1_3 core
 // to the older TRN interface it will someday replace. This is so we can test the AXI endpoint without having to change the
 // uNoC and everything attached to it. It is mostly the DWORD ordering and control logic generation.
 
@@ -2440,7 +2440,7 @@ module mkPCIExpressEndpointX7#(PCIEParams params)(PCIExpressX7#(lanes))       //
 
    Reg#(UInt#(4))        dbpciCA          <- mkReg(1);                                             // 250 MHz source
    Reg#(UInt#(4))        dbpciCB          <- mkReg(2, clocked_by axiclk,  reset_by axiRst250);     // 250 MHz from core
-   Reg#(UInt#(4))        dbpciCC          <- mkReg(3, clocked_by axiclk2, reset_by axiRst125);      // 125 MHz from core
+   Reg#(UInt#(4))        dbpciCC          <- mkReg(3, clocked_by axiclk2, reset_by axiRst125);     // 125 MHz from core
 
    rule cnt_ca; dbpciCA <= dbpciCA + 1; endrule
    rule cnt_cb; dbpciCB <= dbpciCB + 1; endrule

@@ -1,0 +1,14 @@
+ 
+
+NET "sys_clk" TNM_NET = "SYSCLK" ;
+NET "ext_clk.pipe_clock_i/clk_125mhz" TNM_NET = "CLK_125";
+NET "ext_clk.pipe_clock_i/clk_250mhz" TNM_NET = "CLK_250";
+NET "ext_clk.pipe_clock_i/userclk1" TNM_NET = "CLK_500";
+
+
+
+TIMESPEC "TS_SYSCLK"  = PERIOD "SYSCLK" 100 MHz HIGH 50 %;
+TIMESPEC "TS_CLK_125"  = PERIOD "CLK_125" TS_SYSCLK*1.25;
+TIMESPEC "TS_CLK_250" = PERIOD "CLK_250" TS_SYSCLK*2.5 HIGH 50 %;
+TIMESPEC "TS_CLK_500" = PERIOD "CLK_500" TS_SYSCLK*5 HIGH 50 %;
+

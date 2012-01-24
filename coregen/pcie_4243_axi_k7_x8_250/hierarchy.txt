@@ -1,0 +1,78 @@
+ xilinx_pcie_2_1_ep_7x
+ |
+ |--pcie_7x_v1_3_pipe_clock (When External Clocking enabled)
+ |--pcie_7x_v1_3 (Core Top Level, in source directory)
+ |  |
+ |  |--pcie_7x_v1_3_pcie_top
+ |  |  |
+ |  |  |--pcie_7x_v1_3_axi_basic_top
+ |  |  |  |
+ |  |  |  |--pcie_7x_v1_3_axi_basic_rx
+ |  |  |  |  |
+ |  |  |  |  |--pcie_7x_v1_3_axi_basic_rx_pipeline
+ |  |  |  |  |--pcie_7x_v1_3_axi_basic_rx_null_gen
+ |  |  |  |
+ |  |  |  |--pcie_7x_v1_3_axi_basic_tx
+ |  |  |     |
+ |  |  |     |--pcie_7x_v1_3_axi_basic_tx_pipeline
+ |  |  |     |--pcie_7x_v1_3_axi_basic_tx_thrtl_ctl
+ |  |  |
+ |  |  |--pcie_7x_v1_3_pcie_7x
+ |  |  |  |
+ |  |  |  |--pcie_7x_v1_3_pcie_bram_top_7x
+ |  |  |  |  |
+ |  |  |  |  |--pcie_7x_v1_3_pcie_brams_7x (an instance each for Rx & Tx)
+ |  |  |  |     |
+ |  |  |  |     |--pcie_7x_v1_3_pcie_bram_7x
+ |  |  |  |
+ |  |  |  |--PCIE_2_1 (Integrated Block Instance)
+ |  |  |
+ |  |  |--pcie_7x_v1_3_pcie_pipe_pipeline
+ |  |     |
+ |  |     |--pcie_7x_v1_3_pcie_pipe_misc
+ |  |     |--pcie_7x_v1_3_pcie_pipe_lane (per lane)
+ |  |
+ |  |--pcie_7x_v1_3_gt_top
+ |     |
+ |     |--pcie_7x_v1_3_pipe_wrapper
+ |        |
+ |        |--pcie_7x_v1_3_pipe_clock
+ |        |--pcie_7x_v1_3_pipe_reset
+ |        |--pcie_7x_v1_3_qpll_reset
+ |        |--pcie_7x_v1_3_pipe_user
+ |        |--pcie_7x_v1_3_pipe_rate
+ |        |--pcie_7x_v1_3_pipe_sync
+ |        |--pcie_7x_v1_3_pipe_drp
+ |        |--pcie_7x_v1_3_pipe_eq
+ |        |  |
+ |        |  |--pcie_7x_v1_3_rxeq_scan
+ |        |
+ |        |--pcie_7x_v1_3_qpll_drp
+ |        |--pcie_7x_v1_3_qpll_wrapper
+ |        |--pcie_7x_v1_3_gt_wrapper
+ |        |  |
+ |        |  |-- GTXE2_CHANNEL
+ |        |
+ |        |--pcie_7x_v1_3_qpll_drp.v
+ |        |--pcie_7x_v1_3_qpll_wrapper.v
+ |           |
+ |           |-- GTXE2_COMMON
+ |
+ |--pcie_app_7x (PIO design, in example_design directory)
+    |
+    |--PIO
+       |
+       |--PIO_EP
+       |  |
+       |  |--PIO_EP_MEM_ACCESS
+       |  |  |
+       |  |  |--EP_MEM
+       |  |     |
+       |  |     |--RAMB36
+       |  |
+       |  |--PIO_RX_ENGINE
+       |  |--PIO_TX_ENGINE
+       |
+       |--PIO_TO_CTRL
+
+

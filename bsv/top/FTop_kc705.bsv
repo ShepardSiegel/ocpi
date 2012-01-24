@@ -71,7 +71,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   LCDController    lcd_ctrl   <- mkLCDController(clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       needs_init <- mkReg(True,     clocked_by sys0_clk, reset_by sys0_rst);
 
-  Reg#(UInt#(16))    freeCnt <- mkReg(0,     clocked_by p125Clk, reset_by p125Rst);
+  Reg#(UInt#(32))    freeCnt <- mkReg(0,     clocked_by p125Clk, reset_by p125Rst);
 
   rule inc_freecnt;
     freeCnt <= freeCnt + 1;
@@ -91,7 +91,8 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
  
 
-  //ReadOnly#(Bit#(2)) infLed    <- mkNullCrossingWire(noClock, ctop.led);
+  ReadOnly#(Bit#(2)) infLed      <- mkNullCrossingWire(noClock, ctop.led);
+  ReadOnly#(Bit#(1)) blinkLed    <- mkNullCrossingWire(noClock, pack(freeCnt)[25]);
 
   //Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
@@ -133,7 +134,8 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   interface PCI_EXP  pcie    = pciw.pcie;
   interface Clock    p125clk = p125Clk;
   interface Reset    p125rst = p125Rst;
-  method             debug   = pack(freeCnt);
+  method             debug   = pack(freeCnt)[31:16];
+  method  led   = {pack(blinkLed), 4'b00000, infLed, pack(pciw.linkUp)}; //8 leds are on active high on KC705
   interface LCD      lcd     = lcd_ctrl.ifc;
   //interface GPSIfc   gps     = ctop.gps;
   //interface FLASH_IO flash   = flash0.flash;
