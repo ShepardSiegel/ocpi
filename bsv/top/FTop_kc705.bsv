@@ -124,7 +124,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
 
   rule init_lcd if (needs_init);  // Paint the 16x2 LCD...
      Vector#(16,Bit#(8))  text1 = lcdLine("Atomic Rules v42");
-     Vector#(16,Bit#(8))  text2 = lcdLine("OpenCPI : kc705 ");
+     Vector#(16,Bit#(8))  text2 = lcdLine("OpenCPI : kc705  ");
      lcd_ctrl.setLine1(text1);
      lcd_ctrl.setLine2(text2);
      needs_init <= False;
@@ -135,7 +135,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   interface Clock    p125clk = p125Clk;
   interface Reset    p125rst = p125Rst;
   method             debug   = pack(freeCnt)[31:16];
-  method  led   = {pack(blinkLed), 4'b00000, infLed, pack(pciw.linkUp)}; //8 leds are on active high on KC705
+  method  led   = {pack(blinkLed), 4'b0000, infLed, pack(pciw.linkUp)}; //8 leds are on active high on KC705
   interface LCD      lcd     = lcd_ctrl.ifc;
   //interface GPSIfc   gps     = ctop.gps;
   //interface FLASH_IO flash   = flash0.flash;

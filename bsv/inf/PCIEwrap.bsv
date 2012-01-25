@@ -196,10 +196,10 @@ module mkPCIEwrapX7_125#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIE
 
   (* fire_when_enabled *) rule capture_pciDevice; pciDevice <= pciDev;  endrule 
 
-  FIFO#(TLPData#(16))   fP2I    <- mkFIFO(clocked_by p125clk, reset_by p125rst);
-  FIFO#(TLPData#(16))   fI2P    <- mkFIFO(clocked_by p125clk, reset_by p125rst);
-  mkConnection(pci0.trn_rx,  toPut(fP2I),  clocked_by p125clk,  reset_by p125rst);
-  mkConnection(toGet(fI2P),  pci0.trn_tx,  clocked_by p125clk,  reset_by p125rst);
+  FIFO#(TLPData#(16))   fP2I     <- mkFIFO(clocked_by p125clk, reset_by p125rst);
+  FIFO#(TLPData#(16))   fI2P     <- mkFIFO(clocked_by p125clk, reset_by p125rst);
+  mkConnection(pci0.trn_rx,  toPut(fP2I),  clocked_by p125clk, reset_by p125rst);
+  mkConnection(toGet(fI2P),  pci0.trn_tx,  clocked_by p125clk, reset_by p125rst);
 
   // TODO: Implement me when these interfaces are exposed
   //mkConnection(pci0.cfg_interrupt, pcie_irq.pcie_irq);

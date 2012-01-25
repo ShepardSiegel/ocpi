@@ -2484,9 +2484,9 @@ module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))     
    interface PCIE_TRN_XMIT16 trn_tx;
       method Action xmit(discontinue, data) if (pcie_ep.axi_tx.tready); 
          //pcie_ep.trn_tx.tsof_n(pack(!data.sof));          // no sof for AXI
-         pcie_ep.axi_tx.tlast(data.eof);                    // eof goes to tlast
          //pcie_ep.trn_tx.tsrc_dsc_n(pack(!discontinue));   // no xmt discontinue
-         //FIXME tstrb/be pcie_ep.axi_tx.tstrb(reverseBits(data.be));        // active-high be's are strobes, TODO check reverseBits
+         pcie_ep.axi_tx.tlast(data.eof);                    // eof goes to tlast
+         pcie_ep.axi_tx.tstrb(reverseBits(data.be));        // active-high be's are strobes, TODO check reverseBits
          pcie_ep.axi_tx.tdata(reverseDWORDS(data.data));    // reverse DWORDS
          pwAxiTx.send;
       endmethod
@@ -2498,13 +2498,12 @@ module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))     
          retval.sof  = pcie_ep.axi_rx.tvalid && !rcvPktActive; // Make SoF on first tvalid
          retval.eof  = pcie_ep.axi_rx.tlast;
          retval.hit  = pcie_ep.axi_rx.tuser[8:2]; // implementation specific choice where 7 bar bits are in tuser
-         //FIXME tstrb/be retval.be   = reverseBits(pcie_ep.axi_rx.tstrb); //TODO check reverseBits
+         retval.be   = reverseBits(pcie_ep.axi_rx.tstrb); //TODO check reverseBits
          retval.data = reverseDWORDS(pcie_ep.axi_rx.tdata);
          pwAxiRx.send;
          return retval;
       endmethod
    endinterface
-
 
    /*
    interface pl            = pcie_ep.pl;
