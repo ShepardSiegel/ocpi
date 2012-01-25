@@ -43,7 +43,7 @@ BSVAPP    ?= bsv/app
 BSVTOP    ?= bsv/top
 BSVINF    ?= bsv/inf
 BSVAXI    ?= bsv/axi
-BSVDIRS   ?= ./bsv/app:./bsv/axi:./bsv/dev:./bsv/inf:./bsv/prm:./bsv/top:./bsv/tst:./bsv/utl:./bsv/wip:./bsv/wrk
+BSVDIRS   ?= ./bsv/app:./bsv/axi:./bsv/dev:./bsv/inf:./bsv/prm:./bsv/top:./bsv/tst:./bsv/utl:./bsv/wip:./bsv/wrk:./bsv/pci
 
 OCAPP_S0    ?= OCApp_scenario0
 OCAPP_S1    ?= OCApp_scenario1

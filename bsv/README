@@ -1,10 +1,11 @@
 BSV Source Files for OpenCPI
-This directory is split into these ten sub-directories:
+This directory is split into these sub-directories:
 
  app - Applications, OpenCPI notion of collections of Workers
  axi - AXI, AXI bridges
  dev - Devices, code that reflects low-level devices, also importBVI to wrap Verilog devices
  inf - Infrastructure, OpenCPI Infrastructure IP
+ pci - PCI Express definitions and implementations
  prm - Primatives, circuits that can be resued among modules, also importBVI of Verilog prims
  top - Top, FTop level of OpenCPI, typically board-specific module just under fpgaTop
  tst - Test, testbenches and support
