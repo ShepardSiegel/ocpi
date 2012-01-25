@@ -95,7 +95,7 @@ switch ($buildTarget)
     set CSIN = csdef100_v5.cdc
     breaksw
   case kc705 
-    set PART = xc7k325t-fbg900-1
+    set PART = xc7k325t-ffg900-1
     set PCIe = pcie_4243_axi_k6_gtx_x4_250
     set FFT  = fft_v5_4k_strm_nat
     set DDC  = ddc_4243_4ch_v5

@@ -4,7 +4,7 @@
 ## 2011-09-27 Edit for first KC705 arrival
 ## 2012-01-24 PCIe debug with v1_3 PCIe EP
 
-CONFIG PART = xc7k325t-fbg900-1 ;
+CONFIG PART = xc7k325t-ffg900-1 ;
 
 # 200 MHz XTAL...
 #NET  SYSCLK_P                  LOC = AD12 | IOSTANDARD=LVDS;     # Bank  33 VCCO - VCC1V5_FPGA - IO_L12P_T1_MRCC_33
