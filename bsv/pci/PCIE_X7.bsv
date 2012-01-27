@@ -39,18 +39,18 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
    endinterface
 
    interface PCIE_PIPE pipe;
-     method                             pClk      (PIPE_PCLK_IN)            enable((*inhigh*)en100)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             rxUserClk (PIPE_RXUSRCLK_IN)        enable((*inhigh*)en101)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             rxOutClkIn(PIPE_RXOUTCLK_IN)        enable((*inhigh*)en102)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             dxClk     (PIPE_DCLK_IN)            enable((*inhigh*)en103)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             userClk1  (PIPE_USERCLK1_IN)        enable((*inhigh*)en104)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             userClk2  (PIPE_USERCLK2_IN)        enable((*inhigh*)en105)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             oobClk    (PIPE_OOBCLK_IN)          enable((*inhigh*)en099)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method                             mmcmLock  (PIPE_MMCM_LOCK_IN)       enable((*inhigh*)en106)  clocked_by(no_clock) reset_by(no_reset);  // Action/Input (method,signal,ena)
-     method  PIPE_TXOUTCLK_OUT          txOutClk                                                     clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
-     method  PIPE_RXOUTCLK_OUT          rxOutClkOut                                                  clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
-     method  PIPE_PCLK_SEL_OUT          pclkSel                                                      clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
-     method  PIPE_GEN3_OUT              gen3                                                         clocked_by(no_clock) reset_by(no_reset);  // Value/Output (signal,method)
+     method                             pClk      (PIPE_PCLK_IN)            enable((*inhigh*)en100)  clocked_by(no_clock) reset_by(no_reset);
+     method                             rxUserClk (PIPE_RXUSRCLK_IN)        enable((*inhigh*)en101)  clocked_by(no_clock) reset_by(no_reset);
+     method                             rxOutClkIn(PIPE_RXOUTCLK_IN)        enable((*inhigh*)en102)  clocked_by(no_clock) reset_by(no_reset);
+     method                             dxClk     (PIPE_DCLK_IN)            enable((*inhigh*)en103)  clocked_by(no_clock) reset_by(no_reset);
+     method                             userClk1  (PIPE_USERCLK1_IN)        enable((*inhigh*)en104)  clocked_by(no_clock) reset_by(no_reset);
+     method                             userClk2  (PIPE_USERCLK2_IN)        enable((*inhigh*)en105)  clocked_by(no_clock) reset_by(no_reset);
+     method                             oobClk    (PIPE_OOBCLK_IN)          enable((*inhigh*)en099)  clocked_by(no_clock) reset_by(no_reset);
+     method                             mmcmLock  (PIPE_MMCM_LOCK_IN)       enable((*inhigh*)en106)  clocked_by(no_clock) reset_by(no_reset);
+     method  PIPE_TXOUTCLK_OUT          txOutClk                                                     clocked_by(no_clock) reset_by(no_reset);
+     method  PIPE_RXOUTCLK_OUT          rxOutClkOut                                                  clocked_by(no_clock) reset_by(no_reset);
+     method  PIPE_PCLK_SEL_OUT          pclkSel                                                      clocked_by(no_clock) reset_by(no_reset);
+     method  PIPE_GEN3_OUT              gen3                                                         clocked_by(no_clock) reset_by(no_reset);
    endinterface
 
    interface PCIE_AXI125 axi;
@@ -210,10 +210,10 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
      cfg_error_ecrc, cfg_error_ur, cfg_error_cpl_timeout, cfg_error_cpl_unexpect, cfg_error_cpl_abort, cfg_error_posted, cfg_error_cor, cfg_error_egress_blocked, 
      cfg_error_internal_cor, cfg_error_internal_uncor, cfg_error_malformed, cfg_error_mc_blocked, cfg_error_poisoned, cfg_error_no_recovery, 
      cfg_error_tlp_cpl_header, cfg_error_locked, cfg_error_aer_headerlog, cfg_error_acs, 
-     cfg_interrupt_req, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_stat, cfg_interrupt_msgnum, 
-     cfg2_status, cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
+     cfg_interrupt_req, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_stat, cfg_interrupt_msgnum,
+     cfg2_status, cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_pmcsr_pme_en,
+     cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
      cfg3_turnoff_ok, cfg3_to_turnoff, cfg3_trn_pending, cfg3_pm_wake, cfg3_bus_number, cfg3_device_number, cfg3_function_number, cfg3_dsn, 
-     //drp_clk, drp_en, drp_we, drp_addr, drp_din, drp_rdy, drp_dout,
      pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
      pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
      pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph, pl_received_hot_rst
@@ -226,12 +226,12 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
      axi_rx_tdata, axi_rx_tkeep, axi_rx_tlast, axi_rx_tvalid, axi_rx_tuser, axi_rx_tready, axi_rx_np_ok, 
      cfg_di, cfg_byte_en, cfg_dwaddr, cfg_wr_en, cfg_rd_en, cfg_wr_readonly, 
      cfg_error_ecrc, cfg_error_ur, cfg_error_cpl_timeout, cfg_error_cpl_unexpect, cfg_error_cpl_abort, cfg_error_posted, cfg_error_cor, cfg_error_egress_blocked, 
-     cfg_interrupt_req, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_stat, cfg_interrupt_msgnum, 
      cfg_error_internal_cor, cfg_error_internal_uncor, cfg_error_malformed, cfg_error_mc_blocked, cfg_error_poisoned, cfg_error_no_recovery, 
      cfg_error_tlp_cpl_header, cfg_error_locked, cfg_error_aer_headerlog, cfg_error_acs, 
-     cfg2_status, cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_pmcsr_pme_en, cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
+     cfg_interrupt_req, cfg_interrupt_iassert, cfg_interrupt_din, cfg_interrupt_stat, cfg_interrupt_msgnum,
+     cfg2_status, cfg2_command, cfg2_dstatus, cfg2_dcommand, cfg2_lstatus, cfg2_lcommand, cfg2_dcommand2, cfg2_pcie_link_state, cfg2_pmcsr_pme_en,
+     cfg2_pmcsr_pme_status, cfg2_pmcsr_powerstate, 
      cfg3_turnoff_ok, cfg3_to_turnoff, cfg3_trn_pending, cfg3_pm_wake, cfg3_bus_number, cfg3_device_number, cfg3_function_number, cfg3_dsn, 
-     //drp_clk, drp_en, drp_we, drp_addr, drp_din, drp_rdy, drp_dout,
      pl_initial_link_width, pl_lane_reversal_mode, pl_link_gen2_capable, pl_link_partner_gen2_supported,
      pl_link_upcfg_capable, pl_sel_link_rate, pl_sel_link_width, pl_ltssm_state, pl_directed_link_auton,
      pl_directed_link_change, pl_directed_link_speed, pl_directed_link_width, pl_upstream_prefer_deemph, pl_received_hot_rst
@@ -240,42 +240,52 @@ module vMkPCIExpressXilinx7AXI#(PCIEParams params) (PCIE_X7#(lanes))
 endmodule: vMkPCIExpressXilinx7AXI
 
 ////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 ///
-/// Implementation - Xilinx AXI Virtex 7 (X7)
+/// Implementation - Xilinx AXI Series 7 (X7) (Kintex/Virtex 7)
 ///
 ////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))       //TODO: Provide X7 (not TRN V7) as alternate implementation
+module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes)) 
    provisos(Add#(1, z, lanes));
 
 // This implementation has the interesting challenge of backward-migrating the AXI interface from this K7 v1_3 core
 // to the older TRN interface it will someday replace. This is so we can test the AXI endpoint without having to change the
 // uNoC and everything attached to it. It is mostly the DWORD ordering and control logic generation.
 
-   ////////////////////////////////////////////////////////////////////////////////
-   /// Design Elements
-   ////////////////////////////////////////////////////////////////////////////////
-   PCIE_X7#(lanes)       pcie_ep          <- vMkPCIExpressXilinx7AXI(params);   // Instance the vMk layer
-   Clock                 axiclk           = pcie_ep.axi.clk;    // 125 MHz
-   Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
-   Reset                 axiRst125        <- mkAsyncReset(2, usr_rst_n, axiclk);
-   PulseWire             pwAxiTx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-   PulseWire             pwAxiRx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-   Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by axiRst125);
+  PCIE_X7#(lanes)       pcie_ep          <- vMkPCIExpressXilinx7AXI(params);   // Instance the vMk layer
+  Clock                 axiclk           = pcie_ep.axi.clk;    // 125 MHz
+  Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
+  Reset                 axiRst125        <- mkAsyncReset(2, usr_rst_n, axiclk);
+  PulseWire             pwAxiTx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+  PulseWire             pwAxiRx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
+  Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by axiRst125);
+  FIFOF#(TLPData#(16))  txF              <- mkFIFO(clocked_by axiclk, reset_by axiRst125);
+  FIFOF#(TLPData#(16))  rxF              <- mkFIFO(clocked_by axiclk, reset_by axiRst125);
 
 
+  // Downstream RX path from AXI to TRN; enq rxF with TRN format data...
+
+  rule connect_axi_rx;
+    pcie_ep.axi_rx.tready(rxF.notFull);  // When room in rxF, assert rx_tready
+  endrule
+
+  rule rx_active (pcie_ep.axi_rx.tvalid && pwAxiRx); // Used to recreate SoF on RX path
+    rcvPktActive <= !pcie_ep.axi_rx.tlast;
+  endrule
+
+  rule accept_axi_rx (pcie_ep.axi_rx.tvalid); // core has rc data for us to accept
+    TLPData#(16) enqval = defaultValue;
+    enqval.sof  = pcie_ep.axi_rx.tvalid && !rcvPktActive; // Make SoF on first tvalid
+    enqval.eof  = pcie_ep.axi_rx.tlast;
+    enqval.hit  = pcie_ep.axi_rx.tuser[8:2]; // implementation specific choice where 7 bar bits are in tuser
+    enqval.be   = reverseBits(pcie_ep.axi_rx.tkeep); //TODO check reverseBits
+    enqval.data = reverseDWORDS(pcie_ep.axi_rx.tdata);
+       pwAxiRx.send;
+       return retval;
+     endmethod
+  endinterface
 
    rule connect_axi_tx;
      pcie_ep.axi_tx.tvalid(pwAxiTx);   // assert tvalid when we xmit - causes push into EP
-   endrule
-
-   rule connect_axi_rx;
-     pcie_ep.axi_rx.tready(pwAxiRx);   // assert tready when we receive - causes pop from EP 
-   endrule
-
-   rule rx_active (pcie_ep.axi_rx.tvalid && pwAxiRx); // Used to recreate SoF on RX path
-     rcvPktActive <= !pcie_ep.axi_rx.tlast;
    endrule
 
    // Tieoffs...
@@ -284,46 +294,43 @@ module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))     
    rule fc_sel;   pcie_ep.axi_fc.sel(RECEIVE_BUFFER_AVAILABLE_SPACE);     endrule  // always look at rcv credit avail
    mkTieOff(pcie_ep.pl);
    mkTieOff(pcie_ep.cfg);
-   //mkTieOff(pcie_ep.cfg2);  // all value methods, nothing to tie off
    mkTieOff(pcie_ep.cfg_interrupt);
    mkTieOff(pcie_ep.cfg_error);
+   //mkTieOff(pcie_ep.cfg2);  // all value methods, nothing to tie off
    //mkTieOff(pcie_ep.drp);
 
 
-   ////////////////////////////////////////////////////////////////////////////////
-   /// Interface Connections / Methods
-   ////////////////////////////////////////////////////////////////////////////////
-   interface pcie       = pcie_ep.pcie;
+  // Interfaces...
 
-   interface PCIE_TRN_COMMON_V6 trn;
-      interface Clock clk      = axiclk;    // 125 MHz from core
-      interface Reset reset_n  = usr_rst_n;
-      method    Bool  link_up  = pcie_ep.axi.lnk_up;
-   endinterface
+  interface pcie       = pcie_ep.pcie;
 
-   interface PCIE_TRN_XMIT16 trn_tx;
-      method Action xmit(discontinue, data) if (pcie_ep.axi_tx.tready); 
-         pcie_ep.axi_tx.tlast(data.eof);                    // eof goes to tlast
-         pcie_ep.axi_tx.tkeep(reverseBits(data.be));        // active-high be's are strobes, TODO check reverseBits
-         pcie_ep.axi_tx.tdata(reverseDWORDS(data.data));    // reverse DWORDS
-         pwAxiTx.send;
-      endmethod
-   endinterface
+  interface PCIE_TRN_COMMON_V6 trn;
+    interface Clock clk      = axiclk;    // 125 MHz from core
+    interface Reset reset_n  = usr_rst_n;
+    method    Bool  link_up  = pcie_ep.axi.lnk_up;
+  endinterface
 
+  interface PCIE_TRN_XMIT16 trn_tx;  // TX data moving upstream from endpoint
+    method Action xmit(discontinue, data) if (txF.notFull);
+      txInF.enq(data);
+    endmethod
+  endinterface
 
-   interface PCIE_TRN_RECV16 trn_rx;
-      method ActionValue#(TLPData#(16)) recv() if (pcie_ep.axi_rx.tvalid);
-         TLPData#(16) retval = defaultValue;
-         retval.sof  = pcie_ep.axi_rx.tvalid && !rcvPktActive; // Make SoF on first tvalid
-         retval.eof  = pcie_ep.axi_rx.tlast;
-         retval.hit  = pcie_ep.axi_rx.tuser[8:2]; // implementation specific choice where 7 bar bits are in tuser
-         retval.be   = reverseBits(pcie_ep.axi_rx.tkeep); //TODO check reverseBits
-         retval.data = reverseDWORDS(pcie_ep.axi_rx.tdata);
-         pwAxiRx.send;
-         return retval;
-      endmethod
-   endinterface
+  interface PCIE_TRN_RECV16 trn_rx; // RX data moving downstream to endpoint
+     method ActionValue#(TLPData#(16)) recv() if (rxF.notEmpty);
+       let rxo = rxOutF.first;
+       rxOutF.deq;
+       TLPData#(16) retval = defaultValue;
+       retval.sof  = rxo.sof;
+       retval.eof  = rxo.eof;
+       retval.hit  = rxo.hit;
+       retval.be   = rxo.be;
+       retval.data = rxo.data;
+       return retval;
+     endmethod
+  endinterface
 
+  // FIXME: Need cfg interface for bus/dev/function
 
    /*
    interface pl            = pcie_ep.pl;
