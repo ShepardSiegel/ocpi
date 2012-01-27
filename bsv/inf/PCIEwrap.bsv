@@ -50,11 +50,11 @@ endinterface: PCIEwrapAIfc
 module mkPCIEwrap#(String family, Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrapIfc#(lanes)) provisos(Add#(1,z,lanes));
   PCIEwrapIfc#(lanes) _a;
   case (family)
-    "V5"    : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 5
-    "V6"    : _a  <- mkPCIEwrapV6(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6
-    "X6"    : _a  <- mkPCIEwrapX6(pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6 with AXI Interface
+    "V5"    : _a  <- mkPCIEwrapV5    (pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 5
+    "V6"    : _a  <- mkPCIEwrapV6    (pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6
+    "X6"    : _a  <- mkPCIEwrapX6    (pci0_clkp, pci0_clkn, pci0_rstn);  // Virtex 6 with AXI Interface
     "X7"    : _a  <- mkPCIEwrapX7_125(pci0_clkp, pci0_clkn, pci0_rstn);  // Xilinx Series 7 AXI (Artex, Kintex, Virtex)
-    default : _a  <- mkPCIEwrapV5(pci0_clkp, pci0_clkn, pci0_rstn);
+    default : _a  <- mkPCIEwrapV5    (pci0_clkp, pci0_clkn, pci0_rstn);
   endcase
   return _a;
 endmodule
@@ -136,14 +136,6 @@ module mkPCIEwrapX6#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIEwrap
   PciId                 pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
   Reg#(PciId)           pciDevice   <- mkSyncReg(unpack(0), p250clk, p250rst, p125clk); // multi-bit sync 250 to 125 MHz
 
-  Reg#(UInt#(4))        dbpciCD          <- mkReg(4, clocked_by pci0_clk, reset_by pci0_rstn);
-  Reg#(UInt#(4))        dbpciCE          <- mkReg(5, clocked_by p250clk,  reset_by p250rst);
-  Reg#(UInt#(4))        dbpciCF          <- mkReg(6, clocked_by p125clk,  reset_by p125rst);  
-
-  rule cnt_cd; dbpciCD <= dbpciCD + 1; endrule
-  rule cnt_ce; dbpciCE <= dbpciCE + 1; endrule
-  rule cnt_cf; dbpciCF <= dbpciCF + 1; endrule
-
   (* fire_when_enabled, no_implicit_conditions *) rule send_pciLinkup; pciLinkUp.send(pack(pLinkUp)); endrule 
   (* fire_when_enabled *) rule capture_pciDevice; pciDevice <= pciDev;  endrule 
 
@@ -191,7 +183,7 @@ module mkPCIEwrapX7_125#(Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(PCIE
   Clock                 p125clk     =  pci0.trn.clk;
   Reset                 p125rst     <- mkAsyncReset(1, pci0.trn.reset_n, p125clk );
   Bool                  pLinkUp     =  pci0.trn.link_up;
-  PciId                 pciDev      =  PciId { bus:pci0.cfg.bus_number, dev:pci0.cfg.device_number, func:pci0.cfg.function_number};
+  PciId                 pciDev      =  PciId { bus:pci0.cfg3.bus_number, dev:pci0.cfg3.device_number, func:pci0.cfg3.function_number};
   Reg#(PciId)           pciDevice    <- mkReg(unpack(0), clocked_by p125clk, reset_by p125rst);
 
   (* fire_when_enabled *) rule capture_pciDevice; pciDevice <= pciDev;  endrule 

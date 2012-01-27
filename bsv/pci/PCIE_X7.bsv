@@ -255,42 +255,84 @@ module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))
   Clock                 axiclk           = pcie_ep.axi.clk;    // 125 MHz
   Reset                 usr_rst_n        <- mkResetInverter(pcie_ep.axi.usr_rst_p); // Invert the active-high user reset from the AXI core
   Reset                 axiRst125        <- mkAsyncReset(2, usr_rst_n, axiclk);
-  PulseWire             pwAxiTx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-  PulseWire             pwAxiRx          <- mkPulseWire(clocked_by axiclk, reset_by noReset);
-  Reg#(Bool)            rcvPktActive     <- mkDReg(False, clocked_by axiclk, reset_by axiRst125);
-  FIFOF#(TLPData#(16))  txF              <- mkFIFO(clocked_by axiclk, reset_by axiRst125);
-  FIFOF#(TLPData#(16))  rxF              <- mkFIFO(clocked_by axiclk, reset_by axiRst125);
+  FIFOF#(TLPData#(16))  txF              <- mkFIFOF(clocked_by axiclk, reset_by axiRst125);
+  FIFOF#(TLPData#(16))  rxF              <- mkFIFOF(clocked_by axiclk, reset_by axiRst125);
+
+  Wire#(Bit#(128))      axiTxData        <- mkDWire(0,     clocked_by axiclk, reset_by axiRst125);
+  Wire#(Bit#(16))       axiTxKeep        <- mkDWire(0,     clocked_by axiclk, reset_by axiRst125);
+  Wire#(Bit#(4) )       axiTxUser        <- mkDWire(0,     clocked_by axiclk, reset_by axiRst125);
+  Wire#(Bool)           axiTxLast        <- mkDWire(False, clocked_by axiclk, reset_by axiRst125);
+  Wire#(Bool)           axiTxValid       <- mkDWire(False, clocked_by axiclk, reset_by axiRst125);
+
+  // There are three key functions this module provides:
+  // 1. Get the PciID from the configuration port and provide that info upward
+  // 2. Manage the traffic downstream RX from the AXI PCIe device to provide a TRN source  ->AXI->TRN->
+  // 3. Manage the traffic upstream TX to the AXI PCIe device to provide a TRN sink        <-AXI<-TRN<-
 
 
-  // Downstream RX path from AXI to TRN; enq rxF with TRN format data...
+  //
+  // Downstream RX path from AXI to TRN; enq rxF with TRN format data converted from AXI...
+  //
 
   rule connect_axi_rx;
     pcie_ep.axi_rx.tready(rxF.notFull);  // When room in rxF, assert rx_tready
   endrule
 
-  rule rx_active (pcie_ep.axi_rx.tvalid && pwAxiRx); // Used to recreate SoF on RX path
-    rcvPktActive <= !pcie_ep.axi_rx.tlast;
+  function Bool isSOF(Bit#(22) tuser) = unpack(tuser[14]);
+  function Bool isEOF(Bit#(22) tuser) = unpack(tuser[21]);
+  function Bit#(7)  getBAR(Bit#(22) tuser) = tuser[8:2];
+  function Bit#(16) genBE(Bit#(22) tuser);  // assumes no straddling
+    Bit#(16) rval = '1;
+    if (isEOF(tuser)) begin
+      case (tuser[20:19])
+        0: rval = 16'h000F; // End has DWORD 0
+        1: rval = 16'h00FF; // End has DWORD 0,1
+        2: rval = 16'h0FFF; // End has DWORD 0,1,2
+        3: rval = 16'hFFFF; // End has DWORD 0.1,2,3
+      endcase
+    end 
+    return(rval);
+  endfunction
+
+  // TODO: Extend RX to handle straddled packet scenario
+  // This is a naive implementation that expects alligned, not straddled packets
+  rule accept_axi_rx (pcie_ep.axi_rx.tvalid); // core has rc data for us to accept
+    rxF.enq( TLPData {
+      sof  :  isSOF(pcie_ep.axi_rx.tuser),
+      eof  :  isEOF(pcie_ep.axi_rx.tuser),
+      hit  : getBAR(pcie_ep.axi_rx.tuser),
+      be   : reverseBYTES(genBE(pcie_ep.axi_rx.tuser)), // reverseBYTES as TRN is big endian
+      data : reverseDWORDS(pcie_ep.axi_rx.tdata) });
   endrule
 
-  rule accept_axi_rx (pcie_ep.axi_rx.tvalid); // core has rc data for us to accept
-    TLPData#(16) enqval = defaultValue;
-    enqval.sof  = pcie_ep.axi_rx.tvalid && !rcvPktActive; // Make SoF on first tvalid
-    enqval.eof  = pcie_ep.axi_rx.tlast;
-    enqval.hit  = pcie_ep.axi_rx.tuser[8:2]; // implementation specific choice where 7 bar bits are in tuser
-    enqval.be   = reverseBits(pcie_ep.axi_rx.tkeep); //TODO check reverseBits
-    enqval.data = reverseDWORDS(pcie_ep.axi_rx.tdata);
-       pwAxiRx.send;
-       return retval;
-     endmethod
-  endinterface
+  rule rx_np_ok;  pcie_ep.axi_rx.np_ok (True); endrule  // always allow non-posted requests
+  rule rx_np_req; pcie_ep.axi_rx.np_req(True); endrule  // NP reqs can come at line rate
 
-   rule connect_axi_tx;
-     pcie_ep.axi_tx.tvalid(pwAxiTx);   // assert tvalid when we xmit - causes push into EP
-   endrule
+
+  //
+  // Upstream TX path from TRN to AXI; deq txF with TRN format data and convert to AXI
+  //
+
+  rule connect_axi_tx;
+    pcie_ep.axi_tx.tdata(axiTxData);
+    pcie_ep.axi_tx.tkeep(axiTxKeep);
+    pcie_ep.axi_tx.tuser(axiTxUser);
+    pcie_ep.axi_tx.tlast(axiTxLast);
+    pcie_ep.axi_tx.tvalid(axiTxValid);
+  endrule
+
+  rule advance_axi_tx (pcie_ep.axi_tx.tready);
+    let tlp = txF.first; txF.deq;
+    axiTxValid <= True;
+    axiTxData <= reverseDWORDS(tlp.data);
+    axiTxKeep <= (tlp.eof) ? reverseBYTES(tlp.be) : '1;
+    axiTxUser <= 4'b0000; // src_dsc, tx_stream, err_fwd, ecrc_gen  TODO: Consider streaming cut-through
+    axiTxLast <= tlp.eof;
+  endrule
+
+  rule tx_grant; pcie_ep.axi_tx.cfg_gnt(True); endrule  // always let EP have priority
 
    // Tieoffs...
-   rule tx_grant; pcie_ep.axi_tx.cfg_gnt(True); endrule  // always let EP have priority
-   rule rx_np_ok; pcie_ep.axi_rx.np_ok(True);   endrule  // always allow non-posted requests
    rule fc_sel;   pcie_ep.axi_fc.sel(RECEIVE_BUFFER_AVAILABLE_SPACE);     endrule  // always look at rcv credit avail
    mkTieOff(pcie_ep.pl);
    mkTieOff(pcie_ep.cfg);
@@ -310,34 +352,29 @@ module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))
     method    Bool  link_up  = pcie_ep.axi.lnk_up;
   endinterface
 
-  interface PCIE_TRN_XMIT16 trn_tx;  // TX data moving upstream from endpoint
-    method Action xmit(discontinue, data) if (txF.notFull);
-      txInF.enq(data);
-    endmethod
-  endinterface
-
-  interface PCIE_TRN_RECV16 trn_rx; // RX data moving downstream to endpoint
+  // As the rxF FIFO has TRN format data, we pop the TLPData and return it...
+  interface PCIE_TRN_RECV16 trn_rx; // RX data moving downstream
      method ActionValue#(TLPData#(16)) recv() if (rxF.notEmpty);
-       let rxo = rxOutF.first;
-       rxOutF.deq;
-       TLPData#(16) retval = defaultValue;
-       retval.sof  = rxo.sof;
-       retval.eof  = rxo.eof;
-       retval.hit  = rxo.hit;
-       retval.be   = rxo.be;
-       retval.data = rxo.data;
-       return retval;
+       let rxo = rxF.first;
+       rxF.deq;
+       return rxo;
      endmethod
   endinterface
 
-  // FIXME: Need cfg interface for bus/dev/function
+  // As the txF FIFO has TRN format data, we enqueue when we can...
+  interface PCIE_TRN_XMIT16 trn_tx;  // TX data moving upstream 
+    method Action xmit(discontinue, data) if (txF.notFull);
+      txF.enq(data);
+    endmethod
+  endinterface
 
-   /*
-   interface pl            = pcie_ep.pl;
-   interface cfg           = pcie_ep.cfg;
-   interface cfg_interrupt = pcie_ep.cfg_interrupt;
-   interface cfg_err       = pcie_ep.cfg_err;
-   */
+  interface cfg3          = pcie_ep.cfg3;  // Just expose the cfg3 interface to provide bus/dev/func
+  /*
+  interface pl            = pcie_ep.pl;
+  interface cfg           = pcie_ep.cfg;
+  interface cfg_interrupt = pcie_ep.cfg_interrupt;
+  interface cfg_err       = pcie_ep.cfg_err;
+  */
 endmodule: mkPCIExpressEndpointX7_125
 
 endpackage: PCIE_X7

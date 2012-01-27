@@ -1314,7 +1314,7 @@ interface PCIExpressX7#(numeric type lanes);
    interface PCIE_TRN_COMMON_V6 trn;
    interface PCIE_TRN_XMIT16    trn_tx;
    interface PCIE_TRN_RECV16    trn_rx;
-   interface PCIE_CFG_V6        cfg;
+   interface PCIE_AXI7_CFG3     cfg3;
    interface PCIE_INT_V6        cfg_interrupt;
    interface PCIE_ERR_V6        cfg_err;
    interface PCIE_PL_V6         pl;
