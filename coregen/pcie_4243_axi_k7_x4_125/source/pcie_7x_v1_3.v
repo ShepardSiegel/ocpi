@@ -86,7 +86,7 @@ module pcie_7x_v1_3 # (
 
   parameter         C_DATA_WIDTH = 128,
   parameter [31:0]  CARDBUS_CIS_POINTER = 32'h00000000,
-  parameter [23:0]  CLASS_CODE = 24'h058000,
+  parameter [23:0]  CLASS_CODE = 24'h050000,
   parameter         CMD_INTX_IMPLEMENTED = "TRUE",
   parameter         CPL_TIMEOUT_DISABLE_SUPPORTED = "FALSE",
   parameter [3:0]   CPL_TIMEOUT_RANGES_SUPPORTED = 4'h2,

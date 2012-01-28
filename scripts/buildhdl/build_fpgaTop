@@ -152,7 +152,7 @@ trce -v 20 -fastpaths -xml fpgaTop.twx fpgaTop.ncd -o fpgaTop.twr fpgaTop.pcf
 
 if ($buildTarget == kc705) then
   echo Using bitgen defaults
-  bitgen fpgaTop.ncd 
+  bitgen -w fpgaTop.ncd 
 else
   echo Using bitgen options from file
   bitgen -f bitgen_bit.ut fpgaTop.ncd 

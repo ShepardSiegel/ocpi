@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.4
-# Date: Fri Jan 20 20:52:14 2012
+# Date: Sat Jan 28 20:57:41 2012
 #
 ##############################################################
 #
@@ -119,7 +119,7 @@ CSET cardbus_cis_pointer=00000000
 CSET cas128_completer_supported=false
 CSET class_code_base=05
 CSET class_code_interface=00
-CSET class_code_sub=80
+CSET class_code_sub=00
 CSET component_name=pcie_7x_v1_3
 CSET cost_table=1
 CSET cpl_finite=false
@@ -260,4 +260,4 @@ CSET xlnx_ref_board=KC705_REVC
 MISC pkg_timestamp=2011-12-14T19:23:48Z
 # END Extra information
 GENERATE
-# CRC: d372f07f
+# CRC: bb9ec1c9
