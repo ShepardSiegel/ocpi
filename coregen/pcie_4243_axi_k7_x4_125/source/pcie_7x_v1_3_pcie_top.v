@@ -78,7 +78,7 @@ module pcie_7x_v1_3_pcie_top # (
   parameter [31:0] BAR3 = 32'hFFFFFFFF,
   parameter [31:0] BAR4 = 32'h00000000,
   parameter [31:0] BAR5 = 32'h00000000,
-  parameter        C_DATA_WIDTH = 64,
+  parameter        C_DATA_WIDTH = 128,  // ssiegel was 64
   parameter        REM_WIDTH = (C_DATA_WIDTH == 128) ? 2 : 1,
   parameter        KEEP_WIDTH = C_DATA_WIDTH / 8,
   parameter [7:0]  CAPABILITIES_PTR = 8'h40,

@@ -301,7 +301,7 @@ module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))
       sof  :  isSOF(pcie_ep.axi_rx.tuser),
       eof  :  isEOF(pcie_ep.axi_rx.tuser),
       hit  : getBAR(pcie_ep.axi_rx.tuser),
-      be   : reverseBYTES(genBE(pcie_ep.axi_rx.tuser)), // reverseBYTES as TRN is big endian
+      be   : reverseBits(genBE(pcie_ep.axi_rx.tuser)), 
       data : reverseDWORDS(pcie_ep.axi_rx.tdata) });
   endrule
 
@@ -325,7 +325,7 @@ module mkPCIExpressEndpointX7_125#(PCIEParams params)(PCIExpressX7#(lanes))
     let tlp = txF.first; txF.deq;
     axiTxValid <= True;
     axiTxData <= reverseDWORDS(tlp.data);
-    axiTxKeep <= (tlp.eof) ? reverseBYTES(tlp.be) : '1;
+    axiTxKeep <= (tlp.eof) ? reverseBits(tlp.be) : '1;
     axiTxUser <= 4'b0000; // src_dsc, tx_stream, err_fwd, ecrc_gen  TODO: Consider streaming cut-through
     axiTxLast <= tlp.eof;
   endrule
