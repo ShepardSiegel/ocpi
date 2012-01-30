@@ -1,0 +1,129 @@
+## VC707 UCF
+## Shepard Siegel for Atomic Rules LLC
+## 2012-01-29 Cloned from KC705
+
+CONFIG PART = xc7vx485t-ffg1761-2 ;
+
+# 200 MHz XTAL...
+#NET  SYSCLK_P                  LOC = AD12 | IOSTANDARD=LVDS;     # Bank  33 VCCO - VCC1V5_FPGA - IO_L12P_T1_MRCC_33
+#NET  SYSCLK_N                  LOC = AD11 | IOSTANDARD=LVDS;     # Bank  33 VCCO - VCC1V5_FPGA - IO_L12N_T1_MRCC_33
+NET  "sys0_clkp"     LOC = AD12 | IOSTANDARD = LVDS;
+NET  "sys0_clkn"     LOC = AD11 | IOSTANDARD = LVDS;
+#NET  CPU_RESET                 LOC = AB7  | IOSTANDARD=LVCMOS15; # Bank  34 VCCO - VCC1V5_FPGA - IO_25_VRP_34
+NET  "sys0_rst"      LOC = AB7  | IOSTANDARD = LVCMOS15; # Bank  34 VCCO - VCC1V5_FPGA - IO_25_VRP_34
+
+# User Clock...
+#NET  USER_CLOCK_P              LOC = K28  | IOSTANDARD=LVCMOS25; # Bank  15 VCCO - VCC2V5_FPGA - IO_L13P_T2_MRCC_15
+#NET  USER_CLOCK_N              LOC = K29  | IOSTANDARD=LVCMOS25; # Bank  15 VCCO - VCC2V5_FPGA - IO_L13N_T2_MRCC_15
+
+#NET  "sys1_clkp"     LOC = K28 | IOSTANDARD = LVCMOS25;
+#NET  "sys1_clkn"     LOC = K29 | IOSTANDARD = LVCMOS25;
+
+
+# PCIe... 
+#NET  PCIE_WAKE_B_LS            LOC =  F23; # Bank  16 - IO_0_16
+#NET  PCIE_PERST_LS             LOC =  G25; # Bank  16 - IO_25_16
+
+NET  "pci0_reset_n"  TIG;
+NET  "pci0_reset_n"  LOC = G25 | IOSTANDARD = LVCMOS25 | PULLUP | NODELAY;  # Check LVCMOS18 vs LVCMOS25
+
+NET  "pci0_clkp"     LOC = U8;  # 100 MHz direct from PCIe edge   
+NET  "pci0_clkn"     LOC = U7;
+INST "ftop/pciw_pci0_clk" LOC = IBUFDS_GTE2_X0Y1; # Check XOY1 bs XOY3 - need to have U8/U7 +/- pair
+
+INST "*/pcie_top_i/pcie_7x_i/pcie_block_i" LOC = PCIE_X0Y0;
+INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y7;
+INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[1].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y6;
+INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[2].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y5;
+INST "*/gt_top_i/pipe_wrapper_i/pipe_lane[3].gt_wrapper_i/gtx_channel.gtxe2_channel_i" LOC = GTXE2_CHANNEL_X0Y4;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[3].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X5Y35;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[2].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y36;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[1].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y35;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_rx/brams[0].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y34;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[0].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y33;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[1].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y32;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[2].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y31;
+INST "*/pcie_top_i/pcie_7x_i/pcie_bram_top/pcie_brams_tx/brams[3].ram/use_tdp.ramb36/bram36_tdp_bl.bram36_tdp_bl" LOC = RAMB36_X4Y30;
+
+
+
+# LEDs and Switches...
+#NET  GPIO_LED_0_LS             LOC = AB8  | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L2N_T0_33
+#NET  GPIO_LED_1_LS             LOC = AA8  | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L2P_T0_33
+#NET  GPIO_LED_2_LS             LOC = AC9  | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L3N_T0_DQS_33
+#NET  GPIO_LED_3_LS             LOC = AB9  | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L3P_T0_DQS_33
+#NET  GPIO_LED_4_LS             LOC = AE26 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_25_13
+#NET  GPIO_LED_5_LS             LOC = G19  | IOSTANDARD=LVCMOS18; # Bank  17 VCCO - VADJ_FPGA - IO_0_17
+#NET  GPIO_LED_6_LS             LOC = E18  | IOSTANDARD=LVCMOS18; # Bank  17 VCCO - VADJ_FPGA - IO_25_17
+#NET  GPIO_LED_7_LS             LOC = F16  | IOSTANDARD=LVCMOS18; # Bank  18 VCCO - VADJ_FPGA - IO_25_18
+#NET  GPIO_DIP_SW0              LOC = Y29  | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L4N_T0_13
+#NET  GPIO_DIP_SW1              LOC = W29  | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L4P_T0_13
+#NET  GPIO_DIP_SW2              LOC = AA28 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L3N_T0_DQS_13
+#NET  GPIO_DIP_SW3              LOC = Y28  | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L3P_T0_DQS_13
+#NET  GPIO_SW_N                 LOC = AA12 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L1P_T0_33
+#NET  GPIO_SW_S                 LOC = AB12 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L1N_T0_33
+#NET  GPIO_SW_E                 LOC = AG5  | IOSTANDARD=LVCMOS15; # Bank  34 VCCO - VCC1V5_FPGA - IO_L12N_T1_MRCC_34
+#NET  GPIO_SW_W                 LOC = AC6  | IOSTANDARD=LVCMOS15; # Bank  34 VCCO - VCC1V5_FPGA - IO_0_VRN_34
+#NET  GPIO_SW_C                 LOC = G12  | IOSTANDARD=LVCMOS18; # Bank  18 VCCO - VADJ_FPGA - IO_0_18
+#NET  LCD_E_LS                  LOC = AB10 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L7P_T1_33
+#NET  LCD_RS_LS                 LOC = Y11  | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L4P_T0_33
+#NET  LCD_RW_LS                 LOC = AB13 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L6N_T0_VREF_33
+#NET  LCD_DB4_LS                LOC = AA13 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L6P_T0_33
+#NET  LCD_DB5_LS                LOC = AA10 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L5N_T0_33
+#NET  LCD_DB6_LS                LOC = AA11 | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L5P_T0_33
+#NET  LCD_DB7_LS                LOC = Y10  | IOSTANDARD=LVCMOS15; # Bank  33 VCCO - VCC1V5_FPGA - IO_L4N_T0_33
+NET "led[0]"    LOC = AB8  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D0 rightmost
+NET "led[1]"    LOC = AA8  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D1
+NET "led[2]"    LOC = AC9  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D2
+NET "led[3]"    LOC = AB9  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D3
+NET "led[4]"    LOC = AE26 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D4
+NET "led[5]"    LOC = G19  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D5
+NET "led[6]"    LOC = E18  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D6
+NET "led[7]"    LOC = F16  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## User LED D7 leftmost
+NET "lcd_db[3]" LOC = Y10  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_db[2]" LOC = AA11 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_db[1]" LOC = AA10 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_db[0]" LOC = AA13 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_e"     LOC = AB10 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_rs"    LOC = Y11  | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+NET "lcd_rw"    LOC = AB13 | IOSTANDARD = LVCMOS15 | SLEW = SLOW | DRIVE = 4; ## LCD
+
+
+#NET  FMC_LPC_LA20_P            LOC = AF26 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L23P_T3_13
+#NET  FMC_LPC_LA24_P            LOC = AG30 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L18P_T2_13
+#NET  FMC_LPC_LA20_N            LOC = AF27 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L23N_T3_13
+#NET  FMC_LPC_LA24_N            LOC = AH30 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L18N_T2_13
+#NET  FMC_LPC_LA21_P            LOC = AG27 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L21P_T3_DQS_13
+#NET  FMC_LPC_LA25_P            LOC = AC26 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L19P_T3_13
+#NET  FMC_LPC_LA21_N            LOC = AG28 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L21N_T3_DQS_13
+#NET  FMC_LPC_LA25_N            LOC = AD26 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L19N_T3_VREF_13
+#NET  FMC_LPC_LA22_P            LOC = AJ27 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L20P_T3_13
+#NET  FMC_LPC_LA26_P            LOC = AK29 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L15P_T2_DQS_13
+#NET  FMC_LPC_LA22_N            LOC = AK28 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L20N_T3_13
+#NET  FMC_LPC_LA26_N            LOC = AK30 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L15N_T2_DQS_13
+#NET  FMC_LPC_LA23_P            LOC = AH26 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L22P_T3_13
+#NET  FMC_LPC_LA27_P            LOC = AJ28 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L17P_T2_13
+#NET  FMC_LPC_LA23_N            LOC = AH27 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L22N_T3_13
+#NET  FMC_LPC_LA27_N            LOC = AJ29 | IOSTANDARD=LVCMOS18; # Bank  13 VCCO - VADJ_FPGA - IO_L17N_T2_13
+
+NET "debug[0]"   LOC = AF26 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L23P_T3_13
+NET "debug[1]"   LOC = AG30 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L18P_T2_13
+NET "debug[2]"   LOC = AF27 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L23N_T3_13
+NET "debug[3]"   LOC = AH30 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L18N_T2_13
+NET "debug[4]"   LOC = AG27 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L21P_T3_DQS_13
+NET "debug[5]"   LOC = AC26 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L19P_T3_13
+NET "debug[6]"   LOC = AG28 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L21N_T3_DQS_13
+NET "debug[7]"   LOC = AD26 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L19N_T3_VREF_13
+NET "debug[8]"   LOC = AJ27 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L20P_T3_13
+NET "debug[9]"   LOC = AK29 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L15P_T2_DQS_13
+NET "debug[10]"  LOC = AK28 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L20N_T3_13
+NET "debug[11]"  LOC = AK30 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L15N_T2_DQS_13
+NET "debug[12]"  LOC = AH26 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L22P_T3_13
+NET "debug[13]"  LOC = AJ28 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L17P_T2_13
+NET "debug[14]"  LOC = AH27 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L22N_T3_13
+NET "debug[15]"  LOC = AJ29 | IOSTANDARD=LVCMOS15; # Bank  13 VCCO - VADJ_FPGA - IO_L17N_T2_13
+
+# Timing Constraints...
+NET "sys0_clkp"      TNM_NET = "SYS0CLK";  # 200 MHz sys0 XO
+TIMESPEC "TS_SYS0CLK" = PERIOD "SYS0CLK"     200 MHz HIGH 50 % ;
+

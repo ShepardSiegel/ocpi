@@ -497,7 +497,7 @@ platform_kc705: $(OBJ)
 platform_vc707: $(OBJ)
 
 	# compile to verilog backend for RTL
-	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
@@ -762,6 +762,16 @@ kc705:
 	mv build/tmp-kc705 build/kc705-`date +%Y%m%d_%H%M`
 	echo kc705 Build complete
 
+vc707:
+	mkdir -p build
+	rm -rf build/tmp-vc707
+	cp -r $(BUILD_HDL) build/tmp-vc707
+	cp ucf/vc707.ucf build/tmp-vc707
+	cp ucf/vc707.xcf build/tmp-vc707
+	cd build/tmp-vc707; ./build_fpgaTop vc707
+	mv build/tmp-vc707 build/vc707-`date +%Y%m%d_%H%M`
+	echo vc707 Build complete
+
 build_all:
 	make verilog_v5
 	make ml555
@@ -774,5 +784,6 @@ build_all:
 	make ml605
 	make sp605
 	make kc705
+	make vc707
 
 
