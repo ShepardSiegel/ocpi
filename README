@@ -12,6 +12,7 @@ ssiegel 2011-08-16 ISE 13.2, Quartus 11.0(sp1)
 ssiegel 2011-10-04 USE 13.3 prep
 ssiegel 2011-12-12 64b Host address capability
 ssiegel 2012-01-19 ISE 13.4 Library Build
+ssiegel 2012-01-30 Bluespec Release 2012.01.A (BRAM Prims Updated)
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
@@ -165,3 +166,4 @@ OpenCPI website: www.opencpi.org
 2011-04-20 Multiple GIT repos
 2011-09-30 ISE 13.3 Libraries
 2012-01-19 ISE 13.4 Libraries
+2012-01-30 Bluespec Release 2012.01.A (BRAM Prims Updated)
