@@ -65,6 +65,9 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
 
   LCDController    lcd_ctrl   <- mkLCDController(clocked_by p125Clk, reset_by p125Rst);
   Reg#(Bool)       needs_init <- mkReg(True,     clocked_by p125Clk, reset_by p125Rst);
+  Reg#(UInt#(32))  freeCnt    <- mkReg(0,        clocked_by p125Clk, reset_by p125Rst);
+
+  rule inc_freecnt; freeCnt <= freeCnt + 1; endrule
 
   // Poly approach...
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
@@ -82,6 +85,7 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
 
   ReadOnly#(Bit#(2)) infLed    <- mkNullCrossingWire(noClock, ctop.led);
+  ReadOnly#(Bit#(1)) blinkLed  <- mkNullCrossingWire(noClock, pack(freeCnt)[25]);
 
   Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
@@ -124,7 +128,7 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   interface Clock    p125clk = p125Clk;
   interface Reset    p125rst = p125Rst;
   method  led   =
-    {5'b10100, 2'b11, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
+    {5'b10100, pack(blinkLed), 1'b0, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
   interface LCD      lcd     = lcd_ctrl.ifc;
   interface GPSIfc   gps     = ctop.gps;
   interface FLASH_IO flash   = flash0.flash;
