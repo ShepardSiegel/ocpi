@@ -105,7 +105,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bit#(17))             mesgLengthRemainPull <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path) (for Pull Logic)
   Reg#(Bit#(17))             mesgComplReceived    <- mkRegU;      // Size limits maximum DMA message just under 128KB (was 2^24 but slow path)
   Reg#(Bit#(13))             maxPayloadSize       <- mkReg(128);  // 128B Typical - Must not exceed 4096B
-  Reg#(Bit#(13))             maxReadReqSize       <- mkReg(512);  // 512B Typical - Must not exceed 4096B
+  Reg#(Bit#(13))             maxReadReqSize       <- mkReg(4096); // 512B Typical - Must not exceed 4096B
   Reg#(Bit#(32))             flowDiagCount        <- mkReg(0);
   Reg#(DmaPullRules)         lastRuleFired        <- mkReg(R_none);
   Reg#(Bool)                 complTimerRunning    <- mkReg(False);

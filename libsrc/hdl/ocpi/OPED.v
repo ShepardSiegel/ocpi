@@ -101,10 +101,10 @@ initial begin
   if (C_S_AXIS_TUSER_WIDTH != 128) begin $display("Unsupported S_AXIS_TUSER width"); $finish; end
 end
 
- mkOPED_v5 oped #
-   (
-     parameter hasDebugLogic = HAS_DEBUG_LOGIC      // Set to 0 for no debug logic; Set to 1 for debug logic
+ mkOPED_v5 # (
+   .hasDebugLogic    (HAS_DEBUG_LOGIC) // Set to 0 for no debug logic; Set to 1 for debug logic
    )
+   oped
    (
   .pci0_clkp         (PCIE_CLKP),
   .pci0_clkn         (PCIE_CLKN),

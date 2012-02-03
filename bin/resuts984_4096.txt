@@ -1,0 +1,10 @@
+Bytes 1600, Time delta = 227, 7.048458 MBytes/seconds, Framesize 16
+Bytes 3200, Time delta = 230, 13.913043 MBytes/seconds, Framesize 32
+Bytes 6400, Time delta = 234, 27.350427 MBytes/seconds, Framesize 64
+Bytes 12800, Time delta = 236, 54.237288 MBytes/seconds, Framesize 128
+Bytes 25600, Time delta = 248, 103.225806 MBytes/seconds, Framesize 256
+Bytes 51200, Time delta = 295, 173.559322 MBytes/seconds, Framesize 512
+Bytes 102400, Time delta = 297, 344.781145 MBytes/seconds, Framesize 1024
+Bytes 204800, Time delta = 377, 543.236074 MBytes/seconds, Framesize 2048
+Bytes 409600, Time delta = 657, 623.439878 MBytes/seconds, Framesize 4096
+Bytes 819200, Time delta = 1303, 628.702993 MBytes/seconds, Framesize 8192

@@ -56,6 +56,8 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
   UUIDIfc         id   <- mkUUID;
 
+`ifdef OBSERVER
+
   // Observe the WCI port of the BiasWorker W3...
   WciMonitorIfc               wciMonW3              <- mkWciMonitor(8'h80); // monId=h80
   WSICaptureWorker4BIfc       captWorker0           <- mkWSICaptureWorker(True, reset_by(rst[5]));
@@ -70,6 +72,8 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   WsiMonitorIfc#(12,TMul#(ndw,32),TMul#(ndw,4),8,0) wsimMonW3 <- mkWsiMonitor(8'h82); // monId=h82
   WSICaptureWorker4BIfc       captWorker2           <- mkWSICaptureWorker(True, reset_by(rst[7]));
   mkConnection(wsimMonW3.pmem, captWorker2.wsiS0);  // Connect the monitor to the capture worker
+
+`endif
 
   // Instance the workers in this application container...
 
@@ -159,9 +163,6 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   // TODO: Use Default for tieOff...
   Wci_Es#(32) tieOff0  <- mkWciSlaveENull;
   Wci_Es#(32) tieOff1  <- mkWciSlaveENull;
-  //Wci_Es#(32) tieOff5  <- mkWciSlaveENull;
-  //Wci_Es#(32) tieOff6  <- mkWciSlaveENull;
-  //Wci_Es#(32) tieOff7  <- mkWciSlaveENull;
 
   // Connect each worker to its WCI...
   Vector#(nWci,Wci_Es#(32)) vWci;
@@ -173,25 +174,36 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   //mkConnectionMSO(vWci[3], appW3.wciS0, wciMonW3.observe);  // Connect the WCI Master to the DUT 
 
   vWci[4] = appW4.wciS0;
-  //vWci[5] = tieOff5;
-  //vWci[6] = tieOff6;
-  //vWci[7] = tieOff7;
+
+
+`ifdef OBSERVER
   vWci[5] = captWorker0.wciS0;
   vWci[6] = captWorker1.wciS0;
   vWci[7] = captWorker2.wciS0;
-
   // Connect each workers WTI Slave interfaces...
   Vector#(nWti,Wti_Es#(64)) vWti;
   vWti[0] = captWorker0.wtiS0;
   vWti[1] = captWorker1.wtiS0;
   vWti[2] = captWorker2.wtiS0;
-
   // Connect co-located WSI ports...
   mkConnectionMSO(appW2.wsiM0, appW3.wsiS0 ,wsisMonW3.observe);  // W2 SMAdapter WSI-M0   feeding W3 DelayWorker WSI-S0
   mkConnectionMSO(appW3.wsiM0, appW4.wsiS0 ,wsimMonW3.observe);  // W3 DelayWorker WSI-M0 feeding W4 SMAdapter WSI-S0
+`else
+  Wci_Es#(32) tieOff5  <- mkWciSlaveENull;
+  Wci_Es#(32) tieOff6  <- mkWciSlaveENull;
+  Wci_Es#(32) tieOff7  <- mkWciSlaveENull;
+  vWci[5] = tieOff5;
+  vWci[6] = tieOff6;
+  vWci[7] = tieOff7;
+  // Connect co-located WSI ports...
+  mkConnection(appW2.wsiM0, appW3.wsiS0);
+  mkConnection(appW3.wsiM0, appW4.wsiS0);
+`endif
 
   interface wci_s     = vWci;
+`ifdef OBSERVER
   interface wti_s     = vWti;
+`endif
 
   // Connect appropriate workers to their WMI...
   interface wmiM0     = appW2.wmiM0;

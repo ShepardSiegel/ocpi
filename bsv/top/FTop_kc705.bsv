@@ -66,18 +66,11 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
 
   (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
 
-  //LCDController    lcd_ctrl   <- mkLCDController(clocked_by p125Clk, reset_by p125Rst);
-  //Reg#(Bool)       needs_init <- mkReg(True,     clocked_by p125Clk, reset_by p125Rst);
-  LCDController    lcd_ctrl   <- mkLCDController(clocked_by sys0_clk, reset_by sys0_rst);
-  Reg#(Bool)       needs_init <- mkReg(True,     clocked_by sys0_clk, reset_by sys0_rst);
+  LCDController      lcd_ctrl   <- mkLCDController(clocked_by sys0_clk, reset_by sys0_rst);
+  Reg#(Bool)         needs_init <- mkReg(True,     clocked_by sys0_clk, reset_by sys0_rst);
+  Reg#(UInt#(32))    freeCnt    <- mkReg(0,        clocked_by p125Clk,  reset_by p125Rst);
 
-  Reg#(UInt#(32))    freeCnt <- mkReg(0,     clocked_by p125Clk, reset_by p125Rst);
-
-  rule inc_freecnt;
-    freeCnt <= freeCnt + 1;
-  endrule
-
-
+  rule inc_freecnt; freeCnt <= freeCnt + 1; endrule
 
   // Poly approach...
   //CTopIfc#(`DEFINE_NDW) ctop <- mkCTop(pciDevice, sys0_clk, sys0_rst, clocked_by p125Clk , reset_by p125Rst );
@@ -123,7 +116,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   //mkConnection(ctop.wmemiM0, dram0.wmemiS0);
 
   rule init_lcd if (needs_init);  // Paint the 16x2 LCD...
-     Vector#(16,Bit#(8))  text1 = lcdLine("Atomic Rules v42");
+     Vector#(16,Bit#(8))  text1 = lcdLine("  Atomic Rules  ");
      Vector#(16,Bit#(8))  text2 = lcdLine("OpenCPI : kc705 ");
      lcd_ctrl.setLine1(text1);
      lcd_ctrl.setLine2(text2);
