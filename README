@@ -156,6 +156,13 @@ OpenCPI website: www.opencpi.org
       https://github.com/opencpi/opencpi
     At this writing 2011-04-03, the transition is underway. Stay tuned.
 
+  "The FPGA timebase is not advancing, with or without a GPS input signal, what do I do?"
+    Look at the timeStatus and timeControl registers. You can observe the various signals on
+    the PPS output signal. Make sure the FPGA has an in tolerance X0 (usually 200 MHz) connected.
+    and that the code is compiled to expect the correct frequency. A future feature may be to allow
+    the frequency of the XO to be set as a configuration property. Now it is compiled into the code.
+    If the incident XO is too far out of tolerance; there may be no timebase at all.
+
 10. Notes
 2010-12-18 ISE 12.4 Libraries
 2010-12-16 XUPV5 testOK on core920

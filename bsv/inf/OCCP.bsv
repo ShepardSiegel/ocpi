@@ -72,7 +72,14 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
 //Reg#(Bit#(16))    msiMesgD     <-  mkRegU;                 // PCIe MSI Message Data
   Reg#(UInt#(4))    rogueTLP     <-  mkReg(0);               // Running count of unhandled TLPs
   Reg#(Bit#(3))     switch_d     <-  mkRegU;                 // Debounce switch 
+
+`ifdef ALTERA_100MHZ_SYS0CLK
+  TSMParams altera100 = TSMParams {curFreq:125e6, refFreq: 100e6};  // Altera alst4 has 100 MHz sys0 clk
+  TimeServerIfc     timeServ     <-  mkTimeServer(altera100,    sys0_clk, sys0_rst); // Instance the Time Server
+`else
   TimeServerIfc     timeServ     <-  mkTimeServer(defaultValue, sys0_clk, sys0_rst); // Instance the Time Server
+`endif
+
   Reg#(GPS64_t)     deltaTime    <-  mkReg(0.0);
   Wire#(Bit#(64))   deviceDNA    <-  mkDWire(64'h0badc0de_0badc0de);
   Wire#(Vector#(2,Bit#(32))) devDNAV <- mkWire;              // devDNA as a Vector of 2  32b DWORDs

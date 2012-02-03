@@ -1,4 +1,5 @@
-// Copyright (c) 2000-2011 Bluespec, Inc.
+
+// Copyright (c) 2000-2009 Bluespec, Inc.
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Revision: 25100 $
-// $Date: 2011-09-01 18:44:19 +0000 (Thu, 01 Sep 2011) $
+// $Revision: 24080 $
+// $Date: 2011-05-18 19:32:52 +0000 (Wed, 18 May 2011) $
 
 `ifdef BSV_ASSIGNMENT_DELAY
 `else
@@ -40,6 +41,7 @@ module BRAM1(CLK,
    parameter                      DATA_WIDTH = 1;
    parameter                      MEMSIZE    = 1;
 
+
    input                          CLK;
    input                          EN;
    input                          WE;
@@ -48,8 +50,8 @@ module BRAM1(CLK,
    output [DATA_WIDTH-1:0]        DO;
 
    reg [DATA_WIDTH-1:0]           RAM[0:MEMSIZE-1];
+   reg [ADDR_WIDTH-1:0]           ADDR_R;
    reg [DATA_WIDTH-1:0]           DO_R;
-   reg [DATA_WIDTH-1:0]           DO_R2;
 
 `ifdef BSV_NO_INITIAL_BLOCKS
 `else
@@ -60,26 +62,21 @@ module BRAM1(CLK,
       for (i = 0; i < MEMSIZE; i = i + 1) begin
          RAM[i] = { ((DATA_WIDTH+1)/2) { 2'b10 } };
       end
-      DO_R  = { ((DATA_WIDTH+1)/2) { 2'b10 } };
-      DO_R2 = { ((DATA_WIDTH+1)/2) { 2'b10 } };
+      ADDR_R = { ((ADDR_WIDTH+1)/2) { 2'b10 } };
+      DO_R = { ((DATA_WIDTH+1)/2) { 2'b10 } };
    end
    // synopsys translate_on
 `endif // !`ifdef BSV_NO_INITIAL_BLOCKS
 
    always @(posedge CLK) begin
       if (EN) begin
-         if (WE) begin
-            RAM[ADDR] <= `BSV_ASSIGNMENT_DELAY DI;
-            DO_R <= `BSV_ASSIGNMENT_DELAY DI;
-         end
-         else begin
-            DO_R <= `BSV_ASSIGNMENT_DELAY RAM[ADDR];
-         end
+         if (WE)
+           RAM[ADDR] <= `BSV_ASSIGNMENT_DELAY DI;
+         ADDR_R    <= `BSV_ASSIGNMENT_DELAY ADDR;
       end
-      DO_R2 <= `BSV_ASSIGNMENT_DELAY DO_R;
+      DO_R      <= `BSV_ASSIGNMENT_DELAY RAM[ADDR_R];
    end
 
-   // Output driver
-   assign DO = (PIPELINED) ? DO_R2 : DO_R;
+   assign DO = (PIPELINED) ? DO_R : RAM[ADDR_R];
 
 endmodule // BRAM1

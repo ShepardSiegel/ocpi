@@ -518,6 +518,7 @@ platform_alst4: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW1 \
 		-D USE_DEBUGLOGIC \
+		-D ALTERA_100MHZ_SYS0CLK \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ALST4).bsv
 
 ######################################################################
