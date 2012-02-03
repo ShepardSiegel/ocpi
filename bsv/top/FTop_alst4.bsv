@@ -1,5 +1,5 @@
 // FTop_alst4.bsv
-// Copyright (c) 2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2011-2102 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
 import Config            ::*;
@@ -72,6 +72,8 @@ module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
    
   mkConnection(pciw.client, ctop.server); // Connect the PCIe client (fabric) to the CTop server (uNoC)
 
+  ReadOnly#(Bit#(2)) infLed   <- mkNullCrossingWire(noClock, ctop.led);
+
   Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level device-workers..
@@ -105,7 +107,8 @@ module mkFTop_alst4#(Clock sys0_clk, Reset sys0_rstn, Clock pcie_clk, Reset pcie
 
   Reg#(Bit#(16)) ledReg <- mkReg(0, clocked_by p125Clk, reset_by p125Rst);
   rule assign_led;
-    ledReg <= ~{8'h42, swParity, pack(pciw.dbgBool), pack(pciw.alive), pack(pciw.linkUp), freeCnt[29:26]};
+    ledReg <= ~{6'b100000, infLed,   // Top row of 8 LEDs
+    swParity, pack(pciw.dbgBool), pack(pciw.alive), pack(pciw.linkUp), freeCnt[29:26]};  // Bot row of 8 LEDs
   endrule
 
   // Interfaces and Methods provided...
