@@ -1,5 +1,5 @@
 // TLPServBC.bsv - TLP Server, BRAM Client
-// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011,2102 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // For use with Bluesim, you need to undefine USE_SRLFIFO, as mkSRLFIFO is not yet a BSV 
 // primative, it is importBVI of Atomic Rules Verilog...
@@ -65,8 +65,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   FIFOF#(Bit#(1))            tailEventF           <- mkFIFOF;
   Reg#(Bool)                 inIgnorePkt          <- mkRegU;
   Reg#(Bit#(10))             outDwRemain          <- mkRegU;
-  Reg#(Bool)                 tlpRcvBusy           <- mkReg(False);
-  Reg#(Bool)                 tlpXmtBusy           <- mkReg(False);
+  Reg#(Bool)                 tlpRcvBusy           <- mkReg(False);  // the inbound, downstream mutex
+  Reg#(Bool)                 tlpXmtBusy           <- mkReg(False);  // the outbound,  upstream mutex
   Reg#(Bool)                 remStart             <- mkDReg(False);
   Reg#(Bool)                 remDone              <- mkDReg(False);
   Reg#(Bool)                 nearBufReady         <- mkDReg(False);
@@ -84,6 +84,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bit#(32))             srcMesgAccu          <- mkRegU;
   Reg#(Bit#(32))             fabMesgAccu          <- mkRegU;
   Reg#(Bit#(4))              postSeqDwell         <- mkReg(0);
+  Reg#(Bit#(4))              doorSeqDwell         <- mkReg(0);
   Reg#(Bool)                 reqMetaInFlight      <- mkReg(False);
   Reg#(Bool)                 reqMetaBodyInFlight  <- mkReg(False);
   Reg#(Bool)                 xmtMetaInFlight      <- mkReg(False);
@@ -299,18 +300,26 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // This rule used at the end of all Active transfers to purposefully insert a small amount of dwell time...
   rule dmaPostSeqDwell (postSeqDwell!=0); postSeqDwell <= postSeqDwell - 1; endrule
+  rule dmaDoorSeqDwell (doorSeqDwell!=0); doorSeqDwell <= doorSeqDwell - 1; endrule
 
   // FCactFlow - Fabric Consumer Sending Doorbells
   // FPactFlow - Fabric Consumer Sending Doorbells
   // 
+  // FIXME: There are two dead-reakoning races here that need to be fixed structurally
+  // i)  Remove the use of doorSeqDwell that serves to keep this rule from re-firing before creditReady has updated from remStart
+  // ii) There is a race between
+  //      a) remStart, which is used to increment the fabFlowAddr
+  //      b) the use of fabFlowAddr at the deq
+  // We are counting on (b) to win so we use the correct address (not the incremented address)
   // Send Doorbells to tell the far side of our near buffer availability...
-  rule dmaXmtDoorbell (actFlow && creditReady && postSeqDwell==0);  // FIXME: Race from remStart->OCBufQ->creditReady is gated by postSeqDwell
+  rule dmaXmtDoorbell (actFlow && creditReady && doorSeqDwell==0);  // FIXME: Race from remStart->OCBufQ->creditReady is gated by doorSeqDwell
     remStart      <= True;    // Indicate to buffer-management to decrement LBCF, and advance crdBuf and fabFlowAddr
-    postSeqDwell  <= psDwell; // insert dwell cycles between sending events to avoid blocking other traffic (and to gate race noted above)
+    doorSeqDwell  <= 8;
     flowDiagCount <= flowDiagCount + 1;
     tailEventF.enq(0);        // Send a tail event with no remDone
     $display("[%0d]: %m: dmaXmtDoorbell FC/FPactFlow-Step1/1", $time);
   endrule
+
 
   function Bool tagCompletionMatch(PciId rid, Bit#(8) tagm, PTW16 t);
     CompletionHdr ch = unpack(t.data[127:32]);
@@ -573,7 +582,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     inF.deq;
   endrule
    
-  rule dataXmt_Header (tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==ComplTgt);
+  rule dataXmt_Header (tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==ComplTgt &&& !tlpXmtBusy);
     tlpBRAM.getsResp.deq;
     CompletionHdr hdr =
       makeReadCompletionHdr(pciDevice, rres.reqID, rres.dwLength, rres.tag, rres.tc, rres.lowAddr, rres.byteCount);
