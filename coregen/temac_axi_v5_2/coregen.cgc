@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spirit:design xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xilinx="http://www.xilinx.com" >
+   <spirit:vendor>xilinx.com</spirit:vendor>
+   <spirit:library>CoreGen</spirit:library>
+   <spirit:name>coregen</spirit:name>
+   <spirit:version>1.0</spirit:version>
+   <spirit:componentInstances>
+      <spirit:componentInstance>
+         <spirit:instanceName>tri_mode_eth_mac_v5_2</spirit:instanceName>
+         <spirit:componentRef spirit:vendor="xilinx.com" spirit:library="ip" spirit:name="tri_mode_eth_mac" spirit:version="5.2" />
+         <spirit:configurableElementValues>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.COMPONENT_NAME">tri_mode_eth_mac_v5_2</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.PHYSICAL_INTERFACE">GMII</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.MAC_SPEED">1000_Mbps</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.HALF_DUPLEX">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.MANAGEMENT_INTERFACE">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.FRAME_FILTER">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.NUMBER_OF_TABLE_ENTRIES">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.STATISTICS_COUNTERS">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.STATISTICS_RESET">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.STATISTICS_WIDTH">64bit</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.ENABLE_AVB">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_ELABORATION_TRANSIENT_DIR">/home/shep/projects/ocpi/coregen/temac_axi_v5_2/tmp/_cg/_dbg/</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_COMPONENT_NAME">tri_mode_eth_mac_v5_2</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_HAS_GMII">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_HAS_RGMII">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_HAS_MII">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PHY_WIDTH">8</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_HALF_DUPLEX">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_HAS_HOST">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_ADD_FILTER">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_AT_ENTRIES">0</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_FAMILY">virtex6</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SPEED_10_100">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SPEED_1000">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TRI_SPEED">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_HAS_STATS">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_NUM_STATS">44</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_CNTR_RST">true</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_STATS_WIDTH">64</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_INTERNAL_INT">false</spirit:configurableElementValue>
+            <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_AVB">false</spirit:configurableElementValue>
+         </spirit:configurableElementValues>
+         <spirit:vendorExtensions>
+            <xilinx:instanceProperties>
+               <xilinx:projectOptions>
+                  <xilinx:projectName>coregen</xilinx:projectName>
+                  <xilinx:outputDirectory>./</xilinx:outputDirectory>
+                  <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+                  <xilinx:subWorkingDirectory>./tmp/_cg/</xilinx:subWorkingDirectory>
+               </xilinx:projectOptions>
+               <xilinx:part>
+                  <xilinx:device>xc6vlx240t</xilinx:device>
+                  <xilinx:deviceFamily>virtex6</xilinx:deviceFamily>
+                  <xilinx:package>ff1156</xilinx:package>
+                  <xilinx:speedGrade>-1</xilinx:speedGrade>
+               </xilinx:part>
+               <xilinx:flowOptions>
+                  <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+                  <xilinx:designEntry>Verilog</xilinx:designEntry>
+                  <xilinx:asySymbol>true</xilinx:asySymbol>
+                  <xilinx:flowVendor>Other</xilinx:flowVendor>
+                  <xilinx:addPads>false</xilinx:addPads>
+                  <xilinx:removeRPMs>false</xilinx:removeRPMs>
+                  <xilinx:createNDF>false</xilinx:createNDF>
+                  <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+                  <xilinx:formalVerification>false</xilinx:formalVerification>
+               </xilinx:flowOptions>
+               <xilinx:simulationOptions>
+                  <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+                  <xilinx:simulationLanguage>Verilog</xilinx:simulationLanguage>
+                  <xilinx:foundationSym>false</xilinx:foundationSym>
+               </xilinx:simulationOptions>
+               <xilinx:packageInfo>
+                  <xilinx:sourceCoreCreationDate>2011-08-29+15:04</xilinx:sourceCoreCreationDate>
+               </xilinx:packageInfo>
+            </xilinx:instanceProperties>
+            <xilinx:generationHistory>
+               <xilinx:fileSet>
+                  <xilinx:name>apply_current_project_options_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>customization_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>model_parameter_resolution_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ip_xco_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2.xco</xilinx:name>
+                     <xilinx:userFileType>xco</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:03 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x40D5084A</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>associated_files_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/doc/ds818_tri_mode_eth_mac.pdf</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>pdf</xilinx:userFileType>
+                     <xilinx:timeStamp>Sat Jan 07 13:52:17 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x1452D8D5</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/doc/ug777_tri_mode_eth_mac.pdf</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>pdf</xilinx:userFileType>
+                     <xilinx:timeStamp>Sat Jan 07 13:52:17 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x953B7E2E</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/tri_mode_eth_mac_readme.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Sat Jan 07 13:52:17 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA8F16D15</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ejava_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/axi_ipif/address_decoder.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x281BD4CD</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/axi_ipif/axi4_lite_ipif_wrapper.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB0D473D3</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/axi_ipif/axi_lite_ipif.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x94657F2E</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/axi_ipif/counter_f.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA2973FE4</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/axi_ipif/pselect_f.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3ECE18AF</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/axi_ipif/slave_attachment.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xAC90046B</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/axi_lite/axi_lite_sm.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x703CEE28</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/clk_wiz.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x8EED6686</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/common/reset_sync.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC5ECDF7D</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/common/sync_block.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE806ADCC</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/fifo/rx_client_fifo.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xD0472B6A</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/fifo/ten_100_1g_eth_fifo.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xD4AF0C7B</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/fifo/tx_client_fifo.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xB25D9C70</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/pat_gen/address_swap.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA26F47A6</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/pat_gen/axi_mux.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5A7EA484</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/pat_gen/axi_pat_check.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x3A16437E</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/pat_gen/axi_pat_gen.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x429A3936</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/pat_gen/axi_pipe.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x120DC4B6</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/pat_gen/basic_pat_gen.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x6B6D2AE7</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/physical/gmii_if.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xF47B5947</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/tri_mode_eth_mac_v5_2_block.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x318AF924</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/tri_mode_eth_mac_v5_2_example_design.ucf</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>ucf</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xC7FB315B</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/tri_mode_eth_mac_v5_2_example_design.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x21CC6E40</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/tri_mode_eth_mac_v5_2_fifo_block.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5BFE1D68</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/example_design/tri_mode_eth_mac_v5_2_mod.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x5715B69A</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/simulation/demo_tb.v</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xF6B36CBD</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/simulation/functional/simulate_mti.do</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x0545A64B</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/simulation/functional/simulate_ncsim.sh</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x433CD55F</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/simulation/functional/simulate_vcs.sh</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x68129ACB</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/simulation/functional/ucli_commands.key</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x2C898D47</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/simulation/functional/vcs_session.tcl</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xD2270F0D</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/simulation/functional/wave_mti.do</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x74BD3228</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/simulation/functional/wave_ncsim.sv</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:20:04 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA98A06D0</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ngc_netlist_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2.ngc</xilinx:name>
+                     <xilinx:userFileType>ngc</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:18 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x52425182</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>obfuscate_netlist_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>padded_implementation_netlist_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>instantiation_template_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2.veo</xilinx:name>
+                     <xilinx:userFileType>veo</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:19 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xDB1E14D7</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>structural_simulation_model_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2.v</xilinx:name>
+                     <xilinx:userFileType>verilog</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:20 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xE24573DC</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>all_documents_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/doc/ds818_tri_mode_eth_mac.pdf</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>pdf</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:20 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x1452D8D5</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/doc/tri_mode_eth_mac_v5_2_vinfo.html</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>unknown</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:20 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x4D9A56E5</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2/doc/ug777_tri_mode_eth_mac.pdf</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>pdf</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:20 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x953B7E2E</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>asy_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2.asy</xilinx:name>
+                     <xilinx:userFileType>asy</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:20 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x7E1483FF</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>xmdf_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2_xmdf.tcl</xilinx:name>
+                     <xilinx:userFileType>tclXmdf</xilinx:userFileType>
+                     <xilinx:userFileType>tcl</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:21 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xA659FD8B</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>ise_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2.gise</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>gise</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:23 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x9725DF51</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2.xise</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>xise</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:23 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0xF8124D02</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>deliver_readme_generator</xilinx:name>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>flist_generator</xilinx:name>
+                  <xilinx:file>
+                     <xilinx:name>./tri_mode_eth_mac_v5_2_flist.txt</xilinx:name>
+                     <xilinx:userFileType>ignore</xilinx:userFileType>
+                     <xilinx:userFileType>txtFlist</xilinx:userFileType>
+                     <xilinx:userFileType>txt</xilinx:userFileType>
+                     <xilinx:timeStamp>Tue Feb 07 21:21:24 GMT 2012</xilinx:timeStamp>
+                     <xilinx:checkSum>0x80FDA2C6</xilinx:checkSum>
+                     <xilinx:generationId>generationid_4020994277</xilinx:generationId>
+                  </xilinx:file>
+               </xilinx:fileSet>
+               <xilinx:fileSet>
+                  <xilinx:name>view_readme_generator</xilinx:name>
+               </xilinx:fileSet>
+            </xilinx:generationHistory>
+         </spirit:vendorExtensions>
+      </spirit:componentInstance>
+   </spirit:componentInstances>
+   <spirit:vendorExtensions>
+      <xilinx:instanceProperties>
+         <xilinx:projectOptions>
+            <xilinx:projectName>coregen</xilinx:projectName>
+            <xilinx:outputDirectory>./</xilinx:outputDirectory>
+            <xilinx:workingDirectory>./tmp/</xilinx:workingDirectory>
+            <xilinx:subWorkingDirectory>./tmp/_cg/</xilinx:subWorkingDirectory>
+         </xilinx:projectOptions>
+         <xilinx:part>
+            <xilinx:device>xc6vlx240t</xilinx:device>
+            <xilinx:deviceFamily>virtex6</xilinx:deviceFamily>
+            <xilinx:package>ff1156</xilinx:package>
+            <xilinx:speedGrade>-1</xilinx:speedGrade>
+         </xilinx:part>
+         <xilinx:flowOptions>
+            <xilinx:busFormat>BusFormatAngleBracketNotRipped</xilinx:busFormat>
+            <xilinx:designEntry>Verilog</xilinx:designEntry>
+            <xilinx:asySymbol>true</xilinx:asySymbol>
+            <xilinx:flowVendor>Other</xilinx:flowVendor>
+            <xilinx:addPads>false</xilinx:addPads>
+            <xilinx:removeRPMs>false</xilinx:removeRPMs>
+            <xilinx:createNDF>false</xilinx:createNDF>
+            <xilinx:implementationFileType>Ngc</xilinx:implementationFileType>
+            <xilinx:formalVerification>false</xilinx:formalVerification>
+         </xilinx:flowOptions>
+         <xilinx:simulationOptions>
+            <xilinx:simulationModel>Behavioral</xilinx:simulationModel>
+            <xilinx:simulationLanguage>Verilog</xilinx:simulationLanguage>
+            <xilinx:foundationSym>false</xilinx:foundationSym>
+         </xilinx:simulationOptions>
+      </xilinx:instanceProperties>
+   </spirit:vendorExtensions>
+</spirit:design>
+

@@ -278,7 +278,7 @@ module vMkVirtex5EthernetMAC#(Clock gmii_rx_clk)(TEMAC);
 endmodule: vMkVirtex5EthernetMAC
 
 // V6 Flavor...
-import "BVI" v6_emac_v1_3_block = 
+import "BVI" v6_emac_v1_5_block = 
 module vMkVirtex6EthernetMAC#(Clock gmii_rx_clk, Clock phy_rx_clk)(TEMAC);
   default_clock clk(TX_CLK);                      // Transmit Clock
   default_reset rst(RESET);                       // Active-High Async Reset
