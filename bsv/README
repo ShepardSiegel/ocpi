@@ -4,6 +4,7 @@ This directory is split into these sub-directories:
  app - Applications, OpenCPI notion of collections of Workers
  axi - AXI, AXI bridges
  dev - Devices, code that reflects low-level devices, also importBVI to wrap Verilog devices
+ eth - Ethernet devices and support
  inf - Infrastructure, OpenCPI Infrastructure IP
  pci - PCI Express definitions and implementations
  prm - Primatives, circuits that can be resued among modules, also importBVI of Verilog prims
