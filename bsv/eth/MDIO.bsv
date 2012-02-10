@@ -67,7 +67,7 @@ endinterface
 //module mkMDIO#(Integer prescale)(MDIO);
 module mkMDIO (MDIO);
 
-  Integer prescale = 6; // 125/7 = 17.8 / 3 = 5.9
+  Integer prescale = 6; // 125/7 = 17.8MHz,  ~56nS/pwTick
    
   FIFOF#(MDIORequest)             fRequest            <- mkFIFOF;
   FIFO#(MDIOResponse)             fResponse           <- mkFIFO;
@@ -128,7 +128,8 @@ module mkMDIO (MDIO);
   let wRdData   = { 3'b111, 3'b000, 3'b111, 3'b111, 3'b000, pa4,    pa3,    pa2,    pa1,    pa0,    ra4,    ra3,    ra2,    ra1,    ra0,    3'b111, 3'b000, d15,    d14,    d13,    d12,    d11,    d10,    d9,     d8,     d7,     d6,     d5,     d4,     d3,     d2,     d1,     d0    , 3'b111 };
   let wWrOutEn  = { 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111 };
   let wRdOutEn  = { 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b111, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000 };
-  let wRdSample = { 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b010, 3'b000 };
+  let wRdSample = { 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b000, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b001, 3'b000 };
+  // Have RdSample pulses lag XXClock by one cycle to provide a setup time of pwTick minus clock-MDIO (typ 53-20)
 
 
   (* fire_when_enabled, no_implicit_conditions *)
