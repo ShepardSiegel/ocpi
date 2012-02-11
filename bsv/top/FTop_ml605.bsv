@@ -6,6 +6,7 @@ import Config            ::*;
 import CTop              ::*;
 import DramServer_v6     ::*;
 import Ethernet          ::*;
+import MDIO              ::*;
 import FlashWorker       ::*;
 import GbeWorker         ::*;
 import ICAPWorker        ::*;
@@ -42,6 +43,7 @@ interface FTop_ml605Ifc;
   interface Clock                  rxclk;    // GMII assocaited Clock
   interface Reset                  mrst_n;   // GMII associated Reset
   interface GMII                   gmii;     // The GMII link
+  interface MDIO_Pads              mdio;     // The MDIO pads
 endinterface: FTop_ml605Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
@@ -129,12 +131,13 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   interface Reset    p125rst = p125Rst;
   method  led   =
     {5'b10100, pack(blinkLed), 1'b0, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
-  interface LCD      lcd     = lcd_ctrl.ifc;
-  interface GPSIfc   gps     = ctop.gps;
-  interface FLASH_IO flash   = flash0.flash;
-  interface DDR3_64  dram    = dram0.dram;
-  interface Clock    rxclk   = gbe0.rxclk;
-  interface Reset    mrst_n  = gbe0.mrst_n;
-  interface GMII     gmii    = gbe0.gmii;
+  interface LCD        lcd     = lcd_ctrl.ifc;
+  interface GPSIfc     gps     = ctop.gps;
+  interface FLASH_IO   flash   = flash0.flash;
+  interface DDR3_64    dram    = dram0.dram;
+  interface Clock      rxclk   = gbe0.rxclk;
+  interface Reset      mrst_n  = gbe0.mrst_n;
+  interface GMII       gmii    = gbe0.gmii;
+  interface MDIO_Pads  mdio    = gbe0.mdio;
 endmodule: mkFTop_ml605
 

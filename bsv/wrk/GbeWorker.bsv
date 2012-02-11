@@ -1,9 +1,10 @@
 // GbeWorker.bsv - GbE "device worker" 
-// Copyright (c) 2009,2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011,2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import OCWip::*;
-import Ethernet   ::*;
-import TimeService::*;
+import OCWip       ::*;
+import Ethernet    ::*;
+import MDIO        ::*;
+import TimeService ::*;
 
 import Clocks::*;
 import DReg::*;
@@ -22,9 +23,10 @@ interface GbeWorkerIfc;
   interface Wsi_Em#(12,32,4,8,0) wsiM0;    // WSI Rx Packet Stream
   interface Wsi_Es#(12,32,4,8,0) wsiS0;    // WSI Tx Packet Stream
 
-  interface GMII  gmii;    // The GMII link
-  interface Reset mrst_n;  // GMII associated Reset
-  interface Clock rxclk;   // GMII assocaited Clock
+  interface GMII      gmii;     // The GMII link
+  interface Reset     mrst_n;   // GMII associated Reset
+  interface Clock     rxclk;    // GMII assocaited Clock
+  interface MDIO_Pads mdio ;    // The MDIO pads
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
@@ -35,10 +37,12 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   WtiSlaveIfc#(64)            wti          <-  mkWtiSlave(clocked_by sys1_clk, reset_by sys1_rst); 
   WsiMasterIfc#(12,32,4,8,0)  wsiM         <-  mkWsiMaster; 
   WsiSlaveIfc #(12,32,4,8,0)  wsiS         <-  mkWsiSlave;
-  Reg#(Bit#(32))              gbeControl   <-  mkReg(0);
+  Reg#(Bit#(32))              gbeControl   <-  mkReg(32'h0000_0007);  // default to PHY MDIO Add 7
   EthernetMAC                 emac         <-  mkEthernetMAC(gmii_rx_clk, sys1_clk);
+  MDIO                        mdi          <-  mkMDIO(6);
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
+  Bit#(5) myPhyAddr = gbeControl[4:0];
 
   (* fire_when_enabled *) rule wsi_operate (wciRx.isOperating); wsiM.operate(); wsiS.operate(); endrule
 
@@ -70,7 +74,10 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 rule wci_cfwr (wciRx.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wciRx.reqGet.get;
    case (wciReq.addr[7:0]) matches
-       'h04 : gbeControl <= wciReq.data;
+     'h04 : gbeControl <= wciReq.data;
+     'h80,'h84,'h88,'h8C,'h90,'h94,'h98,'h9C,'hA0,'hA4,'hA8,'hAC,'hB0,'hB4,'hB8,'hBC,  // 32 MDIO regsiters
+     'hC0,'hC4,'hC8,'hCC,'hD0,'hD4,'hD8,'hDC,'hE0,'hE4,'hE8,'hEC,'hF0,'hF4,'hF8,'hFC :
+       mdi.req(MDIORequest{isWrite:True, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:wciReq.data});
    endcase
    $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
      $time, wciReq.addr, wciReq.byteEn, wciReq.data);
@@ -107,12 +114,13 @@ endrule
   Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);
 
   // Interfaces and Methods provided...
-  interface Wci_s  wciS0  = wciRx.slv;
-  interface Wci_s  wciS1  = wciTx.slv;
-  interface Wti_s  wtiS0  = wti.slv;
-  interface Wsi_Em wsiM0  = toWsiEM(wsiM.mas);
-  interface Wsi_Es wsiS0  = wsi_Es;
-  interface        gmii   = emac.gmii;
-  interface        mrst_n = emac.mrst_n;
-  interface        rxclk  = emac.rxclk;
+  interface Wci_s     wciS0  = wciRx.slv;
+  interface Wci_s     wciS1  = wciTx.slv;
+  interface Wti_s     wtiS0  = wti.slv;
+  interface Wsi_Em    wsiM0  = toWsiEM(wsiM.mas);
+  interface Wsi_Es    wsiS0  = wsi_Es;
+  interface           gmii   = emac.gmii;
+  interface           mrst_n = emac.mrst_n;
+  interface           rxclk  = emac.rxclk;
+  interface MDIO_Pads mdio   = mdi.mdio;
 endmodule

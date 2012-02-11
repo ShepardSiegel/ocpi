@@ -1,5 +1,5 @@
 // WSICaptureWorker.bsv - Capture and record an incident WSI stream with timestamp
-// Copyright (c) 2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2011,2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import OCWip       ::*;
 import TimeService ::*;

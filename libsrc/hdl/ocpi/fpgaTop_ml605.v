@@ -1,4 +1,5 @@
 // fpgaTop_ml605.v - ssiegel 2009-03-17
+// 2012-02-11 ssiegel Added MDIO port
 
 module fpgaTop(
   input  wire        sys0_clkp,      // sys0 Clock +
@@ -30,6 +31,8 @@ module fpgaTop(
 	input  wire        gmii_rx_er,
 	output wire        gmii_tx_clk,
 	input  wire        gmii_rx_clk,
+  output wire        mdio_mdc,       // Alaska MDIO...
+  inout  wire        mdio_mdd,
 
   output wire [23:0] flash_addr,
   inout  wire [15:0] flash_io_dq,
@@ -102,6 +105,8 @@ module fpgaTop(
 	.gmii_rx_er_i      (gmii_rx_er),
 	.gmii_tx_clk       (gmii_tx_clk),
 	.gmii_rx_clk       (gmii_rx_clk),
+  .mdio_mdc          (mdio_mdc),
+  .mdio_mdd          (mdio_mdd),
 
   .flash_addr        (flash_addr),
   .flash_io_dq       (flash_io_dq),

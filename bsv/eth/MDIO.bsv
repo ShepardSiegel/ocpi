@@ -1,4 +1,3 @@
-
 // MDIO.bsv - Managment Data Input/Output - see IEEE RFC802.3
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
@@ -11,7 +10,7 @@ import FIFOF        ::*;
 import TriState     ::*;
 import Vector       ::*;
 
-export MDIO_Pins(..);
+export MDIO_Pads(..);
 export MDIO_User(..);
 export MDIORequest(..);
 export MDIOResponse(..);
@@ -44,7 +43,7 @@ typedef enum {
 
 
 (* always_enabled, always_ready *)
-interface MDIO_Pins;
+interface MDIO_Pads;
   (* prefix = "MDIO" *)
   interface Inout#(Bit#(1)) mdd;
   (* prefix = "MDC" *)
@@ -58,16 +57,15 @@ endinterface
 
 interface MDIO;
    (* prefix = "" *)
-   interface MDIO_Pins  mdio;
+   interface MDIO_Pads  mdio;
    (* prefix = "" *)
    interface MDIO_User  user;
 endinterface
 
-(* synthesize *)
-//module mkMDIO#(Integer prescale)(MDIO);
-module mkMDIO (MDIO);
+module mkMDIO#(Integer prescale)(MDIO);
+//module mkMDIO (MDIO);
 
-  Integer prescale = 6; // 125/7 = 17.8MHz,  ~56nS/pwTick
+//  Integer prescale = 6; // 125/7 = 17.8MHz,  ~56nS/pwTick
    
   FIFOF#(MDIORequest)             fRequest            <- mkFIFOF;
   FIFO#(MDIOResponse)             fResponse           <- mkFIFO;
@@ -166,7 +164,7 @@ module mkMDIO (MDIO);
     end
   endrule
 
-  interface MDIO_Pins mdio;
+  interface MDIO_Pads mdio;
     interface mdd    = tMDD.io;
     interface mdc    = tMDC.io;
   endinterface
