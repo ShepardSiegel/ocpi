@@ -40,7 +40,7 @@ interface FTop_ml605Ifc;
   interface GPSIfc                 gps;
   interface DDR3_64                dram;
   interface FLASH_IO#(24,16)       flash;
-  interface Clock                  rxclk;    // GMII assocaited Clock
+  interface Clock                  rxclk;    // GMII associated Clock
   interface Reset                  mrst_n;   // GMII associated Reset
   interface GMII                   gmii;     // The GMII link
   interface MDIO_Pads              mdio;     // The MDIO pads

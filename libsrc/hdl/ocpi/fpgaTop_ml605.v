@@ -23,7 +23,8 @@ module fpgaTop(
   input  wire        ppsExtIn,       // PPS in
   output wire        ppsOut,         // PPS out
 
-	output wire [7:0]  gmii_txd,       // Alaska GMII...
+  output wire        gmii_rstn,      // Alaska GMII...
+	output wire [7:0]  gmii_txd,
 	output wire        gmii_tx_en,
 	output wire        gmii_tx_er,
 	input  wire [7:0]  gmii_rxd,
@@ -97,6 +98,7 @@ module fpgaTop(
   .gps_ppsSyncIn_x   (ppsExtIn),
   .gps_ppsSyncOut    (ppsOut),
 
+	.mrst_n            (gmii_rstn),
 	.gmii_txd          (gmii_txd),
 	.gmii_tx_en        (gmii_tx_en),
 	.gmii_tx_er        (gmii_tx_er),

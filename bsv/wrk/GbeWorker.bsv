@@ -32,14 +32,15 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeWorkerIfc);
 
-  WciESlaveIfc                wciRx        <-  mkWciESlave; 
-  WciESlaveIfc                wciTx        <-  mkWciESlave; 
-  WtiSlaveIfc#(64)            wti          <-  mkWtiSlave(clocked_by sys1_clk, reset_by sys1_rst); 
-  WsiMasterIfc#(12,32,4,8,0)  wsiM         <-  mkWsiMaster; 
-  WsiSlaveIfc #(12,32,4,8,0)  wsiS         <-  mkWsiSlave;
-  Reg#(Bit#(32))              gbeControl   <-  mkReg(32'h0000_0007);  // default to PHY MDIO Add 7
-  EthernetMAC                 emac         <-  mkEthernetMAC(gmii_rx_clk, sys1_clk);
-  MDIO                        mdi          <-  mkMDIO(6);
+  WciESlaveIfc                wciRx               <-  mkWciESlave; 
+  WciESlaveIfc                wciTx               <-  mkWciESlave; 
+  WtiSlaveIfc#(64)            wti                 <-  mkWtiSlave(clocked_by sys1_clk, reset_by sys1_rst); 
+  WsiMasterIfc#(12,32,4,8,0)  wsiM                <-  mkWsiMaster; 
+  WsiSlaveIfc #(12,32,4,8,0)  wsiS                <-  mkWsiSlave;
+  Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0007);  // default to PHY MDIO Add 7
+  EthernetMAC                 emac                <-  mkEthernetMAC(gmii_rx_clk, sys1_clk);
+  MDIO                        mdi                 <-  mkMDIO(6);
+  Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);  // Truen when split read
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
@@ -72,33 +73,48 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
 rule wci_cfwr (wciRx.configWrite); // WCI Configuration Property Writes...
- let wciReq <- wciRx.reqGet.get;
-   if (wciReq.addr[7]==0) begin
-     case (wciReq.addr[7:0])
-       'h04 : gbeControl <= wciReq.data;
-     endcase
-   end else begin
-     mdi.user.request(MDIORequest{isWrite:True, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:wciReq.data[15:0]});
-   end
-   $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
-     $time, wciReq.addr, wciReq.byteEn, wciReq.data);
-   wciRx.respPut.put(wciOKResponse); // write response
+  let wciReq <- wciRx.reqGet.get;
+  if (wciReq.addr[7]==0) begin
+    case (wciReq.addr[7:0])
+      'h04 : gbeControl <= wciReq.data;
+    endcase
+  end else begin
+    mdi.user.request(MDIORequest{isWrite:True, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:wciReq.data[15:0]});
+  end
+  $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
+    $time, wciReq.addr, wciReq.byteEn, wciReq.data);
+  wciRx.respPut.put(wciOKResponse); // write response
 endrule
 
 rule wci_cfrd (wciRx.configRead); // WCI Configuration Property Reads...
- Bit#(32) status = extend({pack(wsiM.status),pack(wsiS.status)});
- let wciReq <- wciRx.reqGet.get; Bit#(32) rdat = '0;
-   case (wciReq.addr[7:0]) matches
-     'h00 : rdat = pack(status);
-     'h04 : rdat = pack(gbeControl);
-     'h10 : rdat = wsiM.extStatus.pMesgCount;
-     'h14 : rdat = wsiM.extStatus.iMesgCount;
-     'h18 : rdat = wsiS.extStatus.pMesgCount;
-     'h1C : rdat = wsiS.extStatus.iMesgCount;
-   endcase
+  Bool splitRead = False;
+  Bit#(32) status = extend({pack(wsiM.status),pack(wsiS.status)});
+  let wciReq <- wciRx.reqGet.get; Bit#(32) rdat = '0;
+  if (wciReq.addr[7]==0) begin
+    case (wciReq.addr[7:0]) matches
+      'h00 : rdat = pack(status);
+      'h04 : rdat = pack(gbeControl);
+      'h10 : rdat = wsiM.extStatus.pMesgCount;
+      'h14 : rdat = wsiM.extStatus.iMesgCount;
+      'h18 : rdat = wsiS.extStatus.pMesgCount;
+      'h1C : rdat = wsiS.extStatus.iMesgCount;
+    endcase
+  end else begin
+    mdi.user.request(MDIORequest{isWrite:False, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:?});
+    splitRead = True;
+  end
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
-   wciRx.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   if (!splitRead) wciRx.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+   else splitReadInFlight <= True;
 endrule
+
+rule advance_split_response (!wciRx.configWrite && splitReadInFlight);
+  let r <- mdi.user.response;
+  wciRx.respPut.put(WciResp{resp:DVA, data:extend(r.data)});
+  splitReadInFlight <= False;
+  $display("[%0d]: %m: WCI SPLIT READ Data:%0x", $time, r.data);
+endrule
+
 
 rule wci_ctrl_EiI (wciRx.ctlState==Exists && wciRx.ctlOp==Initialize);
   wciRx.ctlAck;

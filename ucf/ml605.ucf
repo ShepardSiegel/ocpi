@@ -117,9 +117,9 @@ NET "gmii_rx_clk"     LOC = "AP11" | IOSTANDARD=LVCMOS25; ## 7 on U80
 NET "gmii_COL"        LOC = "AK13" | IOSTANDARD=LVCMOS25; ## 114 on U80
 NET "gmii_CRS"        LOC = "AL13" | IOSTANDARD=LVCMOS25; ## 115 on U80
 NET "gmii_INT"        LOC = "AH14" | IOSTANDARD=LVCMOS25; ## 32 on U80
-NET "gmii_MDC"        LOC = "AP14" | IOSTANDARD=LVCMOS25; ## 35 on U80
-NET "gmii_MDIO"       LOC = "AN14" | IOSTANDARD=LVCMOS25; ## 33 on U80
-NET "gmii_RESET"      LOC = "AH13" | IOSTANDARD=LVCMOS25; ## 36 on U80
+NET "mdio_mdc"        LOC = "AP14" | IOSTANDARD=LVCMOS25; ## 35 on U80
+NET "mdio_mdd"        LOC = "AN14" | IOSTANDARD=LVCMOS25; ## 33 on U80
+NET "gmii_rstn"       LOC = "AH13" | IOSTANDARD=LVCMOS25; ## 36 on U80
 NET "gmii_TXC_GTXCLK" LOC = "AH12" | IOSTANDARD=LVCMOS25; ## 14 on U80
 
 
