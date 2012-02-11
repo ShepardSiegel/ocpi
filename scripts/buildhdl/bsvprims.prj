@@ -23,5 +23,6 @@ verilog bsv "../../libsrc/hdl/bsv/SyncPulse.v"
 verilog bsv "../../libsrc/hdl/bsv/BRAM2.v"
 verilog bsv "../../libsrc/hdl/bsv/BRAM1.v"
 verilog bsv "../../libsrc/hdl/bsv/BRAM1BE.v"
+verilog bsv "../../libsrc/hdl/bsv/Counter.v"
 
 verilog work "../../libsrc/hdl/ocpi/onewire.v"

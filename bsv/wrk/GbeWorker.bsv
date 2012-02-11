@@ -73,12 +73,13 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 
 rule wci_cfwr (wciRx.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wciRx.reqGet.get;
-   case (wciReq.addr[7:0])
-     'h04 : gbeControl <= wciReq.data;
-     'h80,'h84,'h88,'h8C,'h90,'h94,'h98,'h9C,'hA0,'hA4,'hA8,'hAC,'hB0,'hB4,'hB8,'hBC,  // 32 MDIO regsiters
-     'hC0,'hC4,'hC8,'hCC,'hD0,'hD4,'hD8,'hDC,'hE0,'hE4,'hE8,'hEC,'hF0,'hF4,'hF8,'hFC :
-       mdi.user.request(MDIORequest{isWrite:True, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:wciReq.data[15:0]});
-   endcase
+   if (wciReq.addr[7]==0) begin
+     case (wciReq.addr[7:0])
+       'h04 : gbeControl <= wciReq.data;
+     endcase
+   end else begin
+     mdi.user.request(MDIORequest{isWrite:True, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:wciReq.data[15:0]});
+   end
    $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x",
      $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wciRx.respPut.put(wciOKResponse); // write response

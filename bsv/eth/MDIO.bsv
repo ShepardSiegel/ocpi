@@ -44,9 +44,9 @@ typedef enum {
 
 (* always_enabled, always_ready *)
 interface MDIO_Pads;
-  (* prefix = "MDIO" *)
+  (* prefix = "mdd" *)
   interface Inout#(Bit#(1)) mdd;
-  (* prefix = "MDC" *)
+  (* prefix = "mdc" *)
   interface Inout#(Bit#(1)) mdc;
 endinterface
 
@@ -65,7 +65,7 @@ endinterface
 module mkMDIO#(Integer prescale)(MDIO);
 //module mkMDIO (MDIO);
 
-//  Integer prescale = 6; // 125/7 = 17.8MHz,  ~56nS/pwTick
+ // Integer prescale = 6; // 125/7 = 17.8MHz,  ~56nS/pwTick
    
   FIFOF#(MDIORequest)             fRequest            <- mkFIFOF;
   FIFO#(MDIOResponse)             fResponse           <- mkFIFO;
