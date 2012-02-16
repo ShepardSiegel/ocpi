@@ -1,5 +1,5 @@
 // CounterM.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package CounterM;
 
@@ -55,6 +55,36 @@ module mkCounterMod#(t modulusArg) (CounterMod#(t))
 
   rule ruleInc( incAction && !decAction); value <= (value==modulus) ? 0 : value+1; endrule
   rule ruleDec(!incAction &&  decAction); value <= (value==0) ? modulus : value-1; endrule
+
+  method Action inc() = incAction.send;
+  method Action dec() = decAction.send;
+  method Action load(t nval) = value._write(nval);
+  method Bool   tc = (value==modulus);
+  method t _read() = value;
+endmodule
+
+
+// Variant with fixed Modulus supplied as argument that Saturates...
+
+interface CounterSat#(type t);
+  method Action load(t nval);
+  method Action inc();
+  method Action dec();
+  method Bool   tc;
+  method t      _read();
+endinterface
+
+module mkCounterSat#(t modulusArg) (CounterSat#(t))
+ provisos(Arith#(t), Bits#(t, t_sz), Ord#(t), Eq#(t), Bounded#(t));
+
+  Reg#(t)    value       <- mkReg(0);
+  PulseWire  incAction   <- mkPulseWire;
+  PulseWire  decAction   <- mkPulseWire;
+
+  t modulus = modulusArg-1;
+
+  rule ruleInc( incAction && !decAction); value <= (value==modulus) ? value : value+1; endrule
+  rule ruleDec(!incAction &&  decAction); value <= (value==0)       ? 0     : value-1; endrule
 
   method Action inc() = incAction.send;
   method Action dec() = decAction.send;
