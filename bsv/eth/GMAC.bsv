@@ -16,7 +16,6 @@ import Vector            ::*;
 
 // Types...
 
-typeded Bit#(8)   Octet;
 typedef Bit#(32)  IPAddress;
 typedef Bit#(48)  MACAddress;
 
@@ -25,48 +24,58 @@ typedef enum {
 } EofType deriving (Bits, Eq);
 
 typedef enum {
+  PAD      = 8'h00,
   PREAMBLE = 8'h55,
   SFD      = 8'hD5
 } EthernetOctets deriving (Bits, Eq);
 
-
 typedef union tagged {
-  Bit#(8) FirstData;
+  Bit#(8) DataSOF;      // The first Octect of the Destination Address
   Bit#(8) Data;
-  Bit#(8) LastData;
+  Bit#(8) DataEOFOK;    // On tx;EOF; On rx: EOF with FCS OK
+  Bit#(8) DataEOFBAD;   //            0n rx: EOF with FCS Bad
 } EthernetData deriving (Bits, Eq);
 
 // Functions...
 
 function Bit#(8) getData(EthernetData x);
   case(x) matches
-    tagged FirstData .z: return(z);
-    tagged      Data .z: return(z);
-    tagged  LastData .z: return(z);
+    tagged DataSOF    .z: return(z);
+    tagged Data       .z: return(z);
+    tagged DataEOFOK  .z: return(z);
+    tagged DataEOFBAD .z: return(z);
   endcase
 endfunction
-
-function Bool matchesFirst(EthernetData x);
+function Bool matchesSOF(EthernetData x);
   case(x) matches
-    tagged FirstData .*: return True;
-    tagged      Data .*: return False;
-    tagged  LastData .*: return False;
+    tagged DataSOF    .*: return True;
+    tagged Data       .*: return False;
+    tagged DataEOFOK  .*: return False;
+    tagged DataEOFBAD .*: return False;
   endcase
 endfunction
-   
 function Bool matchesData(EthernetData x);
   case(x) matches
-    tagged FirstData .*: return False;
-    tagged      Data .*: return True;
-    tagged  LastData .*: return False;
+    tagged DataSOF    .*: return False;
+    tagged Data       .*: return True;
+    tagged DataEOFOK  .*: return False;
+    tagged DataEOFBAD .*: return False;
   endcase
 endfunction
-   
-function Bool matchesLast(EthernetData x);
+function Bool matchesEOFOK(EthernetData x);
   case(x) matches
-    tagged FirstData .*: return False;
-    tagged      Data .*: return False;
-    tagged  LastData .*: return True;
+    tagged DataSOF    .*: return False;
+    tagged Data       .*: return False;
+    tagged DataEOFOK  .*: return True;
+    tagged DataEOFBAD .*: return True;
+  endcase
+endfunction
+function Bool matchesEOFBAD(EthernetData x);
+  case(x) matches
+    tagged DataSOF    .*: return False;
+    tagged Data       .*: return False;
+    tagged DataEOFOK  .*: return False;
+    tagged DataEOFBAD .*: return True;
   endcase
 endfunction
    
@@ -169,14 +178,102 @@ endinterface: GMAC
 interface RS_RX_MAC;
   Bit#(8)
   
-
 interface RxRSIfc;
-  interface GMII_RX_RS gmii;
+  interface GMII_RX_RS          gmii;
+  interface Get#(EthernetFrame) rxf;
+endinterface
+
+interface TxRSIfc;
+  interface Put#(EthernetFrame) txf;
+  method    Bool                txUnderflow;
+  interface GMII_TX_RS          gmii;
 endinterface
 
 
-// Rx Reconciliation Sublayer (RS)
-// This module accepts the RX data from the PHY and segments it into frames
+
+// Transmit (Tx) Reconciliation Sublayer (RS)
+// This module accepts the TX data from a higher sublevel of the MAC; frames start at the Destination Address (DA)
+// It will insert the preamble and SFD, pass the incident frame, and generate and insert the FCS
+// If the txF starves in the middle of a frame; that is a TX UNDERFLOW error (txUnderflow)
+module mkTxRS (TxRSIfc);
+  FIFO#(EthernetFrame)     txF          <- mkFIFO;
+  Reg#(Bit#(8))            txData       <- mkDReg(0);
+  Reg#(Bool)               txDV         <- mkDReg(False);
+  Reg#(Bool)               txER         <- mkDReg(False);
+  Reg#(UInt#(4))           preambleCnt  <- mkCounterSat(8);
+  Reg#(UInt#(4))           ifgCnt       <- mkCounterSat(15);
+  Reg#(UInt#(10)           lenCnt       <- mkCounterSat(1023);
+  Reg#(Bool)               txActive     <- mkReg(False);
+  CRC#(32)                 crc          <- mkCRC32;
+  Reg#(Bool)               underflow    <- mkDReg(False);
+  Reg#(UInt#(3))           emitFCS      <- mkReg(0);
+
+  rule egress_SOF(txF.first matches tagged DataSOF .* &&& ifgCnt==0);
+    if (preambleCnt.tc<7) begin
+      preambleCnt.inc;
+      txData <= PREAMBLE;           // 7 Preamble cycles - 8'h55
+    end else if (preambleCnt==7) begin
+      preambleCnt.inc;
+      txData <= SFD;                // 1 SFD cycle - 8'hD5
+    end else begin
+      let d = getData(txF.first);   // 1st Byte of Destination Address
+      txData <= d;
+      crc,add(d);
+      txF.deq;
+      lenCnt.inc;
+      preambleCnt.load(0);
+    end
+    txDV     <= True;
+    txActive <= True
+  endrule
+
+  rule egress_Body(txF.first matches tagged Data .*);
+    let d = getData(txF.first);
+    txData <= d;
+    crc.add(d);
+    txF.deq;
+    lenCnt.inc;
+    txDV <= True;
+  endrule
+
+  rule egress_EOF(txF.first matches tagged DataEOFOK .*);
+    let d = (lenCnt<60) ? PAD : getData(txF.first);
+    txData <= d;
+    crc.add(d);
+    lenCnt.inc;
+    txDV <= True;
+    if (lenCnt>=60) begin // if not padding, advance to emitFCS
+      txActive <= False;
+      txF.deq;
+      emitFCS <= 4;
+    end
+  endrule
+
+  rule egress_FCS(emitFCS!=0);
+    Vector#(4,Bit#(8)) fcsV = unpack(fcs.result);
+    txData <= fcsV[emitFCS-1];
+    lenCnt.inc;
+    txDV  <= True;
+    emitFCS <= emitFCS - 1;
+    if (emitFCS==1) ifgCnt.load(12);
+  endrule
+
+  rule ifg_decrementer (ifgCnt!=0);
+    ifgCnt.dec;
+  endrule
+
+  interface Put txf = toPut(txF);
+  method Bool txUnderFlow = underflow;
+  interface GMII_TX_RS gmii;
+    interface Clock   tx_clk = Empty;
+    method    Bit#(8) txd    = txData;
+    method    Bit#(1) tx_en  = txDV;
+    method    Bit#(1) tx_er  = txER;
+  endinterface gmii
+endmodule: mkTxRS
+
+// Receive (Rx) Reconciliation Sublayer (RS)
+// This module accepts the RX data from the PHY and segments it into EthernetData frames
 // It will remove the preamble and SFD
 // It will pass frames starting with the Destination Address (DA)
 // It will end a frame with either an eofGood (if the FCS matches) or an eofBad (if it doesnt)
@@ -209,22 +306,19 @@ module mkRxRS (RxRSIfc);
 
   rule gmii_rx_ingress_enqueue;
     EthernetData d = ?;
-    if   (rxActive && !rxActiveD) d = tagged FirsData rxData;
+    if   (rxActive && !rxActiveD) d = tagged DataSOF  rxData;
     else (rxActive && rxDV)       d = tagged Data     rxData
-    else                          d = tagged LastData rxData;
+    else                          d = tagged DataEOF  rxData;
     rfF.enq(d);
   endrule
-
-
 
   interface GMII_RX_RS gmii;
     method Action rxd   (x) = rxData._write(x);
     method Action rx_dv (x) = rxDV._write(unpack(x));
     method Action rx_er (x) = rxER._write(unpack(x));
-  endinterface GMII_RX_RS;
+  endinterface gmii
 
-  interface Get ingress = toGet(rxF);
-
+  interface Get rxf = toGet(rxF);
 endmodule: mkRxRS
 
 endpackage: GMAC
