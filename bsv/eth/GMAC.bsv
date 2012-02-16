@@ -189,6 +189,7 @@ module mkRxRS (RxRSIfc);
   Reg#(Vector#(4,Bit#(8))) rxPipe       <- mkRegU;
   CRC#(32)                 crc          <- mkCRC32;
   Reg#(EofType)            eof          <- mkDReg(EofNone);
+  FIFO#(EthernetFrame)     rxF          <- mkFIFO;
 
   (* fire_when_enabled, no_implicit_conditions *)
   rule gmii_rx_ingress_advance (rxDV);
@@ -206,6 +207,14 @@ module mkRxRS (RxRSIfc);
     rxActive <= False;    // Clear rxActive
   endrule
 
+  rule gmii_rx_ingress_enqueue;
+    EthernetData d = ?;
+    if   (rxActive && !rxActiveD) d = tagged FirsData rxData;
+    else (rxActive && rxDV)       d = tagged Data     rxData
+    else                          d = tagged LastData rxData;
+    rfF.enq(d);
+  endrule
+
 
 
   interface GMII_RX_RS gmii;
@@ -214,7 +223,7 @@ module mkRxRS (RxRSIfc);
     method Action rx_er (x) = rxER._write(unpack(x));
   endinterface GMII_RX_RS;
 
-  interface Get ingress = toGet(fifoDeq);
+  interface Get ingress = toGet(rxF);
 
 endmodule: mkRxRS
 
