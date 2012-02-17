@@ -10,6 +10,7 @@ import CounterM          ::*;
 import Clocks            ::*;
 import Connectable       ::*;
 import CRC               ::*;
+import DReg              ::*;
 import FIFO              ::*;
 import GetPut            ::*;
 import Vector            ::*;
@@ -34,11 +35,11 @@ typedef union tagged {
   Bit#(8) Data;
   Bit#(8) DataEOFOK;    // On tx;EOF; On rx: EOF with FCS OK
   Bit#(8) DataEOFBAD;   //            0n rx: EOF with FCS Bad
-} EthernetData deriving (Bits, Eq);
+} EthernetFrame deriving (Bits, Eq);
 
 // Functions...
 
-function Bit#(8) getData(EthernetData x);
+function Bit#(8) getData(EthernetFrame x);
   case(x) matches
     tagged DataSOF    .z: return(z);
     tagged Data       .z: return(z);
@@ -46,7 +47,7 @@ function Bit#(8) getData(EthernetData x);
     tagged DataEOFBAD .z: return(z);
   endcase
 endfunction
-function Bool matchesSOF(EthernetData x);
+function Bool matchesSOF(EthernetFrame x);
   case(x) matches
     tagged DataSOF    .*: return True;
     tagged Data       .*: return False;
@@ -54,7 +55,7 @@ function Bool matchesSOF(EthernetData x);
     tagged DataEOFBAD .*: return False;
   endcase
 endfunction
-function Bool matchesData(EthernetData x);
+function Bool matchesData(EthernetFrame x);
   case(x) matches
     tagged DataSOF    .*: return False;
     tagged Data       .*: return True;
@@ -62,7 +63,7 @@ function Bool matchesData(EthernetData x);
     tagged DataEOFBAD .*: return False;
   endcase
 endfunction
-function Bool matchesEOFOK(EthernetData x);
+function Bool matchesEOFOK(EthernetFrame x);
   case(x) matches
     tagged DataSOF    .*: return False;
     tagged Data       .*: return False;
@@ -70,7 +71,7 @@ function Bool matchesEOFOK(EthernetData x);
     tagged DataEOFBAD .*: return True;
   endcase
 endfunction
-function Bool matchesEOFBAD(EthernetData x);
+function Bool matchesEOFBAD(EthernetFrame x);
   case(x) matches
     tagged DataSOF    .*: return False;
     tagged Data       .*: return False;
@@ -86,29 +87,29 @@ interface GMII_RX_RS;
   method    Action      rxd  (Bit#(8) i);
   method    Action      rx_dv(Bit#(1) i);
   method    Action      rx_er(Bit#(1) i);
-endinterface GMII_RX_RS;
+endinterface: GMII_RX_RS
 
 (* always_enabled, always_ready *)
 interface GMII_RX_PCS;
   method    Bit#(8)     rxd;
   method    Bit#(1)     rx_dv;
   method    Bit#(1)     rx_er;
-endinterface GMII_RX_PCS;
+endinterface: GMII_RX_PCS
 
 (* always_enabled, always_ready *)
 interface GMII_TX_RS;
-  interface Clock       tx_clk;
+//interface Clock       tx_clk;
   method    Bit#(8)     txd;
   method    Bit#(1)     tx_en;
   method    Bit#(1)     tx_er;
-endinterface GMII_TX_RS;
+endinterface: GMII_TX_RS
 
 (* always_enabled, always_ready *)
 interface GMII_TX_PCS;
   method    Action      txd  (Bit#(8) i);
   method    Action      tx_en(Bit#(1) i);
   method    Action      tx_er(Bit#(1) i);
-endinterface GMII_TX_PCS;
+endinterface :GMII_TX_PCS
 
 (* always_enabled, always_ready *)
 interface GMII_RS;  // GMII_RS is the bottom of the MAC facing the top of the PHY...
@@ -122,8 +123,8 @@ endinterface: GMII_RS
 interface GMII_PCS; // GMII_PCS is the top of the PHY facing the MAC...
   interface GMII_RX_PCS rx;
   interface GMII_TX_PCS tx;
-  method    Bit#(1)     col
-  method    Bit#(1)     crs
+  method    Bit#(1)     col;
+  method    Bit#(1)     crs;
 endinterface: GMII_PCS
 
 (* always_enabled, always_ready *)
@@ -175,9 +176,6 @@ interface GMAC;
   interface MAC_TX      tx;
 endinterface: GMAC
 
-interface RS_RX_MAC;
-  Bit#(8)
-  
 interface RxRSIfc;
   interface GMII_RX_RS          gmii;
   interface Get#(EthernetFrame) rxf;
@@ -195,36 +193,37 @@ endinterface
 // This module accepts the TX data from a higher sublevel of the MAC; frames start at the Destination Address (DA)
 // It will insert the preamble and SFD, pass the incident frame, and generate and insert the FCS
 // If the txF starves in the middle of a frame; that is a TX UNDERFLOW error (txUnderflow)
+(* synthesize *)
 module mkTxRS (TxRSIfc);
   FIFO#(EthernetFrame)     txF          <- mkFIFO;
   Reg#(Bit#(8))            txData       <- mkDReg(0);
   Reg#(Bool)               txDV         <- mkDReg(False);
   Reg#(Bool)               txER         <- mkDReg(False);
-  Reg#(UInt#(4))           preambleCnt  <- mkCounterSat(8);
-  Reg#(UInt#(4))           ifgCnt       <- mkCounterSat(15);
-  Reg#(UInt#(10)           lenCnt       <- mkCounterSat(1023);
+  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat(8);
+  CounterSat#(UInt#(5))    ifgCnt       <- mkCounterSat(16);
+  CounterSat#(UInt#(12))   lenCnt       <- mkCounterSat(2048);
   Reg#(Bool)               txActive     <- mkReg(False);
   CRC#(32)                 crc          <- mkCRC32;
   Reg#(Bool)               underflow    <- mkDReg(False);
   Reg#(UInt#(3))           emitFCS      <- mkReg(0);
 
   rule egress_SOF(txF.first matches tagged DataSOF .* &&& ifgCnt==0);
-    if (preambleCnt.tc<7) begin
+    if (preambleCnt<7) begin
       preambleCnt.inc;
-      txData <= PREAMBLE;           // 7 Preamble cycles - 8'h55
+      txData <= pack(PREAMBLE);    // 7 Preamble cycles - 8'h55
     end else if (preambleCnt==7) begin
       preambleCnt.inc;
-      txData <= SFD;                // 1 SFD cycle - 8'hD5
+      txData <= pack(SFD);          // 1 SFD cycle - 8'hD5
     end else begin
       let d = getData(txF.first);   // 1st Byte of Destination Address
       txData <= d;
-      crc,add(d);
+      crc.add(d);
       txF.deq;
       lenCnt.inc;
       preambleCnt.load(0);
     end
     txDV     <= True;
-    txActive <= True
+    txActive <= True;
   endrule
 
   rule egress_Body(txF.first matches tagged Data .*);
@@ -237,7 +236,7 @@ module mkTxRS (TxRSIfc);
   endrule
 
   rule egress_EOF(txF.first matches tagged DataEOFOK .*);
-    let d = (lenCnt<60) ? PAD : getData(txF.first);
+    let d = (lenCnt<60) ? pack(PAD) : getData(txF.first);
     txData <= d;
     crc.add(d);
     lenCnt.inc;
@@ -250,7 +249,7 @@ module mkTxRS (TxRSIfc);
   endrule
 
   rule egress_FCS(emitFCS!=0);
-    Vector#(4,Bit#(8)) fcsV = unpack(fcs.result);
+    Vector#(4,Bit#(8)) fcsV = unpack(crc.result);
     txData <= fcsV[emitFCS-1];
     lenCnt.inc;
     txDV  <= True;
@@ -263,26 +262,27 @@ module mkTxRS (TxRSIfc);
   endrule
 
   interface Put txf = toPut(txF);
-  method Bool txUnderFlow = underflow;
+  method  Bool txUnderflow = underflow;
   interface GMII_TX_RS gmii;
-    interface Clock   tx_clk = Empty;
+    //interface Clock   tx_clk = Empty;
     method    Bit#(8) txd    = txData;
-    method    Bit#(1) tx_en  = txDV;
-    method    Bit#(1) tx_er  = txER;
-  endinterface gmii
+    method    Bit#(1) tx_en  = pack(txDV);
+    method    Bit#(1) tx_er  = pack(txER);
+  endinterface: gmii
 endmodule: mkTxRS
 
 // Receive (Rx) Reconciliation Sublayer (RS)
-// This module accepts the RX data from the PHY and segments it into EthernetData frames
+// This module accepts the RX data from the PHY and segments it into EthernetFrame frames
 // It will remove the preamble and SFD
 // It will pass frames starting with the Destination Address (DA)
 // It will end a frame with either an eofGood (if the FCS matches) or an eofBad (if it doesnt)
+(* synthesize *)
 module mkRxRS (RxRSIfc);
   Reg#(Bit#(8))            rxData       <- mkRegU;
   Reg#(Bool)               rxDV         <- mkReg(False);
   Reg#(Bool)               rxER         <- mkReg(False);
-  Reg#(UInt#(4))           preambleCnt  <- mkCounterSat(15);
-  Reg#(Bool)               rxAvtive     <- mkReg(False);
+  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat(15);
+  Reg#(Bool)               rxActive     <- mkReg(False);
   Reg#(Vector#(4,Bit#(8))) rxPipe       <- mkRegU;
   CRC#(32)                 crc          <- mkCRC32;
   Reg#(EofType)            eof          <- mkDReg(EofNone);
@@ -290,35 +290,49 @@ module mkRxRS (RxRSIfc);
 
   (* fire_when_enabled, no_implicit_conditions *)
   rule gmii_rx_ingress_advance (rxDV);
-     rxPipe <= shiftInAt0(rxPipe, rxData);                // Build up our 32b FCS candidate
-     if (rxData == PREAMBLE)           preambleCnt.inc;   // Count preamble octets
-     if (preambleCnt>6 && rxData==SFD) rxActive <= True;  // Detect Start of Frame Delimiter
-     if (rxActive) crc.add(rxData);                       // Update CRC starting with DA (after SFD)
+     rxPipe <= shiftInAt0(rxPipe, rxData);                      // Build up our 32b FCS candidate
+     if (rxData == pack(PREAMBLE))     preambleCnt.inc;         // Count preamble octets
+     if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
+     if (rxActive) crc.add(rxData);                             // Update CRC starting with DA (after SFD)
   endrule
 
   (* fire_when_enabled, no_implicit_conditions *)
   rule gmii_rx_ingress_noadvance (!rxDV);
     let fcs <- crc.complete;
-    if (rxActive) eof <= (fcs == unpack(pack(rxPipe))) : eofGood : eofBad;
+    if (rxActive) eof <= (fcs == unpack(pack(rxPipe))) ? EofGood : EofBad;
     preambleCnt.load(0);  // Reset the preamble counter
     rxActive <= False;    // Clear rxActive
   endrule
 
+  /*
   rule gmii_rx_ingress_enqueue;
-    EthernetData d = ?;
-    if   (rxActive && !rxActiveD) d = tagged DataSOF  rxData;
-    else (rxActive && rxDV)       d = tagged Data     rxData
-    else                          d = tagged DataEOF  rxData;
-    rfF.enq(d);
+    EthernetFrame d = ?;
+    if      (rxActive && !rxActiveD) d = tagged DataSOF  rxData;
+    else if (rxActive && rxDV)       d = tagged Data     rxData;
+    else                             d = tagged DataEOF  rxData;
+    rxF.enq(d);
   endrule
+  */
 
   interface GMII_RX_RS gmii;
     method Action rxd   (x) = rxData._write(x);
     method Action rx_dv (x) = rxDV._write(unpack(x));
     method Action rx_er (x) = rxER._write(unpack(x));
-  endinterface gmii
+  endinterface: gmii
 
   interface Get rxf = toGet(rxF);
 endmodule: mkRxRS
+
+// Connectable Instances...
+
+instance Connectable#(GMII_TX_RS, GMII_RX_RS); // Loopback TX to RX at RS
+  module mkConnection#(GMII_TX_RS t, GMII_RX_RS r)(Empty);
+    rule connect_1;
+       r.rxd(t.txd);
+       r.rx_dv(t.tx_en);
+       r.rx_er(t.tx_er);
+    endrule
+  endmodule
+endinstance
 
 endpackage: GMAC
