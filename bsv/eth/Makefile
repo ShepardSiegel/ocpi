@@ -36,6 +36,7 @@ bsim: $(OBJ)
   -keep-inlined-boundaries  \
   -no-warn-action-shadowing \
   -aggressive-conditions \
+  -keep-fires \
   -vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
   -p $(BSVDIRS):lib:+ \
   $(BSVTST)/$(BTEST).bsv

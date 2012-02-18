@@ -1,0 +1,28 @@
+[timestart] 739100
+[size] 2560 1553
+[pos] -5 -25
+*-15.243040 765600 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+[treeopen] main.top.etx.
+@22
+main.top.simCycle[15:0]
+@28
+main.top.etx.txF.ENQ
+main.top.etx.txF.DEQ
+main.top.etx.WILL_FIRE_RL_egress_SOF
+main.top.etx.WILL_FIRE_RL_egress_Body
+main.top.etx.WILL_FIRE_RL_egress_EOF
+@22
+main.top.etx.preambleCnt_value[4:0]
+main.top.etx.lenCnt_value[11:0]
+main.top.etx.ifgCnt_value[4:0]
+@25
+main.top.etx.emitFCS[2:0]
+@28
+main.top.etx.txActive
+main.top.etx.txDV
+@22
+main.top.etx.txData[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

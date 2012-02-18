@@ -37,6 +37,13 @@ typedef union tagged {
   Bit#(8) DataEOFBAD;   //            0n rx: EOF with FCS Bad
 } EthernetFrame deriving (Bits, Eq);
 
+typedef struct {
+  Bool    abort;
+  Bool    sof;
+  Bool    eof;
+  Bit#(8) data;
+} ByteSeq deriving (Bits, Eq);
+
 // Functions...
 
 function Bit#(8) getData(EthernetFrame x);
@@ -178,11 +185,11 @@ endinterface: GMAC
 
 interface RxRSIfc;
   interface GMII_RX_RS          gmii;
-  interface Get#(EthernetFrame) rxf;
+  interface Get#(ByteSeq)       rxf;
 endinterface
 
 interface TxRSIfc;
-  interface Put#(EthernetFrame) txf;
+  interface Put#(ByteSeq)       txf;
   method    Bool                txUnderflow;
   interface GMII_TX_RS          gmii;
 endinterface
@@ -195,39 +202,40 @@ endinterface
 // If the txF starves in the middle of a frame; that is a TX UNDERFLOW error (txUnderflow)
 (* synthesize *)
 module mkTxRS (TxRSIfc);
-  FIFO#(EthernetFrame)     txF          <- mkFIFO;
+  FIFO#(ByteSeq)           txF          <- mkFIFO;
   Reg#(Bit#(8))            txData       <- mkDReg(0);
   Reg#(Bool)               txDV         <- mkDReg(False);
   Reg#(Bool)               txER         <- mkDReg(False);
-  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat(8);
-  CounterSat#(UInt#(5))    ifgCnt       <- mkCounterSat(16);
-  CounterSat#(UInt#(12))   lenCnt       <- mkCounterSat(2048);
+  CounterSat#(UInt#(5))    preambleCnt  <- mkCounterSat;
+  CounterSat#(UInt#(5))    ifgCnt       <- mkCounterSat;
+  CounterSat#(UInt#(12))   lenCnt       <- mkCounterSat;
   Reg#(Bool)               txActive     <- mkReg(False);
   CRC#(32)                 crc          <- mkCRC32;
   Reg#(Bool)               underflow    <- mkDReg(False);
   Reg#(UInt#(3))           emitFCS      <- mkReg(0);
+  Reg#(Bool)               doPad        <- mkReg(False);
 
-  rule egress_SOF(txF.first matches tagged DataSOF .* &&& ifgCnt==0);
+  (* descending_urgency = "egress_FCS, egress_PAD, egress_EOF, egress_Body, egress_SOF" *)
+
+  rule egress_SOF(txF.first.sof && ifgCnt==0);
     if (preambleCnt<7) begin
-      preambleCnt.inc;
       txData <= pack(PREAMBLE);    // 7 Preamble cycles - 8'h55
     end else if (preambleCnt==7) begin
-      preambleCnt.inc;
-      txData <= pack(SFD);          // 1 SFD cycle - 8'hD5
+      txData <= pack(SFD);         // 1 SFD cycle - 8'hD5
     end else begin
-      let d = getData(txF.first);   // 1st Byte of Destination Address
+      let d = txF.first.data;      // 1st Byte of Destination Address
       txData <= d;
       crc.add(d);
       txF.deq;
       lenCnt.inc;
-      preambleCnt.load(0);
     end
+    preambleCnt.inc();
     txDV     <= True;
     txActive <= True;
   endrule
 
-  rule egress_Body(txF.first matches tagged Data .*);
-    let d = getData(txF.first);
+  rule egress_Body(txActive && !txF.first.sof && !txF.first.eof);
+    let d = txF.first.data;
     txData <= d;
     crc.add(d);
     txF.deq;
@@ -235,16 +243,28 @@ module mkTxRS (TxRSIfc);
     txDV <= True;
   endrule
 
-  rule egress_EOF(txF.first matches tagged DataEOFOK .*);
-    let d = (lenCnt<60) ? pack(PAD) : getData(txF.first);
+  rule egress_EOF(txActive && txF.first.eof);
+    let d = txF.first.data;
     txData <= d;
     crc.add(d);
+    txF.deq;
     lenCnt.inc;
     txDV <= True;
     if (lenCnt>=60) begin // if not padding, advance to emitFCS
       txActive <= False;
-      txF.deq;
       emitFCS <= 4;
+    end else doPad <= True;
+  endrule
+
+  rule egress_PAD(txActive && doPad);
+    let d = pack(PAD);
+    txData <= d;
+    lenCnt.inc;
+    txDV <= True;
+    if (lenCnt>=60) begin // when done padding, advance to emitFCS
+      txActive <= False;
+      emitFCS  <= 4;
+      doPad    <= False;
     end
   endrule
 
@@ -254,7 +274,11 @@ module mkTxRS (TxRSIfc);
     lenCnt.inc;
     txDV  <= True;
     emitFCS <= emitFCS - 1;
-    if (emitFCS==1) ifgCnt.load(12);
+    if (emitFCS==1) begin
+      ifgCnt.load(12);
+      preambleCnt.load(0);
+      lenCnt.load(0);
+    end
   endrule
 
   rule ifg_decrementer (ifgCnt!=0);
@@ -281,12 +305,12 @@ module mkRxRS (RxRSIfc);
   Reg#(Bit#(8))            rxData       <- mkRegU;
   Reg#(Bool)               rxDV         <- mkReg(False);
   Reg#(Bool)               rxER         <- mkReg(False);
-  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat(15);
+  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat;
   Reg#(Bool)               rxActive     <- mkReg(False);
   Reg#(Vector#(4,Bit#(8))) rxPipe       <- mkRegU;
   CRC#(32)                 crc          <- mkCRC32;
   Reg#(EofType)            eof          <- mkDReg(EofNone);
-  FIFO#(EthernetFrame)     rxF          <- mkFIFO;
+  FIFO#(ByteSeq)           rxF          <- mkFIFO;
 
   (* fire_when_enabled, no_implicit_conditions *)
   rule gmii_rx_ingress_advance (rxDV);

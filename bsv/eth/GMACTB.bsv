@@ -5,9 +5,35 @@ import OCWip::*;
 import BiasWorker::*;
 import GMAC::*;
 
-import Connectable::*;
-import GetPut::*;
-import StmtFSM::*;
+import Connectable ::*;
+import FIFO        ::*;
+import GetPut      ::*;
+import StmtFSM     ::*;
+
+interface ByteSeqGenIfc;
+  interface Get#(ByteSeq) get;
+endinterface
+
+module mkByteSeqGen#(UInt#(12) length) (ByteSeqGenIfc);
+  FIFO#(ByteSeq)  gsF       <- mkFIFO;
+  Reg#(Bool)      isSOF     <- mkReg(True);
+  Reg#(UInt#(12)) lenRemain <- mkReg(length);
+  Reg#(Bit#(8))   pattern   <- mkReg(0);
+
+  rule genseq;
+    gsF.enq( ByteSeq {
+      abort : False,
+      sof   : isSOF,
+      eof   : (lenRemain==1),
+      data  : pattern
+     });
+  lenRemain <= (lenRemain==1) ? length : lenRemain-1;
+  isSOF <= (lenRemain==1);
+  pattern <= pattern + 1;
+  endrule
+
+  interface Get get = toGet(gsF);
+endmodule
 
 (* synthesize *)
 module mkGMACTB();
@@ -38,10 +64,31 @@ module mkGMACTB();
   Reg#(Bit#(32))              badDataCnt     <- mkReg(0);       // Bad  Data Words
   Reg#(Bit#(32))              badMesgCnt     <- mkReg(0);       // Bad  Messages
 
+  ByteSeqGenIfc               rsGen          <- mkByteSeqGen(64);
+  Reg#(Bit#(8))               rsPatExp       <- mkReg(0);
+
   TxRSIfc                     etx            <- mkTxRS;         // MAX RS TX to GMII
   RxRSIfc                     erx            <- mkRxRS;         // MAX RS RX from GMII
 
   mkConnection(etx.gmii, erx.gmii); // Loopback etx to erx
+
+  rule sendPat (simCycle>5);
+    let z <- rsGen.get.get;
+    etx.txf.put(z);
+  endrule
+
+  rule recvPat;
+    let got <- erx.rxf.get;
+    if (got.data != rsPatExp) begin
+      $display("[%0d]: %m: recvPat MISMATCH: exp:%0x got:%0x", $time, rsPatExp, got);
+    end
+    rsPatExp <= rsPatExp + 1;
+  endrule
+
+
+
+
+
   
 
   // Connect the biasWorker DUT's three interfaces...
@@ -88,7 +135,7 @@ module mkGMACTB();
 
   // Start of the WCI sequence...
   rule runWciSeq;
-    wciSeqOnce.start;
+    //wciSeqOnce.start; // FIXME Uncomment me for the FSM
   endrule
 
   // This rule inhibits dataflow on the WSI ports until the WCI port isOperating...
@@ -106,7 +153,7 @@ module mkGMACTB();
     wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                              reqLast : lastWord,
                              reqInfo : opcode,
-                        burstPrecise : True,
+                        burstPrecise : False,
                          burstLength : truncate(wsiBurstLength),
                                data  : srcDataOut,
                              byteEn  : '1,

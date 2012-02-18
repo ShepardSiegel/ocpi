@@ -1,0 +1,54 @@
+[timestart] 0
+[size] 2560 1553
+[pos] 82 0
+*-6.113565 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+[treeopen] main.top.erx.
+[treeopen] main.top.etx.
+@22
+main.top.simCycle[15:0]
+@200
+-
+@22
+main.top.rsPatGen[7:0]
+@200
+-
+@22
+main.top.etx.txF.D_IN[10:0]
+@28
+main.top.etx.txF.ENQ
+main.top.etx.txF.DEQ
+@22
+main.top.etx.txF.D_OUT[10:0]
+@28
+main.top.etx.txActive
+@22
+main.top.etx.preambleCnt_value[3:0]
+main.top.etx.lenCnt_value[11:0]
+@28
+main.top.etx.emitFCS[2:0]
+main.top.etx.txDV
+@22
+main.top.etx.txData[7:0]
+@23
+main.top.etx.ifgCnt_value[4:0]
+@28
+main.top.etx.underflow
+@200
+-
+-
+@28
+main.top.erx.rxDV
+@22
+main.top.erx.rxData[7:0]
+@28
+main.top.erx.rxActive
+@22
+main.top.erx.preambleCnt_value[3:0]
+@200
+-
+@22
+main.top.rsPatExp[7:0]
+[pattern_trace] 1
+[pattern_trace] 0
