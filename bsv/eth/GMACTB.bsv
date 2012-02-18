@@ -11,7 +11,7 @@ import GetPut      ::*;
 import StmtFSM     ::*;
 
 interface ByteSeqGenIfc;
-  interface Get#(ByteSeq) get;
+  interface Get#(ByteSeq) stream;
 endinterface
 
 module mkByteSeqGen#(UInt#(12) length) (ByteSeqGenIfc);
@@ -23,6 +23,7 @@ module mkByteSeqGen#(UInt#(12) length) (ByteSeqGenIfc);
   rule genseq;
     gsF.enq( ByteSeq {
       abort : False,
+      empty : False,
       sof   : isSOF,
       eof   : (lenRemain==1),
       data  : pattern
@@ -32,7 +33,7 @@ module mkByteSeqGen#(UInt#(12) length) (ByteSeqGenIfc);
   pattern <= pattern + 1;
   endrule
 
-  interface Get get = toGet(gsF);
+  interface Get stream = toGet(gsF);
 endmodule
 
 (* synthesize *)
@@ -64,8 +65,8 @@ module mkGMACTB();
   Reg#(Bit#(32))              badDataCnt     <- mkReg(0);       // Bad  Data Words
   Reg#(Bit#(32))              badMesgCnt     <- mkReg(0);       // Bad  Messages
 
-  ByteSeqGenIfc               rsGen          <- mkByteSeqGen(64);
-  Reg#(Bit#(8))               rsPatExp       <- mkReg(0);
+  ByteSeqGenIfc               rsXmtGen       <- mkByteSeqGen(64);
+  ByteSeqGenIfc               rsRcvGen       <- mkByteSeqGen(64);
 
   TxRSIfc                     etx            <- mkTxRS;         // MAX RS TX to GMII
   RxRSIfc                     erx            <- mkRxRS;         // MAX RS RX from GMII
@@ -73,16 +74,16 @@ module mkGMACTB();
   mkConnection(etx.gmii, erx.gmii); // Loopback etx to erx
 
   rule sendPat (simCycle>5);
-    let z <- rsGen.get.get;
+    let z <- rsXmtGen.stream.get;
     etx.txf.put(z);
   endrule
 
   rule recvPat;
-    let got <- erx.rxf.get;
-    if (got.data != rsPatExp) begin
-      $display("[%0d]: %m: recvPat MISMATCH: exp:%0x got:%0x", $time, rsPatExp, got);
+    let dGot <- erx.rxf.get;
+    let dExp <- rsRcvGen.stream.get;
+    if (dGot.data != dExp.data) begin
+      $display("[%0d]: %m: recvPat MISMATCH: exp:%0x got:%0x", $time, dExp.data, dGot.data);
     end
-    rsPatExp <= rsPatExp + 1;
   endrule
 
 

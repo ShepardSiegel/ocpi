@@ -39,6 +39,7 @@ typedef union tagged {
 
 typedef struct {
   Bool    abort;
+  Bool    empty;
   Bool    sof;
   Bool    eof;
   Bit#(8) data;
@@ -308,35 +309,40 @@ module mkRxRS (RxRSIfc);
   CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat;
   Reg#(Bool)               rxActive     <- mkReg(False);
   Reg#(Vector#(4,Bit#(8))) rxPipe       <- mkRegU;
+  Reg#(Vector#(4,Bool))    rxAPipe      <- mkReg(unpack(0));
   CRC#(32)                 crc          <- mkCRC32;
   Reg#(EofType)            eof          <- mkDReg(EofNone);
   FIFO#(ByteSeq)           rxF          <- mkFIFO;
+  Reg#(Bool)               isSOF        <- mkReg(True);
 
-  (* fire_when_enabled, no_implicit_conditions *)
-  rule gmii_rx_ingress_advance (rxDV);
-     rxPipe <= shiftInAt0(rxPipe, rxData);                      // Build up our 32b FCS candidate
+  //(* fire_when_enabled, no_implicit_conditions *)
+  rule ingress_advance (rxDV);
+     rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
+     rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
      if (rxData == pack(PREAMBLE))     preambleCnt.inc;         // Count preamble octets
      if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
      if (rxActive) crc.add(rxData);                             // Update CRC starting with DA (after SFD)
   endrule
 
   (* fire_when_enabled, no_implicit_conditions *)
-  rule gmii_rx_ingress_noadvance (!rxDV);
+  rule ingress_noadvance (!rxDV);
     let fcs <- crc.complete;
     if (rxActive) eof <= (fcs == unpack(pack(rxPipe))) ? EofGood : EofBad;
-    preambleCnt.load(0);  // Reset the preamble counter
-    rxActive <= False;    // Clear rxActive
+    preambleCnt.load(0);   // Reset the preamble counter
+    rxActive <= False;     // Clear rxActive
+    isSOF    <= True;      // For next frame
+    rxAPipe  <= unpack(0); // Clear shift register
   endrule
 
-  /*
-  rule gmii_rx_ingress_enqueue;
-    EthernetFrame d = ?;
-    if      (rxActive && !rxActiveD) d = tagged DataSOF  rxData;
-    else if (rxActive && rxDV)       d = tagged Data     rxData;
-    else                             d = tagged DataEOF  rxData;
-    rxF.enq(d);
+  rule egress_data (rxAPipe[3] && rxDV);
+    rxF.enq( ByteSeq {
+      abort : False,
+      empty : False,
+      sof   : isSOF,
+      eof   : False,
+      data  : rxPipe[3] });
+    isSOF <= False;    
   endrule
-  */
 
   interface GMII_RX_RS gmii;
     method Action rxd   (x) = rxData._write(x);

@@ -1,28 +1,42 @@
-[timestart] 739100
+[timestart] 702
 [size] 2560 1553
-[pos] -5 -25
-*-15.243040 765600 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-4.896335 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.top.
+[treeopen] main.top.erx.
+[treeopen] main.top.erx.rxF.
 [treeopen] main.top.etx.
+[treeopen] main.top.etx.txF.
 @22
 main.top.simCycle[15:0]
 @28
 main.top.etx.txF.ENQ
 main.top.etx.txF.DEQ
-main.top.etx.WILL_FIRE_RL_egress_SOF
-main.top.etx.WILL_FIRE_RL_egress_Body
-main.top.etx.WILL_FIRE_RL_egress_EOF
 @22
 main.top.etx.preambleCnt_value[4:0]
 main.top.etx.lenCnt_value[11:0]
 main.top.etx.ifgCnt_value[4:0]
-@25
+@24
 main.top.etx.emitFCS[2:0]
 @28
 main.top.etx.txActive
 main.top.etx.txDV
 @22
 main.top.etx.txData[7:0]
+@200
+-
+@28
+main.top.erx.rxDV
+@22
+main.top.erx.rxData[7:0]
+main.top.erx.preambleCnt_value[3:0]
+@28
+main.top.erx.rxActive
+main.top.erx.rxF.ENQ
+@23
+main.top.erx.rxF.D_IN[11:0]
+@28
+main.top.erx.rxF.DEQ
 [pattern_trace] 1
 [pattern_trace] 0
