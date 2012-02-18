@@ -64,7 +64,7 @@ module mkCounterMod#(t modulusArg) (CounterMod#(t))
 endmodule
 
 
-// Variant with fixed Modulus supplied as argument that Saturates at maxBound or minBound...
+// Variant counter that Saturates at maxBound or minBound of the Bounded type...
 
 interface CounterSat#(type t);
   method Action load(t nval);
