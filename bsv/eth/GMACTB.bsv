@@ -83,11 +83,21 @@ module mkGMACTB();
   rule recvPat;
     let dGot <- erx.rxf.get;
     let dExp <- rsRcvGen.stream.get;
+
     if (dGot.data != dExp.data) begin
       $display("[%0d]: %m: recvPat MISMATCH: exp:%0x got:%0x", $time, dExp.data, dGot.data);
       badDataCnt.inc;
     end else begin
       goodDataCnt.inc;
+    end
+
+    if (dGot.eof) begin
+      if (!dExp.eof || dExp.abort) begin
+        $display("[%0d]: %m: recv EOF MISMATCH: exp:%0x got:%0x", $time, dExp.eof, dGot.eof);
+        badMesgCnt.inc;
+      end else begin
+        goodMesgCnt.inc;
+      end
     end
   endrule
 

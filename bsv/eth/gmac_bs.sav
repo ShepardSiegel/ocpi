@@ -1,7 +1,7 @@
-[timestart] 742
+[timestart] 712
 [size] 2560 1553
 [pos] 82 0
-*-6.113565 844 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.137824 846 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.top.
 [treeopen] main.top.erx.
@@ -31,7 +31,6 @@ main.top.etx.underflow
 @28
 main.top.erx.rxDV
 main.top.erx.rxDVD
-@29
 main.top.erx.rxDVD2
 @22
 main.top.erx.rxData[7:0]
@@ -45,6 +44,10 @@ main.top.erx.eof[1:0]
 @22
 main.top.erx.crcDbgCnt_value[11:0]
 @28
+main.top.erx.crc.pwComplete
+@23
+main.top.erx.crc.rRemainder[31:0]
+@28
 main.top.erx.rxF.ENQ
 @22
 main.top.erx.rxF.D_IN[11:0]
@@ -54,5 +57,7 @@ main.top.erx.rxF.DEQ
 main.top.erx.rxF.D_OUT[11:0]
 @200
 -
+@22
+main.top.rsRcvGen_gsF.D_OUT[11:0]
 [pattern_trace] 1
 [pattern_trace] 0

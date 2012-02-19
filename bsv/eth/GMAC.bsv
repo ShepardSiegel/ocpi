@@ -344,7 +344,7 @@ module mkRxRS (RxRSIfc);
     $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
     crcDbgCnt.load(0);
     if (rxActive) begin
-      Bool fcsMatch = (fcs == unpack(pack(takeAt(2,rxPipe))));
+      Bool fcsMatch = (fcs == unpack(pack(takeAt(0,rxPipe))));
       eof <= (fcsMatch) ? EofGood : EofBad;
       rxF.enq( ByteSeq {
         abort : !fcsMatch,
