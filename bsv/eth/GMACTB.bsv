@@ -1,9 +1,10 @@
 // GMACTB - A Testbench for the GMAC
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import OCWip::*;
-import BiasWorker::*;
-import GMAC::*;
+import OCWip       ::*;
+import BiasWorker  ::*;
+import CounterM    ::*;
+import GMAC        ::*;
 
 import Connectable ::*;
 import FIFO        ::*;
@@ -30,7 +31,8 @@ module mkByteSeqGen#(UInt#(12) length) (ByteSeqGenIfc);
      });
   lenRemain <= (lenRemain==1) ? length : lenRemain-1;
   isSOF <= (lenRemain==1);
-  pattern <= pattern + 1;
+  //pattern <= (lenRemain==1) ? 0 : pattern + 1;
+  pattern <=  pattern + 1;
   endrule
 
   interface Get stream = toGet(gsF);
@@ -60,10 +62,10 @@ module mkGMACTB();
   Reg#(Bit#(32))              dstDataOut     <- mkReg(0);       // DWORD ordinal count
 
   Reg#(Bool)                  mesgHadError   <- mkReg(False);   // Message had an Error
-  Reg#(Bit#(32))              goodDataCnt    <- mkReg(0);       // Good Data Words
-  Reg#(Bit#(32))              goodMesgCnt    <- mkReg(0);       // Good Messages
-  Reg#(Bit#(32))              badDataCnt     <- mkReg(0);       // Bad  Data Words
-  Reg#(Bit#(32))              badMesgCnt     <- mkReg(0);       // Bad  Messages
+  CounterSat#(UInt#(32))      goodDataCnt    <- mkCounterSat;   // Good Data Words
+  CounterSat#(UInt#(32))      goodMesgCnt    <- mkCounterSat;   // Good Messages
+  CounterSat#(UInt#(32))      badDataCnt     <- mkCounterSat;   // Bad  Data Words
+  CounterSat#(UInt#(32))      badMesgCnt     <- mkCounterSat;   // Bad  Messages
 
   ByteSeqGenIfc               rsXmtGen       <- mkByteSeqGen(64);
   ByteSeqGenIfc               rsRcvGen       <- mkByteSeqGen(64);
@@ -83,6 +85,9 @@ module mkGMACTB();
     let dExp <- rsRcvGen.stream.get;
     if (dGot.data != dExp.data) begin
       $display("[%0d]: %m: recvPat MISMATCH: exp:%0x got:%0x", $time, dExp.data, dGot.data);
+      badDataCnt.inc;
+    end else begin
+      goodDataCnt.inc;
     end
   endrule
 
@@ -182,17 +187,17 @@ module mkGMACTB();
 
     if (dataGot != dataExp) begin
       $display("[%0d]: %m: wsi_checker MISMATCH: exp:%0x got:%0x srcMesgCount:%0x", $time, dataExp, dataGot, dstMesgCount);
-      badDataCnt <= badDataCnt + 1;
+      badDataCnt.inc;
       errorInMessage = True;
-    end else goodDataCnt <= goodDataCnt + 1;
+    end else goodDataCnt.inc;
 
     dstDataOut  <= dstDataOut  + 1;
     if (lastWord) begin
       dstMesgCount <= dstMesgCount + 1;
       $display("[%0d]: %m: wsi_source: End of WSI Consumer Ingress: dstMesgCount:%0x opcode:%0x", $time, dstMesgCount, opcode);
       dstUnrollCnt <= wsiBurstLength;
-      if (errorInMessage || mesgHadError) badMesgCnt  <= badMesgCnt  + 1;
-      else                                goodMesgCnt <= goodMesgCnt + 1;
+      if (errorInMessage || mesgHadError) badMesgCnt.inc;
+      else                                goodMesgCnt.inc;
       mesgHadError <= False; // reset for next message
     end else begin
       dstUnrollCnt <= dstUnrollCnt - 1;
@@ -207,10 +212,10 @@ module mkGMACTB();
 
   rule terminate (simCycle==1000);
     $display("[%0d]: %m: mkGMACTB termination", $time);
-    $display("goodDataCnt:%08x", goodDataCnt);
-    $display("goodMesgCnt:%08x", goodMesgCnt);
-    $display("badDataCnt :%08x", badDataCnt);
-    $display("badMesgCnt :%08x", badMesgCnt);
+    $display("goodDataCnt : %08x (%d)", goodDataCnt, goodDataCnt);
+    $display("goodMesgCnt : %08x (%d)", goodMesgCnt, goodMesgCnt);
+    $display("badDataCnt  : %08x (%d)", badDataCnt,  badDataCnt);
+    $display("badMesgCnt  : %08x (%d)", badMesgCnt,  badMesgCnt);
     if (badDataCnt == 0) $display("mkGMACTB PASSED OK");
     else                 $display("mkGMACTB had %d ERRORS and FAILED", badDataCnt);
     $finish;

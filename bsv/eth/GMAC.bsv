@@ -212,6 +212,7 @@ module mkTxRS (TxRSIfc);
   CounterSat#(UInt#(12))   lenCnt       <- mkCounterSat;
   Reg#(Bool)               txActive     <- mkReg(False);
   CRC#(32)                 crc          <- mkCRC32;
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat;
   Reg#(Bool)               underflow    <- mkDReg(False);
   Reg#(UInt#(3))           emitFCS      <- mkReg(0);
   Reg#(Bool)               doPad        <- mkReg(False);
@@ -227,6 +228,7 @@ module mkTxRS (TxRSIfc);
       let d = txF.first.data;      // 1st Byte of Destination Address
       txData <= d;
       crc.add(d);
+      crcDbgCnt.inc;
       txF.deq;
       lenCnt.inc;
     end
@@ -239,6 +241,7 @@ module mkTxRS (TxRSIfc);
     let d = txF.first.data;
     txData <= d;
     crc.add(d);
+    crcDbgCnt.inc;
     txF.deq;
     lenCnt.inc;
     txDV <= True;
@@ -248,6 +251,7 @@ module mkTxRS (TxRSIfc);
     let d = txF.first.data;
     txData <= d;
     crc.add(d);
+    crcDbgCnt.inc;
     txF.deq;
     lenCnt.inc;
     txDV <= True;
@@ -271,6 +275,10 @@ module mkTxRS (TxRSIfc);
 
   rule egress_FCS(emitFCS!=0);
     Vector#(4,Bit#(8)) fcsV = unpack(crc.result);
+    if (emitFCS==4) begin
+      $display("[%0d]: %m: TX FCS:%08x from %d elements", $time, pack(fcsV), crcDbgCnt);
+      crcDbgCnt.load(0);
+    end
     txData <= fcsV[emitFCS-1];
     lenCnt.inc;
     txDV  <= True;
@@ -279,6 +287,7 @@ module mkTxRS (TxRSIfc);
       ifgCnt.load(12);
       preambleCnt.load(0);
       lenCnt.load(0);
+      crc.clear;
     end
   endrule
 
@@ -305,15 +314,21 @@ endmodule: mkTxRS
 module mkRxRS (RxRSIfc);
   Reg#(Bit#(8))            rxData       <- mkRegU;
   Reg#(Bool)               rxDV         <- mkReg(False);
+  Reg#(Bool)               rxDVD        <- mkReg(False);
+  Reg#(Bool)               rxDVD2       <- mkReg(False);
   Reg#(Bool)               rxER         <- mkReg(False);
   CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat;
   Reg#(Bool)               rxActive     <- mkReg(False);
-  Reg#(Vector#(4,Bit#(8))) rxPipe       <- mkRegU;
-  Reg#(Vector#(4,Bool))    rxAPipe      <- mkReg(unpack(0));
+  Reg#(Vector#(6,Bit#(8))) rxPipe       <- mkRegU;
+  Reg#(Vector#(6,Bool))    rxAPipe      <- mkReg(unpack(0));
   CRC#(32)                 crc          <- mkCRC32;
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat;
   Reg#(EofType)            eof          <- mkDReg(EofNone);
   FIFO#(ByteSeq)           rxF          <- mkFIFO;
   Reg#(Bool)               isSOF        <- mkReg(True);
+  Reg#(Bool)               crcEnd       <- mkReg(False);
+
+  rule dv_reg; rxDVD <= rxDV; rxDVD2 <= rxDVD; endrule
 
   //(* fire_when_enabled, no_implicit_conditions *)
   rule ingress_advance (rxDV);
@@ -321,26 +336,46 @@ module mkRxRS (RxRSIfc);
      rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
      if (rxData == pack(PREAMBLE))     preambleCnt.inc;         // Count preamble octets
      if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
-     if (rxActive) crc.add(rxData);                             // Update CRC starting with DA (after SFD)
   endrule
 
-  (* fire_when_enabled, no_implicit_conditions *)
-  rule ingress_noadvance (!rxDV);
+  //(* fire_when_enabled, no_implicit_conditions *)
+  rule ingress_noadvance (!rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
     let fcs <- crc.complete;
-    if (rxActive) eof <= (fcs == unpack(pack(rxPipe))) ? EofGood : EofBad;
+    $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
+    crcDbgCnt.load(0);
+    if (rxActive) begin
+      Bool fcsMatch = (fcs == unpack(pack(takeAt(2,rxPipe))));
+      eof <= (fcsMatch) ? EofGood : EofBad;
+      rxF.enq( ByteSeq {
+        abort : !fcsMatch,
+        empty : False,
+        sof   : False,
+        eof   : fcsMatch,
+        data  : rxPipe[4] });
+    end
+    crcEnd   <= True;
+  endrule
+
+  rule end_frame (crcEnd);
     preambleCnt.load(0);   // Reset the preamble counter
     rxActive <= False;     // Clear rxActive
     isSOF    <= True;      // For next frame
     rxAPipe  <= unpack(0); // Clear shift register
+    crcEnd   <= False;
   endrule
 
-  rule egress_data (rxAPipe[3] && rxDV);
+  rule crc_capture (rxDV && rxAPipe[3]);
+    crc.add(rxPipe[3]); // Update CRC starting with DA (after SFD)
+    crcDbgCnt.inc;
+  endrule
+
+  rule egress_data (rxDVD && rxAPipe[5]);
     rxF.enq( ByteSeq {
       abort : False,
       empty : False,
       sof   : isSOF,
       eof   : False,
-      data  : rxPipe[3] });
+      data  : rxPipe[5] });
     isSOF <= False;    
   endrule
 
