@@ -1,7 +1,7 @@
-[timestart] 835
+[timestart] 352
 [size] 2560 1553
 [pos] 5 0
-*-6.572176 855 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-6.572176 894 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.top.
 [treeopen] main.top.memtst.
@@ -46,9 +46,14 @@ main.top.mem_bram_memory.WE
 main.top.mem_bram_memory.DO[127:0]
 @28
 main.top.mem_wmemi_respF_c_r[1:0]
-@29
 main.top.memtst.rgen_gsF.DEQ
+main.top.memtst.isTesting
+main.top.memtst.isWriter
+main.top.memtst.isReader
+@23
+main.top.memtst.unrollCnt[31:0]
 @22
+main.top.memtst.respCnt[31:0]
 main.top.memtst.wmemiRdResp[31:0]
 @28
 main.top.mem_wmemi_errorSticky

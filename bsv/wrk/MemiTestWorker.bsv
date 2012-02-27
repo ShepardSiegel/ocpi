@@ -44,10 +44,11 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
   Reg#(Bit#(32))                 tstCtrl           <- mkReg(0);
   Reg#(UInt#(32))                seqLen            <- mkReg(16);    // in HWords
   Reg#(Bool)                     isTesting         <- mkReg(False);
+  Reg#(Bool)                     isWriter          <- mkReg(True);
   Reg#(Bool)                     isReader          <- mkReg(False);
-  Reg#(Bool)                     isReadReqDone     <- mkReg(False);
   Reg#(UInt#(24))                hwordAddr         <- mkReg(0);
   Reg#(UInt#(32))                unrollCnt         <- mkReg(0);
+  Reg#(UInt#(32))                respCnt           <- mkReg(0);
   Reg#(UInt#(32))                wmemiWrReq        <- mkReg(0);
   Reg#(UInt#(32))                wmemiRdReq        <- mkReg(0);
   Reg#(UInt#(32))                wmemiRdResp       <- mkReg(0);
@@ -63,24 +64,30 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
 
   Bool haltOnError = unpack(tstCtrl[0]);
 
-  rule write_req (wci.isOperating && isTesting && !isReader);
+  rule write_req (wci.isOperating && isTesting && isWriter);
     let d <- wgen.stream.get;
     wmemi.req(True, extend({pack(hwordAddr),6'h00}), 1); // Write Request
     wmemi.dh(d, '1, True);                               // Write 16B Datahandshake
     hwordAddr  <= (unrollCnt==1) ? 0 : hwordAddr  + 1;   // Bump Address
     wmemiWrReq <= wmemiWrReq + 1;
     unrollCnt <= (unrollCnt==1) ? seqLen : unrollCnt - 1;
-    if (unrollCnt==1) isReader <= True;
+    if (unrollCnt==1) begin
+      isWriter <= False;
+      isReader <= True;
+      //respCnt <= 0;
+    end
   endrule
 
- // (* descending_urgency = "read_resp, read_req" *)
   
-  rule read_req (wci.isOperating && isTesting && isReader && !isReadReqDone);
+  rule read_req (wci.isOperating && isTesting && isReader);
     wmemi.req(False, extend({pack(hwordAddr),6'h00}), 1); // Read Request
     hwordAddr  <= (unrollCnt==1) ? 0 : hwordAddr  + 1;    // Bump Address
     wmemiRdReq <= wmemiRdReq + 1;
     unrollCnt <= (unrollCnt==1) ? seqLen : unrollCnt - 1;
-    if (unrollCnt==1) isReadReqDone <= True;
+    if (unrollCnt==1) begin
+      isReader <= False;
+      isWriter <= True;
+    end
   endrule
 
   rule read_resp (wci.isOperating && isTesting);
@@ -88,14 +95,12 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
     let g <- wmemi.resp;
     if (e != g.data) begin
       errorCount <= errorCount + 1;
-      if (haltOnError) isTesting <= False;
+      //if (haltOnError) isTesting <= False;
       $display("[%0d]: %m: read_resp MISMATCH: exp:%0x got:%0x", $time, e, g.data);
     end
     wmemiRdResp <= wmemiRdResp + 1;
-    if (unrollCnt==seqLen && isReadReqDone) begin
-      isReader <= False;
-      isReadReqDone <= False;  
-    end
+    //respCnt <= respCnt + 1;
+    //if (respCnt==seqLen-1) isWriter <= True;
   endrule
   
 
