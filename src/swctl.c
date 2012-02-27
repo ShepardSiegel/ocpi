@@ -501,7 +501,7 @@ wwrite(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volati
   return 0;
 }
 
-#define DRAM_L2NPAGES  8 
+#define DRAM_L2NPAGES  9    // 9 for 512MB SODIMM in ML605 
 #define DRAM_L2PAGESZ  17 
 #define DRAM_NPAGES    (1<<DRAM_L2NPAGES)  
 #define DRAM_PAGESZ    (1<<DRAM_L2PAGESZ)  
