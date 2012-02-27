@@ -6,6 +6,7 @@ BTEST1    ?= TB1
 BTEST7    ?= TB7
 BTEST8    ?= TB8
 BTEST14   ?= TB14
+BTEST_WMEMI ?= WmemiTB
 ITEST     ?= TB2
 ITEST1    ?= TB1
 ITEST7    ?= TB7
@@ -185,6 +186,24 @@ bsim14: $(OBJ)
 	$(OBJ)/mk$(BTEST14).bexe -V
 
 ######################################################################
+bsim_wmemi: $(OBJ)
+
+  # compile to bluesim backend
+	bsc -u -sim -elab -keep-inlined-boundaries \
+  -aggressive-conditions \
+  -vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+  -p $(BSVDIRS):lib:+ \
+   $(BSVTST)/$(BTEST_WMEMI).bsv
+
+  # create bluesim executable
+	bsc -sim -keep-inlined-boundaries \
+  -vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+  -o $(OBJ)/mk$(BTEST_WMEMI).bexe -e mk$(BTEST_WMEMI) $(OBJ)/*.ba
+	
+  # run bluesim executable
+	$(OBJ)/mk$(BTEST_WMEMI).bexe -V
+
+######################################################################
 vcs: $(OBJ)
 
 	# compile to verilog backend for ISim
@@ -343,6 +362,11 @@ verilog_scenario1: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW1 -D USE_DEBUGLOGIC -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S1).bsv
 	cp $(RTL)/mkOCApp4B.v $(RTL)/mkOCApp4B_scenario1.v
+
+verilog_scenario1_ndw4: $(OBJ)
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) -p $(BSVDIRS):lib:+ -D USE_NDW4 -D USE_DEBUGLOGIC -verilog-filter basicinout $(BSVAPP)/$(OCAPP_S1).bsv
+	cp $(RTL)/mkOCApp16B.v $(RTL)/mkOCApp16B_scenario1.v
 
 verilog_scenario2: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing -aggressive-conditions -no-show-method-conf \
