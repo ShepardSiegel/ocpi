@@ -29,17 +29,21 @@ module mkWmemiBRAM (WmemiBRAMIfc);
     cfg.latency    = 1;
   BRAM1Port#(Bit#(10), Bit#(128)) bram <- mkBRAM1Server(cfg);
 
+  function Bit#(32) bytesAsHwords(Bit#(36) byteAddr);
+    return (truncate(byteAddr>>4));  // 4b down-shifted to convert Bytes to Hwords
+  endfunction
+
   // This style allows only one dh cycle per request - no bursts...
   rule getRequest;
     let req <- wmemi.req;
     if (req.cmd==WR) begin // Write...
        let dh <- wmemi.dh;
-       //let breq = BRAMRequestBE {writeen:dh.dataByteEn,  address:truncate(req.addr>>6), datain:dh.data, responseOnWrite:False };
+       //let breq = BRAMRequestBE {writeen:dh.dataByteEn,  address:truncate(bytesAsHexwords(req.addr)), datain:dh.data, responseOnWrite:False };
        // TODO: Add in Byte En
-       let breq = BRAMRequest {write:True,  address:truncate(req.addr>>6), datain:dh.data, responseOnWrite:False };
+       let breq = BRAMRequest {write:True,  address:truncate(bytesAsHwords(req.addr)), datain:dh.data, responseOnWrite:False };
        bram.portA.request.put(breq); 
     end else begin         // Read...
-       let breq = BRAMRequest   {write:False, address:truncate(req.addr>>6), datain:0, responseOnWrite:False };
+       let breq = BRAMRequest   {write:False, address:truncate(bytesAsHwords(req.addr)), datain:0, responseOnWrite:False };
        bram.portA.request.put(breq); 
     end
   endrule

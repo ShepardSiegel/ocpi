@@ -80,6 +80,8 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   Reg#(Bit#(32))                   wmemiRdReq                 <- mkReg(0);
   Reg#(Bit#(32))                   wmemiRdResp                <- mkReg(0);
 
+  Reg#(Bool)                       pioReadInFlight            <- mkReg(False);  // TODO: Add PIO low-priority mutex 
+
   rule operating_actions (wci.isOperating);
      wmemi.operate();
   endrule
@@ -218,37 +220,37 @@ endrule
      case (wciReq.addr[7:0]) matches
        'h00 : rdat = dramStatus;
        'h04 : rdat = pack(dramCtrl);
-       'h08 : rdat = extend(dbg_wl_dqs_inverted);
-       'h0C : rdat = extend(dbg_wr_calib_clk_delay);
-       'h10 : rdat = truncate(dbg_wl_odelay_dqs_tap_cnt);
-       'h14 : rdat = truncate(dbg_wl_odelay_dq_tap_cnt);
-       'h18 : rdat = extend(dbg_rdlvl_done);
-       'h1C : rdat = extend(dbg_rdlvl_err);
-       'h20 : rdat = truncate(dbg_cpt_tap_cnt );
-       'h24 : rdat = truncate(dbg_cpt_first_edge_cnt);
-       'h28 : rdat = truncate(dbg_cpt_second_edge_cnt);
-       'h2C : rdat = extend(dbg_rd_bitslip_cnt);
-       'h30 : rdat = extend(dbg_rd_clkdly_cnt);
-       'h34 : rdat = extend(dbg_rd_active_dly);
-       'h38 : rdat = truncate(dbg_dqs_p_tap_cnt);
-       'h3C : rdat = truncate(dbg_dqs_n_tap_cnt);
-       'h40 : rdat = truncate(dbg_dq_tap_cnt);
-       'h44 : rdat = (dbg_rddata);
-       'h48 : rdat = extend(requestCount);
-       'h4C : rdat = extend(responseCount);
-       'h50 : rdat = extend(pReg);
-       'h5C : rdat = extend(mReg);
-       'h60 : rdat = wdReg[0];
-       'h64 : rdat = wdReg[1];
-       'h68 : rdat = wdReg[2];
-       'h6C : rdat = wdReg[3];
-       'h80 : rdat = rdReg[0];
-       'h84 : rdat = rdReg[1];
-       'h88 : rdat = rdReg[2];
-       'h8C : rdat = rdReg[3];
-       'h90 : rdat = wmemiWrReq;
-       'h94 : rdat = wmemiRdReq;
-       'h98 : rdat = wmemiRdResp;
+       'h08 : rdat = (!hasDebugLogic) ? 0 : extend(dbg_wl_dqs_inverted);
+       'h0C : rdat = (!hasDebugLogic) ? 0 : extend(dbg_wr_calib_clk_delay);
+       'h10 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_wl_odelay_dqs_tap_cnt);
+       'h14 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_wl_odelay_dq_tap_cnt);
+       'h18 : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rdlvl_done);
+       'h1C : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rdlvl_err);
+       'h20 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_cpt_tap_cnt );
+       'h24 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_cpt_first_edge_cnt);
+       'h28 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_cpt_second_edge_cnt);
+       'h2C : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rd_bitslip_cnt);
+       'h30 : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rd_clkdly_cnt);
+       'h34 : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rd_active_dly);
+       'h38 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_dqs_p_tap_cnt);
+       'h3C : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_dqs_n_tap_cnt);
+       'h40 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_dq_tap_cnt);
+       'h44 : rdat = (!hasDebugLogic) ? 0 : (dbg_rddata);
+       'h48 : rdat = (!hasDebugLogic) ? 0 : extend(requestCount);
+       'h4C : rdat = (!hasDebugLogic) ? 0 : extend(responseCount);
+       'h50 : rdat = (!hasDebugLogic) ? 0 : extend(pReg);
+       'h5C : rdat = (!hasDebugLogic) ? 0 : extend(mReg);
+       'h60 : rdat = (!hasDebugLogic) ? 0 : wdReg[0];
+       'h64 : rdat = (!hasDebugLogic) ? 0 : wdReg[1];
+       'h68 : rdat = (!hasDebugLogic) ? 0 : wdReg[2];
+       'h6C : rdat = (!hasDebugLogic) ? 0 : wdReg[3];
+       'h80 : rdat = (!hasDebugLogic) ? 0 : rdReg[0];
+       'h84 : rdat = (!hasDebugLogic) ? 0 : rdReg[1];
+       'h88 : rdat = (!hasDebugLogic) ? 0 : rdReg[2];
+       'h8C : rdat = (!hasDebugLogic) ? 0 : rdReg[3];
+       'h90 : rdat = (!hasDebugLogic) ? 0 : wmemiWrReq;
+       'h94 : rdat = (!hasDebugLogic) ? 0 : wmemiRdReq;
+       'h98 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp;
       endcase
     end else begin
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));

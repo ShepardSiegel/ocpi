@@ -46,7 +46,7 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
   Reg#(Bool)                     isTesting         <- mkReg(False);
   Reg#(Bool)                     isWriter          <- mkReg(True);
   Reg#(Bool)                     isReader          <- mkReg(False);
-  Reg#(UInt#(24))                hwordAddr         <- mkReg(0);
+  Reg#(UInt#(32))                hwordAddr         <- mkReg(0);
   Reg#(UInt#(32))                unrollCnt         <- mkReg(0);
   Reg#(UInt#(32))                respCnt           <- mkReg(0);
   Reg#(UInt#(32))                wmemiWrReq        <- mkReg(0);
@@ -68,9 +68,13 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
 
   Bool haltOnError = unpack(tstCtrl[0]);
 
+  function Bit#(36) hwordAsBytes(UInt#(32) hwAddr);
+    return ( {pack(hwordAddr), 4'h0} );  // 4b up-shifted to convert hword to Bytes
+  endfunction
+
   rule write_req (wci.isOperating && isTesting && isWriter && !isReader);
     let d <- wgen.stream.get;
-    wmemi.req(True, extend({pack(hwordAddr),6'h00}), 1); // Write Request
+    wmemi.req(True, hwordAsBytes(hwordAddr), 1);         // Write Request 
     wmemi.dh(d, '1, True);                               // Write 16B Datahandshake
     hwordAddr  <= (unrollCnt==1) ? 0 : hwordAddr  + 1;   // Bump Address
     wmemiWrReq <= wmemiWrReq + 1;
@@ -84,7 +88,7 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
   endrule
 
   rule read_req (wci.isOperating && isTesting && !isWriter && isReader);
-    wmemi.req(False, extend({pack(hwordAddr),6'h00}), 1); // Read Request
+    wmemi.req(False, hwordAsBytes(hwordAddr), 1);         // Read Request 
     hwordAddr  <= (unrollCnt==1) ? 0 : hwordAddr  + 1;    // Bump Address
     wmemiRdReq <= wmemiRdReq + 1;
     unrollCnt <= (unrollCnt==1) ? seqLen : unrollCnt - 1;
@@ -102,7 +106,7 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
     let g <- wmemi.resp;
     if (e != g.data) begin
       errorCount <= errorCount + 1;
-      //if (haltOnError) isTesting <= False;
+      if (haltOnError) isTesting <= False;
       $display("[%0d]: %m: read_resp MISMATCH: exp:%0x got:%0x", $time, e, g.data);
     end
     wmemiRdResp <= wmemiRdResp + 1;
@@ -114,12 +118,17 @@ Bit#(32) testStatus = {31'h0, pack(isReader)};
 (* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
+// TODO: Fix Start and Stop to be "clean". Currently reset is needed to cleanly re-start
+// Should start reset all state? (then why not use Control-Ops?)
+// Should Stop wait to end of current pass, or be immediate?
+
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wci.reqGet.get;
    case (wciReq.addr) matches
      'h00 : tstCtrl   <= unpack(wciReq.data);
      'h04 : seqLen    <= unpack(wciReq.data);
-     'h30 : begin isTesting <= True; unrollCnt <= seqLen; end
+     'h30 : begin isTesting <= True; unrollCnt <= seqLen; end  // Start test by writing here
+     'h34 : begin isTesting <= False; end                      // Stop  test by writing here
    endcase
    //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
