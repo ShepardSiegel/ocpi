@@ -175,7 +175,8 @@ interface DramControllerUiIfc;
   interface DRAM_DBG_32B         dbg;       // debug port
   interface Clock                uclk;      // user-facing clock
   interface Reset                urst_n;    // user-facing reset
-  method Bit#(16) reqCount;
+  method Bit#(16) reqCount;                 // diagnostc
+  method Bit#(16) respCount;                // diagnostc
 endinterface: DramControllerUiIfc
 
 import "BVI" v6_mig37 = 
@@ -277,8 +278,10 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
   Reset                 mem_rst_p     <- mkAsyncReset(16, rst_p, sys0_clk); // active-high for importBVI use
   DramControllerIfc     memc          <- vMkV6DDR3(sys0_clk, mem_clk, clocked_by sys0_clk, reset_by mem_rst_p);
   FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
-  FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
+//FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
+  FIFOF#(Bit#(128))     respF         <- mkSRLFIFOD(4,  clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bit#(16))        requestCount  <- mkReg(0,       clocked_by memc.uclk, reset_by memc.urst_n);
+  Reg#(Bit#(16))        responseCount <- mkReg(0,       clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bool)            firstBeat     <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bool)            secondBeat    <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
   FIFOF#(Bit#(2))       rdpF          <- mkSRLFIFOD(4,  clocked_by memc.uclk, reset_by memc.urst_n);
@@ -353,6 +356,7 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
       3'b110: respF.enq(memc.app.rd_data[127:0]  );  //16B-2 from W1 LS
       3'b011: respF.enq(memc.app.rd_data[255:128]);  //16B-3 from W0 MS **
     endcase
+    responseCount <= responseCount + 1;
     if (unpack(memc.app.rd_data_end)) rdpF.deq; // we are done with this read response, deq the rdpF
   endrule
 
@@ -369,7 +373,8 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
   interface DRAM_DBG_32B   dbg     = memc.dbg;
   interface Clock          uclk    = memc.uclk;
   interface Reset          urst_n  = memc.urst_n;
-  method Bit#(16) reqCount = requestCount;
+  method Bit#(16) reqCount  = requestCount;
+  method Bit#(16) respCount = responseCount;
 endmodule: mkDramControllerUi
 
 endpackage: DRAM_v6

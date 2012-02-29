@@ -1,7 +1,7 @@
-[timestart] 352
+[timestart] 0
 [size] 2560 1553
 [pos] 5 0
-*-6.572176 894 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-10.572176 9900 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.top.
 [treeopen] main.top.memtst.
@@ -50,14 +50,18 @@ main.top.memtst.rgen_gsF.DEQ
 main.top.memtst.isTesting
 main.top.memtst.isWriter
 main.top.memtst.isReader
-@23
-main.top.memtst.unrollCnt[31:0]
 @22
+main.top.memtst.unrollCnt[31:0]
 main.top.memtst.respCnt[31:0]
 main.top.memtst.wmemiRdResp[31:0]
 @28
 main.top.mem_wmemi_errorSticky
+@200
+-
 @22
 main.top.memtst.errorCount[31:0]
+main.top.memtst.rdDuration[31:0]
+main.top.memtst.wtDuration[31:0]
+main.top.memtst.testCycleCount[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

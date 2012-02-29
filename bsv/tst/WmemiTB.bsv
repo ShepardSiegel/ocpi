@@ -97,6 +97,11 @@ module mkWmemiTB();
     action let r <- wci.resp; endaction
 
     $display("[%0d]: %m: Write Dataplane Config Properties...", $time);
+    wci.req(Config, True, 20'h00_0004, 32'h0000_0020, 'hF);  // Switch from default 16 to 32 16B words
+    action let r <- wci.resp; endaction
+
+
+    $display("[%0d]: %m: Write Dataplane Config Properties...", $time);
     wci.req(Config, True, 20'h00_0030, 32'h0000_0000, 'hF);  // Start test
     action let r <- wci.resp; endaction
 

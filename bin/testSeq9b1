@@ -1,0 +1,46 @@
+#!/bin/sh
+# Script tstseq9b1 for testing DRAM memory
+
+echo "admin probe"
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+
+echo "reset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl 1  0x0000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 12 0x0000000F
+
+echo "unreset workers"
+./swctl 0xF1000000 0xF2FF0000 wwctl 1  0x8000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 12 0x8000000F
+
+echo "initialize workers"
+./swctl 0xF1000000 0xF2FF0000 wop 1  initialize
+./swctl 0xF1000000 0xF2FF0000 wop 12 initialize
+
+echo "start workers"
+./swctl 0xF1000000 0xF2FF0000 wop 1  start
+./swctl 0xF1000000 0xF2FF0000 wop 12 start
+
+# wait for controller ready...
+sleep 1
+
+echo "Read Memory Controler Status"
+./swctl 0xF1000000 0xF2FF0000 wread 12 0 19
+
+echo "Test the memory controller with swctl verb dtest for PIO sanity"
+#./swctl 0xF1000000 0xF2FF0000 dtest 12 0x80000 1
+
+echo "Read WMemI Memory Tester Status"
+./swctl 0xF1000000 0xF2FF0000 wread 1 0 11
+
+echo "Program Memory Tester Status"
+./swctl 0xF1000000 0xF2FF0000 wwrite 1 0x04 0x00400000  # seqLen: 16 words per cycle
+./swctl 0xF1000000 0xF2FF0000 wwrite 1 0x30 0x00000000  # start
+./swctl 0xF1000000 0xF2FF0000 wread 1 0 11
+sleep 1
+echo "Read WMemI Memory Tester Status after 1 second"
+./swctl 0xF1000000 0xF2FF0000 wread 1 0 11
+sleep 1
+echo "Read WMemI Memory Tester Status after 1 second"
+./swctl 0xF1000000 0xF2FF0000 wread 1 0 11
+

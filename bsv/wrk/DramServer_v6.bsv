@@ -65,6 +65,7 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_dq_tap_cnt             <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(TMul#(4,DqsWidth)))    dbg_rddata                 <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(16))                   requestCount               <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(16))                   responseCount              <- mkSyncRegToCC(0, uclk, urst_n);
 
   Reg#(Bit#(16))                   pReg                       <- mkReg(0);
   Reg#(Bit#(16))                   mReg                       <- mkReg(0);
@@ -109,6 +110,7 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
      dbg_dq_tap_cnt            <= memc.dbg.dq_tap_cnt;
      dbg_rddata                <= memc.dbg.rddata;
      requestCount              <= memc.reqCount;
+     responseCount             <= memc.respCount;
   endrule
 
   rule debug_update;
@@ -138,7 +140,7 @@ rule getRequest (!wci.configWrite && !wci.configRead); // Rule predicate gives P
       let dh <- wmemi.dh;
       lreqF.enq( DramReq16B {isRead:False, addr:truncate(req.addr), be:dh.dataByteEn, data:dh.data} );
       wmemiWrReq <= wmemiWrReq + 1;
-  end else begin
+  end else if (wmemiReadInFlight < 16) begin  // Restrict Reads to memory that we can capture at low-level response
       lreqF.enq( DramReq16B {isRead:True,  addr:truncate(req.addr), be:?,             data:?} );
       wmemiReadInFlight.acc1(1);
       wmemiRdReq <= wmemiRdReq + 1;
@@ -233,6 +235,7 @@ endrule
        'h40 : rdat = truncate(dbg_dq_tap_cnt);
        'h44 : rdat = (dbg_rddata);
        'h48 : rdat = extend(requestCount);
+       'h4C : rdat = extend(responseCount);
        'h50 : rdat = extend(pReg);
        'h5C : rdat = extend(mReg);
        'h60 : rdat = wdReg[0];
@@ -243,6 +246,9 @@ endrule
        'h84 : rdat = rdReg[1];
        'h88 : rdat = rdReg[2];
        'h8C : rdat = rdReg[3];
+       'h90 : rdat = wmemiWrReq;
+       'h94 : rdat = wmemiRdReq;
+       'h98 : rdat = wmemiRdResp;
       endcase
     end else begin
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));

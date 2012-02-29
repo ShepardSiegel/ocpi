@@ -54,6 +54,8 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
   Reg#(UInt#(32))                wmemiRdResp       <- mkReg(0);
   Reg#(UInt#(32))                testCycleCount    <- mkReg(0);
   Reg#(UInt#(32))                errorCount        <- mkReg(0);
+  Reg#(UInt#(32))                wtCycStart        <- mkReg(0);
+  Reg#(UInt#(32))                rdCycStart        <- mkReg(0);
   Reg#(UInt#(32))                wtDuration        <- mkReg(0);
   Reg#(UInt#(32))                rdDuration        <- mkReg(0);
   Reg#(UInt#(32))                freeCnt           <- mkReg(0);
@@ -62,9 +64,11 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
     wmemi.operate();
   endrule
 
+  rule free_inc; freeCnt <= freeCnt + 1; endrule
+
   Bool haltOnError = unpack(tstCtrl[0]);
 
-  rule write_req (wci.isOperating && isTesting && isWriter);
+  rule write_req (wci.isOperating && isTesting && isWriter && !isReader);
     let d <- wgen.stream.get;
     wmemi.req(True, extend({pack(hwordAddr),6'h00}), 1); // Write Request
     wmemi.dh(d, '1, True);                               // Write 16B Datahandshake
@@ -74,12 +78,12 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
     if (unrollCnt==1) begin
       isWriter <= False;
       isReader <= True;
-      //respCnt <= 0;
+      rdCycStart <= freeCnt;
+      wtDuration <= freeCnt - wtCycStart;
     end
   endrule
 
-  
-  rule read_req (wci.isOperating && isTesting && isReader);
+  rule read_req (wci.isOperating && isTesting && !isWriter && isReader);
     wmemi.req(False, extend({pack(hwordAddr),6'h00}), 1); // Read Request
     hwordAddr  <= (unrollCnt==1) ? 0 : hwordAddr  + 1;    // Bump Address
     wmemiRdReq <= wmemiRdReq + 1;
@@ -87,6 +91,9 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
     if (unrollCnt==1) begin
       isReader <= False;
       isWriter <= True;
+      testCycleCount <= testCycleCount + 1;
+      wtCycStart <= freeCnt;
+      rdDuration <= freeCnt - rdCycStart;
     end
   endrule
 
@@ -99,8 +106,6 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
       $display("[%0d]: %m: read_resp MISMATCH: exp:%0x got:%0x", $time, e, g.data);
     end
     wmemiRdResp <= wmemiRdResp + 1;
-    //respCnt <= respCnt + 1;
-    //if (respCnt==seqLen-1) isWriter <= True;
   endrule
   
 
@@ -124,15 +129,15 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr) matches
      'h00 : rdat = pack(tstCtrl);
-     'h04 : rdat = pack(seqLen);
+     'h04 : rdat = pack(seqLen);                 // The number of cycles in each W/R seqeunce (each cycle 16B)                    
      'h08 : rdat = extend(pack(wmemi.status));
-     'h0C : rdat = pack(testCycleCount);
-     'h10 : rdat = pack(errorCount);
-     'h14 : rdat = pack(wtDuration);
-     'h18 : rdat = pack(rdDuration);
-     'h1C : rdat = pack(wmemiWrReq);
-     'h20 : rdat = pack(wmemiRdReq);
-     'h24 : rdat = pack(wmemiRdResp);
+     'h0C : rdat = pack(testCycleCount);         // How many times the test has repeated the W/R cycle
+     'h10 : rdat = pack(errorCount);             // The number of errors detected
+     'h14 : rdat = pack(wtDuration);             // The duration (in cycles) of the last write sequence
+     'h18 : rdat = pack(rdDuration);             // The duration (in cycles) of the last read sequence
+     'h1C : rdat = pack(wmemiWrReq);             // Rolling count of number of write requests issued
+     'h20 : rdat = pack(wmemiRdReq);             // Rolling count of number of read  requests issued
+     'h24 : rdat = pack(wmemiRdResp);            // Rolling count of number of read  responses received
      'h28 : rdat = testStatus;
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);

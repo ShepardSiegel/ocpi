@@ -8,6 +8,7 @@ import ProtocolMonitor  ::*;
 import UUID             ::*;
 
 import BiasWorker       ::*;
+import MemiTestWorker   ::*;
 import Config           ::*;
 //import DelayWorker::*;
 import SMAdapter        ::*;
@@ -75,106 +76,42 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
 
 `endif
 
-  // Instance the workers in this application container...
+ // Instance the workers in this application container...
 
 `ifdef USE_NDW1
-  SMAdapter4BIfc   appW2   <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  //DelayWorker4BIfc appW3   <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  BiasWorker4BIfc appW3   <-  mkBiasWorker4B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  SMAdapter4BIfc   appW4   <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+  MemiTestWorkerIfc appW1   <-  mkMemiTestWorker (              hasDebugLogic, reset_by(rst[1]));
+  SMAdapter4BIfc    appW2   <-  mkSMAdapter4B    (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  BiasWorker4BIfc   appW3   <-  mkBiasWorker4B   (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapter4BIfc    appW4   <-  mkSMAdapter4B    (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `elsif USE_NDW2
-  SMAdapter8BIfc   appW2   <-  mkSMAdapter8B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  //DelayWorker8BIfc appW3   <-  mkDelayWorker8B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  BiasWorker8BIfc appW3   <-  mkBiasWorker8B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  SMAdapter8BIfc   appW4   <-  mkSMAdapter8B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
+  MemiTestWorkerIfc appW1   <-  mkMemiTestWorker (              hasDebugLogic, reset_by(rst[1]));
+  SMAdapter8BIfc    appW2   <-  mkSMAdapter8B    (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
+  BiasWorker8BIfc   appW3   <-  mkBiasWorker8B   (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  SMAdapter8BIfc    appW4   <-  mkSMAdapter8B    (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `elsif USE_NDW4
+  MemiTestWorkerIfc appW1   <-  mkMemiTestWorker (              hasDebugLogic, reset_by(rst[1]));
   SMAdapter16BIfc   appW2   <-  mkSMAdapter16B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  //DelayWorker16BIfc appW3   <-  mkDelayWorker16B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  BiasWorker16BIfc appW3   <-  mkBiasWorker16B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  BiasWorker16BIfc  appW3   <-  mkBiasWorker16B  (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapter16BIfc   appW4   <-  mkSMAdapter16B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `elsif USE_NDW8
+  MemiTestWorkerIfc appW1   <-  mkMemiTestWorker (              hasDebugLogic, reset_by(rst[1]));
   SMAdapter32BIfc   appW2   <-  mkSMAdapter32B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  //DelayWorker32BIfc appW3   <-  mkDelayWorker32B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  BiasWorker32BIfc appW3   <-  mkBiasWorker32B (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
+  BiasWorker32BIfc  appW3   <-  mkBiasWorker32B  (              hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
   SMAdapter32BIfc   appW4   <-  mkSMAdapter32B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
 `endif
 
-  // 'PLAN A': This compiles and functions; but does not allows us to have synthesis bounds at each worker as required...
-  // Here we show instancing the underlying polymorhic modules directly (nice!)...
-  /*
-  SMAdapterIfc  #(ndw) appW2   <-  mkSMAdapter   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-  DelayWorkerIfc#(ndw) appW3   <-  mkDelayWorker (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-  SMAdapterIfc  #(ndw) appW4   <-  mkSMAdapter   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-  */
-
-  // 'PLAN B': This doesn't work, because bsc doesn't get to choose across the case arms until too late...
-  // Here we do this manually (yuck!), because we had the desire to implement discrete worker RTL modules with synth bounds...
-  /*
-  case (iNDW_global)
-  1:
-    begin
-      SMAdapter4BIfc    appW2    <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-      DelayWorker4BIfc  appW3    <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-      SMAdapter4BIfc    appW4    <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-    end
-  2:
-    begin
-      SMAdapter8BIfc    appW2    <-  mkSMAdapter8B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-      DelayWorker8BIfc  appW3    <-  mkDelayWorker8B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-      SMAdapter8BIfc    appW4    <-  mkSMAdapter8B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-    end
-  4:
-    begin
-      SMAdapter16BIfc   appW2    <-  mkSMAdapter16B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-      DelayWorker16BIfc appW3    <-  mkDelayWorker16B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-      SMAdapter16BIfc   appW4    <-  mkSMAdapter16B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-    end
-  8:
-    begin
-      SMAdapter32BIfc   appW2    <-  mkSMAdapter32B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-      DelayWorker32BIfc appW3    <-  mkDelayWorker32B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-      SMAdapter32BIfc   appW4    <-  mkSMAdapter32B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-    end
-  endcase
-  */
-
-  // 'PLAN C': This satisfies the compiler at first. but can't tell bsc what ndw is...
-  // Here we use (super-yuck) `defines...
-  /*
-`ifdef USE_NDW1
-      SMAdapter4BIfc    appW2    <-  mkSMAdapter4B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-      DelayWorker4BIfc  appW3    <-  mkDelayWorker4B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-      SMAdapter4BIfc    appW4    <-  mkSMAdapter4B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-`elsif USE_NDW2
-      SMAdapter8BIfc    appW2    <-  mkSMAdapter8B   (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-      DelayWorker8BIfc  appW3    <-  mkDelayWorker8B (32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-      SMAdapter8BIfc    appW4    <-  mkSMAdapter8B   (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-`elsif USE_NDW4
-      SMAdapter16BIfc   appW2    <-  mkSMAdapter16B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-      DelayWorker16BIfc appW3    <-  mkDelayWorker16B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-      SMAdapter16BIfc   appW4    <-  mkSMAdapter16B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-`elsif USE_NDW8
-      SMAdapter32BIfc   appW2    <-  mkSMAdapter32B  (32'h00000001, hasDebugLogic, reset_by(rst[2])); // Read WMI to WSI-M 
-      DelayWorker32BIfc appW3    <-  mkDelayWorker32B(32'h00000000, hasDebugLogic, reset_by(rst[3])); // Delay ahead of first SMAdapter
-      SMAdapter32BIfc   appW4    <-  mkSMAdapter32B  (32'h00000002, hasDebugLogic, reset_by(rst[4])); // WSI-S to WMI Write
-`endif
-  */
 
   // TODO: Use Default for tieOff...
   Wci_Es#(32) tieOff0  <- mkWciSlaveENull;
-  Wci_Es#(32) tieOff1  <- mkWciSlaveENull;
 
   // Connect each worker to its WCI...
   Vector#(nWci,Wci_Es#(32)) vWci;
   vWci[0] = tieOff0;
-  vWci[1] = tieOff1;
+  vWci[1] = appW1.wciS0;
   vWci[2] = appW2.wciS0;
-
   vWci[3] = appW3.wciS0;
   //mkConnectionMSO(vWci[3], appW3.wciS0, wciMonW3.observe);  // Connect the WCI Master to the DUT 
-
   vWci[4] = appW4.wciS0;
-
 
 `ifdef OBSERVER
   vWci[5] = captWorker0.wciS0;
@@ -210,7 +147,7 @@ module mkOCApp_poly#(Vector#(nWci, Reset) rst, parameter Bool hasDebugLogic) (OC
   interface wmiM1     = appW4.wmiM0;
 
   // Connect appropriate workers to their Wmemi...
-  //interface wmemiM0   = appW3.wmemiM0;  // W3 DelayWroker Wmemi connect
+  interface wmemiM0   = appW1.wmemiM0;  // W1 MemiTestWorker Wmemi connect
 
   interface wsi_s_adc = appW2.wsiS0;    // The ADC data to the   W2 SMAdapter WSI-S0 Slave Port
   interface wsi_m_dac = appW4.wsiM0;    // The DAC data from the W4 SMAdapter WSI-M0 Master Port
