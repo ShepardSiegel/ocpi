@@ -120,13 +120,15 @@ endrule
 
 
 // Connection to the Wmemi...
+// The use of '12' for the read throttle is the blind suspicion of a defect in the MIG core which results in
+// the request FIFO full asserting late. We saw some evedince of that in ChipScope. 
 rule getRequest (!wci.configWrite && !wci.configRead); // Rule predicate gives PIO config access priority
   let req <- wmemi.req;
   if (req.cmd==WR) begin
       let dh <- wmemi.dh;
       lreqF.enq( DramReq16B {isRead:False, addr:truncate(req.addr), be:dh.dataByteEn, data:dh.data} );
       wmemiWrReq <= wmemiWrReq + 1;
-  end else if (wmemiReadInFlight < 16) begin  // Restrict Reads to memory that we can capture at low-level response
+  end else if (wmemiReadInFlight < 12) begin  // Restrict Reads to memory that we can capture at low-level response
       lreqF.enq( DramReq16B {isRead:True,  addr:truncate(req.addr), be:?,             data:?} );
       wmemiReadInFlight.acc1(1);
       wmemiRdReq <= wmemiRdReq + 1;
