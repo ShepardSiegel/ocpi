@@ -1,5 +1,5 @@
 // DramServer_s4.bsv - DRAM Server (device worker) for Altera Stratix 4 DRAM_s4
-// Copyright (c) 2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2011,2102 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package DramServer_s4;
 
@@ -51,6 +51,7 @@ module mkDramServer_s4#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   FIFOF#(Bit#(2))                  splaF                      <- mkFIFOF;
 
   Reg#(Bit#(16))                   requestCount               <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(16))                   responseCount              <- mkSyncRegToCC(0, uclk, urst_n);
 
   Reg#(Bit#(16))                   pReg                       <- mkReg(0);
   Reg#(Bit#(16))                   mReg                       <- mkReg(0);
@@ -75,6 +76,7 @@ module mkDramServer_s4#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   //(* no_implicit_conditions, fire_when_enabled *)
   rule update_debug (True);
      requestCount              <= memc.reqCount;
+     responseCount             <= memc.respCount;
   endrule
 
   mkConnection(toGet(lreqF), memc.usr.request);
@@ -92,7 +94,7 @@ rule getRequest (!wci.configWrite && !wci.configRead); // Rule predicate gives P
       let dh <- wmemi.dh;
       lreqF.enq( DramReq16B {isRead:False, addr:truncate(req.addr), be:dh.dataByteEn, data:dh.data} );
       wmemiWrReq <= wmemiWrReq + 1;
-  end else begin
+  end else if (wmemiReadInFlight < 16) begin  // Restrict Reads to memory that we can capture at low-level response
       lreqF.enq( DramReq16B {isRead:True,  addr:truncate(req.addr), be:?,             data:?} );
       wmemiReadInFlight.acc1(1);
       wmemiRdReq <= wmemiRdReq + 1;
@@ -170,18 +172,18 @@ endrule
      case (wciReq.addr[7:0]) matches
        'h00 : rdat = dramStatus;
        'h04 : rdat = pack(dramCtrl);
-       'h48 : rdat = extend(requestCount);
-       'h4C : rdat = 32'hc0de_4002; // code-4002 magic cookie
-       'h50 : rdat = extend(pReg);
-       'h5C : rdat = extend(mReg);
-       'h60 : rdat = wdReg[0];
-       'h64 : rdat = wdReg[1];
-       'h68 : rdat = wdReg[2];
-       'h6C : rdat = wdReg[3];
-       'h80 : rdat = rdReg[0];
-       'h84 : rdat = rdReg[1];
-       'h88 : rdat = rdReg[2];
-       'h8C : rdat = rdReg[3];
+       'h48 : rdat = (!hasDebugLogic) ? 0 : extend(requestCount);
+       'h4C : rdat = (!hasDebugLogic) ? 0 : 32'hc0de_4002; // code-4002 magic cookie
+       'h50 : rdat = (!hasDebugLogic) ? 0 : extend(pReg);
+       'h5C : rdat = (!hasDebugLogic) ? 0 : extend(mReg);
+       'h60 : rdat = (!hasDebugLogic) ? 0 : wdReg[0];
+       'h64 : rdat = (!hasDebugLogic) ? 0 : wdReg[1];
+       'h68 : rdat = (!hasDebugLogic) ? 0 : wdReg[2];
+       'h6C : rdat = (!hasDebugLogic) ? 0 : wdReg[3];
+       'h80 : rdat = (!hasDebugLogic) ? 0 : rdReg[0];
+       'h84 : rdat = (!hasDebugLogic) ? 0 : rdReg[1];
+       'h88 : rdat = (!hasDebugLogic) ? 0 : rdReg[2];
+       'h8C : rdat = (!hasDebugLogic) ? 0 : rdReg[3];
       endcase
     end else begin
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));

@@ -1,5 +1,5 @@
-// DramServer_k7.bsv
-// Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// DramServer_k7.bsv - Series 7 Kintex DramServer
+// Copyright (c) 2010-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package DramServer_k7;
 
@@ -65,6 +65,7 @@ module mkDramServer_k7#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   Reg#(Bit#(TMul#(5,DqsWidth)))    dbg_dq_tap_cnt             <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(TMul#(4,DqsWidth)))    dbg_rddata                 <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(16))                   requestCount               <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(16))                   responseCount              <- mkSyncRegToCC(0, uclk, urst_n);
 
   Reg#(Bit#(16))                   pReg                       <- mkReg(0);
   Reg#(Bit#(16))                   mReg                       <- mkReg(0);
@@ -111,6 +112,7 @@ module mkDramServer_k7#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
      dbg_dq_tap_cnt            <= memc.dbg.dq_tap_cnt;
      dbg_rddata                <= memc.dbg.rddata;
      requestCount              <= memc.reqCount;
+     responseCount             <= memc.reqCount;
   endrule
 
   rule debug_update;
@@ -141,7 +143,7 @@ rule getRequest (!wci.configWrite && !wci.configRead); // Rule predicate gives P
       let dh <- wmemi.dh;
       lreqF.enq( DramReq16B {isRead:False, addr:truncate(req.addr), be:dh.dataByteEn, data:dh.data} );
       wmemiWrReq <= wmemiWrReq + 1;
-  end else begin
+  end else if (wmemiReadInFlight < 16) begin  // Restrict Reads to memory that we can capture at low-level response
       lreqF.enq( DramReq16B {isRead:True,  addr:truncate(req.addr), be:?,             data:?} );
       wmemiReadInFlight.acc1(1);
       wmemiRdReq <= wmemiRdReq + 1;
@@ -219,33 +221,33 @@ endrule
      case (wciReq.addr[7:0]) matches
        'h00 : rdat = dramStatus;
        'h04 : rdat = pack(dramCtrl);
-       'h08 : rdat = extend(dbg_wl_dqs_inverted);
-       'h0C : rdat = extend(dbg_wr_calib_clk_delay);
-       'h10 : rdat = truncate(dbg_wl_odelay_dqs_tap_cnt);
-       'h14 : rdat = truncate(dbg_wl_odelay_dq_tap_cnt);
-       'h18 : rdat = extend(dbg_rdlvl_done);
-       'h1C : rdat = extend(dbg_rdlvl_err);
-       'h20 : rdat = truncate(dbg_cpt_tap_cnt );
-       'h24 : rdat = truncate(dbg_cpt_first_edge_cnt);
-       'h28 : rdat = truncate(dbg_cpt_second_edge_cnt);
-       'h2C : rdat = extend(dbg_rd_bitslip_cnt);
-       'h30 : rdat = extend(dbg_rd_clkdly_cnt);
-       'h34 : rdat = extend(dbg_rd_active_dly);
-       'h38 : rdat = truncate(dbg_dqs_p_tap_cnt);
-       'h3C : rdat = truncate(dbg_dqs_n_tap_cnt);
-       'h40 : rdat = truncate(dbg_dq_tap_cnt);
-       'h44 : rdat = (dbg_rddata);
-       'h48 : rdat = extend(requestCount);
-       'h50 : rdat = extend(pReg);
-       'h5C : rdat = extend(mReg);
-       'h60 : rdat = wdReg[0];
-       'h64 : rdat = wdReg[1];
-       'h68 : rdat = wdReg[2];
-       'h6C : rdat = wdReg[3];
-       'h80 : rdat = rdReg[0];
-       'h84 : rdat = rdReg[1];
-       'h88 : rdat = rdReg[2];
-       'h8C : rdat = rdReg[3];
+       'h08 : rdat = (!hasDebugLogic) ? 0 : extend(dbg_wl_dqs_inverted);
+       'h0C : rdat = (!hasDebugLogic) ? 0 : extend(dbg_wr_calib_clk_delay);
+       'h10 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_wl_odelay_dqs_tap_cnt);
+       'h14 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_wl_odelay_dq_tap_cnt);
+       'h18 : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rdlvl_done);
+       'h1C : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rdlvl_err);
+       'h20 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_cpt_tap_cnt );
+       'h24 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_cpt_first_edge_cnt);
+       'h28 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_cpt_second_edge_cnt);
+       'h2C : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rd_bitslip_cnt);
+       'h30 : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rd_clkdly_cnt);
+       'h34 : rdat = (!hasDebugLogic) ? 0 : extend(dbg_rd_active_dly);
+       'h38 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_dqs_p_tap_cnt);
+       'h3C : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_dqs_n_tap_cnt);
+       'h40 : rdat = (!hasDebugLogic) ? 0 : truncate(dbg_dq_tap_cnt);
+       'h44 : rdat = (!hasDebugLogic) ? 0 : (dbg_rddata);
+       'h48 : rdat = (!hasDebugLogic) ? 0 : extend(requestCount);
+       'h50 : rdat = (!hasDebugLogic) ? 0 : extend(pReg);
+       'h5C : rdat = (!hasDebugLogic) ? 0 : extend(mReg);
+       'h60 : rdat = (!hasDebugLogic) ? 0 : wdReg[0];
+       'h64 : rdat = (!hasDebugLogic) ? 0 : wdReg[1];
+       'h68 : rdat = (!hasDebugLogic) ? 0 : wdReg[2];
+       'h6C : rdat = (!hasDebugLogic) ? 0 : wdReg[3];
+       'h80 : rdat = (!hasDebugLogic) ? 0 : rdReg[0];
+       'h84 : rdat = (!hasDebugLogic) ? 0 : rdReg[1];
+       'h88 : rdat = (!hasDebugLogic) ? 0 : rdReg[2];
+       'h8C : rdat = (!hasDebugLogic) ? 0 : rdReg[3];
       endcase
     end else begin
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));

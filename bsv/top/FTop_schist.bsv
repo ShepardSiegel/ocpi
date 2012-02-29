@@ -1,5 +1,5 @@
 // FTop_schist.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import CTop         ::*;
 import DramServer_v5::*;
@@ -79,9 +79,9 @@ module mkFTop_schist#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Reference
   //TODO: Way of using well-known names instead of array index for reset, etc, on vWci[]
 
   // FTop Level board-specific workers..
-  ADCWorkerIfc     adcW10  <-  mkADCWorker(True,sys0_clk, sys0_rst, adc_clk, adc0_clk, adc1_clk, adc0Rst,  clocked_by p125Clk, reset_by(vWci[2].mReset_n));
-  DACWorkerIfc     dacW11  <-  mkDACWorker(True,                       dac_clk,                     dac_rst,  clocked_by p125Clk, reset_by(vWci[3].mReset_n));
-  DramServer_v5Ifc dram0   <-  mkDramServer_v5(True,sys0_clk, sys0_rst, sys1_clk, sys1_rst,                   clocked_by p125Clk, reset_by(vWci[4].mReset_n));
+  ADCWorkerIfc     adcW10  <-  mkADCWorker(True, sys0_clk, sys0_rst, adc_clk, adc0_clk, adc1_clk, adc0Rst, clocked_by p125Clk, reset_by(vWci[2].mReset_n));
+  DACWorkerIfc     dacW11  <-  mkDACWorker(True, dac_clk,dac_rst,                                          clocked_by p125Clk, reset_by(vWci[3].mReset_n));
+  DramServer_v5Ifc dram0   <-  mkDramServer_v5(False, sys0_clk, sys0_rst, sys1_clk, sys1_rst,              clocked_by p125Clk, reset_by(vWci[4].mReset_n));
 
   // WCI...
   WciSlaveNullIfc#(32) tieOff0  <- mkWciSlaveNull;

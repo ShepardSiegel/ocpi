@@ -1,5 +1,5 @@
 // DRAM_s4.bsv - BSV code to provide DRAM functionality for Altera Stratix 4 using UNIPHY
-// Copyright (c) 2011  Atomic Rules LCC ALL RIGHTS RESERVED
+// Copyright (c) 2011,2012  Atomic Rules LCC ALL RIGHTS RESERVED
 
 package DRAM_s4;
 
@@ -15,9 +15,7 @@ import FIFO              ::*;
 import FIFOF             ::*;
 import SpecialFIFOs      ::*;
 
-//import XilinxCells     ::*;
-//import SRLFIFO         ::*;
-//import XilinxExtra     ::*;
+import SRLFIFO           ::*;
 
 
 typedef struct {
@@ -113,7 +111,8 @@ interface DramControllerUiIfc;
   interface DRAM_USR16B  usr;        // user interface
   interface Clock        uclk;       // user-facing clock
   interface Reset        urst_n;     // user-facing reset
-  method Bit#(16)        reqCount;   // request counter
+  method Bit#(16)        reqCount;   // diagnostc
+  method Bit#(16)        respCount;  // diagnostc
 endinterface: DramControllerUiIfc
 
 import "BVI" ddr3_s4_uniphy = 
@@ -192,11 +191,13 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   Reset                 drstn         <- mkAsyncResetFromCR(4, sys0_clk);
   DramControllerIfc     memc          <- vMkS4DDR3(sys0_clk,  drstn, rst_n, clocked_by sys0_clk, reset_by drstn);
   FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
-  FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+//FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  FIFOF#(Bit#(128))     respF         <- mkSRLFIFOD(4,  clocked_by memc.avl_hclk, reset_by memc.afi_rstn);  //TODO: Make sure SRL inference in Quartus is adequate
   Reg#(Bool)            secondWrBeat  <- mkReg(False,   clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
   Reg#(Bool)            secondRdBeat  <- mkReg(False,   clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
   Reg#(Bit#(64))        rdStageLS     <- mkRegU(        clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
   Reg#(Bit#(16))        dbg_reqCount  <- mkReg(0,       clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
+  Reg#(Bit#(16))        dbg_respCount <- mkReg(0,       clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
 
   Wire#(Bool)           avlBurstBegin <- mkDWire(False, clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
   Wire#(Bit#(24))       avlAddr       <- mkDWire(0,     clocked_by memc.avl_hclk, reset_by memc.afi_rstn);
@@ -275,6 +276,7 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
     end else begin
       respF.enq({memc.avl.rdata,rdStageLS});  // Merge the MS and LS and enq response
       secondRdBeat <= False;
+      dbg_respCount <= dbg_respCount + 1;
     end
   endrule
 
@@ -291,6 +293,7 @@ module mkDramControllerUi#(Clock sys0_clk, Reset sys0_rstn) (DramControllerUiIfc
   interface Clock    uclk       = memc.avl_hclk;
   interface Reset    urst_n     = memc.afi_rstn;
   method Bit#(16)    reqCount   = dbg_reqCount;
+  method Bit#(16)    respCount  = dbg_respCount;
 endmodule: mkDramControllerUi
 
 endpackage: DRAM_s4

@@ -1,5 +1,5 @@
 // DRAMV5.bsv - BSV code to provide DRAM functionality
-// Copyright (c) 2010,2011  Atomic Rules LCC ALL RIGHTS RESERVED
+// Copyright (c) 2010,2012  Atomic Rules LCC ALL RIGHTS RESERVED
 
 package DRAM_v5;
 
@@ -16,6 +16,7 @@ import FIFOF             ::*;
 import SpecialFIFOs      ::*;
 import XilinxCells       :: *;
 
+import SRLFIFO ::*;
 import XilinxExtra :: *;
 
 
@@ -193,7 +194,8 @@ interface DramControllerUiV5Ifc;
   interface DRAM_DBG_V5S         dbg;       // debug port
   interface Clock                uclk;      // user-facing clock
   interface Reset                urst_n;    // user-facing reset
-  method Bit#(16) reqCount;
+  method Bit#(16) reqCount;                 // diagnostc
+  method Bit#(16) respCount;                // diagnostc
 endinterface: DramControllerUiV5Ifc
 
 import "BVI" v5_mig34 = 
@@ -293,8 +295,10 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   //Reset                 mem_rst_n     <- mkAsyncReset(16, rst_n, sys0_clk); // active-low for importBVI use
   DramControllerV5Ifc   memc            <- vMkV5DDR2(sys0_clk, mem_clk, clocked_by sys0_clk, reset_by sys0_rst);
   FIFO#(DramReq16B)     reqF            <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
-  FIFO#(Bit#(128))      respF           <- mkSizedFIFO(4, clocked_by memc.uclk, reset_by memc.urst_n); // Unguarded ENQ
+//FIFO#(Bit#(128))      respF           <- mkSizedFIFO(4, clocked_by memc.uclk, reset_by memc.urst_n); // Unguarded ENQ
+  FIFOF#(Bit#(128))     respF           <- mkSRLFIFOD(4,  clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bit#(16))        requestCount    <- mkReg(0,       clocked_by memc.uclk, reset_by memc.urst_n);
+  Reg#(Bit#(16))        responseCount   <- mkReg(0,       clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bool)            firstWriteBeat  <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
   Wire#(Bool)           wdfWren         <- mkDWire(False, clocked_by memc.uclk, reset_by memc.urst_n);
   Reg#(Bool)            firstReadBeat   <- mkReg(False,   clocked_by memc.uclk, reset_by memc.urst_n);
@@ -345,8 +349,9 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   rule drive_wdf_wren (wdfWren); memc.app.wdf_wren();    endrule
 
   // V5 - Take 8B (64b) from Memory and form 16B (128b) response
-  // TODO: Guard the maximum number of Read Responses in flight so as not to overflow the respF;
-  // The DRAM controntroller read channel does not respect backpressure!
+  // We guard the maximum number of Read Responses in flight so as not to overflow the respF by using a 16-deep SRL 
+  // and then using the state of wmemReadInFlight to provide request backpressure in the DramServer
+  // The DRAM controller read channel does not respect backpressure!
   (* fire_when_enabled *)
   rule advance_readData (unpack(memc.app.init_complete) && unpack(memc.app.rd_data_valid));
     if (!firstReadBeat) begin
@@ -355,6 +360,7 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
     end else begin
       firstReadBeat <= False;
       respF.enq({memc.app.rd_data, firstReadData});  // Form the 16B little-endian word with the second 8B
+      responseCount <= responseCount + 1;
     end
   endrule
 
@@ -380,7 +386,8 @@ module mkDramControllerV5Ui#(Clock sys0_clk, Reset sys0_rst, Clock mem_clk) (Dra
   interface DRAM_DBG_V5S   dbg     = memc.dbg;
   interface Clock          uclk    = memc.uclk;
   interface Reset          urst_n  = memc.urst_n;
-  method Bit#(16) reqCount = requestCount;
+  method Bit#(16) reqCount  = requestCount;
+  method Bit#(16) respCount = responseCount;
 endmodule: mkDramControllerV5Ui
 
 endpackage: DRAM_v5

@@ -1,5 +1,5 @@
 // DramServer_v6.bsv
-// Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2010-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package DramServer_v6;
 

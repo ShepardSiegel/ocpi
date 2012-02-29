@@ -501,7 +501,9 @@ wwrite(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volati
   return 0;
 }
 
-#define DRAM_L2NPAGES  9    // 8=128MB 9=256MB, 10=512MB 
+// ML605 has 512MB, 256MB OK
+// Schist has 
+#define DRAM_L2NPAGES  8    // 8=128MB 9=256MB, 10=512MB 
 #define DRAM_L2PAGESZ  17 
 #define DRAM_NPAGES    (1<<DRAM_L2NPAGES)  
 #define DRAM_PAGESZ    (1<<DRAM_L2PAGESZ)  
