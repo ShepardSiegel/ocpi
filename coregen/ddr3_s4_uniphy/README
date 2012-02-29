@@ -1,0 +1,8 @@
+For OpenCPI Quartus processing
+
+i)  Read in the ddr3_s4_uniphy.qip from this top directory
+ii) Read in the ddr3_s4_uniphy_pin_assignments.tcl from the ddr3_s4_uniphy directory
+
+Do not use the versions from the example design subdirs.
+
+

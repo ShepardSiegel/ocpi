@@ -34,7 +34,7 @@ echo "Read WMemI Memory Tester Status"
 ./swctl 0xF1000000 0xF2FF0000 wread 1 0 11
 
 echo "Program Memory Tester Status"
-./swctl 0xF1000000 0xF2FF0000 wwrite 1 0x04 0x01000000  # seqLen: 16 words per cycle (16M x 16 = 256MB)
+./swctl 0xF1000000 0xF2FF0000 wwrite 1 0x04 0x00800000  # seqLen: 16 words per cycle (8M x 16 = 128MB)
 ./swctl 0xF1000000 0xF2FF0000 wwrite 1 0x30 0x00000000  # start
 ./swctl 0xF1000000 0xF2FF0000 wread 1 0 11
 sleep 1
