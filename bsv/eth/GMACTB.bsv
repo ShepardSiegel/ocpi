@@ -11,18 +11,18 @@ import FIFO        ::*;
 import GetPut      ::*;
 import StmtFSM     ::*;
 
-interface ByteSeqGenIfc;
-  interface Get#(ByteSeq) stream;
+interface EBSGenIfc;
+  interface Get#(EBS) stream;
 endinterface
 
-module mkByteSeqGen#(UInt#(12) length) (ByteSeqGenIfc);
-  FIFO#(ByteSeq)  gsF       <- mkFIFO;
+module mkEBSGen#(UInt#(12) length) (EBSGenIfc);
+  FIFO#(EBS)      gsF       <- mkFIFO;
   Reg#(Bool)      isSOF     <- mkReg(True);
   Reg#(UInt#(12)) lenRemain <- mkReg(length);
   Reg#(Bit#(8))   pattern   <- mkReg(0);
 
   rule genseq;
-    gsF.enq( ByteSeq {
+    gsF.enq( EBS {
       abort : False,
       empty : False,
       sof   : isSOF,
@@ -67,8 +67,8 @@ module mkGMACTB();
   CounterSat#(UInt#(32))      badDataCnt     <- mkCounterSat;   // Bad  Data Words
   CounterSat#(UInt#(32))      badMesgCnt     <- mkCounterSat;   // Bad  Messages
 
-  ByteSeqGenIfc               rsXmtGen       <- mkByteSeqGen(64);
-  ByteSeqGenIfc               rsRcvGen       <- mkByteSeqGen(64);
+  EBSGenIfc                   rsXmtGen       <- mkEBSGen(64);
+  EBSGenIfc                   rsRcvGen       <- mkEBSGen(64);
 
   TxRSIfc                     etx            <- mkTxRS;         // MAX RS TX to GMII
   RxRSIfc                     erx            <- mkRxRS;         // MAX RS RX from GMII

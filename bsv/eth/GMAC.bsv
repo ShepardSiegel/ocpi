@@ -30,63 +30,118 @@ typedef enum {
   SFD      = 8'hD5
 } EthernetOctets deriving (Bits, Eq);
 
+// Abortable Byte Stream (ABS)...
+// The Atomic Rules 2b encoding that is friendly to FIFO width (8b+2b); plus easy for k-LUT decoding
 typedef union tagged {
-  Bit#(8) DataSOF;      // The first Octect of the Destination Address
-  Bit#(8) Data;
-  Bit#(8) DataEOFOK;    // On tx;EOF; On rx: EOF with FCS OK
-  Bit#(8) DataEOFBAD;   //            0n rx: EOF with FCS Bad
-} EthernetFrame deriving (Bits, Eq);
+  Bit#(8) ValidNotEOP;  // Any valid data cell so long as it is not the last
+  Bit#(8) ValidEOP;     // A valid final data cell in a sequence (could be a sequence of 1); indicates good EOP 
+  void    EmptyEOP;     // The end of a sequence has occured, the last data was sent before; indicates good EOP
+  void    AbortEOP;     // The sequence has ended with an abort, all data and metadata from this packet is bad
+} ABS deriving (Bits, Eq);
 
+function Bool isEOP(ABS x);
+  case(x) matches
+    tagged ValidNotEOP .*: return False;
+    tagged ValidEOP    .*: return True;
+    tagged EmptyEOP    .*: return True;
+    tagged AbortEOP    .*: return True;
+  endcase
+endfunction
+
+interface ABSdetSopIfc;
+  method Action observe (ABS x);
+  method Bool   sop;
+endinterface
+
+module mkABSdetSop (ABSdetSopIfc);
+  Reg#(Bool) isSOP <- mkReg(True);
+  Wire#(ABS) dW    <- mkWire;
+
+  rule update_sop; // Set isSOP after any EOP event...
+    isSOP <= (dW matches tagged ValidNotEOP .d ? False : True); 
+  endrule
+
+  method Action observe (ABS x) = dW._write(x);
+  method Bool sop = isSOP;
+endmodule
+
+// Explicit Byte Stream (EBS)...
+// Has 4b of unencoded explicit status for abort, empty, sof, and eof...
 typedef struct {
   Bool    abort;
   Bool    empty;
   Bool    sof;
   Bool    eof;
   Bit#(8) data;
-} ByteSeq deriving (Bits, Eq);
+} EBS deriving (Bits, Eq);
 
-// Functions...
 
-function Bit#(8) getData(EthernetFrame x);
-  case(x) matches
-    tagged DataSOF    .z: return(z);
-    tagged Data       .z: return(z);
-    tagged DataEOFOK  .z: return(z);
-    tagged DataEOFBAD .z: return(z);
-  endcase
-endfunction
-function Bool matchesSOF(EthernetFrame x);
-  case(x) matches
-    tagged DataSOF    .*: return True;
-    tagged Data       .*: return False;
-    tagged DataEOFOK  .*: return False;
-    tagged DataEOFBAD .*: return False;
-  endcase
-endfunction
-function Bool matchesData(EthernetFrame x);
-  case(x) matches
-    tagged DataSOF    .*: return False;
-    tagged Data       .*: return True;
-    tagged DataEOFOK  .*: return False;
-    tagged DataEOFBAD .*: return False;
-  endcase
-endfunction
-function Bool matchesEOFOK(EthernetFrame x);
-  case(x) matches
-    tagged DataSOF    .*: return False;
-    tagged Data       .*: return False;
-    tagged DataEOFOK  .*: return True;
-    tagged DataEOFBAD .*: return True;
-  endcase
-endfunction
-function Bool matchesEOFBAD(EthernetFrame x);
-  case(x) matches
-    tagged DataSOF    .*: return False;
-    tagged Data       .*: return False;
-    tagged DataEOFOK  .*: return False;
-    tagged DataEOFBAD .*: return True;
-  endcase
-endfunction
+interface EBS2ABSIfc;
+  interface Put#(EBS) put;
+  interface Get#(ABS) get;
+endinterface
+
+module mkEBS2ABS (EBS2ABSIfc);
+  FIFO#(EBS) ebsF <- mkFIFO;
+  FIFO#(ABS) absF <- mkFIFO;
+
+  // This rule compresses (encodes) the 4b EBS to 2b ABS and consumes empty bubbles...
+  rule advance;
+    let x = ebsF.first; ebsF.deq;
+    case ({pack(x.abort), pack(x.empty), pack(x.eof), pack(x.sof)})
+      4'b0000 : absF.enq(tagged ValidNotEOP x.data);  // Body with data
+      4'b0001 : absF.enq(tagged ValidNotEOP x.data);  // Head with data
+      4'b0010 : absF.enq(tagged ValidEOP    x.data);  // Tail with data 
+      4'b0011 : absF.enq(tagged ValidEOP    x.data);  // Single Cycle with data  (1B)
+      4'b0100 : noAction;                             // Consume empty bubble
+      4'b0101 : noAction;                             // Consume empyy bubble with SOP
+      4'b0110 : absF.enq(tagged EmptyEOP);            // Late Good EOP
+      4'b0111 : absF.enq(tagged EmptyEOP);            // Single Cycle with no data (0B)
+      4'b1000 : absF.enq(tagged AbortEOP);            // Abort has priority over others
+      4'b1001 : absF.enq(tagged AbortEOP);
+      4'b1010 : absF.enq(tagged AbortEOP);
+      4'b1011 : absF.enq(tagged AbortEOP);
+      4'b1100 : absF.enq(tagged AbortEOP);
+      4'b1101 : absF.enq(tagged AbortEOP);
+      4'b1110 : absF.enq(tagged AbortEOP);
+      4'b1111 : absF.enq(tagged AbortEOP);
+    endcase
+  endrule
+
+  interface Put put = toPut(ebsF);
+  interface Get get = toGet(absF);
+endmodule
+
+
+interface ABS2EBSIfc;
+  interface Put#(ABS)put;
+  interface Get#(EBS)get;
+endinterface
+
+module mkABS2EBS (ABS2EBSIfc);
+  FIFO#(ABS) absF <- mkFIFO;
+  FIFO#(EBS) ebsF <- mkFIFO;
+  Reg#(Bool)    isSOP <- mkReg(True);
+
+  // This rule expands (decodes) 2b ABS to 4b EBS...
+  rule advance;
+    let y = absF.first; absF.deq;
+    case (y) matches
+      tagged ValidNotEOP .z: ebsF.enq(EBS{abort:False, empty:False, sof:isSOP, eof:False, data:z});
+      tagged ValidEOP    .z: ebsF.enq(EBS{abort:False, empty:False, sof:isSOP, eof:True,  data:z});
+      tagged EmptyEOP      : ebsF.enq(EBS{abort:False, empty:False, sof:isSOP, eof:True,  data:0});
+      tagged AbortEOP      : ebsF.enq(EBS{abort:True,  empty:False, sof:isSOP, eof:True,  data:0});
+    endcase
+    isSOP <= (y matches tagged ValidNotEOP .d ? False : True); 
+  endrule
+
+  interface Put put = toPut(absF);
+  interface Get get = toGet(ebsF);
+endmodule
+
+
+
+
    
 // Interfaces...
 
@@ -186,11 +241,11 @@ endinterface: GMAC
 
 interface RxRSIfc;
   interface GMII_RX_RS          gmii;
-  interface Get#(ByteSeq)       rxf;
+  interface Get#(EBS)           rxf;
 endinterface
 
 interface TxRSIfc;
-  interface Put#(ByteSeq)       txf;
+  interface Put#(EBS)           txf;
   method    Bool                txUnderflow;
   interface GMII_TX_RS          gmii;
 endinterface
@@ -203,7 +258,7 @@ endinterface
 // If the txF starves in the middle of a frame; that is a TX UNDERFLOW error (txUnderflow)
 (* synthesize *)
 module mkTxRS (TxRSIfc);
-  FIFO#(ByteSeq)           txF          <- mkFIFO;
+  FIFO#(EBS)               txF          <- mkFIFO;
   Reg#(Bit#(8))            txData       <- mkDReg(0);
   Reg#(Bool)               txDV         <- mkDReg(False);
   Reg#(Bool)               txER         <- mkDReg(False);
@@ -324,7 +379,7 @@ module mkRxRS (RxRSIfc);
   CRC#(32)                 crc          <- mkCRC32;
   CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat;
   Reg#(EofType)            eof          <- mkDReg(EofNone);
-  FIFO#(ByteSeq)           rxF          <- mkFIFO;
+  FIFO#(EBS)               rxF          <- mkFIFO;
   Reg#(Bool)               isSOF        <- mkReg(True);
   Reg#(Bool)               crcEnd       <- mkReg(False);
 
@@ -346,7 +401,7 @@ module mkRxRS (RxRSIfc);
     if (rxActive) begin
       Bool fcsMatch = (fcs == unpack(pack(takeAt(0,rxPipe))));
       eof <= (fcsMatch) ? EofGood : EofBad;
-      rxF.enq( ByteSeq {
+      rxF.enq( EBS {
         abort : !fcsMatch,
         empty : False,
         sof   : False,
@@ -370,7 +425,7 @@ module mkRxRS (RxRSIfc);
   endrule
 
   rule egress_data (rxDVD && rxAPipe[5]);
-    rxF.enq( ByteSeq {
+    rxF.enq( EBS {
       abort : False,
       empty : False,
       sof   : isSOF,
