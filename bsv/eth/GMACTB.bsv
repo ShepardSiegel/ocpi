@@ -11,6 +11,47 @@ import FIFO        ::*;
 import GetPut      ::*;
 import StmtFSM     ::*;
 
+interface ABSGenIfc;
+  interface Get#(ABS) stream;
+endinterface
+
+module mkABSGen#(UInt#(12) length) (ABSGenIfc);
+  FIFO#(ABS)      gsF       <- mkFIFO;
+  Reg#(Bool)      isSOF     <- mkReg(True);
+  Reg#(UInt#(12)) lenRemain <- mkReg(length);
+  Reg#(Bit#(8))   pattern   <- mkReg(0);
+
+  rule genseq;
+    Bool isEOF = (lenRemain==1);
+    Bool isEmpty = False;
+    Bool isAbort = False;
+    case ({pack(isAbort), pack(isEmpty), pack(isEOF), pack(isSOF)})
+      4'b0000 : gsF.enq(tagged ValidNotEOP pattern);  // Body with data
+      4'b0001 : gsF.enq(tagged ValidNotEOP pattern);  // Head with data
+      4'b0010 : gsF.enq(tagged ValidEOP    pattern);  // Tail with data 
+      4'b0011 : gsF.enq(tagged ValidEOP    pattern);  // Single Cycle with data  (1B)
+      4'b0100 : noAction;                             // Consume empty bubble
+      4'b0101 : noAction;                             // Consume empyy bubble with SOP
+      4'b0110 : gsF.enq(tagged EmptyEOP);             // Late Good EOP
+      4'b0111 : gsF.enq(tagged EmptyEOP);             // Single Cycle with no data (0B)
+      4'b1000 : gsF.enq(tagged AbortEOP);             // Abort has priority over others
+      4'b1001 : gsF.enq(tagged AbortEOP);
+      4'b1010 : gsF.enq(tagged AbortEOP);
+      4'b1011 : gsF.enq(tagged AbortEOP);
+      4'b1100 : gsF.enq(tagged AbortEOP);
+      4'b1101 : gsF.enq(tagged AbortEOP);
+      4'b1110 : gsF.enq(tagged AbortEOP);
+      4'b1111 : gsF.enq(tagged AbortEOP);
+    endcase
+    lenRemain <= (lenRemain==1) ? length : lenRemain-1;
+    isSOF <= (lenRemain==1);
+    //pattern <= (lenRemain==1) ? 0 : pattern + 1;
+    pattern <=  pattern + 1;
+  endrule
+
+  interface Get stream = toGet(gsF);
+endmodule
+
 interface EBSGenIfc;
   interface Get#(EBS) stream;
 endinterface
@@ -67,33 +108,35 @@ module mkGMACTB();
   CounterSat#(UInt#(32))      badDataCnt     <- mkCounterSat;   // Bad  Data Words
   CounterSat#(UInt#(32))      badMesgCnt     <- mkCounterSat;   // Bad  Messages
 
-  EBSGenIfc                   rsXmtGen       <- mkEBSGen(64);
-  EBSGenIfc                   rsRcvGen       <- mkEBSGen(64);
+  ABSGenIfc                   rsXmtGen       <- mkABSGen(64);
+  ABSGenIfc                   rsRcvGen       <- mkABSGen(64);
 
   TxRSIfc                     etx            <- mkTxRS;         // MAX RS TX to GMII
-  RxRSIfc                     erx            <- mkRxRS;         // MAX RS RX from GMII
+  Clock                       thisClk        <- exposeCurrentClock;
+  RxRSIfc                     erx            <- mkRxRSAsync(thisClk);    // MAX RS RX from GMII
 
   mkConnection(etx.gmii, erx.gmii); // Loopback etx to erx
 
   rule sendPat (simCycle>5);
     let z <- rsXmtGen.stream.get;
-    etx.txf.put(z);
+    etx.tx.put(z);
   endrule
 
   rule recvPat;
-    let dGot <- erx.rxf.get;
+    let dGot <- erx.rx.get;
     let dExp <- rsRcvGen.stream.get;
 
-    if (dGot.data != dExp.data) begin
-      $display("[%0d]: %m: recvPat MISMATCH: exp:%0x got:%0x", $time, dExp.data, dGot.data);
+    if (getData(dGot) != getData(dExp)) begin
+      $display("[%0d]: %m: recvPat MISMATCH: exp:%0x got:%0x", $time, getData(dExp), getData(dGot));
       badDataCnt.inc;
     end else begin
       goodDataCnt.inc;
     end
 
-    if (dGot.eof) begin
-      if (!dExp.eof || dExp.abort) begin
-        $display("[%0d]: %m: recv EOF MISMATCH: exp:%0x got:%0x", $time, dExp.eof, dGot.eof);
+    if (isEOP(dGot)) begin
+      //if (!isEOP(dExp) || dExp.abort) begin
+      if (!isEOP(dExp) ) begin
+        $display("[%0d]: %m: recv EOF MISMATCH: exp:%0x got:%0x", $time, isEOP(dExp), isEOP(dGot));
         badMesgCnt.inc;
       end else begin
         goodMesgCnt.inc;

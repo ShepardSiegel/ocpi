@@ -7,7 +7,8 @@
 // Ports:
 // Name                         I/O  size props
 // rxf_get                        O    10
-// RDY_rxf_get                    O     1 reg
+// RDY_rxf_get                    O     1
+// CLK_rxClk                      I     1 clock
 // CLK                            I     1 clock
 // RST_N                          I     1 reset
 // gmii_rxd_i                     I     8 reg
@@ -24,18 +25,20 @@
 `define BSV_ASSIGNMENT_DELAY
 `endif
 
-module mkRxRS(CLK,
-	      RST_N,
+module mkRxRSAsync(CLK_rxClk,
+		   CLK,
+		   RST_N,
 
-	      gmii_rxd_i,
+		   gmii_rxd_i,
 
-	      gmii_rx_dv_i,
+		   gmii_rx_dv_i,
 
-	      gmii_rx_er_i,
+		   gmii_rx_er_i,
 
-	      EN_rxf_get,
-	      rxf_get,
-	      RDY_rxf_get);
+		   EN_rxf_get,
+		   rxf_get,
+		   RDY_rxf_get);
+  input  CLK_rxClk;
   input  CLK;
   input  RST_N;
 
@@ -129,8 +132,11 @@ module mkRxRS(CLK,
   wire crc$EN_add, crc$EN_clear, crc$EN_complete;
 
   // ports of submodule rxF
-  wire [9 : 0] rxF$D_IN, rxF$D_OUT;
-  wire rxF$CLR, rxF$DEQ, rxF$EMPTY_N, rxF$ENQ, rxF$FULL_N;
+  wire [9 : 0] rxF$dD_OUT, rxF$sD_IN;
+  wire rxF$dDEQ, rxF$dEMPTY_N, rxF$sENQ, rxF$sFULL_N;
+
+  // ports of submodule rxRst
+  wire rxRst$OUT_RST_N;
 
   // rule scheduling signals
   wire WILL_FIRE_RL_crcDbgCnt_ruleInc;
@@ -145,19 +151,19 @@ module mkRxRS(CLK,
        MUX_rxF$enq_1__SEL_1;
 
   // remaining internal signals
-  reg [63 : 0] v__h6007;
-  reg [1 : 0] CASE_rxFD_OUT_BITS_9_TO_8_3_0_rxFD_OUT_BITS__ETC__q1;
-  wire crc_complete_6_EQ_rxPipe_2_BITS_31_TO_0_8___d103;
+  reg [63 : 0] v__h6218;
+  reg [1 : 0] CASE_rxFdD_OUT_BITS_9_TO_8_3_0_rxFdD_OUT_BIT_ETC__q1;
+  wire crc_complete_6_EQ_rxPipe_2_BITS_31_TO_0_8___d106;
 
   // actionvalue method rxf_get
   assign rxf_get =
-	     { CASE_rxFD_OUT_BITS_9_TO_8_3_0_rxFD_OUT_BITS__ETC__q1,
-	       rxF$D_OUT[7:0] } ;
-  assign RDY_rxf_get = rxF$EMPTY_N ;
+	     { CASE_rxFdD_OUT_BITS_9_TO_8_3_0_rxFdD_OUT_BIT_ETC__q1,
+	       rxF$dD_OUT[7:0] } ;
+  assign RDY_rxf_get = rxF$dEMPTY_N ;
 
   // submodule crc
-  mkCRC32 crc(.CLK(CLK),
-	      .RST_N(RST_N),
+  mkCRC32 crc(.CLK(CLK_rxClk),
+	      .RST_N(rxRst$OUT_RST_N),
 	      .add_data(crc$add_data),
 	      .EN_add(crc$EN_add),
 	      .EN_clear(crc$EN_clear),
@@ -170,15 +176,22 @@ module mkRxRS(CLK,
 	      .RDY_complete());
 
   // submodule rxF
-  FIFO2 #(.width(32'd10), .guarded(32'd1)) rxF(.RST_N(RST_N),
-					       .CLK(CLK),
-					       .D_IN(rxF$D_IN),
-					       .ENQ(rxF$ENQ),
-					       .DEQ(rxF$DEQ),
-					       .CLR(rxF$CLR),
-					       .D_OUT(rxF$D_OUT),
-					       .FULL_N(rxF$FULL_N),
-					       .EMPTY_N(rxF$EMPTY_N));
+  SyncFIFO #(.dataWidth(32'd10),
+	     .depth(32'd4),
+	     .indxWidth(32'd2)) rxF(.sCLK(CLK_rxClk),
+				    .dCLK(CLK),
+				    .sRST_N(rxRst$OUT_RST_N),
+				    .sD_IN(rxF$sD_IN),
+				    .sENQ(rxF$sENQ),
+				    .dDEQ(rxF$dDEQ),
+				    .dD_OUT(rxF$dD_OUT),
+				    .sFULL_N(rxF$sFULL_N),
+				    .dEMPTY_N(rxF$dEMPTY_N));
+
+  // submodule rxRst
+  SyncResetA #(.RSTDELAY(32'd1)) rxRst(.CLK(CLK_rxClk),
+				       .IN_RST_N(RST_N),
+				       .OUT_RST_N(rxRst$OUT_RST_N));
 
   // rule RL_crcDbgCnt_ruleInc
   assign WILL_FIRE_RL_crcDbgCnt_ruleInc =
@@ -186,14 +199,14 @@ module mkRxRS(CLK,
 
   // inputs to muxes for submodule ports
   assign MUX_crcDbgCnt_value$write_1__SEL_3 =
-	     (!rxActive || rxF$FULL_N) && !rxDVD && rxAPipe[0] &&
+	     (!rxActive || rxF$sFULL_N) && !rxDVD && rxAPipe[0] &&
 	     rxAPipe[1] &&
 	     rxAPipe[2] &&
 	     rxAPipe[3] &&
 	     rxAPipe[4] &&
 	     rxAPipe[5] &&
 	     !crcEnd ;
-  assign MUX_isSOF$write_1__SEL_2 = rxF$FULL_N && rxDVD && rxAPipe[5] ;
+  assign MUX_isSOF$write_1__SEL_2 = rxF$sFULL_N && rxDVD && rxAPipe[5] ;
   assign MUX_rxF$enq_1__SEL_1 =
 	     MUX_crcDbgCnt_value$write_1__SEL_3 && rxActive ;
   assign MUX_crcDbgCnt_value$write_1__VAL_1 =
@@ -206,14 +219,14 @@ module mkRxRS(CLK,
 	       preambleCnt_value + 4'd1 ;
   assign MUX_rxAPipe$write_1__VAL_2 = { rxAPipe[4:0], rxActive } ;
   assign MUX_rxF$enq_1__VAL_1 =
-	     crc_complete_6_EQ_rxPipe_2_BITS_31_TO_0_8___d103 ?
+	     crc_complete_6_EQ_rxPipe_2_BITS_31_TO_0_8___d106 ?
 	       { 2'd1, rxPipe[39:32] } :
 	       { 2'd3, rxPipe[39:32] } ;
   assign MUX_rxF$enq_1__VAL_2 = { 2'd0, rxPipe[47:40] } ;
 
   // inlined wires
   assign eof_1$wget =
-	     crc_complete_6_EQ_rxPipe_2_BITS_31_TO_0_8___d103 ? 2'd1 : 2'd2 ;
+	     crc_complete_6_EQ_rxPipe_2_BITS_31_TO_0_8___d106 ? 2'd1 : 2'd2 ;
   assign eof_1$whas = MUX_rxF$enq_1__SEL_1 ;
   assign preambleCnt_incAction$whas = rxDV && rxData == 8'd85 ;
   assign preambleCnt_decAction$whas = 1'b0 ;
@@ -286,34 +299,33 @@ module mkRxRS(CLK,
   assign crc$EN_complete = MUX_crcDbgCnt_value$write_1__SEL_3 ;
 
   // submodule rxF
-  assign rxF$D_IN =
+  assign rxF$sD_IN =
 	     MUX_rxF$enq_1__SEL_1 ?
 	       MUX_rxF$enq_1__VAL_1 :
 	       MUX_rxF$enq_1__VAL_2 ;
-  assign rxF$ENQ =
+  assign rxF$sENQ =
 	     MUX_crcDbgCnt_value$write_1__SEL_3 && rxActive ||
 	     MUX_isSOF$write_1__SEL_2 ;
-  assign rxF$DEQ = EN_rxf_get ;
-  assign rxF$CLR = 1'b0 ;
+  assign rxF$dDEQ = EN_rxf_get ;
 
   // remaining internal signals
-  assign crc_complete_6_EQ_rxPipe_2_BITS_31_TO_0_8___d103 =
+  assign crc_complete_6_EQ_rxPipe_2_BITS_31_TO_0_8___d106 =
 	     crc$complete == rxPipe[31:0] ;
-  always@(rxF$D_OUT)
+  always@(rxF$dD_OUT)
   begin
-    case (rxF$D_OUT[9:8])
+    case (rxF$dD_OUT[9:8])
       2'd0, 2'd1, 2'd2:
-	  CASE_rxFD_OUT_BITS_9_TO_8_3_0_rxFD_OUT_BITS__ETC__q1 =
-	      rxF$D_OUT[9:8];
-      2'd3: CASE_rxFD_OUT_BITS_9_TO_8_3_0_rxFD_OUT_BITS__ETC__q1 = 2'd3;
+	  CASE_rxFdD_OUT_BITS_9_TO_8_3_0_rxFdD_OUT_BIT_ETC__q1 =
+	      rxF$dD_OUT[9:8];
+      2'd3: CASE_rxFdD_OUT_BITS_9_TO_8_3_0_rxFdD_OUT_BIT_ETC__q1 = 2'd3;
     endcase
   end
 
   // handling of inlined registers
 
-  always@(posedge CLK)
+  always@(posedge CLK_rxClk)
   begin
-    if (!RST_N)
+    if (!rxRst$OUT_RST_N)
       begin
         crcDbgCnt_value <= `BSV_ASSIGNMENT_DELAY 12'd0;
 	crcEnd <= `BSV_ASSIGNMENT_DELAY 1'd0;
@@ -372,22 +384,22 @@ module mkRxRS(CLK,
   // handling of system tasks
 
   // synopsys translate_off
-  always@(negedge CLK)
+  always@(negedge CLK_rxClk)
   begin
     #0;
-    if (RST_N)
+    if (rxRst$OUT_RST_N)
       if (MUX_crcDbgCnt_value$write_1__SEL_3)
 	begin
-	  v__h6007 = $time;
+	  v__h6218 = $time;
 	  #0;
 	end
-    if (RST_N)
+    if (rxRst$OUT_RST_N)
       if (MUX_crcDbgCnt_value$write_1__SEL_3)
 	$display("[%0d]: %m: RX FCS:%08x from %d elements",
-		 v__h6007,
+		 v__h6218,
 		 crc$complete,
 		 $unsigned(crcDbgCnt_value));
   end
   // synopsys translate_on
-endmodule  // mkRxRS
+endmodule  // mkRxRSAsync
 

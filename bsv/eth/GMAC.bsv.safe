@@ -202,27 +202,26 @@ interface GMII_PCS; // GMII_PCS is the top of the PHY facing the MAC...
   method    Bit#(1)     crs;
 endinterface: GMII_PCS
 
-interface RxRSIfc;
-  interface GMII_RX_RS  gmii;
-  method    Bool        rxOverFlow;
-  interface Get#(ABS)   rx;
-endinterface
-
-interface TxRSIfc;
-  interface Put#(ABS)   tx;
-  method    Bool        txUnderFlow;
-  interface GMII_TX_RS  gmii;
-endinterface
-
 interface GMACIfc;
   interface GMII_RS     gmii;
   interface Clock       rxclk; 
   interface Reset       gmii_rstn;
-  interface Get#(ABS)   rx;
-  interface Put#(ABS)   tx;
-  method Bool           rxOverFlow;
-  method Bool           txUnderFlow;
+  interface Get#(ABS)   rx;     // Get receive packets
+  interface Put#(ABS)   tx;     // Put transmit packets 
 endinterface: GMACIfc
+
+// New ABS_WAY
+interface RxRSIfc;
+  interface GMII_RX_RS          gmii;
+  method    Bool                rxOverFlow;
+  interface Get#(ABS)           rx;
+endinterface
+
+interface TxRSIfc;
+  interface Put#(ABS)           tx;
+  method    Bool                txUnderflow;
+  interface GMII_TX_RS          gmii;
+endinterface
 
 (* synthesize *)
 module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
@@ -240,136 +239,61 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
 // In some scenarios, the CC can be the same as the TX clk (ii), elliminating the need for a third clock
 // Each tx/rx Resolution Sublayer (RS) block handles the clock domain crossing from their tx/rx domain, back to CC
 
-  ClockIODELAY  gmii_rxc_dly     <-  vClockIODELAY("FIXED", 0, "I", clocked_by rxClk);
-  Clock         gmii_rx_clk_dly  =   gmii_rxc_dly.delayed;
-  Clock         gmii_rx_clk      <-  mkClockBUFIO(clocked_by gmii_rx_clk_dly);
-  Clock         rxClk_BUFR       <-  mkClockBUFR(BUFRParams{bufr_divide:"BYPASS"}, clocked_by gmii_rx_clk_dly);
-  Clock         clk              <-  exposeCurrentClock;  // User-Facing CC for the rx/tx methods
-  Reset         rst              <-  exposeCurrentReset;
-  Reset         phyReset         <-  mkAsyncReset(8, rst, clk); // Hold PHY in reset for 8 *additional* cycles
-  RxRSIfc       rxRS             <-  mkRxRSAsync(rxClk_BUFR);
-  TxRSIfc       txRS             <-  mkTxRSAsync(txClk);
+//IDELAYCTRL    dlyctrl0         <- mkIDELAYCTRL(clocked_by tx_clk);
+  ClockIODELAY  gmii_rxc_dly     <- vClockIODELAY("FIXED", 0, "I", clocked_by rxClk);
+  Clock         gmii_rx_clk_dly  =  gmii_rxc_dly.delayed;
+  Clock         gmii_rx_clk      <- mkClockBUFIO(clocked_by gmii_rx_clk_dly);
+  Clock         rxClk_BUFR       <- mkClockBUFR(BUFRParams{bufr_divide:"BYPASS"}, clocked_by gmii_rx_clk_dly);
 
-  interface Get rx = rxRS.rx;
-  interface Put tx = txRS.tx;
-  method Bool rxOverFlow  = rxRS.rxOverFlow;
-  method Bool txUnderFlow = txRS.txUnderFlow;
+  Clock         clk              <- exposeCurrentClock;  // User-Facing CC for the rx/tx methods
+  Reset         rst              <- exposeCurrentReset;
+  Reset         phyReset         <- mkAsyncReset(12, rst, clk); // Hold PHY in reset for 12 *additional* cycles
 
-  interface GMII_RS gmii;                  // PHY-facing GMII Interface to FPGA Pins
+  RxRSIfc       rxRS    <-mkRxRSAsync(rxClk_BUFR);
+  TxRSIfc       txRS    <-mkTxRxAsync(txClk);
+
+
+  interface GMII_RS gmii;
     interface GMII_RX_RS  rx = rxRS.gmii;
-    interface GMII_TX_RS  tx = txRS.gmii;
-    method Action col (Bit#(1) i) = noAction;
-    method Action crs (Bit#(1) i) = noAction;
+//  interface GMII_TX_RS  tx;
+//  method    Action      col  (Bit#(1) i);
+//  method    Action      crs  (Bit#(1) i);
   endinterface
+
   interface Clock rxclk     = rxClk_BUFR;  // Need to provide this clock at the BSV module bounds (not physically used)
   interface Reset gmii_rstn = phyReset;    // Active-Low reset passed up and out to PHY
+  interface Get   rx        = rxRS.rx;
+  interface Put   tx        = rxRS.tx;
 endmodule: mkGMAC
 
-// Receive (Rx) Reconciliation Sublayer (RS)
-// This module accepts the RX data from the PHY and segments it into EthernetFrame frames
-// It will remove the preamble and SFD
-// It will pass frames starting with the Destination Address (DA)
-// It will end a frame with either an eofGood (if the FCS matches) or an eofBad (if it doesnt)
-module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
-  Reset                    rxRst        <- mkAsyncResetFromCR(2, rxClk);
-  Reg#(Bit#(8))            rxData       <- mkRegU(          clocked_by rxClk, reset_by rxRst);
-  Reg#(Bool)               rxDV         <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
-  Reg#(Bool)               rxDVD        <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
-  Reg#(Bool)               rxDVD2       <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
-  Reg#(Bool)               rxER         <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
-  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat(    clocked_by rxClk, reset_by rxRst);
-  Reg#(Bool)               rxActive     <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
-  Reg#(Vector#(6,Bit#(8))) rxPipe       <- mkRegU(          clocked_by rxClk, reset_by rxRst);
-  Reg#(Vector#(6,Bool))    rxAPipe      <- mkReg(unpack(0), clocked_by rxClk, reset_by rxRst);
-  CRC#(32)                 crc          <- mkCRC32(         clocked_by rxClk, reset_by rxRst);
-  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat(    clocked_by rxClk, reset_by rxRst);
-  Reg#(EofType)            eof          <- mkDReg(EofNone,  clocked_by rxClk, reset_by rxRst);
-  Reg#(Bool)               isSOF        <- mkReg(True,      clocked_by rxClk, reset_by rxRst);
-  Reg#(Bool)               crcEnd       <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
-  Reg#(Bool)               fullD        <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
-  SyncFIFOIfc#(ABS)        rxF          <- mkSyncFIFOToCC(8, rxClk, rxRst); // ~6 cycle fallthrough
-  SyncBitIfc#(Bit#(1))     ovfBit       <- mkSyncBitToCC(rxClk, rxRst);
 
-  rule dv_reg; rxDVD <= rxDV; rxDVD2 <= rxDVD; endrule
-  rule full_stretch; fullD <= !rxF.notFull; endrule
-  Bool rxOverflow = !rxF.notFull || fullD;  // Stretch full detection by 1 cycle so SyncBit must see at least one cycle
-  rule overflow_detect; ovfBit.send(pack(rxOverflow)); endrule  // Feed Synchronizer
 
-  //(* fire_when_enabled, no_implicit_conditions *)
-  rule ingress_advance (rxDV);
-     rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
-     rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
-     if (rxData == pack(PREAMBLE))     preambleCnt.inc;         // Count preamble octets
-     if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
-  endrule
 
-  //(* fire_when_enabled, no_implicit_conditions *)
-  rule ingress_noadvance (!rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
-    let fcs <- crc.complete;
-    $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
-    crcDbgCnt.load(0);
-    if (rxActive) begin
-      Bool fcsMatch = (fcs == unpack(pack(takeAt(0,rxPipe))));
-      eof <= (fcsMatch) ? EofGood : EofBad;
-      rxF.enq( (fcsMatch) ? tagged ValidEOP rxPipe[4] : tagged AbortEOP);  // Either ValidEOP or AbortEOP
-    end
-    crcEnd   <= True;
-  endrule
 
-  rule end_frame (crcEnd);
-    preambleCnt.load(0);   // Reset the preamble counter
-    rxActive <= False;     // Clear rxActive
-    isSOF    <= True;      // For next frame
-    rxAPipe  <= unpack(0); // Clear shift register
-    crcEnd   <= False;
-  endrule
 
-  rule crc_capture (rxDV && rxAPipe[3]);
-    crc.add(rxPipe[3]); // Update CRC starting with DA (after SFD)
-    crcDbgCnt.inc;
-  endrule
 
-  rule egress_data  (rxDVD && rxAPipe[5]);
-    rxF.enq(tagged ValidNotEOP rxPipe[5]); 
-    isSOF <= False;    
-  endrule
 
-  interface GMII_RX_RS gmii;
-    method Action rxd   (x) = rxData._write(x);
-    method Action rx_dv (x) = rxDV._write(unpack(x));
-    method Action rx_er (x) = rxER._write(unpack(x));
-  endinterface: gmii
-
-  interface Get rx = toGet(rxF);
-  method    Bool  rxOverFlow = unpack(ovfBit.read);
-endmodule: mkRxRSAsync
 
 // Transmit (Tx) Reconciliation Sublayer (RS)
 // This module accepts the TX data from a higher sublevel of the MAC; frames start at the Destination Address (DA)
 // It will insert the preamble and SFD, pass the incident frame, and generate and insert the FCS
 // If the txF starves in the middle of a frame; that is a TX UNDERFLOW error (txUnderflow)
-module mkTxRSAsync#(Clock txClk) (TxRSIfc);
-  Reset                    txRst        <- mkAsyncResetFromCR(2, txClk);
-  Reg#(Bit#(8))            txData       <- mkDReg(0,        clocked_by txClk, reset_by txRst);
-  Reg#(Bool)               txDV         <- mkDReg(False,    clocked_by txClk, reset_by txRst);
-  Reg#(Bool)               txER         <- mkDReg(False,    clocked_by txClk, reset_by txRst);
-  CounterSat#(UInt#(5))    preambleCnt  <- mkCounterSat(    clocked_by txClk, reset_by txRst);
-  CounterSat#(UInt#(5))    ifgCnt       <- mkCounterSat(    clocked_by txClk, reset_by txRst);
-  CounterSat#(UInt#(12))   lenCnt       <- mkCounterSat(    clocked_by txClk, reset_by txRst);
-  Reg#(Bool)               txActive     <- mkReg(False,     clocked_by txClk, reset_by txRst);
-  CRC#(32)                 crc          <- mkCRC32(         clocked_by txClk, reset_by txRst);
-  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat(    clocked_by txClk, reset_by txRst);
-  Reg#(Bool)               underflow    <- mkDReg(False,    clocked_by txClk, reset_by txRst);
-  Reg#(UInt#(3))           emitFCS      <- mkReg(0,         clocked_by txClk, reset_by txRst);
-  Reg#(Bool)               doPad        <- mkReg(False,     clocked_by txClk, reset_by txRst);
-  Reg#(Bool)               isSOF        <- mkReg(True,      clocked_by txClk, reset_by txRst);
-  Reg#(Bool)               unfD         <- mkReg(False,     clocked_by txClk, reset_by txRst);
-  SyncFIFOIfc#(ABS)        txF          <- mkSyncFIFOFromCC(8, txClk);  // ~6 cycle fallthrough
-  SyncBitIfc#(Bit#(1))     unfBit       <- mkSyncBitToCC(txClk, txRst);
-
-  Bool txUnd = !txF.notEmpty && txActive;
-  rule unf_stretch; unfD <= txUnd; endrule
-  rule undeflow_detect; unfBit.send(pack(txUnd || unfD)); endrule
+//(* synthesize *)
+module mkTxRS (TxRSIfc);
+  FIFO#(ABS)               txF          <- mkFIFO;
+  Reg#(Bit#(8))            txData       <- mkDReg(0);
+  Reg#(Bool)               txDV         <- mkDReg(False);
+  Reg#(Bool)               txER         <- mkDReg(False);
+  CounterSat#(UInt#(5))    preambleCnt  <- mkCounterSat;
+  CounterSat#(UInt#(5))    ifgCnt       <- mkCounterSat;
+  CounterSat#(UInt#(12))   lenCnt       <- mkCounterSat;
+  Reg#(Bool)               txActive     <- mkReg(False);
+  CRC#(32)                 crc          <- mkCRC32;
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat;
+  Reg#(Bool)               underflow    <- mkDReg(False);
+  Reg#(UInt#(3))           emitFCS      <- mkReg(0);
+  Reg#(Bool)               doPad        <- mkReg(False);
+  Reg#(Bool)               isSOF        <- mkReg(True);
 
   (* descending_urgency = "egress_FCS, egress_PAD, egress_EOF, egress_Body, egress_SOF" *)
 
@@ -449,17 +373,382 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
   endrule
 
   interface Put tx = toPut(txF);
-  method  Bool txUnderFlow = unpack(unfBit.read);
+  method  Bool txUnderflow = underflow;
   interface GMII_TX_RS gmii;
-    interface Clock   tx_clk = txClk;
+  //interface Clock   tx_clk = Empty;
     method    Bit#(8) txd    = txData;
     method    Bit#(1) tx_en  = pack(txDV);
     method    Bit#(1) tx_er  = pack(txER);
   endinterface: gmii
-endmodule: mkTxRSAsync
+endmodule: mkTxRS
+
+// Receive (Rx) Reconciliation Sublayer (RS)
+// This module accepts the RX data from the PHY and segments it into EthernetFrame frames
+// It will remove the preamble and SFD
+// It will pass frames starting with the Destination Address (DA)
+// It will end a frame with either an eofGood (if the FCS matches) or an eofBad (if it doesnt)
+//(* synthesize *)
+module mkRxRS (RxRSIfc);
+  Reg#(Bit#(8))            rxData       <- mkRegU;
+  Reg#(Bool)               rxDV         <- mkReg(False);
+  Reg#(Bool)               rxDVD        <- mkReg(False);
+  Reg#(Bool)               rxDVD2       <- mkReg(False);
+  Reg#(Bool)               rxER         <- mkReg(False);
+  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat;
+  Reg#(Bool)               rxActive     <- mkReg(False);
+  Reg#(Vector#(6,Bit#(8))) rxPipe       <- mkRegU;
+  Reg#(Vector#(6,Bool))    rxAPipe      <- mkReg(unpack(0));
+  CRC#(32)                 crc          <- mkCRC32;
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat;
+  Reg#(EofType)            eof          <- mkDReg(EofNone);
+  FIFO#(ABS)               rxF          <- mkFIFO;
+  Reg#(Bool)               isSOF        <- mkReg(True);
+  Reg#(Bool)               crcEnd       <- mkReg(False);
+
+  rule dv_reg; rxDVD <= rxDV; rxDVD2 <= rxDVD; endrule
+
+  //(* fire_when_enabled, no_implicit_conditions *)
+  rule ingress_advance (rxDV);
+     rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
+     rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
+     if (rxData == pack(PREAMBLE))     preambleCnt.inc;         // Count preamble octets
+     if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
+  endrule
+
+  //(* fire_when_enabled, no_implicit_conditions *)
+  rule ingress_noadvance (!rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
+    let fcs <- crc.complete;
+    $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
+    crcDbgCnt.load(0);
+    if (rxActive) begin
+      Bool fcsMatch = (fcs == unpack(pack(takeAt(0,rxPipe))));
+      eof <= (fcsMatch) ? EofGood : EofBad;
+      rxF.enq( (fcsMatch) ? tagged ValidEOP rxPipe[4] : tagged AbortEOP);  // Either ValidEOP or AbortEOP
+    end
+    crcEnd   <= True;
+  endrule
+
+  rule end_frame (crcEnd);
+    preambleCnt.load(0);   // Reset the preamble counter
+    rxActive <= False;     // Clear rxActive
+    isSOF    <= True;      // For next frame
+    rxAPipe  <= unpack(0); // Clear shift register
+    crcEnd   <= False;
+  endrule
+
+  rule crc_capture (rxDV && rxAPipe[3]);
+    crc.add(rxPipe[3]); // Update CRC starting with DA (after SFD)
+    crcDbgCnt.inc;
+  endrule
+
+  rule egress_data  (rxDVD && rxAPipe[5]);
+    rxF.enq(tagged ValidNotEOP rxPipe[5]); 
+    isSOF <= False;    
+  endrule
+
+  interface GMII_RX_RS gmii;
+    method Action rxd   (x) = rxData._write(x);
+    method Action rx_dv (x) = rxDV._write(unpack(x));
+    method Action rx_er (x) = rxER._write(unpack(x));
+  endinterface: gmii
+
+  interface Get rx = toGet(rxF);
+endmodule: mkRxRS
 
 
-//
+// Receive (Rx) Reconciliation Sublayer (RS)
+// This module accepts the RX data from the PHY and segments it into EthernetFrame frames
+// It will remove the preamble and SFD
+// It will pass frames starting with the Destination Address (DA)
+// It will end a frame with either an eofGood (if the FCS matches) or an eofBad (if it doesnt)
+//(* synthesize *)
+module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
+  Reset                    rxRst        <- mkAsyncResetFromCR(2, rxClk);
+  Reg#(Bit#(8))            rxData       <- mkRegU(          clocked_by rxClk, reset_by rxRst);
+  Reg#(Bool)               rxDV         <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
+  Reg#(Bool)               rxDVD        <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
+  Reg#(Bool)               rxDVD2       <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
+  Reg#(Bool)               rxER         <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
+  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat(    clocked_by rxClk, reset_by rxRst);
+  Reg#(Bool)               rxActive     <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
+  Reg#(Vector#(6,Bit#(8))) rxPipe       <- mkRegU(          clocked_by rxClk, reset_by rxRst);
+  Reg#(Vector#(6,Bool))    rxAPipe      <- mkReg(unpack(0), clocked_by rxClk, reset_by rxRst);
+  CRC#(32)                 crc          <- mkCRC32(         clocked_by rxClk, reset_by rxRst);
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat(    clocked_by rxClk, reset_by rxRst);
+  Reg#(EofType)            eof          <- mkDReg(EofNone,  clocked_by rxClk, reset_by rxRst);
+  Reg#(Bool)               isSOF        <- mkReg(True,      clocked_by rxClk, reset_by rxRst);
+  Reg#(Bool)               crcEnd       <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
+  Reg#(Bool)               fullD        <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
+  SyncFIFOIfc#(ABS)        rxF          <- mkSyncFIFOToCC(8, rxClk, rxRst); // ~6 cycle fallthrough
+  SyncBitIfc#(Bit#(1))     ovfBit       <- mkSyncBitToCC(rxClk, rxRst);
+
+  rule dv_reg; rxDVD <= rxDV; rxDVD2 <= rxDVD; endrule
+  rule full_stretch; fullD <= !rxF.notFull; endrule
+  Bool txOverflow = !rxF.notFull || fullD;  // Stretch full detection by 1 cycle so SyncBit must see at least one cycle
+  rule overflow_detect; ovfBit.send(pack(txOverflow)); endrule  // Feed Synchronizer
+
+  //(* fire_when_enabled, no_implicit_conditions *)
+  rule ingress_advance (rxDV);
+     rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
+     rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
+     if (rxData == pack(PREAMBLE))     preambleCnt.inc;         // Count preamble octets
+     if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
+  endrule
+
+  //(* fire_when_enabled, no_implicit_conditions *)
+  rule ingress_noadvance (!rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
+    let fcs <- crc.complete;
+    $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
+    crcDbgCnt.load(0);
+    if (rxActive) begin
+      Bool fcsMatch = (fcs == unpack(pack(takeAt(0,rxPipe))));
+      eof <= (fcsMatch) ? EofGood : EofBad;
+      rxF.enq( (fcsMatch) ? tagged ValidEOP rxPipe[4] : tagged AbortEOP);  // Either ValidEOP or AbortEOP
+    end
+    crcEnd   <= True;
+  endrule
+
+  rule end_frame (crcEnd);
+    preambleCnt.load(0);   // Reset the preamble counter
+    rxActive <= False;     // Clear rxActive
+    isSOF    <= True;      // For next frame
+    rxAPipe  <= unpack(0); // Clear shift register
+    crcEnd   <= False;
+  endrule
+
+  rule crc_capture (rxDV && rxAPipe[3]);
+    crc.add(rxPipe[3]); // Update CRC starting with DA (after SFD)
+    crcDbgCnt.inc;
+  endrule
+
+  rule egress_data  (rxDVD && rxAPipe[5]);
+    rxF.enq(tagged ValidNotEOP rxPipe[5]); 
+    isSOF <= False;    
+  endrule
+
+  interface GMII_RX_RS gmii;
+    method Action rxd   (x) = rxData._write(x);
+    method Action rx_dv (x) = rxDV._write(unpack(x));
+    method Action rx_er (x) = rxER._write(unpack(x));
+  endinterface: gmii
+
+  interface Get rx = toGet(rxF);
+  method    Bool  rxOverFlow = unpack(ovfBit.read);
+endmodule: mkRxRSAsync
+
+
+// OLD_EBS_WAY
+// OLD_EBS_WAY   This is legacy code with EBS encoding...
+// OLD_EBS_WAY
+
+`ifdef OLD_EBS_WAY
+
+interface RxRSIfc;
+  interface GMII_RX_RS          gmii;
+  interface Get#(EBS)           rx;
+endinterface
+
+interface TxRSIfc;
+  interface Put#(EBS)           tx;
+  method    Bool                txUnderflow;
+  interface GMII_TX_RS          gmii;
+endinterface
+
+
+
+// Transmit (Tx) Reconciliation Sublayer (RS)
+// This module accepts the TX data from a higher sublevel of the MAC; frames start at the Destination Address (DA)
+// It will insert the preamble and SFD, pass the incident frame, and generate and insert the FCS
+// If the txF starves in the middle of a frame; that is a TX UNDERFLOW error (txUnderflow)
+//(* synthesize *)
+module mkTxRS (TxRSIfc);
+  FIFO#(EBS)               txF          <- mkFIFO;
+  Reg#(Bit#(8))            txData       <- mkDReg(0);
+  Reg#(Bool)               txDV         <- mkDReg(False);
+  Reg#(Bool)               txER         <- mkDReg(False);
+  CounterSat#(UInt#(5))    preambleCnt  <- mkCounterSat;
+  CounterSat#(UInt#(5))    ifgCnt       <- mkCounterSat;
+  CounterSat#(UInt#(12))   lenCnt       <- mkCounterSat;
+  Reg#(Bool)               txActive     <- mkReg(False);
+  CRC#(32)                 crc          <- mkCRC32;
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat;
+  Reg#(Bool)               underflow    <- mkDReg(False);
+  Reg#(UInt#(3))           emitFCS      <- mkReg(0);
+  Reg#(Bool)               doPad        <- mkReg(False);
+
+  (* descending_urgency = "egress_FCS, egress_PAD, egress_EOF, egress_Body, egress_SOF" *)
+
+  rule egress_SOF(txF.first.sof && ifgCnt==0);
+    if (preambleCnt<7) begin
+      txData <= pack(PREAMBLE);    // 7 Preamble cycles - 8'h55
+    end else if (preambleCnt==7) begin
+      txData <= pack(SFD);         // 1 SFD cycle - 8'hD5
+    end else begin
+      let d = txF.first.data;      // 1st Byte of Destination Address
+      txData <= d;
+      crc.add(d);
+      crcDbgCnt.inc;
+      txF.deq;
+      lenCnt.inc;
+    end
+    preambleCnt.inc();
+    txDV     <= True;
+    txActive <= True;
+  endrule
+
+  rule egress_Body(txActive && !txF.first.sof && !txF.first.eof);
+    let d = txF.first.data;
+    txData <= d;
+    crc.add(d);
+    crcDbgCnt.inc;
+    txF.deq;
+    lenCnt.inc;
+    txDV <= True;
+  endrule
+
+  rule egress_EOF(txActive && txF.first.eof);
+    let d = txF.first.data;
+    txData <= d;
+    crc.add(d);
+    crcDbgCnt.inc;
+    txF.deq;
+    lenCnt.inc;
+    txDV <= True;
+    if (lenCnt>=60) begin // if not padding, advance to emitFCS
+      txActive <= False;
+      emitFCS <= 4;
+    end else doPad <= True;
+  endrule
+
+  rule egress_PAD(txActive && doPad);
+    let d = pack(PAD);
+    txData <= d;
+    lenCnt.inc;
+    txDV <= True;
+    if (lenCnt>=60) begin // when done padding, advance to emitFCS
+      txActive <= False;
+      emitFCS  <= 4;
+      doPad    <= False;
+    end
+  endrule
+
+  rule egress_FCS(emitFCS!=0);
+    Vector#(4,Bit#(8)) fcsV = unpack(crc.result);
+    if (emitFCS==4) begin
+      $display("[%0d]: %m: TX FCS:%08x from %d elements", $time, pack(fcsV), crcDbgCnt);
+      crcDbgCnt.load(0);
+    end
+    txData <= fcsV[emitFCS-1];
+    lenCnt.inc;
+    txDV  <= True;
+    emitFCS <= emitFCS - 1;
+    if (emitFCS==1) begin
+      ifgCnt.load(12);
+      preambleCnt.load(0);
+      lenCnt.load(0);
+      crc.clear;
+    end
+  endrule
+
+  rule ifg_decrementer (ifgCnt!=0);
+    ifgCnt.dec;
+  endrule
+
+  interface Put tx = toPut(txF);
+  method  Bool txUnderflow = underflow;
+  interface GMII_TX_RS gmii;
+    //interface Clock   tx_clk = Empty;
+    method    Bit#(8) txd    = txData;
+    method    Bit#(1) tx_en  = pack(txDV);
+    method    Bit#(1) tx_er  = pack(txER);
+  endinterface: gmii
+endmodule: mkTxRS
+
+// Receive (Rx) Reconciliation Sublayer (RS)
+// This module accepts the RX data from the PHY and segments it into EthernetFrame frames
+// It will remove the preamble and SFD
+// It will pass frames starting with the Destination Address (DA)
+// It will end a frame with either an eofGood (if the FCS matches) or an eofBad (if it doesnt)
+//(* synthesize *)
+module mkRxRS (RxRSIfc);
+  Reg#(Bit#(8))            rxData       <- mkRegU;
+  Reg#(Bool)               rxDV         <- mkReg(False);
+  Reg#(Bool)               rxDVD        <- mkReg(False);
+  Reg#(Bool)               rxDVD2       <- mkReg(False);
+  Reg#(Bool)               rxER         <- mkReg(False);
+  CounterSat#(UInt#(4))    preambleCnt  <- mkCounterSat;
+  Reg#(Bool)               rxActive     <- mkReg(False);
+  Reg#(Vector#(6,Bit#(8))) rxPipe       <- mkRegU;
+  Reg#(Vector#(6,Bool))    rxAPipe      <- mkReg(unpack(0));
+  CRC#(32)                 crc          <- mkCRC32;
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat;
+  Reg#(EofType)            eof          <- mkDReg(EofNone);
+  FIFO#(EBS)               rxF          <- mkFIFO;
+  Reg#(Bool)               isSOF        <- mkReg(True);
+  Reg#(Bool)               crcEnd       <- mkReg(False);
+
+  rule dv_reg; rxDVD <= rxDV; rxDVD2 <= rxDVD; endrule
+
+  //(* fire_when_enabled, no_implicit_conditions *)
+  rule ingress_advance (rxDV);
+     rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
+     rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
+     if (rxData == pack(PREAMBLE))     preambleCnt.inc;         // Count preamble octets
+     if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
+  endrule
+
+  //(* fire_when_enabled, no_implicit_conditions *)
+  rule ingress_noadvance (!rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
+    let fcs <- crc.complete;
+    $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
+    crcDbgCnt.load(0);
+    if (rxActive) begin
+      Bool fcsMatch = (fcs == unpack(pack(takeAt(0,rxPipe))));
+      eof <= (fcsMatch) ? EofGood : EofBad;
+      rxF.enq( EBS {
+        abort : !fcsMatch,
+        empty : False,
+        sof   : False,
+        eof   : fcsMatch,
+        data  : rxPipe[4] });
+    end
+    crcEnd   <= True;
+  endrule
+
+  rule end_frame (crcEnd);
+    preambleCnt.load(0);   // Reset the preamble counter
+    rxActive <= False;     // Clear rxActive
+    isSOF    <= True;      // For next frame
+    rxAPipe  <= unpack(0); // Clear shift register
+    crcEnd   <= False;
+  endrule
+
+  rule crc_capture (rxDV && rxAPipe[3]);
+    crc.add(rxPipe[3]); // Update CRC starting with DA (after SFD)
+    crcDbgCnt.inc;
+  endrule
+
+  rule egress_data (rxDVD && rxAPipe[5]);
+    rxF.enq( EBS {
+      abort : False,
+      empty : False,
+      sof   : isSOF,
+      eof   : False,
+      data  : rxPipe[5] });
+    isSOF <= False;    
+  endrule
+
+  interface GMII_RX_RS gmii;
+    method Action rxd   (x) = rxData._write(x);
+    method Action rx_dv (x) = rxDV._write(unpack(x));
+    method Action rx_er (x) = rxER._write(unpack(x));
+  endinterface: gmii
+
+  interface Get rx = toGet(rxF);
+endmodule: mkRxRS
+
+`endif
+
 // Connectable Instances...
 
 instance Connectable#(GMII_TX_RS, GMII_RX_RS); // Loopback TX to RX at RS

@@ -5,13 +5,15 @@
 import Config            ::*;
 import CTop              ::*;
 import DramServer_v6     ::*;
-import Ethernet          ::*;
+//import Ethernet          ::*;
+import GMAC              ::*;
 import MDIO              ::*;
 import FlashWorker       ::*;
 import GbeWorker         ::*;
 import ICAPWorker        ::*;
 import OCWip             ::*;
 import TimeService       ::*;
+import WSICaptureWorker ::*;
 import WsiAdapter        ::*;
 import XilinxExtra       ::*;
 import ProtocolMonitor   ::*;
@@ -40,16 +42,18 @@ interface FTop_ml605Ifc;
   interface GPSIfc                 gps;
   interface DDR3_64                dram;
   interface FLASH_IO#(24,16)       flash;
-  interface Clock                  rxclk;    // GMII associated Clock
-  interface Reset                  mrst_n;   // GMII associated Reset
-  interface GMII                   gmii;     // The GMII link
-  interface MDIO_Pads              mdio;     // The MDIO pads
+  interface Clock                  rxclk;      // GMII RX Clock (provided here for BSV interface rules)
+  interface Reset                  gmii_rstn;  // GMII Reset driven out to PHY
+  interface GMII_RS                gmii;       // The GMII link RX/TX
+  interface MDIO_Pads              mdio;       // The MDIO pads
 endinterface: FTop_ml605Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
-                     Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
-                     Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)(FTop_ml605Ifc);
+module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Reference
+                     Clock sys1_clkp, Clock sys1_clkn,  // 125 MHz Ethernet XO Reference
+                     Clock gmii_rx_clk,                 // 125 MHz GMII RX Clock from Marvell Phy
+                     Clock pci0_clkp, Clock pci0_clkn,  // 100 MHz PCIe Reference from Edge Connector
+                     Reset pci0_rstn)(FTop_ml605Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
   PCIEwrapIfc#(4)  pciw       <- mkPCIEwrap("V6", pci0_clkp, pci0_clkn, pci0_rstn);
@@ -95,6 +99,7 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   ICAPWorkerIfc    icap   <- mkICAPWorker(True,True,                           clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   FlashWorkerIfc   flash0 <- mkFlashWorker(True,                               clocked_by p125Clk , reset_by(vWci[1].mReset_n));
   GbeWorkerIfc     gbe0   <- mkGbeWorker(True,gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
+  WSICaptureWorker4BIfc cap0  <- mkWSICaptureWorker(True,                      clocked_by p125Clk , reset_by(vWci[3].mReset_n));
   DramServer_v6Ifc dram0  <- mkDramServer_v6(False, sys0_clk, sys0_rst,        clocked_by p125Clk , reset_by(vWci[4].mReset_n));
 
   WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
@@ -102,12 +107,14 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by p125Clk , reset_by p125Rst );  // Connect the wciMon to an event monitor
   
   // WCI...
-  //mkConnection(vWci[0], icap.wciS0);    // worker 8
+//mkConnection(vWci[0], icap.wciS0);     // worker 8
   mkConnectionMSO(vWci[0],  icap.wciS0, wciMonW8.observe, clocked_by p125Clk , reset_by p125Rst );
   mkConnection(vWci[1], flash0.wciS0);   // worker 9
   mkConnection(vWci[2], gbe0.wciS0);     // worker 10 
-  mkConnection(vWci[3], gbe0.wciS1);     // worker 11
+  mkConnection(vWci[3], cap0.wciS0);     // worker 11
   mkConnection(vWci[4], dram0.wciS0);    // worker 12
+
+  mkConnection(gbe0.wsiM0, cap0.wsiS0);
 
   // WTI...
   TimeClientIfc  tcGbe0  <- mkTimeClient(sys0_clk, sys0_rst, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by p125Rst ); 
@@ -131,13 +138,13 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,
   interface Reset    p125rst = p125Rst;
   method  led   =
     {5'b10100, pack(blinkLed), 1'b0, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
-  interface LCD        lcd     = lcd_ctrl.ifc;
-  interface GPSIfc     gps     = ctop.gps;
-  interface FLASH_IO   flash   = flash0.flash;
-  interface DDR3_64    dram    = dram0.dram;
-  interface Clock      rxclk   = gbe0.rxclk;
-  interface Reset      mrst_n  = gbe0.mrst_n;
-  interface GMII       gmii    = gbe0.gmii;
-  interface MDIO_Pads  mdio    = gbe0.mdio;
+  interface LCD        lcd       = lcd_ctrl.ifc;
+  interface GPSIfc     gps       = ctop.gps;
+  interface FLASH_IO   flash     = flash0.flash;
+  interface DDR3_64    dram      = dram0.dram;
+  interface Clock      rxclk     = gbe0.rxclk;
+  interface Reset      gmii_rstn = gbe0.gmii_rstn;
+  interface GMII       gmii      = gbe0.gmii;
+  interface MDIO_Pads  mdio      = gbe0.mdio;
 endmodule: mkFTop_ml605
 

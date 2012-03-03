@@ -14,9 +14,9 @@ import Connectable       ::*;
 import BRAM              ::*;
 import FIFO              ::*;
 import SpecialFIFOs      ::*;
-import XilinxCells       :: *;
 
-import XilinxExtra :: *;
+import XilinxCells       :: *;
+import XilinxExtra       :: *;
 
 // Types...
 typedef Bit#(32)         IPAddress;
