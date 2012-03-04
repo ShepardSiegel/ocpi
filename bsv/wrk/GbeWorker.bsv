@@ -55,6 +55,14 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxEmptyEOPC         <-  mkReg(0);
   Reg#(Bit#(32))              rxAbortEOPC         <-  mkReg(0);
 
+  Reg#(UInt#(4))              rxIdx               <-  mkReg(0);
+  Reg#(Vector#(6,Bit#(8)))    rxDstLast           <-  mkRegU;
+  Reg#(Vector#(6,Bit#(8)))    rxSrcLast           <-  mkRegU;
+  Reg#(Vector#(2,Bit#(8)))    rxOpLast            <-  mkRegU;
+  Reg#(Bit#(32))              rxLenCount          <-  mkReg(0);
+  Reg#(Bit#(32))              rxLenLast           <-  mkRegU;
+
+
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
 
@@ -82,21 +90,31 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
         if (rxPos==3) wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:False,reqInfo:0,burstPrecise:False,burstLength:'1,data:pack(rxPipe),byteEn:'1,dataInfo:'0 });
         rxValidNoEOPC <= rxValidNoEOPC + 1;
         rxPos <= rxPos + 1;
+        rxLenCount <= rxLenCount + 1;
+        rxIdx <= (rxIdx==maxBound) ? rxIdx : rxIdx + 1;
+        if      (rxIdx<6)               rxDstLast  <= shiftInAt0(rxDstLast, z);
+        else if (rxIdx>=6  && rxIdx<12) rxSrcLast  <= shiftInAt0(rxSrcLast, z);
+        else if (rxIdx>=12 && rxIdx<13) rxOpLast   <= shiftInAt0(rxOpLast,  z);
       end
       tagged ValidEOP    .z :  begin
         let d  = shiftInAt0(rxPipe, z);
         wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(d),byteEn:genBE(rxPos),dataInfo:'0 });
         rxValidEOPC <= rxValidEOPC + 1;
         rxPos <= 0;
+        rxIdx <= 0;
+        rxLenCount <= 0;
+        rxLenLast <= rxLenCount + 1;
       end
       tagged EmptyEOP       : begin
         wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(rxPipe),byteEn:genBE(rxPos),dataInfo:'0 });
         rxEmptyEOPC <= rxEmptyEOPC + 1;
         rxPos <= 0;
+        rxIdx <= 0;
       end
       tagged AbortEOP       : begin
         rxAbortEOPC <= rxAbortEOPC + 1;
         rxPos <= 0;
+        rxIdx <= 0;
       end
     endcase
   endrule
@@ -156,6 +174,12 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
       'h34 : rdat = (!hasDebugLogic) ? 0 : rxValidEOPC;
       'h38 : rdat = (!hasDebugLogic) ? 0 : rxEmptyEOPC;
       'h3C : rdat = (!hasDebugLogic) ? 0 : rxAbortEOPC;
+      'h40 : rdat = (!hasDebugLogic) ? 0 : {16'h0000, pack(takeAt(4, rxDstLast))};  // MS Dst
+      'h44 : rdat = (!hasDebugLogic) ? 0 : pack(takeAt(0, rxDstLast));              // LS Dst
+      'h48 : rdat = (!hasDebugLogic) ? 0 : {16'h0000, pack(takeAt(4, rxSrcLast))};  // MS Src
+      'h4C : rdat = (!hasDebugLogic) ? 0 : pack(takeAt(0, rxSrcLast));              // LS Src
+      'h50 : rdat = (!hasDebugLogic) ? 0 : {16'h0000, pack(takeAt(0, rxOpLast))};   // OpType
+      'h54 : rdat = (!hasDebugLogic) ? 0 : rxLenLast;
     endcase
   end else begin
     mdi.user.request(MDIORequest{isWrite:False, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:?});
