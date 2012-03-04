@@ -42,10 +42,18 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 
   GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, sys1_clk);
 
+  Reg#(Vector#(4,Bit#(8)))    rxPipe              <-  mkRegU;
+  Reg#(UInt#(2))              rxPos               <-  mkReg(0);
+
   Reg#(Bit#(32))              rxCount             <-  mkReg(0);
   Reg#(Bit#(32))              txCount             <-  mkReg(0);
   Reg#(Bit#(32))              rxOvfCount          <-  mkReg(0);
   Reg#(Bit#(32))              txUndCount          <-  mkReg(0);
+
+  Reg#(Bit#(32))              rxValidNoEOPC       <-  mkReg(0);
+  Reg#(Bit#(32))              rxValidEOPC         <-  mkReg(0);
+  Reg#(Bit#(32))              rxEmptyEOPC         <-  mkReg(0);
+  Reg#(Bit#(32))              rxAbortEOPC         <-  mkReg(0);
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
@@ -55,17 +63,41 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 
   (* fire_when_enabled *) rule wsi_operate (wci.isOperating); wsiM.operate(); wsiS.operate(); endrule
 
+  function Bit#(4) genBE (UInt#(2) p);
+    case (p)
+      0 : return(4'b0001);
+      1 : return(4'b0011);
+      2 : return(4'b0111);
+      3 : return(4'b1111);
+    endcase
+  endfunction
+
   // RX from GMAC...
   rule rx_data (wci.isOperating);
     let rx <- gmac.rx.get;
     rxCount <= rxCount + 1;
     case (rx) matches
-      tagged ValidNotEOP .z : 
-        wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:False,reqInfo:0,burstPrecise:False,burstLength:'1,data:extend(z),byteEn:'1,dataInfo:'0 });
-      tagged ValidEOP    .z : 
-        wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True, reqInfo:0,burstPrecise:False,burstLength: 1,data:extend(z),byteEn:'1,dataInfo:'0 });
-      tagged EmptyEOP       : noAction;
-      tagged AbortEOP       : noAction;
+      tagged ValidNotEOP .z :  begin
+        rxPipe  <= shiftInAt0(rxPipe, z);
+        if (rxPos==3) wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:False,reqInfo:0,burstPrecise:False,burstLength:'1,data:pack(rxPipe),byteEn:'1,dataInfo:'0 });
+        rxValidNoEOPC <= rxValidNoEOPC + 1;
+        rxPos <= rxPos + 1;
+      end
+      tagged ValidEOP    .z :  begin
+        let d  = shiftInAt0(rxPipe, z);
+        wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(d),byteEn:genBE(rxPos),dataInfo:'0 });
+        rxValidEOPC <= rxValidEOPC + 1;
+        rxPos <= 0;
+      end
+      tagged EmptyEOP       : begin
+        wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(rxPipe),byteEn:genBE(rxPos),dataInfo:'0 });
+        rxEmptyEOPC <= rxEmptyEOPC + 1;
+        rxPos <= 0;
+      end
+      tagged AbortEOP       : begin
+        rxAbortEOPC <= rxAbortEOPC + 1;
+        rxPos <= 0;
+      end
     endcase
   endrule
 
@@ -120,6 +152,10 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
       'h24 : rdat = (!hasDebugLogic) ? 0 : txCount;
       'h28 : rdat = (!hasDebugLogic) ? 0 : rxOvfCount;
       'h2C : rdat = (!hasDebugLogic) ? 0 : txUndCount;
+      'h30 : rdat = (!hasDebugLogic) ? 0 : rxValidNoEOPC;
+      'h34 : rdat = (!hasDebugLogic) ? 0 : rxValidEOPC;
+      'h38 : rdat = (!hasDebugLogic) ? 0 : rxEmptyEOPC;
+      'h3C : rdat = (!hasDebugLogic) ? 0 : rxAbortEOPC;
     endcase
   end else begin
     mdi.user.request(MDIORequest{isWrite:False, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:?});

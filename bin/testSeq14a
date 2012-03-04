@@ -1,0 +1,61 @@
+#!/bin/sh
+# Script tstseq14a for testing GMAC
+
+echo "admin probe"
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+
+echo "Reset workers"
+./swctl 0xF1000000 0xF2FF0000 wreset 10 0
+./swctl 0xF1000000 0xF2FF0000 wreset 11 0
+
+echo "unreset workers"
+./swctl 0xF1000000 0xF2FF0000 wunreset 10 0x8000000F
+./swctl 0xF1000000 0xF2FF0000 wunreset 11 0x8000000F
+
+echo "initialize workers"
+./swctl 0xF1000000 0xF2FF0000 wop 10 initialize
+./swctl 0xF1000000 0xF2FF0000 wop 11 initialize
+
+echo "Before Start..."
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 16
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 8
+
+echo "start capture worker"
+./swctl 0xF1000000 0xF2FF0000 wop 11 start
+
+echo "Enable WSICapture"
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0 0x3
+
+echo "After Capture Start but Not GbeStart..."
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 16
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 8
+
+echo "start capture worker"
+./swctl 0xF1000000 0xF2FF0000 wop 10 start
+
+echo "After GbeStart..."
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 16
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 8
+
+sleep 1
+
+echo "After GbeStart plus 1 second..."
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 16
+./swctl 0xF1000000 0xF2FF0000 wread 11 0 8
+
+
+
+
+#echo "Read WSICapture Status"
+#./swctl 0xF1000000 0xF2FF0000 wread 11 0 8
+
+#echo "WSICapture Meta Page"
+#./swctl 0xF1000000 0xF2FF0000 wwpage 11 0x400
+#./swctl 0xF1000000 0xF2FF0000 wread 11 0 32
+
+#echo "WSICapture Data Page"
+#./swctl 0xF1000000 0xF2FF0000 wwpage 11 0x800
+#./swctl 0xF1000000 0xF2FF0000 wread 11 0 32
+
+

@@ -243,6 +243,7 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
   ClockIODELAY  gmii_rxc_dly     <-  vClockIODELAY("FIXED", 0, "I", clocked_by rxClk);
   Clock         gmii_rx_clk_dly  =   gmii_rxc_dly.delayed;
   Clock         gmii_rx_clk      <-  mkClockBUFIO(clocked_by gmii_rx_clk_dly);
+  //TODO: Use gmii_rx_clk to capture rxd,dv,err in IOB FFs
   Clock         rxClk_BUFR       <-  mkClockBUFR(BUFRParams{bufr_divide:"BYPASS"}, clocked_by gmii_rx_clk_dly);
   Clock         clk              <-  exposeCurrentClock;  // User-Facing CC for the rx/tx methods
   Reset         rst              <-  exposeCurrentReset;
@@ -309,7 +310,7 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
     $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
     crcDbgCnt.load(0);
     if (rxActive) begin
-      Bool fcsMatch = (fcs == unpack(pack(takeAt(0,rxPipe))));
+      Bool fcsMatch = (fcs == unpack(pack(reverse(takeAt(0,rxPipe)))));
       eof <= (fcsMatch) ? EofGood : EofBad;
       rxF.enq( (fcsMatch) ? tagged ValidEOP rxPipe[4] : tagged AbortEOP);  // Either ValidEOP or AbortEOP
     end
@@ -426,7 +427,7 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
   endrule
 
   rule egress_FCS(emitFCS!=0);
-    Vector#(4,Bit#(8)) fcsV = unpack(crc.result);
+    Vector#(4,Bit#(8)) fcsV = reverse(unpack(crc.result));
     if (emitFCS==4) begin
       $display("[%0d]: %m: TX FCS:%08x from %d elements", $time, pack(fcsV), crcDbgCnt);
       crcDbgCnt.load(0);
