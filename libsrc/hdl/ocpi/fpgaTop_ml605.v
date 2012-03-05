@@ -24,14 +24,14 @@ module fpgaTop(
   output wire        ppsOut,         // PPS out
 
   output wire        gmii_rstn,      // Alaska GMII...
+	output wire        gmii_gtx_clk,
 	output wire [7:0]  gmii_txd,
 	output wire        gmii_tx_en,
 	output wire        gmii_tx_er,
+	input  wire        gmii_rx_clk,
 	input  wire [7:0]  gmii_rxd,
 	input  wire        gmii_rx_dv,
 	input  wire        gmii_rx_er,
-	output wire        gmii_tx_clk,
-	input  wire        gmii_rx_clk,
   output wire        mdio_mdc,       // Alaska MDIO...
   inout  wire        mdio_mdd,
 
@@ -105,7 +105,7 @@ module fpgaTop(
 	.gmii_rx_rxd_i     (gmii_rxd),
 	.gmii_rx_rx_dv_i   (gmii_rx_dv),
 	.gmii_rx_rx_er_i   (gmii_rx_er),
-	.gmii_tx_tx_clk    (gmii_tx_clk),
+	.gmii_tx_tx_clk    (gmii_gtx_clk),
 	.gmii_rx_clk       (gmii_rx_clk),
   .mdio_mdc          (mdio_mdc),
   .mdio_mdd          (mdio_mdd),

@@ -15,8 +15,8 @@ CONFIG PART = XC6VLX240T-FF1156-1 ;
 
 NET  "sys0_clkp"     LOC = J9 | IOSTANDARD = LVDS_25;
 NET  "sys0_clkn"     LOC = H9 | IOSTANDARD = LVDS_25;
-NET  "sys1_clkp"     LOC = H6;
-NET  "sys1_clkn"     LOC = H5;
+NET  "sys1_clkp"     LOC = H6 ;
+NET  "sys1_clkn"     LOC = H5 ;
 NET  "pci0_clkp"      LOC = V6;  # 250 MHz from U9
 NET  "pci0_clkn"      LOC = V5;
 #NET  "pci0_clkp"     LOC = P6;  # 100 MHz from U14 Jitter Attenuator
@@ -120,7 +120,7 @@ NET "gmii_INT"        LOC = "AH14" | IOSTANDARD=LVCMOS25; ## 32 on U80
 NET "mdio_mdc"        LOC = "AP14" | IOSTANDARD=LVCMOS25; ## 35 on U80
 NET "mdio_mdd"        LOC = "AN14" | IOSTANDARD=LVCMOS25; ## 33 on U80
 NET "gmii_rstn"       LOC = "AH13" | IOSTANDARD=LVCMOS25; ## 36 on U80
-NET "gmii_TXC_GTXCLK" LOC = "AH12" | IOSTANDARD=LVCMOS25; ## 14 on U80
+NET "gmii_gtx_clk"    LOC = "AH12" | IOSTANDARD=LVCMOS25; ## 14 on U80
 
 # Expect 3 nS valid window from GMII PHY RX port...
 NET "gmii_rx_clk" TNM_NET = "GMII_RX_CLK";
@@ -130,11 +130,11 @@ NET "gmii_rx_dv"  OFFSET = IN 0.5 ns VALID 3 ns BEFORE "gmii_rx_clk";
 NET "gmii_rx_er"  OFFSET = IN 0.5 ns VALID 3 ns BEFORE "gmii_rx_clk";
 
 # Provide 2 nS to GMII PHY Chip TX port...
-NET "gmii_tx_clk" TNM_NET = "GMII_TX_CLK";
-TIMESPEC "TS_GMII_TX_CLK" = PERIOD "GMII_TX_CLK" 125.00 MHz HIGH 50%;
-NET "gmii_txd[?]" OFFSET = OUT 6 ns AFTER "gmii_tx_clk";
-NET "gmii_tx_en"  OFFSET = OUT 6 ns AFTER "gmii_tx_clk";
-NET "gmii_tx_er"  OFFSET = OUT 6 ns AFTER "gmii_tx_clk";
+NET "sys1_clkp" TNM_NET = "GMII_GTX_CLK";  # 125 MHz sys1 XO for GbEthernet
+TIMESPEC "TS_GMII_GTX_CLK" = PERIOD "GMII_GTX_CLK" 125.00 MHz HIGH 50%;
+NET "gmii_txd[?]" OFFSET = OUT 6 ns AFTER "gmii_gtx_clk";
+NET "gmii_tx_en"  OFFSET = OUT 6 ns AFTER "gmii_gtx_clk";
+NET "gmii_tx_er"  OFFSET = OUT 6 ns AFTER "gmii_gtx_clk";
 
 
 # ADC...
