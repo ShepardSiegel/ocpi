@@ -122,11 +122,19 @@ NET "mdio_mdd"        LOC = "AN14" | IOSTANDARD=LVCMOS25; ## 33 on U80
 NET "gmii_rstn"       LOC = "AH13" | IOSTANDARD=LVCMOS25; ## 36 on U80
 NET "gmii_TXC_GTXCLK" LOC = "AH12" | IOSTANDARD=LVCMOS25; ## 14 on U80
 
+# Expect 3 nS valid window from GMII PHY RX port...
 NET "gmii_rx_clk" TNM_NET = "GMII_RX_CLK";
 TIMESPEC "TS_GMII_RX_CLK" = PERIOD "GMII_RX_CLK" 125.00 MHz HIGH 50%;
+NET "gmii_rxd[?]" OFFSET = IN 0.5 ns VALID 3 ns BEFORE "gmii_rx_clk";
+NET "gmii_rx_dv"  OFFSET = IN 0.5 ns VALID 3 ns BEFORE "gmii_rx_clk";
+NET "gmii_rx_er"  OFFSET = IN 0.5 ns VALID 3 ns BEFORE "gmii_rx_clk";
 
-# TODO Add PHY/GMII I/O time constraints
-# PHY TX provides 6 nS tx_clk->d max; PHY RX requires 2.5 su, 0.5h
+# Provide 2 nS to GMII PHY Chip TX port...
+NET "gmii_tx_clk" TNM_NET = "GMII_TX_CLK";
+TIMESPEC "TS_GMII_TX_CLK" = PERIOD "GMII_TX_CLK" 125.00 MHz HIGH 50%;
+NET "gmii_txd[?]" OFFSET = OUT 6 ns AFTER "gmii_tx_clk";
+NET "gmii_tx_en"  OFFSET = OUT 6 ns AFTER "gmii_tx_clk";
+NET "gmii_tx_er"  OFFSET = OUT 6 ns AFTER "gmii_tx_clk";
 
 
 # ADC...
