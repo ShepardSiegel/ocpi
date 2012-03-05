@@ -5,6 +5,7 @@ import OCWip       ::*;
 //import Ethernet    ::*;
 import GMAC        ::*;
 import MDIO        ::*;
+import SRLFIFO     ::*;
 import TimeService ::*;
 
 import Clocks::*;
@@ -55,16 +56,19 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxEmptyEOPC         <-  mkReg(0);
   Reg#(Bit#(32))              rxAbortEOPC         <-  mkReg(0);
 
-  Reg#(UInt#(4))              rxIdx               <-  mkReg(0);
-  Reg#(Vector#(6,Bit#(8)))    rxDstLast           <-  mkRegU;
-  Reg#(Vector#(6,Bit#(8)))    rxSrcLast           <-  mkRegU;
-  Reg#(Vector#(2,Bit#(8)))    rxOpLast            <-  mkRegU;
+  Reg#(UInt#(5))              rxIdx               <-  mkReg(0);
+  Reg#(Vector#(16,Bit#(8)))   rxHdrLast           <-  mkRegU;
   Reg#(Bit#(32))              rxLenCount          <-  mkReg(0);
   Reg#(Bit#(32))              rxLenLast           <-  mkRegU;
+
+  FIFOF#(Bit#(8))              daF                <-  mkSRLFIFOD(3);
+  FIFOF#(Bit#(8))              saF                <-  mkSRLFIFOD(3);
+  FIFOF#(ABS)                 loopF               <-  mkSRLFIFOD(4);
 
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
+  Bool txLoopback = unpack(gbeControl[8]); 
 
   rule inc_rx_overflow  (gmac.rxOverFlow);  rxOvfCount <= rxOvfCount + 1; endrule
   rule inc_tx_underflow (gmac.txUnderFlow); txUndCount <= txUndCount + 1; endrule
@@ -84,6 +88,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   rule rx_data (wci.isOperating);
     let rx <- gmac.rx.get;
     rxCount <= rxCount + 1;
+    if (rxIdx>=12 && txLoopback) loopF.enq(rx);
     case (rx) matches
       tagged ValidNotEOP .z :  begin
         rxPipe  <= shiftInAt0(rxPipe, z);
@@ -92,9 +97,9 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
         rxPos <= rxPos + 1;
         rxLenCount <= rxLenCount + 1;
         rxIdx <= (rxIdx==maxBound) ? rxIdx : rxIdx + 1;
-        if      (rxIdx<6)               rxDstLast  <= shiftInAt0(rxDstLast, z);
-        else if (rxIdx>=6  && rxIdx<12) rxSrcLast  <= shiftInAt0(rxSrcLast, z);
-        else if (rxIdx>=12 && rxIdx<13) rxOpLast   <= shiftInAt0(rxOpLast,  z);
+        if (rxIdx<16) rxHdrLast  <= shiftInAt0(rxHdrLast, z);
+        if (rxIdx<6 && txLoopback)              daF.enq(z);  // Capture the DA
+        if (rxIdx>=6 && rxIdx<12 && txLoopback) saF.enq(z);  // Capture the SA
       end
       tagged ValidEOP    .z :  begin
         let d  = shiftInAt0(rxPipe, z);
@@ -125,6 +130,20 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     8'h42, 8'h43, 8'h44, 8'h45, 8'h46, 8'h47, 
     8'h08, 8'h06, 8'h00, 8'h01, 8'h46, 8'h47, 
     */
+
+  rule tx_loopback (wci.isOperating && loopF.notEmpty);
+    if (saF.notEmpty) begin          // Send the SA as the DA
+      gmac.tx.put(tagged ValidNotEOP saF.first);
+      saF.deq();
+    end else if (daF.notEmpty) begin // Send the DA as the SA
+      gmac.tx.put(tagged ValidNotEOP daF.first);
+      daF.deq();
+    end else begin                   // Send the reset of the header and payload unchanged 
+      gmac.tx.put(loopF.first);
+      loopF.deq();                      
+    end
+    txCount <= txCount + 1;
+  endrule
 
     
 
@@ -162,24 +181,26 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
     case (wciReq.addr[7:0]) 
       'h00 : rdat = pack(status);
       'h04 : rdat = pack(gbeControl);
-      'h10 : rdat = (!hasDebugLogic) ? 0 : wsiM.extStatus.pMesgCount;
-      'h14 : rdat = (!hasDebugLogic) ? 0 : wsiM.extStatus.iMesgCount;
-      'h18 : rdat = (!hasDebugLogic) ? 0 : wsiS.extStatus.pMesgCount;
-      'h1C : rdat = (!hasDebugLogic) ? 0 : wsiS.extStatus.iMesgCount;
-      'h20 : rdat = (!hasDebugLogic) ? 0 : rxCount;
-      'h24 : rdat = (!hasDebugLogic) ? 0 : txCount;
-      'h28 : rdat = (!hasDebugLogic) ? 0 : rxOvfCount;
-      'h2C : rdat = (!hasDebugLogic) ? 0 : txUndCount;
-      'h30 : rdat = (!hasDebugLogic) ? 0 : rxValidNoEOPC;
-      'h34 : rdat = (!hasDebugLogic) ? 0 : rxValidEOPC;
-      'h38 : rdat = (!hasDebugLogic) ? 0 : rxEmptyEOPC;
-      'h3C : rdat = (!hasDebugLogic) ? 0 : rxAbortEOPC;
-      'h40 : rdat = (!hasDebugLogic) ? 0 : {16'h0000, pack(takeAt(4, rxDstLast))};  // MS Dst
-      'h44 : rdat = (!hasDebugLogic) ? 0 : pack(takeAt(0, rxDstLast));              // LS Dst
-      'h48 : rdat = (!hasDebugLogic) ? 0 : {16'h0000, pack(takeAt(4, rxSrcLast))};  // MS Src
-      'h4C : rdat = (!hasDebugLogic) ? 0 : pack(takeAt(0, rxSrcLast));              // LS Src
-      'h50 : rdat = (!hasDebugLogic) ? 0 : {16'h0000, pack(takeAt(0, rxOpLast))};   // OpType
-      'h54 : rdat = (!hasDebugLogic) ? 0 : rxLenLast;
+      'h08 : rdat = !hasDebugLogic ? 0 : extend({pack(wsiS.status),pack(wsiM.status)});
+      'h0C : rdat = !hasDebugLogic ? 0 : wsiS.extStatus.pMesgCount;
+      'h10 : rdat = !hasDebugLogic ? 0 : wsiS.extStatus.iMesgCount;
+      'h14 : rdat = !hasDebugLogic ? 0 : wsiS.extStatus.tBusyCount;
+      'h18 : rdat = !hasDebugLogic ? 0 : wsiM.extStatus.pMesgCount;
+      'h1C : rdat = !hasDebugLogic ? 0 : wsiM.extStatus.iMesgCount;
+      'h20 : rdat = !hasDebugLogic ? 0 : wsiM.extStatus.tBusyCount;
+      'h24 : rdat = !hasDebugLogic ? 0 : rxCount;
+      'h28 : rdat = !hasDebugLogic ? 0 : txCount;
+      'h2C : rdat = !hasDebugLogic ? 0 : rxOvfCount;
+      'h30 : rdat = !hasDebugLogic ? 0 : txUndCount;
+      'h34 : rdat = !hasDebugLogic ? 0 : rxValidNoEOPC;
+      'h38 : rdat = !hasDebugLogic ? 0 : rxValidEOPC;
+      'h3C : rdat = !hasDebugLogic ? 0 : rxEmptyEOPC;
+      'h40 : rdat = !hasDebugLogic ? 0 : rxAbortEOPC;
+      'h44 : rdat = !hasDebugLogic ? 0 : pack(takeAt(12, rxHdrLast)); 
+      'h48 : rdat = !hasDebugLogic ? 0 : pack(takeAt(8,  rxHdrLast)); 
+      'h4C : rdat = !hasDebugLogic ? 0 : pack(takeAt(4,  rxHdrLast));
+      'h50 : rdat = !hasDebugLogic ? 0 : pack(takeAt(0,  rxHdrLast));
+      'h54 : rdat = !hasDebugLogic ? 0 : rxLenLast;
     endcase
   end else begin
     mdi.user.request(MDIORequest{isWrite:False, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:?});

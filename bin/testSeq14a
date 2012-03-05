@@ -33,9 +33,12 @@ echo "start gbe worker"
 #./swctl 0xF1000000 0xF2FF0000 wread 10 0 22
 #./swctl 0xF1000000 0xF2FF0000 wread 11 0 8
 
-sleep 2
+sleep 5
 
-echo "After GbeStart plus 2 seconds..."
+echo "Disable WSICapture"
+./swctl 0xF1000000 0xF2FF0000 wwrite 11 0 0x0
+
+echo "After GbeStart plus 5 seconds..."
 ./swctl 0xF1000000 0xF2FF0000 wread 10 0 22
 ./swctl 0xF1000000 0xF2FF0000 wread 11 0 8
 

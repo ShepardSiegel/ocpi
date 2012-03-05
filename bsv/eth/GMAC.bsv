@@ -24,10 +24,6 @@ typedef Bit#(32)  IPAddress;
 typedef Bit#(48)  MACAddress;
 
 typedef enum {
-  EofNone, EofGood, EofBad
-} EofType deriving (Bits, Eq);
-
-typedef enum {
   PAD      = 8'h00,
   PREAMBLE = 8'h55,
   SFD      = 8'hD5
@@ -267,10 +263,12 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
 endmodule: mkGMAC
 
 // Receive (Rx) Reconciliation Sublayer (RS)
-// This module accepts the RX data from the PHY and segments it into EthernetFrame frames
-// It will remove the preamble and SFD
-// It will pass frames starting with the Destination Address (DA)
-// It will end a frame with either an eofGood (if the FCS matches) or an eofBad (if it doesnt)
+// This module accepts the RX data from the PHY and segments it into ABS frames
+// It removes the preamble and SFD; it passes frames starting with the Destination Address (DA)
+// It ends frames with either a ValidEOP (if the FCS matches) or an AbortEOP (if it doesnt)
+// By adding 5 cycles of latency, this module alligns the fcsMatch with the last payload rxF.enq
+// Thus downstream RX logic doesn't have to cope with the waiting to know of good vs. bad.
+// This is 40 nS of rcv data latency we could take back someday; but we would still not know fcsMatch any earlier.
 module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   Reset                    rxRst        <- mkAsyncResetFromCR(2, rxClk);
   Reg#(Bit#(8))            rxData       <- mkRegU(          clocked_by rxClk, reset_by rxRst);
@@ -284,7 +282,6 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   Reg#(Vector#(6,Bool))    rxAPipe      <- mkReg(unpack(0), clocked_by rxClk, reset_by rxRst);
   CRC#(32)                 crc          <- mkCRC32(         clocked_by rxClk, reset_by rxRst);
   CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat(    clocked_by rxClk, reset_by rxRst);
-  Reg#(EofType)            eof          <- mkDReg(EofNone,  clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               isSOF        <- mkReg(True,      clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               crcEnd       <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               fullD        <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
@@ -296,22 +293,19 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   Bool rxOverflow = !rxF.notFull || fullD;  // Stretch full detection by 1 cycle so SyncBit must see at least one cycle
   rule overflow_detect; ovfBit.send(pack(rxOverflow)); endrule  // Feed Synchronizer
 
-  //(* fire_when_enabled, no_implicit_conditions *)
   rule ingress_advance (rxDV);
      rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
      rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
-     if (rxData == pack(PREAMBLE))     preambleCnt.inc;         // Count preamble octets
+     if (rxData == pack(PREAMBLE))  preambleCnt.inc;            // Count preamble octets
      if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
   endrule
 
-  //(* fire_when_enabled, no_implicit_conditions *)
   rule ingress_noadvance (!rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
     let fcs <- crc.complete;
     $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
     crcDbgCnt.load(0);
     if (rxActive) begin
       Bool fcsMatch = (fcs == unpack(pack(reverse(takeAt(0,rxPipe)))));
-      eof <= (fcsMatch) ? EofGood : EofBad;
       rxF.enq( (fcsMatch) ? tagged ValidEOP rxPipe[4] : tagged AbortEOP);  // Either ValidEOP or AbortEOP
     end
     crcEnd   <= True;
