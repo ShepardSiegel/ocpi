@@ -5,7 +5,6 @@
 import Config            ::*;
 import CTop              ::*;
 import DramServer_v6     ::*;
-//import Ethernet          ::*;
 import GMAC              ::*;
 import MDIO              ::*;
 import FlashWorker       ::*;
@@ -13,7 +12,7 @@ import GbeWorker         ::*;
 import ICAPWorker        ::*;
 import OCWip             ::*;
 import TimeService       ::*;
-import WSICaptureWorker ::*;
+import WSICaptureWorker  ::*;
 import WsiAdapter        ::*;
 import XilinxExtra       ::*;
 import ProtocolMonitor   ::*;

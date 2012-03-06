@@ -5,12 +5,14 @@
 import Config            ::*;
 import CTop              ::*;
 import DramServer_k7     ::*;
-import Ethernet          ::*;
+import GMAC              ::*;
+import MDIO              ::*;
 import FlashWorker       ::*;
 import GbeWorker         ::*;
 import ICAPWorker        ::*;
 import OCWip             ::*;
 import TimeService       ::*;
+import WSICaptureWorker  ::*;
 import WsiAdapter        ::*;
 import XilinxExtra       ::*;
 import ProtocolMonitor   ::*;
@@ -38,16 +40,18 @@ interface FTop_kc705Ifc;
   (*always_ready*) method Bit#(8) led;
   interface LCD                   lcd;
   method Bit#(16)                 debug;
- // interface GPSIfc                gps;
- // interface FLASH_IO#(24,16)   flash;
- // interface Clock                 rxclk;    // GMII assocaited Clock
- // interface Reset                 mrst_n;   // GMII associated Reset
- // interface GMII               gmii;     // The GMII link
+//interface GPSIfc                gps;
+//interface FLASH_IO#(24,16)      flash;
+  interface Clock                  rxclk;      // GMII RX Clock (provided here for BSV interface rules)
+  interface Reset                  gmii_rstn;  // GMII Reset driven out to PHY
+  interface GMII_RS                gmii;       // The GMII link RX/TX
+  interface MDIO_Pads              mdio;       // The MDIO pads
 endinterface: FTop_kc705Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
 module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
- //                    Clock sys1_clkp, Clock sys1_clkn, Clock gmii_rx_clk,
+                     Clock sys1_clkp, Clock sys1_clkn,  // 125 MHz Ethernet XO Reference
+                     Clock gmii_rx_clk,                 // 125 MHz GMII RX Clock from Marvell Phy
                      Clock pci0_clkp, Clock pci0_clkn, Reset pci0_rstn)
     (FTop_kc705Ifc);
 
@@ -59,10 +63,9 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
 
   Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn); // Non-PCIe clocks and resets used...
   Reset            sys0_rst   <- mkAsyncReset(16, sys0_rstn , sys0_clk);
-
-  //Clock            sys1_clki  <- mkClockIBUFDS_GTXE1(True, sys1_clkp, sys1_clkn);
-  //Clock            sys1_clk   <- mkClockBUFG(clocked_by sys1_clki);
-  //Reset            sys1_rst   <- mkAsyncReset(1, p125Rst , sys1_clk);
+  Clock            sys1_clki  <- mkClockIBUFDS_GTE2(True, sys1_clkp, sys1_clkn);
+  Clock            sys1_clk   <- mkClockBUFG(clocked_by sys1_clki);
+  Reset            sys1_rst   <- mkAsyncReset(1, p125Rst , sys1_clk);
 
   (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
 
@@ -87,12 +90,13 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   ReadOnly#(Bit#(2)) infLed      <- mkNullCrossingWire(noClock, ctop.led);
   ReadOnly#(Bit#(1)) blinkLed    <- mkNullCrossingWire(noClock, pack(freeCnt)[25]);
 
-  //Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
+  Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level board-specific workers..
   //ICAPWorkerIfc    icap     <- mkICAPWorker(True,True,                      clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   //FlashWorkerIfc   flash0   <- mkFlashWorker(True,                          clocked_by p125Clk , reset_by(vWci[1].mReset_n));
-  //GbeWorkerIfc     gbe0     <- mkGbeWorker(True, gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
+  GbeWorkerIfc     gbe0   <- mkGbeWorker(True,gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
+  WSICaptureWorker4BIfc cap0  <- mkWSICaptureWorker(True,                      clocked_by p125Clk , reset_by(vWci[3].mReset_n));
   //DramServer_k7Ifc dram0    <- mkDramServer_k7(True, sys0_clk, sys0_rst,          clocked_by p125Clk , reset_by(vWci[4].mReset_n));
 
   //WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
@@ -103,9 +107,11 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   //mkConnection(vWci[0], icap.wciS0);    // worker 8
   //mkConnectionMSO(vWci[0],  icap.wciS0, wciMonW8.observe, clocked_by p125Clk , reset_by p125Rst );
   //mkConnection(vWci[1], flash0.wciS0);   // worker 9
-  //mkConnection(vWci[2], gbe0.wciS0);     // worker 10 
-  //mkConnection(vWci[3], gbe0.wciS1);     // worker 11
+  mkConnection(vWci[2], gbe0.wciS0);     // worker 10 
+  mkConnection(vWci[3], cap0.wciS0);     // worker 11
   //mkConnection(vWci[4], dram0.wciS0);    // worker 12
+
+  mkConnection(gbe0.wsiM0, cap0.wsiS0);
 
   // WTI...
   //TimeClientIfc  tcGbe0  <- mkTimeClient(sys0_clk, sys0_rst, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by p125Rst ); 
@@ -132,8 +138,9 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   interface LCD      lcd     = lcd_ctrl.ifc;
   //interface GPSIfc   gps     = ctop.gps;
   //interface FLASH_IO flash   = flash0.flash;
-  //interface Clock    rxclk   = gbe0.rxclk;
-  //interface Reset    mrst_n  = gbe0.mrst_n;
-  //interface GMII     gmii    = gbe0.gmii;
+  interface Clock      rxclk     = gbe0.rxclk;
+  interface Reset      gmii_rstn = gbe0.gmii_rstn;
+  interface GMII       gmii      = gbe0.gmii;
+  interface MDIO_Pads  mdio      = gbe0.mdio;
 endmodule: mkFTop_kc705
 

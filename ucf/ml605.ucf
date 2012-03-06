@@ -10,12 +10,13 @@
 ## 2010-11-25 Moved ppsOut   to ML605 J57 SMA Connector
 ## 2010-11-29 Moved ppsExtIn to ML605 J56 SMA Connector
 ## 2010-12-19 pci core path changed
+## 2012-03-06 GMII/PHY Port Glossing
 
 CONFIG PART = XC6VLX240T-FF1156-1 ;
 
 NET  "sys0_clkp"     LOC = J9 | IOSTANDARD = LVDS_25;
 NET  "sys0_clkn"     LOC = H9 | IOSTANDARD = LVDS_25;
-NET  "sys1_clkp"     LOC = H6 ;
+NET  "sys1_clkp"     LOC = H6 ; # 125 MHz from U2 ICS844021 feeding MGT CLK pins
 NET  "sys1_clkn"     LOC = H5 ;
 NET  "pci0_clkp"      LOC = V6;  # 250 MHz from U9
 NET  "pci0_clkn"      LOC = V5;
