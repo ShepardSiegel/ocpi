@@ -63,6 +63,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
 
   Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn); // Non-PCIe clocks and resets used...
   Reset            sys0_rst   <- mkAsyncReset(16, sys0_rstn , sys0_clk);
+  IDELAYCTRL       idc        <- vMkMYIDELAYCTRL(1, clocked_by sys0_clk, reset_by sys0_rst); // Needed by GMII/GMAC when *not* instanced by DDR3/MIG
   Clock            sys1_clki  <- mkClockIBUFDS_GTE2(True, sys1_clkp, sys1_clkn);
   Clock            sys1_clk   <- mkClockBUFG(clocked_by sys1_clki);
   Reset            sys1_rst   <- mkAsyncReset(1, p125Rst , sys1_clk);
