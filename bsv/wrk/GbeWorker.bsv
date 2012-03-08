@@ -61,8 +61,8 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxLenCount          <-  mkReg(0);
   Reg#(Bit#(32))              rxLenLast           <-  mkRegU;
 
-  FIFOF#(Bit#(8))              daF                <-  mkSRLFIFOD(3);
-  FIFOF#(Bit#(8))              saF                <-  mkSRLFIFOD(3);
+  FIFOF#(Bit#(8))             daF                 <-  mkSRLFIFOD(3);
+  FIFOF#(Bit#(8))             saF                 <-  mkSRLFIFOD(3);
   FIFOF#(ABS)                 loopF               <-  mkSRLFIFOD(4);
 
 

@@ -22,6 +22,14 @@ import XilinxExtra       ::*;
 
 typedef Bit#(32)  IPAddress;
 typedef Bit#(48)  MACAddress;
+typedef Bit#(16)  EtherType
+
+typedef struct {
+  IPAddress dst;
+  IPAddress src;
+  EtherType typ;
+} IPHeader deriving (Bits, Eq);
+
 
 typedef enum {
   PAD      = 8'h00,
@@ -453,6 +461,7 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
     method    Bit#(1) tx_er  = pack(txER);
   endinterface: gmii
 endmodule: mkTxRSAsync
+
 
 
 //
