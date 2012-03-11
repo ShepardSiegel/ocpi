@@ -1,0 +1,60 @@
+README-testSeq
+
+The collection of testSeq* programs represent scripts that predomuinantly use "swctl" for peek/poke PIO
+access to various OpenCPI workers to observe, test, validate, diofferent functions at runtime. Most all of
+them need to have their BAR0 and BAR1 PCIe addresses edited to make sure they are pointing at the right device.
+
+This list documents the general focus of each script:
+
+testSeq0          -  Sanity Test
+testSeq0a         - 
+testSeq0b         - 
+testSeq0d         - 
+
+testSeq1          -  ADC Capture
+testSeq2          -  DAC Output
+testSeq3          -  ADC Capture
+testSeq4          -  ADC Capture
+testSeq5          -  ADC Capture
+
+testSeq6          -  ADC and DAC Flow
+testSeq6a         - 
+testSeq6b         - 
+testSeq6c         - 
+testSeq6d         - 
+testSeq6d1        - 
+testSeq6d2        - 
+testSeq6d-adc40   - 
+testSeq6e         - 
+testSeq6e-adc40   - 
+testSeq6f         - 
+
+testSeq7          -  Early DRAM
+testSeq7a         - 
+testSeq8          -  Early DRAM
+testSeq8a         - 
+testSeq8a1        - 
+testSeq8a2        - 
+testSeq8b         - 
+
+testSeq9          -  DRAM Controller
+testSeq9a         - 
+testSeq9a1        - 
+testSeq9b         - 
+testSeq9b1        - 
+testSeq9b2        - 
+testSeq9c         - 
+
+testSeq10         -  ICAP/DNA
+testSeq10a        - 
+testSeq10b        - 
+testSeq10c        - 
+
+testSeq11         -  AXI4 Bridge
+testSeq11a        - 
+
+testSeq12         -  FLASH
+
+testSeq13a        -  WSICapture
+
+testSeq14a        -  GMAC
