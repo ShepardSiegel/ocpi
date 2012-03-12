@@ -150,7 +150,7 @@ endinterface
 
 // observation: The use of 32b (4GB) address space is not a WIP requirement, but rather a specification
 // of the of one control-plane implementaton (e.g. 15 workers each with 4GB address space addressed as
-// 15 1MB flat-maps, with the MSB's supploied by the conntrol planes pageWindow regsiter)
+// 15 1MB flat-maps, with the MSB's supplied by the conntrol planes pageWindow regsiter)
 // 32b (4GB) per worker has evolved as a ad-hoc standard, and so these Type synonyms are used here for convienience...
 typedef Wci_m#(32)  WciM;
 typedef Wci_s#(32)  WciS;

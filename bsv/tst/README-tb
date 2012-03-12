@@ -1,0 +1,25 @@
+README-tb - A description of some of the testbenches 
+
+OCTG.bsv
+OCTG_dma2push.bsv
+OCTG_dmaFC.bsv
+OCTG_dmaFP.bsv
+OCTG_genchk.bsv
+OCTG_nft.bsv
+OCTG_nosm.bsv
+
+TB1.bsv   - 
+TB2.bsv   - 
+TB3.bsv   - 
+TB4.bsv   - 
+TB5.bsv   - 
+TB6.bsv   - 
+TB7.bsv   - 
+TB8.bsv   - 
+TB9.bsv   - 
+TB10.bsv  - 
+TB11.bsv  - 
+TB12.bsv  - 
+TB13.bsv  - 
+TB14.bsv  - 
+TB15.bsv  -  Testing WSIPatternWorker to WSICaptureWorker

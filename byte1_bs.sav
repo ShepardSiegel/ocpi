@@ -1,0 +1,48 @@
+[timestart] 1313
+[size] 2264 1348
+[pos] 177 0
+*-4.982683 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+@22
+main.top.simCycle[15:0]
+@28
+main.top.patWorker_wci_wslv_reqF.ENQ
+main.top.patWci_respF.ENQ
+main.top.capWorker_wci_wslv_reqF.ENQ
+main.top.capWci_respF.ENQ
+main.top.testOperating
+@200
+-
+@28
+main.top.WILL_FIRE_RL_patWorker_advance_split_response
+main.top.patWorker_wsiM_reqFifo_enqueueing
+main.top.patWorker_wsiM_reqFifo_dequeueing
+main.top.patWorker_isFirst
+@22
+main.top.patWorker_mesgCount[31:0]
+main.top.patWorker_mesgLengthSoFar[13:0]
+main.top.patWorker_mesgRemain[15:0]
+main.top.patWorker_metaPtr_modulus[15:0]
+main.top.patWorker_bytesRemain[31:0]
+main.top.patWorker_thisLength[31:0]
+main.top.patWorker_thisOpcode[31:0]
+main.top.patWorker_thisTLS[31:0]
+main.top.patWorker_thisTMS[31:0]
+main.top.patWorker_unrollCnt[15:0]
+@23
+main.top.patWorker_dataCount[31:0]
+@28
+main.top.patWorker_metaReqInFlightF.ENQ
+main.top.patWorker_metaReqInFlightF.DEQ
+@200
+-
+@22
+main.top.capWorker_metaCount[31:0]
+main.top.capWorker_dataCount[31:0]
+@28
+main.top.capWorker_wsiS_reqFifo.ENQ
+@22
+main.top.capWorker_mesgLengthSoFar[13:0]
+[pattern_trace] 1
+[pattern_trace] 0

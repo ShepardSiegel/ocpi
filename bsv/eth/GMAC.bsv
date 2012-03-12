@@ -22,7 +22,7 @@ import XilinxExtra       ::*;
 
 typedef Bit#(32)  IPAddress;
 typedef Bit#(48)  MACAddress;
-typedef Bit#(16)  EtherType
+typedef Bit#(16)  EtherType;
 
 typedef struct {
   IPAddress dst;

@@ -57,9 +57,12 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxAbortEOPC         <-  mkReg(0);
 
   Reg#(UInt#(5))              rxIdx               <-  mkReg(0);
+  Reg#(UInt#(5))              rxHdrMatch          <-  mkReg(0);
   Reg#(Vector#(16,Bit#(8)))   rxHdrLast           <-  mkRegU;
+  Reg#(Vector#(16,Bit#(8)))   rxHdrThis           <-  mkRegU;
   Reg#(Bit#(32))              rxLenCount          <-  mkReg(0);
   Reg#(Bit#(32))              rxLenLast           <-  mkRegU;
+  Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkRegU;
 
   FIFOF#(Bit#(8))             daF                 <-  mkSRLFIFOD(3);
   FIFOF#(Bit#(8))             saF                 <-  mkSRLFIFOD(3);
@@ -97,9 +100,14 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
         rxPos <= rxPos + 1;
         rxLenCount <= rxLenCount + 1;
         rxIdx <= (rxIdx==maxBound) ? rxIdx : rxIdx + 1;
-        if (rxIdx<16) rxHdrLast  <= shiftInAt0(rxHdrLast, z);
+        if (rxIdx<16) begin
+          rxHdrThis  <= shiftInAt0(rxHdrThis, z);
+          rxHdrMatch <= (z==rxHdrLast[15-rxIdx]) ? rxHdrMatch+1 : 0;
+        end
         if (rxIdx<6 && txLoopback)              daF.enq(z);  // Capture the DA
         if (rxIdx>=6 && rxIdx<12 && txLoopback) saF.enq(z);  // Capture the SA
+        if (rxIdx==16) rxHdrLast <= rxHdrThis;  // Transfer "this" to "last"
+        if (rxIdx==16 && rxHdrMatch==16) rxHdrMatchCnt <= rxHdrMatchCnt + 1;  // 16B matched
       end
       tagged ValidEOP    .z :  begin
         let d  = shiftInAt0(rxPipe, z);
@@ -109,17 +117,20 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
         rxIdx <= 0;
         rxLenCount <= 0;
         rxLenLast <= rxLenCount + 1;
+        rxHdrMatch <= 0;
       end
       tagged EmptyEOP       : begin
         wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(rxPipe),byteEn:genBE(rxPos),dataInfo:'0 });
         rxEmptyEOPC <= rxEmptyEOPC + 1;
         rxPos <= 0;
         rxIdx <= 0;
+        rxHdrMatch <= 0;
       end
       tagged AbortEOP       : begin
         rxAbortEOPC <= rxAbortEOPC + 1;
         rxPos <= 0;
         rxIdx <= 0;
+        rxHdrMatch <= 0;
       end
     endcase
   endrule
@@ -201,6 +212,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
       'h4C : rdat = !hasDebugLogic ? 0 : pack(takeAt(4,  rxHdrLast));
       'h50 : rdat = !hasDebugLogic ? 0 : pack(takeAt(0,  rxHdrLast));
       'h54 : rdat = !hasDebugLogic ? 0 : rxLenLast;
+      'h58 : rdat = !hasDebugLogic ? 0 : rxHdrMatchCnt;
     endcase
   end else begin
     mdi.user.request(MDIORequest{isWrite:False, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:?});

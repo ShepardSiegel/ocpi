@@ -238,6 +238,8 @@ module mkWSICaptureWorker4B#(parameter Bool hasDebugLogic) (WSICaptureWorker4BIf
   WSICaptureWorker4BIfc _a <- mkWSICaptureWorker(hasDebugLogic); return _a;
 endmodule
 
+`ifdef OTHER_WIDTHS
+
 typedef WSICaptureWorkerIfc#(2) WSICaptureWorker8BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkWSICaptureWorker8B#(parameter Bool hasDebugLogic) (WSICaptureWorker8BIfc);
@@ -254,4 +256,7 @@ typedef WSICaptureWorkerIfc#(8) WSICaptureWorker32BIfc;
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkWSICaptureWorker32B#(parameter Bool hasDebugLogic) (WSICaptureWorker32BIfc);
   WSICaptureWorker32BIfc _a <- mkWSICaptureWorker(hasDebugLogic); return _a;
+
+`end if
+
 endmodule

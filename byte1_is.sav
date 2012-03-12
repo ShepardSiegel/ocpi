@@ -1,0 +1,38 @@
+[timestart] 1332600
+[size] 2433 1353
+[pos] -1 -64
+*-14.029330 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+@22
+main.top.simCycle[15:0]
+@200
+-
+@28
+main.top.patWorker_metaReqInFlightF.ENQ
+main.top.patWorker_metaReqInFlightF.DEQ
+@22
+main.top.patWorker_thisLength[31:0]
+main.top.patWorker_bytesRemain[31:0]
+@23
+main.top.patWorker_dataPtr[31:0]
+@22
+main.top.patWorker_mesgRemain[15:0]
+@28
+main.top.WILL_FIRE_RL_patWorker_doMessageEmit
+@200
+-
+@28
+#{main.top.capWorker_wsi_Es_mCmd_w$wget[2:0]} main.top.capWorker_wsi_Es_mCmd_w$wget[2] main.top.capWorker_wsi_Es_mCmd_w$wget[1] main.top.capWorker_wsi_Es_mCmd_w$wget[0]
+@22
+#{main.top.capWorker_wsi_Es_mReqInfo_w$wget[7:0]} main.top.capWorker_wsi_Es_mReqInfo_w$wget[7] main.top.capWorker_wsi_Es_mReqInfo_w$wget[6] main.top.capWorker_wsi_Es_mReqInfo_w$wget[5] main.top.capWorker_wsi_Es_mReqInfo_w$wget[4] main.top.capWorker_wsi_Es_mReqInfo_w$wget[3] main.top.capWorker_wsi_Es_mReqInfo_w$wget[2] main.top.capWorker_wsi_Es_mReqInfo_w$wget[1] main.top.capWorker_wsi_Es_mReqInfo_w$wget[0]
+#{main.top.capWorker_wsi_Es_mData_w$wget[31:0]} main.top.capWorker_wsi_Es_mData_w$wget[31] main.top.capWorker_wsi_Es_mData_w$wget[30] main.top.capWorker_wsi_Es_mData_w$wget[29] main.top.capWorker_wsi_Es_mData_w$wget[28] main.top.capWorker_wsi_Es_mData_w$wget[27] main.top.capWorker_wsi_Es_mData_w$wget[26] main.top.capWorker_wsi_Es_mData_w$wget[25] main.top.capWorker_wsi_Es_mData_w$wget[24] main.top.capWorker_wsi_Es_mData_w$wget[23] main.top.capWorker_wsi_Es_mData_w$wget[22] main.top.capWorker_wsi_Es_mData_w$wget[21] main.top.capWorker_wsi_Es_mData_w$wget[20] main.top.capWorker_wsi_Es_mData_w$wget[19] main.top.capWorker_wsi_Es_mData_w$wget[18] main.top.capWorker_wsi_Es_mData_w$wget[17] main.top.capWorker_wsi_Es_mData_w$wget[16] main.top.capWorker_wsi_Es_mData_w$wget[15] main.top.capWorker_wsi_Es_mData_w$wget[14] main.top.capWorker_wsi_Es_mData_w$wget[13] main.top.capWorker_wsi_Es_mData_w$wget[12] main.top.capWorker_wsi_Es_mData_w$wget[11] main.top.capWorker_wsi_Es_mData_w$wget[10] main.top.capWorker_wsi_Es_mData_w$wget[9] main.top.capWorker_wsi_Es_mData_w$wget[8] main.top.capWorker_wsi_Es_mData_w$wget[7] main.top.capWorker_wsi_Es_mData_w$wget[6] main.top.capWorker_wsi_Es_mData_w$wget[5] main.top.capWorker_wsi_Es_mData_w$wget[4] main.top.capWorker_wsi_Es_mData_w$wget[3] main.top.capWorker_wsi_Es_mData_w$wget[2] main.top.capWorker_wsi_Es_mData_w$wget[1] main.top.capWorker_wsi_Es_mData_w$wget[0]
+#{main.top.capWorker_wsi_Es_mByteEn_w$wget[3:0]} main.top.capWorker_wsi_Es_mByteEn_w$wget[3] main.top.capWorker_wsi_Es_mByteEn_w$wget[2] main.top.capWorker_wsi_Es_mByteEn_w$wget[1] main.top.capWorker_wsi_Es_mByteEn_w$wget[0]
+@28
+main.top.capWorker_wsi_Es_mReqLast_w$whas
+@200
+-
+@28
+main.top.WILL_FIRE_RL_capWorker_doMessageAccept
+[pattern_trace] 1
+[pattern_trace] 0
