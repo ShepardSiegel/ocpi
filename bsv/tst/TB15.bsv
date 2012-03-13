@@ -81,9 +81,9 @@ module mkTB15();
     patWci.req(Control, True, 20'h00_0030, 32'h0000_0400, 'hF);
     action let r <- patWci.resp; endaction
     $display("[%0d]: %m: Write Metadata 0", $time);
-    patWci.req(Config, True, 20'h00_0000, 32'h0000_000F, 'hF); // 16B
+    patWci.req(Config, True, 20'h00_0000, 32'h0000_0010, 'hF); // 16B
     action let r <- patWci.resp; endaction
-    patWci.req(Config, True, 20'h00_0004, 32'h0000_0000, 'hF); // opcode 0
+    patWci.req(Config, True, 20'h00_0004, 32'h0000_0002, 'hF); // opcode 2
     action let r <- patWci.resp; endaction
     patWci.req(Config, True, 20'h00_0008, 32'h0000_0042, 'hF); // 
     action let r <- patWci.resp; endaction
@@ -106,7 +106,9 @@ module mkTB15();
     action let r <- patWci.resp; endaction
 
     $display("[%0d]: %m: Return Page Register to 0 Pattern Generator...", $time);
-    patWci.req(Control, True, 20'h00_0030, 32'h0000_0000, 'hF);
+    patWci.req(Control, True, 20'h00_0030, 32'h0000_0000, 'hF); // Set Page 0
+    patWci.req(Config,  True, 20'h00_0010, 32'h0000_0004, 'hF); // 4 messages to send
+    action let r <- patWci.resp; endaction
 
     $display("[%0d]: %m: Write Pattern Generate Enable Bit", $time);
     patWci.req(Config, True, 20'h00_0000, 32'h0000_0001, 'hF);

@@ -113,16 +113,18 @@ endfunction
   FIFO#(Tuple2#(Bool,Bit#(2)))  splaF               <- mkFIFO;          // isData, LSBs of read in flight
   Wire#(StatusReg)              statusReg_w         <- mkWire;
 
-  Reg#(UInt#(16))               mesgRemain          <- mkReg(1);        // Messages Remaining to Send
+  Reg#(UInt#(32))               mesgRemain          <- mkReg(1);        // Messages Remaining to Send
   CounterM#(Bit#(16))           metaPtr             <- mkCounterM;      // Pointer in BRAM to next Metadata
   Reg#(Bit#(32))                dataPtr             <- mkReg(0);        // Pointer to word Data in BRAM
   FIFO#(Bit#(0))                metaReqInFlightF    <- mkFIFO1;
+  FIFO#(Bit#(0))                loopReqInFlightF    <- mkFIFO1;
   Reg#(Bit#(32))                thisLength          <- mkReg(0);
   Reg#(Bit#(32))                bytesRemain         <- mkReg(0);
   Reg#(Bit#(32))                thisOpcode          <- mkReg(0);
   Reg#(Bit#(32))                thisTMS             <- mkReg(0);
   Reg#(Bit#(32))                thisTLS             <- mkReg(0);
   Reg#(UInt#(16))               unrollCnt           <- mkReg(0);
+  Reg#(Bool)                    doZLM               <- mkReg(False); 
 
 
   // Pattern Buffer Instantiation...
@@ -155,22 +157,23 @@ endfunction
     metaBramsA[2].request.put(req); 
     metaBramsA[3].request.put(req); 
     metaReqInFlightF.enq(?);
+    loopReqInFlightF.enq(?);
   endrule
 
   rule resp_meta (wci.isOperating && mesgRemain>0);
     metaReqInFlightF.deq;
     mesgRemain <= mesgRemain - 1;
     let byteLength <- metaBramsA[0].response.get;
-    thisLength  <= byteLength;
+    thisLength  <= byteLength;  // unmodified until next resp_meta
     bytesRemain <= byteLength;
     let to  <- metaBramsA[1].response.get; thisOpcode <= to;
     let tms <- metaBramsA[2].response.get; thisTMS    <= tms;
     let tls <- metaBramsA[3].response.get; thisTLS    <= tls;
 
     Bool zlm = (byteLength==0);
+    doZLM <= zlm;
     Bit#(32) residue = (isAlignedLength(truncate(byteLength))) ? 0 : 1;
     unrollCnt <= (zlm) ? 1 : truncate(unpack((byteLength>>myWordShift) + residue)); 
-
   endrule
 
   rule request_data (bytesRemain > 0);
@@ -184,9 +187,14 @@ endfunction
 
   rule doMessageEmit (wci.isOperating);
     Vector#(ndw, Bit#(32)) vWord = ?;
-    for (Integer i=0; i<valueOf(ndw); i=i+1) vWord[i] <- dataBramsA[i].response.get;
+    if (doZLM) begin
+      doZLM <= False;
+    end else begin
+      for (Integer i=0; i<valueOf(ndw); i=i+1) vWord[i] <- dataBramsA[i].response.get;
+    end
     Bool zlm = (thisLength==0);
     Bool lastWord = (unrollCnt == 1);
+    if (zlm || lastWord) loopReqInFlightF.deq; // OK to start next
     wsiM.reqPut.put (WsiReq    {cmd  : WR ,
                              reqLast : lastWord,
                              reqInfo : truncate(thisOpcode),
@@ -233,6 +241,7 @@ endfunction
        'h04 : begin metaPtr.load(0); metaPtr.setModulus(truncate(wciReq.data)); end
        'h08 : mesgCount  <= unpack(wciReq.data);
        'h0C : dataCount  <= unpack(wciReq.data);
+       'h10 : mesgRemain <= unpack(wciReq.data);
      endcase
      $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    end else if (wciReq.addr[31:20] == 'h800) begin // Data Region...
@@ -254,6 +263,7 @@ endfunction
        'h00 : rdat = pack(controlReg);
        'h08 : rdat = pack(mesgCount);
        'h0C : rdat = pack(dataCount);
+       'h10 : rdat = pack(mesgRemain);
 
        'h1C : rdat = pack(statusReg_w);
        // Diagnostic data from WSI master port...
