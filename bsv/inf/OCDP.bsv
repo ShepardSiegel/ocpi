@@ -57,6 +57,9 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
   mkConnection(bml.remo, tlp.bufq);       // Buffer Managment signals with remote TLP
 
   Reg#(DPControl)  dpControl <- mkReg(defaultDPControl);
+  Reg#(Bit#(64))   timA      <- mkReg(0);
+
+  rule capture_datumA (bml.datumA); timA <= wti.now; endrule
 
 // WCI Connection to dataplane control and configuration...
 (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
@@ -126,6 +129,8 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h94 : rdat = extend(pack(bml.i_fabMesgBaseMS)); 
        'h98 : rdat = extend(pack(bml.i_fabMetaBaseMS));
        'h9C : rdat = extend(pack(bml.i_fabFlowBaseMS));
+       'hA0 : rdat = !hasDebugLogic ? 0 : timA[63:32];
+       'hA4 : rdat = !hasDebugLogic ? 0 : timA[31:00];
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);
@@ -141,6 +146,7 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
   rule operating_actions (wci.isOperating); wmi.operate(); endrule
 
   mkConnection(wti.now, wmi.now); // Pass the WTI Time data down to the WmiServBC
+  mkConnection(wti.now, wmi.now); // Pass the WTI Time data down to the TLPServBC
 
   WciES                                          wci_Es <- mkWciStoES(wci.slv);
   Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Es <- mkWmiStoES(wmi.wmi_s);

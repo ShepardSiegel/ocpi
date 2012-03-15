@@ -149,6 +149,7 @@ interface FabPCIfc;
   interface Reg#(Bit#(32)) i_fabMetaBaseMS;   
   interface Reg#(Bit#(32)) i_fabFlowBaseMS;   
   method Action dpCtrl (DPControl dc);
+  method Bool datumA;
 endinterface 
 
 module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
@@ -158,6 +159,7 @@ module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
   Reg#(Bool)          remDone         <- mkDReg(False);         // remote buffer done
   Reg#(Bool)          fabDone         <- mkDReg(False);         // fabric buffer event
   Reg#(Bool)          fabAvail        <- mkDReg(False);         // fabric buffer event
+  Reg#(Bool)          datumAReg       <- mkDReg(False);         // mark time for benchmarking
   CounterM#(Bit#(16)) lclBuf          <- mkCounterM;            // Local  Buffer Index
   CounterM#(Bit#(16)) remBuf          <- mkCounterM;            // Remote Buffer Index
   CounterM#(Bit#(16)) fabBuf          <- mkCounterM;            // Fabric Buffer Index
@@ -281,6 +283,7 @@ module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
   endcase
     if      ( lclBufDone  && !lbcfDec)  lclBufsCF <= lclBufsCF + 1;
     else if (!lclBufDone  &&  lbcfDec)  lclBufsCF <= lclBufsCF - 1;
+    datumAReg <= lbcfDec; // datumA marks the "start of pull" for Consumer or "end of push" for Producer
   endrule
 
   // Fabric Buffers Available only meaningful when in ActiveMessage role to count buffers available on far side...
@@ -352,6 +355,7 @@ interface Reg i_fabMesgBaseMS  = fabMesgBaseMS;
 interface Reg i_fabMetaBaseMS  = fabMetaBaseMS;   
 interface Reg i_fabFlowBaseMS  = fabFlowBaseMS;   
 method Action dpCtrl (DPControl dc) = dpControl._write(dc);
+method Bool datumA = datumAReg;
 
 endmodule: mkFabPC
 

@@ -23,10 +23,11 @@ import Vector::*;
 interface TLPServBCIfc;
   interface Server#(PTW16,PTW16) server;
   interface BufQCIfc             bufq;
-  method Action dpCtrl (DPControl dc);
-  method Bit#(32)            i_flowDiagCount;
-  method Bit#(32)            i_debug;
-  method Vector#(4,Bit#(32)) i_meta;
+  method Action                  dpCtrl (DPControl dc);
+  method Bit#(32)                i_flowDiagCount;
+  method Bit#(32)                i_debug;
+  method Vector#(4,Bit#(32))     i_meta;
+  method Action                  now    (Bit#(64) arg);
 endinterface
 
 typedef enum {Idle,NearReqMeta,NearRespMeta,NearReqMesg,PushMesgHead,PushMesgBody,
@@ -112,9 +113,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)                 complTimerRunning    <- mkReg(False);
   Reg#(UInt#(12))            complTimerCount      <- mkReg(0);
   Vector#(4,Reg#(Bit#(32)))  lastMetaV            <- replicateM(mkReg(0));
-  Reg#(Bit#32))              freeCount            <- mkReg(0);
-
-  rule inc_freeCount; freeCount <= freeCount + 1; endrule
+  Wire#(Bit#(64))            nowW                 <- mkWire;
 
   // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
   // This is because with only one read in-flight at once, we wish to amortize the serial latency over as large a request as possible.
@@ -485,7 +484,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Generic TailEvent Sender (Used at end of push, pull, and for flow signal to fabFlowAddr)...
   // This rule will fire twice in the 4DW (64b addr) case; make sure the two PTW16s come sequentially
   rule dmaTailEventSender( (!tlpXmtBusy && !sentTail4DWHeader && postSeqDwell==0) || (tlpXmtBusy && sentTail4DWHeader));
-    Bit#(32) eventData = freeCount | 32'h0000_0001; // Ensure this is non-zero by adding 1-cycle (8nS) bias
+    Bit#(32) eventData = truncate(nowW>>5) | 32'h0000_0001; // radix point has 5b integer (wrap at 32 seconds)
     if (fabFlowAddrMS=='0) begin
       if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
       postSeqDwell   <= psDwell;
@@ -646,6 +645,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   method Bit#(32)            i_flowDiagCount = flowDiagCount;
   method Bit#(32)            i_debug = tlpDebug;
   method Vector#(4,Bit#(32)) i_meta  = readVReg(lastMetaV);
+  method Action now (Bit#(64) arg) = nowW._write(arg);
 
 endmodule
 
