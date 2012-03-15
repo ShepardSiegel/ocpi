@@ -146,7 +146,7 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
   rule operating_actions (wci.isOperating); wmi.operate(); endrule
 
   mkConnection(wti.now, wmi.now); // Pass the WTI Time data down to the WmiServBC
-  mkConnection(wti.now, wmi.now); // Pass the WTI Time data down to the TLPServBC
+  mkConnection(wti.now, tlp.now); // Pass the WTI Time data down to the TLPServBC
 
   WciES                                          wci_Es <- mkWciStoES(wci.slv);
   Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Es <- mkWmiStoES(wmi.wmi_s);
