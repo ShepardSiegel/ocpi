@@ -20,15 +20,91 @@ import XilinxExtra       ::*;
 
 // Types...
 
-typedef Bit#(32)  IPAddress;
 typedef Bit#(48)  MACAddress;
 typedef Bit#(16)  EtherType;
+typedef Bit#(32)  IPAddress;
 
 typedef struct {
-  IPAddress dst;
-  IPAddress src;
-  EtherType typ;
-} IPHeader deriving (Bits, Eq);
+  MACAddress dst;  // 6B Destination MAC Address
+  MACAddress src;  // 6B Source      MAC Address
+  EtherType  typ;  // 2B Ether-Type (or non-Jumbo Length)
+} E8023Header deriving (Bits, Eq);
+
+typedef union tagged {
+  E8023Header          E8023Head;  // Fully formed, valid, Ethernet 802.3 14B Header
+  Vector#(14,Bit#(8))  FragV;      // Vector of 14 Bytes not yet fully assembled 
+} E8023Hdr deriving (Bits, Eq);
+
+interface E8023HCapIfc;
+  method Action clear;
+  method Action shiftIn1 (Bit#(8)  x);
+  method Action shiftIn8 (Bit#(64) x);
+  method E8023Hdr _read();
+  method E8023Header full(); // method not ready until it can return complete E8023Header structure
+  method Bool isMatch();
+  method Bit#(32) dst_ms;  // Top 2B are zero
+  method Bit#(32) dst_ls;  // LS alligned
+  method Bit#(32) src_ms;  // Top 2B are zero
+  method Bit#(32) src_ls;  // LS alligned
+  method Bit#(32) typ;     // Top 2N are zero
+endinterface
+
+module mkE8023HCap (E8023HCapIfc);
+  Reg#(UInt#(4))  pos  <-  mkReg(0);
+  Reg#(UInt#(4))  mCnt <-  mkReg(0);
+  Reg#(E8023Hdr)  sV   <-  mkReg(tagged FragV unpack(0));
+  Reg#(E8023Hdr)  pV   <-  mkReg(tagged FragV unpack(0));
+  Wire#(Bit#(8))  bW   <-  mkWire;
+  Wire#(Bit#(64)) oW   <-  mkWire;
+
+  (* mutually_exclusive = "byte1_update, byte8_update" *)
+
+  rule byte1_update (sV matches tagged FragV .v);
+    pos <= (pos<14)  ? pos+1 : 14;
+    Vector#(14,Bit#(8)) nV = shiftInAt0(v, bW);
+    sV  <= (pos==13) ? tagged E8023Head unpack(pack(nV)) : tagged FragV nV;
+    if (pos==13) pV <= sV;
+    if (pV matches tagged E8023Head .h) begin
+      Vector#(14,Bit#(8)) pbV = unpack(pack(h)); // Turn our valid structure back to a vector of 14B
+      if (v[pos] == pbV[pos]) mCnt <= mCnt + 1;
+    end
+  endrule
+
+  rule byte8_update (sV matches tagged FragV .v);
+    pos <= (pos==0)  ? pos+8 : 14;
+    case (pos)
+      0: begin
+         Vector#(6,Bit#(8))  v0 = unpack(0);
+         Vector#(14,Bit#(8)) v1 = append(v0, unpack(oW));
+         sV <= tagged FragV  v1;  // Place the first 8B at [13-6]
+      end
+      8: begin
+         Vector#(8,Bit#(8))  v2 = unpack(oW);
+         Vector#(8,Bit#(8))  v3 = takeAt(6,v);     // The 8B of v we want to keep 
+         Vector#(6,Bit#(8))  v4 = takeAt(2,v2);    // The 6B of oW we want to add in
+         Vector#(14,Bit#(8)) v5 = append(v4, v3);  // v5[13] has MSB of DST MAC; v5[0] has LSB of EtherType
+         sV <= tagged E8023Head unpack(pack(v5));  // Result
+      end
+    endcase
+    if (pos==8) pV <= sV;
+    // TODO Add Match Count logic
+  endrule
+
+  method Action clear;
+    pos  <= 0;
+    mCnt <= 0;
+  endmethod
+  method Action shiftIn1 (Bit#(8)  x) = bW._write(x);
+  method Action shiftIn8 (Bit#(64) x) = oW._write(x);
+  method E8023Hdr _read() = sV;
+  method E8023Header full() if (sV matches tagged E8023Head .f) = f;
+  method Bool isMatch() = (mCnt==14);
+  method Bit#(32) dst_ms() if (pV matches tagged E8023Head .z) = truncate(z.dst>>32);
+  method Bit#(32) dst_ls() if (pV matches tagged E8023Head .z) = truncate(z.dst);
+  method Bit#(32) src_ms() if (pV matches tagged E8023Head .z) = truncate(z.src>>32);
+  method Bit#(32) src_ls() if (pV matches tagged E8023Head .z) = truncate(z.src);
+  method Bit#(32) typ()    if (pV matches tagged E8023Head .z) = extend(z.typ);
+endmodule
 
 
 typedef enum {

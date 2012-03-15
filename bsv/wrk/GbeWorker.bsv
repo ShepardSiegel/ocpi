@@ -56,18 +56,10 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxEmptyEOPC         <-  mkReg(0);
   Reg#(Bit#(32))              rxAbortEOPC         <-  mkReg(0);
 
-  Reg#(UInt#(5))              rxIdx               <-  mkReg(0);
-  Reg#(UInt#(5))              rxHdrMatch          <-  mkReg(0);
-  Reg#(Vector#(16,Bit#(8)))   rxHdrLast           <-  mkRegU;
-  Reg#(Vector#(16,Bit#(8)))   rxHdrThis           <-  mkRegU;
+  E8023HCapIfc                rxHdr               <-  mkE8023HCap;
   Reg#(Bit#(32))              rxLenCount          <-  mkReg(0);
   Reg#(Bit#(32))              rxLenLast           <-  mkRegU;
-  Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkRegU;
-
-  FIFOF#(Bit#(8))             daF                 <-  mkSRLFIFOD(3);
-  FIFOF#(Bit#(8))             saF                 <-  mkSRLFIFOD(3);
-  FIFOF#(ABS)                 loopF               <-  mkSRLFIFOD(4);
-
+  Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkReg(0);
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
@@ -80,10 +72,10 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 
   function Bit#(4) genBE (UInt#(2) p);
     case (p)
-      0 : return(4'b0001);
-      1 : return(4'b0011);
-      2 : return(4'b0111);
-      3 : return(4'b1111);
+      0 : return(4'b1111);
+      1 : return(4'b0001);
+      2 : return(4'b0011);
+      3 : return(4'b0111);
     endcase
   endfunction
 
@@ -91,70 +83,41 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   rule rx_data (wci.isOperating);
     let rx <- gmac.rx.get;
     rxCount <= rxCount + 1;
-    if (rxIdx>=12 && txLoopback) loopF.enq(rx);
     case (rx) matches
       tagged ValidNotEOP .z :  begin
         rxPipe  <= shiftInAt0(rxPipe, z);
         if (rxPos==3) wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:False,reqInfo:0,burstPrecise:False,burstLength:'1,data:pack(rxPipe),byteEn:'1,dataInfo:'0 });
         rxValidNoEOPC <= rxValidNoEOPC + 1;
+        rxHdr.shiftIn1(z);
         rxPos <= rxPos + 1;
         rxLenCount <= rxLenCount + 1;
-        rxIdx <= (rxIdx==maxBound) ? rxIdx : rxIdx + 1;
-        if (rxIdx<16) begin
-          rxHdrThis  <= shiftInAt0(rxHdrThis, z);
-          rxHdrMatch <= (z==rxHdrLast[15-rxIdx]) ? rxHdrMatch+1 : 0;
-        end
-        if (rxIdx<6 && txLoopback)              daF.enq(z);  // Capture the DA
-        if (rxIdx>=6 && rxIdx<12 && txLoopback) saF.enq(z);  // Capture the SA
-        if (rxIdx==16) rxHdrLast <= rxHdrThis;  // Transfer "this" to "last"
-        if (rxIdx==16 && rxHdrMatch==16) rxHdrMatchCnt <= rxHdrMatchCnt + 1;  // 16B matched
       end
       tagged ValidEOP    .z :  begin
         let d  = shiftInAt0(rxPipe, z);
-        wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(d),byteEn:genBE(rxPos),dataInfo:'0 });
+        wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(d),byteEn:genBE(rxPos+1),dataInfo:'0 });
         rxValidEOPC <= rxValidEOPC + 1;
         rxPos <= 0;
-        rxIdx <= 0;
         rxLenCount <= 0;
         rxLenLast <= rxLenCount + 1;
-        rxHdrMatch <= 0;
+        rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
       end
       tagged EmptyEOP       : begin
         wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(rxPipe),byteEn:genBE(rxPos),dataInfo:'0 });
         rxEmptyEOPC <= rxEmptyEOPC + 1;
         rxPos <= 0;
-        rxIdx <= 0;
-        rxHdrMatch <= 0;
+        rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
       end
       tagged AbortEOP       : begin
         rxAbortEOPC <= rxAbortEOPC + 1;
         rxPos <= 0;
-        rxIdx <= 0;
-        rxHdrMatch <= 0;
       end
     endcase
   endrule
 
-  /*
-  let arpReq = {
-    8'hFF, 8'hFF, 8'hFF, 8'hFF, 8'hFF, 8'hFF, 
-    8'h42, 8'h43, 8'h44, 8'h45, 8'h46, 8'h47, 
-    8'h08, 8'h06, 8'h00, 8'h01, 8'h46, 8'h47, 
-    */
 
-  rule tx_loopback (wci.isOperating && loopF.notEmpty);
-    if (saF.notEmpty) begin          // Send the SA as the DA
-      gmac.tx.put(tagged ValidNotEOP saF.first);
-      saF.deq();
-    end else if (daF.notEmpty) begin // Send the DA as the SA
-      gmac.tx.put(tagged ValidNotEOP daF.first);
-      daF.deq();
-    end else begin                   // Send the reset of the header and payload unchanged 
-      gmac.tx.put(loopF.first);
-      loopF.deq();                      
-    end
-    txCount <= txCount + 1;
-  endrule
+  //rule tx_loopback (wci.isOperating);
+  //  txCount <= txCount + 1;
+  //endrule
 
     
 
@@ -207,12 +170,13 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
       'h38 : rdat = !hasDebugLogic ? 0 : rxValidEOPC;
       'h3C : rdat = !hasDebugLogic ? 0 : rxEmptyEOPC;
       'h40 : rdat = !hasDebugLogic ? 0 : rxAbortEOPC;
-      'h44 : rdat = !hasDebugLogic ? 0 : pack(takeAt(12, rxHdrLast)); 
-      'h48 : rdat = !hasDebugLogic ? 0 : pack(takeAt(8,  rxHdrLast)); 
-      'h4C : rdat = !hasDebugLogic ? 0 : pack(takeAt(4,  rxHdrLast));
-      'h50 : rdat = !hasDebugLogic ? 0 : pack(takeAt(0,  rxHdrLast));
-      'h54 : rdat = !hasDebugLogic ? 0 : rxLenLast;
-      'h58 : rdat = !hasDebugLogic ? 0 : rxHdrMatchCnt;
+      'h44 : rdat = !hasDebugLogic ? 0 : rxHdr.dst_ms;
+      'h48 : rdat = !hasDebugLogic ? 0 : rxHdr.dst_ls;
+      'h4C : rdat = !hasDebugLogic ? 0 : rxHdr.src_ms;
+      'h50 : rdat = !hasDebugLogic ? 0 : rxHdr.src_ms;
+      'h54 : rdat = !hasDebugLogic ? 0 : rxHdr.typ;
+      'h58 : rdat = !hasDebugLogic ? 0 : rxLenLast;
+      'h5C : rdat = !hasDebugLogic ? 0 : rxHdrMatchCnt;
     endcase
   end else begin
     mdi.user.request(MDIORequest{isWrite:False, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:?});
