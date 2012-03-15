@@ -112,6 +112,9 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)                 complTimerRunning    <- mkReg(False);
   Reg#(UInt#(12))            complTimerCount      <- mkReg(0);
   Vector#(4,Reg#(Bit#(32)))  lastMetaV            <- replicateM(mkReg(0));
+  Reg#(Bit#32))              freeCount            <- mkReg(0);
+
+  rule inc_freeCount; freeCount <= freeCount + 1; endrule
 
   // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
   // This is because with only one read in-flight at once, we wish to amortize the serial latency over as large a request as possible.
@@ -482,13 +485,14 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Generic TailEvent Sender (Used at end of push, pull, and for flow signal to fabFlowAddr)...
   // This rule will fire twice in the 4DW (64b addr) case; make sure the two PTW16s come sequentially
   rule dmaTailEventSender( (!tlpXmtBusy && !sentTail4DWHeader && postSeqDwell==0) || (tlpXmtBusy && sentTail4DWHeader));
+    Bit#(32) eventData = freeCount | 32'h0000_0001; // Ensure this is non-zero by adding 1-cycle (8nS) bias
     if (fabFlowAddrMS=='0) begin
       if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
       postSeqDwell   <= psDwell;
       fabMeta        <= (Invalid);
       tailEventF.deq;
       MemReqHdr1 h = makeWrReqHdr(pciDevice, 1, '1, '0, False);
-      let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(32'h0000_0001)}, be:'1, hit:7'h2, sof:True, eof:True };
+      let w = PTW16 { data : {pack(h), fabFlowAddr, byteSwap(eventData)}, be:'1, hit:7'h2, sof:True, eof:True };
       outF.enq(w); // Out goes the tail event write 3DW + 1 DW 0x0000_0001 non-zero
       lastRuleFired  <= R_dmaTailEventSender32;
     end else begin
@@ -504,7 +508,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
         postSeqDwell   <= psDwell; 
         fabMeta        <= (Invalid);
         tailEventF.deq;
-        let w = PTW16 {data:{byteSwap(32'h0000_0001), byteSwap(0), byteSwap(0), byteSwap(0)}, be:16'hF000, hit:7'h2, sof:False, eof:True };
+        let w = PTW16 {data:{byteSwap(eventData), byteSwap(0), byteSwap(0), byteSwap(0)}, be:16'hF000, hit:7'h2, sof:False, eof:True };
         outF.enq(w);  
         lastRuleFired  <= R_dmaTailEventSender64b;
         sentTail4DWHeader <= False;
