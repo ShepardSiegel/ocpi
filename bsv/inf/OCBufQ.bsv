@@ -283,7 +283,7 @@ module mkFabPC#(WciSlaveIfc#(32) wci) (FabPCIfc);
   endcase
     if      ( lclBufDone  && !lbcfDec)  lclBufsCF <= lclBufsCF + 1;
     else if (!lclBufDone  &&  lbcfDec)  lclBufsCF <= lclBufsCF - 1;
-    datumAReg <= lbcfDec; // datumA marks the "start of pull" for Consumer or "end of push" for Producer
+    datumAReg <= remDone; // datumA marks the "start of pull" for Consumer or "start of push" for Producer
   endrule
 
   // Fabric Buffers Available only meaningful when in ActiveMessage role to count buffers available on far side...

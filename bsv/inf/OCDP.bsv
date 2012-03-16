@@ -1,5 +1,5 @@
 // OCDP.bsv
-// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011,2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Module Argument or Provided Interface
 // In the current implementation the Vectors of BRAMServers bramsA and bramsB are passed as
@@ -57,9 +57,11 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
   mkConnection(bml.remo, tlp.bufq);       // Buffer Managment signals with remote TLP
 
   Reg#(DPControl)  dpControl <- mkReg(defaultDPControl);
-  Reg#(Bit#(64))   timA      <- mkReg(0);
+  Reg#(Bit#(64))   dmaStartTime     <- mkReg(0);
+  Reg#(Bit#(64))   dmaDoneTime      <- mkReg(0);
 
-  rule capture_datumA (bml.datumA); timA <= wti.now; endrule
+  rule capture_startTime (tlp.dmaStartPulse); dmaStartTime <= wti.now; endrule
+  rule capture_doneTime  (tlp.dmaDonePulse);  dmaDoneTime  <= wti.now; endrule
 
 // WCI Connection to dataplane control and configuration...
 (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
@@ -129,8 +131,10 @@ module mkOCDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, 
        'h94 : rdat = extend(pack(bml.i_fabMesgBaseMS)); 
        'h98 : rdat = extend(pack(bml.i_fabMetaBaseMS));
        'h9C : rdat = extend(pack(bml.i_fabFlowBaseMS));
-       'hA0 : rdat = !hasDebugLogic ? 0 : timA[63:32];
-       'hA4 : rdat = !hasDebugLogic ? 0 : timA[31:00];
+       'hA0 : rdat = !hasDebugLogic ? 0 : dmaStartTime[31:00];
+       'hA4 : rdat = !hasDebugLogic ? 0 : dmaStartTime[63:32];
+       'hA8 : rdat = !hasDebugLogic ? 0 : dmaDoneTime[31:00];
+       'hAC : rdat = !hasDebugLogic ? 0 : dmaDoneTime[63:32];
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);

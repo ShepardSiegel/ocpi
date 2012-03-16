@@ -543,6 +543,7 @@ platform_ml605: $(OBJ)
 		-D USE_DEBUGLOGIC \
 		-D USE_SRLFIFO \
 		-D HAS_DEVICE_DNA \
+		-D OBSERVER \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML605).bsv
 
 ######################################################################

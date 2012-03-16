@@ -28,6 +28,8 @@ interface TLPServBCIfc;
   method Bit#(32)                i_debug;
   method Vector#(4,Bit#(32))     i_meta;
   method Action                  now    (Bit#(64) arg);
+  method Bool  dmaStartPulse;
+  method Bool  dmaDonePulse;
 endinterface
 
 typedef enum {Idle,NearReqMeta,NearRespMeta,NearReqMesg,PushMesgHead,PushMesgBody,
@@ -115,6 +117,10 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Vector#(4,Reg#(Bit#(32)))  lastMetaV            <- replicateM(mkReg(0));
   Wire#(Bit#(64))            nowW                 <- mkWire;
 
+  Reg#(Bool)                 dmaStartMark         <- mkDReg(False);
+  Reg#(Bool)                 dmaDoneMark          <- mkDReg(False);
+
+
   // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
   // This is because with only one read in-flight at once, we wish to amortize the serial latency over as large a request as possible.
   // When moving to two or more read-requests per DMA engine in flight at once, we may wish to lower maReadReqSize from the maximum.
@@ -134,6 +140,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // Request the metadata for the remote-facing ready buffer...
   rule dmaRequestNearMeta (hasPush && actMesgP && !tlpRcvBusy && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
+    dmaStartMark    <= True;
     remStart        <= True;   // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
     ReadReq rreq = ReadReq {
@@ -337,6 +344,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // Request the metadata from the far-side fabric node...
   rule dmaRequestFarMeta (hasPull && actMesgC && !tlpXmtBusy && !reqMetaInFlight && !reqMetaBodyInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
+    dmaStartMark    <= True;
     remStart        <= True;  // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
     // TODO: request needs the correct function number to facilitate completion routing (see comments in OCInf.bsv)
@@ -485,6 +493,7 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // This rule will fire twice in the 4DW (64b addr) case; make sure the two PTW16s come sequentially
   rule dmaTailEventSender( (!tlpXmtBusy && !sentTail4DWHeader && postSeqDwell==0) || (tlpXmtBusy && sentTail4DWHeader));
     Bit#(32) eventData = truncate(nowW>>5) | 32'h0000_0001; // radix point has 5b integer (wrap at 32 seconds)
+    dmaDoneMark <= True;
     if (fabFlowAddrMS=='0) begin
       if (tailEventF.first==1) remDone <= True; // For dmaPullTailEvent: Indicate to buffer-management remote move done  FIXME - pipeline allignment address advance
       postSeqDwell   <= psDwell;
@@ -646,6 +655,8 @@ module mkTLPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   method Bit#(32)            i_debug = tlpDebug;
   method Vector#(4,Bit#(32)) i_meta  = readVReg(lastMetaV);
   method Action now (Bit#(64) arg) = nowW._write(arg);
+  method Bool  dmaStartPulse = dmaStartMark;
+  method Bool  dmaDonePulse = dmaDoneMark;
 
 endmodule
 
