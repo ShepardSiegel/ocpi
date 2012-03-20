@@ -167,8 +167,9 @@ module mkTimeServer#(TSMParams tsmp, Clock sys0_clk, Reset sys0_rst) (TimeServer
     if (setRefF.notEmpty) begin // Time Set has priority over integer second increment
       refSecCount   <= pack(fxptGetInt(setRefF.first));
       if (!ppsOK) begin  // If pps is NOT OK, we use the CP write fractional to update fractional seconds...
-        jamFrac <= True;
-        jamFracValue <= fxptGetFrac(setRefF.first));
+        jamFrac    <= True;
+        UInt#(32) fbits =  fxptGetFrac(setRefF.first);       // Get the 32 fractional bits
+        jamFracVal <= unpack({2'b0, pack(fbits), 16'h0000}); // unpack to 2.48 format
       end
       setRefF.deq;
     end else if (refPerReset) refSecCount  <= refSecCount  + 1;
