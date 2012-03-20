@@ -1,0 +1,10 @@
+ sudo -E ./nft -s -t -r4 -m1 -b16    0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b32    0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b64    0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b128   0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b256   0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b512   0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b1024  0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b2048  0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b4096  0000:04:00.0 > foop8192 2>>rpt
+ sudo -E ./nft -s -t -r4 -m1 -b8192  0000:04:00.0 > foop8192 2>>rpt

@@ -56,5 +56,6 @@ testSeq11a        -
 testSeq12         -  FLASH
 
 testSeq13a        -  WSICapture
+testSeq13b        -  Protocol Monitor
 
 testSeq14a        -  GMAC

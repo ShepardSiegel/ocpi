@@ -1,5 +1,5 @@
 // TimeService.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package TimeService;
 
@@ -107,6 +107,8 @@ module mkTimeServer#(TSMParams tsmp, Clock sys0_clk, Reset sys0_rst) (TimeServer
   Reg#(Bit#(28))           refFreeSpan     <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bit#(32))           refSecCount     <- mkReg(0,              clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(GPS64_t)            now             <- mkReg(unpack(0),      clocked_by sys0_clk, reset_by sys0_rst);
+  Reg#(Bool)               jamFrac         <- mkDReg(False,         clocked_by sys0_clk, reset_by sys0_rst);
+  Reg#(FixedPoint#(2,48))  jamFracVal      <- mkDReg(0.0,           clocked_by sys0_clk, reset_by sys0_rst);
 
   Bool ppsExtRising  = ( ppsExtSync && !ppsExtSyncD);
   Bool ppsExtFalling = (!ppsExtSync &&  ppsExtSyncD);
@@ -153,8 +155,8 @@ module mkTimeServer#(TSMParams tsmp, Clock sys0_clk, Reset sys0_rst) (TimeServer
      end
 
      ppsDrive    <= (refPerCount<fromInteger(round(tsmp.refFreq*0.9)));  // 90% HI, 10% LO
-     fracSeconds <= fracSeconds + fracInc;
-     delSec      <= fromInt(fxptGetInt(fracSeconds));
+     fracSeconds <= (jamFrac) ? jamFracVal : fracSeconds + fracInc;      // This is the sole update of the fracSeconds accumulator
+     delSec      <= fromInt(fxptGetInt(fracSeconds));                    // delSec measurement
   endrule
  
   rule update_refPerPPS (ppsExtRising);
@@ -164,6 +166,10 @@ module mkTimeServer#(TSMParams tsmp, Clock sys0_clk, Reset sys0_rst) (TimeServer
   rule refSecCounter;
     if (setRefF.notEmpty) begin // Time Set has priority over integer second increment
       refSecCount   <= pack(fxptGetInt(setRefF.first));
+      if (!ppsOK) begin  // If pps is NOT OK, we use the CP write fractional to update fractional seconds...
+        jamFrac <= True;
+        jamFracValue <= fxptGetFrac(setRefF.first));
+      end
       setRefF.deq;
     end else if (refPerReset) refSecCount  <= refSecCount  + 1;
   endrule
