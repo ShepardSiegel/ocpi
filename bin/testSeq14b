@@ -17,5 +17,5 @@ echo "initialize workers"
 echo "start gbe worker"
 ./swctl 0xF1000000 0xF2FF0000 wop 10 start
 
-./swctl 0xF1000000 0xF2FF0000 wread 10 0 17
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 32
 

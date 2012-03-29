@@ -58,12 +58,18 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 
   E8023HCapIfc                rxHdr               <-  mkE8023HCap;
   Reg#(Bit#(32))              rxLenCount          <-  mkReg(0);
-  Reg#(Bit#(32))              rxLenLast           <-  mkRegU;
+  Reg#(Bit#(32))              rxLenLast           <-  mkReg(0);
   Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkReg(0);
 
   FIFO#(E8023Header)          rxDCPHdrF           <-  mkFIFO;
   Reg#(Vector#(2,Bit#(8)))    rxDCPCmd            <-  mkRegU;
   Reg#(Vector#(4,Bit#(8)))    rxDCPInitAdvert     <-  mkRegU;
+  Reg#(Bit#(32))              rxDCPCnt            <-  mkReg(0);
+  Reg#(Bit#(32))              txDCPCnt            <-  mkReg(0);
+  FIFO#(E8023Header)          txDCPHdrF           <-  mkFIFO;
+  Reg#(UInt#(5))              txDCPPos            <-  mkReg(0);
+
+  Reg#(Vector#(16,Bit#(8)))   rxHeadCap           <-  mkReg(unpack(0));
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
@@ -87,6 +93,19 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     endcase
   endfunction
 
+
+/*
+  The Tagged Union of Type ABS has the following members...
+
+  Tagged     hasData   isEOP  isAbort
+  ValidNotEOP   Y      N      N
+  ValidEOP      Y      Y      N
+  EmptyEOP      N      Y      N
+  AbortEOP      N      N      Y
+
+  We may write Action functions to collect the state to update when we haveData, haveEOP, etc.
+*/
+
   function Action rxDCPValid (Bit#(8) d);
     return ( action
     if (rxLenCount==14 || rxLenCount==15) rxDCPCmd        <= shiftInAt0(rxDCPCmd, d);
@@ -94,23 +113,21 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     endaction);
   endfunction
 
-  function Action rxDataValid (Bit#(8) d);
+  function Action rxAdvance (Bool hasData, Bit#(8) d, Bool isEOP, Bool isAbort);
     return ( action
-    if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPValid(d); // send DCP payload on
-    endaction);
-  endfunction
-
-  function Action rxGoodEOP ();
-    return ( action
-    rxPos <= 0;
-    rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
-    if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPHdrF.enq(h); // push to rxDCP layer
-    endaction);
-  endfunction
-
-  function Action rxAbortEOP ();
-    return ( action
-    rxPos <= 0;
+    if (hasData) begin
+      rxHdr.shiftIn1(d);
+      if (rxLenCount < 16) rxHeadCap <= shiftInAt0(rxHeadCap,d);
+      rxPipe  <= shiftInAt0(rxPipe, d);
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPValid(d);  // send DCP payload on
+    end
+    rxPos      <= (isEOP) ? 0 : rxPos + 1;
+    rxLenCount <= (isEOP) ? 0 : rxLenCount + 1;
+    if (isEOP) begin
+      rxLenLast <= rxLenCount + 1; 
+      rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPHdrF.enq(h); // push to rxDCP layer
+    end
     endaction);
   endfunction
 
@@ -121,31 +138,23 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     rxCount <= rxCount + 1;
     case (rx) matches
       tagged ValidNotEOP .z :  begin
-        //rxPipe  <= shiftInAt0(rxPipe, z);
         //if (rxPos==3) wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:False,reqInfo:0,burstPrecise:False,burstLength:'1,data:pack(rxPipe),byteEn:'1,dataInfo:'0 });
-        rxDataValid(z);
+        rxAdvance(True,z,False,False);
         rxValidNoEOPC <= rxValidNoEOPC + 1;  // diagnostic
-        rxHdr.shiftIn1(z);
-        rxPos <= rxPos + 1;
-        rxLenCount <= rxLenCount + 1;
       end
       tagged ValidEOP    .z :  begin
-        //let d  = shiftInAt0(rxPipe, z);
         //wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(d),byteEn:genBE(rxPos+1),dataInfo:'0 });
-        rxDataValid(z);
-        rxGoodEOP();
-        rxValidEOPC <= rxValidEOPC + 1;  // diagnostic
-        rxLenCount <= 0;
-        rxLenLast <= rxLenCount + 1; 
+        rxAdvance(True,z,True,False);
+        rxValidEOPC <= rxValidEOPC + 1;     // diagnostic
       end
       tagged EmptyEOP       : begin
         //wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(rxPipe),byteEn:genBE(rxPos),dataInfo:'0 });
-        rxGoodEOP();
-        rxEmptyEOPC <= rxEmptyEOPC + 1;  // diagnostic
+        rxAdvance(False,?,True,False);
+        rxEmptyEOPC <= rxEmptyEOPC + 1;     // diagnostic
       end
       tagged AbortEOP       : begin
-        rxAbortEOP();
-        rxAbortEOPC <= rxAbortEOPC + 1;  // diagnostic
+        rxAdvance(False,?,True,True);
+        rxAbortEOPC <= rxAbortEOPC + 1;     // diagnostic
       end
     endcase
   endrule
@@ -155,13 +164,31 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   rule rx_dcp (wci.isOperating);
     let rxh <- toGet(rxDCPHdrF).get;
     let txh = E8023Header {dst:rxh.src, src:48'h61746F6D6963, typ:16'hF040};
-    // Need sending machine
+    rxDCPCnt <= rxDCPCnt + 1;
+    txDCPHdrF.enq(txh);
   endrule
 
 
-  //rule tx_loopback (wci.isOperating);
-  //  txCount <= txCount + 1;
-  //endrule
+  rule tx_loopback (wci.isOperating);
+    let txh = txDCPHdrF.first;
+    Vector#(14,Bit#(8)) l2h = unpack(pack(txh));
+    case (txDCPPos)
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13:
+        gmac.tx.put(tagged ValidNotEOP l2h[13-txDCPPos]);
+      14, 15:
+        gmac.tx.put(tagged ValidNotEOP 8'h0);
+      16,17,18:
+        gmac.tx.put(tagged ValidNotEOP 8'h0);
+      19: begin
+        gmac.tx.put(tagged ValidEOP 8'h0);
+        txDCPHdrF.deq();
+        txDCPCnt <= txDCPCnt + 1;
+        rxHdr.clear; //TODO check me
+        end
+    endcase
+    txCount <= txCount + 1;
+    txDCPPos <= (txDCPPos==19) ? 0 : txDCPPos + 1;
+  endrule
 
     
 
@@ -214,13 +241,21 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
       'h38 : rdat = !hasDebugLogic ? 0 : rxValidEOPC;
       'h3C : rdat = !hasDebugLogic ? 0 : rxEmptyEOPC;
       'h40 : rdat = !hasDebugLogic ? 0 : rxAbortEOPC;
-      'h44 : rdat = !hasDebugLogic ? 0 : rxHdr.dst_ms;
-      'h48 : rdat = !hasDebugLogic ? 0 : rxHdr.dst_ls;
-      'h4C : rdat = !hasDebugLogic ? 0 : rxHdr.src_ms;
-      'h50 : rdat = !hasDebugLogic ? 0 : rxHdr.src_ms;
-      'h54 : rdat = !hasDebugLogic ? 0 : rxHdr.typ;
-      'h58 : rdat = !hasDebugLogic ? 0 : rxLenLast;
-      'h5C : rdat = !hasDebugLogic ? 0 : rxHdrMatchCnt;
+      'h44 : rdat = !hasDebugLogic ? 0 : rxDCPCnt;       //18th
+      'h48 : rdat = !hasDebugLogic ? 0 : rxHdrMatchCnt;
+      'h4C : rdat = !hasDebugLogic ? 0 : rxLenLast;      // 20th
+      'h50 : rdat = !hasDebugLogic ? 0 : txDCPCnt;       //21th
+      'h54 : rdat = !hasDebugLogic ? 0 : extend(pack(rxHdr.posDbg));
+      'h58 : rdat = !hasDebugLogic ? 0 : extend(pack(rxHdr.mCntDbg));
+      'h5C : rdat = !hasDebugLogic ? 0 : extend(pack(rxHdr)[111:96]);
+      'h60 : rdat = !hasDebugLogic ? 0 : pack(rxHdr)[95:64];
+      'h64 : rdat = !hasDebugLogic ? 0 : extend(pack(rxHdr)[63:48]);
+      'h68 : rdat = !hasDebugLogic ? 0 : pack(rxHdr)[47:16];
+      'h6C : rdat = !hasDebugLogic ? 0 : extend(pack(rxHdr)[15:0]);  // 28
+      'h70 : rdat = !hasDebugLogic ? 0 : pack(rxHeadCap)[127:96];
+      'h74 : rdat = !hasDebugLogic ? 0 : pack(rxHeadCap)[95 :64];
+      'h78 : rdat = !hasDebugLogic ? 0 : pack(rxHeadCap)[63 :32];
+      'h7C : rdat = !hasDebugLogic ? 0 : pack(rxHeadCap)[31 :0];  //32
     endcase
   end else begin
     mdi.user.request(MDIORequest{isWrite:False, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:?});

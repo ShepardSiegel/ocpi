@@ -38,7 +38,7 @@ typedef union tagged {
 interface E8023HCapIfc;
   method Action clear;
   method Action shiftIn1 (Bit#(8)  x);
-  method Action shiftIn8 (Bit#(64) x);
+  //method Action shiftIn8 (Bit#(64) x);
   method E8023Hdr _read();
   method E8023Header full(); // method not ready until it can return complete E8023Header structure
   method Bool isMatch();
@@ -47,6 +47,8 @@ interface E8023HCapIfc;
   method Bit#(32) src_ms;  // Top 2B are zero
   method Bit#(32) src_ls;  // LS alligned
   method Bit#(32) typ;     // Top 2N are zero
+  method UInt#(4) posDbg;
+  method UInt#(4) mCntDbg;
 endinterface
 
 module mkE8023HCap (E8023HCapIfc);
@@ -54,11 +56,12 @@ module mkE8023HCap (E8023HCapIfc);
   Reg#(UInt#(4))  mCnt <-  mkReg(0);
   Reg#(E8023Hdr)  sV   <-  mkReg(tagged FragV unpack(0));
   Reg#(E8023Hdr)  pV   <-  mkReg(tagged FragV unpack(0));
-  Wire#(Bit#(8))  bW   <-  mkWire;
-  Wire#(Bit#(64)) oW   <-  mkWire;
+  //Wire#(Bit#(8))  bW   <-  mkWire;
+  //Wire#(Bit#(64)) oW   <-  mkWire;
 
-  (* mutually_exclusive = "byte1_update, byte8_update" *)
+  //(* mutually_exclusive = "byte1_update, byte8_update" *)
 
+  /*
   rule byte1_update (sV matches tagged FragV .v);
     pos <= (pos<14)  ? pos+1 : 14;
     Vector#(14,Bit#(8)) nV = shiftInAt0(v, bW);
@@ -69,7 +72,9 @@ module mkE8023HCap (E8023HCapIfc);
       if (v[pos] == pbV[pos]) mCnt <= mCnt + 1;
     end
   endrule
+  */
 
+  /*
   rule byte8_update (sV matches tagged FragV .v);
     pos <= (pos==0)  ? pos+8 : 14;
     case (pos)
@@ -89,13 +94,29 @@ module mkE8023HCap (E8023HCapIfc);
     if (pos==8) pV <= sV;
     // TODO Add Match Count logic
   endrule
+  */
 
   method Action clear;
     pos  <= 0;
     mCnt <= 0;
+    sV <= tagged FragV unpack(0);
   endmethod
-  method Action shiftIn1 (Bit#(8)  x) = bW._write(x);
-  method Action shiftIn8 (Bit#(64) x) = oW._write(x);
+
+  //method Action shiftIn1 (Bit#(8)  x) = bW._write(x);
+  method Action shiftIn1 (Bit#(8)  x);
+    if (sV matches tagged FragV .v) begin
+      pos <= (pos<14)  ? pos+1 : 14;
+      Vector#(14,Bit#(8)) nV = shiftInAt0(v, x);
+      sV  <= (pos==13) ? tagged E8023Head unpack(pack(nV)) : tagged FragV nV;
+      if (pos==13) pV <= tagged E8023Head unpack(pack(nV));
+      if (pV matches tagged E8023Head .h) begin
+        Vector#(14,Bit#(8)) pbV = unpack(pack(h)); // Turn our valid structure back to a vector of 14B
+        if (v[pos] == pbV[pos]) mCnt <= mCnt + 1;
+       end
+    end
+  endmethod
+
+  //method Action shiftIn8 (Bit#(64) x) = oW._write(x);
   method E8023Hdr _read() = sV;
   method E8023Header full() if (sV matches tagged E8023Head .f) = f;
   method Bool isMatch() = (mCnt==14);
@@ -104,6 +125,8 @@ module mkE8023HCap (E8023HCapIfc);
   method Bit#(32) src_ms() if (pV matches tagged E8023Head .z) = truncate(z.src>>32);
   method Bit#(32) src_ls() if (pV matches tagged E8023Head .z) = truncate(z.src);
   method Bit#(32) typ()    if (pV matches tagged E8023Head .z) = extend(z.typ);
+  method UInt#(4) posDbg   = pos;
+  method UInt#(4) mCntDbg  = mCnt;
 endmodule
 
 
@@ -359,6 +382,7 @@ endmodule: mkGMAC
 // This is 40 nS of rcv data latency we could take back someday; but we would still not know fcsMatch any earlier.
 module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   Reset                    rxRst        <- mkAsyncResetFromCR(2, rxClk);
+  Reg#(Bool)               rxOperateD   <- mkDReg(False);
   SyncBitIfc#(Bit#(1))     rxOperateS   <- mkSyncBitFromCC(rxClk);
   Reg#(Bit#(8))            rxData       <- mkRegU(          clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               rxDV         <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
@@ -377,11 +401,12 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   SyncFIFOIfc#(ABS)        rxF          <- mkSyncFIFOToCC(8, rxClk, rxRst); // ~6 cycle fallthrough
   SyncBitIfc#(Bit#(1))     ovfBit       <- mkSyncBitToCC(rxClk, rxRst);
 
+  rule operate_condition; rxOperateS.send(pack(rxOperateD)); endrule // send the operate DReg from CC to rxClk domain
   Bool rxEnable = unpack(rxOperateS.read);
   rule dv_reg (rxEnable); rxDVD <= rxDV; rxDVD2 <= rxDVD; endrule
-  rule full_stretch; fullD <= !rxF.notFull; endrule
-  Bool rxOverflow = !rxF.notFull || fullD;  // Stretch full detection by 1 cycle so SyncBit must see at least one cycle
-  rule overflow_detect; ovfBit.send(pack(rxOverflow)); endrule  // Feed Synchronizer
+  rule full_stretch; fullD <= rxEnable && !rxF.notFull; endrule
+  Bool rxOverflow = rxEnable && (!rxF.notFull || fullD);  // Stretch full detection so SyncBit sees at least one cycle
+  rule overflow_detect (rxEnable); ovfBit.send(pack(rxOverflow)); endrule  // Feed Synchronizer
 
   rule ingress_advance (rxEnable && rxDV);
      rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
@@ -426,7 +451,7 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   endinterface: gmii
 
   interface Get rx = toGet(rxF);
-  method    Action  rxOperate = rxOperateS.send(pack(True));
+  method    Action  rxOperate = rxOperateD._write(True);
   method    Bool    rxOverFlow = unpack(ovfBit.read);
 endmodule: mkRxRSAsync
 
