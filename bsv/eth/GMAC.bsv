@@ -281,6 +281,7 @@ endinterface: GMII_PCS
 
 interface RxRSIfc;
   interface GMII_RX_RS  gmii;
+  method    Action      rxOperate;
   method    Bool        rxOverFlow;
   interface Get#(ABS)   rx;
 endinterface
@@ -297,6 +298,7 @@ interface GMACIfc;
   interface Reset       gmii_rstn;
   interface Get#(ABS)   rx;
   interface Put#(ABS)   tx;
+  method Action         rxOperate;
   method Bool           rxOverFlow;
   method Bool           txUnderFlow;
 endinterface: GMACIfc
@@ -334,8 +336,9 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
 
   interface Get rx = rxRS.rx;
   interface Put tx = txRS.tx;
-  method Bool rxOverFlow  = rxRS.rxOverFlow;
-  method Bool txUnderFlow = txRS.txUnderFlow;
+  method Action rxOperate   = rxRS.rxOperate;
+  method Bool   rxOverFlow  = rxRS.rxOverFlow;
+  method Bool   txUnderFlow = txRS.txUnderFlow;
 
   interface GMII_RS gmii;                  // PHY-facing GMII Interface to FPGA Pins
     interface GMII_RX_RS  rx = rxRS.gmii;
@@ -356,6 +359,7 @@ endmodule: mkGMAC
 // This is 40 nS of rcv data latency we could take back someday; but we would still not know fcsMatch any earlier.
 module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   Reset                    rxRst        <- mkAsyncResetFromCR(2, rxClk);
+  SyncBitIfc#(Bit#(1))     rxOperateS   <- mkSyncBitFromCC(rxClk);
   Reg#(Bit#(8))            rxData       <- mkRegU(          clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               rxDV         <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               rxDVD        <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
@@ -373,19 +377,20 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   SyncFIFOIfc#(ABS)        rxF          <- mkSyncFIFOToCC(8, rxClk, rxRst); // ~6 cycle fallthrough
   SyncBitIfc#(Bit#(1))     ovfBit       <- mkSyncBitToCC(rxClk, rxRst);
 
-  rule dv_reg; rxDVD <= rxDV; rxDVD2 <= rxDVD; endrule
+  Bool rxEnable = unpack(rxOperateS.read);
+  rule dv_reg (rxEnable); rxDVD <= rxDV; rxDVD2 <= rxDVD; endrule
   rule full_stretch; fullD <= !rxF.notFull; endrule
   Bool rxOverflow = !rxF.notFull || fullD;  // Stretch full detection by 1 cycle so SyncBit must see at least one cycle
   rule overflow_detect; ovfBit.send(pack(rxOverflow)); endrule  // Feed Synchronizer
 
-  rule ingress_advance (rxDV);
+  rule ingress_advance (rxEnable && rxDV);
      rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
      rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
      if (rxData == pack(PREAMBLE))  preambleCnt.inc;            // Count preamble octets
      if (preambleCnt>6 && rxData==pack(SFD)) rxActive <= True;  // Detect Start of Frame Delimiter
   endrule
 
-  rule ingress_noadvance (!rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
+  rule ingress_noadvance (rxEnable && !rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
     let fcs <- crc.complete;
     $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
     crcDbgCnt.load(0);
@@ -396,7 +401,7 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
     crcEnd   <= True;
   endrule
 
-  rule end_frame (crcEnd);
+  rule end_frame (rxEnable && crcEnd);
     preambleCnt.load(0);   // Reset the preamble counter
     rxActive <= False;     // Clear rxActive
     isSOF    <= True;      // For next frame
@@ -404,12 +409,12 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
     crcEnd   <= False;
   endrule
 
-  rule crc_capture (rxDV && rxAPipe[3]);
+  rule crc_capture (rxEnable && rxDV && rxAPipe[3]);
     crc.add(rxPipe[3]); // Update CRC starting with DA (after SFD)
     crcDbgCnt.inc;
   endrule
 
-  rule egress_data  (rxDVD && rxAPipe[5]);
+  rule egress_data  (rxEnable && rxDVD && rxAPipe[5]);
     rxF.enq(tagged ValidNotEOP rxPipe[5]); 
     isSOF <= False;    
   endrule
@@ -421,7 +426,8 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   endinterface: gmii
 
   interface Get rx = toGet(rxF);
-  method    Bool  rxOverFlow = unpack(ovfBit.read);
+  method    Action  rxOperate = rxOperateS.send(pack(True));
+  method    Bool    rxOverFlow = unpack(ovfBit.read);
 endmodule: mkRxRSAsync
 
 // Transmit (Tx) Reconciliation Sublayer (RS)

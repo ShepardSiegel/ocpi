@@ -1,0 +1,21 @@
+#!/bin/sh
+# Script tstseq14b for testing GMAC
+
+echo "admin probe"
+./swctl 0xF1000000 0xF2FF0000 settime
+./swctl 0xF1000000 0xF2FF0000 admin
+
+echo "Reset workers"
+./swctl 0xF1000000 0xF2FF0000 wreset 10 0
+
+echo "unreset workers"
+./swctl 0xF1000000 0xF2FF0000 wunreset 10 0x8000000F
+
+echo "initialize workers"
+./swctl 0xF1000000 0xF2FF0000 wop 10 initialize
+
+echo "start gbe worker"
+./swctl 0xF1000000 0xF2FF0000 wop 10 start
+
+./swctl 0xF1000000 0xF2FF0000 wread 10 0 17
+

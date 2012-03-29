@@ -61,6 +61,10 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxLenLast           <-  mkRegU;
   Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkReg(0);
 
+  FIFO#(E8023Header)          rxDCPHdrF           <-  mkFIFO;
+  Reg#(Vector#(2,Bit#(8)))    rxDCPCmd            <-  mkRegU;
+  Reg#(Vector#(4,Bit#(8)))    rxDCPInitAdvert     <-  mkRegU;
+
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
   Bool txLoopback = unpack(gbeControl[8]); 
@@ -68,7 +72,11 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   rule inc_rx_overflow  (gmac.rxOverFlow);  rxOvfCount <= rxOvfCount + 1; endrule
   rule inc_tx_underflow (gmac.txUnderFlow); txUndCount <= txUndCount + 1; endrule
 
-  (* fire_when_enabled *) rule wsi_operate (wci.isOperating); wsiM.operate(); wsiS.operate(); endrule
+  (* fire_when_enabled *) rule wsi_operate (wci.isOperating);
+    wsiM.operate();
+    wsiS.operate(); 
+    gmac.rxOperate();
+  endrule
 
   function Bit#(4) genBE (UInt#(2) p);
     case (p)
@@ -79,39 +87,75 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     endcase
   endfunction
 
+  function Action rxDCPValid (Bit#(8) d);
+    return ( action
+    if (rxLenCount==14 || rxLenCount==15) rxDCPCmd        <= shiftInAt0(rxDCPCmd, d);
+    if (rxLenCount>=16 && rxLenCount<=19) rxDCPInitAdvert <= shiftInAt0(rxDCPInitAdvert, d);
+    endaction);
+  endfunction
+
+  function Action rxDataValid (Bit#(8) d);
+    return ( action
+    if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPValid(d); // send DCP payload on
+    endaction);
+  endfunction
+
+  function Action rxGoodEOP ();
+    return ( action
+    rxPos <= 0;
+    rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
+    if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPHdrF.enq(h); // push to rxDCP layer
+    endaction);
+  endfunction
+
+  function Action rxAbortEOP ();
+    return ( action
+    rxPos <= 0;
+    endaction);
+  endfunction
+
+
   // RX from GMAC...
   rule rx_data (wci.isOperating);
     let rx <- gmac.rx.get;
     rxCount <= rxCount + 1;
     case (rx) matches
       tagged ValidNotEOP .z :  begin
-        rxPipe  <= shiftInAt0(rxPipe, z);
-        if (rxPos==3) wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:False,reqInfo:0,burstPrecise:False,burstLength:'1,data:pack(rxPipe),byteEn:'1,dataInfo:'0 });
-        rxValidNoEOPC <= rxValidNoEOPC + 1;
+        //rxPipe  <= shiftInAt0(rxPipe, z);
+        //if (rxPos==3) wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:False,reqInfo:0,burstPrecise:False,burstLength:'1,data:pack(rxPipe),byteEn:'1,dataInfo:'0 });
+        rxDataValid(z);
+        rxValidNoEOPC <= rxValidNoEOPC + 1;  // diagnostic
         rxHdr.shiftIn1(z);
         rxPos <= rxPos + 1;
         rxLenCount <= rxLenCount + 1;
       end
       tagged ValidEOP    .z :  begin
-        let d  = shiftInAt0(rxPipe, z);
-        wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(d),byteEn:genBE(rxPos+1),dataInfo:'0 });
-        rxValidEOPC <= rxValidEOPC + 1;
-        rxPos <= 0;
+        //let d  = shiftInAt0(rxPipe, z);
+        //wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(d),byteEn:genBE(rxPos+1),dataInfo:'0 });
+        rxDataValid(z);
+        rxGoodEOP();
+        rxValidEOPC <= rxValidEOPC + 1;  // diagnostic
         rxLenCount <= 0;
-        rxLenLast <= rxLenCount + 1;
-        rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
+        rxLenLast <= rxLenCount + 1; 
       end
       tagged EmptyEOP       : begin
-        wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(rxPipe),byteEn:genBE(rxPos),dataInfo:'0 });
-        rxEmptyEOPC <= rxEmptyEOPC + 1;
-        rxPos <= 0;
-        rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
+        //wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(rxPipe),byteEn:genBE(rxPos),dataInfo:'0 });
+        rxGoodEOP();
+        rxEmptyEOPC <= rxEmptyEOPC + 1;  // diagnostic
       end
       tagged AbortEOP       : begin
-        rxAbortEOPC <= rxAbortEOPC + 1;
-        rxPos <= 0;
+        rxAbortEOP();
+        rxAbortEOPC <= rxAbortEOPC + 1;  // diagnostic
       end
     endcase
+  endrule
+
+
+  // RX DCP Processing when we have a known good DCP packet
+  rule rx_dcp (wci.isOperating);
+    let rxh <- toGet(rxDCPHdrF).get;
+    let txh = E8023Header {dst:rxh.src, src:48'h61746F6D6963, typ:16'hF040};
+    // Need sending machine
   endrule
 
 
