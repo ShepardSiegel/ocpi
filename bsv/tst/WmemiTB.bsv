@@ -59,7 +59,7 @@ endmodule
 
 
 (* synthesize *)
-module mkWmemiTB();
+module mkWmemiTB(Empty);
 
   Reg#(Bit#(16))              simCycle       <- mkReg(0);       // simulation cycle counter
   WciEMasterIfc#(20,32)       wci            <- mkWciEMaster;   // WCI-OCP-Master convienenice logic

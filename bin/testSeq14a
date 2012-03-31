@@ -10,8 +10,10 @@ echo "Reset workers"
 ./swctl 0xF1000000 0xF2FF0000 wreset 11 0
 
 echo "unreset workers"
-./swctl 0xF1000000 0xF2FF0000 wunreset 10 0x8000000F
-./swctl 0xF1000000 0xF2FF0000 wunreset 11 0x8000000F
+#./swctl 0xF1000000 0xF2FF0000 wunreset 10 0x8000000F
+#./swctl 0xF1000000 0xF2FF0000 wunreset 10 0x8000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x8000000F
+./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x8000000F
 
 echo "initialize workers"
 ./swctl 0xF1000000 0xF2FF0000 wop 10 initialize

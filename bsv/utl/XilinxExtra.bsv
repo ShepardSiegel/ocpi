@@ -391,40 +391,100 @@ module vODDRr#(ODDRPrms params)(ODDRr);
    schedule (r)         C  (r);
 endmodule: vODDRr
 
-////////////////////////////////////////////////////////////////////////////////
-/// ODDR with usual reset
-////////////////////////////////////////////////////////////////////////////////
+`define SHEP_ODDRar
+`ifdef SHEP_ODDRar
+
+interface VODDRar#(type a);
+   method    a            q();
+   method    Action       s(Bool i);
+   method    Action       ce(Bool i);
+   method    Action       d1(a i);
+   method    Action       d2(a i);
+endinterface: VODDRar
+
 (* always_ready, always_enabled *)
-interface ODDR;
-   method    Bit#(1)          q;
-   method    Action           s(Bit#(1) i);
-   method    Action           ce(Bit#(1) i);
-   method    Action           d1(Bit#(1) i);
-   method    Action           d2(Bit#(1) i);
-endinterface: ODDR
+interface ODDRar#(type a);
+   method    a                q();
+   method    Action           s(Bool i);
+   method    Action           ce(Bool i);
+   method    Action           d1(a i);
+   method    Action           d2(a i);
+endinterface: ODDRar
 
 import "BVI" ODDR =
-module vODDR#(ODDRPrms params)(ODDR);
-   Reset         reset <- invertCurrentReset;
+module vMkODDRar#(ODDRParams#(a) params)(VODDRar#(a))
+   provisos(Bits#(a, 1), DefaultValue#(a));
 
    default_clock clk(C);
-   default_reset rst(R) = reset;
+   default_reset rst(R);
 
    parameter DDR_CLK_EDGE = params.ddr_clk_edge;
-   parameter INIT         = params.init;
+   parameter INIT         = pack(params.init);
    parameter SRTYPE       = params.srtype;
-   
-   method Q q;
-   method   ce(CE) enable((*inhigh*)en0);
-   method   d1(D1) enable((*inhigh*)en1);
-   method   d2(D2) enable((*inhigh*)en2);
-   method   s(S)   enable((*inhigh*)en3);
-      
-   schedule (q)      SB (d1, d2);
-   schedule (d1, d2) CF (d1, d2);
-   schedule (q)      CF (q);
-   schedule (ce, s)  CF (d1, d2, q, ce, s);
-endmodule: vODDR
+
+   method Q   q                              reset_by(no_reset);
+   method     s(S)     enable((*inhigh*)en0) reset_by(no_reset);
+   method     ce(CE)   enable((*inhigh*)en1) reset_by(no_reset);
+   method     d1(D1)   enable((*inhigh*)en2) reset_by(no_reset);
+   method     d2(D2)   enable((*inhigh*)en3) reset_by(no_reset);
+
+   schedule (q,d1,d2,ce,s)  CF (q,d1,d2,ce,s);
+endmodule: vMkODDRar
+
+module mkODDRar#(ODDRParams#(a) params)(ODDRar#(a))
+   provisos(Bits#(a, sa), DefaultValue#(a));
+
+   Reset reset <- invertCurrentReset;
+
+   Vector#(sa, ODDRParams#(Bit#(1))) _params = ?;
+   for(Integer i = 0; i < valueof(sa); i = i + 1) begin
+      _params[i].ddr_clk_edge = params.ddr_clk_edge;
+      _params[i].init         = pack(params.init)[i];
+      _params[i].srtype       = params.srtype;
+   end
+
+   Vector#(sa, VODDRar#(Bit#(1))) _oddr  = ?;
+   for(Integer i = 0; i < valueof(sa); i = i + 1) begin
+      _oddr[i] <- vMkODDRar(_params[i], reset_by reset);
+   end
+
+   function Bit#(1) getQ(VODDRar#(Bit#(1)) ddr);
+      return ddr.q;
+   endfunction
+
+   method a q();
+      return unpack(pack(map(getQ, _oddr)));
+   endmethod
+
+   method Action s(Bool x);
+      for(Integer i = 0; i < valueof(sa); i = i + 1) begin
+         _oddr[i].s(x);
+      end
+   endmethod
+
+   method Action ce(Bool x);
+      for(Integer i = 0; i < valueof(sa); i = i + 1) begin
+         _oddr[i].ce(x);
+      end
+   endmethod
+
+   method Action d1(a x);
+      for(Integer i = 0; i < valueof(sa); i = i + 1) begin
+         _oddr[i].d1(pack(x)[i]);
+      end
+   endmethod
+
+   method Action d2(a x);
+      for(Integer i = 0; i < valueof(sa); i = i + 1) begin
+         _oddr[i].d2(pack(x)[i]);
+      end
+   endmethod
+
+endmodule: mkODDRar
+
+
+
+`endif
 
 ////////////////////////////////////////////////////////////////////////////////
 /// ODDR for Clocks

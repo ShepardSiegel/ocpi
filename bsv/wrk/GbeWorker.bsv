@@ -71,9 +71,14 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 
   Reg#(Vector#(16,Bit#(8)))   rxHeadCap           <-  mkReg(unpack(0));
 
+  FIFO#(Bit#(32))             txDBGF              <-  mkFIFO;
+  Reg#(UInt#(5))              txDBGPos            <-  mkReg(0);
+  Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
+
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
   Bool txLoopback = unpack(gbeControl[8]); 
+  Bool txDebug    = unpack(gbeControl[9]); 
 
   rule inc_rx_overflow  (gmac.rxOverFlow);  rxOvfCount <= rxOvfCount + 1; endrule
   rule inc_tx_underflow (gmac.txUnderFlow); txUndCount <= txUndCount + 1; endrule
@@ -82,6 +87,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     wsiM.operate();
     wsiS.operate(); 
     gmac.rxOperate();
+    gmac.txOperate();
   endrule
 
   function Bit#(4) genBE (UInt#(2) p);
@@ -169,7 +175,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   endrule
 
 
-  rule tx_loopback (wci.isOperating);
+  rule tx_loopback (wci.isOperating && txLoopback);
     let txh = txDCPHdrF.first;
     Vector#(14,Bit#(8)) l2h = unpack(pack(txh));
     case (txDCPPos)
@@ -188,6 +194,25 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     endcase
     txCount <= txCount + 1;
     txDCPPos <= (txDCPPos==19) ? 0 : txDCPPos + 1;
+  endrule
+
+  rule tx_debug (wci.isOperating && txDebug);
+    let dbd = txDBGF.first;
+    Vector#(4,Bit#(8)) dwd = unpack(dbd);
+    Vector#(14,Bit#(8)) l2h = unpack({48'hffffffffffff, 48'h212224252627, 16'hF041});
+    case (txDBGPos)
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13:
+        gmac.tx.put(tagged ValidNotEOP l2h[13-txDBGPos]);
+      14,15,16,17:
+        gmac.tx.put(tagged ValidNotEOP dwd[17-txDBGPos]);
+      18: begin
+        gmac.tx.put(tagged ValidEOP 8'h80);
+        txDBGF.deq();
+        txDBGCnt <= txDBGCnt + 1;
+        end
+    endcase
+    txCount <= txCount + 1;
+    txDBGPos <= (txDBGPos==18) ? 0 : txDBGPos + 1;
   endrule
 
     
@@ -209,6 +234,7 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
   if (wciReq.addr[7]==0) begin
     case (wciReq.addr[7:0])
       'h04 : gbeControl <= wciReq.data;
+      'h20 : txDBGF.enq(wciReq.data);
     endcase
   end else begin
     mdi.user.request(MDIORequest{isWrite:True, phyAddr:myPhyAddr, regAddr:wciReq.addr[6:2], data:wciReq.data[15:0]});
@@ -232,7 +258,8 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
       'h14 : rdat = !hasDebugLogic ? 0 : wsiS.extStatus.tBusyCount;
       'h18 : rdat = !hasDebugLogic ? 0 : wsiM.extStatus.pMesgCount;
       'h1C : rdat = !hasDebugLogic ? 0 : wsiM.extStatus.iMesgCount;
-      'h20 : rdat = !hasDebugLogic ? 0 : wsiM.extStatus.tBusyCount;
+    //  'h20 : rdat = !hasDebugLogic ? 0 : wsiM.extStatus.tBusyCount;
+      'h20 : rdat = !hasDebugLogic ? 0 : txDBGCnt;
       'h24 : rdat = !hasDebugLogic ? 0 : rxCount;
       'h28 : rdat = !hasDebugLogic ? 0 : txCount;
       'h2C : rdat = !hasDebugLogic ? 0 : rxOvfCount;
