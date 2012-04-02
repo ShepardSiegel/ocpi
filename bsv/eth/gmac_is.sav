@@ -1,42 +1,91 @@
-[timestart] 702
+[timestart] 698300
 [size] 2560 1553
-[pos] -1 -1
-*-4.896335 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] 22 0
+*-14.298409 783700 186300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.top.
-[treeopen] main.top.erx.
-[treeopen] main.top.erx.rxF.
-[treeopen] main.top.etx.
-[treeopen] main.top.etx.txF.
-@22
-main.top.simCycle[15:0]
-@28
-main.top.etx.txF.ENQ
-main.top.etx.txF.DEQ
-@22
-main.top.etx.preambleCnt_value[4:0]
-main.top.etx.lenCnt_value[11:0]
-main.top.etx.ifgCnt_value[4:0]
+[treeopen] main.top.rsXmtGen_gsF.
+[treeopen] main.top.txRS_txF.
 @24
-main.top.etx.emitFCS[2:0]
-@28
-main.top.etx.txActive
-main.top.etx.txDV
-@22
-main.top.etx.txData[7:0]
+main.top.simCycle[15:0]
 @200
 -
 @28
-main.top.erx.rxDV
+main.top.txRS_iobTxClk.Q
+main.top.txRS_iobTxData.Q
+main.top.txRS_iobTxData_1.Q
+main.top.txRS_iobTxData_2.Q
+main.top.txRS_iobTxData_3.Q
+main.top.txRS_iobTxData_4.Q
+main.top.txRS_iobTxData_5.Q
+main.top.txRS_iobTxData_6.Q
+main.top.txRS_iobTxData_7.Q
+main.top.txRS_iobTxEna.Q
+main.top.txRS_iobTxErr.Q
+main.top.txRS_txF.sENQ
+main.top.txRS_txF.dDEQ
+main.top.txRS_txF.dNotEmptyReg
+main.top.txRS_txActive
 @22
-main.top.erx.rxData[7:0]
-main.top.erx.preambleCnt_value[3:0]
+main.top.txRS_preambleCnt_value[4:0]
+@24
+main.top.txRS_lenCnt_value[11:0]
 @28
-main.top.erx.rxActive
-main.top.erx.rxF.ENQ
-@23
-main.top.erx.rxF.D_IN[11:0]
+main.top.txRS_emitFCS[2:0]
+main.top.txRS_underflow
+@22
+main.top.txRS_ifgCnt_value[4:0]
 @28
-main.top.erx.rxF.DEQ
+main.top.txRS_txActive
+main.top.txRS_txDV
+@22
+main.top.txRS_txData[7:0]
+@28
+main.top.WILL_FIRE_RL_txRS_egress_SOF
+@29
+main.top.WILL_FIRE_RL_txRS_egress_Body
+@28
+main.top.WILL_FIRE_RL_txRS_egress_EOF
+main.top.WILL_FIRE_RL_txRS_egress_FCS
+main.top.WILL_FIRE_RL_txRS_egress_PAD
+main.top.txRS_doPad
+@22
+main.top.txRS_emitFCS[2:0]
+@28
+main.top.txRS_crc.EN_clear
+main.top.txRS_crc.EN_complete
+@22
+main.top.txRS_crcDbgCnt_value[11:0]
+@28
+main.top.txRS_crc.EN_add
+@22
+#{main.top.txRS_crc.complete[31:0]} main.top.txRS_crc.complete[31] main.top.txRS_crc.complete[30] main.top.txRS_crc.complete[29] main.top.txRS_crc.complete[28] main.top.txRS_crc.complete[27] main.top.txRS_crc.complete[26] main.top.txRS_crc.complete[25] main.top.txRS_crc.complete[24] main.top.txRS_crc.complete[23] main.top.txRS_crc.complete[22] main.top.txRS_crc.complete[21] main.top.txRS_crc.complete[20] main.top.txRS_crc.complete[19] main.top.txRS_crc.complete[18] main.top.txRS_crc.complete[17] main.top.txRS_crc.complete[16] main.top.txRS_crc.complete[15] main.top.txRS_crc.complete[14] main.top.txRS_crc.complete[13] main.top.txRS_crc.complete[12] main.top.txRS_crc.complete[11] main.top.txRS_crc.complete[10] main.top.txRS_crc.complete[9] main.top.txRS_crc.complete[8] main.top.txRS_crc.complete[7] main.top.txRS_crc.complete[6] main.top.txRS_crc.complete[5] main.top.txRS_crc.complete[4] main.top.txRS_crc.complete[3] main.top.txRS_crc.complete[2] main.top.txRS_crc.complete[1] main.top.txRS_crc.complete[0]
+#{main.top.txRS_crc.result[31:0]} main.top.txRS_crc.result[31] main.top.txRS_crc.result[30] main.top.txRS_crc.result[29] main.top.txRS_crc.result[28] main.top.txRS_crc.result[27] main.top.txRS_crc.result[26] main.top.txRS_crc.result[25] main.top.txRS_crc.result[24] main.top.txRS_crc.result[23] main.top.txRS_crc.result[22] main.top.txRS_crc.result[21] main.top.txRS_crc.result[20] main.top.txRS_crc.result[19] main.top.txRS_crc.result[18] main.top.txRS_crc.result[17] main.top.txRS_crc.result[16] main.top.txRS_crc.result[15] main.top.txRS_crc.result[14] main.top.txRS_crc.result[13] main.top.txRS_crc.result[12] main.top.txRS_crc.result[11] main.top.txRS_crc.result[10] main.top.txRS_crc.result[9] main.top.txRS_crc.result[8] main.top.txRS_crc.result[7] main.top.txRS_crc.result[6] main.top.txRS_crc.result[5] main.top.txRS_crc.result[4] main.top.txRS_crc.result[3] main.top.txRS_crc.result[2] main.top.txRS_crc.result[1] main.top.txRS_crc.result[0]
+@28
+main.top.txRS_crc.EN_clear
+@200
+-
+@28
+main.top.rxRS_rxDV
+main.top.rxRS_rxActive
+@22
+main.top.rxRS_preambleCnt_value[3:0]
+@28
+main.top.rxRS_isSOF
+@22
+main.top.rxRS_rxAPipe[5:0]
+@28
+main.top.rxRS_rxF$sENQ
+@22
+#{main.top.rxRS_rxF$sD_IN[9:0]} main.top.rxRS_rxF$sD_IN[9] main.top.rxRS_rxF$sD_IN[8] main.top.rxRS_rxF$sD_IN[7] main.top.rxRS_rxF$sD_IN[6] main.top.rxRS_rxF$sD_IN[5] main.top.rxRS_rxF$sD_IN[4] main.top.rxRS_rxF$sD_IN[3] main.top.rxRS_rxF$sD_IN[2] main.top.rxRS_rxF$sD_IN[1] main.top.rxRS_rxF$sD_IN[0]
+main.top.rxRS_crcDbgCnt_value[11:0]
+@28
+main.top.rxRS_crc.EN_add
+@22
+#{main.top.rxRS_crc.complete[31:0]} main.top.rxRS_crc.complete[31] main.top.rxRS_crc.complete[30] main.top.rxRS_crc.complete[29] main.top.rxRS_crc.complete[28] main.top.rxRS_crc.complete[27] main.top.rxRS_crc.complete[26] main.top.rxRS_crc.complete[25] main.top.rxRS_crc.complete[24] main.top.rxRS_crc.complete[23] main.top.rxRS_crc.complete[22] main.top.rxRS_crc.complete[21] main.top.rxRS_crc.complete[20] main.top.rxRS_crc.complete[19] main.top.rxRS_crc.complete[18] main.top.rxRS_crc.complete[17] main.top.rxRS_crc.complete[16] main.top.rxRS_crc.complete[15] main.top.rxRS_crc.complete[14] main.top.rxRS_crc.complete[13] main.top.rxRS_crc.complete[12] main.top.rxRS_crc.complete[11] main.top.rxRS_crc.complete[10] main.top.rxRS_crc.complete[9] main.top.rxRS_crc.complete[8] main.top.rxRS_crc.complete[7] main.top.rxRS_crc.complete[6] main.top.rxRS_crc.complete[5] main.top.rxRS_crc.complete[4] main.top.rxRS_crc.complete[3] main.top.rxRS_crc.complete[2] main.top.rxRS_crc.complete[1] main.top.rxRS_crc.complete[0]
+#{main.top.rxRS_crc.result[31:0]} main.top.rxRS_crc.result[31] main.top.rxRS_crc.result[30] main.top.rxRS_crc.result[29] main.top.rxRS_crc.result[28] main.top.rxRS_crc.result[27] main.top.rxRS_crc.result[26] main.top.rxRS_crc.result[25] main.top.rxRS_crc.result[24] main.top.rxRS_crc.result[23] main.top.rxRS_crc.result[22] main.top.rxRS_crc.result[21] main.top.rxRS_crc.result[20] main.top.rxRS_crc.result[19] main.top.rxRS_crc.result[18] main.top.rxRS_crc.result[17] main.top.rxRS_crc.result[16] main.top.rxRS_crc.result[15] main.top.rxRS_crc.result[14] main.top.rxRS_crc.result[13] main.top.rxRS_crc.result[12] main.top.rxRS_crc.result[11] main.top.rxRS_crc.result[10] main.top.rxRS_crc.result[9] main.top.rxRS_crc.result[8] main.top.rxRS_crc.result[7] main.top.rxRS_crc.result[6] main.top.rxRS_crc.result[5] main.top.rxRS_crc.result[4] main.top.rxRS_crc.result[3] main.top.rxRS_crc.result[2] main.top.rxRS_crc.result[1] main.top.rxRS_crc.result[0]
+@28
+main.top.rxRS_crc.EN_complete
+main.top.rxRS_crcEnd
 [pattern_trace] 1
 [pattern_trace] 0

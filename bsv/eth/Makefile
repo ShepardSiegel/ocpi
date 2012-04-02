@@ -2,8 +2,8 @@
 ## Makefile
 ##
 
-BTEST     ?= GMACTB
-ITEST     ?= GMACTB
+BTEST     ?= GMACTB1
+ITEST     ?= GMACTB1
 
 OBJ       ?= obj
 RTL       ?= rtl

@@ -15,6 +15,8 @@ echo "unreset workers"
 ./swctl 0xF1000000 0xF2FF0000 wwctl 10 0x8000000F
 ./swctl 0xF1000000 0xF2FF0000 wwctl 11 0x8000000F
 
+sleep 1
+
 echo "initialize workers"
 ./swctl 0xF1000000 0xF2FF0000 wop 10 initialize
 ./swctl 0xF1000000 0xF2FF0000 wop 11 initialize
@@ -35,7 +37,6 @@ echo "start gbe worker"
 #./swctl 0xF1000000 0xF2FF0000 wread 10 0 22
 #./swctl 0xF1000000 0xF2FF0000 wread 11 0 8
 
-sleep 5
 
 echo "Disable WSICapture"
 ./swctl 0xF1000000 0xF2FF0000 wwrite 11 0 0x0

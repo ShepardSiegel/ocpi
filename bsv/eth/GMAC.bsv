@@ -319,7 +319,7 @@ endinterface
 interface GMACIfc;
   interface GMII_RS     gmii;
   interface Clock       rxclk; 
-  interface Reset       gmii_rstn;
+  //interface Reset       gmii_rstn;
   interface Get#(ABS)   rx;
   interface Put#(ABS)   tx;
   method Action         rxOperate;
@@ -375,7 +375,7 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
     method Action crs (Bit#(1) i) = noAction;
   endinterface
   interface Clock rxclk     = rxClk_BUFR;  // Need to provide this clock at the BSV module bounds (not physically used)
-  interface Reset gmii_rstn = phyReset;    // Active-Low reset passed up and out to PHY
+  //interface Reset gmii_rstn = phyReset;    // Active-Low reset passed up and out to PHY
 endmodule: mkGMAC
 
 // Receive (Rx) Reconciliation Sublayer (RS)
@@ -399,7 +399,7 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   Reg#(Vector#(6,Bit#(8))) rxPipe       <- mkRegU(          clocked_by rxClk, reset_by rxRst);
   Reg#(Vector#(6,Bool))    rxAPipe      <- mkReg(unpack(0), clocked_by rxClk, reset_by rxRst);
   CRC#(32)                 crc          <- mkCRC32(         clocked_by rxClk, reset_by rxRst);
-  //CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat(    clocked_by rxClk, reset_by rxRst);
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat(    clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               isSOF        <- mkReg(True,      clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               crcEnd       <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
   Reg#(Bool)               fullD        <- mkReg(False,     clocked_by rxClk, reset_by rxRst);
@@ -422,8 +422,8 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
 
   rule ingress_noadvance (rxEnable && !rxDVD && rxAPipe==unpack(6'h3F) && !crcEnd);  // !rxDV is indication we have FCS
     let fcs <- crc.complete;
-    //$display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
-    //crcDbgCnt.load(0);
+    $display("[%0d]: %m: RX FCS:%08x from %d elements", $time, fcs, crcDbgCnt);
+    crcDbgCnt.load(0);
     if (rxActive) begin
       Bool fcsMatch = (fcs == unpack(pack(reverse(takeAt(0,rxPipe)))));
       rxF.enq( (fcsMatch) ? tagged ValidEOP rxPipe[4] : tagged AbortEOP);  // Either ValidEOP or AbortEOP
@@ -441,7 +441,7 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
 
   rule crc_capture (rxEnable && rxDV && rxAPipe[3]);
     crc.add(rxPipe[3]); // Update CRC starting with DA (after SFD)
-    //crcDbgCnt.inc;
+    crcDbgCnt.inc;
   endrule
 
   rule egress_data  (rxEnable && rxDVD && rxAPipe[5]);
@@ -476,7 +476,7 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
   CounterSat#(UInt#(12))   lenCnt       <- mkCounterSat(    clocked_by txClk, reset_by txRst);
   Reg#(Bool)               txActive     <- mkReg(False,     clocked_by txClk, reset_by txRst);
   CRC#(32)                 crc          <- mkCRC32(         clocked_by txClk, reset_by txRst);
-  //CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat(    clocked_by txClk, reset_by txRst);
+  CounterSat#(UInt#(12))   crcDbgCnt    <- mkCounterSat(    clocked_by txClk, reset_by txRst);
   Reg#(Bool)               underflow    <- mkDReg(False,    clocked_by txClk, reset_by txRst);
   Reg#(UInt#(3))           emitFCS      <- mkReg(0,         clocked_by txClk, reset_by txRst);
   Reg#(Bool)               doPad        <- mkReg(False,     clocked_by txClk, reset_by txRst);
@@ -487,11 +487,12 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
 
   rule operate_condition; txOperateS.send(pack(txOperateD)); endrule // send the operate DReg from CC to txClk domain
   Bool txEnable = unpack(txOperateS.read);
-  Bool txUnd = txEnable && (!txF.notEmpty && txActive);
+  Bool txUnd = txEnable && (!txF.notEmpty && txActive && !doPad);
   rule unf_stretch ; unfD <= txUnd; endrule
   rule undeflow_detect (txEnable); unfBit.send(pack(txUnd || unfD)); endrule
 
-  (* descending_urgency = "egress_FCS, egress_PAD, egress_EOF, egress_Body, egress_SOF" *)
+  //(* descending_urgency = "egress_FCS, egress_PAD, egress_EOF, egress_Body, egress_SOF" *)
+  (* descending_urgency = "egress_FCS, egress_EOF, egress_Body, egress_SOF" *)
 
   rule egress_SOF(txEnable && isSOF &&& ifgCnt==0 &&& txF.first matches tagged ValidNotEOP .d);
     if (preambleCnt<7) begin
@@ -501,7 +502,7 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
     end else begin
       txData <= d;                 // 1st Byte of Destination Address
       crc.add(d);
-      //crcDbgCnt.inc;
+      crcDbgCnt.inc;
       txF.deq;
       lenCnt.inc;
       isSOF <= False;
@@ -514,43 +515,44 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
   rule egress_Body(txEnable && txActive &&& !isSOF &&& txF.first matches tagged ValidNotEOP .d);
     txData <= d;
     crc.add(d);
-    //crcDbgCnt.inc;
+    crcDbgCnt.inc;
     txF.deq;
     lenCnt.inc;
     txDV <= True;
   endrule
 
-  rule egress_EOF(txEnable && txActive &&& txF.first matches tagged ValidEOP .d);
+  rule egress_EOF(txEnable && txActive &&& txF.first matches tagged ValidEOP .z);
+    Bool padData = (lenCnt<59);
+    let d = padData ? pack(PAD) : z;
     txData <= d;
     crc.add(d);
-    //crcDbgCnt.inc;
-    txF.deq;
+    crcDbgCnt.inc;
     lenCnt.inc;
     txDV <= True;
-    if (lenCnt>=60) begin // if not padding, advance to emitFCS
+    if (lenCnt>=59) begin // if not padding, advance to emitFCS
       txActive <= False;
       emitFCS <= 4;
+      txF.deq;
+      doPad <= False;
     end else doPad <= True;
   endrule
 
+  /*
   rule egress_PAD(txEnable && txActive && doPad);
-    let d = pack(PAD);
-    txData <= d;
-    lenCnt.inc;
-    txDV <= True;
-    if (lenCnt>=60) begin // when done padding, advance to emitFCS
+    if (lenCnt>=59) begin // when done padding, advance to emitFCS
       txActive <= False;
       emitFCS  <= 4;
       doPad    <= False;
     end
   endrule
+  */
 
   rule egress_FCS(txEnable && emitFCS!=0);
     Vector#(4,Bit#(8)) fcsV = reverse(unpack(crc.result));
-    //if (emitFCS==4) begin
-    //  $display("[%0d]: %m: TX FCS:%08x from %d elements", $time, pack(fcsV), crcDbgCnt);
-    //  crcDbgCnt.load(0);
-    //end
+    if (emitFCS==4) begin
+      $display("[%0d]: %m: TX FCS:%08x from %d elements", $time, pack(fcsV), crcDbgCnt);
+      crcDbgCnt.load(0);
+    end
     txData <= fcsV[emitFCS-1];
     lenCnt.inc;
     txDV  <= True;

@@ -37,11 +37,13 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   WtiSlaveIfc#(64)            wti                 <-  mkWtiSlave(clocked_by sys1_clk, reset_by sys1_rst); 
   WsiMasterIfc#(12,32,4,8,0)  wsiM                <-  mkWsiMaster; 
   WsiSlaveIfc #(12,32,4,8,0)  wsiS                <-  mkWsiSlave;
-  Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0007);  // default to PHY MDIO Add 7
+  Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0107);  // default to PHY MDIO Add 7
   MDIO                        mdi                 <-  mkMDIO(6);
-  Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);  // Truen when split read
+  Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);          // True when split read
 
   GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, sys1_clk);
+  MakeResetIfc                phyRst              <-  mkReset(1, True, sys1_clk);
+  Reg#(Int#(22))              phyResetWaitCnt     <-  mkReg(1250000);
 
   Reg#(Vector#(4,Bit#(8)))    rxPipe              <-  mkRegU;
   Reg#(UInt#(2))              rxPos               <-  mkReg(0);
@@ -61,7 +63,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxLenLast           <-  mkReg(0);
   Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkReg(0);
 
-  FIFO#(E8023Header)          rxDCPHdrF           <-  mkFIFO;
+  FIFOF#(E8023Header)         rxDCPHdrF           <-  mkFIFOF;
   Reg#(Vector#(2,Bit#(8)))    rxDCPCmd            <-  mkRegU;
   Reg#(Vector#(4,Bit#(8)))    rxDCPInitAdvert     <-  mkRegU;
   Reg#(Bit#(32))              rxDCPCnt            <-  mkReg(0);
@@ -71,19 +73,31 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
 
   Reg#(Vector#(16,Bit#(8)))   rxHeadCap           <-  mkReg(unpack(0));
 
-  FIFO#(Bit#(32))             txDBGF              <-  mkFIFO;
+  FIFOF#(Bit#(32))            txDBGF              <-  mkFIFOF;
   Reg#(UInt#(5))              txDBGPos            <-  mkReg(0);
   Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
-  Bool txLoopback = unpack(gbeControl[8]); 
-  Bool txDebug    = unpack(gbeControl[9]); 
+  Bool txLoopback  = unpack(gbeControl[8]); 
+  Bool txDebug     = unpack(gbeControl[9]); 
+  Bool phyReset    = unpack(gbeControl[31]);
+  Bool phyResetOK  = (phyResetWaitCnt==0);
+
+  rule phy_reset_drive (phyReset);
+    phyRst.assertReset();
+  endrule
+
+  rule phy_reset_wait;
+    if (phyReset) phyResetWaitCnt <= 1250000;
+    else if (phyResetWaitCnt > 0) phyResetWaitCnt <= phyResetWaitCnt - 1;
+  endrule
 
   rule inc_rx_overflow  (gmac.rxOverFlow);  rxOvfCount <= rxOvfCount + 1; endrule
   rule inc_tx_underflow (gmac.txUnderFlow); txUndCount <= txUndCount + 1; endrule
 
-  (* fire_when_enabled *) rule wsi_operate (wci.isOperating);
+  // Don't start up WSI or GMAC interaction until 10mS after phy Reset...
+  (* fire_when_enabled *) rule gbe_operate (wci.isOperating && phyResetOK);
     wsiM.operate();
     wsiS.operate(); 
     gmac.rxOperate();
@@ -196,7 +210,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     txDCPPos <= (txDCPPos==19) ? 0 : txDCPPos + 1;
   endrule
 
-  rule tx_debug (wci.isOperating && txDebug);
+  rule tx_debug (wci.isOperating && txDebug && txDBGF.notEmpty && !rxDCPHdrF.notEmpty);
     let dbd = txDBGF.first;
     Vector#(4,Bit#(8)) dwd = unpack(dbd);
     Vector#(14,Bit#(8)) l2h = unpack({48'hffffffffffff, 48'h212224252627, 16'hF041});
@@ -321,7 +335,8 @@ endrule
   interface Wsi_Em    wsiM0     = toWsiEM(wsiM.mas);
   interface Wsi_Es    wsiS0     = wsi_Es;
   interface GMII_RS   gmii      = gmac.gmii;
-  interface Reset     gmii_rstn = gmac.gmii_rstn;
+  //interface Reset     gmii_rstn = gmac.gmii_rstn;
+  interface Reset     gmii_rstn = phyRst.new_rst;
   interface Clock     rxclk     = gmac.rxclk;
   interface MDIO_Pads mdio      = mdi.mdio;
 endmodule
