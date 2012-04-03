@@ -2,11 +2,12 @@
 // Copyright (c) 2009,2010,2011,2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import OCWip       ::*;
-//import Ethernet    ::*;
 import GMAC        ::*;
 import MDIO        ::*;
 import SRLFIFO     ::*;
 import TimeService ::*;
+
+import DCP         ::*;
 
 import Clocks::*;
 import DReg::*;
@@ -42,6 +43,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);          // True when split read
 
   GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, sys1_clk);
+  Reg#(MACAddress)            macAddress          <-  mkReg(48'h00_0A_35_42_01_00);
   MakeResetIfc                phyRst              <-  mkReset(1, True, sys1_clk);
   Reg#(Int#(22))              phyResetWaitCnt     <-  mkReg(1250000);
 
@@ -183,7 +185,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   // RX DCP Processing when we have a known good DCP packet
   rule rx_dcp (wci.isOperating);
     let rxh <- toGet(rxDCPHdrF).get;
-    let txh = E8023Header {dst:rxh.src, src:48'h61746F6D6963, typ:16'hF040};
+    let txh = E8023Header {dst:rxh.src, src:macAddress, typ:16'hF040};
     rxDCPCnt <= rxDCPCnt + 1;
     txDCPHdrF.enq(txh);
   endrule
