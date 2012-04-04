@@ -15,17 +15,17 @@ endinterface
 
 module mkCPMux (CPMuxIfc);
 
-  FIFO#(CpReq)          reqAF    <- mkFIFO;
-  FIFO#(CpReq)          reqBF    <- mkFIFO;
-  FIFO#(CpReq)          cpReqF   <- mkFIFO;
-  FIFO#(CpReadResp)     respAF   <- mkFIFO;
-  FIFO#(CpReadResp)     respBF   <- mkFIFO;
-  FIFO#(CpReadResp)     cpRespF  <- mkFIFO;
-  FIFO#(Bool)           aActF    <- mkFIFO;
+  FIFO#(CpReq)          reqAF     <- mkFIFO;
+  FIFO#(CpReq)          reqBF     <- mkFIFO;
+  FIFO#(CpReq)          cpReqF    <- mkFIFO;
+  FIFO#(CpReadResp)     respAF    <- mkFIFO;
+  FIFO#(CpReadResp)     respBF    <- mkFIFO;
+  FIFO#(CpReadResp)     cpRespF   <- mkFIFO;
+  FIFO#(Bool)           aActF     <- mkFIFO;
 
   //TODO: At 2012-04-04 there were no active write responses on this interface.
   // This complicates this issue of returning the reponse to the correct requester in the case of multi-thread access
-  // The aActF hols where the read request came from so that it can be returned to the proper requester
+  // The aActF stores where the read request came from so that it can be returned to the proper requester
   // This logic may need revisiting if/when write responses are used
 
   rule request_portA;
