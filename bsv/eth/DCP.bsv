@@ -4,13 +4,12 @@
 // This module digests DCP (ad hoc EtherType 0xF040) payloads
 // DCP Requests arriving are assumed correct as tagged; upstream logic strips 6+6+2 Byte Ethernet header
 
+import CPDefs      ::*; 
 import OCWip       ::*;
 import GMAC        ::*;
 import MDIO        ::*;
 import SRLFIFO     ::*;
 import TimeService ::*;
-
-import TLPSerializer::*;  // for CP Req/Resp defs - TODO: Move them to CP?
 
 import Clocks::*;
 import ClientServer::*; 

@@ -3,13 +3,16 @@
 
 package OCInf;
 
-import Config::*;
-import OCWip::*;
-import OCCP::*;
-import OCDP::*;
-import TimeService::*;
-import TLPMF::*;
-import UNoC::*;
+import Config       ::*;
+import OCWip        ::*;
+import CPMux        ::*;
+import CPDefs       ::*;
+import OCCP         ::*;
+import TLPSerializer ::*;
+import OCDP         ::*;
+import TimeService  ::*;
+import TLPMF        ::*;
+import UNoC         ::*;
 
 import PCIE::*;
 import FIFO::*;
@@ -35,6 +38,7 @@ import Connectable::*;
 
 interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
   interface Server#(PTW16,PTW16) server;
+  interface Server#(CpReq,CpReadResp) cpServer;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
   interface Vector#(nWci_ctop,WciEM)                        wci_m;
@@ -86,10 +90,18 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   OCDP32BIfc dp1  <- mkOCDP32B(insertFNum(pciDevice,1),True, False,hasDebugLogic, reset_by rst[14]); // data-plane memory (fabric producer in example app)  PUSH Only
 `endif
 
+  TLPSerializerIfc  cpTlp  <- mkTLPSerializer(pciDevice);  // TLP-facing DW serializer
+  CPMuxIfc          cpMux  <- mkCPMux;                     // CP Multiplexer
+  // CP connections...
+  mkConnection(cpTlp.client, cpMux.serverA);  // PCIe
+//mkConnection(other.client, cpMux.serverB);  // Ethernet connected at Interface
+  mkConnection(cpMux.client, cp.server);
+
+
   // uNoC connections...
-  mkConnection(noc.cp,  cp.server);   // uNoC to Control Plane
-  mkConnection(noc.dp0, dp0.server);  // uNoC to Data Plane 0
-  mkConnection(noc.dp1, dp1.server);  // uNoC to Data Plane 1
+  mkConnection(noc.cp,  cpTlp.server);  // uNoC to TLP Serializer (for Control Plane)
+  mkConnection(noc.dp0, dp0.server);    // uNoC to Data Plane 0
+  mkConnection(noc.dp1, dp1.server);    // uNoC to Data Plane 1
 
   // Infrastruture WCI slaves...
   mkConnection(vWci[13], dp0.wci_s);
@@ -111,6 +123,7 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   //vWmi[1] = dp1.wmiS0;
 
   interface Server server = noc.fab;
+  interface Server cpServer = cpMux.serverB; // Connect external (etehrnet) CP server to cpMux port B
   method led      = cp.led;
   method switch   = cp.switch;
   method GPS64_t cpNow      = cp.cpNow;

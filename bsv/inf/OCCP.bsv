@@ -1,16 +1,16 @@
 // OCCP.bsv
-// Copyright (c) 2009,2010,2011 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009,2010,2011,2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package OCCP;
 
-import OCWip::*;
-import TimeService::*;
-import TLPMF::*;
-import TLPSerializer::*;
-import Config::*;
-import CompileTime::*;
-import DNA::*;
-import PCIE::*;
+import CPDefs        ::*;
+import OCWip         ::*;
+import TimeService   ::*;
+import TLPMF         ::*;
+import Config        ::*;
+import CompileTime   ::*;
+import DNA           ::*;
+import PCIE          ::*;
 
 import DefaultValue::*;
 import DReg::*;	
@@ -22,6 +22,7 @@ import ClientServer::*;
 import Connectable::*;
 import StmtFSM::*;
 import Vector::*;
+
 
 typedef struct {
   Bit#(4)  bar;     // The PCIe BAR that this memory region belong to
@@ -38,7 +39,7 @@ DPMemRegion dpMemRegion1 = DPMemRegion {bar:1, offset:8, size:8};  // Bar 1, Off
 // nWci - number of Wci Worker Control Links  (1st worker is worker 0)
 //
 interface OCCPIfc#(numeric type nWci);
-  interface Server#(PTW16,PTW16) server;
+  interface Server#(CpReq,CpReadResp) server;
   interface Vector#(nWci,WciEM)  wci_Vm;
   method    GPS64_t   cpNow;
   interface GPSIfc    gps;
@@ -59,7 +60,9 @@ typedef union tagged {
 (* synthesize *)
 module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit));
 
-  TLPSerializerIfc  tlp  <- mkTLPSerializer(pciDevice);      // TLP-facing DW serializer
+  FIFO#(CpReq)      cpReqF       <- mkFIFO;                  // Inbound  Requests
+  FIFO#(CpReadResp) cpRespF      <- mkFIFO;                  // Outbound Responses
+
   Reg#(CPReq)       cpReq        <-  mkReg(tagged Idle);     // reqeust pending
   Reg#(Bool)        dispatched   <-  mkReg(False);           // Set when current cpReq is dispatched
   Reg#(Bit#(4))     wrkAct       <-  mkReg(0);               // Number of Active Worker
@@ -232,7 +235,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   rule responseAdminRd;
     DWordM arr = adminRespF.first; adminRespF.deq;  // Pop the admin response collection FIFO
     CpReadResp crr = CpReadResp { tag:seqTag, data:fromMaybe(32'hDEAD_C0DE, arr) };  // use tag from seqTag
-    tlp.client.response.put(crr);
+    cpRespF.enq(crr);
     cpReq  <= tagged Idle;
   endrule
 
@@ -266,14 +269,14 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
     let r <- wci[wrkAct].resp;
     DWord rtnData = r.data;
     CpReadResp crr = CpReadResp { tag:x.tag, data:rtnData };
-    tlp.client.response.put(crr);
+    cpRespF.enq(crr);
     wrkAct <= 0;
     cpReq  <= tagged Idle;
     //$display("[%0d]: %m: Worker:%0x read data received:%0x" , $time, wrkAct, rtnData);
   endrule
 
   rule reqRcv (cpReq matches tagged Idle);
-    CpReq cpri <- tlp.client.request.get;
+    CpReq cpri = cpReqF.first; cpReqF.deq;
     if (cpri matches tagged WriteRequest .x ) begin
       case (decodeCP(x.dwAddr))
         Admin:   cpReq <= tagged AdminWt {sp:Admin,   wData:x.data, bAddr:truncate({x.dwAddr,2'b0}), be:x.byteEn}; 
@@ -298,7 +301,10 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   endfunction
   Vector#(Nwcit,WciEM) wci_Emv <- genWithM(makeWciExpander);  
 
-  interface Server server = tlp.server;
+  interface Server server; 
+    interface request  = toPut(cpReqF);
+    interface response = toGet(cpRespF);
+  endinterface
   method GPS64_t cpNow = timeServ.gpsTime;
   interface GPSIfc gps = timeServ.gps;
   //interface Vector wci_Em = map(get_wci_Em, wci);

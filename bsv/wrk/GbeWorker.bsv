@@ -1,29 +1,31 @@
 // GbeWorker.bsv - GbE "device worker" 
 // Copyright (c) 2009,2010,2011,2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import OCWip       ::*;
-import GMAC        ::*;
-import MDIO        ::*;
-import SRLFIFO     ::*;
-import TimeService ::*;
+import OCWip        ::*;
+import CPDefs       ::*;
+import GMAC         ::*;
+import MDIO         ::*;
+import SRLFIFO      ::*;
+import TimeService  ::*;
+import DCP          ::*;
 
-import DCP         ::*;
-
-import Clocks::*;
-import DReg::*;
-import FIFO::*;	
-import FIFOF::*;	
-import GetPut::*;
-import StmtFSM::*;
-import Vector::*;
-import XilinxCells::*;
-import XilinxExtra::*;
+import ClientServer ::*;
+import Clocks       ::*;
+import DReg         ::*;
+import FIFO         ::*;	
+import FIFOF        ::*;	
+import GetPut       ::*;
+import StmtFSM      ::*;
+import Vector       ::*;
+import XilinxCells  ::*;
+import XilinxExtra  ::*;
 
 interface GbeWorkerIfc;
   interface WciES                wciS0;    // WCI
   interface Wti_s#(64)           wtiS0;    // WTI
   interface Wsi_Em#(12,32,4,8,0) wsiM0;    // WSI Rx Packet Stream
   interface Wsi_Es#(12,32,4,8,0) wsiS0;    // WSI Tx Packet Stream
+  interface Client#(CpReq,CpReadResp) cpClient;
 
   interface GMII_RS   gmii;        // The GMII link
   interface Reset     gmii_rstn;   // PHY GMII Reset
@@ -78,6 +80,9 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   FIFOF#(Bit#(32))            txDBGF              <-  mkFIFOF;
   Reg#(UInt#(5))              txDBGPos            <-  mkReg(0);
   Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
+
+  DCPAdapterIfc               dcp                 <-  mkDCPAdapter;
+
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
@@ -336,6 +341,7 @@ endrule
   interface Wti_s     wtiS0     = wti.slv;
   interface Wsi_Em    wsiM0     = toWsiEM(wsiM.mas);
   interface Wsi_Es    wsiS0     = wsi_Es;
+  interface Client    cpClient  = dcp.client;
   interface GMII_RS   gmii      = gmac.gmii;
   //interface Reset     gmii_rstn = gmac.gmii_rstn;
   interface Reset     gmii_rstn = phyRst.new_rst;

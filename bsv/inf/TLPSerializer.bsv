@@ -1,8 +1,9 @@
 // TLPSerializer.bsv
 // Copyright (c) 2009 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import TLPMF::*;
-import OCBufQ::*;
+import CPDefs ::*;
+import TLPMF  ::*;
+import OCBufQ ::*;
 
 import PCIE::*;
 import GetPut::*;
@@ -18,28 +19,6 @@ interface TLPSerializerIfc;
   interface Server#(PTW16,PTW16) server;
   interface Client#(CpReq,CpReadResp) client;
 endinterface
-
-typedef struct {
-  Bit#(22) dwAddr;
-  Bit#(4)  byteEn;
-  DWord    data;
-} CpWriteReq deriving (Bits);
-
-typedef struct {
-  Bit#(8)  tag;
-  Bit#(22) dwAddr;
-  Bit#(4)  byteEn;
-} CpReadReq deriving (Bits);
-
-typedef union tagged {
-  CpWriteReq WriteRequest;
-  CpReadReq  ReadRequest;
-} CpReq deriving (Bits);
-
-typedef struct {
-  Bit#(8)  tag;
-  DWord    data;
-} CpReadResp deriving (Bits);
 
 typedef enum {Idle,RdPush,RdFinal} RdStage deriving (Bits, Eq);
 

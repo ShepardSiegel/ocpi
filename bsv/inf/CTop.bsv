@@ -3,12 +3,13 @@
 
 package CTop;
 
-import OCInf::*;
-import OCApp::*;
-import TLPMF::*;
-import TimeService::*;
-import OCWip::*;
-import Config::*;
+import OCInf       ::*;
+import OCApp       ::*;
+import TLPMF       ::*;
+import CPDefs      ::*;
+import TimeService ::*;
+import OCWip       ::*;
+import Config      ::*;
 
 import Clocks::*;
 import PCIE::*;
@@ -21,7 +22,8 @@ import Connectable::*;
 // ndw - number of 4B DWORDS...
 
 interface CTopIfc#(numeric type ndw);
-  interface Server#(PTW16,PTW16) server;
+  interface Server#(PTW16,PTW16)      server;
+  interface Server#(CpReq,CpReadResp) cpServer;
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
   interface Vector#(Nwci_ftop, WciEM)                   wci_m;  // provide WCI interfaces to Ftop
@@ -116,7 +118,8 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
 
 
 
-  interface Server server     = inf.server;  // Pass the sever interface provided by OCInf straight through
+  interface Server server     = inf.server;   // Pass the sever interface provided by OCInf straight through
+  interface Server cpServer   = inf.cpServer; // cpServer for Ethernet access to control plane
   method led                  = inf.led;
   method switch               = inf.switch;
   interface GPS64_t cpNow     = inf.cpNow;

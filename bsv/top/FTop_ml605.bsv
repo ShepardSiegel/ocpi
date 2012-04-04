@@ -3,6 +3,7 @@
 
 // Application Imports...
 import Config            ::*;
+import CPDefs            ::*;
 import CTop              ::*;
 import DramServer_v6     ::*;
 import GMAC              ::*;
@@ -113,7 +114,9 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Refe
   mkConnection(vWci[3], cap0.wciS0);     // worker 11
   mkConnection(vWci[4], dram0.wciS0);    // worker 12
 
+
   mkConnection(gbe0.wsiM0, cap0.wsiS0);
+  mkConnection(gbe0.cpClient, ctop.cpServer);
 
   // WTI...
   TimeClientIfc  tcGbe0  <- mkTimeClient(sys0_clk, sys0_rst, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by p125Rst ); 
