@@ -68,8 +68,8 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkReg(0);
 
   FIFOF#(E8023Header)         rxDCPHdrF           <-  mkFIFOF;
-  Reg#(Vector#(2,Bit#(8)))    rxDCPCmd            <-  mkRegU;
-  Reg#(Vector#(4,Bit#(8)))    rxDCPInitAdvert     <-  mkRegU;
+  Reg#(Vector#(10,Bit#(8)))   rxDCPMesg           <-  mkRegU;
+  Reg#(UInt#(5))              rxDCPMesgPos        <-  mkReg(0);
   Reg#(Bit#(32))              rxDCPCnt            <-  mkReg(0);
   Reg#(Bit#(32))              txDCPCnt            <-  mkReg(0);
   FIFO#(E8023Header)          txDCPHdrF           <-  mkFIFO;
@@ -133,10 +133,10 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   We may write Action functions to collect the state to update when we haveData, haveEOP, etc.
 */
 
-  function Action rxDCPValid (Bit#(8) d);
+  function Action rxDCPMesgCapt (Bit#(8) d);
     return ( action
-    if (rxLenCount==14 || rxLenCount==15) rxDCPCmd        <= shiftInAt0(rxDCPCmd, d);
-    if (rxLenCount>=16 && rxLenCount<=19) rxDCPInitAdvert <= shiftInAt0(rxDCPInitAdvert, d);
+      rxDCPMesg    <= shiftInAt0(rxDCPMesg, d);
+      rxDCPMesgPos <= rxDCPMesgPos + 1;
     endaction);
   endfunction
 
@@ -146,7 +146,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
       rxHdr.shiftIn1(d);
       if (rxLenCount < 16) rxHeadCap <= shiftInAt0(rxHeadCap,d);
       rxPipe  <= shiftInAt0(rxPipe, d);
-      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPValid(d);  // send DCP payload on
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPMesgCapt(d); 
     end
     rxPos      <= (isEOP) ? 0 : rxPos + 1;
     rxLenCount <= (isEOP) ? 0 : rxLenCount + 1;
@@ -167,7 +167,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
       tagged ValidNotEOP .z :  begin
         //if (rxPos==3) wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:False,reqInfo:0,burstPrecise:False,burstLength:'1,data:pack(rxPipe),byteEn:'1,dataInfo:'0 });
         rxAdvance(True,z,False,False);
-        rxValidNoEOPC <= rxValidNoEOPC + 1;  // diagnostic
+        rxValidNoEOPC <= rxValidNoEOPC + 1; // diagnostic
       end
       tagged ValidEOP    .z :  begin
         //wsiM.reqPut.put(WsiReq{cmd:WR,reqLast:True,reqInfo:0,burstPrecise:False,burstLength:1,data:pack(d),byteEn:genBE(rxPos+1),dataInfo:'0 });
@@ -190,12 +190,31 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   // RX DCP Processing when we have a known good DCP packet
   rule rx_dcp (wci.isOperating);
     let rxh <- toGet(rxDCPHdrF).get;
-    let txh = E8023Header {dst:rxh.src, src:macAddress, typ:16'hF040};
-    rxDCPCnt <= rxDCPCnt + 1;
-    txDCPHdrF.enq(txh);
+    Bit#(4) mTyp = (rxDCPMesg[rxDCPMesgPos-1])[7:4];
+    Bit#(4) mBe  = (rxDCPMesg[rxDCPMesgPos-1])[3:0];
+    Bit#(8) tag  =  rxDCPMesg[rxDCPMesgPos-2];
+    Vector#(4,Bit#(8)) dwa = takeAt(4, rxDCPMesg);
+    Vector#(4,Bit#(8)) dwb = takeAt(0, rxDCPMesg);
+    DCPMesgType mType = unpack(mTyp);
+    case (mType)
+      NOP   : dcp.server.request.put(tagged NOP  ( DCPRequestNOP  {tag:tag,   initAdvert:pack(dwb)}));
+      Write : dcp.server.request.put(tagged Write( DCPRequestWrite{be:mBe, tag:tag, data:pack(dwb), addr:pack(dwa)}));
+      Read  : dcp.server.request.put(tagged Read ( DCPRequestRead {be:mBe, tag:tag, addr:pack(dwb)}));
+    endcase
+    rxDCPMesgPos <= 0;
+
+    //let txh = E8023Header {dst:rxh.src, src:macAddress, typ:16'hF040};
+    //rxDCPCnt <= rxDCPCnt + 1;
+    //txDCPHdrF.enq(txh);
+  endrule
+
+  rule tx_dcp (wci.isOperating);
+    let r <- dcp.server.response.get;
+
   endrule
 
 
+  /*
   rule tx_loopback (wci.isOperating && txLoopback);
     let txh = txDCPHdrF.first;
     Vector#(14,Bit#(8)) l2h = unpack(pack(txh));
@@ -235,7 +254,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     txCount <= txCount + 1;
     txDBGPos <= (txDBGPos==18) ? 0 : txDBGPos + 1;
   endrule
-
+*/
     
 
   // TX to GMAC...

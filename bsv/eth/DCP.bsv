@@ -4,23 +4,20 @@
 // This module digests DCP (ad hoc EtherType 0xF040) payloads
 // DCP Requests arriving are assumed correct as tagged; upstream logic strips 6+6+2 Byte Ethernet header
 
-import CPDefs      ::*; 
-import OCWip       ::*;
-import GMAC        ::*;
-import MDIO        ::*;
-import SRLFIFO     ::*;
-import TimeService ::*;
+import CPDefs       ::*; 
 
-import Clocks::*;
-import ClientServer::*; 
-import DReg::*;
-import FIFO::*;	
-import FIFOF::*;	
-import GetPut::*;
-import StmtFSM::*;
-import Vector::*;
-import XilinxCells::*;
-import XilinxExtra::*;
+import ClientServer ::*; 
+import FIFO         ::*;	
+import GetPut       ::*;
+import Vector       ::*;
+
+typedef enum {
+  NOP      = 4'h0,
+  Write    = 4'h1,
+  Read     = 4'h2,
+  Response = 4'h3,
+  Pad      = 4'hF
+} DCPMesgType deriving (Bits, Eq);
 
 typedef struct {
   Bit#(8)  tag;
