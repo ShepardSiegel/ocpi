@@ -82,6 +82,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
 
   DCPAdapterIfc               dcp                 <-  mkDCPAdapter;
+  FIFO#(DCPResponse)          dcpRespF            <-  mkFIFO;
 
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
@@ -207,10 +208,58 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     //rxDCPCnt <= rxDCPCnt + 1;
     //txDCPHdrF.enq(txh);
   endrule
-
-  rule tx_dcp (wci.isOperating);
+ 
+  rule tx_dcp_fifo (wci.isOperating);    // TODO Replace with GetS
     let r <- dcp.server.response.get;
+    dcpRespF.enq(r);
+  endrule
 
+  rule tx_dcp (wci.isOperating);   // Fires when we have a DCP Response Packet is wholly available to TX...
+    let rsp = dcpRespF.first;
+
+    // Send the Ethernet header back with the SA/DA fields swapped...
+    if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) begin
+      let modHead = E8023Header {dst:h.src, src:macAddress, typ:h.typ};
+      Vector#(14,Bit#(8)) respHeadV = unpack(pack(modHead)); 
+      gmac.tx.put(tagged ValidNotEOP respHeadV[13-txDCPPos]);
+      txDCPPos <= (txDCPPos==13) ? 0 : txDCPPos + 1;
+      if (txDCPPos==13) rxHdr.clear;
+    end else begin
+      case (rsp) matches
+      tagged NOP   .n: begin
+                         case (txDCPPos)
+                           0: gmac.tx.put(tagged ValidNotEOP 8'h30);
+                           1: gmac.tx.put(tagged ValidNotEOP n.tag);
+                           2: gmac.tx.put(tagged ValidNotEOP n.targAdvert[31:24]);
+                           3: gmac.tx.put(tagged ValidNotEOP n.targAdvert[23:16]);
+                           4: gmac.tx.put(tagged ValidNotEOP n.targAdvert[15:8]);
+                           5: gmac.tx.put(tagged ValidEOP    n.targAdvert[7:0]);
+                         endcase 
+                         txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
+                         if (txDCPPos==5) dcpRespF.deq; // Finish
+                       end
+      tagged Write .w: begin
+                         case (txDCPPos)
+                           0: gmac.tx.put(tagged ValidNotEOP 8'h30);
+                           1: gmac.tx.put(tagged ValidEOP    w.tag);
+                         endcase
+                         txDCPPos <= (txDCPPos==1) ? 0 : txDCPPos + 1;
+                         if (txDCPPos==1) dcpRespF.deq; // Finish
+                       end
+      tagged Read  .r: begin
+                         case (txDCPPos)
+                           0: gmac.tx.put(tagged ValidNotEOP 8'h30);
+                           1: gmac.tx.put(tagged ValidNotEOP r.tag);
+                           2: gmac.tx.put(tagged ValidNotEOP r.data[31:24]);
+                           3: gmac.tx.put(tagged ValidNotEOP r.data[23:16]);
+                           4: gmac.tx.put(tagged ValidNotEOP r.data[15:8]);
+                           5: gmac.tx.put(tagged ValidEOP    r.data[7:0]);
+                         endcase 
+                         txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
+                         if (txDCPPos==5) dcpRespF.deq; // Finish
+                       end
+      endcase
+    end
   endrule
 
 
