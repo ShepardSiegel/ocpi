@@ -14,10 +14,11 @@ from scapy.all import *
 def main(argv):
   print """Hello from %s""" % (prog_name)
   p = Ether()
-  p.src  = '01:02:03:04:05:06'
-  p.dst  = '91:92:93:94:95:96'
+  p.src  = '00:26:E1:01:01:00'
+  p.dst  = '00:0A:35:42:01:00'
   p.type = 0xF040
-  p.payload = 'Atomic'
+  #p.payload = "\x00\x0A\x00\x00\x0F\x05\x80\x00\x00\x01"
+  p.payload = "\x00\x0E\x00\x00\x1F\x06\x00\x00\x00\x24\x00\x00\x00\x01"
   p.show()
   print "Sending packet..."
   sendp(p, iface="eth1")

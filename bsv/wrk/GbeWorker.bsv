@@ -66,16 +66,18 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(Bit#(32))              rxLenCount          <-  mkReg(0);
   Reg#(Bit#(32))              rxLenLast           <-  mkReg(0);
   Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkReg(0);
+  Reg#(Vector#(16,Bit#(8)))   rxHeadCap           <-  mkReg(unpack(0));   // Debug Only
 
   FIFOF#(E8023Header)         rxDCPHdrF           <-  mkFIFOF;
-  Reg#(Vector#(10,Bit#(8)))   rxDCPMesg           <-  mkRegU;
+  Reg#(Vector#(14,Bit#(8)))   rxDCPMesg           <-  mkRegU;
   Reg#(UInt#(5))              rxDCPMesgPos        <-  mkReg(0);
   Reg#(Bit#(32))              rxDCPCnt            <-  mkReg(0);
+  Reg#(UInt#(8))              rxDCPPLI            <-  mkReg(maxBound);  // max 255B for now
+
   Reg#(Bit#(32))              txDCPCnt            <-  mkReg(0);
   FIFO#(E8023Header)          txDCPHdrF           <-  mkFIFO;
   Reg#(UInt#(5))              txDCPPos            <-  mkReg(0);
 
-  Reg#(Vector#(16,Bit#(8)))   rxHeadCap           <-  mkReg(unpack(0));
 
   FIFOF#(Bit#(32))            txDBGF              <-  mkFIFOF;
   Reg#(UInt#(5))              txDBGPos            <-  mkReg(0);
@@ -138,6 +140,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
     return ( action
       rxDCPMesg    <= shiftInAt0(rxDCPMesg, d);
       rxDCPMesgPos <= rxDCPMesgPos + 1;
+      if (rxDCPMesgPos==1) rxDCPPLI <= unpack(d); // Only look at PLI byte 1 for now (255B max)
     endaction);
   endfunction
 
@@ -147,14 +150,15 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
       rxHdr.shiftIn1(d);
       if (rxLenCount < 16) rxHeadCap <= shiftInAt0(rxHeadCap,d);
       rxPipe  <= shiftInAt0(rxPipe, d);
-      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPMesgCapt(d); 
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 &&& extend(rxDCPMesgPos)<rxDCPPLI)
+        rxDCPMesgCapt(d);  // accept only DCP EtherTypes and discard padding
     end
     rxPos      <= (isEOP) ? 0 : rxPos + 1;
     rxLenCount <= (isEOP) ? 0 : rxLenCount + 1;
     if (isEOP) begin
       rxLenLast <= rxLenCount + 1; 
       rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
-      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPHdrF.enq(h); // push to rxDCP layer
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPHdrF.enq(h); // capture Ethernet header at good EOP of this DCP message
     end
     endaction);
   endfunction
@@ -191,9 +195,9 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   // RX DCP Processing when we have a known good DCP packet
   rule rx_dcp (wci.isOperating);
     let rxh <- toGet(rxDCPHdrF).get;
-    Bit#(4) mTyp = (rxDCPMesg[rxDCPMesgPos-1])[7:4];
-    Bit#(4) mBe  = (rxDCPMesg[rxDCPMesgPos-1])[3:0];
-    Bit#(8) tag  =  rxDCPMesg[rxDCPMesgPos-2];
+    Bit#(4) mTyp = (rxDCPMesg[rxDCPMesgPos-5])[7:4];
+    Bit#(4) mBe  = (rxDCPMesg[rxDCPMesgPos-5])[3:0];
+    Bit#(8) tag  =  rxDCPMesg[rxDCPMesgPos-6];
     Vector#(4,Bit#(8)) dwa = takeAt(4, rxDCPMesg);
     Vector#(4,Bit#(8)) dwb = takeAt(0, rxDCPMesg);
     DCPMesgType mType = unpack(mTyp);
@@ -202,7 +206,9 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
       Write : dcp.server.request.put(tagged Write( DCPRequestWrite{be:mBe, tag:tag, data:pack(dwb), addr:pack(dwa)}));
       Read  : dcp.server.request.put(tagged Read ( DCPRequestRead {be:mBe, tag:tag, addr:pack(dwb)}));
     endcase
+    // Done with request, reset rx for next DCP...
     rxDCPMesgPos <= 0;
+    rxDCPPLI <= maxBound;
 
     //let txh = E8023Header {dst:rxh.src, src:macAddress, typ:16'hF040};
     //rxDCPCnt <= rxDCPCnt + 1;
@@ -228,35 +234,47 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
       case (rsp) matches
       tagged NOP   .n: begin
                          case (txDCPPos)
-                           0: gmac.tx.put(tagged ValidNotEOP 8'h30);
-                           1: gmac.tx.put(tagged ValidNotEOP n.tag);
-                           2: gmac.tx.put(tagged ValidNotEOP n.targAdvert[31:24]);
-                           3: gmac.tx.put(tagged ValidNotEOP n.targAdvert[23:16]);
-                           4: gmac.tx.put(tagged ValidNotEOP n.targAdvert[15:8]);
-                           5: gmac.tx.put(tagged ValidEOP    n.targAdvert[7:0]);
+                           0: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           1: gmac.tx.put(tagged ValidNotEOP 8'h0A); // NOP reseponse is 10B
+                           2: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           3: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           4: gmac.tx.put(tagged ValidNotEOP 8'h31); // sb 30
+                           5: gmac.tx.put(tagged ValidNotEOP n.tag);
+                           6: gmac.tx.put(tagged ValidNotEOP n.targAdvert[31:24]);
+                           7: gmac.tx.put(tagged ValidNotEOP n.targAdvert[23:16]);
+                           8: gmac.tx.put(tagged ValidNotEOP n.targAdvert[15:8]);
+                           9: gmac.tx.put(tagged ValidEOP    n.targAdvert[7:0]);
                          endcase 
-                         txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
-                         if (txDCPPos==5) dcpRespF.deq; // Finish
+                         txDCPPos <= (txDCPPos==9) ? 0 : txDCPPos + 1;
+                         if (txDCPPos==9) dcpRespF.deq; // Finish
                        end
       tagged Write .w: begin
                          case (txDCPPos)
-                           0: gmac.tx.put(tagged ValidNotEOP 8'h30);
-                           1: gmac.tx.put(tagged ValidEOP    w.tag);
+                           0: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           1: gmac.tx.put(tagged ValidNotEOP 8'h06); // Write reseponse is 6B
+                           2: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           3: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           4: gmac.tx.put(tagged ValidNotEOP 8'h32); // sb 30
+                           5: gmac.tx.put(tagged ValidEOP    w.tag);
                          endcase
-                         txDCPPos <= (txDCPPos==1) ? 0 : txDCPPos + 1;
-                         if (txDCPPos==1) dcpRespF.deq; // Finish
+                         txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
+                         if (txDCPPos==5) dcpRespF.deq; // Finish
                        end
       tagged Read  .r: begin
                          case (txDCPPos)
-                           0: gmac.tx.put(tagged ValidNotEOP 8'h30);
-                           1: gmac.tx.put(tagged ValidNotEOP r.tag);
-                           2: gmac.tx.put(tagged ValidNotEOP r.data[31:24]);
-                           3: gmac.tx.put(tagged ValidNotEOP r.data[23:16]);
-                           4: gmac.tx.put(tagged ValidNotEOP r.data[15:8]);
-                           5: gmac.tx.put(tagged ValidEOP    r.data[7:0]);
+                           0: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           1: gmac.tx.put(tagged ValidNotEOP 8'h0A); // Read response is 10B
+                           2: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           3: gmac.tx.put(tagged ValidNotEOP 8'h00);
+                           4: gmac.tx.put(tagged ValidNotEOP 8'h33); // sb 30
+                           5: gmac.tx.put(tagged ValidNotEOP r.tag);
+                           6: gmac.tx.put(tagged ValidNotEOP r.data[31:24]);
+                           7: gmac.tx.put(tagged ValidNotEOP r.data[23:16]);
+                           8: gmac.tx.put(tagged ValidNotEOP r.data[15:8]);
+                           9: gmac.tx.put(tagged ValidEOP    r.data[7:0]);
                          endcase 
-                         txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
-                         if (txDCPPos==5) dcpRespF.deq; // Finish
+                         txDCPPos <= (txDCPPos==9) ? 0 : txDCPPos + 1;
+                         if (txDCPPos==9) dcpRespF.deq; // Finish
                        end
       endcase
     end

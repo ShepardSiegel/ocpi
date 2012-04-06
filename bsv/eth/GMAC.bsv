@@ -522,30 +522,20 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
   endrule
 
   rule egress_EOF(txEnable && txActive &&& txF.first matches tagged ValidEOP .z);
-    Bool padData = (lenCnt<59);
-    let d = padData ? pack(PAD) : z;
+    //Bool padData = (lenCnt<59);
+    let d = doPad ? pack(PAD) : z;  // doPad will be false the first time fired; so we get ValidEOP data
     txData <= d;
     crc.add(d);
     crcDbgCnt.inc;
     lenCnt.inc;
     txDV <= True;
-    if (lenCnt>=59) begin // if not padding, advance to emitFCS
+    if (lenCnt>=59) begin // if no padding needed, pop txF and advance to emitFCS
       txActive <= False;
       emitFCS <= 4;
       txF.deq;
       doPad <= False;
     end else doPad <= True;
   endrule
-
-  /*
-  rule egress_PAD(txEnable && txActive && doPad);
-    if (lenCnt>=59) begin // when done padding, advance to emitFCS
-      txActive <= False;
-      emitFCS  <= 4;
-      doPad    <= False;
-    end
-  endrule
-  */
 
   rule egress_FCS(txEnable && emitFCS!=0);
     Vector#(4,Bit#(8)) fcsV = reverse(unpack(crc.result));

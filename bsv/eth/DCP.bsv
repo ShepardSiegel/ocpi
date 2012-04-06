@@ -87,7 +87,7 @@ module mkDCPAdapter (DCPAdapterIfc);
   rule dcp_request;
     let x = dcpReqF.first; dcpReqF.deq;
     case (x) matches
-      tagged NOP   .n: dcpRespF.enq(tagged NOP( DCPResponseNOP{targAdvert:32'h4200_0001, tag:n.tag, code:RESP_OK}));        // Respond to the NOP
+      tagged NOP   .n: dcpRespF.enq(tagged NOP( DCPResponseNOP{targAdvert:32'h4000_0001, tag:n.tag, code:RESP_OK}));        // Respond to the NOP
       tagged Write .w: begin
                        cpReqF.enq(tagged WriteRequest( CpWriteReq{dwAddr:truncate(w.addr>>2), byteEn:w.be, data:w.data}));  // Issue the Write
                        dcpRespF.enq(tagged Write( DCPResponseWrite{tag:w.tag, code:RESP_OK}));                              // Blind ACK the Write
