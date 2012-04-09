@@ -29,10 +29,10 @@ def main(argv):
   #p.payload = "\x00\x0E\x00\x00\x1F\x06\x00\x00\x00\x24\x00\x00\x00\x02"    # 14B Write 0x24 with 0x00000002
   p.payload = "\x00\x0A\x00\x00\x2F\x07\x00\x00\x00\x24"                     # 10B Read 0x24
   print "Sending packet..."
-  rp = srp(p, iface="eth1")
+  rp = srp1(p, iface="eth1")
   print "Got back"
   #print rp
-  #rp.show
+  rp.show()
 
 
 prog_name = os.path.basename(sys.argv[0])
