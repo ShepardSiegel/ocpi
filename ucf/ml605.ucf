@@ -253,35 +253,35 @@ NET "gmii_tx_er"  OFFSET = OUT 6 ns AFTER "gmii_gtx_clk";
 # dac = TI DAC3283
 
 # Serial Control of FMC150 devices...
-NET "flp_com_sclk"   LOC = "N34" | IOSTANDARD = "LVTTL";   # Common SPI SCLK
-NET "flp_com_sdc2m"  LOC = "P34" | IOSTANDARD = "LVTTL";   # Common SPI Data from Carrier to Mezzanine (FPGA Out to all Serial Inputs)
-NET "flp_cdc_sdm2c"  LOC = "M27" | IOSTANDARD = "LVTTL";   # CDC SDO    Individual Mezzanine to Carrier SDOs...
-NET "flp_mon_sdm2c"  LOC = "N25" | IOSTANDARD = "LVTTL";   # MON SDO     ibid
-NET "flp_adc_sdm2c"  LOC = "C32" | IOSTANDARD = "LVTTL";   # ADC SDO     ibid
-NET "flp_dac_sdm2c"  LOC = "M33" | IOSTANDARD = "LVTTL";   # DAC SDO     ibid
-NET "flp_cdc_sen_n"  LOC = "M26" | IOSTANDARD = "LVTTL";   # CDC EN_N   Individual active-low enables...
-NET "flp_mon_sen_n"  LOC = "R31" | IOSTANDARD = "LVTTL";   # MON EN_N    ibid
-NET "flp_adc_sen_n"  LOC = "A23" | IOSTANDARD = "LVTTL";   # ADC EN_N    ibid
-NET "flp_dac_sen_n"  LOC = "N33" | IOSTANDARD = "LVTTL";   # DAC EN_N    ibid
+NET "flp_com_sclk"      LOC = "N34" | IOSTANDARD = "LVCMOS25";   # Common SPI SCLK
+NET "flp_com_sdc2m"     LOC = "P34" | IOSTANDARD = "LVCMOS25";   # Common SPI Data from Carrier to Mezzanine (FPGA Out to all Serial Inputs)
+NET "flp_sdi_sd2m2c[0]" LOC = "M27" | IOSTANDARD = "LVCMOS25";   # CDC SDO    Individual Mezzanine to Carrier SDOs...
+NET "flp_sdi_sd2m2c[1]" LOC = "M33" | IOSTANDARD = "LVCMOS25";   # DAC SDO     ibid
+NET "flp_sdi_sd2m2c[2]" LOC = "C32" | IOSTANDARD = "LVCMOS25";   # ADC SDO     ibid
+NET "flp_sdi_sd2m2c[3]" LOC = "N25" | IOSTANDARD = "LVCMOS25";   # MON SDO     ibid
+NET "flp_csb[0]"        LOC = "M26" | IOSTANDARD = "LVCMOS25";   # CDC EN_N   Individual active-low enables...
+NET "flp_csb[1]"        LOC = "N33" | IOSTANDARD = "LVCMOS25";   # DAC EN_N    ibid
+NET "flp_csb[2]"        LOC = "A33" | IOSTANDARD = "LVCMOS25";   # ADC EN_N    ibid
+NET "flp_csb[3]"        LOC = "R31" | IOSTANDARD = "LVCMOS25";   # MON EN_N    ibid
 
 ## CDC TI CDCE72010...
-NET "flp_cdc_rstn"   LOC = "M31" | IOSTANDARD = "LVTTL";   # CDC RST_N
-NET "flp_cdc_pdn"    LOC = "L31" | IOSTANDARD = "LVTTL";   # CDC PD_N
-#NET "CLK_TO_FPGA_N_0" LOC="B10";
-#NET "CLK_TO_FPGA_P_0" LOC="A10";
-#NET "PLL_STATUS_0" LOC="K31";
-#NET "REF_EN_0" LOC="K32";
+NET "flp_cdc_rstn"     LOC = "M31" | IOSTANDARD = "LVCMOS25";   # CDC RST_N
+NET "flp_cdc_pdn"      LOC = "L31" | IOSTANDARD = "LVCMOS25";   # CDC PD_N
+NET "flp_cdc_pllstat"  LOC=  "K31" | IOSTANDARD = "LVCMOS25";   # CDC PLL_STATUS
+NET "flp_cdc_refen"    LOC=  "K32" | IOSTANDARD = "LVCMOS25";   # Enable 100 MHz On-Card Ref
+#NET "flp_cdc_clkm2c_p" LOC = "A10" | IOSTANDARD = "LVDS_25" | DIFF_TERM = "TRUE";  # Clock to FPGA
+#NET "flp_cdc_clkm2c_n" LOC = "B10" | IOSTANDARD = "LVDS_25" | DIFF_TERM = "TRUE";
 
 ## MON TI AMC7823 and Misc...
-NET "flp_mon_rstn"   LOC = "R32" | IOSTANDARD = "LVTTL";   # MON RST_N
-NET "flp_mon_intn"   LOC = "M25" | IOSTANDARD = "LVTTL";   # MON GALR_N
-#NET "flp_pg_c2m"     LOC = "K9"  | IOSTANDARD = "LVTTL";   # Power Good Carrier to Mezzanine
-#NET "flp_prsnt_m2c"  LOC = "AD9" | IOSTANDARD = "LVTTL";   # Low when Carrier is Inserted
+NET "flp_mon_rstn"   LOC = "R32" | IOSTANDARD = "LVCMOS25";   # MON RST_N
+NET "flp_mon_intn"   LOC = "M25" | IOSTANDARD = "LVCMOS25";   # MON GALR_N
+#NET "flp_pg_c2m"     LOC = "K9"  | IOSTANDARD = "LVCMOS25";   # Power Good Carrier to Mezzanine
+#NET "flp_prsnt_m2c"  LOC = "AD9" | IOSTANDARD = "LVCMOS25";   # Low when Carrier is Inserted
 #NET "flp_xtrig_n"    LOC = "G33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE; # External Trigger
 #NET "flp_xtrig_p"    LOC = "F33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
 
 ## ADC TI ADS62P49...
-NET "flp_adc_rstn"   LOC = "B32" | IOSTANDARD = "LVTTL";   # ADC RSTN
+NET "flp_adc_rstn"   LOC = "B32" | IOSTANDARD = "LVCMOS25";   # ADC RSTN
 #NET "adc_clkn"    LOC = "K27" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
 #NET "adc_clkp"    LOC = "K26" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
 #NET "adc0_ddn[0]" LOC = "E31" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;

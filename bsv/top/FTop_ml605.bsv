@@ -9,9 +9,11 @@ import DramServer_v6     ::*;
 import GMAC              ::*;
 import MDIO              ::*;
 import FlashWorker       ::*;
+import FMC150            ::*;
 import GbeWorker         ::*;
 import ICAPWorker        ::*;
 import OCWip             ::*;
+import SPICore4          ::*;
 import TimeService       ::*;
 import WSICaptureWorker  ::*;
 import WsiAdapter        ::*;
@@ -46,6 +48,7 @@ interface FTop_ml605Ifc;
   interface Reset                  gmii_rstn;  // GMII Reset driven out to PHY
   interface GMII_RS                gmii;       // The GMII link RX/TX
   interface MDIO_Pads              mdio;       // The MDIO pads
+  interface SPI4Pads               flp;
 endinterface: FTop_ml605Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
@@ -96,19 +99,21 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Refe
   Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level board-specific workers..
-  ICAPWorkerIfc    icap   <- mkICAPWorker(True,True,                           clocked_by p125Clk , reset_by(vWci[0].mReset_n));
+//ICAPWorkerIfc    icap   <- mkICAPWorker(True,True,                           clocked_by p125Clk , reset_by(vWci[0].mReset_n));
+  FMC150Ifc        fmc150 <- mkFMC150(True,                                    clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   FlashWorkerIfc   flash0 <- mkFlashWorker(True,                               clocked_by p125Clk , reset_by(vWci[1].mReset_n));
   GbeWorkerIfc     gbe0   <- mkGbeWorker(True,gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
   WSICaptureWorker4BIfc cap0  <- mkWSICaptureWorker(True,                      clocked_by p125Clk , reset_by(vWci[3].mReset_n));
   DramServer_v6Ifc dram0  <- mkDramServer_v6(False, sys0_clk, sys0_rst,        clocked_by p125Clk , reset_by(vWci[4].mReset_n));
 
-  WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
-  PMEMMonitorIfc           pmemMonW8        <- mkPMEMMonitor(      clocked_by p125Clk , reset_by p125Rst );
-  mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by p125Clk , reset_by p125Rst );  // Connect the wciMon to an event monitor
+  //WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42
+  //PMEMMonitorIfc           pmemMonW8        <- mkPMEMMonitor(      clocked_by p125Clk , reset_by p125Rst );
+  //mkConnection(wciMonW8.pmem, pmemMonW8.pmem, clocked_by p125Clk , reset_by p125Rst );  // Connect the wciMon to an event monitor
   
   // WCI...
 //mkConnection(vWci[0], icap.wciS0);     // worker 8
-  mkConnectionMSO(vWci[0],  icap.wciS0, wciMonW8.observe, clocked_by p125Clk , reset_by p125Rst );
+//mkConnectionMSO(vWci[0],  icap.wciS0, wciMonW8.observe, clocked_by p125Clk , reset_by p125Rst );
+  mkConnection(vWci[0], fmc150.wciS0);   // worker 8
   mkConnection(vWci[1], flash0.wciS0);   // worker 9
   mkConnection(vWci[2], gbe0.wciS0);     // worker 10 
   mkConnection(vWci[3], cap0.wciS0);     // worker 11
@@ -139,7 +144,8 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Refe
   interface Clock    p125clk = p125Clk;
   interface Reset    p125rst = p125Rst;
   method  led   =
-    {5'b10100, pack(blinkLed), 1'b0, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
+    //{5'b10100, pack(blinkLed), 1'b0, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
+    {5'b10100, pack(blinkLed), 4'h0, infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
   interface LCD        lcd       = lcd_ctrl.ifc;
   interface GPSIfc     gps       = ctop.gps;
   interface FLASH_IO   flash     = flash0.flash;
@@ -148,5 +154,6 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Refe
   interface Reset      gmii_rstn = gbe0.gmii_rstn;
   interface GMII       gmii      = gbe0.gmii;
   interface MDIO_Pads  mdio      = gbe0.mdio;
+  interface SPI4Pads   flp       = fmc150.pads;
 endmodule: mkFTop_ml605
 
