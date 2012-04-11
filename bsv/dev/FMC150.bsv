@@ -54,7 +54,7 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
      'b00 : spi.req.put(Spi4Req{dev:CDC, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
      'b01 : spi.req.put(Spi4Req{dev:DAC, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
      'b10 : spi.req.put(Spi4Req{dev:ADC, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
-     'b11 : spi.req.put(Spi4Req{dev:ADC, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
+     'b11 : spi.req.put(Spi4Req{dev:MON, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
    endcase
    $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
