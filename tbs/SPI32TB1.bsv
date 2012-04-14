@@ -13,8 +13,9 @@ module mkSPI32TB1(Empty);
   Reg#(Bit#(16))        simCycle       <- mkReg(0);       // simulation cycle counter
   Spi32Ifc              spi            <- mkSpi32;
 
-  rule do_req (simCycle == 32);
-    spi.req.put(Spi32Req{isRead:False, addr:4'h1, data:32'h8765_4321});
+  rule do_req (simCycle==36);
+    //spi.req.put(Spi32Req{isRead:False, addr:4'h1, data:32'h8765_4321});
+    spi.req.put(Spi32Req{isRead:True, addr:4'h1, data:'0});
   endrule
 
   rule increment_simCycle;

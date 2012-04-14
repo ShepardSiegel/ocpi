@@ -62,16 +62,21 @@ module mkSpi32 (Spi32Ifc);
     rPos  <= (req.isRead) ? 31 : 0;
   endrule
 
+
   rule send_d (xmt_d && !rcv_d && !doResp);
     let req = reqF.first;
     csbR  <= 1'b0;
     if (req.isRead)
       case (31-dPos)
         0:sdoR<=0; 1:sdoR<=1; 2:sdoR<=1; 3: sdoR<=1;  // 0xE (14) Read Command
-        4:sdoR<=req.addr[0]; 5:sdoR<=req.addr[1]; 6:sdoR<=req.addr[2]; 7: sdoR<=req.addr[3];  // Addr on 4 LSBs of write payload
+        4:sdoR<=req.addr[0]; 5:sdoR<=req.addr[1]; 6:sdoR<=req.addr[2]; 7: sdoR<=req.addr[3];  // Addr for read
         default: sdoR <= 0;
       endcase
-    else sdoR  <= req.data[31-dPos];  // lsb frist
+    else
+      case (31-dPos)
+        0:sdoR<=req.addr[0]; 1:sdoR<=req.addr[1]; 2:sdoR<=req.addr[2]; 3: sdoR<=req.addr[3];  // Addr for write
+        default: sdoR  <= req.data[31-dPos];  // lsb frist
+      endcase
     dPos  <= (dPos==0) ? 0 : dPos - 1; 
     if (dPos==0) begin 
       xmt_d  <= False;
