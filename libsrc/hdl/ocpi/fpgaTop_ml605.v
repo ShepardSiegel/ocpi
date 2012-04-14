@@ -60,19 +60,26 @@ module fpgaTop(
 
   output wire        flp_com_sclk,   // FMC150 in LPC Slot...
   output wire        flp_com_sdc2m,
-  input  wire [3:0]  flp_sdi_sdm2c,
-  output wire [3:0]  flp_csb 
+  output wire        flp_cdc_csb,
+  input  wire        flp_cdc_sdi,
+//  input  wire [3:0]  flp_sdi_sdm2c,
+//  output wire [3:0]  flp_csb 
 
-  //output wire        flp_cdc_rstn,
-  //output wire        flp_cdc_pdn,
+  output wire        flp_cdc_rstn,
+  output wire        flp_cdc_pdn,
+
   //output wire        flp_mon_rstn,
   //output wire        flp_mon_intn,
   //output wire        flp_adc_rstn,
-  //input  wire        flp_cdc_clkm2c_p,
-  //input  wire        flp_cdc_clkm2c_n,
+  input  wire        flp_cdc_clk_p,
+  input  wire        flp_cdc_clk_n, 
   //input  wire        flp_cdc_pllstat,
-  //output wire        flp_cdc_refen
+  output wire        flp_cdc_refen
 );
+
+//FIXME:
+assign flp_cdc_pdn   = 1'b1;
+assign flp_cdc_refen = 1'b1;
 
 // Instance and connect mkFTop...
  mkFTop_ml605 ftop(
@@ -132,18 +139,18 @@ module fpgaTop(
   .dram_ck_p         (ddr3_ck_p),
   .dram_ck_n         (ddr3_ck_n),
 
-  .flp_sclk          (flp_com_sclk),
+  .flp_sclkn         (flp_com_sclk),     // Use the inverted clock for slow-balanced setup/hold
   .flp_sdo           (flp_com_sdc2m),
-  .flp_sdi_arg       (flp_sdi_sdm2c),
-  .flp_csb           (flp_csb) 
+  .flp_csb           (flp_cdc_csb),
+  .flp_sdi_arg       (flp_cec_sdi),
 
-  //.flp_rstn          (flp_cdc_rstn),
+  .flp_srst          (flp_cdc_rstn),      // The srst from SPICore32 active-low
   //.flp_cdc_pdn       (flp_cdc_pdn),
   //.flp_mon_rstn      (flp_mon_rstn),
   //.flp_mon_intn      (flp_mon_intn),
   //.flp_adc_rstn      (flp_adc_rstn),
-  //.flp_cdc_clkm2c_p  (flp_cdc_clkm2c_p),
-  //.flp_cdc_clkm2c_n  (flp_cdc_clkm2c_n),
+  .flp_cdc_clk_p     (flp_cdc_clk_p),
+  .flp_cdc_clk_n     (flp_cdc_clk_n) 
   //.flp_cdc_pllstat   (flp_cdc_pllstat),
   //.flp_cdc_refen     (flp_cdc_refen)
 );

@@ -253,35 +253,38 @@ NET "gmii_tx_er"  OFFSET = OUT 6 ns AFTER "gmii_gtx_clk";
 # dac = TI DAC3283
 
 # Serial Control of FMC150 devices...
-NET "flp_com_sclk"      LOC = "N34" | IOSTANDARD = "LVCMOS";   # Common SPI SCLK
-NET "flp_com_sdc2m"     LOC = "P34" | IOSTANDARD = "LVCMOS";   # Common SPI Data from Carrier to Mezzanine (FPGA Out to all Serial Inputs)
-NET "flp_sdi_sd2m2c[0]" LOC = "M27" | IOSTANDARD = "LVCMOS";   # CDC SDO    Individual Mezzanine to Carrier SDOs...
-NET "flp_sdi_sd2m2c[1]" LOC = "M33" | IOSTANDARD = "LVCMOS";   # DAC SDO     ibid
-NET "flp_sdi_sd2m2c[2]" LOC = "C32" | IOSTANDARD = "LVCMOS";   # ADC SDO     ibid
-NET "flp_sdi_sd2m2c[3]" LOC = "N25" | IOSTANDARD = "LVCMOS";   # MON SDO     ibid
-NET "flp_csb[0]"        LOC = "M26" | IOSTANDARD = "LVCMOS";   # CDC EN_N   Individual active-low enables...
-NET "flp_csb[1]"        LOC = "N33" | IOSTANDARD = "LVCMOS";   # DAC EN_N    ibid
-NET "flp_csb[2]"        LOC = "A33" | IOSTANDARD = "LVCMOS";   # ADC EN_N    ibid
-NET "flp_csb[3]"        LOC = "R31" | IOSTANDARD = "LVCMOS";   # MON EN_N    ibid
+NET "flp_com_sclk"      LOC = "N34" | IOSTANDARD = "LVCMOS25";   # Common SPI SCLK
+NET "flp_com_sdc2m"     LOC = "P34" | IOSTANDARD = "LVCMOS25";   # Common SPI Data from Carrier to Mezzanine (FPGA Out to all Serial Inputs)
+
+NET "flp_cdc_csb"       LOC = "M26" | IOSTANDARD = "LVCMOS25";   # CDC EN_N   Individual active-low enables...
+#NET "flp_csb[1]"        LOC = "N33" | IOSTANDARD = "LVCMOS25";   # DAC EN_N    ibid
+#NET "flp_csb[2]"        LOC = "A33" | IOSTANDARD = "LVCMOS25";   # ADC EN_N    ibid
+#NET "flp_csb[3]"        LOC = "R31" | IOSTANDARD = "LVCMOS25";   # MON EN_N    ibid
+#
+NET "flp_cdc_sdi"       LOC = "M27" | IOSTANDARD = "LVCMOS25";   # CDC SDO    Individual Mezzanine to Carrier read data
+#NET "flp_sdi_sd2m2c[1]" LOC = "M33" | IOSTANDARD = "LVCMOS25";   # DAC SDO     ibid
+#NET "flp_sdi_sd2m2c[2]" LOC = "C32" | IOSTANDARD = "LVCMOS25";   # ADC SDO     ibid
+#NET "flp_sdi_sd2m2c[3]" LOC = "N25" | IOSTANDARD = "LVCMOS25";   # MON SDO     ibid
+#
 
 ## CDC TI CDCE72010...
-NET "flp_cdc_rstn"     LOC = "M31" | IOSTANDARD = "LVCMOS";   # CDC RST_N
-NET "flp_cdc_pdn"      LOC = "L31" | IOSTANDARD = "LVCMOS";   # CDC PD_N
-NET "flp_cdc_pllstat"  LOC=  "K31" | IOSTANDARD = "LVCMOS";   # CDC PLL_STATUS
-NET "flp_cdc_refen"    LOC=  "K32" | IOSTANDARD = "LVCMOS";   # Enable 100 MHz On-Card Ref
-#NET "flp_cdc_clkm2c_p" LOC = "A10" | IOSTANDARD = "LVDS_25" | DIFF_TERM = "TRUE";  # Clock to FPGA
-#NET "flp_cdc_clkm2c_n" LOC = "B10" | IOSTANDARD = "LVDS_25" | DIFF_TERM = "TRUE";
+NET "flp_cdc_rstn"     LOC = "M31" | IOSTANDARD = "LVCMOS25";   # CDC RST_N
+NET "flp_cdc_pdn"      LOC = "L31" | IOSTANDARD = "LVCMOS25";   # CDC PD_N
+NET "flp_cdc_refen"    LOC=  "K32" | IOSTANDARD = "LVCMOS25";   # CDC 1=Enable 100 MHz On-Card Ref
+NET "flp_cdc_pllstat"  LOC=  "K31" | IOSTANDARD = "LVCMOS25";   # CDC PLL_STATUS (PLL_LOCK) 1=Lock
+NET "flp_cdc_clk_p"    LOC = "A10" | IOSTANDARD = "LVDS_25" | DIFF_TERM = "TRUE";  # CDC Clock U4 to FPGA
+NET "flp_cdc_clk_n"    LOC = "B10" | IOSTANDARD = "LVDS_25" | DIFF_TERM = "TRUE";
 
 ## MON TI AMC7823 and Misc...
-NET "flp_mon_rstn"   LOC = "R32" | IOSTANDARD = "LVCMOS";   # MON RST_N
-NET "flp_mon_intn"   LOC = "M25" | IOSTANDARD = "LVCMOS";   # MON GALR_N
-#NET "flp_pg_c2m"     LOC = "K9"  | IOSTANDARD = "LVCMOS";   # Power Good Carrier to Mezzanine
-#NET "flp_prsnt_m2c"  LOC = "AD9" | IOSTANDARD = "LVCMOS";   # Low when Carrier is Inserted
+NET "flp_mon_rstn"   LOC = "R32" | IOSTANDARD = "LVCMOS25";   # MON RST_N
+NET "flp_mon_intn"   LOC = "M25" | IOSTANDARD = "LVCMOS25";   # MON GALR_N
+#NET "flp_pg_c2m"     LOC = "K9"  | IOSTANDARD = "LVCMOS25";   # Power Good Carrier to Mezzanine
+#NET "flp_prsnt_m2c"  LOC = "AD9" | IOSTANDARD = "LVCMOS25";   # Low when Carrier is Inserted
 #NET "flp_xtrig_n"    LOC = "G33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE; # External Trigger
 #NET "flp_xtrig_p"    LOC = "F33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
 
 ## ADC TI ADS62P49...
-NET "flp_adc_rstn"   LOC = "B32" | IOSTANDARD = "LVCMOS";   # ADC RSTN
+NET "flp_adc_rstn"   LOC = "B32" | IOSTANDARD = "LVCMOS25";   # ADC RSTN
 #NET "adc_clkn"    LOC = "K27" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
 #NET "adc_clkp"    LOC = "K26" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
 #NET "adc0_ddn[0]" LOC = "E31" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
@@ -649,7 +652,7 @@ NET "ddr3_ck_n[0]"   LOC = "H18";
 ##FIXMESS NET "led[1]"        LOC = "AC24";  # ML605 GPIO_LED1 = divided down CLK should be blinking
 ##FIXMESS NET "led[2]"        LOC = "AE22";  # ML605 GPIO_LED2 = error (should be OFF)
 ##FIXMESS NET "led[3]"        LOC = "AE23";  # ML605 GPIO_LED3 = ON when initialization and calibration complete
-##FIXMESS NET "led[*]"        IOSTANDARD = LVCMOS;
+##FIXMESS NET "led[*]"        IOSTANDARD = LVCMOS25;
 
 
 ## ML605 (replace MIG 3.3 output with ML605 specific LOCS)

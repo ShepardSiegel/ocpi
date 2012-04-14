@@ -13,7 +13,7 @@ import FMC150            ::*;
 import GbeWorker         ::*;
 import ICAPWorker        ::*;
 import OCWip             ::*;
-import SPICore4          ::*;
+import SPICore32         ::*;
 import TimeService       ::*;
 import WSICaptureWorker  ::*;
 import WsiAdapter        ::*;
@@ -48,14 +48,15 @@ interface FTop_ml605Ifc;
   interface Reset                  gmii_rstn;  // GMII Reset driven out to PHY
   interface GMII_RS                gmii;       // The GMII link RX/TX
   interface MDIO_Pads              mdio;       // The MDIO pads
-  interface SPI4Pads               flp;
+  interface SPI32Pads              flp;
 endinterface: FTop_ml605Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
-module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Reference
-                     Clock sys1_clkp, Clock sys1_clkn,  // 125 MHz Ethernet XO Reference
-                     Clock gmii_rx_clk,                 // 125 MHz GMII RX Clock from Marvell Phy
-                     Clock pci0_clkp, Clock pci0_clkn,  // 100 MHz PCIe Reference from Edge Connector
+module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board XO Reference
+                     Clock sys1_clkp,     Clock sys1_clkn,      // 125 MHz Ethernet XO Reference
+                     Clock flp_cdc_clk_p, Clock flp_cdc_clk_n,  // From FMC-150 CDCE72010 on FMC-LPC
+                     Clock gmii_rx_clk,                         // 125 MHz GMII RX Clock from Marvell Phy
+                     Clock pci0_clkp,     Clock pci0_clkn,      // 100 MHz PCIe Reference from Edge Connector
                      Reset pci0_rstn)(FTop_ml605Ifc);
 
   // Instance the wrapped, technology-specific PCIE core...
@@ -69,6 +70,9 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Refe
   Clock            sys1_clki  <- mkClockIBUFDS_GTXE1(True, sys1_clkp, sys1_clkn);
   Clock            sys1_clk   <- mkClockBUFG(clocked_by sys1_clki);
   Reset            sys1_rst   <- mkAsyncReset(1, p125Rst , sys1_clk);
+
+  Clock            flp_clk    <- mkClockIBUFDS(flp_cdc_clk_p,flp_cdc_clk_n);
+  Reset            flp_rst    <- mkAsyncReset(1, p125Rst , flp_clk);
 
   (* fire_when_enabled, no_implicit_conditions *) rule pdev; pciDevice <= pciw.device; endrule
 
@@ -100,7 +104,8 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Refe
 
   // FTop Level board-specific workers..
 //ICAPWorkerIfc    icap   <- mkICAPWorker(True,True,                           clocked_by p125Clk , reset_by(vWci[0].mReset_n));
-  FMC150Ifc        fmc150 <- mkFMC150(True,                                    clocked_by p125Clk , reset_by(vWci[0].mReset_n));
+  //FMC150Ifc        fmc150 <- mkFMC150(True,sys0_clk,sys0_rst,flp_clk,flp_rst,  clocked_by p125Clk , reset_by(vWci[0].mReset_n));
+  FMC150Ifc        fmc150 <- mkFMC150(True,                  flp_clk,flp_rst,  clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   FlashWorkerIfc   flash0 <- mkFlashWorker(True,                               clocked_by p125Clk , reset_by(vWci[1].mReset_n));
   GbeWorkerIfc     gbe0   <- mkGbeWorker(True,gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
   WSICaptureWorker4BIfc cap0  <- mkWSICaptureWorker(True,                      clocked_by p125Clk , reset_by(vWci[3].mReset_n));
@@ -154,6 +159,6 @@ module mkFTop_ml605#(Clock sys0_clkp, Clock sys0_clkn,  // 200 MHz Board XO Refe
   interface Reset      gmii_rstn = gbe0.gmii_rstn;
   interface GMII       gmii      = gbe0.gmii;
   interface MDIO_Pads  mdio      = gbe0.mdio;
-  interface SPI4Pads   flp       = fmc150.pads;
+  interface SPI32Pads  flp       = fmc150.pads;
 endmodule: mkFTop_ml605
 
