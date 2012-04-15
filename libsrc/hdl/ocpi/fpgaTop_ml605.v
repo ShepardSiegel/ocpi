@@ -80,6 +80,8 @@ module fpgaTop(
 //FIXME:
 assign flp_cdc_pdn   = 1'b1;
 assign flp_cdc_refen = 1'b1;
+wire flp_sclkn, flp_sclkgate;
+assign flp_com_sclk = flp_sclkn && flp_sclkgate; // clock gating
 
 // Instance and connect mkFTop...
  mkFTop_ml605 ftop(
@@ -139,10 +141,11 @@ assign flp_cdc_refen = 1'b1;
   .dram_ck_p         (ddr3_ck_p),
   .dram_ck_n         (ddr3_ck_n),
 
-  .flp_sclkn         (flp_com_sclk),     // Use the inverted clock for slow-balanced setup/hold
+  .flp_sclkn         (flp_sclkn),      // Use the inverted clock for slow-balanced setup/hold
+  .flp_sclkgate      (flp_sclkgate), 
   .flp_sdo           (flp_com_sdc2m),
   .flp_csb           (flp_cdc_csb),
-  .flp_sdi_arg       (flp_cec_sdi),
+  .flp_sdi_arg       (flp_cdc_sdi),
 
   .flp_srst          (flp_cdc_rstn),      // The srst from SPICore32 active-low
   //.flp_cdc_pdn       (flp_cdc_pdn),

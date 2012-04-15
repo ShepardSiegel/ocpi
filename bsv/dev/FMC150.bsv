@@ -61,7 +61,7 @@ endrule
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wci.reqGet.get;
    case (wciReq.addr[11:10]) matches
-     'b00 : spiCDC.req.put(Spi32Req{isRead:False, addr:wciReq.addr[5:2], data:wciReq.data});
+     'b00 : spiCDC.req.put(Spi32Req{isRead:False, addr:wciReq.addr[5:2], data:wciReq.data[27:0]});
      //'b01 : spi.req.put(Spi4Req{dev:DAC, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
      //'b10 : spi.req.put(Spi4Req{dev:ADC, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
      //'b11 : spi.req.put(Spi4Req{dev:MON, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
@@ -72,7 +72,7 @@ endrule
 
 rule spi_response;
   let d32 <- spiCDC.resp.get;
-  wci.respPut.put(WciResp{resp:DVA, data:d32});
+  wci.respPut.put(WciResp{resp:DVA, data:extend(d32)});
   splitReadInFlight <= False;
 endrule
 
@@ -81,9 +81,9 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr[11:10]) matches
      'b00 : begin spiCDC.req.put(Spi32Req{isRead:True, addr:wciReq.addr[5:2], data:'0}); splitRead=True; end
-     'b01 : rdat = 32'hbeeff00d;
-     'b10 : rdat = extend(fcCdc);
-     'b01 : rdat = 32'hfeedface;
+     'b01 : rdat = 32'hbeef_f00d;
+     'b10 : rdat = 32'hfeed_face;
+     'b11 : rdat = extend(fcCdc);
      //'b11 : begin spi.req.put(Spi4Req{dev:MON, isRead:True, addr:extend(wciReq.addr[9:2]), data:'0}); splitRead=True; end
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
