@@ -101,7 +101,7 @@ module mkSpi32 (Spi32Ifc);
 
   rule rd_resp (!xmt_d && !rcv_d && doResp);
     doResp <= False;
-    respF.enq(pack(capV));
+    respF.enq(pack(shiftInAtN(capV, sdiWs)));
   endrule
 
 
