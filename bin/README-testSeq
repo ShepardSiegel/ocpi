@@ -59,3 +59,6 @@ testSeq13a        -  WSICapture
 testSeq13b        -  Protocol Monitor
 
 testSeq14a        -  GMAC
+testSeq14b        -  Init GMAC and GbEthernet worker
+
+testSeq15a        -  TI CDCE72010 Clock Chip
