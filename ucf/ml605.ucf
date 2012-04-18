@@ -257,12 +257,12 @@ NET "flp_com_sclk"      LOC = "N34" | IOSTANDARD = "LVCMOS25";   # Common SPI SC
 NET "flp_com_sdc2m"     LOC = "P34" | IOSTANDARD = "LVCMOS25";   # Common SPI Data from Carrier to Mezzanine (FPGA Out to all Serial Inputs)
 
 NET "flp_cdc_csb"       LOC = "M26" | IOSTANDARD = "LVCMOS25";   # CDC EN_N   Individual active-low enables...
-#NET "flp_csb[1]"        LOC = "N33" | IOSTANDARD = "LVCMOS25";   # DAC EN_N    ibid
+NET "flp_dac_csb"       LOC = "N33" | IOSTANDARD = "LVCMOS25";   # DAC EN_N    ibid
 #NET "flp_csb[2]"        LOC = "A33" | IOSTANDARD = "LVCMOS25";   # ADC EN_N    ibid
 #NET "flp_csb[3]"        LOC = "R31" | IOSTANDARD = "LVCMOS25";   # MON EN_N    ibid
 #
 NET "flp_cdc_sdi"       LOC = "M27" | IOSTANDARD = "LVCMOS25";   # CDC SDO    Individual Mezzanine to Carrier read data
-#NET "flp_sdi_sd2m2c[1]" LOC = "M33" | IOSTANDARD = "LVCMOS25";   # DAC SDO     ibid
+NET "flp_dac_sdi"       LOC = "M33" | IOSTANDARD = "LVCMOS25";   # DAC SDO     ibid
 #NET "flp_sdi_sd2m2c[2]" LOC = "C32" | IOSTANDARD = "LVCMOS25";   # ADC SDO     ibid
 #NET "flp_sdi_sd2m2c[3]" LOC = "N25" | IOSTANDARD = "LVCMOS25";   # MON SDO     ibid
 #

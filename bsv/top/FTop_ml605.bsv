@@ -14,6 +14,7 @@ import GbeWorker         ::*;
 import ICAPWorker        ::*;
 import OCWip             ::*;
 import SPICore32         ::*;
+import SPICore5          ::*;
 import TimeService       ::*;
 import WSICaptureWorker  ::*;
 import WsiAdapter        ::*;
@@ -48,7 +49,8 @@ interface FTop_ml605Ifc;
   interface Reset                  gmii_rstn;  // GMII Reset driven out to PHY
   interface GMII_RS                gmii;       // The GMII link RX/TX
   interface MDIO_Pads              mdio;       // The MDIO pads
-  interface SPI32Pads              flp;
+  interface SPI32Pads              flpCDC;
+  interface SPI5Pads               flpDAC;
 endinterface: FTop_ml605Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
@@ -159,6 +161,7 @@ module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board
   interface Reset      gmii_rstn = gbe0.gmii_rstn;
   interface GMII       gmii      = gbe0.gmii;
   interface MDIO_Pads  mdio      = gbe0.mdio;
-  interface SPI32Pads  flp       = fmc150.pads;
+  interface SPI32Pads  flpCDC    = fmc150.padsCDC;
+  interface SPI5Pads   flpDAC    = fmc150.padsDAC;
 endmodule: mkFTop_ml605
 

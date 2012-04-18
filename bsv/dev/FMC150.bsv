@@ -5,6 +5,7 @@ package FMC150;
 
 import OCWip       ::*;
 import SPICore32   ::*;
+import SPICore5    ::*;
 import FreqCounter ::*;
 import TimeService ::*;
 import CounterM    ::*;
@@ -35,7 +36,8 @@ endinterface
 
 interface FMC150Ifc;
   interface WciES       wciS0;
-  interface SPI32Pads   pads;
+  interface SPI32Pads   padsCDC;
+  interface SPI5Pads    padsDAC;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
@@ -45,6 +47,7 @@ module mkFMC150#(parameter Bool hasDebugLogic,
                 ) (FMC150Ifc);
   WciESlaveIfc          wci                <- mkWciESlave;
   Spi32Ifc              spiCDC             <- mkSpi32;
+  Spi5Ifc               spiDAC             <- mkSpi5;
   Reg#(Bool)            splitReadInFlight  <- mkReg(False);
   FreqCounterIfc#(18)   fcCdc              <- mkFreqCounter(flp_clk); 
   CounterMod#(Bit#(18)) oneKHz             <- mkCounterMod(125000);
@@ -55,14 +58,14 @@ rule send_pulse (oneKHz.tc);
 endrule
 
 
-(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd, spi_response" *)
-(* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE, spi_response" *)
+(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd, spi32_response, spi5_response" *)
+(* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE, spi32_response, spi5_response" *)
 
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wci.reqGet.get;
    case (wciReq.addr[11:10]) matches
      'b00 : spiCDC.req.put(Spi32Req{isRead:False, addr:wciReq.addr[5:2], data:wciReq.data[27:0]});
-     //'b01 : spi.req.put(Spi4Req{dev:DAC, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
+     'b01 : spiDAC.req.put(Spi5Req {isRead:False, addr:wciReq.addr[6:2], data:wciReq.data[ 7:0]});
      //'b10 : spi.req.put(Spi4Req{dev:ADC, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
      //'b11 : spi.req.put(Spi4Req{dev:MON, isRead:False, addr:extend(wciReq.addr[9:2]), data:wciReq.data});
    endcase
@@ -70,9 +73,15 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
    wci.respPut.put(wciOKResponse); // write response
 endrule
 
-rule spi_response;
+rule spi32_response;
   let d32 <- spiCDC.resp.get;
   wci.respPut.put(WciResp{resp:DVA, data:extend(d32)});
+  splitReadInFlight <= False;
+endrule
+
+rule spi5_response;
+  let d5 <- spiDAC.resp.get;
+  wci.respPut.put(WciResp{resp:DVA, data:extend(d5)});
   splitReadInFlight <= False;
 endrule
 
@@ -81,7 +90,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr[11:10]) matches
      'b00 : begin spiCDC.req.put(Spi32Req{isRead:True, addr:wciReq.addr[5:2], data:'0}); splitRead=True; end
-     'b01 : rdat = 32'hbeef_f00d;
+     'b01 : begin spiDAC.req.put(Spi5Req {isRead:True, addr:wciReq.addr[6:2], data:'0}); splitRead=True; end
      'b10 : rdat = 32'hfeed_face;
      'b11 : rdat = extend(fcCdc);
      //'b11 : begin spi.req.put(Spi4Req{dev:MON, isRead:True, addr:extend(wciReq.addr[9:2]), data:'0}); splitRead=True; end
@@ -103,8 +112,9 @@ rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);
   wci.ctlAck;
 endrule
 
-  interface Wci_s wciS0   = wci.slv;
-  interface SPI32Pads pads = spiCDC.pads;
+  interface Wci_s     wciS0    = wci.slv;
+  interface SPI32Pads padsCDC = spiCDC.pads;
+  interface SPI5Pads  padsDAC = spiDAC.pads;
 
 endmodule
 

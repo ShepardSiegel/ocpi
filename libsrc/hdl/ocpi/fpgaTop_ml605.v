@@ -61,7 +61,9 @@ module fpgaTop(
   output wire        flp_com_sclk,   // FMC150 in LPC Slot...
   output wire        flp_com_sdc2m,
   output wire        flp_cdc_csb,
+  output wire        flp_dac_csb,
   input  wire        flp_cdc_sdi,
+  input  wire        flp_dac_sdi,
 //  input  wire [3:0]  flp_sdi_sdm2c,
 //  output wire [3:0]  flp_csb 
 
@@ -80,8 +82,13 @@ module fpgaTop(
 //FIXME:
 assign flp_cdc_pdn   = 1'b1;
 assign flp_cdc_refen = 1'b1;
-wire flp_sclkn, flp_sclkgate;
-assign flp_com_sclk = flp_sclkn && flp_sclkgate; // clock gating
+
+wire flpCDC_sclkn, flpCDC_sclkgate;
+wire flpDAC_sclkn, flpDAC_sclkgate;
+assign flp_com_sclk = (flpCDC_sclkn && flpCDC_sclkgate) || (flpDAC_sclkn && flpDAC_sclkgate); 
+
+wire flpCDC_com_sdc2m, flpDAC_com_sdc2m;
+assign flp_com_sdc2m = (flpCDC_com_sdc2m && flpCDC_sclkgate) || (flpDAC_com_sdc2m && flpDAC_sclkgate);
 
 // Instance and connect mkFTop...
  mkFTop_ml605 ftop(
@@ -141,13 +148,19 @@ assign flp_com_sclk = flp_sclkn && flp_sclkgate; // clock gating
   .dram_ck_p         (ddr3_ck_p),
   .dram_ck_n         (ddr3_ck_n),
 
-  .flp_sclkn         (flp_sclkn),      // Use the inverted clock for slow-balanced setup/hold
-  .flp_sclkgate      (flp_sclkgate), 
-  .flp_sdo           (flp_com_sdc2m),
-  .flp_csb           (flp_cdc_csb),
-  .flp_sdi_arg       (flp_cdc_sdi),
+  .flpCDC_sclkn      (flpCDC_sclkn),      // Use the inverted clock for slow-balanced setup/hold
+  .flpCDC_sclkgate   (flpCDC_sclkgate), 
+  .flpCDC_sdo        (flpCDC_com_sdc2m),
+  .flpCDC_csb        (flp_cdc_csb),
+  .flpCDC_sdi_arg    (flp_cdc_sdi),
 
-  .flp_srst          (flp_cdc_rstn),      // The srst from SPICore32 active-low
+  .flpDAC_sclkn      (flpDAC_sclkn),      // Use the inverted clock for slow-balanced setup/hold
+  .flpDAC_sclkgate   (flpDAC_sclkgate), 
+  .flpDAC_sdo        (flpDAC_com_sdc2m),
+  .flpDAC_csb        (flp_dac_csb),
+  .flpDAC_sdi_arg    (flp_dac_sdi),
+
+  .flpCDC_srst        (flp_cdc_rstn),      // The srst from SPICore32 active-low
   //.flp_cdc_pdn       (flp_cdc_pdn),
   //.flp_mon_rstn      (flp_mon_rstn),
   //.flp_mon_intn      (flp_mon_intn),
