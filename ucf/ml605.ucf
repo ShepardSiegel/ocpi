@@ -316,28 +316,28 @@ NET "flp_adc_rstn"   LOC = "B32" | IOSTANDARD = "LVCMOS25";   # ADC RSTN
 #NET "adc1_ddn[6]" LOC = "B34" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
 #NET "adc1_ddp[6]" LOC = "C33" | IOSTANDARD = "LVDS_25" | DIFF_TERM = TRUE;
 
-## DAC TI DAC3283...
-NET "dac0_txena"  LOC = "B33";
-NET "dac0_dclkn"  LOC = "T26"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dclkp"  LOC = "R26"  | IOSTANDARD = "LVDS_25";
-NET "dac0_framen" LOC = "P27"  | IOSTANDARD = "LVDS_25";
-NET "dac0_framep" LOC = "N27"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dan[0]" LOC = "M32"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dap[0]" LOC = "L33"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dan[1]" LOC = "P30"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dap[1]" LOC = "P31"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dan[2]" LOC = "P32"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dap[2]" LOC = "N32"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dan[3]" LOC = "R27"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dap[3]" LOC = "R28"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dan[4]" LOC = "R29"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dap[4]" LOC = "P29"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dan[5]" LOC = "N30"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dap[5]" LOC = "M30"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dan[6]" LOC = "L30"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dap[6]" LOC = "L29"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dan[7]" LOC = "N29"  | IOSTANDARD = "LVDS_25";
-NET "dac0_dap[7]" LOC = "N28"  | IOSTANDARD = "LVDS_25";
+## DAC TI DAC3283...   TODO: These 7
+#NET "dac0_txena"  LOC = "B33";
+#NET "dac0_dclkn"  LOC = "T26"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dclkp"  LOC = "R26"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_framen" LOC = "P27"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_framep" LOC = "N27"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dan[0]" LOC = "M32"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dap[0]" LOC = "L33"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dan[1]" LOC = "P30"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dap[1]" LOC = "P31"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dan[2]" LOC = "P32"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dap[2]" LOC = "N32"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dan[3]" LOC = "R27"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dap[3]" LOC = "R28"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dan[4]" LOC = "R29"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dap[4]" LOC = "P29"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dan[5]" LOC = "N30"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dap[5]" LOC = "M30"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dan[6]" LOC = "L30"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dap[6]" LOC = "L29"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dan[7]" LOC = "N29"  | IOSTANDARD = "LVDS_25";
+#NET "dac0_dap[7]" LOC = "N28"  | IOSTANDARD = "LVDS_25";
 
 
 
