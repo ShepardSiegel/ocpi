@@ -70,6 +70,14 @@ module fpgaTop(
   output wire        flp_cdc_rstn,
   output wire        flp_cdc_pdn,
 
+  output wire        dac0_txena,
+  output wire        dac0_dclkp,
+  output wire        dac0_dclkn,
+  output wire        dac0_framep,
+  output wire        dac0_framen,
+  output wire [7:0]  dac0_dap, 
+  output wire [7:0]  dac0_dan, 
+
   //output wire        flp_mon_rstn,
   //output wire        flp_mon_intn,
   //output wire        flp_adc_rstn,
@@ -159,6 +167,14 @@ assign flp_com_sdc2m = (flpCDC_com_sdc2m && flpCDC_sclkgate) || (flpDAC_com_sdc2
   .flpDAC_sdo        (flpDAC_com_sdc2m),
   .flpDAC_csb        (flp_dac_csb),
   .flpDAC_sdi_arg    (flp_dac_sdi),
+
+   .dac0_txena       (dac0_txena),
+   .dac0_dclkp       (dac0_dclkp),
+   .dac0_dclkn       (dac0_dclkn),
+   .dac0_framep      (dac0_framep),
+   .dac0_framen      (dac0_framen),
+   .dac0_dap         (dac0_dap), 
+   .dac0_dan         (dac0_dan), 
 
   .flpCDC_srst        (flp_cdc_rstn),      // The srst from SPICore32 active-low
   //.flp_cdc_pdn       (flp_cdc_pdn),

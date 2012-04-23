@@ -782,6 +782,118 @@ module mkClockIBUFDS_GTE2_div2#(Bool enable, Clock clk_p, Clock clk_n)(Clock);
 endmodule: mkClockIBUFDS_GTE2_div2
 
 
+////////////////////////////////////////////////////////////////////////////////
+///  OSERDES (V6)
+////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+   String      data_rate_oq;
+   String      data_rate_tq;
+   Integer     data_width;
+   String      serdes_mode;
+   Integer     tristate_width;
+   Integer     odelay_used;
+   String      interface_type;
+} OSERDESParams deriving (Bits, Eq);
+
+instance DefaultValue#(OSERDESParams);
+   defaultValue = OSERDESParams {
+      data_rate_oq:          "DDR",
+      data_rate_tq:          "DDR",
+      data_width:            4,
+      serdes_mode:           "MASTER",
+      tristate_width:        4,
+      odelay_used:           0,
+      interface_type:        "DEFAULT"
+      };
+endinstance
+
+(* always_ready, always_enabled *)
+interface OSERDES;
+   method Bool   oq;
+   method Bool   ofb;
+   method Bool   tq;
+   method Bool   tfb;
+   method Bool   shiftout1;
+   method Bool   shiftout2;
+   method Bool   ocbextend;
+   method Action d1       (Bool i);
+   method Action d2       (Bool i);
+   method Action d3       (Bool i);
+   method Action d4       (Bool i);
+   method Action d5       (Bool i);
+   method Action d6       (Bool i);
+   method Action tci      (Bool i);
+   method Action oce      (Bool i);
+   method Action wc       (Bool i);
+   method Action odv      (Bool i);
+   method Action shiftin1 (Bool i);
+   method Action shiftin2 (Bool i);
+   method Action t1       (Bool i);
+   method Action t2       (Bool i);
+   method Action t3       (Bool i);
+   method Action t4       (Bool i);
+endinterface
+
+import "BVI" OSERDES =
+module vMkOSERDES#(OSERDESParams params, 
+                   Clock clk, 
+                   Clock clkdiv, 
+                   Clock clkperf, Clock clkperfdelayed) (OSERDES);
+
+   Reset reset <- invertCurrentReset;
+   default_reset rst(RST) = reset;
+   default_clock clkdiv (CLKDIV);  // Most of this modules methods in the CLKDIV domain
+
+   
+   parameter DATA_RATE_OQ    = params.data_rate_oq;
+   parameter DATA_RATE_TQ    = params.data_rate_tq;
+   parameter DATA_WIDTH      = params.data_width;
+   parameter SERDES_MODE     = params.serdes_mode;
+   parameter TRISTATE_WIDTH  = params.tristate_width;
+   parameter ODELAY_USED     = params.odelay_used;
+   parameter INTERFACE_TYPE  = params.interface_type;
+   
+   input_clock clkhs(CLK,            (*unused*)CLKHS_GATE) = clk;
+   input_clock clkp (CLKPERF,        (*unused*)CLKP_GATE)  = clkperf;
+   input_clock clkpd(CLKPERFSELAYED, (*unused*)CLKPD_GATE) = clkperfdelayed;
+
+   method OQ         oq        reset_by(no_reset);
+   method OFB        ofb       reset_by(no_reset);
+   method TQ         tq        reset_by(no_reset);
+   method TFB        tfb       reset_by(no_reset);
+   method SHIFTOUT1  shiftout1 reset_by(no_reset);
+   method SHIFTOUT2  shiftout2 reset_by(no_reset);
+   method OCBEXTEND  ocbextend reset_by(no_reset);
+   method            d1         (D1)       enable((*inhigh*)en0)  reset_by(no_reset);
+   method            d2         (D2)       enable((*inhigh*)en1)  reset_by(no_reset);
+   method            d3         (D3)       enable((*inhigh*)en2)  reset_by(no_reset);
+   method            d4         (D4)       enable((*inhigh*)en3)  reset_by(no_reset);
+   method            d5         (D5)       enable((*inhigh*)en4)  reset_by(no_reset);
+   method            d6         (D6)       enable((*inhigh*)en5)  reset_by(no_reset);
+   method            tci        (TCI)      enable((*inhigh*)en6)  reset_by(no_reset);
+   method            oce        (OCE)      enable((*inhigh*)en7)  reset_by(no_reset);
+   method            wc         (WC)       enable((*inhigh*)en8)  reset_by(no_reset);
+   method            odv        (ODV)      enable((*inhigh*)en9)  reset_by(no_reset);
+   method            shiftin1   (SHIFTIN1) enable((*inhigh*)en10) reset_by(no_reset);
+   method            shiftin2   (SHIFTIN2) enable((*inhigh*)en11) reset_by(no_reset);
+   method            t1         (T1)       enable((*inhigh*)en12) reset_by(no_reset);
+   method            t2         (T2)       enable((*inhigh*)en13) reset_by(no_reset);
+   method            t3         (T3)       enable((*inhigh*)en14) reset_by(no_reset);
+   method            t4         (T4)       enable((*inhigh*)en15) reset_by(no_reset);
+
+endmodule
+
+module mkOSERDES#(OSERDESParams params, Clock clk, Clock clkdiv, Clock clkperf, Clock clkperfdelayed)(OSERDES);
+   OSERDES _oserdes <- vMkOSERDES(params, clk, clkdiv, clkperf, clkperfdelayed);
+   return _oserdes;
+endmodule
+
+
+
+
+
+
+
 
 
 endpackage: XilinxExtra
