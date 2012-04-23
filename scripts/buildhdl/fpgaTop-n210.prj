@@ -1,0 +1,4 @@
+verilog work "../../libsrc/hdl/bsv/SyncResetA.v"
+
+verilog work "../../rtl/mkFTop_n210.v"
+verilog work "../../libsrc/hdl/ocpi/fpgaTop_n210.v"

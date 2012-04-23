@@ -2,7 +2,7 @@
 ## Shepard Siegel for Atomic Rules LLC
 ## 2012-04-07 Creation
 
-CONFIG PART = XC3SD3400A-FG676-5
+CONFIG PART = XC3SD3400A-FG676-5;
 
 ## System...
 NET "sys0_clkp"  LOC = "AA13" ;  # 100 MHz from AD9510 (U9) OUT-1
@@ -18,38 +18,38 @@ NET "led[1]"     LOC = "AB18" ; # "ok"
 
 
 ## Ethernet Gbe GMII...
-NET "gmii_sysclk"  LOC = "P26"  ;  # 125 MHz from PHY to FPGA MAC
-NET "gmii_txd[7]"  LOC = "G21"  ;
-NET "gmii_txd[6]"  LOC = "C26"  ;
-NET "gmii_txd[5]"  LOC = "C25"  ;
-NET "gmii_txd[4]"  LOC = "J21"  ;
-NET "gmii_txd[3]"  LOC = "H21"  ;
-NET "gmii_txd[2]"  LOC = "D25"  ;
-NET "gmii_txd[1]"  LOC = "D24"  ;
-NET "gmii_txd[0]"  LOC = "E26"  ;
-NET "gmii_tx_en"   LOC = "D26"  ;
-NET "gmii_tx_er"   LOC = "J19"  ;
-NET "gmii_tx_clk"  LOC = "P25"  ;
-NET "gmii_rxd[7]"  LOC = "G22"  ;
-NET "gmii_rxd[6]"  LOC = "K19"  ;
-NET "gmii_rxd[5]"  LOC = "K18"  ;
-NET "gmii_rxd[4]"  LOC = "E24"  ;
-NET "gmii_rxd[3]"  LOC = "F23"  ;
-NET "gmii_rxd[2]"  LOC = "L18"  ;
-NET "gmii_rxd[1]"  LOC = "L17"  ;
-NET "gmii_rxd[0]"  LOC = "F25"  ;
-NET "gmii_rx_dv"   LOC = "F24"  ;
-NET "gmii_rx_er"   LOC = "L20"  ;
-NET "gmii_rx_clk"  LOC = "P21"  ;
-NET "gmii_COL"     LOC = "G23"  ;
-NET "gmii_CRS"     LOC = "K20"  ;
-NET "gmii_INT"     LOC = "L22"  ;
-NET "mdio_mdd"     LOC = "K21"  ;
-NET "mdio_mdc"     LOC = "J23"  ;
-NET "gmii_rstn"    LOC = "J22"  ;
-NET "gmii_gtx_clk" LOC = "J20"  ;
-
-NET "ETH_LED"  LOC = "H20"  |IOSTANDARD = LVCMOS25  |DRIVE = 12  |SLEW = FAST ;
+#NET "gmii_sysclk"  LOC = "P26"  ;  # 125 MHz from PHY to FPGA MAC
+#NET "gmii_txd[7]"  LOC = "G21"  ;
+#NET "gmii_txd[6]"  LOC = "C26"  ;
+#NET "gmii_txd[5]"  LOC = "C25"  ;
+#NET "gmii_txd[4]"  LOC = "J21"  ;
+#NET "gmii_txd[3]"  LOC = "H21"  ;
+#NET "gmii_txd[2]"  LOC = "D25"  ;
+#NET "gmii_txd[1]"  LOC = "D24"  ;
+#NET "gmii_txd[0]"  LOC = "E26"  ;
+#NET "gmii_tx_en"   LOC = "D26"  ;
+#NET "gmii_tx_er"   LOC = "J19"  ;
+#NET "gmii_tx_clk"  LOC = "P25"  ;
+#NET "gmii_rxd[7]"  LOC = "G22"  ;
+#NET "gmii_rxd[6]"  LOC = "K19"  ;
+#NET "gmii_rxd[5]"  LOC = "K18"  ;
+#NET "gmii_rxd[4]"  LOC = "E24"  ;
+#NET "gmii_rxd[3]"  LOC = "F23"  ;
+#NET "gmii_rxd[2]"  LOC = "L18"  ;
+#NET "gmii_rxd[1]"  LOC = "L17"  ;
+#NET "gmii_rxd[0]"  LOC = "F25"  ;
+#NET "gmii_rx_dv"   LOC = "F24"  ;
+#NET "gmii_rx_er"   LOC = "L20"  ;
+#NET "gmii_rx_clk"  LOC = "P21"  ;
+#NET "gmii_COL"     LOC = "G23"  ;
+#NET "gmii_CRS"     LOC = "K20"  ;
+#NET "gmii_INT"     LOC = "L22"  ;
+#NET "mdio_mdd"     LOC = "K21"  ;
+#NET "mdio_mdc"     LOC = "J23"  ;
+#NET "gmii_rstn"    LOC = "J22"  ;
+#NET "gmii_gtx_clk" LOC = "J20"  ;
+#
+#NET "ETH_LED"  LOC = "H20"  |IOSTANDARD = LVCMOS25  |DRIVE = 12  |SLEW = FAST ;
 
 
 ## ADC
@@ -157,8 +157,8 @@ NET "ETH_LED"  LOC = "H20"  |IOSTANDARD = LVCMOS25  |DRIVE = 12  |SLEW = FAST ;
 
 
 ## Debug (Mictor Connector)...
-NET "debug_clk[0]"  LOC = "AA10" ;
-NET "debug_clk[1]"  LOC = "AD11" ;
+#NET "debug_clk[0]"  LOC = "AA10" ;
+#NET "debug_clk[1]"  LOC = "AD11" ;
 NET "debug[0]"      LOC = "AC19" ;
 NET "debug[1]"      LOC = "AF20" ;
 NET "debug[2]"      LOC = "AE20" ;
@@ -411,8 +411,9 @@ NET "debug[31]"     LOC = "Y10"  ;
 #NET "clk_to_mac" TNM_NET = "clk_to_mac";
 #TIMESPEC "TS_clk_to_mac" = PERIOD "clk_to_mac" 8 ns HIGH 50 %;
 
-#NET "clk_fpga_p" TNM_NET = "clk_fpga_p";
-#TIMESPEC "TS_clk_fpga_p" = PERIOD "clk_fpga_p" 10 ns HIGH 50 %;
+NET "ftop/sys0_clk" TNM_NET = "ftop/sys0_clk";
+TIMESPEC "TS_SYS0CLK" = PERIOD "ftop/sys0_clk" 10 ns HIGH 50 %;
+
 #
 #NET "GMII_RX_CLK" TNM_NET = "GMII_RX_CLK";
 #TIMESPEC "TS_GMII_RX_CLK" = PERIOD "GMII_RX_CLK" 8 ns HIGH 50 %;

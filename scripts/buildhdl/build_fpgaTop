@@ -108,6 +108,13 @@ switch ($buildTarget)
     set DDC  = ddc_4243_4ch_v5
     set CSIN = ml605_1102.cdc
     breaksw
+  case n210
+    set PART = xc3sd3400a-fg676-5
+    set PCIe = pcie_4243_axi_k6_gtx_x4_250
+    set FFT  = fft_v5_4k_strm_nat
+    set DDC  = ddc_4243_4ch_v5
+    set CSIN = ml605_1102.cdc
+    breaksw
   default:
     echo Unknown buildTarget $buildTarget
     exit 1
@@ -140,9 +147,14 @@ ngdbuild -sd ../../coregen/$PCIe -sd ../../coregen/$FFT  -sd ../../coregen/$DDC 
 #endif
 
 #map -p $PART -w -logic_opt on -ol high -xe n -mt on -t 1 \
-map -p $PART -w -logic_opt on -xe n -mt on -t 1 \
-  -register_duplication on -ir off \
-  -pr off -lc off -power off -o fpgaTop_map.ncd fpgaTop.ngd fpgaTop.pcf 
+if ($buildTarget == n210) then
+  map -p $PART -w -ir off \
+    -pr off -o fpgaTop_map.ncd fpgaTop.ngd fpgaTop.pcf 
+else
+  map -p $PART -w -logic_opt on -xe n -mt on -t 1 \
+    -register_duplication on -ir off \
+    -pr off -lc off -power off -o fpgaTop_map.ncd fpgaTop.ngd fpgaTop.pcf 
+endif
 #if ($status != 0) then
 #  echo MAP returned non-zero status
 #  exit 1
@@ -158,6 +170,9 @@ par -w -xe n fpgaTop_map.ncd fpgaTop.ncd fpgaTop.pcf
 trce -v 20 -fastpaths -xml fpgaTop.twx fpgaTop.ncd -o fpgaTop.twr fpgaTop.pcf 
 
 if ($buildTarget == kc705) then
+  echo Using bitgen defaults
+  bitgen -w fpgaTop.ncd 
+else if ($buildTarget == n210) then
   echo Using bitgen defaults
   bitgen -w fpgaTop.ncd 
 else

@@ -37,6 +37,7 @@ P_ALST4   ?= FTop_alst4
 P_HTGS4   ?= FTop_htgs4
 P_KC705   ?= FTop_kc705
 P_VC707   ?= FTop_vc707
+P_N210    ?= FTop_n210
 
 OBJ       ?= obj
 RTL       ?= rtl
@@ -650,6 +651,20 @@ platform_ml605_ndw4_debug: $(OBJ)
 		-D HAS_DEVICE_DNA \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML605).bsv
 
+platform_n210: $(OBJ)
+
+	# compile to verilog backend for RTL
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D USE_NDW1 \
+		-D USE_DEBUGLOGIC \
+		-D USE_SRLFIFO \
+		-verilog-filter basicinout $(BSVTOP)/$(P_N210).bsv
+
+
 ######################################################################
 $(OBJ):
 	@mkdir -p $(OBJ)
@@ -841,6 +856,16 @@ vc707:
 	cd build/tmp-vc707; ./build_fpgaTop vc707
 	mv build/tmp-vc707 build/vc707-`date +%Y%m%d_%H%M`
 	echo vc707 Build complete
+
+n210:
+	mkdir -p build
+	rm -rf build/tmp-n210
+	cp -r $(BUILD_HDL) build/tmp-n210
+	cp ucf/n210.ucf build/tmp-n210
+	cp ucf/n210.xcf build/tmp-n210
+	cd build/tmp-n210; ./build_fpgaTop n210
+	mv build/tmp-n210 build/n210-`date +%Y%m%d_%H%M`
+	echo n210 Build complete
 
 build_all:
 	make verilog_v5
