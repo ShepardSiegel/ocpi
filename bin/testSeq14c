@@ -1,0 +1,29 @@
+#!/bin/sh
+# Script tstseq14c for testing GMAC
+
+echo "admin probe"
+./swctl 0xDE000000 0xDFFF0000 settime
+./swctl 0xDE000000 0xDFFF0000 admin
+
+echo "Reset workers"
+./swctl 0xDE000000 0xDFFF0000 wreset 10 0
+
+echo " Hold reset asserted for minimum 10 mS"
+sleep 1
+
+echo "unreset workers"
+#./swctl 0xDE000000 0xDFFF0000 wunreset 10 0x8000000F
+./swctl 0xDE000000 0xDFFF0000 wwctl 10 0x8000000F
+
+echo "wait 5mS after reset before talking to PHY"
+sleep 1
+
+echo "initialize workers"
+./swctl 0xDE000000 0xDFFF0000 wop 10 initialize
+
+echo "start gbe worker"
+./swctl 0xDE000000 0xDFFF0000 wop 10 start
+
+./swctl 0xDE000000 0xDFFF0000 wread 10 0 32
+./swctl 0xDE000000 0xDFFF0000 wread 10 0x80 32
+
