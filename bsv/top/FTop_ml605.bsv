@@ -45,7 +45,7 @@ interface FTop_ml605Ifc;
   interface GPSIfc                 gps;
   interface DDR3_64                dram;
   interface FLASH_IO#(24,16)       flash;
-  interface Clock                  rxclk;      // GMII RX Clock (provided here for BSV interface rules)
+  interface Clock                  rxclkBnd;   // GMII RX Clock (provided here for BSV interface rules)
   interface Reset                  gmii_rstn;  // GMII Reset driven out to PHY
   interface GMII_RS                gmii;       // The GMII link RX/TX
   interface MDIO_Pads              mdio;       // The MDIO pads
@@ -157,7 +157,7 @@ module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board
   interface GPSIfc     gps       = ctop.gps;
   interface FLASH_IO   flash     = flash0.flash;
   interface DDR3_64    dram      = dram0.dram;
-  interface Clock      rxclk     = gbe0.rxclk;
+  interface Clock      rxclkBnd  = gbe0.rxclkBnd;
   interface Reset      gmii_rstn = gbe0.gmii_rstn;
   interface GMII       gmii      = gbe0.gmii;
   interface MDIO_Pads  mdio      = gbe0.mdio;

@@ -318,7 +318,7 @@ endinterface
 
 interface GMACIfc;
   interface GMII_RS     gmii;
-  interface Clock       rxclk; 
+  interface Clock       rxclkBnd; 
   //interface Reset       gmii_rstn;
   interface Get#(ABS)   rx;
   interface Put#(ABS)   tx;
@@ -374,7 +374,7 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
     method Action col (Bit#(1) i) = noAction;
     method Action crs (Bit#(1) i) = noAction;
   endinterface
-  interface Clock rxclk     = rxClk_BUFR;  // Need to provide this clock at the BSV module bounds (not physically used)
+  interface Clock rxclkBnd    = rxClk_BUFR;  // Need to provide this clock at the BSV module bounds (not physically used)
   //interface Reset gmii_rstn = phyReset;    // Active-Low reset passed up and out to PHY
 endmodule: mkGMAC
 
@@ -562,19 +562,35 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
 
   // Output source-syncronous clocking; Clock output is 180 degress out-of-phase for 4 nS SU + 4 nS Hold...
 
+
+//`define SPARTAN
+`ifdef SPARTAN
+
+  ODDR2#(Bit#(8))  iobTxData <- mkODDR2(ODDR2Params {ddr_alignment:"NONE", init:0, srtype:"SYNC"},       clocked_by txClk, reset_by txRst);
+  ODDR2#(Bit#(1))  iobTxEna  <- mkODDR2(ODDR2Params {ddr_alignment:"NONE", init:0, srtype:"SYNC"},       clocked_by txClk, reset_by txRst);
+  ODDR2#(Bit#(1))  iobTxErr  <- mkODDR2(ODDR2Params {ddr_alignment:"NONE", init:0, srtype:"SYNC"},       clocked_by txClk, reset_by txRst);
+  (* fire_when_enabled, no_implicit_conditions *)
+  rule tx_output_flops;
+    iobTxData.d0(txData);    iobTxData.d1(txData);     iobTxData.ce(True);  iobTxData.s(False);
+    iobTxEna.d0(pack(txDV)); iobTxEna.d1(pack(txDV));  iobTxEna.ce(True);   iobTxEna.s(False);
+    iobTxErr.d0(pack(txER)); iobTxErr.d1(pack(txER));  iobTxErr.ce(True);   iobTxErr.s(False);
+  endrule
+
+`else
+
   (* doc = "iobTxClk output is 180 degress out-of-phase for 4 nS SU + 4 nS Hold" *)
   Clock           iobTxClk  <- mkClockODDR(ODDRParams {ddr_clk_edge:"SAME_EDGE", init:0, srtype:"SYNC"}, 0, 1, clocked_by txClk, reset_by txRst);
-
   ODDRar#(Bit#(8))  iobTxData <- mkODDRar(     ODDRParams {ddr_clk_edge:"SAME_EDGE", init:0, srtype:"SYNC"},       clocked_by txClk, reset_by txRst);
   ODDRar#(Bit#(1))  iobTxEna  <- mkODDRar(     ODDRParams {ddr_clk_edge:"SAME_EDGE", init:0, srtype:"SYNC"},       clocked_by txClk, reset_by txRst);
   ODDRar#(Bit#(1))  iobTxErr  <- mkODDRar(     ODDRParams {ddr_clk_edge:"SAME_EDGE", init:0, srtype:"SYNC"},       clocked_by txClk, reset_by txRst);
-
   (* fire_when_enabled, no_implicit_conditions *)
   rule tx_output_flops;
     iobTxData.d1(txData);    iobTxData.d2(txData);     iobTxData.ce(True);  iobTxData.s(False);
     iobTxEna.d1(pack(txDV)); iobTxEna.d2(pack(txDV));  iobTxEna.ce(True);   iobTxEna.s(False);
     iobTxErr.d1(pack(txER)); iobTxErr.d2(pack(txER));  iobTxErr.ce(True);   iobTxErr.s(False);
   endrule
+
+`endif
 
   interface Put tx = toPut(txF);
   method  Action  txOperate = txOperateD._write(True);

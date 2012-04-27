@@ -889,9 +889,57 @@ module mkOSERDES#(OSERDESParams params, Clock clk, Clock clkdiv, Clock clkperf, 
 endmodule
 
 
+`ifdef SPARTAN
+////////////////////////////////////////////////////////////////////////////////
+// Spartan-3 ODDR2
 
+typedef struct {
+		String    ddr_alignment;
+		Bit#(1)   init;
+		String    srtype;
+		} ODDR2Prms deriving (Bits, Eq);
 
+instance DefaultValue#(ODDR2Prms);
+  defaultValue = ODDR2Prms {
+		ddr_alignment:   "NONE",
+		init:            1'b0,
+		srtype:         "SYNC"
+  };
+endinstance
 
+(* always_ready, always_enabled *)
+interface ODDR2#(type a);
+   method    a         q;
+   method    Action    s (Bit#(1) i);
+   method    Action    r (Bit#(1) i);
+   method    Action    ce(Bit#(1) i);
+   method    Action    d0(a i);
+   method    Action    d1(a i);
+endinterface: ODDR2
+
+import "BVI" ODDR2 =
+module vMkODDR2#(ODDR2Prms params, Clock c0, Clock c1)(ODDR2#(a));
+
+   parameter DDR_ALIGNMENT = params.ddr_alignment;
+   parameter INIT          = params.init;
+   parameter SRTYPE        = params.srtype;
+
+   input_clock clk_0(C0, (*unused*)C0_GATE) = c0;
+   input_clock clk_1(C1, (*unused*)C1_GATE) = c1;
+   
+   method Q q;
+   method   ce(CE) enable((*inhigh*)en0);
+   method   d0(D0) enable((*inhigh*)en1);
+   method   d1(D1) enable((*inhigh*)en2);
+   method   s(S)   enable((*inhigh*)en3);
+   method   r(R)   enable((*inhigh*)en4);
+endmodule: vMkODDR2
+
+module mkODDR2#(ODDR2Prms params, Clock c0, Clock c1)(ODDR2#(a));
+   ODDR2#(a) _oddr2 <- vMkODDR2(params, c0, c1);
+   return _oddr2;
+endmodule
+`endif
 
 
 

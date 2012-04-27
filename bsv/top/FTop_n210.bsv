@@ -5,9 +5,12 @@
 //import Config            ::*;
 //import CPDefs            ::*;
 //import CTop              ::*;
-//import GMAC              ::*;
-//import MDIO              ::*;
 //import FlashWorker       ::*;
+
+import MDIO              ::*;
+import GMAC              ::*;
+import GbeLite           ::*;
+
 //import GbeWorker         ::*;
 //import ICAPWorker        ::*;
 //import OCWip             ::*;
@@ -40,20 +43,30 @@ import XilinxCells       ::*;
 
 (* always_ready, always_enabled *)
 interface FTop_n210Ifc;
-  method Bit#(5)   led;
-  method Bit#(32)  debug;
-  interface Reset  sysRst;
+  method    Bit#(5)    led;
+  method    Bit#(32)   debug;
+  interface Clock      rxclkBnd;   // GMII RX Clock (provided here for BSV interface rules)
+  interface Reset      gmii_rstn;  // GMII Reset driven out to PHY
+  interface GMII_RS    gmii;       // The GMII link RX/TX
+  interface MDIO_Pads  mdio;       // The MDIO pads
+  interface Reset      sysRst;
 endinterface: FTop_n210Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
 module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Reference
+                    Clock gmii_sysclk,                 // 125 MHz from GbE PHY
+                    Clock gmii_rx_clk,                 // 125 MHz GMII RX Clock recovered
                     Reset fpga_rstn)
                     (FTop_n210Ifc);
 
   Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn);
   Reset            sys0_rst   <- mkAsyncReset(2, fpga_rstn , sys0_clk);
+  Clock            sys1_clk   <- mkClockBUFG(clocked_by gmii_sysclk);
+  Reset            sys1_rst   <- mkAsyncReset(2, fpga_rstn , sys1_clk);
   Reg#(Bit#(32))   freeCnt    <- mkReg(0,    clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       doInit     <- mkReg(True, clocked_by sys0_clk, reset_by sys0_rst);
+
+  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys1_clk, sys1_rst, clocked_by sys0_clk, reset_by sys0_rst);
 
   rule inc_freeCnt;
     freeCnt <= freeCnt + 1;
@@ -75,8 +88,12 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
     return~(gateBit ? 5'h01 : 5'h00);
   endfunction
 
-  method Bit#(5)  led    = doInit ? initBlink(freeCnt) : ledStatus(freeCnt);
-  method Bit#(32) debug  = {pack(grayEncode(pack(freeCnt)[15:0])), 16'h0000};
+  method    Bit#(5)    led    = doInit ? initBlink(freeCnt) : ledStatus(freeCnt);
+  method    Bit#(32)   debug  = {pack(grayEncode(pack(freeCnt)[15:0])), 16'h0000};
+  interface Clock      rxclkBnd  = gbe0.rxclkBnd;
+  interface Reset      gmii_rstn = gbe0.gmii_rstn;
+  interface GMII       gmii      = gbe0.gmii;
+  interface MDIO_Pads  mdio      = gbe0.mdio;
   interface Reset sysRst = sys0_rst;
 endmodule: mkFTop_n210
 

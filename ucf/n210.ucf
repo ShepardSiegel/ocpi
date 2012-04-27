@@ -1,6 +1,7 @@
 ## n210.ucf - OpenCPI n210 platform (Ettus Research N210)
 ## Shepard Siegel for Atomic Rules LLC
 ## 2012-04-07 Creation
+## 2012-04-24 Gbe with TruPHY ET1011
 
 CONFIG PART = XC3SD3400A-FG676-5;
 
@@ -18,37 +19,36 @@ NET "led[1]"     LOC = "AB18" ; # "ok"
 
 
 ## Ethernet Gbe GMII...
-#NET "gmii_sysclk"  LOC = "P26"  ;  # 125 MHz from PHY to FPGA MAC
-#NET "gmii_txd[7]"  LOC = "G21"  ;
-#NET "gmii_txd[6]"  LOC = "C26"  ;
-#NET "gmii_txd[5]"  LOC = "C25"  ;
-#NET "gmii_txd[4]"  LOC = "J21"  ;
-#NET "gmii_txd[3]"  LOC = "H21"  ;
-#NET "gmii_txd[2]"  LOC = "D25"  ;
-#NET "gmii_txd[1]"  LOC = "D24"  ;
-#NET "gmii_txd[0]"  LOC = "E26"  ;
-#NET "gmii_tx_en"   LOC = "D26"  ;
-#NET "gmii_tx_er"   LOC = "J19"  ;
+NET "gmii_sysclk"  LOC = "P26"  ;  # 125 MHz from PHY to FPGA MAC
+NET "gmii_rstn"    LOC = "J22"  ;
+NET "gmii_gtx_clk" LOC = "J20"  ;  # TX
+NET "gmii_txd[7]"  LOC = "G21"  ;
+NET "gmii_txd[6]"  LOC = "C26"  ;
+NET "gmii_txd[5]"  LOC = "C25"  ;
+NET "gmii_txd[4]"  LOC = "J21"  ;
+NET "gmii_txd[3]"  LOC = "H21"  ;
+NET "gmii_txd[2]"  LOC = "D25"  ;
+NET "gmii_txd[1]"  LOC = "D24"  ;
+NET "gmii_txd[0]"  LOC = "E26"  ;
+NET "gmii_tx_en"   LOC = "D26"  ;
+NET "gmii_tx_er"   LOC = "J19"  ;
 #NET "gmii_tx_clk"  LOC = "P25"  ;
-#NET "gmii_rxd[7]"  LOC = "G22"  ;
-#NET "gmii_rxd[6]"  LOC = "K19"  ;
-#NET "gmii_rxd[5]"  LOC = "K18"  ;
-#NET "gmii_rxd[4]"  LOC = "E24"  ;
-#NET "gmii_rxd[3]"  LOC = "F23"  ;
-#NET "gmii_rxd[2]"  LOC = "L18"  ;
-#NET "gmii_rxd[1]"  LOC = "L17"  ;
-#NET "gmii_rxd[0]"  LOC = "F25"  ;
-#NET "gmii_rx_dv"   LOC = "F24"  ;
-#NET "gmii_rx_er"   LOC = "L20"  ;
-#NET "gmii_rx_clk"  LOC = "P21"  ;
-#NET "gmii_COL"     LOC = "G23"  ;
-#NET "gmii_CRS"     LOC = "K20"  ;
-#NET "gmii_INT"     LOC = "L22"  ;
-#NET "mdio_mdd"     LOC = "K21"  ;
-#NET "mdio_mdc"     LOC = "J23"  ;
-#NET "gmii_rstn"    LOC = "J22"  ;
-#NET "gmii_gtx_clk" LOC = "J20"  ;
-#
+NET "gmii_rx_clk"  LOC = "P21"  ;  # RX
+NET "gmii_rxd[7]"  LOC = "G22"  ;
+NET "gmii_rxd[6]"  LOC = "K19"  ;
+NET "gmii_rxd[5]"  LOC = "K18"  ;
+NET "gmii_rxd[4]"  LOC = "E24"  ;
+NET "gmii_rxd[3]"  LOC = "F23"  ;
+NET "gmii_rxd[2]"  LOC = "L18"  ;
+NET "gmii_rxd[1]"  LOC = "L17"  ;
+NET "gmii_rxd[0]"  LOC = "F25"  ;
+NET "gmii_rx_dv"   LOC = "F24"  ;
+NET "gmii_rx_er"   LOC = "L20"  ;
+NET "gmii_COL"     LOC = "G23"  ;  # Misc
+NET "gmii_CRS"     LOC = "K20"  ;
+NET "gmii_INT"     LOC = "L22"  ;
+NET "mdio_mdd"     LOC = "K21"  ;
+NET "mdio_mdc"     LOC = "J23"  ;
 #NET "ETH_LED"  LOC = "H20"  |IOSTANDARD = LVCMOS25  |DRIVE = 12  |SLEW = FAST ;
 
 
