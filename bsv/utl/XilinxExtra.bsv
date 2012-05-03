@@ -444,9 +444,7 @@ module mkODDRar#(ODDRParams#(a) params)(ODDRar#(a))
    end
 
    Vector#(sa, VODDRar#(Bit#(1))) _oddr  = ?;
-   for(Integer i = 0; i < valueof(sa); i = i + 1) begin
-      _oddr[i] <- vMkODDRar(_params[i], reset_by reset);
-   end
+   for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr[i] <- vMkODDRar(_params[i], reset_by reset);
 
    function Bit#(1) getQ(VODDRar#(Bit#(1)) ddr);
       return ddr.q;
@@ -457,32 +455,22 @@ module mkODDRar#(ODDRParams#(a) params)(ODDRar#(a))
    endmethod
 
    method Action s(Bool x);
-      for(Integer i = 0; i < valueof(sa); i = i + 1) begin
-         _oddr[i].s(x);
-      end
+      for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr[i].s(x);
    endmethod
 
    method Action ce(Bool x);
-      for(Integer i = 0; i < valueof(sa); i = i + 1) begin
-         _oddr[i].ce(x);
-      end
+      for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr[i].ce(x);
    endmethod
 
    method Action d1(a x);
-      for(Integer i = 0; i < valueof(sa); i = i + 1) begin
-         _oddr[i].d1(pack(x)[i]);
-      end
+      for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr[i].d1(pack(x)[i]);
    endmethod
 
    method Action d2(a x);
-      for(Integer i = 0; i < valueof(sa); i = i + 1) begin
-         _oddr[i].d2(pack(x)[i]);
-      end
+      for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr[i].d2(pack(x)[i]);
    endmethod
 
 endmodule: mkODDRar
-
-
 
 `endif
 
@@ -881,6 +869,12 @@ module vMkOSERDES#(OSERDESParams params,
    method            t3         (T3)       enable((*inhigh*)en14) reset_by(no_reset);
    method            t4         (T4)       enable((*inhigh*)en15) reset_by(no_reset);
 
+   //TODO: Make this schedule non-bogus...
+   schedule
+   (oq, ofb, tq, tfb, shiftout1, shiftout2, ocbextend, d1, d2, d3, d4, d5, d6, tci, oce, wc, odv, shiftin1, shiftin2, t1, t2, t3, t4)
+   CF
+   (oq, ofb, tq, tfb, shiftout1, shiftout2, ocbextend, d1, d2, d3, d4, d5, d6, tci, oce, wc, odv, shiftin1, shiftin2, t1, t2, t3, t4);
+
 endmodule
 
 module mkOSERDES#(OSERDESParams params, Clock clk, Clock clkdiv, Clock clkperf, Clock clkperfdelayed)(OSERDES);
@@ -889,7 +883,6 @@ module mkOSERDES#(OSERDESParams params, Clock clk, Clock clkdiv, Clock clkperf, 
 endmodule
 
 
-`ifdef SPARTAN
 ////////////////////////////////////////////////////////////////////////////////
 // Spartan-3 ODDR2
 
@@ -910,9 +903,9 @@ endinstance
 (* always_ready, always_enabled *)
 interface ODDR2#(type a);
    method    a         q;
-   method    Action    s (Bit#(1) i);
-   method    Action    r (Bit#(1) i);
-   method    Action    ce(Bit#(1) i);
+   method    Action    s (Bool i);
+   method    Action    r (Bool i);
+   method    Action    ce(Bool i);
    method    Action    d0(a i);
    method    Action    d1(a i);
 endinterface: ODDR2
@@ -924,6 +917,10 @@ module vMkODDR2#(ODDR2Prms params, Clock c0, Clock c1)(ODDR2#(a));
    parameter INIT          = params.init;
    parameter SRTYPE        = params.srtype;
 
+   default_clock clk();  // Stops BSV from generating the OSC and CLK_GATE ports
+
+   no_reset;  // Stops BSV from generating the RST_N port
+
    input_clock clk_0(C0, (*unused*)C0_GATE) = c0;
    input_clock clk_1(C1, (*unused*)C1_GATE) = c1;
    
@@ -933,15 +930,56 @@ module vMkODDR2#(ODDR2Prms params, Clock c0, Clock c1)(ODDR2#(a));
    method   d1(D1) enable((*inhigh*)en2);
    method   s(S)   enable((*inhigh*)en3);
    method   r(R)   enable((*inhigh*)en4);
+
+   //TODO: Make this schedule non-bogus...
+   schedule
+   (q, ce, d0, d1, s, r) CF (q, ce, d0, d1, s, r);
+
 endmodule: vMkODDR2
 
-module mkODDR2#(ODDR2Prms params, Clock c0, Clock c1)(ODDR2#(a));
+module mkODDR2#(ODDR2Prms params)(ODDR2#(a))
+   provisos(Bits#(a,sa), DefaultValue#(a));
+
+   Clock           c0  <- exposeCurrentClock;
+   ClockDividerIfc cdi <- mkClockInverter;
+   Clock           c1  =  cdi.slowClock;
+
    ODDR2#(a) _oddr2 <- vMkODDR2(params, c0, c1);
    return _oddr2;
-endmodule
-`endif
+endmodule: mkODDR2
 
+// Clock Gen Flavor of ODDR2 for Source-Sync...
 
+import "BVI" ODDR2 =
+module vMkClockODDR2#(ODDR2Prms params, Clock c0, Clock c1, Bit#(1) d0, Bit#(1) d1)(ClockGenIfc);
+
+   Reset reset <- invertCurrentReset;
+   default_reset rst(R) = reset;
+
+   default_clock clk();  // Stops BSV from generating the OSC and CLK_GATE ports
+
+   input_clock clk_0(C0, (*unused*)C0_GATE) = c0;
+   input_clock clk_1(C1, (*unused*)C1_GATE) = c1;
+
+   output_clock gen_clk(Q);
+
+   parameter DDR_ALIGNMENT = params.ddr_alignment;
+   parameter INIT          = params.init;
+   parameter SRTYPE        = params.srtype;
+
+   port D0 = d0;
+   port D1 = d1;
+   port CE = True;
+   port S  = False;
+endmodule: vMkClockODDR2
+
+module mkClockODDR2#(ODDR2Prms params, Bit#(1) d0, Bit#(1) d1)(Clock);
+   Clock           c0  <- exposeCurrentClock;
+   ClockDividerIfc cdi <- mkClockInverter;
+   Clock           c1  =  cdi.slowClock;
+   let _m <- vMkClockODDR2(params, c0, c1, d0, d1);
+   return _m.gen_clk;
+endmodule: mkClockODDR2
 
 
 endpackage: XilinxExtra

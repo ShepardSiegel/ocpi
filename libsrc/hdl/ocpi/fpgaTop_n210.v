@@ -26,12 +26,12 @@ module fpgaTop(
 
 // Instance and connect mkFTop...
  mkFTop_n210 ftop(
-  .sys0_clkp         (sys0_clkp),
+  .sys0_clkp         (sys0_clkp),    // 100 MHz from ADI9510 ch1
   .sys0_clkn         (sys0_clkn),
-  .fpga_rstn         (fpga_rstn),
+  .fpga_rstn         (fpga_rstn),    // pushbutton, active-low
 
-  .led               (led),
-  .debug             (debug),
+  .led               (led),          // Front-panel LEDs
+  .debug             (debug),        // MICTOR debug connector
 
 	.gmii_sysclk       (gmii_sysclk),  // 125 MHz PHY to MAC is sys1_clk
 	.gmii_rstn         (gmii_rstn),

@@ -661,6 +661,7 @@ platform_n210: $(OBJ)
 		-D USE_NDW1 \
 		-D USE_DEBUGLOGIC \
 		-D USE_SRLFIFO \
+		-D SPARTAN \
 		-verilog-filter basicinout $(BSVTOP)/$(P_N210).bsv
 
 
@@ -857,6 +858,16 @@ vc707:
 	echo vc707 Build complete
 
 n210:
+	mkdir -p build
+	rm -rf build/tmp-n210
+	cp -r $(BUILD_HDL) build/tmp-n210
+	cp ucf/n210.ucf build/tmp-n210
+	cp ucf/n210.xcf build/tmp-n210
+	cd build/tmp-n210; ./build_fpgaTop n210
+	mv build/tmp-n210 build/n210-`date +%Y%m%d_%H%M`
+	echo n210 Build complete
+
+n210tmp:
 	mkdir -p build
 	rm -rf build/tmp-n210
 	cp -r $(BUILD_HDL) build/tmp-n210

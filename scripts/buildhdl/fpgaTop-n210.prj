@@ -6,6 +6,7 @@ verilog work "../../libsrc/hdl/bsv/TriState.v"
 verilog work "../../libsrc/hdl/bsv/SyncBit.v"
 verilog work "../../libsrc/hdl/bsv/SyncFIFO.v"
 verilog work "../../libsrc/hdl/bsv/ResetInverter.v"
+verilog work "../../libsrc/hdl/bsv/ClockInverter.v"
 
 verilog work "../../rtl/mkCRC32.v"
 verilog work "../../rtl/mkGMAC.v"

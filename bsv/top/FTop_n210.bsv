@@ -34,7 +34,7 @@ import TieOff            ::*;
 import Vector            ::*;
 import XilinxCells       ::*;
 
-/* Front-Panel LED Encoding
+/* USRP2 N210 Front-Panel LED Encoding
 | A(4)tx   | B(1)mimo |
 | C(3)rx   | D(0)firm |
 | E(2)ref  | F(-)cpld |
@@ -43,13 +43,13 @@ import XilinxCells       ::*;
 
 (* always_ready, always_enabled *)
 interface FTop_n210Ifc;
-  method    Bit#(5)    led;
-  method    Bit#(32)   debug;
-  interface Clock      rxclkBnd;   // GMII RX Clock (provided here for BSV interface rules)
-  interface Reset      gmii_rstn;  // GMII Reset driven out to PHY
-  interface GMII_RS    gmii;       // The GMII link RX/TX
-  interface MDIO_Pads  mdio;       // The MDIO pads
-  interface Reset      sysRst;
+  method     Bit#(5)    led;
+  method     Bit#(32)   debug;
+  interface  Clock      rxclkBnd;   // GMII RX Clock (provided here for BSV interface rules)
+  interface  Reset      gmii_rstn;  // GMII Reset driven out to PHY
+  interface  GMII_RS    gmii;       // The GMII link RX/TX
+  interface  MDIO_Pads  mdio;       // The MDIO pads
+  interface  Reset      sysRst;
 endinterface: FTop_n210Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
@@ -59,10 +59,11 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
                     Reset fpga_rstn)
                     (FTop_n210Ifc);
 
-  Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn);
+  Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn);     // sys0: 100 MHz Clock and Reset (from clock gen)
   Reset            sys0_rst   <- mkAsyncReset(2, fpga_rstn , sys0_clk);
-  Clock            sys1_clk   <- mkClockBUFG(clocked_by gmii_sysclk);
+  Clock            sys1_clk   <- mkClockBUFG(clocked_by gmii_sysclk);     // sys1: 125 MHz Clock and Reset (from Enet PHY)
   Reset            sys1_rst   <- mkAsyncReset(2, fpga_rstn , sys1_clk);
+
   Reg#(Bit#(32))   freeCnt    <- mkReg(0,    clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       doInit     <- mkReg(True, clocked_by sys0_clk, reset_by sys0_rst);
 
