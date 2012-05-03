@@ -202,9 +202,11 @@ if ($doPromgen == 1) then
       promgen -w -p mcs -c FF -x xcf128x -u 00000000 ./fpgaTop.bit -data_width 16 
       breaksw
     default:
+      echo Not building a prom file for this target
       breaksw
   endsw
 endif
 
 grep errors fpgaTop.twr | tee twrErrors.txt
 
+echo End of build_fpgaTop at `date`
