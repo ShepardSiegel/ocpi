@@ -32,13 +32,15 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeLiteIfc);
 
-  Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0107);  // default to PHY MDIO Add 7
+  Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0101);  // default to PHY MDIO addr 1 ([4:0]) for N210
   MDIO                        mdi                 <-  mkMDIO(6);
   Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);          // True when split read
 
   GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, sys1_clk);
   Reg#(MACAddress)            macAddress          <-  mkReg(48'h00_0A_35_42_01_00);
-  MakeResetIfc                phyRst              <-  mkReset(1, True, sys1_clk);
+
+  Clock                       sys0_clk            <-  exposeCurrentClock;
+  MakeResetIfc                phyRst              <-  mkReset(1, True, sys0_clk);   // Use 100 MHz sys0 as sys1 may not be running before reset!
   Reg#(Int#(22))              phyResetWaitCnt     <-  mkReg(1250000);
 
   Reg#(Vector#(4,Bit#(8)))    rxPipe              <-  mkRegU;

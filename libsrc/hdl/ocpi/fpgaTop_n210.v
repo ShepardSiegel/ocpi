@@ -20,7 +20,8 @@ module fpgaTop(
 	input  wire        gmii_rx_dv,
 	input  wire        gmii_rx_er,
   output wire        mdio_mdc,
-  inout  wire        mdio_mdd
+  inout  wire        mdio_mdd,
+	output wire        gmii_led
 
 );
 
@@ -44,7 +45,8 @@ module fpgaTop(
 	.gmii_rx_rx_dv_i   (gmii_rx_dv),
 	.gmii_rx_rx_er_i   (gmii_rx_er),
   .mdio_mdc          (mdio_mdc),
-  .mdio_mdd          (mdio_mdd)
+  .mdio_mdd          (mdio_mdd),
+	.gmii_led          (gmii_led)
 
 );
 

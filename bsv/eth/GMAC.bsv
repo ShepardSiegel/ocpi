@@ -292,6 +292,7 @@ interface GMII_RS;  // GMII_RS is the bottom of the MAC facing the top of the PH
   interface GMII_TX_RS  tx;
   method    Action      col  (Bit#(1) i);
   method    Action      crs  (Bit#(1) i);
+  method    Bit#(1)     led;
 endinterface: GMII_RS
 
 (* always_enabled, always_ready *)
@@ -300,6 +301,7 @@ interface GMII_PCS; // GMII_PCS is the top of the PHY facing the MAC...
   interface GMII_TX_PCS tx;
   method    Bit#(1)     col;
   method    Bit#(1)     crs;
+  method    Action      led  (Bit#(1) i);
 endinterface: GMII_PCS
 
 interface RxRSIfc;
@@ -365,6 +367,8 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
   RxRSIfc       rxRS             <-  mkRxRSAsync(rxClk_BUFR);
   TxRSIfc       txRS             <-  mkTxRSAsync(txClk);
 
+  ReadOnly#(Bool) isReset        <- isResetAsserted;
+
   interface Get rx = rxRS.rx;
   interface Put tx = txRS.tx;
   method Action rxOperate   = rxRS.rxOperate;
@@ -377,6 +381,7 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
     interface GMII_TX_RS  tx = txRS.gmii;
     method Action col (Bit#(1) i) = noAction;
     method Action crs (Bit#(1) i) = noAction;
+    method Bit#(1) led = pack(!isReset);
   endinterface
   interface Clock rxclkBnd    = rxClk_BUFR;  // Need to provide this clock at the BSV module bounds (not physically used)
   //interface Reset gmii_rstn = phyReset;    // Active-Low reset passed up and out to PHY

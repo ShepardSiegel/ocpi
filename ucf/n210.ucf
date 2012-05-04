@@ -49,7 +49,7 @@ NET "gmii_CRS"     LOC = "K20"  ;
 NET "gmii_INT"     LOC = "L22"  ;
 NET "mdio_mdd"     LOC = "K21"  ;
 NET "mdio_mdc"     LOC = "J23"  ;
-#NET "ETH_LED"  LOC = "H20"  |IOSTANDARD = LVCMOS25  |DRIVE = 12  |SLEW = FAST ;
+NET "gmii_led"     LOC = "H20"  ; // The Green LED 2 at the upper Left of the RJ45 Connector
 
 
 ## ADC
