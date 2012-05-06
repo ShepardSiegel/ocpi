@@ -580,9 +580,9 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
   ODDR2#(Bit#(1))  iobTxErr  <- mkODDR2(     ODDR2Prms {ddr_alignment:"NONE", init:0, srtype:"SYNC"},       clocked_by txClk, reset_by txRst);
   (* fire_when_enabled, no_implicit_conditions *)
   rule tx_output_flops;
-    iobTxData.d0(txData);    iobTxData.d1(txData);     iobTxData.ce(True);  iobTxData.s(False); iobTxData.r(False);
-    iobTxEna.d0(pack(txDV)); iobTxEna.d1(pack(txDV));  iobTxEna.ce(True);   iobTxEna.s(False);  iobTxEna.r(False);
-    iobTxErr.d0(pack(txER)); iobTxErr.d1(pack(txER));  iobTxErr.ce(True);   iobTxErr.s(False);  iobTxErr.r(False);
+    iobTxData.d0(txData);    iobTxData.d1(txData);     iobTxData.ce(True);  iobTxData.s(False);
+    iobTxEna.d0(pack(txDV)); iobTxEna.d1(pack(txDV));  iobTxEna.ce(True);   iobTxEna.s(False);
+    iobTxErr.d0(pack(txER)); iobTxErr.d1(pack(txER));  iobTxErr.ce(True);   iobTxErr.s(False);
   endrule
 
 

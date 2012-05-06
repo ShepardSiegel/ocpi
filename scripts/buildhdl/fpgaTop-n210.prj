@@ -1,5 +1,6 @@
 verilog work "../../libsrc/hdl/bsv/SyncResetA.v"
 verilog work "../../libsrc/hdl/bsv/MakeResetA.v"
+verilog work "../../libsrc/hdl/bsv/MakeReset0.v"
 verilog work "../../libsrc/hdl/bsv/FIFO2.v"
 verilog work "../../libsrc/hdl/bsv/Counter.v"
 verilog work "../../libsrc/hdl/bsv/TriState.v"

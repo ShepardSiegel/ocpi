@@ -890,9 +890,10 @@ typedef struct {
 		String    ddr_alignment;
 		Bit#(1)   init;
 		String    srtype;
-		} ODDR2Prms deriving (Bits, Eq);
+		} ODDR2Prms#(type a) deriving (Bits, Eq);
 
-instance DefaultValue#(ODDR2Prms);
+instance DefaultValue#(ODDR2Prms#(a))
+  provisos(DefaultValue#(a));
   defaultValue = ODDR2Prms {
 		ddr_alignment:   "NONE",
 		init:            1'b0,
@@ -900,18 +901,27 @@ instance DefaultValue#(ODDR2Prms);
   };
 endinstance
 
+interface VODDR2#(type a);
+   method    a         q;
+   method    Action    s (Bool i);
+   method    Action    ce(Bool i);
+   method    Action    d0(a i);
+   method    Action    d1(a i);
+endinterface: VODDR2
+
+
 (* always_ready, always_enabled *)
 interface ODDR2#(type a);
    method    a         q;
    method    Action    s (Bool i);
-   method    Action    r (Bool i);
    method    Action    ce(Bool i);
    method    Action    d0(a i);
    method    Action    d1(a i);
 endinterface: ODDR2
 
 import "BVI" ODDR2 =
-module vMkODDR2#(ODDR2Prms params, Clock c0, Clock c1)(ODDR2#(a));
+module vMkODDR2#(ODDR2Prms#(a) params, Clock c0, Clock c1)(ODDR2#(a))
+   provisos(Bits#(a,sa), DefaultValue#(a));
 
    parameter DDR_ALIGNMENT = params.ddr_alignment;
    parameter INIT          = params.init;
@@ -919,7 +929,9 @@ module vMkODDR2#(ODDR2Prms params, Clock c0, Clock c1)(ODDR2#(a));
 
    default_clock clk();  // Stops BSV from generating the OSC and CLK_GATE ports
 
-   no_reset;  // Stops BSV from generating the RST_N port
+   default_reset rst(R);  // Tie current reset to active-high R
+
+   //no_reset;  // Stops BSV from generating the RST_N port
 
    input_clock clk_0(C0, (*unused*)C0_GATE) = c0;
    input_clock clk_1(C1, (*unused*)C1_GATE) = c1;
@@ -929,29 +941,63 @@ module vMkODDR2#(ODDR2Prms params, Clock c0, Clock c1)(ODDR2#(a));
    method   d0(D0) enable((*inhigh*)en1);
    method   d1(D1) enable((*inhigh*)en2);
    method   s(S)   enable((*inhigh*)en3);
-   method   r(R)   enable((*inhigh*)en4);
 
    //TODO: Make this schedule non-bogus...
    schedule
-   (q, ce, d0, d1, s, r) CF (q, ce, d0, d1, s, r);
+   (q, ce, d0, d1, s) CF (q, ce, d0, d1, s);
 
 endmodule: vMkODDR2
 
-module mkODDR2#(ODDR2Prms params)(ODDR2#(a))
+module mkODDR2#(ODDR2Prms#(a) params)(ODDR2#(a))
    provisos(Bits#(a,sa), DefaultValue#(a));
+
+   Reset reset <- invertCurrentReset;  // Generate the active-high reset for the underlying module
 
    Clock           c0  <- exposeCurrentClock;
    ClockDividerIfc cdi <- mkClockInverter;
    Clock           c1  =  cdi.slowClock;
 
-   ODDR2#(a) _oddr2 <- vMkODDR2(params, c0, c1);
-   return _oddr2;
+   Vector#(sa, ODDR2Prms#(Bit#(1))) _params = ?;
+   for(Integer i = 0; i < valueof(sa); i = i + 1) begin
+      _params[i].ddr_alignment = params.ddr_alignment;
+      //_params[i].init          = pack(params.init)[i];
+      _params[i].init          = 1'b0; // FIXME: allow vector init
+      _params[i].srtype        = params.srtype;
+   end
+
+   Vector#(sa, ODDR2#(Bit#(1))) _oddr2  = ?;
+   for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr2[i] <- vMkODDR2(_params[i], c0, c1, reset_by reset);
+
+   function Bit#(1) getQ(ODDR2#(Bit#(1)) ddr);
+      return ddr.q;
+   endfunction
+
+   method a q();
+      return unpack(pack(map(getQ, _oddr2)));
+   endmethod
+
+   method Action s(Bool x);
+      for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr2[i].s(x);
+   endmethod
+
+   method Action ce(Bool x);
+      for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr2[i].ce(x);
+   endmethod
+
+   method Action d0(a x);
+      for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr2[i].d0(pack(x)[i]);
+   endmethod
+
+   method Action d1(a x);
+      for(Integer i = 0; i < valueof(sa); i = i + 1) _oddr2[i].d1(pack(x)[i]);
+   endmethod
+
 endmodule: mkODDR2
 
 // Clock Gen Flavor of ODDR2 for Source-Sync...
 
 import "BVI" ODDR2 =
-module vMkClockODDR2#(ODDR2Prms params, Clock c0, Clock c1, Bit#(1) d0, Bit#(1) d1)(ClockGenIfc);
+module vMkClockODDR2#(ODDR2Prms#(a) params, Clock c0, Clock c1, Bit#(1) d0, Bit#(1) d1)(ClockGenIfc);
 
    Reset reset <- invertCurrentReset;
    default_reset rst(R) = reset;
@@ -973,7 +1019,7 @@ module vMkClockODDR2#(ODDR2Prms params, Clock c0, Clock c1, Bit#(1) d0, Bit#(1) 
    port S  = False;
 endmodule: vMkClockODDR2
 
-module mkClockODDR2#(ODDR2Prms params, Bit#(1) d0, Bit#(1) d1)(Clock);
+module mkClockODDR2#(ODDR2Prms#(a) params, Bit#(1) d0, Bit#(1) d1)(Clock);
    Clock           c0  <- exposeCurrentClock;
    ClockDividerIfc cdi <- mkClockInverter;
    Clock           c1  =  cdi.slowClock;

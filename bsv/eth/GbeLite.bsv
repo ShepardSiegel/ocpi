@@ -39,8 +39,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_cl
   GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, sys1_clk);
   Reg#(MACAddress)            macAddress          <-  mkReg(48'h00_0A_35_42_01_00);
 
-  Clock                       sys0_clk            <-  exposeCurrentClock;
-  MakeResetIfc                phyRst              <-  mkReset(1, True, sys0_clk);   // Use 100 MHz sys0 as sys1 may not be running before reset!
+  MakeResetIfc                phyRst              <-  mkReset(0, True, sys1_clk);   // Use 100 MHz sys0 as sys1 may not be running before reset!
   Reg#(Int#(22))              phyResetWaitCnt     <-  mkReg(1250000);
 
   Reg#(Vector#(4,Bit#(8)))    rxPipe              <-  mkRegU;
