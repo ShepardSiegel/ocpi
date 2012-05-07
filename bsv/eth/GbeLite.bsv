@@ -34,6 +34,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_cl
 
   Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0101);  // default to PHY MDIO addr 1 ([4:0]) for N210
   MDIO                        mdi                 <-  mkMDIO(6);
+  Reg#(Bool)                  phyMdiInit          <-  mkReg(False);
   Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);          // True when split read
 
   GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, sys1_clk);
@@ -94,6 +95,11 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_cl
   rule phy_reset_wait;
     if (phyReset) phyResetWaitCnt <= 1250000;
     else if (phyResetWaitCnt > 0) phyResetWaitCnt <= phyResetWaitCnt - 1;
+  endrule
+
+  rule phy_mdio_init (phyResetOK && !phyMdiInit);
+    mdi.user.request(MDIORequest{isWrite:True, phyAddr:myPhyAddr, regAddr:28, data:16'hD7F0});
+    phyMdiInit <= True;
   endrule
 
   rule inc_rx_overflow  (gmac.rxOverFlow);  rxOvfCount <= rxOvfCount + 1; endrule
