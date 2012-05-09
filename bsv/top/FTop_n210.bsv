@@ -2,7 +2,8 @@
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
-//import Config            ::*;
+import Config            ::*;
+import OCCP              ::*;
 //import CPDefs            ::*;
 //import CTop              ::*;
 //import FlashWorker       ::*;
@@ -61,6 +62,17 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 
   Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn);     // sys0: 100 MHz Clock and Reset (from clock gen)
   Reset            sys0_rst   <- mkAsyncReset(2, fpga_rstn , sys0_clk);
+
+  /*
+  DCMParams dcmp = defaultValue;
+    dcmp.factory_jf  = 16'h8080;
+    dcmp.phase_shift = 0;
+  DCM              dcm        <- mkDCM(dcmp, sys0_iclk, sys0_iclk);
+  Clock            sys0_clk   <- mkClockBUFG(clocked_by dcm.clkout0 );
+  Clock            sys3_clk   <- mkClockBUFG(clocked_by dcm.clkout2x );
+  Clock            sys4_clk   <- mkClockBUFG(clocked_by dcm.clkoutdv );
+  */
+
   Clock            sys1_clk   <- mkClockBUFG(clocked_by gmii_sysclk);     // sys1: 125 MHz Clock and Reset (from Enet PHY)
   Reset            sys1_rst   <- mkAsyncReset(2, fpga_rstn , sys1_clk);
 
@@ -68,6 +80,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   Reg#(Bool)       doInit     <- mkReg(True, clocked_by sys0_clk, reset_by sys0_rst);
 
   GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys1_clk, sys1_rst, clocked_by sys1_clk, reset_by sys1_rst);
+  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys0_clk, sys0_rst, clocked_by sys1_clk, reset_by sys1_rst);
+  mkConnection(gbe0.cpClient, cp.server);
 
   rule inc_freeCnt;
     freeCnt <= freeCnt + 1;
