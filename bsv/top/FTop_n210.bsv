@@ -2,8 +2,8 @@
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
-import Config            ::*;
-import OCCP              ::*;
+//import Config            ::*;
+//import OCCP              ::*;
 //import CPDefs            ::*;
 //import CTop              ::*;
 //import FlashWorker       ::*;
@@ -80,8 +80,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   Reg#(Bool)       doInit     <- mkReg(True, clocked_by sys0_clk, reset_by sys0_rst);
 
   GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys1_clk, sys1_rst, clocked_by sys1_clk, reset_by sys1_rst);
-  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys0_clk, sys0_rst, clocked_by sys1_clk, reset_by sys1_rst);
-  mkConnection(gbe0.cpClient, cp.server);
+  //OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys0_clk, sys0_rst, clocked_by sys0_clk, reset_by sys0_rst);
+  //mkConnection(gbe0.cpClient, cp.server);
 
   rule inc_freeCnt;
     freeCnt <= freeCnt + 1;
