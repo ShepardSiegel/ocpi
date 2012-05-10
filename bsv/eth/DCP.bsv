@@ -7,6 +7,7 @@
 import CPDefs       ::*; 
 
 import ClientServer ::*; 
+import Clocks       ::*;
 import FIFO         ::*;	
 import GetPut       ::*;
 import Vector       ::*;
@@ -77,12 +78,14 @@ interface DCPAdapterIfc;
   interface Client#(CpReq,CpReadResp)       client; 
 endinterface 
 
-module mkDCPAdapter (DCPAdapterIfc);
+module mkDCPAdapter#(Clock cpClock, Reset cpReset) (DCPAdapterIfc);
 
-  FIFO#(DCPRequest)    dcpReqF   <- mkFIFO;   // Inbound   DCP Requests
-  FIFO#(DCPResponse)   dcpRespF  <- mkFIFO;   // Outbound  DCP Responses
-  FIFO#(CpReq)         cpReqF    <- mkFIFO;   // Control-plane Requests
-  FIFO#(CpReadResp)    cpRespF   <- mkFIFO;   // Control-plane Responses
+  FIFO#(DCPRequest)        dcpReqF   <- mkFIFO;                          // Inbound   DCP Requests
+  FIFO#(DCPResponse)       dcpRespF  <- mkFIFO;                          // Outbound  DCP Responses
+//FIFO#(CpReq)             cpReqF    <- mkFIFO;                          // Control-plane Requests
+  SyncFIFOIfc#(CpReq)      cpReqF    <- mkSyncFIFOFromCC(4, cpClock); 
+//FIFO#(CpReadResp)        cpRespF   <- mkFIFO;                          // Control-plane Responses
+  SyncFIFOIfc#(CpReadResp) cpRespF   <- mkSyncFIFOToCC(4, cpClock, cpReset); 
 
   rule dcp_request;
     let x = dcpReqF.first; dcpReqF.deq;

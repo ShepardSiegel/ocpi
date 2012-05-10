@@ -30,7 +30,7 @@ interface GbeLiteIfc;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst) (GbeLiteIfc);
+module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst, Clock cpClock, Reset cpReset) (GbeLiteIfc);
 
   Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0101);  // default to PHY MDIO addr 1 ([4:0]) for N210
   MDIO                        mdi                 <-  mkMDIO(6);
@@ -77,7 +77,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_cl
   Reg#(UInt#(5))              txDBGPos            <-  mkReg(0);
   Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
 
-  DCPAdapterIfc               dcp                 <-  mkDCPAdapter;
+  DCPAdapterIfc               dcp                 <-  mkDCPAdapter(cpClock, cpReset);
   FIFO#(DCPResponse)          dcpRespF            <-  mkFIFO;
 
 
