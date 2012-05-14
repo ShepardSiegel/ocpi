@@ -2,8 +2,10 @@
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
+import ClockN210         ::*;
 import Config            ::*;
 import OCCP              ::*;
+
 //import CPDefs            ::*;
 //import CTop              ::*;
 //import FlashWorker       ::*;
@@ -50,39 +52,33 @@ interface FTop_n210Ifc;
   interface  Reset      gmii_rstn;  // GMII Reset driven out to PHY
   interface  GMII_RS    gmii;       // The GMII link RX/TX
   interface  MDIO_Pads  mdio;       // The MDIO pads
-  interface  Reset      sysRst;
+  interface  Clock      sys0Clk;
+  interface  Reset      sys0Rst;
 endinterface: FTop_n210Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
 module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Reference
-                    Clock gmii_sysclk,                 // 125 MHz from GbE PHY
-                    Clock gmii_rx_clk,                 // 125 MHz GMII RX Clock recovered
-                    Reset fpga_rstn)
+                    Clock gmii_sysclk,                 // 125 MHz from GbE PHY - stable clock, once enabled after reset
+                    Clock gmii_rx_clk,                 // 125 MHz GMII RX Clock - agile recovered rx clock, when 1Gb link up
+                    Reset fpga_rstn)                   // FPGA User Reset Pushbutton S2
                     (FTop_n210Ifc);
 
-  Clock            sys0_clk   <- mkClockIBUFDS(sys0_clkp, sys0_clkn);     // sys0: 100 MHz Clock and Reset (from clock gen)
-  Reset            sys0_rst   <- mkAsyncReset(2, fpga_rstn , sys0_clk);
-
-  /*
-  DCMParams dcmp = defaultValue;
-    dcmp.factory_jf  = 16'h8080;
-    dcmp.phase_shift = 0;
-  DCM              dcm        <- mkDCM(dcmp, sys0_iclk, sys0_iclk);
-  Clock            sys0_clk   <- mkClockBUFG(clocked_by dcm.clkout0 );
-  Clock            sys3_clk   <- mkClockBUFG(clocked_by dcm.clkout2x );
-  Clock            sys4_clk   <- mkClockBUFG(clocked_by dcm.clkoutdv );
-  */
+  Clock            clkIn      <- mkClockIBUFDS(sys0_clkp, sys0_clkn);     // sys0: 100 MHz Clock and Reset (from clock gen)
+  ClockN210Ifc     clkN210    <- mkClockN210(clkIn);
+  Clock            sys0_clk   = clkN210.clk0;
+  Reset            user_rst   <- mkAsyncReset(2, fpga_rstn, sys0_clk);    // Sync FPGA User Reset Pushbutton S2 to sys0_clk
+  Reset            sys0_rst   <- mkResetEither(user_rst, clkN210.rst0, clocked_by sys0_clk);
+  Clock            sys2_clk   = clkN210.clk2x;
+  Reset            sys2_rst   = clkN210.rst2x;
 
   Clock            sys1_clk   <- mkClockBUFG(clocked_by gmii_sysclk);     // sys1: 125 MHz Clock and Reset (from Enet PHY)
-  Reset            sys1_rst   <- mkAsyncReset(2, fpga_rstn , sys1_clk);
+  Reset            sys1_rst   <- mkAsyncReset(2, sys0_rst, sys1_clk);     // Any sys0 reset causes a reset in sys1
 
   Reg#(Bit#(32))   freeCnt    <- mkReg(0,    clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       doInit     <- mkReg(True, clocked_by sys0_clk, reset_by sys0_rst);
 
-//GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys1_clk, sys1_rst, sys1_clk, sys1_rst, clocked_by sys1_clk, reset_by sys1_rst);
-//OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys1_clk, sys1_rst, clocked_by sys1_clk, reset_by sys1_rst);
   GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys1_clk, sys1_rst, sys0_clk, sys0_rst, clocked_by sys1_clk, reset_by sys1_rst);
-  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys0_clk, sys0_rst, clocked_by sys0_clk, reset_by sys0_rst);
+  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys2_clk, sys2_rst, clocked_by sys0_clk, reset_by sys0_rst);
 
   mkConnection(gbe0.cpClient, cp.server);
 
@@ -112,6 +108,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   interface Reset      gmii_rstn = gbe0.gmii_rstn;
   interface GMII       gmii      = gbe0.gmii;
   interface MDIO_Pads  mdio      = gbe0.mdio;
-  interface Reset sysRst = sys0_rst;
+  interface Clock      sys0Clk   = sys0_clk;
+  interface Reset      sys0Rst   = sys0_rst;
 endmodule: mkFTop_n210
 
