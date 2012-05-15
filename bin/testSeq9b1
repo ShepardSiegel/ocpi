@@ -40,7 +40,7 @@ echo "Program Memory Tester Status"
 sleep 1
 echo "Read WMemI Memory Tester Status after 1 second"
 ./swctl 0xF1000000 0xF2FF0000 wread 1 0 11
-sleep 1
-echo "Read WMemI Memory Tester Status after 1 second"
+sleep 5
+echo "Read WMemI Memory Tester Status after 5 seconds"
 ./swctl 0xF1000000 0xF2FF0000 wread 1 0 11
 
