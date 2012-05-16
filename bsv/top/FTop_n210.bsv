@@ -54,6 +54,8 @@ interface FTop_n210Ifc;
   interface  MDIO_Pads  mdio;       // The MDIO pads
   interface  Clock      sys0Clk;
   interface  Reset      sys0Rst;
+  interface  Clock      sys125Clk;
+  interface  Reset      sys125Rst;
 endinterface: FTop_n210Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
@@ -64,21 +66,23 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
                     (FTop_n210Ifc);
 
   Clock            clkIn      <- mkClockIBUFDS(sys0_clkp, sys0_clkn);     // sys0: 100 MHz Clock and Reset (from clock gen)
-  ClockN210Ifc     clkN210    <- mkClockN210(clkIn);
+  ClockN210Ifc     clkN210    <- mkClockN210(clkIn, fpga_rstn);
   Clock            sys0_clk   = clkN210.clk0;
-  Reset            user_rst   <- mkAsyncReset(2, fpga_rstn, sys0_clk);    // Sync FPGA User Reset Pushbutton S2 to sys0_clk
-  Reset            sys0_rst   <- mkResetEither(user_rst, clkN210.rst0, clocked_by sys0_clk);
+  Reset            sys0_rst   = clkN210.rst0;
   Clock            sys2_clk   = clkN210.clk2x;
   Reset            sys2_rst   = clkN210.rst2x;
+  Clock            sys125_clk = clkN210.clk125;
+  Reset            sys125_rst = clkN210.rst125;
 
-  Clock            sys1_clk   <- mkClockBUFG(clocked_by gmii_sysclk);     // sys1: 125 MHz Clock and Reset (from Enet PHY)
+  Clock            sys1_clki  <- mkClockIBUFG(clocked_by gmii_sysclk);     // sys1: 125 MHz Clock and Reset (from Enet PHY)
+  Clock            sys1_clk   <- mkClockBUFG(clocked_by sys1_clki); 
   Reset            sys1_rst   <- mkAsyncReset(2, sys0_rst, sys1_clk);     // Any sys0 reset causes a reset in sys1
 
   Reg#(Bit#(32))   freeCnt    <- mkReg(0,    clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       doInit     <- mkReg(True, clocked_by sys0_clk, reset_by sys0_rst);
 
-  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys1_clk, sys1_rst, sys0_clk, sys0_rst, clocked_by sys1_clk, reset_by sys1_rst);
-  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys2_clk, sys2_rst, clocked_by sys0_clk, reset_by sys0_rst);
+  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys1_clk, sys1_rst, sys125_clk, sys125_rst, clocked_by sys125_clk, reset_by sys125_rst);
+  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys2_clk, sys2_rst, clocked_by sys125_clk, reset_by sys125_rst);
 
   mkConnection(gbe0.cpClient, cp.server);
 
@@ -104,11 +108,13 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 
   method    Bit#(5)    led    = doInit ? initBlink(freeCnt) : ledStatus(freeCnt);
   method    Bit#(32)   debug  = {pack(grayEncode(pack(freeCnt)[15:0])), 16'h0000};
-  interface Clock      rxclkBnd  = gbe0.rxclkBnd;
-  interface Reset      gmii_rstn = gbe0.gmii_rstn;
-  interface GMII       gmii      = gbe0.gmii;
-  interface MDIO_Pads  mdio      = gbe0.mdio;
-  interface Clock      sys0Clk   = sys0_clk;
-  interface Reset      sys0Rst   = sys0_rst;
+  interface Clock      rxclkBnd   = gbe0.rxclkBnd;
+  interface Reset      gmii_rstn  = gbe0.gmii_rstn;
+  interface GMII       gmii       = gbe0.gmii;
+  interface MDIO_Pads  mdio       = gbe0.mdio;
+  interface Clock      sys0Clk    = sys0_clk;
+  interface Reset      sys0Rst    = sys0_rst;
+  interface Clock      sys125Clk  = sys125_clk;
+  interface Reset      sys125Rst  = sys125_rst;
 endmodule: mkFTop_n210
 

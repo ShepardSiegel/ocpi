@@ -19,7 +19,7 @@ NET "led[1]"     LOC = "AB18" ; # "ok"
 
 
 ## Ethernet Gbe GMII...
-NET "gmii_sysclk"  LOC = "P26"  ;  # 125 MHz from PHY to FPGA MAC
+NET "gmii_sysclk"  LOC = "P26"  ;  # 125 MHz from PHY to FPGA MAC (RHCLK2 feeds BUFGMUX X3Y8)
 NET "gmii_rstn"    LOC = "J22"  ;
 NET "gmii_gtx_clk" LOC = "J20"  ;  # TX
 NET "gmii_txd[7]"  LOC = "G21"  ;
