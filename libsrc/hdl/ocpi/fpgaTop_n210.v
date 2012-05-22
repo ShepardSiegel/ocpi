@@ -9,7 +9,7 @@ module fpgaTop(
   output wire [5:1]  led,            // LEDs n210 {tx,rx,ref,mimo,ok}
   output wire [31:0] debug,          // Debug MICTOR Connector
 
-//	input  wire        gmii_sysclk,    // TruPHY ET1011... (125 MHz PHY to MAC)
+	input  wire        gmii_sysclk,    // TruPHY ET1011... (125 MHz PHY to MAC)
   output wire        gmii_rstn,
 	output wire        gmii_gtx_clk,
 	output wire [7:0]  gmii_txd,
@@ -34,7 +34,7 @@ module fpgaTop(
   .led               (led),          // Front-panel LEDs
   .debug             (debug),        // MICTOR debug connector
 
-//	.gmii_sysclk       (gmii_sysclk),  // 125 MHz PHY to MAC is sys1_clk
+	.gmii_sysclk       (gmii_sysclk),  // 125 MHz PHY to MAC is sys1_clk
 	.gmii_rstn         (gmii_rstn),
 	.gmii_tx_tx_clk    (gmii_gtx_clk),
 	.gmii_tx_txd       (gmii_txd),

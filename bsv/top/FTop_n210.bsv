@@ -74,10 +74,13 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   Clock            sys125_clk = clkN210.clk125;
   Reset            sys125_rst = clkN210.rst125;
 
+  Clock            gmiixo_clk <- mkClockBUFG(clocked_by gmii_sysclk);
+  Reset            gmiixo_rst <- mkAsyncReset(2, sys0_rst, gmiixo_clk);
+
   Reg#(Bit#(32))   freeCnt    <- mkReg(0,    clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       doInit     <- mkReg(True, clocked_by sys0_clk, reset_by sys0_rst);
 
-  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys125_clk, sys125_rst, sys125_clk, sys125_rst, clocked_by sys125_clk, reset_by sys125_rst);
+  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, gmiixo_clk, gmiixo_rst, sys0_clk, sys0_rst, clocked_by sys125_clk, reset_by sys125_rst);
   //OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys2_clk, sys2_rst, clocked_by sys0_clk, reset_by sys0_rst);
   //mkConnection(gbe0.cpClient, cp.server);
 

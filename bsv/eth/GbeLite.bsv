@@ -30,10 +30,10 @@ interface GbeLiteIfc;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst, Clock cpClock, Reset cpReset) (GbeLiteIfc);
+module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_clk, Reset gmiixo_rst, Clock cpClock, Reset cpReset) (GbeLiteIfc);
 
-  Integer phyResetStart   = 502500;
-  Integer phyResetRelease = 500000;
+  Integer phyResetStart   = 750_000 + 3_125;  // 25 uS Reset Assertion
+  Integer phyResetRelease = 750_000;          // 6  mS Reset Recovery (configration)
 
 
   Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0101);  // default to PHY MDIO addr 1 ([4:0]) for N210
@@ -41,11 +41,11 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_cl
   Reg#(Bool)                  phyMdiInit          <-  mkReg(False);
   Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);          // True when split read
 
-  GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, sys1_clk);
+  GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, gmiixo_clk);
   Reg#(MACAddress)            macAddress          <-  mkReg(48'h00_0A_35_42_01_00);
 
   MakeResetIfc                phyRst              <-  mkReset(16, True, cpClock);   
-  Reg#(Int#(22))              phyResetWaitCnt     <-  mkReg(fromInteger(phyResetStart));
+  Reg#(Int#(25))              phyResetWaitCnt     <-  mkReg(fromInteger(phyResetStart));
 
   Reg#(Vector#(4,Bit#(8)))    rxPipe              <-  mkRegU;
   Reg#(UInt#(2))              rxPos               <-  mkReg(0);
