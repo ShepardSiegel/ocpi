@@ -32,6 +32,10 @@ endinterface
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_clk, Reset sys1_rst, Clock cpClock, Reset cpReset) (GbeLiteIfc);
 
+  Integer phyResetStart   = 502500;
+  Integer phyResetRelease = 500000;
+
+
   Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0101);  // default to PHY MDIO addr 1 ([4:0]) for N210
   MDIO                        mdi                 <-  mkMDIO(6);
   Reg#(Bool)                  phyMdiInit          <-  mkReg(False);
@@ -40,8 +44,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_cl
   GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, sys1_clk);
   Reg#(MACAddress)            macAddress          <-  mkReg(48'h00_0A_35_42_01_00);
 
-  MakeResetIfc                phyRst              <-  mkReset(0, True, sys1_clk);   // Use 100 MHz sys0 as sys1 may not be running before reset!
-  Reg#(Int#(22))              phyResetWaitCnt     <-  mkReg(1250000);
+  MakeResetIfc                phyRst              <-  mkReset(16, True, cpClock);   
+  Reg#(Int#(22))              phyResetWaitCnt     <-  mkReg(fromInteger(phyResetStart));
 
   Reg#(Vector#(4,Bit#(8)))    rxPipe              <-  mkRegU;
   Reg#(UInt#(2))              rxPos               <-  mkReg(0);
@@ -85,16 +89,16 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_cl
   Bit#(5) myPhyAddr = gbeControl[4:0];
   Bool txLoopback  = unpack(gbeControl[8]); 
   Bool txDebug     = unpack(gbeControl[9]); 
-  Bool phyReset    = unpack(gbeControl[31]);
-  Bool phyResetOK  = (phyResetWaitCnt==0);
+  Bool phyResetBit = unpack(gbeControl[31]);
+  Bool phyResetOK  = (phyResetWaitCnt==0);   // Reset 5 mS config read interval has elapsed
 
-  rule phy_reset_drive (phyReset);
-    phyRst.assertReset();
+  rule phy_reset_drive (phyResetWaitCnt > fromInteger(phyResetRelease));
+    phyRst.assertReset();  // Assert Phy Reset while count is great than release point
   endrule
 
   rule phy_reset_wait;
-    if (phyReset) phyResetWaitCnt <= 1250000;
-    else if (phyResetWaitCnt > 0) phyResetWaitCnt <= phyResetWaitCnt - 1;
+    if (phyResetBit) phyResetWaitCnt <= fromInteger(phyResetStart);
+    else phyResetWaitCnt <= (phyResetWaitCnt > 0) ? phyResetWaitCnt-1 : 0;
   endrule
 
   rule phy_mdio_init (phyResetOK && !phyMdiInit);
@@ -105,9 +109,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_cl
   rule inc_rx_overflow  (gmac.rxOverFlow);  rxOvfCount <= rxOvfCount + 1; endrule
   rule inc_tx_underflow (gmac.txUnderFlow); txUndCount <= txUndCount + 1; endrule
 
-  // Don't start up WSI or GMAC interaction until 10mS after phy Reset...
   (* fire_when_enabled *)
-  rule gbe_operate (phyResetOK);
+  rule gbe_operate (phyMdiInit);
     gmac.rxOperate();
     gmac.txOperate();
   endrule

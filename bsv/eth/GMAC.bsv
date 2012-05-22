@@ -366,12 +366,15 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
   Reset         phyReset         <-  mkAsyncReset(8, rst, clk); // Hold PHY in reset for 8 *additional* cycles
   RxRSIfc       rxRS             <-  mkRxRSAsync(rxClk_BUFR);
   TxRSIfc       txRS             <-  mkTxRSAsync(txClk);
+  Reg#(Bool)    gmacLED          <-  mkReg(False);
 
-  ReadOnly#(Bool) isReset        <- isResetAsserted;
 
   interface Get rx = rxRS.rx;
   interface Put tx = txRS.tx;
-  method Action rxOperate   = rxRS.rxOperate;
+  method Action rxOperate;
+    rxRS.rxOperate;
+    gmacLED <= True;
+  endmethod
   method Action txOperate   = txRS.txOperate;
   method Bool   rxOverFlow  = rxRS.rxOverFlow;
   method Bool   txUnderFlow = txRS.txUnderFlow;
@@ -381,9 +384,9 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
     interface GMII_TX_RS  tx = txRS.gmii;
     method Action col (Bit#(1) i) = noAction;
     method Action crs (Bit#(1) i) = noAction;
-    method Bit#(1) led = pack(!isReset);
+    method Bit#(1) led = pack(gmacLED);
   endinterface
-  interface Clock rxclkBnd    = rxClk_BUFR;  // Need to provide this clock at the BSV module bounds (not physically used)
+  interface Clock rxclkBnd  = rxClk_BUFR;  // Need to provide this clock at the BSV module bounds (not physically used)
   //interface Reset gmii_rstn = phyReset;    // Active-Low reset passed up and out to PHY
 endmodule: mkGMAC
 

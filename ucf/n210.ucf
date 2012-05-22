@@ -19,7 +19,7 @@ NET "led[1]"     LOC = "AB18" ; # "ok"
 
 
 ## Ethernet Gbe GMII...
-NET "gmii_sysclk"  LOC = "P26"  ;  # 125 MHz from PHY to FPGA MAC (RHCLK2 feeds BUFGMUX X3Y8)
+#NET "gmii_sysclk"  LOC = "P26"  ;  # 125 MHz from PHY to FPGA MAC (RHCLK2 feeds BUFGMUX X3Y8)
 NET "gmii_rstn"    LOC = "J22"  ;
 NET "gmii_gtx_clk" LOC = "J20"  ;  # TX
 NET "gmii_txd[7]"  LOC = "G21"  ;
@@ -411,8 +411,9 @@ NET "debug[31]"     LOC = "Y10"  ;
 #NET "clk_to_mac" TNM_NET = "clk_to_mac";
 #TIMESPEC "TS_clk_to_mac" = PERIOD "clk_to_mac" 8 ns HIGH 50 %;
 
-NET "ftop/sys0_clk" TNM_NET = "ftop/sys0_clk";
-TIMESPEC "TS_SYS0CLK" = PERIOD "ftop/sys0_clk" 10 ns HIGH 50 %;
+# FIXME
+#NET "ftop/clkin_O" TNM_NET = "ftop/clkin_O";
+#TIMESPEC "TS_SYS0CLK" = PERIOD "ftop/clkin_O" 10 ns HIGH 50 %;
 
 #
 #NET "GMII_RX_CLK" TNM_NET = "GMII_RX_CLK";

@@ -20,7 +20,7 @@ import GbeLite           ::*;
 //import SPICore32         ::*;
 //import SPICore5          ::*;
 //import TimeService       ::*;
-//import WSICaptureWorker  ::*;
+//import WSICaptureWorker  ::*"!2<Mouse>C"!3<Mouse>C"!4<Mouse>C"!5
 //import WsiAdapter        ::*;
 //import XilinxExtra       ::*;
 //import ProtocolMonitor   ::*;
@@ -74,17 +74,12 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   Clock            sys125_clk = clkN210.clk125;
   Reset            sys125_rst = clkN210.rst125;
 
-  Clock            sys1_clki  <- mkClockIBUFG(clocked_by gmii_sysclk);     // sys1: 125 MHz Clock and Reset (from Enet PHY)
-  Clock            sys1_clk   <- mkClockBUFG(clocked_by sys1_clki); 
-  Reset            sys1_rst   <- mkAsyncReset(2, sys0_rst, sys1_clk);     // Any sys0 reset causes a reset in sys1
-
   Reg#(Bit#(32))   freeCnt    <- mkReg(0,    clocked_by sys0_clk, reset_by sys0_rst);
   Reg#(Bool)       doInit     <- mkReg(True, clocked_by sys0_clk, reset_by sys0_rst);
 
-  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys1_clk, sys1_rst, sys125_clk, sys125_rst, clocked_by sys125_clk, reset_by sys125_rst);
-  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys2_clk, sys2_rst, clocked_by sys125_clk, reset_by sys125_rst);
-
-  mkConnection(gbe0.cpClient, cp.server);
+  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, sys125_clk, sys125_rst, sys125_clk, sys125_rst, clocked_by sys125_clk, reset_by sys125_rst);
+  //OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys2_clk, sys2_rst, clocked_by sys0_clk, reset_by sys0_rst);
+  //mkConnection(gbe0.cpClient, cp.server);
 
   rule inc_freeCnt;
     freeCnt <= freeCnt + 1;

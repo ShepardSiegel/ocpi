@@ -21,6 +21,10 @@ module clock_n210
    output clk125_rstn
    );
 
+  wire [7:0] dcmStatus;
+  wire unlock1, unlock2, unlock3, unlockRst, locked_d, rstInD, forceReset;
+  assign forceReset = ~rstInD;
+
   DCM_SP # (
     .CLK_FEEDBACK          ("1X"),
     .CLKDV_DIVIDE          (2.0),
@@ -56,10 +60,8 @@ module clock_n210
     .CLK270    (), 
     .LOCKED    (locked), 
     .PSDONE    (), 
-    .STATUS    ()
+    .STATUS    (dcmStatus)
   );
-
-  wire unlock1, unlock2, unlock3, unlockRst, locked_d, rstInD;
 
   // BUFGs to distribute clock outputs...
   BUFG clk0_bufg   (.I(clk0_unbuf),   .O(clk0_buf));
@@ -67,11 +69,12 @@ module clock_n210
   BUFG clk2x_bufg  (.I(clk2x_unbuf),  .O(clk2x_buf));
   BUFG clk125_bufg (.I(clk125_unbuf), .O(clk125_buf));
 
-  // Active-Low reset signals in each clock domain; if DCM unlocks, reset is asserted...
-  FD clk0_rst   (.D(locked), .Q(clk0_rstn),   .C(clk0_buf)  );
-  FD clkdv_rst  (.D(locked), .Q(clkdv_rstn),  .C(clkdv_buf) );
-  FD clk2x_rst  (.D(locked), .Q(clk2x_rstn),  .C(clk2x_buf) );
-  FD clk125_rst (.D(locked), .Q(clk125_rstn), .C(clk125_buf));
+  // Active-Low reset signals in each clock domain; if DCM unlocks, reset is asserted
+  // Use rstInD active-low to force reset pulse when DCM locked...
+  FDR clk0_rst   (.D(locked), .R(forceReset), .Q(clk0_rstn),   .C(clk0_buf)  );
+  FDR clkdv_rst  (.D(locked), .R(forceReset), .Q(clkdv_rstn),  .C(clkdv_buf) );
+  FDR clk2x_rst  (.D(locked), .R(forceReset), .Q(clk2x_rstn),  .C(clk2x_buf) );
+  FDR clk125_rst (.D(locked), .R(forceReset), .Q(clk125_rstn), .C(clk125_buf));
   
   // Watch for falling-edge of DCM locked signal... 
   FD   lock_flop  (.C(clkIn), .D(locked), .Q(locked_d)); 
@@ -81,7 +84,7 @@ module clock_n210
   OR3  lock_or    (.I0(unlock1), .I1(unlock2), .I2(unlock3), .O(unlockRst));  // 3 cycle unlockRst
 
   // Reset DCM on unlockEdge or rstIn...
-  FD   rst_fd (.C(clkIn), .D(rstIn), .Q(rstInD));           // sync external reset to input clkIn
-  OR2  rst_or (.I0(~rstInD), .I1(unlockRst), .O(rstDCM));   // create rstDCM signal
+  FD   rst_fd (.C(clkIn), .D(rstIn), .Q(rstInD));              // sync external reset to input clkIn
+  OR2  rst_or (.I0(forceReset), .I1(unlockRst), .O(rstDCM));   // create rstDCM signal
 
   endmodule 
