@@ -81,7 +81,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   Reg#(UInt#(5))              txDBGPos            <-  mkReg(0);
   Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
 
-  DCPAdapterIfc               dcp                 <-  mkDCPAdapter(cpClock, cpReset);
+  DCPAdapterIfc               dcp                 <-  mkDCPAdapterAsync(cpClock, cpReset);
   FIFO#(DCPResponse)          dcpRespF            <-  mkFIFO;
 
 

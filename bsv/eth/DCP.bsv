@@ -78,14 +78,24 @@ interface DCPAdapterIfc;
   interface Client#(CpReq,CpReadResp)       client; 
 endinterface 
 
-module mkDCPAdapter#(Clock cpClock, Reset cpReset) (DCPAdapterIfc);
 
-  FIFO#(DCPRequest)        dcpReqF   <- mkFIFO;                          // Inbound   DCP Requests
-  FIFO#(DCPResponse)       dcpRespF  <- mkFIFO;                          // Outbound  DCP Responses
-//FIFO#(CpReq)             cpReqF    <- mkFIFO;                          // Control-plane Requests
-  SyncFIFOIfc#(CpReq)      cpReqF    <- mkSyncFIFOFromCC(4, cpClock); 
-//FIFO#(CpReadResp)        cpRespF   <- mkFIFO;                          // Control-plane Responses
-  SyncFIFOIfc#(CpReadResp) cpRespF   <- mkSyncFIFOToCC(4, cpClock, cpReset); 
+module mkDCPAdapterPoly#(Bool isAsync, Clock cpClock, Reset cpReset) (DCPAdapterIfc);
+
+  FIFO#(DCPRequest)          dcpReqF   <- mkFIFO;   // Inbound   DCP Requests
+  FIFO#(DCPResponse)         dcpRespF  <- mkFIFO;   // Outbound  DCP Responses
+
+  FIFO#(CpReq)      cpReqF  = ?;
+  FIFO#(CpReadResp) cpRespF = ?;
+
+  if (!isAsync) begin
+    cpReqF    <- mkFIFO;   // Control-plane Requests
+    cpRespF   <- mkFIFO;   // Control-plane Responses
+  end else begin
+    SyncFIFOIfc#(CpReq)        cpSReqF     <- mkSyncFIFOFromCC(4, cpClock); 
+    SyncFIFOIfc#(CpReadResp)   cpSRespF    <- mkSyncFIFOToCC(4,cpClock, cpReset); 
+    let cpReqF  = syncFifoToFifo (cpSReqF);
+    let cpRespF = syncFifoToFifo (cpSRespF);
+  end
 
   rule dcp_request;
     let x = dcpReqF.first; dcpReqF.deq;
@@ -113,3 +123,23 @@ module mkDCPAdapter#(Clock cpClock, Reset cpReset) (DCPAdapterIfc);
     interface response = toPut(cpRespF);
   endinterface
 endmodule
+
+
+module mkDCPAdapterSync (DCPAdapterIfc);
+  DCPAdapterIfc _a <- mkDCPAdapterPoly(False, ?, ?); return _a;
+endmodule
+
+module mkDCPAdapterAsync#(Clock cpClock, Reset cpReset) (DCPAdapterIfc);
+  DCPAdapterIfc _a <- mkDCPAdapterPoly(True, cpClock, cpReset); return _a;
+endmodule
+
+function FIFO#(t) syncFifoToFifo (SyncFIFOIfc#(t) in);
+   return (
+      interface FIFO;
+         method Action enq(x) = in.enq(x);
+         method Action clear  = $display("%m: Clear method is not supported in this module!");
+         method Action deq = in.deq;
+         method t first       = in.first;
+      endinterface );
+endfunction
+

@@ -83,7 +83,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   Reg#(UInt#(5))              txDBGPos            <-  mkReg(0);
   Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
 
-  DCPAdapterIfc               dcp                 <-  mkDCPAdapter;
+  DCPAdapterIfc               dcp                 <-  mkDCPAdapterSync;
   FIFO#(DCPResponse)          dcpRespF            <-  mkFIFO;
 
 
