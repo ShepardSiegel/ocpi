@@ -481,7 +481,6 @@ platform_ml555: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
 		-D USE_NDW1 \
-		-D USE_DEBUGLOGIC \
 		-D USE_SRLFIFO \
 		-verilog-filter basicinout $(BSVTOP)/$(P_ML555).bsv
 
