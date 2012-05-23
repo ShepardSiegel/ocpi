@@ -25,6 +25,14 @@ module fpgaTop(
 
 );
 
+assign debug[31:24] = 8'hFF;
+assign debug[19]   = mdio_mdc;
+assign debug[18]   = mdio_mdd;
+assign debug[17]   = gmii_sysclk;
+assign debug[16]   = gmii_rstn;
+assign debug[15:0] = 16'h0000;
+
+
 // Instance and connect mkFTop...
  mkFTop_n210 ftop(
   .sys0_clkp         (sys0_clkp),    // 100 MHz from ADI9510 ch1
@@ -32,7 +40,12 @@ module fpgaTop(
   .fpga_rstn         (fpga_rstn),    // pushbutton, active-low
 
   .led               (led),          // Front-panel LEDs
-  .debug             (debug),        // MICTOR debug connector
+ // .debug             (debug),        // MICTOR debug connector
+  .sys0Clk           (debug[20]),
+  .sys0Rst           (debug[21]),
+  .sys125Clk         (debug[22]),
+  .sys125Rst         (debug[23]),
+ 
 
 	.gmii_sysclk       (gmii_sysclk),  // 125 MHz PHY to MAC is sys1_clk
 	.gmii_rstn         (gmii_rstn),
