@@ -78,6 +78,79 @@ interface DCPAdapterIfc;
   interface Client#(CpReq,CpReadResp)       client; 
 endinterface 
 
+// TODO: Return to poly implementation when sanity restored
+
+`define SUSPECT_POLY_BROKEN
+`ifdef SUSPECT_POLY_BROKEN
+
+module mkDCPAdapterSync (DCPAdapterIfc);
+  FIFO#(DCPRequest)          dcpReqF   <- mkFIFO;   // Inbound   DCP Requests
+  FIFO#(DCPResponse)         dcpRespF  <- mkFIFO;   // Outbound  DCP Responses
+  FIFO#(CpReq)               cpReqF    <- mkFIFO;
+  FIFO#(CpReadResp)          cpRespF   <- mkFIFO;
+
+  rule dcp_request;
+    let x = dcpReqF.first; dcpReqF.deq;
+    case (x) matches
+      tagged NOP   .n: dcpRespF.enq(tagged NOP( DCPResponseNOP{targAdvert:32'h4000_0001, tag:n.tag, code:RESP_OK}));        // Respond to the NOP
+      tagged Write .w: begin
+                       cpReqF.enq(tagged WriteRequest( CpWriteReq{dwAddr:truncate(w.addr>>2), byteEn:w.be, data:w.data}));  // Issue the Write
+                       dcpRespF.enq(tagged Write( DCPResponseWrite{tag:w.tag, code:RESP_OK}));                              // Blind ACK the Write
+                       end
+      tagged Read  .r: cpReqF.enq(tagged ReadRequest(  CpReadReq {dwAddr:truncate(r.addr>>2), byteEn:r.be, tag:r.tag}));    // Issue the Read
+    endcase
+  endrule
+
+  rule cp_response;
+    let y = cpRespF.first; cpRespF.deq;
+    dcpRespF.enq(tagged Read( DCPResponseRead{data:y.data, tag:y.tag, code:RESP_OK}));  // Advance the CP Read response
+  endrule
+
+  interface Server server;  // Facing the DCP Packet Side
+    interface request  = toPut(dcpReqF);
+    interface response = toGet(dcpRespF);
+  endinterface
+  interface Client client;  // Facing the Control Plane
+    interface request  = toGet(cpReqF);
+    interface response = toPut(cpRespF);
+  endinterface
+endmodule
+
+
+module mkDCPAdapterAsync#(Clock cpClock, Reset cpReset) (DCPAdapterIfc);
+  FIFO#(DCPRequest)          dcpReqF   <- mkFIFO;   // Inbound   DCP Requests
+  FIFO#(DCPResponse)         dcpRespF  <- mkFIFO;   // Outbound  DCP Responses
+  SyncFIFOIfc#(CpReq)        cpReqF    <- mkSyncFIFOFromCC(4, cpClock); 
+  SyncFIFOIfc#(CpReadResp)   cpRespF   <- mkSyncFIFOToCC(4,cpClock, cpReset); 
+
+  rule dcp_request;
+    let x = dcpReqF.first; dcpReqF.deq;
+    case (x) matches
+      tagged NOP   .n: dcpRespF.enq(tagged NOP( DCPResponseNOP{targAdvert:32'h4000_0001, tag:n.tag, code:RESP_OK}));        // Respond to the NOP
+      tagged Write .w: begin
+                       cpReqF.enq(tagged WriteRequest( CpWriteReq{dwAddr:truncate(w.addr>>2), byteEn:w.be, data:w.data}));  // Issue the Write
+                       dcpRespF.enq(tagged Write( DCPResponseWrite{tag:w.tag, code:RESP_OK}));                              // Blind ACK the Write
+                       end
+      tagged Read  .r: cpReqF.enq(tagged ReadRequest(  CpReadReq {dwAddr:truncate(r.addr>>2), byteEn:r.be, tag:r.tag}));    // Issue the Read
+    endcase
+  endrule
+
+  rule cp_response;
+    let y = cpRespF.first; cpRespF.deq;
+    dcpRespF.enq(tagged Read( DCPResponseRead{data:y.data, tag:y.tag, code:RESP_OK}));  // Advance the CP Read response
+  endrule
+
+  interface Server server;  // Facing the DCP Packet Side
+    interface request  = toPut(dcpReqF);
+    interface response = toGet(dcpRespF);
+  endinterface
+  interface Client client;  // Facing the Control Plane
+    interface request  = toGet(cpReqF);
+    interface response = toPut(cpRespF);
+  endinterface
+endmodule
+
+`else 
 
 module mkDCPAdapterPoly#(Bool isAsync, Clock cpClock, Reset cpReset) (DCPAdapterIfc);
 
@@ -124,7 +197,6 @@ module mkDCPAdapterPoly#(Bool isAsync, Clock cpClock, Reset cpReset) (DCPAdapter
   endinterface
 endmodule
 
-
 module mkDCPAdapterSync (DCPAdapterIfc);
   DCPAdapterIfc _a <- mkDCPAdapterPoly(False, ?, ?); return _a;
 endmodule
@@ -143,3 +215,4 @@ function FIFO#(t) syncFifoToFifo (SyncFIFOIfc#(t) in);
       endinterface );
 endfunction
 
+`endif

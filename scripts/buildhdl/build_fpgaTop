@@ -4,6 +4,9 @@ if ($#argv != 1) then
   exit 1
 endif
 
+# Suppress XST verbosity
+setenv XIL_XST_HIDEMESSAGES hdl_and_low_levels
+
 set buildTarget = $argv[1]
 set doXst       = 1  # Control if XST is run
 set doChipscope = 0  # Control if chipscope is inserted
@@ -208,5 +211,19 @@ if ($doPromgen == 1) then
 endif
 
 grep errors fpgaTop.twr | tee twrErrors.txt
+
+echo copying logfiles...
+
+  set logdir=../../logs/$buildTarget-`date +%Y%m%d_%H%M`
+  mkdir $logdir
+  foreach i (         \
+    fpgaTop-$buildTarget.srp  \
+    fpgaTop.bld       \
+    fpgaTop_map.mrp   \
+    fpgaTop.par       \
+    fpgaTop.twr )
+  cp $i $logdir/$i
+  end
+
 
 echo End of build_fpgaTop at `date`

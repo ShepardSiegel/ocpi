@@ -1,0 +1,1470 @@
+Release 14.1 - xst P.15xf (lin64)
+Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
+--> 
+Parameter xsthdpini set to ocpihdp_v5.ini
+
+
+Total REAL time to Xst completion: 0.00 secs
+Total CPU time to Xst completion: 0.05 secs
+ 
+--> 
+
+TABLE OF CONTENTS
+  1) Synthesis Options Summary
+  2) HDL Compilation
+  3) Design Hierarchy Analysis
+  4) HDL Analysis
+  5) HDL Synthesis
+     5.1) HDL Synthesis Report
+  6) Advanced HDL Synthesis
+     6.1) Advanced HDL Synthesis Report
+  7) Low Level Synthesis
+  8) Partition Report
+  9) Final Report
+	9.1) Device utilization summary
+	9.2) Partition Resource Summary
+	9.3) TIMING REPORT
+
+
+=========================================================================
+*                      Synthesis Options Summary                        *
+=========================================================================
+---- Source Parameters
+Input File Name                    : "fpgaTop-n210.prj"
+Input Format                       : mixed
+
+---- Target Parameters
+Output File Name                   : "fpgaTop"
+Output Format                      : NGC
+Target Device                      : xc3sd3400a-fg676-5
+
+---- Source Options
+Top Module Name                    : fpgaTop
+Automatic FSM Extraction           : YES
+FSM Encoding Algorithm             : Auto
+Safe Implementation                : No
+FSM Style                          : lut
+RAM Extraction                     : Yes
+RAM Style                          : Auto
+ROM Extraction                     : Yes
+Shift Register Extraction          : YES
+ROM Style                          : Auto
+Resource Sharing                   : YES
+Asynchronous To Synchronous        : NO
+Use DSP Block                      : auto
+Automatic Register Balancing       : NO
+
+---- Target Options
+Add IO Buffers                     : YES
+Global Maximum Fanout              : 100000
+Add Generic Clock Buffer(BUFG)     : 32
+Register Duplication               : YES
+Optimize Instantiated Primitives   : NO
+Use Clock Enable                   : Auto
+Use Synchronous Set                : Auto
+Use Synchronous Reset              : Auto
+Pack IO Registers into IOBs        : auto
+Equivalent register Removal        : YES
+
+---- General Options
+Optimization Goal                  : Speed
+Optimization Effort                : 2
+Library Search Order               : work.lso
+Keep Hierarchy                     : soft
+Netlist Hierarchy                  : rebuilt
+RTL Output                         : Yes
+Read Cores                         : optimize
+Write Timing Constraints           : NO
+Cross Clock Analysis               : NO
+Hierarchy Separator                : /
+Bus Delimiter                      : <>
+Case Specifier                     : maintain
+Slice Utilization Ratio            : 100
+BRAM Utilization Ratio             : 100
+DSP48 Utilization Ratio            : 100
+Auto BRAM Packing                  : NO
+Slice Utilization Ratio Delta      : 5
+
+=========================================================================
+
+
+=========================================================================
+*                          HDL Compilation                              *
+=========================================================================
+Compiling verilog file "../../libsrc/hdl/bsv/SyncResetA.v" in library work
+Compiling verilog file "../../libsrc/hdl/bsv/MakeResetA.v" in library work
+Module <SyncResetA> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/MakeReset0.v" in library work
+Module <MakeResetA> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/FIFO1.v" in library work
+Module <MakeReset0> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/FIFO2.v" in library work
+Module <FIFO1> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/Counter.v" in library work
+Module <FIFO2> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/TriState.v" in library work
+Module <Counter> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncBit.v" in library work
+Module <TriState> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncFIFO.v" in library work
+Module <SyncBit> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ResetEither.v" in library work
+Module <SyncFIFO> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ResetInverter.v" in library work
+Module <ResetEither> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/ClockInverter.v" in library work
+Module <ResetInverter> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncRegister.v" in library work
+Module <ClockInverter> compiled
+Compiling verilog file "../../libsrc/hdl/bsv/SyncHandshake.v" in library work
+Module <SyncRegister> compiled
+Compiling verilog file "../../rtl/mkCRC32.v" in library work
+Module <SyncHandshake> compiled
+Compiling verilog file "../../rtl/mkGMAC.v" in library work
+Module <mkCRC32> compiled
+Compiling verilog file "../../rtl/mkGbeLite.v" in library work
+Module <mkGMAC> compiled
+Compiling verilog file "../../rtl/mkOCCP.v" in library work
+Module <mkGbeLite> compiled
+Compiling verilog file "../../rtl/mkFTop_n210.v" in library work
+Module <mkOCCP> compiled
+Compiling verilog file "../../libsrc/hdl/ocpi/clock_n210.v" in library work
+Module <mkFTop_n210> compiled
+Compiling verilog file "../../libsrc/hdl/ocpi/fpgaTop_n210.v" in library work
+Module <clock_n210> compiled
+Module <fpgaTop> compiled
+No errors in compilation
+Analysis of file <"fpgaTop-n210.prj"> succeeded.
+ 
+
+=========================================================================
+*                     Design Hierarchy Analysis                         *
+=========================================================================
+Analyzing hierarchy for module <fpgaTop> in library <work>.
+
+Analyzing hierarchy for module <mkFTop_n210> in library <work>.
+
+Analyzing hierarchy for module <clock_n210> in library <work>.
+
+
+
+
+
+
+
+Analyzing hierarchy for module <mkGMAC> in library <work>.
+
+
+
+
+
+
+
+
+
+
+Analyzing hierarchy for module <mkCRC32> in library <work>.
+
+
+
+
+Analyzing hierarchy for module <ClockInverter> in library <work>.
+
+Analyzing hierarchy for module <ResetInverter> in library <work>.
+
+
+
+=========================================================================
+*                            HDL Analysis                               *
+=========================================================================
+Analyzing top module <fpgaTop>.
+WARNING:Xst:852 - "../../libsrc/hdl/ocpi/fpgaTop_n210.v" line 37: Unconnected input port 'gmii_col_i' of instance 'ftop' is tied to GND.
+WARNING:Xst:852 - "../../libsrc/hdl/ocpi/fpgaTop_n210.v" line 37: Unconnected input port 'gmii_crs_i' of instance 'ftop' is tied to GND.
+Module <fpgaTop> is correct for synthesis.
+ 
+Analyzing module <mkFTop_n210> in library <work>.
+Module <mkFTop_n210> is correct for synthesis.
+ 
+    Set user-defined property "CAPACITANCE =  DONT_CARE" for instance <clkIn> in unit <mkFTop_n210>.
+    Set user-defined property "DIFF_TERM =  FALSE" for instance <clkIn> in unit <mkFTop_n210>.
+    Set user-defined property "IBUF_DELAY_VALUE =  0" for instance <clkIn> in unit <mkFTop_n210>.
+    Set user-defined property "IBUF_LOW_PWR =  TRUE" for instance <clkIn> in unit <mkFTop_n210>.
+    Set user-defined property "IFD_DELAY_VALUE =  AUTO" for instance <clkIn> in unit <mkFTop_n210>.
+    Set user-defined property "IOSTANDARD =  DEFAULT" for instance <clkIn> in unit <mkFTop_n210>.
+Analyzing module <clock_n210> in library <work>.
+Module <clock_n210> is correct for synthesis.
+ 
+    Set user-defined property "CLKDV_DIVIDE =  2.000000" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "CLKFX_DIVIDE =  4" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "CLKFX_MULTIPLY =  5" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "CLKIN_DIVIDE_BY_2 =  FALSE" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "CLKIN_PERIOD =  10.000000" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "CLKOUT_PHASE_SHIFT =  NONE" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "CLK_FEEDBACK =  1X" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "DESKEW_ADJUST =  SYSTEM_SYNCHRONOUS" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "DFS_FREQUENCY_MODE =  LOW" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "DLL_FREQUENCY_MODE =  LOW" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "DSS_MODE =  NONE" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "DUTY_CYCLE_CORRECTION =  TRUE" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "FACTORY_JF =  C080" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "PHASE_SHIFT =  0" for instance <dcm> in unit <clock_n210>.
+    Set user-defined property "STARTUP_WAIT =  FALSE" for instance <dcm> in unit <clock_n210>.
+Analyzing module <mkGbeLite> in library <work>.
+Module <mkGbeLite> is correct for synthesis.
+ 
+Analyzing module <FIFO2.1> in library <work>.
+Module <FIFO2.1> is correct for synthesis.
+ 
+Analyzing module <SyncFIFO.1> in library <work>.
+	Calling function <incrGrayP>.
+	Calling function <incrGray>.
+	Calling function <incrGrayP>.
+	Calling function <incrGray>.
+Module <SyncFIFO.1> is correct for synthesis.
+ 
+Analyzing module <SyncFIFO.2> in library <work>.
+	Calling function <incrGrayP>.
+	Calling function <incrGray>.
+	Calling function <incrGrayP>.
+	Calling function <incrGray>.
+Module <SyncFIFO.2> is correct for synthesis.
+ 
+Analyzing module <FIFO2.2> in library <work>.
+Module <FIFO2.2> is correct for synthesis.
+ 
+Analyzing module <mkGMAC> in library <work>.
+"../../rtl/mkGMAC.v" line 974: Found Parallel Case directive in module <mkGMAC>.
+Module <mkGMAC> is correct for synthesis.
+ 
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxClk> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxClk> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxData> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxData> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxData_1> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxData_1> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxData_2> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxData_2> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxData_3> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxData_3> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxData_4> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxData_4> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxData_5> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxData_5> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxData_6> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxData_6> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxData_7> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxData_7> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxEna> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxEna> in unit <mkGMAC>.
+    Set user-defined property "DDR_ALIGNMENT =  NONE" for instance <txRS_iobTxErr> in unit <mkGMAC>.
+    Set user-defined property "SRTYPE =  SYNC" for instance <txRS_iobTxErr> in unit <mkGMAC>.
+Analyzing module <SyncResetA.2> in library <work>.
+Module <SyncResetA.2> is correct for synthesis.
+ 
+Analyzing module <mkCRC32> in library <work>.
+Module <mkCRC32> is correct for synthesis.
+ 
+Analyzing module <SyncBit> in library <work>.
+Module <SyncBit> is correct for synthesis.
+ 
+Analyzing module <SyncFIFO.3> in library <work>.
+	Calling function <incrGrayP>.
+	Calling function <incrGray>.
+	Calling function <incrGrayP>.
+	Calling function <incrGray>.
+Module <SyncFIFO.3> is correct for synthesis.
+ 
+Analyzing module <ClockInverter> in library <work>.
+Module <ClockInverter> is correct for synthesis.
+ 
+Analyzing module <ResetInverter> in library <work>.
+Module <ResetInverter> is correct for synthesis.
+ 
+Analyzing module <FIFO2.3> in library <work>.
+Module <FIFO2.3> is correct for synthesis.
+ 
+Analyzing module <FIFO2.4> in library <work>.
+Module <FIFO2.4> is correct for synthesis.
+ 
+Analyzing module <Counter.1> in library <work>.
+Module <Counter.1> is correct for synthesis.
+ 
+Analyzing module <Counter.2> in library <work>.
+Module <Counter.2> is correct for synthesis.
+ 
+Analyzing module <TriState> in library <work>.
+Module <TriState> is correct for synthesis.
+ 
+Analyzing module <MakeResetA> in library <work>.
+Module <MakeResetA> is correct for synthesis.
+ 
+Analyzing module <SyncResetA.3> in library <work>.
+Module <SyncResetA.3> is correct for synthesis.
+ 
+Analyzing module <FIFO2.5> in library <work>.
+Module <FIFO2.5> is correct for synthesis.
+ 
+Analyzing module <FIFO2.6> in library <work>.
+Module <FIFO2.6> is correct for synthesis.
+ 
+Analyzing module <SyncResetA.1> in library <work>.
+Module <SyncResetA.1> is correct for synthesis.
+ 
+
+=========================================================================
+*                           HDL Synthesis                               *
+=========================================================================
+
+Performing bidirectional port resolution...
+INFO:Xst:2679 - Register <gbeControl> in unit <mkGbeLite> has a constant value of 00000000000000000000000100000001 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <macAddress> in unit <mkGbeLite> has a constant value of 000000000000101000110101010000100000000100000000 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <rxDCPCnt> in unit <mkGbeLite> has a constant value of 00000000000000000000000000000000 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <splitReadInFlight> in unit <mkGbeLite> has a constant value of 0 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <txCount> in unit <mkGbeLite> has a constant value of 00000000000000000000000000000000 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <txDBGCnt> in unit <mkGbeLite> has a constant value of 00000000000000000000000000000000 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <txDBGPos> in unit <mkGbeLite> has a constant value of 00000 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <txDCPCnt> in unit <mkGbeLite> has a constant value of 00000000000000000000000000000000 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <empty_reg> in unit <FIFO2_6> has a constant value of 0 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <full_reg> in unit <FIFO2_6> has a constant value of 1 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <data1_reg> in unit <FIFO2_6> has a constant value of 00000000000000000000000000000000 during circuit operation. The register is replaced by logic.
+
+Synthesizing Unit <SyncResetA_1>.
+    Related source file is "../../libsrc/hdl/bsv/SyncResetA.v".
+    Found 2-bit register for signal <reset_hold>.
+    Summary:
+	inferred   2 D-type flip-flop(s).
+Unit <SyncResetA_1> synthesized.
+
+
+Synthesizing Unit <FIFO2_1>.
+    Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
+    Found 44-bit register for signal <data0_reg>.
+    Found 44-bit register for signal <data1_reg>.
+    Found 1-bit register for signal <empty_reg>.
+    Found 1-bit register for signal <full_reg>.
+    Summary:
+	inferred  90 D-type flip-flop(s).
+Unit <FIFO2_1> synthesized.
+
+
+Synthesizing Unit <SyncFIFO_1>.
+    Related source file is "../../libsrc/hdl/bsv/SyncFIFO.v".
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/p> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGrayBlock/tempshift> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGrayBlock/flips> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/i> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/g> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/p> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGrayBlock/tempshift> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGrayBlock/flips> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/i> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/g> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+    Found 4x59-bit dual-port RAM <Mram_fifoMem> for signal <fifoMem>.
+    Found 59-bit register for signal <dDoutReg>.
+    Found 3-bit register for signal <dEnqPtr>.
+    Found 4-bit register for signal <dGDeqPtr>.
+    Found 4-bit register for signal <dGDeqPtr1>.
+    Found 3-bit comparator not equal for signal <dNextNotEmpty>.
+    Found 1-bit register for signal <dNotEmptyReg>.
+    Found 3-bit register for signal <dSyncReg1>.
+    Found 3-bit xor2 for signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGray>.
+    Found 3-bit xor2 for signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGray>.
+    Found 3-bit register for signal <sDeqPtr>.
+    Found 3-bit comparator not equal for signal <sFutureNotFull>.
+    Found 4-bit register for signal <sGEnqPtr>.
+    Found 4-bit register for signal <sGEnqPtr1>.
+    Found 3-bit comparator not equal for signal <sNextNotFull>.
+    Found 1-bit register for signal <sNotFullReg>.
+    Found 3-bit register for signal <sSyncReg1>.
+    Summary:
+	inferred   1 RAM(s).
+	inferred  81 D-type flip-flop(s).
+	inferred   3 Comparator(s).
+Unit <SyncFIFO_1> synthesized.
+
+
+Synthesizing Unit <SyncFIFO_2>.
+    Related source file is "../../libsrc/hdl/bsv/SyncFIFO.v".
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/p> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGrayBlock/tempshift> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGrayBlock/flips> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/i> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/g> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/p> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGrayBlock/tempshift> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGrayBlock/flips> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/i> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/g> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+    Found 4x40-bit dual-port RAM <Mram_fifoMem> for signal <fifoMem>.
+    Found 40-bit register for signal <dDoutReg>.
+    Found 3-bit register for signal <dEnqPtr>.
+    Found 4-bit register for signal <dGDeqPtr>.
+    Found 4-bit register for signal <dGDeqPtr1>.
+    Found 3-bit comparator not equal for signal <dNextNotEmpty>.
+    Found 1-bit register for signal <dNotEmptyReg>.
+    Found 3-bit register for signal <dSyncReg1>.
+    Found 3-bit xor2 for signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGray>.
+    Found 3-bit xor2 for signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGray>.
+    Found 3-bit register for signal <sDeqPtr>.
+    Found 3-bit comparator not equal for signal <sFutureNotFull>.
+    Found 4-bit register for signal <sGEnqPtr>.
+    Found 4-bit register for signal <sGEnqPtr1>.
+    Found 3-bit comparator not equal for signal <sNextNotFull>.
+    Found 1-bit register for signal <sNotFullReg>.
+    Found 3-bit register for signal <sSyncReg1>.
+    Summary:
+	inferred   1 RAM(s).
+	inferred  62 D-type flip-flop(s).
+	inferred   3 Comparator(s).
+Unit <SyncFIFO_2> synthesized.
+
+
+Synthesizing Unit <FIFO2_2>.
+    Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
+    Found 78-bit register for signal <data0_reg>.
+    Found 78-bit register for signal <data1_reg>.
+    Found 1-bit register for signal <empty_reg>.
+    Found 1-bit register for signal <full_reg>.
+    Summary:
+	inferred 158 D-type flip-flop(s).
+Unit <FIFO2_2> synthesized.
+
+
+Synthesizing Unit <FIFO2_3>.
+    Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
+    Found 27-bit register for signal <data0_reg>.
+    Found 27-bit register for signal <data1_reg>.
+    Found 1-bit register for signal <empty_reg>.
+    Found 1-bit register for signal <full_reg>.
+    Summary:
+	inferred  56 D-type flip-flop(s).
+Unit <FIFO2_3> synthesized.
+
+
+Synthesizing Unit <FIFO2_4>.
+    Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
+    Found 17-bit register for signal <data0_reg>.
+    Found 17-bit register for signal <data1_reg>.
+    Found 1-bit register for signal <empty_reg>.
+    Found 1-bit register for signal <full_reg>.
+    Summary:
+	inferred  36 D-type flip-flop(s).
+Unit <FIFO2_4> synthesized.
+
+
+Synthesizing Unit <Counter_1>.
+    Related source file is "../../libsrc/hdl/bsv/Counter.v".
+    Found 8-bit register for signal <q_state>.
+    Found 8-bit adder for signal <q_state$add0000> created at line 69.
+    Summary:
+	inferred   8 D-type flip-flop(s).
+	inferred   1 Adder/Subtractor(s).
+Unit <Counter_1> synthesized.
+
+
+Synthesizing Unit <Counter_2>.
+    Related source file is "../../libsrc/hdl/bsv/Counter.v".
+    Found 4-bit register for signal <q_state>.
+    Found 4-bit adder for signal <q_state$addsub0000> created at line 69.
+    Summary:
+	inferred   4 D-type flip-flop(s).
+	inferred   1 Adder/Subtractor(s).
+Unit <Counter_2> synthesized.
+
+
+Synthesizing Unit <TriState>.
+    Related source file is "../../libsrc/hdl/bsv/TriState.v".
+    Found 1-bit tristate buffer for signal <IO<0>>.
+    Summary:
+	inferred   1 Tristate(s).
+Unit <TriState> synthesized.
+
+
+Synthesizing Unit <FIFO2_5>.
+    Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
+    Found 112-bit register for signal <data0_reg>.
+    Found 112-bit register for signal <data1_reg>.
+    Found 1-bit register for signal <empty_reg>.
+    Found 1-bit register for signal <full_reg>.
+    Summary:
+	inferred 226 D-type flip-flop(s).
+Unit <FIFO2_5> synthesized.
+
+
+Synthesizing Unit <FIFO2_6>.
+    Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
+    Found 32-bit register for signal <data0_reg>.
+    Summary:
+	inferred  32 D-type flip-flop(s).
+Unit <FIFO2_6> synthesized.
+
+
+Synthesizing Unit <SyncResetA_2>.
+    Related source file is "../../libsrc/hdl/bsv/SyncResetA.v".
+    Found 8-bit register for signal <reset_hold>.
+    Summary:
+	inferred   8 D-type flip-flop(s).
+Unit <SyncResetA_2> synthesized.
+
+
+Synthesizing Unit <mkCRC32>.
+    Related source file is "../../rtl/mkCRC32.v".
+    Found 32-bit register for signal <rRemainder>.
+    Found 32-bit xor2 for signal <rRemainder_XOR_rwAddIn_wget_BIT_0_CONCAT_rwAdd_ETC___d361>.
+    Summary:
+	inferred  32 D-type flip-flop(s).
+Unit <mkCRC32> synthesized.
+
+
+Synthesizing Unit <SyncBit>.
+    Related source file is "../../libsrc/hdl/bsv/SyncBit.v".
+    Found 1-bit register for signal <dSyncReg1>.
+    Found 1-bit register for signal <dSyncReg2>.
+    Found 1-bit register for signal <sSyncReg>.
+    Summary:
+	inferred   3 D-type flip-flop(s).
+Unit <SyncBit> synthesized.
+
+
+Synthesizing Unit <SyncFIFO_3>.
+    Related source file is "../../libsrc/hdl/bsv/SyncFIFO.v".
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/p> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGrayBlock/tempshift> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGrayBlock/flips> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/i> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/2/incrGrayPBlock/g> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/p> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGrayBlock/tempshift> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGrayBlock/flips> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/i> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/g> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+    Found 8x10-bit dual-port RAM <Mram_fifoMem> for signal <fifoMem>.
+    Found 10-bit register for signal <dDoutReg>.
+    Found 4-bit register for signal <dEnqPtr>.
+    Found 5-bit register for signal <dGDeqPtr>.
+    Found 5-bit register for signal <dGDeqPtr1>.
+    Found 4-bit comparator not equal for signal <dNextNotEmpty>.
+    Found 1-bit register for signal <dNotEmptyReg>.
+    Found 4-bit register for signal <dSyncReg1>.
+    Found 4-bit xor2 for signal <incrGrayP/1/incrGrayPBlock/incrGray/1/incrGray>.
+    Found 4-bit xor2 for signal <incrGrayP/2/incrGrayPBlock/incrGray/2/incrGray>.
+    Found 4-bit register for signal <sDeqPtr>.
+    Found 4-bit comparator not equal for signal <sFutureNotFull>.
+    Found 5-bit register for signal <sGEnqPtr>.
+    Found 5-bit register for signal <sGEnqPtr1>.
+    Found 4-bit comparator not equal for signal <sNextNotFull>.
+    Found 1-bit register for signal <sNotFullReg>.
+    Found 4-bit register for signal <sSyncReg1>.
+    Summary:
+	inferred   1 RAM(s).
+	inferred  38 D-type flip-flop(s).
+	inferred   3 Comparator(s).
+Unit <SyncFIFO_3> synthesized.
+
+
+Synthesizing Unit <ClockInverter>.
+    Related source file is "../../libsrc/hdl/bsv/ClockInverter.v".
+Unit <ClockInverter> synthesized.
+
+
+Synthesizing Unit <ResetInverter>.
+    Related source file is "../../libsrc/hdl/bsv/ResetInverter.v".
+Unit <ResetInverter> synthesized.
+
+
+Synthesizing Unit <SyncResetA_3>.
+    Related source file is "../../libsrc/hdl/bsv/SyncResetA.v".
+    Found 17-bit register for signal <reset_hold>.
+    Summary:
+	inferred  17 D-type flip-flop(s).
+Unit <SyncResetA_3> synthesized.
+
+
+Synthesizing Unit <clock_n210>.
+    Related source file is "../../libsrc/hdl/ocpi/clock_n210.v".
+WARNING:Xst:646 - Signal <dcmStatus> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+Unit <clock_n210> synthesized.
+
+
+Synthesizing Unit <mkGMAC>.
+    Related source file is "../../rtl/mkGMAC.v".
+WARNING:Xst:647 - Input <gmii_crs_i> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:647 - Input <gmii_col_i> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:1780 - Signal <v__h6333> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h12167> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_underflow_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_underflow_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_underflow> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_txOperateD_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_txOperateD_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_txER_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_txER_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_txDV_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_preambleCnt_incAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_preambleCnt_decAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_lenCnt_decAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_ifgCnt_incAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txRS_crcDbgCnt_decAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxRS_rxOperateD_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxRS_rxOperateD_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxRS_rxER> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxRS_rxDVD2> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxRS_preambleCnt_decAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxRS_isSOF> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxRS_crcDbgCnt_decAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+    Found 1-bit register for signal <gmacLED>.
+    Found 12-bit adder for signal <MUX_rxRS_crcDbgCnt_value$addsub0000> created at line 907.
+    Found 4-bit adder for signal <MUX_rxRS_preambleCnt_value$addsub0000> created at line 911.
+    Found 32-bit comparator equal for signal <MUX_rxRS_rxF$cmp_eq0000> created at line 917.
+    Found 12-bit adder for signal <MUX_txRS_crcDbgCnt_value$addsub0000> created at line 928.
+    Found 3-bit subtractor for signal <MUX_txRS_emitFCS$write_1__VAL_2>.
+    Found 5-bit subtractor for signal <MUX_txRS_ifgCnt_value$addsub0000> created at line 933.
+    Found 12-bit adder for signal <MUX_txRS_lenCnt_value$addsub0000> created at line 937.
+    Found 5-bit adder for signal <MUX_txRS_preambleCnt_value$addsub0000> created at line 941.
+    Found 12-bit register for signal <rxRS_crcDbgCnt_value>.
+    Found 1-bit register for signal <rxRS_crcEnd>.
+    Found 1-bit register for signal <rxRS_fullD>.
+    Found 4-bit register for signal <rxRS_preambleCnt_value>.
+    Found 1-bit register for signal <rxRS_rxActive>.
+    Found 4-bit comparator greater for signal <rxRS_rxActive$cmp_gt0000> created at line 1073.
+    Found 6-bit register for signal <rxRS_rxAPipe>.
+    Found 8-bit register for signal <rxRS_rxData>.
+    Found 1-bit register for signal <rxRS_rxDV>.
+    Found 1-bit register for signal <rxRS_rxDVD>.
+    Found 1-bit register for signal <rxRS_rxOperateD>.
+    Found 48-bit register for signal <rxRS_rxPipe>.
+    Found 12-bit register for signal <txRS_crcDbgCnt_value>.
+    Found 1-bit register for signal <txRS_doPad>.
+    Found 3-bit register for signal <txRS_emitFCS>.
+    Found 5-bit register for signal <txRS_ifgCnt_value>.
+    Found 1-bit register for signal <txRS_isSOF>.
+    Found 12-bit register for signal <txRS_lenCnt_value>.
+    Found 12-bit comparator less for signal <txRS_lenCnt_value_39_ULT_59___d322>.
+    Found 5-bit register for signal <txRS_preambleCnt_value>.
+    Found 5-bit comparator less for signal <txRS_preambleCnt_value_13_ULT_7___d321>.
+    Found 1-bit register for signal <txRS_txActive>.
+    Found 8-bit register for signal <txRS_txData>.
+    Found 1-bit register for signal <txRS_txDV>.
+    Found 1-bit register for signal <txRS_txER>.
+    Found 1-bit register for signal <txRS_txOperateD>.
+    Found 1-bit register for signal <txRS_unfD>.
+    Summary:
+	inferred 137 D-type flip-flop(s).
+	inferred   7 Adder/Subtractor(s).
+	inferred   4 Comparator(s).
+Unit <mkGMAC> synthesized.
+
+
+Synthesizing Unit <MakeResetA>.
+    Related source file is "../../libsrc/hdl/bsv/MakeResetA.v".
+    Found 1-bit register for signal <rst>.
+    Summary:
+	inferred   1 D-type flip-flop(s).
+Unit <MakeResetA> synthesized.
+
+
+Synthesizing Unit <mkGbeLite>.
+    Related source file is "../../rtl/mkGbeLite.v".
+WARNING:Xst:647 - Input <RST_N_gmiixo_rst> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:646 - Signal <txDCPCnt> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txDBGPos> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txDBGCnt> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <txCount> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <splitReadInFlight> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxPipe<31:24>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxLenLast> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxHeadCap<127:120>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <rxDCPCnt> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <mdi_tMDD$IO> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <mdi_tMDC$IO> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <mdi_pwTick$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <gbeControl<30:5>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <dcp_dcpReqF$D_OUT<31:24>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <dcp_dcpReqF$D_OUT<1:0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <dcpRespF$D_OUT<1:0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+    Found 195x2-bit ROM for signal <mdi_rPlayIndex$rom0000>.
+    Found 8-bit 16-to-1 multiplexer for signal <CASE_rxHdr_pos_rxHdr_pV_BITS_111_TO_104_0_rxHd_ETC__q2>.
+    Found 8-bit 16-to-1 multiplexer for signal <CASE_rxHdr_pos_rxHdr_sV_BITS_111_TO_104_0_rxHd_ETC__q1>.
+    Found 78-bit 4-to-1 multiplexer for signal <dcp_dcpReqF$D_IN>.
+    Found 8-bit comparator equal for signal <IF_rxHdr_pos_09_EQ_0_25_THEN_rxHdr_sV_92_BITS__ETC___d294>.
+    Found 1-bit register for signal <mdi_rMDC>.
+    Found 1-bit register for signal <mdi_rMDD>.
+    Found 1-bit 195-to-1 multiplexer for signal <mdi_rMDD$D_IN>.
+    Found 1-bit register for signal <mdi_rOutEn>.
+    Found 1-bit 195-to-1 multiplexer for signal <mdi_rOutEn$D_IN>.
+    Found 5-bit register for signal <mdi_rPhyAddr>.
+    Found 5-bit register for signal <mdi_rRegAddr>.
+    Found 1-bit register for signal <mdi_rState>.
+    Found 1-bit register for signal <mdi_rWrite>.
+    Found 16-bit register for signal <mdi_rWriteData>.
+    Found 1-bit register for signal <mdi_vrReadData>.
+    Found 1-bit register for signal <mdi_vrReadData_1>.
+    Found 1-bit register for signal <mdi_vrReadData_10>.
+    Found 1-bit register for signal <mdi_vrReadData_11>.
+    Found 1-bit register for signal <mdi_vrReadData_12>.
+    Found 1-bit register for signal <mdi_vrReadData_13>.
+    Found 1-bit register for signal <mdi_vrReadData_14>.
+    Found 1-bit register for signal <mdi_vrReadData_15>.
+    Found 1-bit register for signal <mdi_vrReadData_2>.
+    Found 1-bit register for signal <mdi_vrReadData_3>.
+    Found 1-bit register for signal <mdi_vrReadData_4>.
+    Found 1-bit register for signal <mdi_vrReadData_5>.
+    Found 1-bit register for signal <mdi_vrReadData_6>.
+    Found 1-bit register for signal <mdi_vrReadData_7>.
+    Found 1-bit register for signal <mdi_vrReadData_8>.
+    Found 1-bit register for signal <mdi_vrReadData_9>.
+    Found 5-bit adder for signal <MUX_rxDCPMesgPos$write_1__VAL_1>.
+    Found 4-bit adder for signal <MUX_rxHdr_mCnt$write_1__VAL_1>.
+    Found 4-bit adder for signal <MUX_rxHdr_pos$addsub0000> created at line 919.
+    Found 4-bit comparator less for signal <MUX_rxHdr_pos$cmp_lt0000> created at line 919.
+    Found 8-bit comparator less for signal <NOT_rxHdr_sV_92_BIT_112_93_09_AND_rxHdr_sV_92__ETC___d315$cmp_lt0000> created at line 1424.
+    Found 1-bit register for signal <phyMdiInit>.
+    Found 25-bit register for signal <phyResetWaitCnt>.
+    Found 25-bit subtractor for signal <phyResetWaitCnt$addsub0000> created at line 1088.
+    Found 25-bit comparator lessequal for signal <phyResetWaitCnt$cmp_le0000> created at line 1088.
+    Found 25-bit comparator greater for signal <phyRst$ASSERT_IN>.
+    Found 32-bit up counter for signal <rxAbortEOPC>.
+    Found 32-bit up counter for signal <rxCount>.
+    Found 112-bit register for signal <rxDCPMesg>.
+    Found 5-bit register for signal <rxDCPMesgPos>.
+    Found 8-bit register for signal <rxDCPPLI>.
+    Found 32-bit up counter for signal <rxEmptyEOPC>.
+    Found 4-bit register for signal <rxHdr_mCnt>.
+    Found 4-bit register for signal <rxHdr_pos>.
+    Found 113-bit register for signal <rxHdr_pV>.
+    Found 113-bit register for signal <rxHdr_sV>.
+    Found 32-bit register for signal <rxHdrMatchCnt>.
+    Found 32-bit adder for signal <rxHdrMatchCnt$addsub0000> created at line 1141.
+    Found 128-bit register for signal <rxHeadCap>.
+    Found 32-bit comparator less for signal <rxHeadCap$cmp_lt0000> created at line 1193.
+    Found 32-bit register for signal <rxLenCount>.
+    Found 32-bit up counter for signal <rxOvfCount>.
+    Found 32-bit register for signal <rxPipe>.
+    Found 2-bit register for signal <rxPos>.
+    Found 2-bit adder for signal <rxPos$addsub0000> created at line 1217.
+    Found 32-bit up counter for signal <rxValidEOPC>.
+    Found 32-bit up counter for signal <rxValidNoEOPC>.
+    Found 5-bit register for signal <txDCPPos>.
+    Found 5-bit adder for signal <txDCPPos_47_PLUS_1___d627>.
+    Found 32-bit up counter for signal <txUndCount>.
+    Found 32-bit adder for signal <x__h61989>.
+    Summary:
+	inferred   1 ROM(s).
+	inferred   7 Counter(s).
+	inferred 663 D-type flip-flop(s).
+	inferred   9 Adder/Subtractor(s).
+	inferred   6 Comparator(s).
+	inferred  96 Multiplexer(s).
+Unit <mkGbeLite> synthesized.
+
+
+Synthesizing Unit <mkFTop_n210>.
+    Related source file is "../../rtl/mkFTop_n210.v".
+WARNING:Xst:1780 - Signal <gbe0$mdio_mdd> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <gbe0$mdio_mdc> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+    Found 5-bit 8-to-1 multiplexer for signal <CASE_freeCnt_BITS_26_TO_24_3_0_IF_freeCnt_BIT__ETC__q1>.
+    Found 1-bit xor2 for signal <debug$xor0000> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0001> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0002> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0003> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0004> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0005> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0006> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0007> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0008> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0009> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0010> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0011> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0012> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0013> created at line 249.
+    Found 1-bit xor2 for signal <debug$xor0014> created at line 249.
+    Found 1-bit register for signal <doInit>.
+    Found 32-bit comparator greater for signal <doInit$EN>.
+    Found 32-bit up counter for signal <freeCnt>.
+    Summary:
+	inferred   1 Counter(s).
+	inferred   1 D-type flip-flop(s).
+	inferred   1 Comparator(s).
+	inferred   5 Multiplexer(s).
+Unit <mkFTop_n210> synthesized.
+
+
+Synthesizing Unit <fpgaTop>.
+    Related source file is "../../libsrc/hdl/ocpi/fpgaTop_n210.v".
+Unit <fpgaTop> synthesized.
+
+
+=========================================================================
+HDL Synthesis Report
+
+Macro Statistics
+# RAMs                                                 : 4
+ 4x40-bit dual-port RAM                                : 1
+ 4x59-bit dual-port RAM                                : 1
+ 8x10-bit dual-port RAM                                : 2
+# ROMs                                                 : 1
+ 195x2-bit ROM                                         : 1
+# Adders/Subtractors                                   : 16
+ 12-bit adder                                          : 3
+ 25-bit subtractor                                     : 1
+ 3-bit subtractor                                      : 1
+ 32-bit adder                                          : 1
+ 4-bit adder                                           : 4
+ 5-bit adder                                           : 4
+ 5-bit subtractor                                      : 1
+ 8-bit adder                                           : 1
+# Counters                                             : 1
+ 32-bit up counter                                     : 1
+# Registers                                            : 157
+ 1-bit register                                        : 72
+ 10-bit register                                       : 2
+ 112-bit register                                      : 5
+ 113-bit register                                      : 2
+ 12-bit register                                       : 3
+ 128-bit register                                      : 1
+ 16-bit register                                       : 1
+ 17-bit register                                       : 2
+ 2-bit register                                        : 3
+ 25-bit register                                       : 1
+ 27-bit register                                       : 2
+ 3-bit register                                        : 9
+ 32-bit register                                       : 5
+ 4-bit register                                        : 20
+ 40-bit register                                       : 1
+ 44-bit register                                       : 4
+ 48-bit register                                       : 1
+ 5-bit register                                        : 14
+ 59-bit register                                       : 1
+ 6-bit register                                        : 1
+ 78-bit register                                       : 2
+ 8-bit register                                        : 5
+# Comparators                                          : 22
+ 12-bit comparator less                                : 1
+ 25-bit comparator greater                             : 1
+ 25-bit comparator lessequal                           : 1
+ 3-bit comparator not equal                            : 5
+ 32-bit comparator equal                               : 1
+ 32-bit comparator greater                             : 1
+ 32-bit comparator less                                : 1
+ 4-bit comparator greater                              : 1
+ 4-bit comparator less                                 : 1
+ 4-bit comparator not equal                            : 6
+ 5-bit comparator less                                 : 1
+ 8-bit comparator equal                                : 1
+ 8-bit comparator less                                 : 1
+# Multiplexers                                         : 6
+ 1-bit 195-to-1 multiplexer                            : 2
+ 5-bit 8-to-1 multiplexer                              : 1
+ 78-bit 4-to-1 multiplexer                             : 1
+ 8-bit 16-to-1 multiplexer                             : 2
+# Tristates                                            : 2
+ 1-bit tristate buffer                                 : 2
+# Xors                                                 : 25
+ 1-bit xor2                                            : 15
+ 3-bit xor2                                            : 4
+ 32-bit xor2                                           : 2
+ 4-bit xor2                                            : 4
+
+=========================================================================
+
+=========================================================================
+*                       Advanced HDL Synthesis                          *
+=========================================================================
+
+WARNING:Xst:1290 - Hierarchical block <phyReset> is unconnected in block <gmac>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <rxRS_ovfBit> is unconnected in block <gmac>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <txRS_unfBit> is unconnected in block <gmac>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <txDBGF> is unconnected in block <gbe0>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <txDCPHdrF> is unconnected in block <gbe0>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <gmiixo_rst> is unconnected in block <ftop>.
+   It will be removed from the design.
+WARNING:Xst:2404 -  FFs/Latches <sGEnqPtr<3:0>> (without init value) have a constant value of 0 in block <SyncFIFO_2>.
+WARNING:Xst:2404 -  FFs/Latches <dSyncReg1<2:0>> (without init value) have a constant value of 0 in block <SyncFIFO_2>.
+WARNING:Xst:2404 -  FFs/Latches <dEnqPtr<2:0>> (without init value) have a constant value of 0 in block <SyncFIFO_2>.
+
+Synthesizing (advanced) Unit <Counter_1>.
+The following registers are absorbed into accumulator <q_state>: 1 register on signal <q_state>.
+Unit <Counter_1> synthesized (advanced).
+
+Synthesizing (advanced) Unit <SyncFIFO_1>.
+INFO:Xst:3231 - The small RAM <Mram_fifoMem> will be implemented on LUTs in order to maximize performance and save block RAM resources. If you want to force its implementation on block, use option/constraint ram_style.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 4-word x 59-bit                     |          |
+    |     clkA           | connected to signal <sCLK>          | rise     |
+    |     weA            | connected to signal <sENQ>          | high     |
+    |     addrA          | connected to signal <sGEnqPtr>      |          |
+    |     diA            | connected to signal <sD_IN>         |          |
+    -----------------------------------------------------------------------
+    | Port B                                                              |
+    |     aspect ratio   | 4-word x 59-bit                     |          |
+    |     addrB          | connected to signal <dGDeqPtr>      |          |
+    |     doB            | connected to internal node          |          |
+    -----------------------------------------------------------------------
+Unit <SyncFIFO_1> synthesized (advanced).
+
+Synthesizing (advanced) Unit <SyncFIFO_2>.
+INFO:Xst:3231 - The small RAM <Mram_fifoMem> will be implemented on LUTs in order to maximize performance and save block RAM resources. If you want to force its implementation on block, use option/constraint ram_style.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 4-word x 40-bit                     |          |
+    |     clkA           | connected to signal <sCLK>          | rise     |
+    |     weA            | connected to signal <GND>           | high     |
+    |     addrA          | connected to signal <GND>           |          |
+    |     diA            | connected to signal <GND>           |          |
+    -----------------------------------------------------------------------
+    | Port B                                                              |
+    |     aspect ratio   | 4-word x 40-bit                     |          |
+    |     addrB          | connected to signal <dGDeqPtr>      |          |
+    |     doB            | connected to internal node          |          |
+    -----------------------------------------------------------------------
+Unit <SyncFIFO_2> synthesized (advanced).
+
+Synthesizing (advanced) Unit <SyncFIFO_3>.
+INFO:Xst:3231 - The small RAM <Mram_fifoMem> will be implemented on LUTs in order to maximize performance and save block RAM resources. If you want to force its implementation on block, use option/constraint ram_style.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 8-word x 10-bit                     |          |
+    |     clkA           | connected to signal <sCLK>          | rise     |
+    |     weA            | connected to signal <sENQ>          | high     |
+    |     addrA          | connected to signal <sGEnqPtr>      |          |
+    |     diA            | connected to signal <sD_IN>         |          |
+    -----------------------------------------------------------------------
+    | Port B                                                              |
+    |     aspect ratio   | 8-word x 10-bit                     |          |
+    |     addrB          | connected to signal <dGDeqPtr>      |          |
+    |     doB            | connected to internal node          |          |
+    -----------------------------------------------------------------------
+Unit <SyncFIFO_3> synthesized (advanced).
+
+=========================================================================
+Advanced HDL Synthesis Report
+
+Macro Statistics
+# RAMs                                                 : 4
+ 4x40-bit dual-port distributed RAM                    : 1
+ 4x59-bit dual-port distributed RAM                    : 1
+ 8x10-bit dual-port distributed RAM                    : 2
+# ROMs                                                 : 1
+ 195x2-bit ROM                                         : 1
+# Adders/Subtractors                                   : 11
+ 12-bit adder                                          : 1
+ 25-bit subtractor                                     : 1
+ 3-bit subtractor                                      : 1
+ 4-bit adder                                           : 3
+ 5-bit adder                                           : 4
+ 5-bit subtractor                                      : 1
+# Counters                                             : 1
+ 32-bit up counter                                     : 1
+# Accumulators                                         : 1
+ 8-bit up accumulator                                  : 1
+# Registers                                            : 1696
+ Flip-Flops                                            : 1696
+# Comparators                                          : 20
+ 12-bit comparator less                                : 1
+ 25-bit comparator greater                             : 1
+ 25-bit comparator lessequal                           : 1
+ 3-bit comparator not equal                            : 5
+ 32-bit comparator equal                               : 1
+ 32-bit comparator greater                             : 1
+ 4-bit comparator greater                              : 1
+ 4-bit comparator less                                 : 1
+ 4-bit comparator not equal                            : 6
+ 5-bit comparator less                                 : 1
+ 8-bit comparator less                                 : 1
+# Multiplexers                                         : 4
+ 1-bit 195-to-1 multiplexer                            : 2
+ 5-bit 8-to-1 multiplexer                              : 1
+ 78-bit 4-to-1 multiplexer                             : 1
+# Xors                                                 : 25
+ 1-bit xor2                                            : 15
+ 3-bit xor2                                            : 4
+ 32-bit xor2                                           : 2
+ 4-bit xor2                                            : 4
+
+=========================================================================
+
+=========================================================================
+*                         Low Level Synthesis                           *
+=========================================================================
+WARNING:Xst:1989 - Unit <mkGMAC>: instances <txRS_iobTxClk_cdi>, <txRS_iobTxData_cdi> of unit <ClockInverter> are equivalent, second instance is removed
+WARNING:Xst:1989 - Unit <mkGMAC>: instances <txRS_iobTxClk_cdi>, <txRS_iobTxEna_cdi> of unit <ClockInverter> are equivalent, second instance is removed
+WARNING:Xst:1989 - Unit <mkGMAC>: instances <txRS_iobTxClk_cdi>, <txRS_iobTxErr_cdi> of unit <ClockInverter> are equivalent, second instance is removed
+WARNING:Xst:1989 - Unit <mkGMAC>: instances <txRS_iobTxClk_reset>, <txRS_iobTxData_reset> of unit <ResetInverter> are equivalent, second instance is removed
+WARNING:Xst:1989 - Unit <mkGMAC>: instances <txRS_iobTxClk_reset>, <txRS_iobTxEna_reset> of unit <ResetInverter> are equivalent, second instance is removed
+WARNING:Xst:1989 - Unit <mkGMAC>: instances <txRS_iobTxClk_reset>, <txRS_iobTxErr_reset> of unit <ResetInverter> are equivalent, second instance is removed
+WARNING:Xst:2041 - Unit TriState: 1 internal tristate is replaced by logic (pull-up yes): IO.
+
+Optimizing unit <fpgaTop> ...
+
+Optimizing unit <ClockInverter> ...
+
+Optimizing unit <ResetInverter> ...
+
+Optimizing unit <SyncResetA_1> ...
+
+Optimizing unit <FIFO2_1> ...
+
+Optimizing unit <FIFO2_2> ...
+
+Optimizing unit <FIFO2_3> ...
+
+Optimizing unit <FIFO2_4> ...
+
+Optimizing unit <Counter_1> ...
+
+Optimizing unit <Counter_2> ...
+
+Optimizing unit <TriState> ...
+
+Optimizing unit <FIFO2_5> ...
+
+Optimizing unit <FIFO2_6> ...
+
+Optimizing unit <SyncResetA_2> ...
+
+Optimizing unit <mkCRC32> ...
+
+Optimizing unit <SyncBit> ...
+
+Optimizing unit <SyncResetA_3> ...
+
+Optimizing unit <clock_n210> ...
+
+Optimizing unit <SyncFIFO_1> ...
+
+Optimizing unit <SyncFIFO_2> ...
+
+Optimizing unit <SyncFIFO_3> ...
+
+Optimizing unit <MakeResetA> ...
+
+Optimizing unit <mkGMAC> ...
+
+Optimizing unit <mkGbeLite> ...
+
+Optimizing unit <mkFTop_n210> ...
+WARNING:Xst:1290 - Hierarchical block <gmiixo_rst> is unconnected in block <ftop>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <txDCPHdrF> is unconnected in block <gbe0>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <txDBGF> is unconnected in block <gbe0>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <phyReset> is unconnected in block <gmac>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <txRS_unfBit> is unconnected in block <gmac>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <rxRS_ovfBit> is unconnected in block <gmac>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <mdi_fResponse> is unconnected in block <gbe0>.
+   It will be removed from the design.
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem1> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem2> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem6> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem4> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem5> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem9> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem7> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem8> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem12> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem10> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem11> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem15> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem13> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem14> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem16> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem17> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem20> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem18> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem19> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem23> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem21> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem22> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem26> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem24> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem25> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem29> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem27> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem28> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem32> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem30> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem31> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem35> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem33> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem34> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem38> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem36> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem37> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem39> are equivalent, second RAM is removed
+INFO:Xst:2399 - RAMs <Mram_fifoMem3>, <Mram_fifoMem40> are equivalent, second RAM is removed
+
+Mapping all equations...
+Building and optimizing final netlist ...
+Found area constraint ratio of 100 (+ 5) on block fpgaTop, actual ratio is 3.
+FlipFlop ftop/gbe0/rxDCPMesgPos_1 has been replicated 2 time(s)
+FlipFlop ftop/gbe0/rxDCPMesgPos_2 has been replicated 2 time(s)
+FlipFlop ftop/gbe0/rxDCPMesgPos_3 has been replicated 1 time(s)
+FlipFlop ftop/gbe0/rxDCPMesgPos_4 has been replicated 1 time(s)
+
+Final Macro Processing ...
+
+Processing Unit <rstSync> :
+INFO:Xst:741 - HDL ADVISOR - A 17-bit shift register was found for signal <reset_hold_16> and currently occupies 17 logic cells (8 slices). Removing the set/reset logic would take advantage of SRL16 (and derived) primitives and reduce this to 1 logic cells (1 slices). Evaluate if the set/reset can be removed for this simple shift register. The majority of simple pipeline structures do not need to be set/reset operationally.
+Unit <rstSync> processed.
+
+=========================================================================
+Final Register Report
+
+Macro Statistics
+# Registers                                            : 837
+ Flip-Flops                                            : 837
+
+=========================================================================
+
+=========================================================================
+*                           Partition Report                            *
+=========================================================================
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+=========================================================================
+*                            Final Report                               *
+=========================================================================
+Final Results
+RTL Top Level Output File Name     : fpgaTop.ngr
+Top Level Output File Name         : fpgaTop
+Output Format                      : NGC
+Optimization Goal                  : Speed
+Keep Hierarchy                     : soft
+
+Design Statistics
+# IOs                              : 67
+
+Cell Usage :
+# BELS                             : 1743
+#      AND2                        : 1
+#      GND                         : 9
+#      INV                         : 142
+#      LUT1                        : 46
+#      LUT2                        : 205
+#      LUT2_D                      : 14
+#      LUT2_L                      : 2
+#      LUT3                        : 230
+#      LUT3_D                      : 5
+#      LUT3_L                      : 13
+#      LUT4                        : 660
+#      LUT4_D                      : 44
+#      LUT4_L                      : 72
+#      MUXCY                       : 135
+#      MUXF5                       : 68
+#      MUXF6                       : 8
+#      MUXF7                       : 1
+#      OR2                         : 1
+#      OR3                         : 1
+#      VCC                         : 9
+#      XORCY                       : 77
+# FlipFlops/Latches                : 848
+#      FD                          : 55
+#      FDC                         : 73
+#      FDCE                        : 54
+#      FDE                         : 283
+#      FDPE                        : 14
+#      FDR                         : 53
+#      FDRE                        : 127
+#      FDRS                        : 7
+#      FDRSE                       : 3
+#      FDS                         : 86
+#      FDSE                        : 82
+#      ODDR2                       : 11
+# RAMS                             : 21
+#      RAM16X1D                    : 21
+# Clock Buffers                    : 6
+#      BUFG                        : 5
+#      BUFGP                       : 1
+# IO Buffers                       : 64
+#      IBUF                        : 10
+#      IBUFDS                      : 1
+#      IBUFG                       : 1
+#      OBUF                        : 52
+# DCMs                             : 1
+#      DCM_SP                      : 1
+=========================================================================
+
+Device utilization summary:
+---------------------------
+
+Selected Device : 3sd3400afg676-5 
+
+ Number of Slices:                      840  out of  23872     3%  
+ Number of Slice Flip Flops:            848  out of  47744     1%  
+ Number of 4 input LUTs:               1475  out of  47744     3%  
+    Number used as logic:              1433
+    Number used as RAMs:                 42
+ Number of IOs:                          67
+ Number of bonded IOBs:                  64  out of    469    13%  
+ Number of GCLKs:                         6  out of     24    25%  
+ Number of DCMs:                          1  out of      8    12%  
+
+---------------------------
+Partition Resource Summary:
+---------------------------
+
+  No Partitions were found in this design.
+
+---------------------------
+
+
+=========================================================================
+TIMING REPORT
+
+NOTE: THESE TIMING NUMBERS ARE ONLY A SYNTHESIS ESTIMATE.
+      FOR ACCURATE TIMING INFORMATION PLEASE REFER TO THE TRACE REPORT
+      GENERATED AFTER PLACE-and-ROUTE.
+
+Clock Information:
+------------------
+-----------------------------------+------------------------+-------+
+Clock Signal                       | Clock buffer(FF name)  | Load  |
+-----------------------------------+------------------------+-------+
+sys0_clkp                          | dcm:CLK0               | 70    |
+sys0_clkp                          | dcm:CLKDV              | 1     |
+sys0_clkp                          | dcm:CLK2X              | 1     |
+sys0_clkp                          | dcm:CLKFX              | 550   |
+gmii_rx_clk                        | BUFGP                  | 135   |
+gmii_sysclk                        | IBUFG+BUFG             | 123   |
+-----------------------------------+------------------------+-------+
+
+Asynchronous Control Signals Information:
+----------------------------------------
+-----------------------------------------------------------------------------------------------+-----------------------------------------------+-------+
+Control Signal                                                                                 | Buffer(FF name)                               | Load  |
+-----------------------------------------------------------------------------------------------+-----------------------------------------------+-------+
+ftop/gbe0/gmac/rxRS_rxF/dGDeqPtr1_Acst_inv(ftop/gbe0/gmac/rxRS_rxF/dGDeqPtr1_Acst_inv1_INV_0:O)| NONE(ftop/gbe0/gmac/rxRS_rxF/dEnqPtr_0)       | 38    |
+ftop/gbe0/gmac/txRS_txF/dGDeqPtr1_Acst_inv(ftop/gbe0/gmac/txRS_txF/dGDeqPtr1_Acst_inv1_INV_0:O)| NONE(ftop/gbe0/gmac/txRS_txF/dEnqPtr_0)       | 38    |
+ftop/gbe0/dcp_cpReqF/dGDeqPtr1_Acst_inv(ftop/gbe0/dcp_cpReqF/dGDeqPtr1_Acst_inv1_INV_0:O)      | NONE(ftop/gbe0/dcp_cpReqF/dEnqPtr_0)          | 28    |
+ftop/gbe0/phyRst/rstSync/IN_RST_N_inv(ftop/gbe0/phyRst/rstSync/IN_RST_N_inv1_INV_0:O)          | NONE(ftop/gbe0/phyRst/rstSync/reset_hold_0)   | 17    |
+ftop/gbe0/dcp_cpRespF/dGDeqPtr1_Acst_inv(ftop/gbe0/dcp_cpRespF/dGDeqPtr1_Acst_inv1_INV_0:O)    | NONE(ftop/gbe0/dcp_cpRespF/dGDeqPtr1_0)       | 9     |
+ftop/gbe0/gmac/rxRS_rxOperateS/sRST_N_inv(ftop/gbe0/gmac/rxRS_rxOperateS/sRST_N_inv1_INV_0:O)  | NONE(ftop/gbe0/gmac/rxRS_rxOperateS/dSyncReg1)| 3     |
+ftop/gbe0/gmac/txRS_txOperateS/sRST_N_inv(ftop/gbe0/gmac/txRS_txOperateS/sRST_N_inv1_INV_0:O)  | NONE(ftop/gbe0/gmac/txRS_txOperateS/dSyncReg1)| 3     |
+ftop/gbe0/gmac/rxRS_rxRst/IN_RST_N_inv(ftop/gbe0/gmac/rxRS_rxRst/IN_RST_N_inv1_INV_0:O)        | NONE(ftop/gbe0/gmac/rxRS_rxRst/reset_hold_0)  | 2     |
+ftop/gbe0/gmac/txRS_txRst/IN_RST_N_inv(ftop/gbe0/gmac/txRS_txRst/IN_RST_N_inv1_INV_0:O)        | NONE(ftop/gbe0/gmac/txRS_txRst/reset_hold_0)  | 2     |
+ftop/gbe0/phyRst/RST_N_inv(ftop/gbe0/phyRst/RST_N_inv1_INV_0:O)                                | NONE(ftop/gbe0/phyRst/rst)                    | 1     |
+-----------------------------------------------------------------------------------------------+-----------------------------------------------+-------+
+
+Timing Summary:
+---------------
+Speed Grade: -5
+
+   Minimum period: 11.775ns (Maximum Frequency: 84.923MHz)
+   Minimum input arrival time before clock: 1.378ns
+   Maximum output required time after clock: 7.658ns
+   Maximum combinational path delay: 5.744ns
+
+Timing Detail:
+--------------
+All values displayed in nanoseconds (ns)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'sys0_clkp'
+  Clock period: 11.775ns (frequency: 84.923MHz)
+  Total number of paths / destination ports: 47572 / 1271
+-------------------------------------------------------------------------
+Delay:               9.420ns (Levels of Logic = 10)
+  Source:            ftop/gbe0/rxDCPMesgPos_2_1 (FF)
+  Destination:       ftop/gbe0/dcp_dcpReqF/data0_reg_32 (FF)
+  Source Clock:      sys0_clkp rising 1.2X
+  Destination Clock: sys0_clkp rising 1.2X
+
+  Data Path: ftop/gbe0/rxDCPMesgPos_2_1 to ftop/gbe0/dcp_dcpReqF/data0_reg_32
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDRE:C->Q            10   0.495   0.752  rxDCPMesgPos_2_1 (rxDCPMesgPos_2_1)
+     LUT4:I3->O            1   0.561   0.359  IF_rxDCPMesgPos_10_EQ_5_51_THEN_rxDCPMesg_17_B_ETC___d606<4>154_SW0 (N198)
+     LUT4:I3->O            2   0.561   0.382  IF_rxDCPMesgPos_10_EQ_5_51_THEN_rxDCPMesg_17_B_ETC___d606<4>154 (IF_rxDCPMesgPos_10_EQ_5_51_THEN_rxDCPMesg_17_B_ETC___d606<4>154)
+     LUT4:I3->O            1   0.561   0.000  IF_rxDCPMesgPos_10_EQ_5_51_THEN_rxDCPMesg_17_B_ETC___d606<4>67_SW0_F (N154)
+     MUXF5:I0->O           1   0.229   0.359  IF_rxDCPMesgPos_10_EQ_5_51_THEN_rxDCPMesg_17_B_ETC___d606<4>67_SW0 (N65)
+     LUT4:I3->O            6   0.561   0.571  IF_rxDCPMesgPos_10_EQ_5_51_THEN_rxDCPMesg_17_B_ETC___d606<4>67 (IF_rxDCPMesgPos_10_EQ_5_51_THEN_rxDCPMesg_17_B_ETC___d606<4>)
+     LUT4:I3->O            6   0.561   0.571  dcp_dcpReqF_ENQ (dcp_dcpReqF_ENQ)
+     begin scope: 'dcp_dcpReqF'
+     LUT4_D:I3->O         17   0.561   0.895  d0h1 (d0h)
+     LUT4_L:I3->LO         1   0.561   0.123  data0_reg_or0000<76>_SW0 (N2)
+     LUT3:I2->O            1   0.561   0.000  data0_reg_76_rstpot (data0_reg_76_rstpot)
+     FD:D                      0.197          data0_reg_76
+    ----------------------------------------
+    Total                      9.420ns (5.409ns logic, 4.011ns route)
+                                       (57.4% logic, 42.6% route)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'gmii_rx_clk'
+  Clock period: 6.944ns (frequency: 144.019MHz)
+  Total number of paths / destination ports: 2014 / 309
+-------------------------------------------------------------------------
+Delay:               6.944ns (Levels of Logic = 6)
+  Source:            ftop/gbe0/gmac/rxRS_rxOperateS/dSyncReg2 (FF)
+  Destination:       ftop/gbe0/gmac/rxRS_rxF/sNotFullReg (FF)
+  Source Clock:      gmii_rx_clk rising
+  Destination Clock: gmii_rx_clk rising
+
+  Data Path: ftop/gbe0/gmac/rxRS_rxOperateS/dSyncReg2 to ftop/gbe0/gmac/rxRS_rxF/sNotFullReg
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDC:C->Q             17   0.495   0.959  dSyncReg2 (dSyncReg2)
+     end scope: 'rxRS_rxOperateS'
+     LUT4_L:I1->LO         1   0.562   0.166  MUX_rxRS_rxF_enq_1__SEL_1112 (MUX_rxRS_rxF_enq_1__SEL_1112)
+     LUT2:I1->O            3   0.562   0.474  MUX_rxRS_rxF_enq_1__SEL_1113 (N28)
+     LUT4:I2->O           11   0.561   0.795  MUX_rxRS_rxF_enq_1__SEL_12 (MUX_rxRS_rxF_enq_1__SEL_1)
+     LUT4:I3->O           21   0.561   0.959  rxRS_rxF_sENQ (rxRS_rxF_sENQ)
+     begin scope: 'rxRS_rxF'
+     MUXF5:S->O            1   0.652   0.000  sNotFullReg_mux0000175 (sNotFullReg_mux0000)
+     FDC:D                     0.197          sNotFullReg
+    ----------------------------------------
+    Total                      6.944ns (3.590ns logic, 3.354ns route)
+                                       (51.7% logic, 48.3% route)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'gmii_sysclk'
+  Clock period: 9.568ns (frequency: 104.513MHz)
+  Total number of paths / destination ports: 6928 / 276
+-------------------------------------------------------------------------
+Delay:               9.568ns (Levels of Logic = 9)
+  Source:            ftop/gbe0/gmac/txRS_emitFCS_0 (FF)
+  Destination:       ftop/gbe0/gmac/txRS_crc/rRemainder_2 (FF)
+  Source Clock:      gmii_sysclk rising
+  Destination Clock: gmii_sysclk rising
+
+  Data Path: ftop/gbe0/gmac/txRS_emitFCS_0 to ftop/gbe0/gmac/txRS_crc/rRemainder_2
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDRE:C->Q            25   0.495   1.094  txRS_emitFCS_0 (txRS_emitFCS_0)
+     LUT4_D:I2->O          5   0.561   0.540  txRS_txData_D_IN<7>212 (N27)
+     LUT4_D:I3->LO         1   0.561   0.102  txRS_crc_add_data<0>112 (N63)
+     LUT4:I3->O            1   0.561   0.359  txRS_crc_add_data<0>1_SW0_SW0 (N381)
+     LUT4_D:I3->O          7   0.561   0.668  txRS_crc_add_data<0>1 (N2)
+     LUT2:I1->O            5   0.562   0.604  txRS_crc_add_data<0>2 (txRS_crc_add_data<0>)
+     begin scope: 'txRS_crc'
+     LUT2_D:I1->O          3   0.562   0.517  rRemainder_D_IN<19>11 (N0)
+     LUT4:I1->O            4   0.562   0.501  rRemainder_D_IN<11>11 (N12)
+     LUT4:I3->O            1   0.561   0.000  rRemainder_D_IN<8> (rRemainder_D_IN<8>)
+     FDSE:D                    0.197          rRemainder_8
+    ----------------------------------------
+    Total                      9.568ns (5.183ns logic, 4.385ns route)
+                                       (54.2% logic, 45.8% route)
+
+=========================================================================
+Timing constraint: Default OFFSET IN BEFORE for Clock 'sys0_clkp'
+  Total number of paths / destination ports: 1 / 1
+-------------------------------------------------------------------------
+Offset:              1.378ns (Levels of Logic = 2)
+  Source:            fpga_rstn (PAD)
+  Destination:       ftop/clkN210/rst_fd (FF)
+  Destination Clock: sys0_clkp rising
+
+  Data Path: fpga_rstn to ftop/clkN210/rst_fd
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     IBUF:I->O             1   0.824   0.357  fpga_rstn_IBUF (fpga_rstn_IBUF)
+     begin scope: 'ftop'
+     begin scope: 'clkN210'
+     FD:D                      0.197          rst_fd
+    ----------------------------------------
+    Total                      1.378ns (1.021ns logic, 0.357ns route)
+                                       (74.1% logic, 25.9% route)
+
+=========================================================================
+Timing constraint: Default OFFSET IN BEFORE for Clock 'gmii_rx_clk'
+  Total number of paths / destination ports: 9 / 9
+-------------------------------------------------------------------------
+Offset:              1.378ns (Levels of Logic = 3)
+  Source:            gmii_rxd<0> (PAD)
+  Destination:       ftop/gbe0/gmac/rxRS_rxData_0 (FF)
+  Destination Clock: gmii_rx_clk rising
+
+  Data Path: gmii_rxd<0> to ftop/gbe0/gmac/rxRS_rxData_0
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     IBUF:I->O             1   0.824   0.357  gmii_rxd_0_IBUF (gmii_rxd_0_IBUF)
+     begin scope: 'ftop'
+     begin scope: 'gbe0'
+     begin scope: 'gmac'
+     FD:D                      0.197          rxRS_rxData_0
+    ----------------------------------------
+    Total                      1.378ns (1.021ns logic, 0.357ns route)
+                                       (74.1% logic, 25.9% route)
+
+=========================================================================
+Timing constraint: Default OFFSET OUT AFTER for Clock 'sys0_clkp'
+  Total number of paths / destination ports: 40 / 13
+-------------------------------------------------------------------------
+Offset:              7.658ns (Levels of Logic = 5)
+  Source:            ftop/freeCnt_24 (FF)
+  Destination:       led<5> (PAD)
+  Source Clock:      sys0_clkp rising
+
+  Data Path: ftop/freeCnt_24 to led<5>
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDR:C->Q              6   0.495   0.677  freeCnt_24 (freeCnt_24)
+     LUT4:I0->O            1   0.561   0.000  led<3>2 (led<3>2)
+     MUXF5:I0->O           2   0.229   0.382  led<3>_f5 (led<3>)
+     LUT4:I3->O            1   0.561   0.357  led<4>1 (led<4>)
+     end scope: 'ftop'
+     OBUF:I->O                 4.396          led_5_OBUF (led<5>)
+    ----------------------------------------
+    Total                      7.658ns (6.242ns logic, 1.416ns route)
+                                       (81.5% logic, 18.5% route)
+
+=========================================================================
+Timing constraint: Default path analysis
+  Total number of paths / destination ports: 1 / 1
+-------------------------------------------------------------------------
+Delay:               5.744ns (Levels of Logic = 2)
+  Source:            gmii_sysclk (PAD)
+  Destination:       debug<17> (PAD)
+
+  Data Path: gmii_sysclk to debug<17>
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     IBUFG:I->O            2   0.968   0.380  gmii_sysclk_IBUFG (debug_17_OBUF)
+     OBUF:I->O                 4.396          debug_17_OBUF (debug<17>)
+    ----------------------------------------
+    Total                      5.744ns (5.364ns logic, 0.380ns route)
+                                       (93.4% logic, 6.6% route)
+
+=========================================================================
+
+
+Total REAL time to Xst completion: 28.00 secs
+Total CPU time to Xst completion: 28.00 secs
+ 
+--> 
+
+
+Total memory usage is 636844 kilobytes
+
+Number of errors   :    0 (   0 filtered)
+Number of warnings :  103 (   0 filtered)
+Number of infos    :   54 (   0 filtered)
+
