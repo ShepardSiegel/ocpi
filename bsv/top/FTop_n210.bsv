@@ -20,7 +20,7 @@ import GbeLite           ::*;
 //import SPICore32         ::*;
 //import SPICore5          ::*;
 //import TimeService       ::*;
-//import WSICaptureWorker  ::*"!2<Mouse>C"!3<Mouse>C"!4<Mouse>C"!5
+//import WSICaptureWorker  ::*;
 //import WsiAdapter        ::*;
 //import XilinxExtra       ::*;
 //import ProtocolMonitor   ::*;

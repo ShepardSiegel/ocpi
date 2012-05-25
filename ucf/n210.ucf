@@ -408,14 +408,13 @@ NET "debug[31]"     LOC = "Y10"  ;
 ###NET "unnamed_net20"  LOC = "V20"  ;    # SUSPEND
 
 
+NET "ftop/clkin_O" TNM_NET = "SYS0CLK";
+TIMESPEC "TS_SYS0CLK"  = PERIOD "SYS0CLK" 10 ns HIGH 50 % ;
+NET "ftop/clkN210/rstInD" TIG ;
+
 #NET "clk_to_mac" TNM_NET = "clk_to_mac";
 #TIMESPEC "TS_clk_to_mac" = PERIOD "clk_to_mac" 8 ns HIGH 50 %;
 
-# FIXME
-#NET "ftop/clkin_O" TNM_NET = "ftop/clkin_O";
-#TIMESPEC "TS_SYS0CLK" = PERIOD "ftop/clkin_O" 10 ns HIGH 50 %;
-
-#
 #NET "GMII_RX_CLK" TNM_NET = "GMII_RX_CLK";
 #TIMESPEC "TS_GMII_RX_CLK" = PERIOD "GMII_RX_CLK" 8 ns HIGH 50 %;
 
