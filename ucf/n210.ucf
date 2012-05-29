@@ -44,12 +44,12 @@ NET "gmii_rxd[1]"  LOC = "L17"  ;
 NET "gmii_rxd[0]"  LOC = "F25"  ;
 NET "gmii_rx_dv"   LOC = "F24"  ;
 NET "gmii_rx_er"   LOC = "L20"  ;
-NET "gmii_COL"     LOC = "G23"  ;  # Misc
-NET "gmii_CRS"     LOC = "K20"  ;
-NET "gmii_INT"     LOC = "L22"  ;
+NET "gmii_col"     LOC = "G23"  ;  # Misc
+NET "gmii_crs"     LOC = "K20"  ;
+NET "gmii_intr"    LOC = "L22"  ;
 NET "mdio_mdd"     LOC = "K21"  ;
 NET "mdio_mdc"     LOC = "J23"  ;
-NET "gmii_led"     LOC = "H20"  ; // The Green LED 2 at the upper Left of the RJ45 Connector
+NET "gmii_led"     LOC = "H20"  ;  # The Green LED 2 at the upper Left of the RJ45 Connector
 
 
 ## ADC
@@ -407,21 +407,29 @@ NET "debug[31]"     LOC = "Y10"  ;
 ####NET "unnamed_net10"  LOC = "A25"  ;    # TCK
 ###NET "unnamed_net20"  LOC = "V20"  ;    # SUSPEND
 
+# BUFGMUX Placements based on IOB and DCM constraints...
+#INST "ftop/sys0Clk"           LOC = BUFGMUX_X1Y1;
+#INST "ftop/clkN210_clk2x_buf" LOC = BUFGMUX_X1Y0;
+#INST "ftop/sys125Clk"         LOC = BUFGMUX_X2Y1;
+INST "ftop/gmiixo_clk_O"      LOC = BUFGMUX_X3Y8;
+INST "gmii_rx_clk_BUFGP"      LOC = BUFGMUX_X3Y6;
 
 NET "ftop/clkin_O" TNM_NET = "SYS0CLK";
-TIMESPEC "TS_SYS0CLK"  = PERIOD "SYS0CLK" 10 ns HIGH 50 % ;
-NET "ftop/clkN210/rstInD" TIG ;
+#TIMESPEC "TS_SYS0CLK"  = PERIOD "SYS0CLK" 10.0 ns HIGH 50 % ;
+TIMESPEC "TS_SYS0CLK"  = PERIOD "SYS0CLK" 12.5 ns HIGH 50 % ;   # Relax by 20%
+NET "ftop/clkN210/rstInD"      TIG;
+NET "ftop/clkN210/clk0_rstn"   TIG;
+NET "ftop/clkN210/clkdv_rstn"  TIG;
+NET "ftop/clkN210/clk2x_rstn"  TIG;
+NET "ftop/clkN210/clk125_rstn" TIG;
 
-#NET "clk_to_mac" TNM_NET = "clk_to_mac";
-#TIMESPEC "TS_clk_to_mac" = PERIOD "clk_to_mac" 8 ns HIGH 50 %;
+NET "gmii_sysclk" TNM_NET = "GMIISYSCLK";
+#TIMESPEC "TS_GMIISYSCLK" = PERIOD "GMIISYSCLK" 8 ns HIGH 50 %;
+TIMESPEC "TS_GMIISYSCLK" = PERIOD "GMIISYSCLK" 9.6 ns HIGH 50 %;
+NET "gmii_rx_clk" TNM_NET = "GMIIRXCLK";
+#TIMESPEC "TS_GMIIRXCLK" = PERIOD "GMIIRXCLK" 8 ns HIGH 50 %;
+TIMESPEC "TS_GMIIRXCLK" = PERIOD "GMIIRXCLK" 9.6 ns HIGH 50 %;
 
-#NET "GMII_RX_CLK" TNM_NET = "GMII_RX_CLK";
-#TIMESPEC "TS_GMII_RX_CLK" = PERIOD "GMII_RX_CLK" 8 ns HIGH 50 %;
-
-#NET "ser_rx_clk" TNM_NET = "ser_rx_clk";
-#TIMESPEC "TS_ser_rx_clk" = PERIOD "ser_rx_clk" 10 ns HIGH 50 %;
-
-#TIMESPEC "TS_clk_div_to_dsp_clk" = FROM "clk_div" TO "dcm_out" 10 ns;
 
 ###NET "CLK_FPGA_P" CLOCK_DEDICATED_ROUTE = FALSE;
 ###PIN "DCM_INST/DCM_SP.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;

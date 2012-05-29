@@ -75,6 +75,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
 //Reg#(Bit#(16))    msiMesgD     <-  mkRegU;                 // PCIe MSI Message Data
   Reg#(UInt#(4))    rogueTLP     <-  mkReg(0);               // Running count of unhandled TLPs
   Reg#(Bit#(3))     switch_d     <-  mkRegU;                 // Debounce switch 
+  Reg#(Bool)        warmResetP   <-  mkDReg(False);          // Warm Reset Pulse
 
 `ifdef ALTERA_100MHZ_SYS0CLK
   TSMParams altera100 = TSMParams {curFreq:125e6, refFreq: 100e6};  // Altera alst4 has 100 MHz sys0 clk
@@ -128,6 +129,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
       'h20 : scratch20    <= wd;
       'h24 : scratch24    <= wd;
       'h28 : cpControl    <= wd;
+      'h2C : warmResetP   <= (wd == 32'hC0DE_FFFF);
       
        // TimeServer Set Actions...
       'h34 : timeServ.setControl(wd);

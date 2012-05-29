@@ -19,18 +19,22 @@ module fpgaTop(
 	input  wire [7:0]  gmii_rxd,
 	input  wire        gmii_rx_dv,
 	input  wire        gmii_rx_er,
+	input  wire        gmii_col,
+	input  wire        gmii_crs,
+	input  wire        gmii_intr,
   output wire        mdio_mdc,
   inout  wire        mdio_mdd,
 	output wire        gmii_led
 
 );
 
-assign debug[31:24] = 8'hFF;
-assign debug[19]   = mdio_mdc;
-assign debug[18]   = mdio_mdd;
-assign debug[17]   = gmii_sysclk;
-assign debug[16]   = gmii_rstn;
-assign debug[15:0] = 16'h0000;
+// Assorted MICTOR debug assignments...
+//assign debug[31:24] = 8'hFF;
+//assign debug[19]   = mdio_mdc;
+//assign debug[18]   = mdio_mdd;
+//assign debug[17]   = gmii_sysclk;
+//assign debug[16]   = gmii_rstn;
+//assign debug[15:0] = 16'h0000;
 
 
 // Instance and connect mkFTop...
@@ -38,14 +42,13 @@ assign debug[15:0] = 16'h0000;
   .sys0_clkp         (sys0_clkp),    // 100 MHz from ADI9510 ch1
   .sys0_clkn         (sys0_clkn),
   .fpga_rstn         (fpga_rstn),    // pushbutton, active-low
-
   .led               (led),          // Front-panel LEDs
- // .debug             (debug),        // MICTOR debug connector
-  .sys0Clk           (debug[20]),
-  .sys0Rst           (debug[21]),
-  .sys125Clk         (debug[22]),
-  .sys125Rst         (debug[23]),
- 
+
+  .debug             (debug),        // MICTOR debug connector
+//.sys0Clk           (debug[20]),
+//.sys0Rst           (debug[21]),
+//.sys125Clk         (debug[22]),
+//.sys125Rst         (debug[23]),
 
 	.gmii_sysclk       (gmii_sysclk),  // 125 MHz PHY to MAC is sys1_clk
 	.gmii_rstn         (gmii_rstn),
@@ -57,10 +60,12 @@ assign debug[15:0] = 16'h0000;
 	.gmii_rx_rxd_i     (gmii_rxd),
 	.gmii_rx_rx_dv_i   (gmii_rx_dv),
 	.gmii_rx_rx_er_i   (gmii_rx_er),
+	.gmii_col_i        (gmii_col),
+	.gmii_crs_i        (gmii_crs),
+	.gmii_intr_i       (gmii_intr),
   .mdio_mdc          (mdio_mdc),
   .mdio_mdd          (mdio_mdd),
 	.gmii_led          (gmii_led)
-
 );
 
 endmodule

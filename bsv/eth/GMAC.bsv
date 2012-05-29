@@ -290,8 +290,9 @@ endinterface :GMII_TX_PCS
 interface GMII_RS;  // GMII_RS is the bottom of the MAC facing the top of the PHY...
   interface GMII_RX_RS  rx;
   interface GMII_TX_RS  tx;
-  method    Action      col  (Bit#(1) i);
-  method    Action      crs  (Bit#(1) i);
+  method    Action      col   (Bit#(1) i);
+  method    Action      crs   (Bit#(1) i);
+  method    Action      intr  (Bit#(1) i);
   method    Bit#(1)     led;
 endinterface: GMII_RS
 
@@ -301,6 +302,7 @@ interface GMII_PCS; // GMII_PCS is the top of the PHY facing the MAC...
   interface GMII_TX_PCS tx;
   method    Bit#(1)     col;
   method    Bit#(1)     crs;
+  method    Bit#(1)     intr;
   method    Action      led  (Bit#(1) i);
 endinterface: GMII_PCS
 
@@ -328,6 +330,7 @@ interface GMACIfc;
   method Action         txOperate;
   method Bool           rxOverFlow;
   method Bool           txUnderFlow;
+  method Bool           phyInterrupt;
 endinterface: GMACIfc
 
 (* synthesize *)
@@ -367,14 +370,22 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
   RxRSIfc       rxRS             <-  mkRxRSAsync(rxClk_BUFR);
   TxRSIfc       txRS             <-  mkTxRSAsync(txClk);
   Reg#(Bool)    gmacLED          <-  mkReg(False);
+  SyncBitIfc#(Bit#(1))  col_cc   <-  mkSyncBitToCC(clk,phyReset);
+  SyncBitIfc#(Bit#(1))  crs_cc   <-  mkSyncBitToCC(clk,phyReset);
+  SyncBitIfc#(Bit#(1))  intr_cc  <-  mkSyncBitToCC(clk,phyReset);
 
+  Bool crsOK =   unpack(crs_cc.read);
+  Bool noCOL =  !unpack(col_cc.read);
 
   interface Get rx = rxRS.rx;
   interface Put tx = txRS.tx;
-  method Action rxOperate;
+
+  //method Action rxOperate if (crsOK && noCOL);  // Don't allow RX until we see CRS True and COL False
+  method Action rxOperate;  // Don't allow RX until we see CRS True and COL False
     rxRS.rxOperate;
     gmacLED <= True;
   endmethod
+
   method Action txOperate   = txRS.txOperate;
   method Bool   rxOverFlow  = rxRS.rxOverFlow;
   method Bool   txUnderFlow = txRS.txUnderFlow;
@@ -382,13 +393,15 @@ module mkGMAC#(Clock rxClk, Clock txClk)(GMACIfc);
   interface GMII_RS gmii;                  // PHY-facing GMII Interface to FPGA Pins
     interface GMII_RX_RS  rx = rxRS.gmii;
     interface GMII_TX_RS  tx = txRS.gmii;
-    method Action col (Bit#(1) i) = noAction;
-    method Action crs (Bit#(1) i) = noAction;
+    method Action col  (Bit#(1) i) = col_cc.send(i);
+    method Action crs  (Bit#(1) i) = crs_cc.send(i);
+    method Action intr (Bit#(1) i) = intr_cc.send(i);
     method Bit#(1) led = pack(gmacLED);
   endinterface
   interface Clock rxclkBnd  = rxClk_BUFR;  // Need to provide this clock at the BSV module bounds (not physically used)
   //interface Reset gmii_rstn = phyReset;    // Active-Low reset passed up and out to PHY
-endmodule: mkGMAC
+  method Bool phyInterrupt = !unpack(intr_cc.read);  // Make Interrupt active-high
+endmodule: mkGMAC 
 
 // Receive (Rx) Reconciliation Sublayer (RS)
 // This module accepts the RX data from the PHY and segments it into ABS frames
