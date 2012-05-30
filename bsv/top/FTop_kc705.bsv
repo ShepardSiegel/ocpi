@@ -94,7 +94,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level board-specific workers..
-  //ICAPWorkerIfc    icap     <- mkICAPWorker(True,True,                      clocked_by p125Clk , reset_by(vWci[0].mReset_n));
+  //ICAPWorkerIfc    icap     <- mkICAPWorker("X7",True,                      clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   //FlashWorkerIfc   flash0   <- mkFlashWorker(True,                          clocked_by p125Clk , reset_by(vWci[1].mReset_n));
   GbeWorkerIfc     gbe0   <- mkGbeWorker(True,gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
   WSICaptureWorker4BIfc cap0  <- mkWSICaptureWorker(True,                      clocked_by p125Clk , reset_by(vWci[3].mReset_n));

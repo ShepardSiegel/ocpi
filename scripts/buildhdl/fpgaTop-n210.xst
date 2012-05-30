@@ -1,4 +1,3 @@
-set -xsthdpini ocpihdp_v5.ini
 run
 -ifn fpgaTop-n210.prj
 -ifmt mixed
@@ -7,7 +6,7 @@ run
 -p xc3sd3400a-fg676-5
 -top fpgaTop
 -opt_mode Speed
--opt_level 2
+-opt_level 1
 -lso work.lso
 -keep_hierarchy soft
 -netlist_hierarchy rebuilt

@@ -105,7 +105,7 @@ module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board
   Vector#(Nwci_ftop, WciEM) vWci = ctop.wci_m;  // expose WCI from CTop
 
   // FTop Level board-specific workers..
-//ICAPWorkerIfc    icap   <- mkICAPWorker(True,True,                           clocked_by p125Clk , reset_by(vWci[0].mReset_n));
+//ICAPWorkerIfc    icap   <- mkICAPWorker("V6",True,                           clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   //FMC150Ifc        fmc150 <- mkFMC150(True,sys0_clk,sys0_rst,flp_clk,flp_rst,  clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   FMC150Ifc        fmc150 <- mkFMC150(True,                  flp_clk,flp_rst,  clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   FlashWorkerIfc   flash0 <- mkFlashWorker(True,                               clocked_by p125Clk , reset_by(vWci[1].mReset_n));

@@ -659,6 +659,7 @@ platform_n210: $(OBJ)
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW1 \
 		-D USE_DEBUGLOGIC \
+		-D HAS_DEVICE_DNA \
 		-D USE_SRLFIFO \
 		-D SPARTAN \
 		-verilog-filter basicinout $(BSVTOP)/$(P_N210).bsv

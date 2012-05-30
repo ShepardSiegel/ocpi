@@ -20,6 +20,21 @@ interface ICAP;
    method Action     csb(Bool i);       // False for Chip Select
 endinterface: ICAP
 
+import "BVI" ICAP_SPARTAN3A =
+module vICAP_S3A (ICAP);
+
+   default_clock clk(CLK);
+   default_reset no_reset;
+
+   method O         configOut;
+   method BUSY      busy;
+   method configIn (I)      enable((*inhigh*)en0);
+   method rdwrb    (WRITE)  enable((*inhigh*)en1);
+   method csb      (CE)     enable((*inhigh*)en2);
+      
+   schedule (configOut, busy, configIn, rdwrb, csb) CF (configOut, busy, configIn, rdwrb, csb); 
+endmodule: vICAP_S3A
+
 import "BVI" ICAP_VIRTEX5 =
 module vICAP_V5 (ICAP);
 
@@ -70,9 +85,23 @@ function Bit#(n) reverseBitsInBytes(Bit#(n) a) provisos (Mul#(8,b,n));
   return pack(vBytes);
 endfunction
 
-module mkICAP (ICAPIfc);
+module mkICAP#(String icapPrim) (ICAPIfc);
 
-  ICAP                 icap      <- vICAP_V6;
+/*
+  ICAP  icap = ?;
+  case (icapPrim)
+    "S3A"    :  icap <- vICAP_S3A;
+    "V5"     :  icap <- vICAP_V5;
+    "V6"     :  icap <- vICAP_V6;
+    default  :  icap <- vICAP_V6;
+  endcase
+*/
+`ifdef SPARTAN
+  ICAP icap <- vICAP_S3A;
+`else
+  ICAP icap <- vICAP_V6;
+`endif
+
   FIFOF#(Bit#(32))     cinF      <- mkFIFOF;
   FIFOF#(Bit#(32))     coutF     <- mkFIFOF;
   Reg#(Bool)           icapCs    <- mkDReg(False);  // default deselected

@@ -3,21 +3,19 @@
 
 // Application Imports...
 import ClockN210         ::*;
+import ICAPWorker        ::*;
 import LedN210           ::*;
 import Config            ::*;
 import OCCP              ::*;
-
-//import CPDefs            ::*;
-//import CTop              ::*;
-//import FlashWorker       ::*;
-
+import OCWip             ::*;
 import MDIO              ::*;
 import GMAC              ::*;
 import GbeLite           ::*;
 
+//import CPDefs            ::*;
+//import CTop              ::*;
+//import FlashWorker       ::*;
 //import GbeWorker         ::*;
-//import ICAPWorker        ::*;
-//import OCWip             ::*;
 //import SPICore32         ::*;
 //import SPICore5          ::*;
 //import TimeService       ::*;
@@ -82,6 +80,40 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, gmiixo_clk, gmiixo_rst, sys0_clk, sys0_rst, clocked_by sys125_clk, reset_by sys125_rst);
   OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys2_clk, sys2_rst, clocked_by sys0_clk, reset_by sys0_rst);
   mkConnection(gbe0.cpClient, cp.server);
+
+  Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
+
+  WciSlaveNullIfc#(32) tieOff0  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff1  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff2  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff3  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff4  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff5  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff6  <- mkWciSlaveNull;
+  ICAPWorkerIfc    icap   <- mkICAPWorker("S3A", True, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));
+  WciSlaveNullIfc#(32) tieOff8  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff9  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff10 <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff11 <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff12 <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff13 <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32) tieOff14 <- mkWciSlaveNull;
+
+  mkConnection(vWci[0],  tieOff0.slv); 
+  mkConnection(vWci[1],  tieOff1.slv); 
+  mkConnection(vWci[2],  tieOff2.slv); 
+  mkConnection(vWci[3],  tieOff3.slv); 
+  mkConnection(vWci[4],  tieOff4.slv); 
+  mkConnection(vWci[5],  tieOff5.slv); 
+  mkConnection(vWci[6],  tieOff6.slv); 
+  mkConnection(vWci[7],  icap.wciS0); 
+  mkConnection(vWci[8],  tieOff8.slv); 
+  mkConnection(vWci[9],  tieOff9.slv); 
+  mkConnection(vWci[10], tieOff10.slv); 
+  mkConnection(vWci[11], tieOff11.slv); 
+  mkConnection(vWci[12], tieOff12.slv); 
+  mkConnection(vWci[13], tieOff13.slv); 
+  mkConnection(vWci[14], tieOff14.slv); 
 
   method    Bit#(5)    led    = ledLogic.led;
   method    Bit#(32)   debug  = {16'h5555, 16'h0000};

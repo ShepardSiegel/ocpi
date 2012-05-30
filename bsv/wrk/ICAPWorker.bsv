@@ -1,5 +1,5 @@
 // ICAPWorker.bsv - A dedvice worker for communicating with the ICAP
-// Copyright (c) 2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2010,2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import Accum::*;
 import ICAP::*;
@@ -25,7 +25,7 @@ interface ICAPWorkerIfc;
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICAPWorkerIfc);
+module mkICAPWorker#(parameter String icapPrim, parameter Bool hasDebugLogic) (ICAPWorkerIfc);
 
   WciESlaveIfc                wci         <- mkWciESlave;
   Reg#(Bit#(32))              icapCtrl    <- mkReg(0);
@@ -35,7 +35,7 @@ module mkICAPWorker#(parameter Bool isV6ICAP, parameter Bool hasDebugLogic) (ICA
   ClockDividerIfc             cd          <- mkClockDivider(2);  // 125MHz/2 = 62.5 MHz
   Reset                       fastReset   <- exposeCurrentReset;
   Reset                       slowReset   <- mkAsyncResetFromCR(2, cd.slowClock);
-  ICAPIfc                     icap        <- mkICAP(clocked_by cd.slowClock, reset_by slowReset);
+  ICAPIfc                     icap        <- mkICAP(icapPrim, clocked_by cd.slowClock, reset_by slowReset);
   Reg#(Bool)                  cwe         <- mkSyncRegFromCC(False, cd.slowClock);
   Reg#(Bool)                  cre         <- mkSyncRegFromCC(False, cd.slowClock);
   Store#(UInt#(0),Bit#(32),0) cinS        <- mkRegStore(cd.fastClock, cd.slowClock);
