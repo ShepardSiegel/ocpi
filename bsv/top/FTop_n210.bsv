@@ -11,6 +11,8 @@ import OCWip             ::*;
 import MDIO              ::*;
 import GMAC              ::*;
 import GbeLite           ::*;
+import SPIFlashWorker    ::*;
+import IQADCWorker       ::*;
 
 //import CPDefs            ::*;
 //import CTop              ::*;
@@ -76,6 +78,9 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   Clock            gmiixo_clk <- mkClockBUFG(clocked_by gmii_sysclk);
   Reset            gmiixo_rst <- mkAsyncReset(2, sys0_rst, gmiixo_clk);
 
+  Clock            adc_clk    = sysdv_clk;
+  Reset            adc_rst    = sysdv_rst;
+
   LedN210Ifc       ledLogic   <- mkLedN210(clocked_by sys0_clk, reset_by sys0_rst);
   GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, gmiixo_clk, gmiixo_rst, sys0_clk, sys0_rst, clocked_by sys125_clk, reset_by sys125_rst);
   OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys2_clk, sys2_rst, clocked_by sys0_clk, reset_by sys0_rst);
@@ -90,10 +95,10 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   WciSlaveNullIfc#(32) tieOff4  <- mkWciSlaveNull;
   WciSlaveNullIfc#(32) tieOff5  <- mkWciSlaveNull;
   WciSlaveNullIfc#(32) tieOff6  <- mkWciSlaveNull;
-  ICAPWorkerIfc    icap   <- mkICAPWorker("S3A", True, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));
-  WciSlaveNullIfc#(32) tieOff8  <- mkWciSlaveNull;
-  WciSlaveNullIfc#(32) tieOff9  <- mkWciSlaveNull;
-  WciSlaveNullIfc#(32) tieOff10 <- mkWciSlaveNull;
+  ICAPWorkerIfc        icap     <- mkICAPWorker("S3A", True, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));  // Worker 8
+  SPIFlashWorkerIfc    flash    <- mkSPIFlashWorker(True,    clocked_by sys0_clk, reset_by(vWci[8].mReset_n));  // Worker 9
+  WciSlaveNullIfc#(32) tieOff9  <- mkWciSlaveNull;  // GbE Worker 10
+  IQADCWorkerIfc       adc      <- mkIQADCWorker(True, sys2_clk, sys2_rst, adc_clk, adc_rst, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
   WciSlaveNullIfc#(32) tieOff11 <- mkWciSlaveNull;
   WciSlaveNullIfc#(32) tieOff12 <- mkWciSlaveNull;
   WciSlaveNullIfc#(32) tieOff13 <- mkWciSlaveNull;
@@ -106,10 +111,10 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   mkConnection(vWci[4],  tieOff4.slv); 
   mkConnection(vWci[5],  tieOff5.slv); 
   mkConnection(vWci[6],  tieOff6.slv); 
-  mkConnection(vWci[7],  icap.wciS0); 
-  mkConnection(vWci[8],  tieOff8.slv); 
-  mkConnection(vWci[9],  tieOff9.slv); 
-  mkConnection(vWci[10], tieOff10.slv); 
+  mkConnection(vWci[7],  icap.wciS0);    // Worker 8
+  mkConnection(vWci[8],  flash.wciS0);   // Worker 9
+  mkConnection(vWci[9],  tieOff9.slv);   // GbE Worker 10
+  mkConnection(vWci[10], adc.slv);       // Worker 11
   mkConnection(vWci[11], tieOff11.slv); 
   mkConnection(vWci[12], tieOff12.slv); 
   mkConnection(vWci[13], tieOff13.slv); 

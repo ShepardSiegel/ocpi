@@ -32,6 +32,9 @@ verilog work "../../rtl/mkGbeLite.v"
 verilog work "../../rtl/mkOCCP.v"
 verilog work "../../rtl/mkLedN210.v"
 verilog work "../../rtl/mkICAPWorker.v
+verilog work "../../rtl/mkSPIFlashWorker.v
+verilog work "../../rtl/mkIQADCWorker.v
+verilog work "../../rtl/mkIQDACWorker.v
 verilog work "../../rtl/mkFTop_n210.v"
 
 verilog work "../../libsrc/hdl/ocpi/clock_n210.v"
