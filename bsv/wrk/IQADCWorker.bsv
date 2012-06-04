@@ -5,7 +5,6 @@ package IQADCWorker;
 
 import OCWip        ::*;
 import SPICore      ::*;
-//import AD9512       ::*;
 import TI62P4X      ::*;
 import CollectGate  ::*;
 import FreqCounter  ::*;
@@ -24,6 +23,7 @@ import XilinxCells  ::*;
 import XilinxExtra  ::*;
 
 export IQADCWorker  ::*;
+export TI62P4X      ::*;
 
 interface IQADCWorkerIfc;
   interface WciES      wciS0;                 // WCI
@@ -37,17 +37,14 @@ endinterface
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkIQADCWorker#(parameter Bool hasDebugLogic,
-  Clock sys0_clk, Reset sys0_rst, Clock adc_clk, Reset adc_rst) (IQADCWorkerIfc);
+  Clock sys0_clk, Reset sys0_rst, Clock adc_clock, Reset adc_reset, Clock adcCaptureClk) (IQADCWorkerIfc);
   WciESlaveIfc         wci                <-  mkWciESlave;              // WCI
   Reg#(Bool)           sFlagState         <-  mkReg(False);             // Worker Attention
   Reg#(Bool)           splitReadInFlight  <-  mkReg(False);             // Asserted for Split Reads
   Reg#(Bool)           initOpInFlight     <-  mkReg(False);             // Asserted While Init-ing
-  FreqCounterIfc#(18)  fcAdc              <-  mkFreqCounter(adc_clk);   // Measure ADC clock
+  FreqCounterIfc#(18)  fcAdc              <-  mkFreqCounter(adc_clock); // Measure ADC clock
   CounterMod#(Bit#(18))oneKHz             <-  mkCounterMod(125000);
-  SpiAdxIfc            spiClk             <-  mkSpiAdx;                 // Clock controller
-  IDELAYCTRL           adcIdc             <-  mkMYIDELAYCTRL_GRP(2, "IODELAY_ADC", clocked_by sys0_clk, reset_by sys0_rst);
-  SyncBitIfc#(Bit#(1)) adcIdcRdyBit       <-  mkSyncBitToCC(sys0_clk, sys0_rst);
-  TI62P4XIfc           adcCore            <-  mkTI62P4X(adc0_clk);       // ADC
+  TI62P4XIfc           adcCore            <-  mkTI62P4X(adc_clock, adcCaptureClk);
   WtiSlaveIfc#(64)     wti                <-  mkWtiSlave(clocked_by adcCore.adcSdrClk, reset_by adcCore.adcSdrRst); 
   Reg#(Bit#(8))        spiResp            <-  mkReg('1);
   Reg#(Bit#(32))       maxMesgLength      <-  mkReg(1024);
@@ -63,13 +60,13 @@ module mkIQADCWorker#(parameter Bool hasDebugLogic,
 
 (* fire_when_enabled *)
 rule operating_actions (wci.isOperating);
-  adcCore.operate();
+  adcCore.user.operate();
 endrule
 
-mkConnection(wti.now, adcCore.now);  // Pass the WTI Time data down to the ADC Core0
+mkConnection(wti.now, adcCore.user.now);  // Pass the WTI Time data down to the ADC Core0
 
 rule max_burst;
-  adcCore.maxBurstLength(truncate(maxMesgLength>>myWordShift)); // convert Bytes to ndw-wide WSI Words burstLength
+  adcCore.user.maxBurstLength(truncate(maxMesgLength>>myWordShift)); // convert Bytes to ndw-wide WSI Words burstLength
 endrule
 
 // This DEQ side of the collection FIFO is a message pump that reads sample messages and feeds WSI
@@ -92,11 +89,11 @@ endrule
 rule doMessageCleanPump (wci.ctlState!=Operating); adcCore.capF.deq(); endrule
 
 rule doAcquire (wci.isOperating && !unpack(adcControl[0]));
-  if (!unpack(adcControl[3]) || overflowCountD==0) adcCore.acquire();  // Pass dataMesgEnable down
+  if (!unpack(adcControl[3]) || overflowCountD==0) adcCore.user.acquire();  // Pass dataMesgEnable down
 endrule
 
 rule doAverage (wci.isOperating && unpack(adcControl[4]));
-  adcCore.average();  // Pass dataMesgEnable down
+  adcCore.user.average();  // Pass dataMesgEnable down
 endrule
 
 rule inc_modcnt; oneKHz.inc(); endrule
@@ -104,10 +101,9 @@ rule send_pulse (oneKHz.tc);
   fcAdc.pulse();  // measure KHz
 endrule
 
-rule update_rdybit; adcIdcRdyBit.send(pack(adcIdc.rdy)); endrule
 rule updateSflag (sFlagState); action wci.drvSFlag; endaction endrule
-rule do_operating (wci.isOperating); overflowCountD <= adcCore.stats.dwellFails; endrule
-rule update_ovf_message (wci.isOperating && overflowCountD!=adcCore.stats.dwellFails);
+rule do_operating (wci.isOperating); overflowCountD <= adcCore.user.stats.dwellFails; endrule
+rule update_ovf_message (wci.isOperating && overflowCountD!=adcCore.user.stats.dwellFails);
   lastOverflowMesg <= mesgCount;
 endrule
 
@@ -122,8 +118,8 @@ function Action completeSpiResponse(Bit#(8) arg);
  endaction
 endfunction
 
-(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd, get_adx_resp, get_adc_resp" *)
-(* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE, get_adx_resp, get_adc0_resp " *)
+(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd, get_adc_resp" *)
+(* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE, get_adc_resp " *)
 
 rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
  let wciReq <- wci.reqGet.get;
@@ -131,24 +127,20 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
      'b00 :  case (wciReq.addr[7:0]) matches
        'h08 : maxMesgLength <= wciReq.data;
        'h0C : adcControl    <= wciReq.data;
-       'h24 : spiClk.req.put    (SpiReq{rdCmd:unpack(wciReq.data[31]), addr:wciReq.data[15:8], wdata:wciReq.data[7:0]});
-       'h28 : adcCore.req.put  (SpiReq{rdCmd:unpack(wciReq.data[31]), addr:wciReq.data[15:8], wdata:wciReq.data[7:0]});
-       'h48 : adcCore.psCmd(unpack(wciReq.data[1:0]));
+       'h28 : adcCore.user.req.put  (SpiReq{rdCmd:unpack(wciReq.data[31]), addr:wciReq.data[15:8], wdata:wciReq.data[7:0]});
        endcase
-     'b01 : adcCore.req.put (SpiReq{rdCmd:False, addr:wciReq.addr[9:2], wdata:wciReq.data[7:0]});
-     'b11 : spiClk.req.put  (SpiReq{rdCmd:False, addr:wciReq.addr[9:2], wdata:wciReq.data[7:0]});
+     'b01 : adcCore.user.req.put (SpiReq{rdCmd:False, addr:wciReq.addr[9:2], wdata:wciReq.data[7:0]});
    endcase
    $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
    wci.respPut.put(wciOKResponse); // write response
 endrule
 
-rule get_adx_resp; let a <- spiClk.resp.get;  completeSpiResponse(a); endrule
-rule get_adc_resp; let a <- adcCore.resp.get; completeSpiResponse(a); endrule
+rule get_adc_resp; let a <- adcCore.user.resp.get; completeSpiResponse(a); endrule
 
 rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
  Bool splitRead = False;
- Bit#(32) adcStatusLs = extend({2'b00, adcIdcRdyBit.read, pack(splitReadInFlight),
-   pack(initOpInFlight), 1'b0, pack(adcCore.isInited), pack(spiClk.isInited)});
+ Bit#(32) adcStatusLs = extend({3'b000, pack(splitReadInFlight),
+   pack(initOpInFlight), 1'b0, pack(adcCore.user.isInited), 1'b1});
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr[11:10]) matches
      'b00 : case (wciReq.addr[7:0]) matches
@@ -157,21 +149,20 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
        'h08 : rdat = maxMesgLength;
        'h0C : rdat = adcControl;
        'h14 : rdat = extend(fcAdc);
-       'h18 : rdat = adcCore.stats.sampCount;
-       'h1C : rdat = adcCore.sampleSpy;
+       'h18 : rdat = adcCore.user.stats.sampCount;
+       'h1C : rdat = adcCore.user.sampleSpy;
        'h30 : rdat = extend(spiResp);
        'h34 : rdat = mesgCount;
-       'h3C : rdat = adcCore.stats.dwellStarts;
-       'h40 : rdat = adcCore.stats.dwellFails; 
+       'h3C : rdat = adcCore.user.stats.dwellStarts;
+       'h40 : rdat = adcCore.user.stats.dwellFails; 
        'h44 : rdat = lastOverflowMesg;
        'h50 : rdat = wsiM.extStatus.pMesgCount;
        'h54 : rdat = wsiM.extStatus.iMesgCount;
        'h58 : rdat = wsiM.extStatus.tBusyCount;
-       'h5C : rdat = adcCore.stats.dropCount;
+       'h5C : rdat = adcCore.user.stats.dropCount;
        'h60 : rdat = overflowCountD;
        endcase
-     'b01 : begin adcCore.req.put(SpiReq{rdCmd:True, addr:wciReq.addr[9:2], wdata:'0}); splitRead=True; end
-     'b11 : begin spiClk.req.put  (SpiReq{rdCmd:True, addr:wciReq.addr[9:2], wdata:'0}); splitRead=True; end
+     'b01 : begin adcCore.user.req.put(SpiReq{rdCmd:True, addr:wciReq.addr[9:2], wdata:'0}); splitRead=True; end
    endcase
    $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
    if (!splitRead) wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
@@ -179,12 +170,11 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
 endrule
 
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize);
-  spiClk.doInitSeq;   // Initialize the clock control
-  adcCore.doInitSeq;  // ... ADC 
+  adcCore.user.doInitSeq;  // ... ADC 
   initOpInFlight <= True;
 endrule
 
-rule init_complete_ok(initOpInFlight && adcCore.isInited && spiClk.isInited);
+rule init_complete_ok(initOpInFlight && adcCore.user.isInited);
   initOpInFlight <= False;
   wci.ctlAck;
 endrule
@@ -200,10 +190,9 @@ endrule
   interface Wci_s wciS0      = wci.slv;
   interface Wti_s wtiS0      = wti.slv;
   interface Wsi_m wsiM0      = toWsiEM(wsiM.mas);
-//interface AD9512Ifc  adx   = spiClk.adx;
   interface TI62P4X_Pads adc = adcCore.pads;
-  interface Clock adcSdrClk  = adcCore0.adcSdrClk;
-  interface Reset adcSdrRst  = adcCore0.adcSdrRst;
+  interface Clock adcSdrClk  = adcCore.adcSdrClk;
+  interface Reset adcSdrRst  = adcCore.adcSdrRst;
 endmodule: mkIQADCWorker
 
 endpackage: IQADCWorker

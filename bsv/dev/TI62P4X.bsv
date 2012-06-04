@@ -3,7 +3,6 @@
 
 package TI62P4X;
 
-import DDRCapture   ::*;
 import SPICore      ::*;
 import OCWip        ::*;
 import CollectGate  ::*; 
@@ -34,13 +33,13 @@ interface SyncFIFODstIfc #(type a_type) ;
   method Bool notEmpty () ;
 endinterface
 
-// The interface declaration of the device-package-pins for the TI ADS6149 device...
+// The interface declaration of the device-package-pins for the TI ADS62P49 device...
 (* always_enabled, always_ready *)  // ADC pads ...
 interface TI62P4X_Pads;
-  // LVDS DDR link...
+  // CMOS SDR link...
   method Bit#(1) oe;
-  method Action  ddp (Bit#(7) arg);
-  method Action  ddn (Bit#(7) arg);
+  method Action  da (Bit#(14) i);
+  method Action  db (Bit#(14) i);
   // Serial Control...
   method Clock   sclk;
   method Clock   sclkn;
@@ -48,7 +47,7 @@ interface TI62P4X_Pads;
   method Bit#(1) resetp;
   method Bit#(1) sen;
   method Bit#(1) sdata;
-  method Action sdout (Bit#(1) arg);
+  method Action sdout (Bit#(1) i);
 endinterface: TI62P4X_Pads 
 
 // The interface declaration of the ADC methods... 
@@ -64,7 +63,6 @@ interface TI62P4X_User;
   method Get#(Bit#(8)) resp;        // spi responses
   method Action        doInitSeq;   // do chip init
   method Bool          isInited;    // chip is init-ed
-  method Action   psCmd (PsOp op);  // phase-shift control
 endinterface: TI62P4X_User
 
 interface TI62P4XIfc;
@@ -76,9 +74,15 @@ interface TI62P4XIfc;
 endinterface: TI62P4XIfc
 
 
-module mkTI62P4X#(Clock ddrClk) (TI62P4XIfc);
-  DDRCaptureIfc           ddrC         <-   mkDDRCapture(ddrClk);
-  Clock                   sdrClk       =    ddrC.sdrClk;
+module mkTI62P4X#(Clock adcClk, Clock adcCapture) (TI62P4XIfc);
+
+  //DDRCaptureIfc           ddrC         <-   mkDDRCapture(ddrClk);
+  Reg#(Bit#(14))          iobA         <-   mkRegU(clocked_by adcCapture);
+  Reg#(Bit#(14))          iobB         <-   mkRegU(clocked_by adcCapture);
+
+  //Clock                   sdrClk       =    ddrC.sdrClk;
+  //Clock                   sdrClk       <-   exposeCurrentClock;
+  Clock                   sdrClk       =    adcClk;
   Reset                   sdrRst       <-   mkAsyncResetFromCR(2, sdrClk);
   CollectGateIfc          colGate      <-   mkCollectGate(clocked_by sdrClk, reset_by sdrRst);
   Reg#(Bool)              operateDReg  <-   mkDReg(False);
@@ -94,8 +98,10 @@ module mkTI62P4X#(Clock ddrClk) (TI62P4XIfc);
   Wire#(Bit#(64))         nowW         <-   mkWire(clocked_by sdrClk, reset_by sdrRst);
   Reg#(Bit#(16))      maxBurstLengthR  <-   mkSyncRegFromCC(0, sdrClk);
 
-  let capture_samp <- mkConnection(ddrC.sdrData, samp._write); // register in sdrClk domain
+  //let capture_samp <- mkConnection(ddrC.sdrData, samp._write); // register in sdrClk domain
+
   rule update_sampCC; sampCC._write(samp); endrule             // writing the sampCC synchronizer
+  
 
   rule pipe;
     operateD  <= operateDReg;
@@ -150,15 +156,15 @@ module mkTI62P4X#(Clock ddrClk) (TI62P4XIfc);
   // Interfaces Provided...
   interface TI62P4X_Pads              pads;
     method Bit#(1) oe = pack(True); // Output buffer enable, active-high
-    method Action ddp (Bit#(7) arg) = ddrC.ddp(arg);
-    method Action ddn (Bit#(7) arg) = ddrC.ddn(arg);
+    method Action da (Bit#(14) i) = iobA._write(i);
+    method Action db (Bit#(14) i) = iobB._write(i);
     method Clock   sclk   = spiI.sclk;
     method Clock   sclkn  = spiI.sclkn;
     method Reset   rst    = spiI.srst;
     method Bit#(1) sen    = spiI.csb;
     method Bit#(1) resetp = pack(adcRst);
     method Bit#(1) sdata  = spiI.sdo;
-    method Action  sdout (Bit#(1) arg); action spiI.sdi(arg); endaction endmethod
+    method Action  sdout (Bit#(1) i); action spiI.sdi(i); endaction endmethod
   endinterface
 
   interface TI62P4X_User              user;
@@ -173,7 +179,6 @@ module mkTI62P4X#(Clock ddrClk) (TI62P4XIfc);
   interface          resp       = spiI.resp;
   method Action doInitSeq       = iseqFsm.start;
   method Bool   isInited        = iseqFsm.done;
-  method Action psCmd (PsOp op) = ddrC.psCmd(op);
   endinterface
 
   interface SyncFIFODstIfc capF; 

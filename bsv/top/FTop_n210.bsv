@@ -46,22 +46,24 @@ import XilinxCells       ::*;
 
 (* always_ready, always_enabled *)
 interface FTop_n210Ifc;
-  method     Bit#(5)    led;
-  method     Bit#(32)   debug;
-  interface  Clock      rxclkBnd;   // GMII RX Clock (provided here for BSV interface rules)
-  interface  Reset      gmii_rstn;  // GMII Reset driven out to PHY
-  interface  GMII_RS    gmii;       // The GMII link RX/TX
-  interface  MDIO_Pads  mdio;       // The MDIO pads
-  interface  Clock      sys0Clk;
-  interface  Reset      sys0Rst;
-  interface  Clock      sys125Clk;
-  interface  Reset      sys125Rst;
+  method     Bit#(5)      led;
+  method     Bit#(32)     debug;
+  interface  Clock        rxclkBnd;   // GMII RX Clock (provided here for BSV interface rules)
+  interface  Reset        gmii_rstn;  // GMII Reset driven out to PHY
+  interface  GMII_RS      gmii;       // The GMII link RX/TX
+  interface  MDIO_Pads    mdio;       // The Ethernet MDIO pads
+  interface  TI62P4X_Pads adc;
+  interface  Clock        sys0Clk;
+  interface  Reset        sys0Rst;
+  interface  Clock        sys125Clk;
+  interface  Reset        sys125Rst;
 endinterface: FTop_n210Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
 module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Reference
                     Clock gmii_sysclk,                 // 125 MHz from GbE PHY - stable clock, once enabled after reset
                     Clock gmii_rx_clk,                 // 125 MHz GMII RX Clock - agile recovered rx clock, when 1Gb link up
+                    Clock adc_clkout,                  // CMOS SDR Output Clock from ADC
                     Reset fpga_rstn)                   // FPGA User Reset Pushbutton S2
                     (FTop_n210Ifc);
 
@@ -98,7 +100,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   ICAPWorkerIfc        icap     <- mkICAPWorker("S3A", True, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));  // Worker 8
   SPIFlashWorkerIfc    flash    <- mkSPIFlashWorker(True,    clocked_by sys0_clk, reset_by(vWci[8].mReset_n));  // Worker 9
   WciSlaveNullIfc#(32) tieOff9  <- mkWciSlaveNull;  // GbE Worker 10
-  IQADCWorkerIfc       adc      <- mkIQADCWorker(True, sys2_clk, sys2_rst, adc_clk, adc_rst, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
+  IQADCWorkerIfc       iqadc    <- mkIQADCWorker(True, sys2_clk, sys2_rst, adc_clk, adc_rst, adc_clkout, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
   WciSlaveNullIfc#(32) tieOff11 <- mkWciSlaveNull;
   WciSlaveNullIfc#(32) tieOff12 <- mkWciSlaveNull;
   WciSlaveNullIfc#(32) tieOff13 <- mkWciSlaveNull;
@@ -111,24 +113,25 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   mkConnection(vWci[4],  tieOff4.slv); 
   mkConnection(vWci[5],  tieOff5.slv); 
   mkConnection(vWci[6],  tieOff6.slv); 
-  mkConnection(vWci[7],  icap.wciS0);    // Worker 8
-  mkConnection(vWci[8],  flash.wciS0);   // Worker 9
+  mkConnection(vWci[7],  icap.wciS0);    // Worker 8: ICAP
+  mkConnection(vWci[8],  flash.wciS0);   // Worker 9: Flash
   mkConnection(vWci[9],  tieOff9.slv);   // GbE Worker 10
-  mkConnection(vWci[10], adc.slv);       // Worker 11
+  mkConnection(vWci[10], iqadc.wciS0);   // Worker 11: IQ-ADC
   mkConnection(vWci[11], tieOff11.slv); 
   mkConnection(vWci[12], tieOff12.slv); 
   mkConnection(vWci[13], tieOff13.slv); 
   mkConnection(vWci[14], tieOff14.slv); 
 
-  method    Bit#(5)    led    = ledLogic.led;
-  method    Bit#(32)   debug  = {16'h5555, 16'h0000};
-  interface Clock      rxclkBnd   = gbe0.rxclkBnd;
-  interface Reset      gmii_rstn  = gbe0.gmii_rstn;
-  interface GMII       gmii       = gbe0.gmii;
-  interface MDIO_Pads  mdio       = gbe0.mdio;
-  interface Clock      sys0Clk    = sys0_clk;
-  interface Reset      sys0Rst    = sys0_rst;
-  interface Clock      sys125Clk  = sys125_clk;
-  interface Reset      sys125Rst  = sys125_rst;
+  method    Bit#(5)      led    = ledLogic.led;
+  method    Bit#(32)     debug  = {16'h5555, 16'h0000};
+  interface Clock        rxclkBnd   = gbe0.rxclkBnd;
+  interface Reset        gmii_rstn  = gbe0.gmii_rstn;
+  interface GMII         gmii       = gbe0.gmii;
+  interface MDIO_Pads    mdio       = gbe0.mdio;
+  interface TI62P4X_Pads adc        = iqadc.adc;
+  interface Clock        sys0Clk    = sys0_clk;
+  interface Reset        sys0Rst    = sys0_rst;
+  interface Clock        sys125Clk  = sys125_clk;
+  interface Reset        sys125Rst  = sys125_rst;
 endmodule: mkFTop_n210
 

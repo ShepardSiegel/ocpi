@@ -53,6 +53,42 @@ NET "gmii_led"     LOC = "H20"  ;  # The Green LED 2 at the upper Left of the RJ
 
 
 ## ADC
+## CMOS...
+NET "adc_clkout"  LOC = "P1"  ;
+NET "adc_da[13]"  LOC = "Y1"  ;
+NET "adc_da[12]"  LOC = "Y2"  ;
+NET "adc_da[11]"  LOC = "W3"  ;
+NET "adc_da[10]"  LOC = "W4"  ;
+NET "adc_da[9]"   LOC = "T7"  ;
+NET "adc_da[8]"   LOC = "U6"  ;
+NET "adc_da[7]"   LOC = "U5"  ;
+NET "adc_da[6]"   LOC = "V5"  ;
+NET "adc_da[5]"   LOC = "T10" ;
+NET "adc_da[4]"   LOC = "T9"  ;
+NET "adc_da[3]"   LOC = "V1"  ;
+NET "adc_da[2]"   LOC = "V2"  ;
+NET "adc_da[1]"   LOC = "R8"  ;
+NET "adc_da[0]"   LOC = "R7"  ;
+NET "adc_db[13]"  LOC = "J3"  ;
+NET "adc_db[12]"  LOC = "J2"  ;
+NET "adc_db[11]"  LOC = "J1"  ;
+NET "adc_db[10]"  LOC = "K1"  ;
+NET "adc_db[9]"   LOC = "U3"  ;
+NET "adc_db[8]"   LOC = "V4"  ;
+NET "adc_db[7]"   LOC = "W1"  ;
+NET "adc_db[6]"   LOC = "W2"  ;
+NET "adc_db[5]"   LOC = "AE1" ;
+NET "adc_db[4]"   LOC = "AE2" ;
+NET "adc_db[3]"   LOC = "U7"  ;
+NET "adc_db[2]"   LOC = "U8"  ;
+NET "adc_db[1]"   LOC = "AA2" ;
+NET "adc_db[0]"   LOC = "AA3" ;
+NET "adc_sdata"   LOC = "E3"  ;
+NET "adc_sclk"    LOC = "F4"  ;
+NET "adc_sen"     LOC = "D3"  ;
+NET "adc_sdout"   LOC = "C1"  ;
+
+## LVDS...
 #NET "ADC_clkout_p"  LOC = "P1"  ;
 #NET "ADC_clkout_n"  LOC = "P2"  ;
 #NET "ADCA_12_p"  LOC = "Y1"  ;

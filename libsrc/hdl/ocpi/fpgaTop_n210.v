@@ -24,7 +24,15 @@ module fpgaTop(
 	input  wire        gmii_intr,
   output wire        mdio_mdc,
   inout  wire        mdio_mdd,
-	output wire        gmii_led
+	output wire        gmii_led,
+
+  input  wire        adc_clkout,
+  input  wire [13:0] adc_da,
+  input  wire [13:0] adc_db,
+  output wire        adc_sdata,
+  output wire        adc_sclk,
+  output wire        adc_sen,
+  input  wire        adc_sdout
 
 );
 
@@ -65,7 +73,15 @@ module fpgaTop(
 	.gmii_intr_i       (gmii_intr),
   .mdio_mdc          (mdio_mdc),
   .mdio_mdd          (mdio_mdd),
-	.gmii_led          (gmii_led)
+	.gmii_led          (gmii_led),
+
+  .adc_clkout        (adc_clkout),
+  .adc_da_i          (adc_da),
+  .adc_db_i          (adc_db),
+  .adc_sdata         (adc_sdata),
+  .adc_sclk          (adc_sclk),
+  .adc_sen           (adc_sen),
+  .adc_sdout_i       (adc_sdout)
 );
 
 endmodule
