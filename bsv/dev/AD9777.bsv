@@ -1,11 +1,10 @@
-// TI62P4X.bsv - TI ADS62P4X ADC Specific Logic
-// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
+// AD9777.bsv - TI AD9777 Interpolating TX DAC Specific Logic
+// Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-package TI62P4X;
+package AD9777;
 
 import SPICore      ::*;
 import OCWip        ::*;
-import CollectGate  ::*; 
 
 import BRAMFIFO     ::*;
 import Clocks       ::*;
@@ -18,40 +17,40 @@ import StmtFSM      ::*;
 import Vector       ::*;
 import DefaultValue ::*;
 
-export TI62P4X      ::*;
+export AD9777       ::*;
 
 // Src-Side methods...
-//interface SyncFIFOSrcIfc #(type a_type) ;
-//  method Action enq ( a_type sendData ) ;
-//  method Bool notFull () ;
-//endinterface
-
-// Dst-Side methods...
-interface SyncFIFODstIfc #(type a_type) ;
-  method Action   deq  () ;
-  method a_type  first () ;
-  method Bool notEmpty () ;
+interface SyncFIFOSrcIfc #(type a_type) ;
+  method Action enq ( a_type sendData ) ;
+  method Bool notFull () ;
 endinterface
 
-// The interface declaration of the device-package-pins for the TI ADS62P49 device...
-(* always_enabled, always_ready *)  // ADC pads ...
-interface TI62P4X_Pads;
+// Dst-Side methods...
+//interface SyncFIFODstIfc #(type a_type) ;
+//  method Action   deq  () ;
+//  method a_type  first () ;
+//  method Bool notEmpty () ;
+//endinterface
+
+// The interface declaration of the device-package-pins for the TI AD9777 device...
+(* always_enabled, always_ready *)  // DAC pads ...
+interface AD9777_Pads;
   // CMOS SDR link...
-  method Bit#(1) oe;
-  method Action  da (Bit#(14) i);
-  method Action  db (Bit#(14) i);
+  method Action   lock (Bit#(1) i);
+  method Bit#(16) da;
+  method Bit#(16) db;
   // Serial Control...
   method Clock   sclk;
   method Clock   sclkn;
-  method Reset   rst;
-  method Bit#(1) resetp;
+  //method Reset   rst;
+  //method Bit#(1) resetp;
   method Bit#(1) sen;
   method Bit#(1) smosi;
   method Action  smiso (Bit#(1) i);
-endinterface: TI62P4X_Pads 
+endinterface: AD9777_Pads 
 
-// The interface declaration of the ADC methods... 
-interface TI62P4X_User;
+// The interface declaration of the DAC methods... 
+interface AD9777_User;
   method Action        operate;
   method Action        acquire;
   method Action        average;
@@ -63,18 +62,18 @@ interface TI62P4X_User;
   method Get#(Bit#(8)) resp;        // spi responses
   method Action        doInitSeq;   // do chip init
   method Bool          isInited;    // chip is init-ed
-endinterface: TI62P4X_User
+endinterface: AD9777_User
 
-interface TI62P4XIfc;
-  interface TI62P4X_Pads              pads;
-  interface TI62P4X_User              user;
+interface AD9777Ifc;
+  interface AD9777_Pads              pads;
+  interface AD9777_User              user;
   interface SyncFIFODstIfc#(SampMesg) capF;
   interface Clock                     adcSdrClk;
   interface Reset                     adcSdrRst;
-endinterface: TI62P4XIfc
+endinterface: AD9777Ifc
 
 
-module mkTI62P4X#(Clock adcClk, Clock adcCapture) (TI62P4XIfc);
+module mkAD9777#(Clock adcClk, Clock adcCapture) (AD9777Ifc);
 
   //DDRCaptureIfc           ddrC         <-   mkDDRCapture(ddrClk);
   Reg#(Bit#(14))          iobA         <-   mkRegU(clocked_by adcCapture);
@@ -154,7 +153,7 @@ module mkTI62P4X#(Clock adcClk, Clock adcCapture) (TI62P4XIfc);
   endrule
 
   // Interfaces Provided...
-  interface TI62P4X_Pads              pads;
+  interface AD9777_Pads              pads;
     method Bit#(1) oe = pack(True); // Output buffer enable, active-high
     method Action da (Bit#(14) i) = iobA._write(i);
     method Action db (Bit#(14) i) = iobB._write(i);
@@ -167,7 +166,7 @@ module mkTI62P4X#(Clock adcClk, Clock adcCapture) (TI62P4XIfc);
     method Action  smiso (Bit#(1) i); action spiI.sdi(i); endaction endmethod
   endinterface
 
-  interface TI62P4X_User              user;
+  interface AD9777_User              user;
   method Action  operate = operateDReg._write(True);
   method Action  acquire = acquireDReg._write(True);
   method Action  average = averageDReg._write(True);
@@ -191,6 +190,6 @@ module mkTI62P4X#(Clock adcClk, Clock adcCapture) (TI62P4XIfc);
   interface Clock adcSdrClk = sdrClk;
   interface Reset adcSdrRst = sdrRst;
 
-endmodule: mkTI62P4X
+endmodule: mkAD9777
 
-endpackage: TI62P4X
+endpackage: AD9777

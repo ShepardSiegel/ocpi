@@ -18,6 +18,8 @@ import GetPut            ::*;
 import FIFO              ::*;
 import StmtFSM           ::*;
 
+export SPIFlash          ::*;
+
 typedef struct {
   Bool      isRead; // request is read
   Bit#(20)  addr;   // 4-Byte (DWORD) memory address
@@ -29,8 +31,8 @@ interface SPIFLASH_Pads;
   method  Action              miso (Bool i);  // Flash Q to FPGA in  (master-input,  slave-output)
   method  Bool                mosi;           // FPGA out to FLASH D (master-output, slave-input)
   method  Bool                clk;            // FLASH serial clock
-  method  Bool                cs_n;           // FLASH Chip Select (active-low)
-  method  Bool                wp_n;           // FLASH Write Protect 
+  method  Bool                csn;            // FLASH Chip Select (active-low)
+//method  Bool                wp_n;           // FLASH Write Protect 
 endinterface: SPIFLASH_Pads
 
 interface SPIFLASH_User;
@@ -40,7 +42,7 @@ interface SPIFLASH_User;
 endinterface: SPIFLASH_User
 
 interface SPIFlashIfc;
-  interface SPIFLASH_Pads      flash;
+  interface SPIFLASH_Pads      pads;
   interface SPIFLASH_User      user;
 endinterface: SPIFlashIfc
 
@@ -52,15 +54,15 @@ module mkSPIFlash (SPIFlashIfc);
   Reg#(Bool)           mosiReg   <- mkDReg(False); 
   Reg#(Bool)           clkReg    <- mkDReg(False); 
   Reg#(Bool)           csReg     <- mkDReg(False); 
-  Reg#(Bool)           wpReg     <- mkDReg(False); 
+//Reg#(Bool)           wpReg     <- mkDReg(False); 
   Reg#(Bool)           waitReg   <- mkReg(False); 
 
-  interface SPIFLASH_Pads flash;
+  interface SPIFLASH_Pads pads;
     method  Action miso (Bool i) = misoReg._write(i);
     method  Bool   mosi = mosiReg;
     method  Bool   clk  = clkReg;
-    method  Bool   cs_n = !csReg;
-    method  Bool   wp_n = !wpReg;
+    method  Bool   csn  = !csReg;
+ // method  Bool   wp_n = !wpReg;
   endinterface
 
   interface SPIFLASH_User user;

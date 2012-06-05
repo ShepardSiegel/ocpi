@@ -19,7 +19,7 @@ export SPIFlashWorker ::*;
 
 interface SPIFlashWorkerIfc;
   interface WciES            wciS0;    // Worker Control and Configuration
-  interface SPIFLASH_Pads    flash;    // The interface to the SPI Flash pins
+  interface SPIFLASH_Pads    pads;     // The interface to the SPI Flash pins
 endinterface
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
@@ -90,7 +90,7 @@ module mkSPIFlashWorker#(parameter Bool hasDebugLogic) (SPIFlashWorkerIfc);
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
   interface Wci_s         wciS0   = wci.slv;
-  interface SPIFLASH_Pads flash   = flashC.flash; 
+  interface SPIFLASH_Pads pads    = flashC.pads; 
 
 endmodule : mkSPIFlashWorker
 

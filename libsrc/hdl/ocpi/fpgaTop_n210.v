@@ -26,13 +26,26 @@ module fpgaTop(
   inout  wire        mdio_mdd,
 	output wire        gmii_led,
 
-  input  wire        adc_clkout,
+  output wire        flash_clk,      // SPI Flash
+  output wire        flash_csn,
+  output wire        flash_mosi,
+  input  wire        flash_miso,
+
+  input  wire        adc_clkout,     // RX ADC
   input  wire [13:0] adc_da,
   input  wire [13:0] adc_db,
-  output wire        adc_sdata,
   output wire        adc_sclk,
   output wire        adc_sen,
-  input  wire        adc_sdout
+  output wire        adc_smosi,
+  input  wire        adc_smiso,
+
+  input  wire        dac_lock,       // TX DAC
+  output wire [15:0] dac_da,
+  output wire [15:0] dac_db,
+  output wire        dac_sclk,
+  output wire        dac_sen,
+  output wire        dac_smosi,
+  input  wire        dac_smiso
 
 );
 
@@ -75,13 +88,27 @@ module fpgaTop(
   .mdio_mdd          (mdio_mdd),
 	.gmii_led          (gmii_led),
 
+  .flash_clk         (flash_clk),    // SPI Flash
+  .flash_csn         (flash_csn),
+  .flash_mosi        (flash_mosi),
+  .flash_miso_i      (flash_miso),
+
   .adc_clkout        (adc_clkout),
   .adc_da_i          (adc_da),
   .adc_db_i          (adc_db),
-  .adc_sdata         (adc_sdata),
+  .adc_smosi         (adc_smosi),
   .adc_sclk          (adc_sclk),
   .adc_sen           (adc_sen),
-  .adc_sdout_i       (adc_sdout)
+  .adc_smiso_i       (adc_smiso)
+
+ // .dac_lock_i        (dac_lock),
+ // .dac_da            (dac_da),
+ // .dac_db            (dac_db),
+ // .dac_smosi         (dac_smosi),
+ // .dac_sclk          (dac_sclk),
+ // .dac_sen           (dac_sen),
+ // .dac_smiso_i       (dac_smiso)
+
 );
 
 endmodule

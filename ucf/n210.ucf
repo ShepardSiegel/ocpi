@@ -52,7 +52,17 @@ NET "mdio_mdc"     LOC = "J23"  ;
 NET "gmii_led"     LOC = "H20"  ;  # The Green LED 2 at the upper Left of the RJ45 Connector
 
 
+## SPI Flash
+NET "flash_clk"   LOC = "AE24"  ;
+NET "flash_csn"   LOC = "AA7"   ;
+NET "flash_mosi"  LOC = "AB15"  ;
+NET "flash_miso"  LOC = "AF24"  ;
+
+
+
+#
 ## ADC
+#
 ## CMOS...
 NET "adc_clkout"  LOC = "P1"  ;
 NET "adc_da[13]"  LOC = "Y1"  ;
@@ -83,10 +93,10 @@ NET "adc_db[3]"   LOC = "U7"  ;
 NET "adc_db[2]"   LOC = "U8"  ;
 NET "adc_db[1]"   LOC = "AA2" ;
 NET "adc_db[0]"   LOC = "AA3" ;
-NET "adc_sdata"   LOC = "E3"  ;
 NET "adc_sclk"    LOC = "F4"  ;
 NET "adc_sen"     LOC = "D3"  ;
-NET "adc_sdout"   LOC = "C1"  ;
+NET "adc_smosi"   LOC = "E3"  ;
+NET "adc_smiso"   LOC = "C1"  ;
 
 ## LVDS...
 #NET "ADC_clkout_p"  LOC = "P1"  ;
@@ -120,40 +130,48 @@ NET "adc_sdout"   LOC = "C1"  ;
 #NET "ADCB_12_p"  LOC = "J3"  ;
 #NET "ADCB_12_n"  LOC = "J2"  ;
 
+
+#
 ## DAC
-#NET "DAC_LOCK"  LOC = "P4"  ;
-#NET "DACA<0>"  LOC = "P8"  ;
-#NET "DACA<1>"  LOC = "P9"  ;
-#NET "DACA<2>"  LOC = "R5"  ;
-#NET "DACA<3>"  LOC = "R6"  ;
-#NET "DACA<4>"  LOC = "P7"  ;
-#NET "DACA<5>"  LOC = "P6"  ;
-#NET "DACA<6>"  LOC = "T3"  ;
-#NET "DACA<7>"  LOC = "T4"  ;
-#NET "DACA<8>"  LOC = "R3"  ;
-#NET "DACA<9>"  LOC = "R4"  ;
-#NET "DACA<10>"  LOC = "R2"  ;
-#NET "DACA<11>"  LOC = "N1"  ;
-#NET "DACA<12>"  LOC = "N2"  ;
-#NET "DACA<13>"  LOC = "N5"  ;
-#NET "DACA<14>"  LOC = "N4"  ;
-#NET "DACA<15>"  LOC = "M2"  ;
-#NET "DACB<0>"  LOC = "M5"  ;
-#NET "DACB<1>"  LOC = "M6"  ;
-#NET "DACB<2>"  LOC = "M4"  ;
-#NET "DACB<3>"  LOC = "M3"  ;
-#NET "DACB<4>"  LOC = "M8"  ;
-#NET "DACB<5>"  LOC = "M7"  ;
-#NET "DACB<6>"  LOC = "L4"  ;
-#NET "DACB<7>"  LOC = "L3"  ;
-#NET "DACB<8>"  LOC = "K3"  ;
-#NET "DACB<9>"  LOC = "K2"  ;
-#NET "DACB<10>"  LOC = "K5"  ;
-#NET "DACB<11>"  LOC = "K4"  ;
-#NET "DACB<12>"  LOC = "M10"  ;
-#NET "DACB<13>"  LOC = "M9"  ;
-#NET "DACB<14>"  LOC = "J5"  ;
-#NET "DACB<15>"  LOC = "J4"  ;
+#
+#NET "dac_lock"    LOC = "P4"  ;
+#NET "dac_da[0]"   LOC = "P8"  ;
+#NET "dac_da[1]"   LOC = "P9"  ;
+#NET "dac_da[2]"   LOC = "R5"  ;
+#NET "dac_da[3]"   LOC = "R6"  ;
+#NET "dac_da[4]"   LOC = "P7"  ;
+#NET "dac_da[5]"   LOC = "P6"  ;
+#NET "dac_da[6]"   LOC = "T3"  ;
+#NET "dac_da[7]"   LOC = "T4"  ;
+#NET "dac_da[8]"   LOC = "R3"  ;
+#NET "dac_da[9]"   LOC = "R4"  ;
+#NET "dac_da[10]"  LOC = "R2"  ;
+#NET "dac_da[11]"  LOC = "N1"  ;
+#NET "dac_da[12]"  LOC = "N2"  ;
+#NET "dac_da[13]"  LOC = "N5"  ;
+#NET "dac_da[14]"  LOC = "N4"  ;
+#NET "dac_da[15]"  LOC = "M2"  ;
+#NET "dac_db[0]"   LOC = "M5"  ;
+#NET "dac_db[1]"   LOC = "M6"  ;
+#NET "dac_db[2]"   LOC = "M4"  ;
+#NET "dac_db[3]"   LOC = "M3"  ;
+#NET "dac_db[4]"   LOC = "M8"  ;
+#NET "dac_db[5]"   LOC = "M7"  ;
+#NET "dac_db[6]"   LOC = "L4"  ;
+#NET "dac_db[7]"   LOC = "L3"  ;
+#NET "dac_db[8]"   LOC = "K3"  ;
+#NET "dac_db[9]"   LOC = "K2"  ;
+#NET "dac_db[10]"  LOC = "K5"  ;
+#NET "dac_db[11]"  LOC = "K4"  ;
+#NET "dac_db[12]"  LOC = "M10" ;
+#NET "dac_db[13]"  LOC = "M9"  ;
+#NET "dac_db[14]"  LOC = "J5"  ;
+#NET "dac_db[15]"  LOC = "J4"  ;
+#NET "dac_sclk"    LOC = "AF5" ;
+#NET "dac_sen"     LOC = "AE7" ;
+#NET "dac_smosi"   LOC = "AE6" ;
+#NET "dac_smiso"   LOC = "Y3"  ;
+
 
 ## TX DB GPIO
 #NET "io_tx<15>"  LOC = "K6"  ;
@@ -227,6 +245,8 @@ NET "debug[28]"     LOC = "AB7"  ;
 NET "debug[29]"     LOC = "V11"  ;
 NET "debug[30]"     LOC = "U11"  ;
 NET "debug[31]"     LOC = "Y10"  ;
+
+
 
 ## UARTS
 #NET "TXD<3>"  LOC = "AD20"  ;
@@ -417,12 +437,6 @@ NET "debug[31]"     LOC = "Y10"  ;
 #NET "RAM_WEn"  LOC = "D10"   |IOSTANDARD = LVCMOS25  |DRIVE = 8  |SLEW = FAST ;
 #NET "RAM_CENn"  LOC = "B10"   |IOSTANDARD = LVCMOS25  |DRIVE = 8  |SLEW = FAST ;
 #NET "RAM_CLK"  LOC = "A10"   |IOSTANDARD = LVCMOS25  |DRIVE = 8  |SLEW = FAST ;
-
-## SPI Flash
-#NET "flash_miso"  LOC = "AF24"  ;
-#NET "flash_clk"  LOC = "AE24"  ;
-#NET "flash_mosi"  LOC = "AB15"  ;
-#NET "flash_cs"  LOC = "AA7"  ;
 
 #### MISC FPGA, unused for now
 ###NET "PROG_B"  LOC = "A2"  ;
