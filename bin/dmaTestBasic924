@@ -1,6 +1,15 @@
 #!/bin/sh
 # dmaTestBasic - a script for dma "sanity" that runs in less than a minute
 
+# dmaTestBasic924 - for the Altera alst4 platform on the Atomic Rules core 920 machine, pcie:4
+
+# Notes:
+# 2012-06-05 On the inital test of the tagged build alst4_20120605, this test hung the OS in
+#   one of the master modes and a cold reset (power off then on) was applied. Subsequently,
+#   this test ran in all DMA modes flawlessly. It is suspected there may be a warm-reset issue
+#   that cause the "first run after bitstream load" to fail. Should this test fail, be sure to 
+#   check if a cold-reset "fixes" the flaw.
+
 lspci -d 10ee:4243 -v
 
 SLOT3_BAR0=0xF1000000
