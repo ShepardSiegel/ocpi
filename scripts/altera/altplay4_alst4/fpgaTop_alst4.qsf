@@ -441,6 +441,10 @@ set_global_assignment -name VERILOG_FILE alt_mem_ddrx_ecc_encoder.v
 set_global_assignment -name VERILOG_FILE alt_mem_ddrx_ecc_encoder_32_syn.v
 set_global_assignment -name VERILOG_FILE alt_mem_ddrx_ecc_encoder_64_syn.v
 set_global_assignment -name VERILOG_FILE alt_mem_ddrx_ecc_encoder_decoder_wrapper.v
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_instance_assignment -name IO_STANDARD "SSTL-15 CLASS I" -to ddr3top_dq[0] -tag __ddr3_s4_uniphy_p0
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3top_dq[0] -tag __ddr3_s4_uniphy_p0
 set_instance_assignment -name OUTPUT_TERMINATION "SERIES 50 OHM WITH CALIBRATION" -to ddr3top_dq[0] -tag __ddr3_s4_uniphy_p0

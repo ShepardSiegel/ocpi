@@ -1,0 +1,5 @@
+#!/bin/csh
+
+cp BRAM1_cur.v   ../BRAM1.v
+cp BRAM1BE_cur.v ../BRAM1BE.v
+cp BRAM2_cur.v   ../BRAM2.v
