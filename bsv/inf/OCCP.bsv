@@ -108,7 +108,11 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   function makeWciMaster (Integer i);
     //return (i<5||i>12) ? mkWciMaster : mkWciMasterNull;  // only instance the 7 (0:4,13:14) we need
     //return (i<6||i>9) ? mkWciMaster : mkWciMasterNull;  // only instance the 11 (0:5,10:14)  we need
-    return  mkWciMaster; // all get WCI masters
+
+    //FIXME: Specalized for n210 platform development!
+    return (i<7||i>10) ? mkWciMaster : mkWciMasterNull;   // only worker 8, 9, 10, 11
+
+    //return  mkWciMaster; // all get WCI masters
   endfunction
   Vector#(Nwcit,WciMasterIfc#(20,32)) wci <- genWithM(makeWciMaster);  
 

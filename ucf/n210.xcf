@@ -3,5 +3,5 @@
 ## 2012-04-21 Creation
 
 # Timing Constraints...
-NET "ftop/clkin_O" TNM_NET = "SYS0CLK";
+NET "ftop/sys0_clkp" TNM_NET = "SYS0CLK";
 TIMESPEC "TS_SYS0CLK"  = PERIOD "SYS0CLK" 100.00 MHz HIGH 50 % ;

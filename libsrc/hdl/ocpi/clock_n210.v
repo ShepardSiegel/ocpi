@@ -5,6 +5,7 @@
 //
 // 2012-05-14 ssiegel Creation
 // 2012-05-16 ssiegel Reset Logic Enhancement, Unlock Detect
+// 2012-06-06 ssiegel De-Feature and Simplify by commenting out all non-essential clocks 
 
 module clock_n210
   (
@@ -12,13 +13,13 @@ module clock_n210
    input  rstIn,     // active-low reset
    output locked,
    output clk0_buf,
-   output clkdv_buf,
-   output clk2x_buf,
-   output clk125_buf,
-   output clk0_rstn,
-   output clkdv_rstn,
-   output clk2x_rstn,
-   output clk125_rstn
+// output clkdv_buf,
+// output clk2x_buf,
+// output clk125_buf,
+   output clk0_rstn
+// output clkdv_rstn,
+// output clk2x_rstn,
+// output clk125_rstn
    );
 
   wire [7:0] dcmStatus;
@@ -50,10 +51,12 @@ module clock_n210
     .PSINCDEC  (0), 
     .RST       (rstDCM), 
     .CLKDV     (clkdv_unbuf), 
-    .CLKFX     (clk125_unbuf),        // 100 * 5 / 4 = 125 MHz
+    .CLKFX     (),
+//  .CLKFX     (clk125_unbuf),        // 100 * 5 / 4 = 125 MHz
     .CLKFX180  (), 
     .CLK0      (clk0_unbuf), 
-    .CLK2X     (clk2x_unbuf), 
+    .CLK2X     (), 
+//  .CLK2X     (clk2x_unbuf), 
     .CLK2X180  (), 
     .CLK90     (), 
     .CLK180    (), 
@@ -65,16 +68,16 @@ module clock_n210
 
   // BUFGs to distribute clock outputs...
   BUFG clk0_bufg   (.I(clk0_unbuf),   .O(clk0_buf));
-  BUFG clkdv_bufg  (.I(clkdv_unbuf),  .O(clkdv_buf));
-  BUFG clk2x_bufg  (.I(clk2x_unbuf),  .O(clk2x_buf));
-  BUFG clk125_bufg (.I(clk125_unbuf), .O(clk125_buf));
+//BUFG clkdv_bufg  (.I(clkdv_unbuf),  .O(clkdv_buf));
+//BUFG clk2x_bufg  (.I(clk2x_unbuf),  .O(clk2x_buf));
+//BUFG clk125_bufg (.I(clk125_unbuf), .O(clk125_buf));
 
   // Active-Low reset signals in each clock domain; if DCM unlocks, reset is asserted
   // Use rstInD active-low to force reset pulse when DCM locked...
   FDR clk0_rst   (.D(locked), .R(forceReset), .Q(clk0_rstn),   .C(clk0_buf)  );
-  FDR clkdv_rst  (.D(locked), .R(forceReset), .Q(clkdv_rstn),  .C(clkdv_buf) );
-  FDR clk2x_rst  (.D(locked), .R(forceReset), .Q(clk2x_rstn),  .C(clk2x_buf) );
-  FDR clk125_rst (.D(locked), .R(forceReset), .Q(clk125_rstn), .C(clk125_buf));
+//FDR clkdv_rst  (.D(locked), .R(forceReset), .Q(clkdv_rstn),  .C(clkdv_buf) );
+//FDR clk2x_rst  (.D(locked), .R(forceReset), .Q(clk2x_rstn),  .C(clk2x_buf) );
+//FDR clk125_rst (.D(locked), .R(forceReset), .Q(clk125_rstn), .C(clk125_buf));
   
   // Watch for falling-edge of DCM locked signal... 
   FD   lock_flop  (.C(clkIn), .D(locked), .Q(locked_d)); 
