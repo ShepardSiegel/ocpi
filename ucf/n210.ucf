@@ -51,8 +51,12 @@ NET "mdio_mdd"     LOC = "K21"  ;
 NET "mdio_mdc"     LOC = "J23"  ;
 NET "gmii_led"     LOC = "H20"  ;  # The Green LED 2 at the upper Left of the RJ45 Connector
 
+## I2C EEPROMs...
+NET "i2c_scl"      LOC = "U16"  ;
+NET "i2c_sda"      LOC = "V16"  ;
 
-## SPI Flash
+
+## SPI Flash...
 NET "flash_clk"   LOC = "AE24"  ;
 NET "flash_csn"   LOC = "AA7"   ;
 NET "flash_mosi"  LOC = "AB15"  ;
@@ -264,9 +268,6 @@ NET "debug[31]"     LOC = "Y10"  ;
 #NET "clk_en<1>"   LOC = "AA17"  ;
 #NET "clk_en<0>"   LOC = "Y17"  ;
 
-## I2C
-#NET "SDA"  LOC = "V16"  ;
-#NET "SCL"  LOC = "U16"  ;
 
 ## Timing
 #NET "PPS_IN"   LOC = "AB6"  ;

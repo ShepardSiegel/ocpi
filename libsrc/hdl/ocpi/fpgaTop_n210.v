@@ -26,6 +26,9 @@ module fpgaTop(
   inout  wire        mdio_mdd,
 	output wire        gmii_led,
 
+  output wire        i2c_scl,       // I2C EEPROMs 
+  inout  wire        i2c_sda,
+
   output wire        flash_clk,      // SPI Flash
   output wire        flash_csn,
   output wire        flash_mosi,
@@ -87,6 +90,9 @@ module fpgaTop(
   .mdio_mdc          (mdio_mdc),
   .mdio_mdd          (mdio_mdd),
 	.gmii_led          (gmii_led),
+
+  .i2c_scl           (i2c_scl),      // I2C EEPROMs 
+  .i2c_sda           (i2c_sda),
 
   .flash_clk         (flash_clk),    // SPI Flash
   .flash_csn         (flash_csn),

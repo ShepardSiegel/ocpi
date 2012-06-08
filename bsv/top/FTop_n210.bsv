@@ -3,16 +3,15 @@
 
 // Application Imports...
 import ClockN210         ::*;
-import ICAPWorker        ::*;
 import LedN210           ::*;
 import Config            ::*;
-import OCCP              ::*;
-import OCWip             ::*;
-import MDIO              ::*;
 import GMAC              ::*;
 import GbeLite           ::*;
-import SPIFlashWorker    ::*;
 import IQADCWorker       ::*;
+import MDIO              ::*;
+import OCCP              ::*;
+import OCWip             ::*;
+import PWrk_n210         ::*;
 
 //import CPDefs            ::*;
 //import CTop              ::*;
@@ -40,7 +39,7 @@ import XilinxCells       ::*;
 /* USRP2 N210 Front-Panel LED Encoding
 | A(4)tx   | B(1)mimo |
 | C(3)rx   | D(0)firm |
-| E(2)ref  | F(-)cpld |
+| E(2)ref  | F(x)done |
 */
 
 
@@ -53,6 +52,7 @@ interface FTop_n210Ifc;
   interface  GMII_RS       gmii;       // The GMII link RX/TX
   interface  MDIO_Pads     mdio;       // The Ethernet MDIO pads
   interface  TI62P4X_Pads  adc;
+  interface  I2C_Pins      i2c;
   interface  SPIFLASH_Pads flash;
   interface  Clock         sys0Clk;
   interface  Reset         sys0Rst;
@@ -87,8 +87,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //WciSlaveNullIfc#(32) tieOff4  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32) tieOff5  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32) tieOff6  <- mkWciSlaveNull;
-  ICAPWorkerIfc        icap     <- mkICAPWorker("S3A", True, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));  // Worker 8
-  SPIFlashWorkerIfc    flashw   <- mkSPIFlashWorker(True,    clocked_by sys0_clk, reset_by(vWci[8].mReset_n));  // Worker 9
+  PWrk_n210Ifc         pwrk     <- mkPWrk_n210(clocked_by sys0_clk, reset_by(vWci[7].mReset_n));  // Worker 8
+  WciSlaveNullIfc#(32) tieoff8  <- mkWciSlaveNull;  //     Worker  9
   WciSlaveNullIfc#(32) tieOff9  <- mkWciSlaveNull;  // GbE Worker 10
   IQADCWorkerIfc       iqadc    <- mkIQADCWorker(True, sys0_clk, sys0_rst, sys0_clk, sys0_rst, adc_clkout, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
 //WciSlaveNullIfc#(32) tieOff11 <- mkWciSlaveNull;
@@ -103,8 +103,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //mkConnection(vWci[4],  tieOff4.slv); 
 //mkConnection(vWci[5],  tieOff5.slv); 
 //mkConnection(vWci[6],  tieOff6.slv); 
-  mkConnection(vWci[7],  icap.wciS0);    // Worker 8: ICAP
-  mkConnection(vWci[8],  flashw.wciS0);  // Worker 9: Flash
+  mkConnection(vWci[7],  pwrk.wciS0);    // Worker 8: N210 Platform Worker
+  mkConnection(vWci[8],  tieoff8.slv);   // Worker 9
   mkConnection(vWci[9],  tieOff9.slv);   // GbE Worker 10
   mkConnection(vWci[10], iqadc.wciS0);   // Worker 11: IQ-ADC
 //mkConnection(vWci[11], tieOff11.slv); 
@@ -119,7 +119,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   interface GMII          gmii       = gbe0.gmii;
   interface MDIO_Pads     mdio       = gbe0.mdio;
   interface TI62P4X_Pads  adc        = iqadc.adc;
-  interface SPIFLASH_Pads flash      = flashw.pads;
+  interface I2C_Pins      i2c        = pwrk.i2cpad;
+  interface SPIFLASH_Pads flash      = pwrk.spipad;
   interface Clock         sys0Clk    = sys0_clk;
   interface Reset         sys0Rst    = sys0_rst;
 endmodule: mkFTop_n210
