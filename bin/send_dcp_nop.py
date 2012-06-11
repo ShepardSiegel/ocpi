@@ -12,18 +12,54 @@ import time
 from scapy.all import *
 
 def main(argv):
-  print """Hello from %s""" % (prog_name)
+  print '''Hello from %s''' % (prog_name)
   p = Ether()
   p.src  = '00:26:E1:01:01:00'   # Linux Host Source MAC Address
   p.dst  = '00:0A:35:42:01:00'   # Xilinx FPGA Dest MAC Address
   p.type = 0xF040                # EtherType TCP
-  p.payload = "\x00\x0A\x00\x00\x0F\x05\x80\x00\x00\x01"                    # 10B NOP
-  #p.payload = "\x00\x0E\x00\x00\x1F\x06\x00\x00\x00\x24\x00\x00\x00\x02"    # 14B Write 0x24 with 0x00000002
-  #p.payload = "\x00\x0A\x00\x00\x2F\x07\x00\x00\x00\x24"                     # 10B Read 0x24
-  print "Sending packet..."
-  r = srp(p, iface="eth1")
-  print r
-  print 'r is a ' + str(type(r))
+  p.payload = '\x00\x0A\x00\x00\x0F\x05\x80\x00\x00\x01'                    # 10B NOP
+  #p.payload = '\x00\x0E\x00\x00\x1F\x06\x00\x00\x00\x24\x00\x00\x00\x02'    # 14B Write 0x24 with 0x00000002
+  #p.payload = '\x00\x0A\x00\x00\x2F\x07\x00\x00\x00\x24'                     # 10B Read 0x24
+  print 'Sending packet...'
+  r = srp(p, iface='eth1')
+  response = r[0][0][0].load
+  bs= map(ord,response)
+
+  # Check for correct packet length....
+  expRespLen = 10
+  respLen = len(response)
+  if (expRespLen!=respLen):
+    print 'Unexpected response length. expected %d, got %d' % (expectRespLen, respLen)
+    exit
+
+  # Check for correct payload length...
+  payloadLen = 256*bs[0] + bs[1]
+  if (payloadLen!=10):
+    print 'Unxpected returned payload length', str(payloadLen), 'expected 10'
+    exit
+
+  # Check for reserved fields zero...
+  if (bs[2]!=0 or bs[3]!=0):
+    print 'DMH fields 0 or 1 non-zero'
+    exit
+
+  # Check response code byte...
+  rc = bs[4]
+  if (rc==16):
+    print 'Response Completion Operation'
+  elif (rc==15):
+    print 'Development Completion Operation: d\'' + str(rc)
+  else:
+    print 'Unexpected Operation: d\'' + str(rc)
+
+  # Check tag...
+  expectedTag = 5
+  gotTag = bs[5]
+  if (expectedTag != gotTag):
+    print 'Tag mismatch. Expected: %d  Got: %d' % (expectedTag, gotTag)
+    
+
+  print 'End of main'
 
 
 prog_name = os.path.basename(sys.argv[0])
