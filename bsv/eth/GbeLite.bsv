@@ -232,7 +232,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
                            1: gmac.tx.put(tagged ValidNotEOP 8'h0A); // NOP reseponse is 10B
                            2: gmac.tx.put(tagged ValidNotEOP 8'h00);
                            3: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           4: gmac.tx.put(tagged ValidNotEOP 8'h31); // sb 30
+                           4: gmac.tx.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
                            5: gmac.tx.put(tagged ValidNotEOP n.tag);
                            6: gmac.tx.put(tagged ValidNotEOP n.targAdvert[31:24]);
                            7: gmac.tx.put(tagged ValidNotEOP n.targAdvert[23:16]);
@@ -248,7 +248,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
                            1: gmac.tx.put(tagged ValidNotEOP 8'h06); // Write reseponse is 6B
                            2: gmac.tx.put(tagged ValidNotEOP 8'h00);
                            3: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           4: gmac.tx.put(tagged ValidNotEOP 8'h32); // sb 30
+                           4: gmac.tx.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
                            5: gmac.tx.put(tagged ValidEOP    w.tag);
                          endcase
                          txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
@@ -260,7 +260,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
                            1: gmac.tx.put(tagged ValidNotEOP 8'h0A); // Read response is 10B
                            2: gmac.tx.put(tagged ValidNotEOP 8'h00);
                            3: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           4: gmac.tx.put(tagged ValidNotEOP 8'h33); // sb 30
+                           4: gmac.tx.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
                            5: gmac.tx.put(tagged ValidNotEOP r.tag);
                            6: gmac.tx.put(tagged ValidNotEOP r.data[31:24]);
                            7: gmac.tx.put(tagged ValidNotEOP r.data[23:16]);

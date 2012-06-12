@@ -19,18 +19,19 @@ def main(argv):
   p.type = 0xF040                # EtherType TCP
   p.payload = '\x00\x0A\x00\x00\x0F\xF2\x80\x00\x00\x01'                    # 10B NOP
   #p.payload = '\x00\x0E\x00\x00\x1F\x06\x00\x00\x00\x24\x00\x00\x00\x02'    # 14B Write 0x24 with 0x00000002
-  #p.payload = '\x00\x0A\x00\x00\x2F\x07\x00\x00\x00\x24'                     # 10B Read 0x24
+  #p.payload = '\x00\x0A\x00\x00\x2F\x07\x00\x00\x00\x4C'                     # 10B Read 0x24
   print 'Sending packet...'
-  r = srp(p, iface='eth1')
-  response = r[0][0][0].load
-  bs= map(ord,response)
-  print 'bs:', bs
+  r = srp1(p, iface='eth1')
+
+  response = r[0].load
+  bs = map(ord,response)
+  print 'payload data:', bs
 
   # Check for correct packet length....
-  expRespLen = 10
+  expRespLen = 46
   respLen = len(response)
   if (expRespLen!=respLen):
-    print 'Unexpected response length. expected %d, got %d' % (expectRespLen, respLen)
+    print 'Unexpected response length. expected %d, got %d' % (expRespLen, respLen)
     exit
 
   # Check for correct payload length...
@@ -46,15 +47,13 @@ def main(argv):
 
   # Check response code byte...
   rc = bs[4]
-  if (rc==16):
-    print 'Response Completion Operation'
-  elif (rc==15):
-    print 'Development Completion Operation: d\'' + str(rc)
+  if (rc==48):
+    print 'Response Completion Operation OK'
   else:
-    print 'Unexpected Operation: d\'' + str(rc)
+    print 'Unexpected response code: d\'' + str(rc)
 
   # Check tag...
-  expectedTag = 5
+  expectedTag = 242
   gotTag = bs[5]
   if (expectedTag != gotTag):
     print 'Tag mismatch. Expected: %d  Got: %d' % (expectedTag, gotTag)
