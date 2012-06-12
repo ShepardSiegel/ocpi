@@ -70,6 +70,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   Reg#(DWord)       scratch24    <-  mkReg(0);               // Scratch register at 0x24
   Reg#(DWord)       cpControl    <-  mkReg(0);               // 32b for cpControl
   Reg#(Bit#(32))    td           <-  mkRegU;                 // Temp DW used for 8B writes
+  Reg#(UInt#(32))   readCntReg   <-  mkReg(0);               // Read side-effect register
 //Reg#(DWord)       msiAddrMs    <-  mkRegU;                 // PCIe MSI Address MS [63:32]
 //Reg#(DWord)       msiAddrLs    <-  mkRegU;                 // PCIe MSI Address LS [31:2],2'b0
 //Reg#(Bit#(16))    msiMesgD     <-  mkRegU;                 // PCIe MSI Message Data
@@ -142,6 +143,8 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
       'h40 : td <= wd;
       'h44 : deltaTime <= timeServ.gpsTimeCC - fxptFromIntFrac(unpack(td),unpack(wd));
 
+      'h4C : readCntReg   <= unpack(wd);
+
     endcase
     cpReq  <= tagged Idle;
     //$display("[%0d]: %m: setAdminReg WRITE-RETIRED Addr:%0x Data:%0x", $time, bAddr, wd);
@@ -196,6 +199,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
       'h40 : rv = Valid(pack(fxptGetInt(deltaTime)));           // Measured deltaTime Integer Seconds
       'h44 : rv = Valid(pack(fxptGetFrac(deltaTime)));          // Measured deltaTime Fractional Seconds
       'h48 : rv = Valid(pack(timeServ.tRefPerPps));             // rplTimeRefPerPPS (frequency counter)
+      'h4C : begin rv = Valid(pack(readCntReg)); readCntReg<=readCntReg+1; end // Read side effect register
       'h50 : rv = Valid(pack(devDNAV[0]));                      // LSBs of devDNA
       'h54 : rv = Valid(pack(devDNAV[1]));                      // MSBs of devDNA
       'h7C : rv = Valid(32'd2);                                 // DP Mem Region Descriptors...
