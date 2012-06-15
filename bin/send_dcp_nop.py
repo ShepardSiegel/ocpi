@@ -15,7 +15,8 @@ def main(argv):
   print '''Hello from %s''' % (prog_name)
   p = Ether()
   p.src  = '00:26:E1:01:01:00'   # Linux Host Source MAC Address
-  p.dst  = '00:0A:35:42:01:00'   # Xilinx FPGA Dest MAC Address
+ #p.dst  = '00:0A:35:42:01:00'   # Xilinx FPGA Dest MAC Address
+  p.dst  = 'A0:36:FA:25:3E:A5'   # Ettus N210 Dest MAC Address
   p.type = 0xF040                # EtherType TCP
   p.payload = '\x00\x0A\x00\x00\x0F\xF2\x80\x00\x00\x01'                    # 10B NOP
   #p.payload = '\x00\x0E\x00\x00\x1F\x06\x00\x00\x00\x24\x00\x00\x00\x02'    # 14B Write 0x24 with 0x00000002

@@ -21,8 +21,8 @@ import XilinxCells  ::*;
 import XilinxExtra  ::*;
 
 interface GbeLiteIfc;
+  method Action macAddr (Bit#(48) u);
   interface Client#(CpReq,CpReadResp) cpClient;
-
   interface GMII_RS   gmii;        // The GMII link
   interface Reset     gmii_rstn;   // PHY GMII Reset
   interface Clock     rxclkBnd;    // PHY GMII RX Clock
@@ -35,6 +35,11 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   Integer phyResetStart   = 750_000 + 3_125;  // 25 uS Reset Assertion
   Integer phyResetRelease = 750_000;          // 6  mS Reset Recovery (configration)
 
+  MACAddress bAddr = 48'hFF_FF_FF_FF_FF_FF;
+  MACAddress uAddr = 48'h00_0A_35_42_01_00;   // A fake Xilinx MAC Addr
+//MACAddress uAddr = 48'hA0_36_FA_25_3E_A5;   // A real Ettus N210 MAC Addr
+
+  Clock  gmii_clk <- exposeCurrentClock;
 
   Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0101);  // default to PHY MDIO addr 1 ([4:0]) for N210
   MDIO                        mdi                 <-  mkMDIO(6);
@@ -42,7 +47,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);          // True when split read
 
   GMACIfc                     gmac                <-  mkGMAC(gmii_rx_clk, gmiixo_clk);
-  Reg#(MACAddress)            macAddress          <-  mkReg(48'h00_0A_35_42_01_00);
+  CrossingReg#(MACAddress)    macAddressCP        <-  mkNullCrossingReg(gmii_clk, uAddr, clocked_by cpClock, reset_by cpReset);
+  Reg#(MACAddress)            macAddress          <-  mkReg(uAddr);
 
   MakeResetIfc                phyRst              <-  mkReset(16, True, cpClock);   
   Reg#(Int#(25))              phyResetWaitCnt     <-  mkReg(fromInteger(phyResetStart));
@@ -91,6 +97,10 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   Bool txDebug     = unpack(gbeControl[9]); 
   Bool phyResetBit = unpack(gbeControl[31]);
   Bool phyResetOK  = (phyResetWaitCnt==0);   // Reset 5 mS config read interval has elapsed
+
+  rule update_mac_addr;
+    macAddress <= macAddressCP.crossed;
+  endrule
 
   rule phy_reset_drive (phyResetWaitCnt > fromInteger(phyResetRelease));
     phyRst.assertReset();  // Assert Phy Reset while count is great than release point
@@ -151,7 +161,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
       rxHdr.shiftIn1(d);
       if (rxLenCount < 16) rxHeadCap <= shiftInAt0(rxHeadCap,d);
       rxPipe  <= shiftInAt0(rxPipe, d);
-      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 &&& extend(rxDCPMesgPos)<rxDCPPLI)
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 &&& (h.dst==bAddr || h.dst==uAddr) &&& extend(rxDCPMesgPos)<rxDCPPLI)
         rxDCPMesgCapt(d);  // accept only DCP EtherTypes and discard padding
     end
     rxPos      <= (isEOP) ? 0 : rxPos + 1;
@@ -159,7 +169,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     if (isEOP) begin
       rxLenLast <= rxLenCount + 1; 
       rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
-      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) rxDCPHdrF.enq(h); // capture Ethernet header at good EOP of this DCP message
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 && (h.dst==bAddr || h.dst==uAddr)) rxDCPHdrF.enq(h); // capture Ethernet header at good EOP of this DCP message
     end
     endaction);
   endfunction
@@ -276,6 +286,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
 
 
   // Interfaces and Methods provided...
+  method Action macAddr (Bit#(48) u) = macAddressCP._write(unpack(u));
   interface Client     cpClient   = dcp.client;
   interface GMII_RS    gmii       = gmac.gmii;
   interface Reset      gmii_rstn  = phyRst.new_rst;

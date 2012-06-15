@@ -80,6 +80,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 
+
 //WciSlaveNullIfc#(32) tieOff0  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32) tieOff1  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32) tieOff2  <- mkWciSlaveNull;
@@ -87,7 +88,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //WciSlaveNullIfc#(32) tieOff4  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32) tieOff5  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32) tieOff6  <- mkWciSlaveNull;
-  PWrk_n210Ifc         pwrk     <- mkPWrk_n210(clocked_by sys0_clk, reset_by(vWci[7].mReset_n));  // Worker 8
+  PWrk_n210Ifc         pwrk     <- mkPWrk_n210(sys0_rst, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));  // Worker 8
   WciSlaveNullIfc#(32) tieoff8  <- mkWciSlaveNull;  //     Worker  9
   WciSlaveNullIfc#(32) tieOff9  <- mkWciSlaveNull;  // GbE Worker 10
   IQADCWorkerIfc       iqadc    <- mkIQADCWorker(True, sys0_clk, sys0_rst, sys0_clk, sys0_rst, adc_clkout, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
@@ -111,6 +112,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //mkConnection(vWci[12], tieOff12.slv); 
 //mkConnection(vWci[13], tieOff13.slv); 
 //mkConnection(vWci[14], tieOff14.slv); 
+
+  mkConnection(pwrk.macAddr, gbe0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the GBE
 
   method    Bit#(5)       led    = ledLogic.led;
   method    Bit#(32)      debug  = {16'h5555, 16'h0000};

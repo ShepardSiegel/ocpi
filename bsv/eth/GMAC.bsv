@@ -438,7 +438,7 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   Bool rxOverflow = rxEnable && (!rxF.notFull || fullD);  // Stretch full detection so SyncBit sees at least one cycle
   rule overflow_detect (rxEnable); ovfBit.send(pack(rxOverflow)); endrule  // Feed Synchronizer
 
-  rule ingress_advance (rxEnable && rxDV);
+  rule ingress_advance (rxEnable && rxDV && !rxER);
      rxPipe  <= shiftInAt0(rxPipe, rxData);                     // Build up our 32b FCS candidate
      rxAPipe <= shiftInAt0(rxAPipe,rxActive);                   // Mark where Active data starts (after SFD)
      if (rxData == pack(PREAMBLE))  preambleCnt.inc;            // Count preamble octets
@@ -456,7 +456,7 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
     crcEnd   <= True;
   endrule
 
-  rule end_frame (rxEnable && crcEnd);
+  rule end_frame (rxEnable && (crcEnd || rxER));
     preambleCnt.load(0);   // Reset the preamble counter
     rxActive <= False;     // Clear rxActive
     isSOF    <= True;      // For next frame
@@ -470,7 +470,7 @@ module mkRxRSAsync#(Clock rxClk) (RxRSIfc);
   endrule
 
   rule egress_data  (rxEnable && rxDVD && rxAPipe[5]);
-    rxF.enq(tagged ValidNotEOP rxPipe[5]); 
+    rxF.enq(rxER ? tagged AbortEOP : tagged ValidNotEOP rxPipe[5]); 
     isSOF <= False;    
   endrule
 

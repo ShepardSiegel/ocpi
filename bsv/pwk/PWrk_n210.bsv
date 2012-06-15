@@ -27,16 +27,32 @@ interface PWrk_n210Ifc;
 endinterface
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkPWrk_n210 (PWrk_n210Ifc);
+module mkPWrk_n210#(Reset sys0_rst) (PWrk_n210Ifc);
+
+  I2C                  i2cC                <- mkI2C(416, reset_by sys0_rst); // prescale = 416; // 125/417 = 299 KHz/3=~ 100 KHz i2c clock
+  Reg#(Bit#(8))             doGetMAC       <- mkReg(6, reset_by sys0_rst);
+  Reg#(Vector#(6,Bit#(8)))  macV           <- mkRegU(  reset_by sys0_rst);             
 
   WciESlaveIfc         wci                 <- mkWciESlave;
-  I2C                  i2cC                <- mkI2C(6); // Integer prescale = 6; // 100/7 = 14.28MHz,  ~70nS/pwTick
   SPIFlashIfc          flashC              <- mkSPIFlash;
   Reg#(Bit#(32))       flashCtrl           <- mkReg(0);
   Reg#(Bit#(32))       aReg                <- mkReg(0);
   Reg#(Bit#(32))       wdReg               <- mkReg(0);
   Reg#(Bit#(32))       rdReg               <- mkReg(0);
   Reg#(Bool)           splitReadInFlight   <- mkReg(False); 
+
+  rule read_eeprom (doGetMAC != 0);
+    i2cC.user.request(False, 7'b1010_000, 8-doGetMAC, 0); // 1010 control code ahead of 3b slave_addr
+    doGetMAC <= doGetMAC - 1;
+  endrule
+
+  rule response_eeprom;
+    let b <- i2cC.user.response;
+    macV <= shiftInAt0(macV, b);
+  endrule
+
+
+
 
   Bit#(32) flashStatus = extend({1'b1, pack(flashC.user.waitBit)});
 
@@ -94,6 +110,7 @@ module mkPWrk_n210 (PWrk_n210Ifc);
   rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
   rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release); wci.ctlAck; endrule
 
+  method    Bit#(48)      macAddr = pack(macV);
   interface Wci_s         wciS0   = wci.slv;
   interface I2C_Pins      i2cpad  = i2cC.i2c;
   interface SPIFLASH_Pads spipad  = flashC.pads; 
