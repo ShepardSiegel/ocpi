@@ -161,7 +161,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
       rxHdr.shiftIn1(d);
       if (rxLenCount < 16) rxHeadCap <= shiftInAt0(rxHeadCap,d);
       rxPipe  <= shiftInAt0(rxPipe, d);
-      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 &&& (h.dst==bAddr || h.dst==uAddr) &&& extend(rxDCPMesgPos)<rxDCPPLI)
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 &&& (h.dst==bAddr || h.dst==macAddress) &&& extend(rxDCPMesgPos)<rxDCPPLI)
         rxDCPMesgCapt(d);  // accept only DCP EtherTypes and discard padding
     end
     rxPos      <= (isEOP) ? 0 : rxPos + 1;
@@ -169,7 +169,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     if (isEOP) begin
       rxLenLast <= rxLenCount + 1; 
       rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
-      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 && (h.dst==bAddr || h.dst==uAddr)) rxDCPHdrF.enq(h); // capture Ethernet header at good EOP of this DCP message
+      if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 && (h.dst==bAddr || h.dst==macAddress)) rxDCPHdrF.enq(h); // capture Ethernet header at good EOP of this DCP message
     end
     endaction);
   endfunction
