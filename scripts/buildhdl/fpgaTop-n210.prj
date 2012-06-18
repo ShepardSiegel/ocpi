@@ -1,5 +1,6 @@
 verilog work "../../libsrc/hdl/bsv/BRAM1BE.v"
 verilog work "../../libsrc/hdl/bsv/BRAM1.v"
+verilog work "../../libsrc/hdl/bsv/BRAM1Load.v"
 verilog work "../../libsrc/hdl/bsv/BRAM2.v"
 verilog work "../../libsrc/hdl/bsv/BypassCrossingWire.v"
 verilog work "../../libsrc/hdl/bsv/BypassWire.v"

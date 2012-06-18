@@ -7,6 +7,7 @@ set dstdir=$OCPI_DIR/libsrc/hdl/bsv
 foreach i (              \
    BRAM1BE.v             \
    BRAM1.v               \
+   BRAM1Load.v           \
    BRAM2.v               \
    BypassCrossingWire.v  \
    BypassWire.v          \

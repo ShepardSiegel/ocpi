@@ -12,6 +12,7 @@ import CompileTime   ::*;
 import DNA           ::*;
 import PCIE          ::*;
 
+import BRAM::*;
 import DefaultValue::*;
 import DReg::*;	
 import FIFO::*;
@@ -92,7 +93,14 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   FIFOF#(DWordM)    adminResp1F  <-  mkFIFOF1;               // Admin region read-response FIFO - region 1
   FIFOF#(DWordM)    adminResp2F  <-  mkFIFOF1;               // Admin region read-response FIFO - region 2
   FIFOF#(DWordM)    adminResp3F  <-  mkFIFOF1;               // Admin region read-response FIFO - region 3
+  FIFOF#(DWordM)    adminResp4F  <-  mkFIFOF1;               // Admin region read-response FIFO - region 4
   FIFO#(DWordM)     adminRespF   <-  mkFIFO1;                // Admin region read-response FIFO - aggregate
+
+  BRAM_Configure cfg = defaultValue;
+    cfg.memorySize = 1024;  // Number of DWORD entries in 4KB ROM
+    cfg.latency    = 1;
+    cfg.loadFormat = tagged Hex "ramprom.data";
+  BRAM1Port#(Bit#(10), Bit#(32)) rom <- mkBRAM1Server(cfg);
 
 `ifdef HAS_DEVICE_DNA
   DNAIfc dna <- mkDNA; // Instance the device DNA reader core if we have one
@@ -226,13 +234,24 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   endaction
   endfunction
 
+  rule response_rom_read;
+    DWordM rv = Invalid;
+    let r <- rom.portA.response.get;
+    rv = Valid(r);
+    adminResp4F.enq(rv);
+  endrule
+
   function Action requestAdminRd(Bit#(24) bAddr, Bit#(8) tag);
   action
     seqTag <= tag;  // Set tag aside for response - Implicit single-issue of reads
-    Bit#(8) a = truncate(bAddr);
-    if      (a <  8'h30)                getAdminReg1(a);
-    else if (a >= 8'h30 && a < 8'hC0)   getAdminReg2(a);
-    else                                getAdminReg3(a);
+    if (bAddr < 24'h00_0100) begin
+      Bit#(8) a = truncate(bAddr);
+      if      (a <  8'h30)                getAdminReg1(a);
+      else if (a >= 8'h30 && a < 8'hC0)   getAdminReg2(a);
+      else                                getAdminReg3(a);
+    end else if (bAddr >= 24'h00_01000) begin
+       rom.portA.request.put(BRAMRequest {write:False, responseOnWrite:False, address:bAddr[11:2], datain:0});
+    end
   endaction
   endfunction
 
@@ -240,6 +259,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
     if      (adminResp1F.notEmpty) begin adminRespF.enq(adminResp1F.first); adminResp1F.deq; end
     else if (adminResp2F.notEmpty) begin adminRespF.enq(adminResp2F.first); adminResp2F.deq; end
     else if (adminResp3F.notEmpty) begin adminRespF.enq(adminResp3F.first); adminResp3F.deq; end
+    else if (adminResp4F.notEmpty) begin adminRespF.enq(adminResp4F.first); adminResp4F.deq; end
   endrule
 
   rule responseAdminRd;

@@ -4,12 +4,18 @@
 module rom_proto(
   input  wire        clk, 
   input  wire        rstn,
+	input  wir  [8:0]  addr,
+	output reg  [31:0] data
 
-	input  wire [8:0]  addr,
-	output wire [31:0] data,
+  reg [31:0] rom [511:0];
 
-	input  wire        addr_valid,
-  output wire        data_ready
+  inital begin
+    $readmemh("ramprom.data", rom, 0, 511);
+  end
+
+  always @(posedge clk) begin
+    data <= rom[addr];
+  end
 
 );
 
