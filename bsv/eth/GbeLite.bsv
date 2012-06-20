@@ -170,6 +170,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
       rxLenLast <= rxLenCount + 1; 
       rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
       if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 && (h.dst==bAddr || h.dst==macAddress)) rxDCPHdrF.enq(h); // capture Ethernet header at good EOP of this DCP message
+      //else rxHdr.clear; // Clear rxHdr state (resetting _pos), this packet means nothing to us
     end
     endaction);
   endfunction
@@ -233,7 +234,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
       Vector#(14,Bit#(8)) respHeadV = unpack(pack(modHead)); 
       gmac.tx.put(tagged ValidNotEOP respHeadV[13-txDCPPos]);
       txDCPPos <= (txDCPPos==13) ? 0 : txDCPPos + 1;
-      if (txDCPPos==13) rxHdr.clear;
+      if (txDCPPos==13) rxHdr.clear;  // Release the rxHdr state, we are through with it
     end else begin
       case (rsp) matches
       tagged NOP   .n: begin
