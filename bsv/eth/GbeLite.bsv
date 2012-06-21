@@ -71,12 +71,16 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   Reg#(Bit#(32))              rxLenLast           <-  mkReg(0);
   Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkReg(0);
   Reg#(Vector#(16,Bit#(8)))   rxHeadCap           <-  mkReg(unpack(0));   // Debug Only
+  Reg#(Bool)                  rxDropFrame         <-  mkReg(False);
+  Reg#(Bit#(32))              rxDropCnt           <-  mkReg(0);
 
   FIFOF#(E8023Header)         rxDCPHdrF           <-  mkFIFOF;
   Reg#(Vector#(14,Bit#(8)))   rxDCPMesg           <-  mkRegU;
   Reg#(UInt#(5))              rxDCPMesgPos        <-  mkReg(0);
   Reg#(Bit#(32))              rxDCPCnt            <-  mkReg(0);
   Reg#(UInt#(8))              rxDCPPLI            <-  mkReg(maxBound);  // max 255B for now
+  Reg#(Bit#(8))               rxDCPmt             <-  mkRegU;
+  Reg#(Bit#(8))               rxDCPtag            <-  mkRegU;
 
   Reg#(Bit#(32))              txDCPCnt            <-  mkReg(0);
   FIFO#(E8023Header)          txDCPHdrF           <-  mkFIFO;
@@ -88,7 +92,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
 
   DCPAdapterIfc               dcp                 <-  mkDCPAdapterAsync(cpClock, cpReset);
-  FIFO#(DCPResponse)          dcpRespF            <-  mkFIFO;
+  FIFOF#(DCPResponse)         dcpRespF            <-  mkFIFOF;
 
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
@@ -152,6 +156,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
       rxDCPMesg    <= shiftInAt0(rxDCPMesg, d);
       rxDCPMesgPos <= rxDCPMesgPos + 1;
       if (rxDCPMesgPos==1) rxDCPPLI <= unpack(d); // Only look at PLI byte 1 for now (255B max)
+      if (rxDCPMesgPos==4) rxDCPmt  <= d; 
+      if (rxDCPMesgPos==5) rxDCPtag <= d; 
     endaction);
   endfunction
 
@@ -170,10 +176,17 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
       rxLenLast <= rxLenCount + 1; 
       rxHdrMatchCnt <= (rxHdr.isMatch) ? rxHdrMatchCnt + 1 : rxHdrMatchCnt;
       if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040 && (h.dst==bAddr || h.dst==macAddress)) rxDCPHdrF.enq(h); // capture Ethernet header at good EOP of this DCP message
-      //else rxHdr.clear; // Clear rxHdr state (resetting _pos), this packet means nothing to us
+      else rxDropFrame <= True;  // The EOP has arrived but we care not for this frame, drop it
     end
     endaction);
   endfunction
+
+  rule rx_drop_frame (rxDropFrame);  // Actions to take when we've decided not to use this frame...
+    rxHdr.clear;                     // Clear rxHdr state (resetting _pos), this packet means nothing to us
+    rxDCPMesgPos <= 0;               // Clear DCP Mesg Capture pointer to zero
+    rxDropFrame <= False;            // Do this once per frame
+    rxDropCnt <= rxDropCnt + 1;      // Increment diagnostic counter
+  endrule
 
 
   // RX from GMAC...
@@ -204,16 +217,15 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   // RX DCP Processing when we have a known good DCP packet
   rule rx_dcp;
     let rxh <- toGet(rxDCPHdrF).get;
-    Bit#(4) mTyp = (rxDCPMesg[rxDCPMesgPos-5])[7:4];
-    Bit#(4) mBe  = (rxDCPMesg[rxDCPMesgPos-5])[3:0];
-    Bit#(8) tag  =  rxDCPMesg[rxDCPMesgPos-6];
+    Bit#(4) mTyp = rxDCPmt[7:4];
+    Bit#(4) mBe  = rxDCPmt[3:0];
     Vector#(4,Bit#(8)) dwa = takeAt(4, rxDCPMesg);
     Vector#(4,Bit#(8)) dwb = takeAt(0, rxDCPMesg);
     DCPMesgType mType = unpack(mTyp);
     case (mType)
-      NOP   : dcp.server.request.put(tagged NOP  ( DCPRequestNOP  {tag:tag,   initAdvert:pack(dwb)}));
-      Write : dcp.server.request.put(tagged Write( DCPRequestWrite{be:mBe, tag:tag, data:pack(dwb), addr:pack(dwa)}));
-      Read  : dcp.server.request.put(tagged Read ( DCPRequestRead {be:mBe, tag:tag, addr:pack(dwb)}));
+      NOP   : dcp.server.request.put(tagged NOP  ( DCPRequestNOP  {tag:rxDCPtag,   initAdvert:pack(dwb)}));
+      Write : dcp.server.request.put(tagged Write( DCPRequestWrite{be:mBe, tag:rxDCPtag, data:pack(dwb), addr:pack(dwa)}));
+      Read  : dcp.server.request.put(tagged Read ( DCPRequestRead {be:mBe, tag:rxDCPtag, addr:pack(dwb)}));
     endcase
     // Done with request, reset rx for next DCP...
     rxDCPMesgPos <= 0;
@@ -225,8 +237,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     dcpRespF.enq(r);
   endrule
 
-  rule tx_dcp;   // Fires when we have a DCP Response Packet is wholly available to TX...
-    let rsp = dcpRespF.first;
+  rule tx_dcp (dcpRespF.notEmpty);   // Fires when we have a DCP Response Packet is wholly available to TX...
+    let rsp = dcpRespF.first;        // Implicit condition on DCP Response 
 
     // Send the Ethernet header back with the SA/DA fields swapped...
     if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) begin
