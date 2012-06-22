@@ -81,7 +81,6 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 
-
 //WciSlaveNullIfc#(32)  tieOff0  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieOff1  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieOff2  <- mkWciSlaveNull;
@@ -109,7 +108,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   mkConnection(vWci[8],  tieoff8.slv);   // 
   mkConnection(vWci[9],  tieOff9.slv);   // GbE Worker
   mkConnection(vWci[10], iqadc.wciS0);   // IQ-ADC
-  mkConnection(vWci[11], cap0.wciS0);    // Capture Worker 0
+  mkConnection(vWci[11], cap0.wciS0);    // Capture Worker
 //mkConnection(vWci[12], tieOff12.slv); 
 //mkConnection(vWci[13], tieOff13.slv); 
 //mkConnection(vWci[14], tieOff14.slv); 
