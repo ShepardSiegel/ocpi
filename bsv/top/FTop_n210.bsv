@@ -12,6 +12,7 @@ import MDIO              ::*;
 import OCCP              ::*;
 import OCWip             ::*;
 import PWrk_n210         ::*;
+import WSICaptureWorker  ::*;
 
 //import CPDefs            ::*;
 //import CTop              ::*;
@@ -81,21 +82,21 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 
 
-//WciSlaveNullIfc#(32) tieOff0  <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff1  <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff2  <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff3  <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff4  <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff5  <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff6  <- mkWciSlaveNull;
-  PWrk_n210Ifc         pwrk     <- mkPWrk_n210(sys0_rst, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));  // Worker 8
-  WciSlaveNullIfc#(32) tieoff8  <- mkWciSlaveNull;  //     Worker  9
-  WciSlaveNullIfc#(32) tieOff9  <- mkWciSlaveNull;  // GbE Worker 10
-  IQADCWorkerIfc       iqadc    <- mkIQADCWorker(True, sys0_clk, sys0_rst, sys0_clk, sys0_rst, adc_clkout, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
-//WciSlaveNullIfc#(32) tieOff11 <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff12 <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff13 <- mkWciSlaveNull;
-//WciSlaveNullIfc#(32) tieOff14 <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff0  <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff1  <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff2  <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff3  <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff4  <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff5  <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff6  <- mkWciSlaveNull;
+  PWrk_n210Ifc          pwrk     <- mkPWrk_n210(sys0_rst, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));
+  WciSlaveNullIfc#(32)  tieoff8  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32)  tieOff9  <- mkWciSlaveNull;
+  IQADCWorkerIfc        iqadc    <- mkIQADCWorker(True, sys0_clk, sys0_rst, sys0_clk, sys0_rst, adc_clkout, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
+  WSICaptureWorker4BIfc cap0     <- mkWSICaptureWorker4B(True,                                              clocked_by sys0_clk, reset_by(vWci[11].mReset_n));  // Worker 12
+//WciSlaveNullIfc#(32)  tieOff12 <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff13 <- mkWciSlaveNull;
+//WciSlaveNullIfc#(32)  tieOff14 <- mkWciSlaveNull;
 
 //mkConnection(vWci[0],  tieOff0.slv); 
 //mkConnection(vWci[1],  tieOff1.slv); 
@@ -104,16 +105,17 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //mkConnection(vWci[4],  tieOff4.slv); 
 //mkConnection(vWci[5],  tieOff5.slv); 
 //mkConnection(vWci[6],  tieOff6.slv); 
-  mkConnection(vWci[7],  pwrk.wciS0);    // Worker 8: N210 Platform Worker
-  mkConnection(vWci[8],  tieoff8.slv);   // Worker 9
-  mkConnection(vWci[9],  tieOff9.slv);   // GbE Worker 10
-  mkConnection(vWci[10], iqadc.wciS0);   // Worker 11: IQ-ADC
-//mkConnection(vWci[11], tieOff11.slv); 
+  mkConnection(vWci[7],  pwrk.wciS0);    // N210 Platform Worker
+  mkConnection(vWci[8],  tieoff8.slv);   // 
+  mkConnection(vWci[9],  tieOff9.slv);   // GbE Worker
+  mkConnection(vWci[10], iqadc.wciS0);   // IQ-ADC
+  mkConnection(vWci[11], cap0.wciS0);    // Capture Worker 0
 //mkConnection(vWci[12], tieOff12.slv); 
 //mkConnection(vWci[13], tieOff13.slv); 
 //mkConnection(vWci[14], tieOff14.slv); 
 
   mkConnection(pwrk.macAddr, gbe0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the GBE
+  mkConnection(iqadc.wsiM0, cap0.wsiS0);     // Connect the WSI output from the IQ-ADC to the Capture Worker
 
   method    Bit#(5)       led    = ledLogic.led;
   method    Bit#(32)      debug  = {16'h5555, 16'h0000};

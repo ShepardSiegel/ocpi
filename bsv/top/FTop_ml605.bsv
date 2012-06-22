@@ -110,7 +110,7 @@ module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board
   FMC150Ifc        fmc150 <- mkFMC150(True,                  flp_clk,flp_rst,  clocked_by p125Clk , reset_by(vWci[0].mReset_n));
   FlashWorkerIfc   flash0 <- mkFlashWorker(True,                               clocked_by p125Clk , reset_by(vWci[1].mReset_n));
   GbeWorkerIfc     gbe0   <- mkGbeWorker(True,gmii_rx_clk, sys1_clk, sys1_rst, clocked_by p125Clk , reset_by(vWci[2].mReset_n));
-  WSICaptureWorker4BIfc cap0  <- mkWSICaptureWorker(True,                      clocked_by p125Clk , reset_by(vWci[3].mReset_n));
+  WSICaptureWorker4BIfc cap0  <- mkWSICaptureWorker4B(True,                    clocked_by p125Clk , reset_by(vWci[3].mReset_n));
   DramServer_v6Ifc dram0  <- mkDramServer_v6(False, sys0_clk, sys0_rst,        clocked_by p125Clk , reset_by(vWci[4].mReset_n));
 
   //WciMonitorIfc            wciMonW8         <- mkWciMonitor(8'h42, clocked_by p125Clk , reset_by p125Rst ); // monId=h42

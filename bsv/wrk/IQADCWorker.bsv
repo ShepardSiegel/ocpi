@@ -170,14 +170,16 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
 endrule
 
 rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize);
-  adcCore.user.doInitSeq;  // ... ADC 
-  initOpInFlight <= True;
+  wci.ctlAck;
+ // //FIXME adcCore.user.doInitSeq;  // ... ADC 
+  //initOpInFlight <= True;
 endrule
 
-rule init_complete_ok(initOpInFlight && adcCore.user.isInited);
-  initOpInFlight <= False;
-  wci.ctlAck;
-endrule
+//rule init_complete_ok(initOpInFlight && adcCore.user.isInited);
+//rule init_complete_ok(initOpInFlight );  // FIXME
+//  initOpInFlight <= False;
+//  wci.ctlAck;
+//endrule
 
 rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start);
   wci.ctlAck;

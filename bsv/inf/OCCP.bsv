@@ -119,7 +119,7 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
     //return (i<6||i>9) ? mkWciMaster : mkWciMasterNull;  // only instance the 11 (0:5,10:14)  we need
 
     //FIXME: Specalized for n210 platform development!
-    return (i<7||i>10) ? mkWciMaster : mkWciMasterNull;   // only worker 8, 9, 10, 11
+    return (i<7||i>11) ? mkWciMasterNull : mkWciMaster;  
 
     //return  mkWciMaster; // all get WCI masters
   endfunction

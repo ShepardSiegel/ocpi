@@ -33,8 +33,11 @@ verilog work "../../rtl/mkGbeLite.v"
 verilog work "../../rtl/mkOCCP.v"
 verilog work "../../rtl/mkLedN210.v"
 verilog work "../../rtl/mkIQADCWorker.v"
+verilog work "../../rtl/mkWSICaptureWorker4B.v"
 verilog work "../../rtl/mkPWrk_n210.v"
 verilog work "../../rtl/mkFTop_n210.v"
+
+verilog work "../../libsrc/hdl/ocpi/n210_uuid.v"
 
 verilog work "../../libsrc/hdl/ocpi/arSRLFIFOD.v"
 verilog work "../../libsrc/hdl/ocpi/clock_n210.v"

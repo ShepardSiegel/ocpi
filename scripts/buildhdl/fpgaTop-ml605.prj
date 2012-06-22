@@ -32,6 +32,7 @@ verilog work "../../libsrc/hdl/ocpi/xfft_v7_1.v"
 verilog work "../../rtl/mkPSD.v"
 verilog work "../../rtl/mkBiasWorker4B.v"
 verilog work "../../rtl/mkBiasWorker16B.v"
+verilog work "../../rtl/mkWSICaptureWorker4B.v"
 
 verilog work "../../rtl/mkCRC32.v"
 verilog work "../../rtl/mkGMAC.v"
