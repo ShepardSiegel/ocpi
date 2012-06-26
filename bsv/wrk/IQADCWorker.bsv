@@ -42,8 +42,8 @@ module mkIQADCWorker#(parameter Bool hasDebugLogic,
   Reg#(Bool)           sFlagState         <-  mkReg(False);             // Worker Attention
   Reg#(Bool)           splitReadInFlight  <-  mkReg(False);             // Asserted for Split Reads
   Reg#(Bool)           initOpInFlight     <-  mkReg(False);             // Asserted While Init-ing
-  FreqCounterIfc#(18)  fcAdc              <-  mkFreqCounter(adc_clock); // Measure ADC clock
-  CounterMod#(Bit#(18))oneKHz             <-  mkCounterMod(125000);
+  FreqCounterIfc#(18)  fcAdc              <-  mkFreqCounter(adcCaptureClk); // Measure ADC clock
+  CounterMod#(Bit#(18))oneKHz             <-  mkCounterMod(100000);
   TI62P4XIfc           adcCore            <-  mkTI62P4X(adc_clock, adcCaptureClk);
   WtiSlaveIfc#(64)     wti                <-  mkWtiSlave(clocked_by adcCore.adcSdrClk, reset_by adcCore.adcSdrRst); 
   Reg#(Bit#(8))        spiResp            <-  mkReg('1);
@@ -148,6 +148,7 @@ rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
        'h04 : rdat = adcStatusLs;
        'h08 : rdat = maxMesgLength;
        'h0C : rdat = adcControl;
+       'h10 : rdat = 32'h2012_0625;
        'h14 : rdat = extend(fcAdc);
        'h18 : rdat = adcCore.user.stats.sampCount;
        'h1C : rdat = adcCore.user.sampleSpy;

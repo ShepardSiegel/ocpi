@@ -100,7 +100,7 @@ NET "adc_db[0]"   LOC = "AA3" ;
 NET "adc_sclk"    LOC = "F4"  ;
 NET "adc_sen"     LOC = "D3"  ;
 NET "adc_smosi"   LOC = "E3"  ;
-NET "adc_smiso"   LOC = "C1"  ;
+NET "adc_smiso"   LOC = "P2"  ;
 
 ## LVDS...
 #NET "ADC_clkout_p"  LOC = "P1"  ;
@@ -287,6 +287,7 @@ NET "debug[31]"     LOC = "Y10"  ;
 #NET "SCLK_ADC"  LOC = "B1"  ;
 #NET "MOSI_ADC"  LOC = "J8"  ;
 #NET "SEN_ADC"   LOC = "J9"  ;
+#NET "MISO_ADC"  LOC = "P2"  ;  # CMOS only
 #
 #NET "MOSI_TX_ADC"  LOC = "V10" ;
 #NET "SEN_TX_ADC"   LOC = "W10" ;
@@ -466,7 +467,7 @@ NET "debug[31]"     LOC = "Y10"  ;
 INST "gmii_rx_clk_BUFGP"      LOC = BUFGMUX_X3Y6;
 
 NET "ftop/sys0_clkp" TNM_NET = "SYS0CLK";
-TIMESPEC "TS_SYS0CLK" = PERIOD "SYS0CLK" 10 ns HIGH 50 % ;
+TIMESPEC "TS_SYS0CLK" = PERIOD "SYS0CLK" 12 ns HIGH 50 % ;
 #NET "ftop/clkN210/rstInD"      TIG;
 #NET "ftop/clkN210/clk0_rstn"   TIG;
 ###NET "ftop/clkN210/clkdv_rstn"  TIG;

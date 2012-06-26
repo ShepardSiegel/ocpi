@@ -76,14 +76,17 @@ endinterface: TI62P4XIfc
 
 module mkTI62P4X#(Clock adcClk, Clock adcCapture) (TI62P4XIfc);
 
-  //DDRCaptureIfc           ddrC         <-   mkDDRCapture(ddrClk);
-  Reg#(Bit#(14))          iobA         <-   mkRegU(clocked_by adcCapture);
-  Reg#(Bit#(14))          iobB         <-   mkRegU(clocked_by adcCapture);
-
   //Clock                   sdrClk       =    ddrC.sdrClk;
   //Clock                   sdrClk       <-   exposeCurrentClock;
   Clock                   sdrClk       =    adcClk;
   Reset                   sdrRst       <-   mkAsyncResetFromCR(2, sdrClk);
+
+  //DDRCaptureIfc           ddrC         <-   mkDDRCapture(ddrClk);
+  //Reg#(Bit#(14))          iobA         <-   mkRegU(clocked_by adcCapture);
+  //Reg#(Bit#(14))          iobB         <-   mkRegU(clocked_by adcCapture);
+  Reg#(Bit#(14))          iobA         <-   mkRegU(clocked_by sdrClk);
+  Reg#(Bit#(14))          iobB         <-   mkRegU(clocked_by sdrClk);
+
   CollectGateIfc          colGate      <-   mkCollectGate(clocked_by sdrClk, reset_by sdrRst);
   Reg#(Bool)              operateDReg  <-   mkDReg(False);
   Reg#(Bool)              acquireDReg  <-   mkDReg(False);
@@ -99,6 +102,10 @@ module mkTI62P4X#(Clock adcClk, Clock adcCapture) (TI62P4XIfc);
   Reg#(Bit#(16))      maxBurstLengthR  <-   mkSyncRegFromCC(0, sdrClk);
 
   //let capture_samp <- mkConnection(ddrC.sdrData, samp._write); // register in sdrClk domain
+
+  rule update_samp;
+    samp <= { 2'b0, iobB, 2'b0, iobA };
+  endrule
 
   rule update_sampCC; sampCC._write(samp); endrule             // writing the sampCC synchronizer
   
