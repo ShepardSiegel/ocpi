@@ -41,9 +41,23 @@ where <argfoop> is a valid foop.""" % (prog_name)
     #while (wread(dev0, iqWrkNum, 0x400) & 0x2):   # test if bit 1 is set - goes to zero when reset finishes
     #  print 'waiting for reset bit to self clear'
 
-    #wwrite(dev0, iqWrkNum, 0x458, 0x4)   # ramp pattern
-    wwrite(dev0, iqWrkNum, 0x28, 0x00001408)   # override cmos (0x14) <= 0x8
-    wwrite(dev0, iqWrkNum, 0x28, 0x00001604)   # ramp pattern  (0x16) <= 0x4
+    ####wwrite(dev0, iqWrkNum, 0x28, 0x00000002)   # soft reset ADC (0x00) <= 0x02
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001000)   # (0x10) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001100)   # (0x11) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001200)   # (0x12) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001300)   # (0x13) <= 0x00
+    ####wwrite(dev0, iqWrkNum, 0x28, 0x00001480)   # (0x14) <= 0x80  override bit d7
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001600)   # (0x16) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001700)   # (0x17) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001800)   # (0x18) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001900)   # (0x19) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001A00)   # (0x1A) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001A00)   # (0x1B) <= 0x00
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00001D00)   # (0x1D) <= 0x00
+
+    ####wwrite(dev0, iqWrkNum, 0x28, 0x00001604)   # ramp pattern  (0x16) <= 0x4
+    #wwrite(dev0, iqWrkNum, 0x28, 0x00000001)   # ramp pattern  (0x16) <= 0x4
+    wwrite(dev0, iqWrkNum, 0x28, 0x80001400)   #
 
     #for addr in [0x400, 0x458]:
     #  rval = spi_read(dev0, iqWrkNum, addr)
