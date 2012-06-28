@@ -97,9 +97,9 @@ NET "adc_db[3]"   LOC = "U7"  ;
 NET "adc_db[2]"   LOC = "U8"  ;
 NET "adc_db[1]"   LOC = "AA2" ;
 NET "adc_db[0]"   LOC = "AA3" ;
-NET "adc_sclk"    LOC = "F4"  ;
-NET "adc_sen"     LOC = "D3"  ;
-NET "adc_smosi"   LOC = "E3"  ;
+NET "adc_sclk"    LOC = "B1"  ;
+NET "adc_sen"     LOC = "J9"  ;
+NET "adc_smosi"   LOC = "J8"  ;
 NET "adc_smiso"   LOC = "P2"  ;
 
 ## LVDS...

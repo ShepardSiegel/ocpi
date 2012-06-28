@@ -53,12 +53,16 @@ module fpgaTop(
 );
 
 // Assorted MICTOR debug assignments...
-//assign debug[31:24] = 8'hFF;
-//assign debug[19]   = mdio_mdc;
-//assign debug[18]   = mdio_mdd;
-//assign debug[17]   = gmii_sysclk;
-//assign debug[16]   = gmii_rstn;
-//assign debug[15:0] = 16'h0000;
+assign debug[15:0]  = 16'h0000;      // These 16b not on AR-Auburn Agilent MSO
+assign debug[16]    = adc_sclk;
+assign debug[17]    = adc_sen;
+assign debug[18]    = adc_smosi;
+assign debug[19]    = adc_smiso;
+assign debug[20]    = adc_clkout;
+assign debug[31:21] = adc_da[10:0];  // 11b of 14
+
+wire adc_sclkdrv, adc_sclkgate;
+assign adc_sclk = adc_sclkdrv||!adc_sclkgate||adc_sen; // keep adc_sclk high when gated off
 
 
 // Instance and connect mkFTop...
@@ -68,7 +72,7 @@ module fpgaTop(
   .fpga_rstn         (fpga_rstn),    // pushbutton, active-low
   .led               (led),          // Front-panel LEDs
 
-  .debug             (debug),        // MICTOR debug connector
+//.debug             (debug),        // MICTOR debug connector
 //.sys0Clk           (debug[20]),
 //.sys0Rst           (debug[21]),
 //.sys125Clk         (debug[22]),
@@ -103,7 +107,8 @@ module fpgaTop(
   .adc_da_i          (adc_da),
   .adc_db_i          (adc_db),
   .adc_smosi         (adc_smosi),
-  .adc_sclk          (adc_sclk),
+  .adc_sclk          (adc_sclkdrv),
+  .adc_sclkgate      (adc_sclkgate),
   .adc_sen           (adc_sen),
   .adc_smiso_i       (adc_smiso)
 

@@ -23,6 +23,7 @@ interface SpiIfc;
   method Clock         sclk;
   method Clock         sclkn;
   method Reset         srst;
+  (*always_ready*) method Bit#(1) sclkgate;
   (*always_ready*) method Bit#(1) csb;
   (*always_ready*) method Bit#(1) sdo;
   (*always_ready, always_enabled*) method Action sdi (Bit#(1) arg);
@@ -38,12 +39,13 @@ module mkSpi#(Bool longInst) (SpiIfc);
   AlignedFIFO#(SpiReq)       reqF      <- mkAlignedFIFO(cd.fastClock,fastReset,cd.slowClock,slowReset,reqS,cd.clockReady,True);
   Store#(UInt#(0),Bit#(8),0) respS     <- mkRegStore(cd.slowClock, cd.fastClock);
   AlignedFIFO#(Bit#(8))      respF     <- mkAlignedFIFO(cd.slowClock,slowReset,cd.fastClock,fastReset,respS,True,cd.clockReady);
+  Reg#(Bool)                 cGate     <- mkDReg(False,     clocked_by cd.slowClock, reset_by slowReset);
   Reg#(Bool)                 xmt_i     <- mkReg(False,      clocked_by cd.slowClock, reset_by slowReset);
   Reg#(Bool)                 xmt_d     <- mkReg(False,      clocked_by cd.slowClock, reset_by slowReset);
   Reg#(Bit#(4))              iPos      <- mkRegU(           clocked_by cd.slowClock, reset_by slowReset);
   Reg#(Bit#(3))              dPos      <- mkRegU(           clocked_by cd.slowClock, reset_by slowReset);
   Vector#(8,Reg#(Bit#(1)))   cap       <- replicateM(mkRegU(clocked_by cd.slowClock, reset_by slowReset));
-  Reg#(Bit#(1))              sdoR      <- mkReg(1'b0,       clocked_by cd.slowClock, reset_by slowReset);
+  Reg#(Bit#(1))              sdoR      <- mkDReg(1'b0,      clocked_by cd.slowClock, reset_by slowReset);
   Reg#(Bit#(1))              csbR      <- mkDReg(1'b1,      clocked_by cd.slowClock, reset_by slowReset);
   Reg#(Bool)                 doResp    <- mkDReg(False,     clocked_by cd.slowClock, reset_by slowReset);
   Reg#(Bit#(1))              sdiP      <- mkRegU(clocked_by cinv.slowClock);       // sample falling edge internal
@@ -59,6 +61,7 @@ module mkSpi#(Bool longInst) (SpiIfc);
 
   rule send_i (xmt_i);
     let req = reqF.first;
+    cGate <= True;
     csbR  <= 1'b0; // Assert during instruction cycles
     if (longInst) begin
       if      (iPos==15) sdoR <= pack(req.rdCmd);   // Read vs Write
@@ -73,6 +76,7 @@ module mkSpi#(Bool longInst) (SpiIfc);
 
   rule send_d (xmt_d);
     let req = reqF.first;
+    cGate     <= True;
     csbR      <= 1'b0;            // Assert during data cycles
     sdoR      <= req.wdata[dPos]; // Send write data or serial readout command
     cap[dPos] <= sdiWs;           // Capture SDI off of sdiP flop on other edge
@@ -93,6 +97,7 @@ module mkSpi#(Bool longInst) (SpiIfc);
   interface resp = toGet(respF);
   method Bit#(1) csb = csbR;
   method Bit#(1) sdo = sdoR;
+  method Bit#(1) sclkgate = pack(cGate);
   method Action  sdi (Bit#(1) arg) = sdiP._write(arg);
   method Clock   sclk  = cd.slowClock;
   method Reset   srst  = slowReset;
