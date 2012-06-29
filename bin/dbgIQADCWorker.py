@@ -76,9 +76,13 @@ where <argfoop> is a valid foop.""" % (prog_name)
     wop(dev0, capWrkNum, 'initialize')
     wop(dev0, capWrkNum, 'start')
 
+    wwrite(dev0, capWrkNum, 0x00, 0x00000003)  # b1=wrapInhibit b0=captureEnabled
+
     print 'start iqadc'
     wop(dev0, iqWrkNum, 'initialize')
     wop(dev0, iqWrkNum, 'start')
+
+    wwrite(dev0, capWrkNum, 0x00, 0x00000000)  # b1=wrapInhibit b0=captureEnabled
 
 
     for addr in range(0, 0x64, 4):
@@ -88,6 +92,15 @@ where <argfoop> is a valid foop.""" % (prog_name)
     for addr in range(0, 0x20, 4):
       rval = wread(dev0, capWrkNum, addr)
       print 'WSICAP CFG addr:', hex(addr), ' data:', hex(rval)
+
+    for addr in range(0, 0x1000, 4):
+      rval = wread(dev0, capWrkNum, 0x80000000 + addr)
+      print 'WSICAP DATA_REGION addr:', hex(addr), ' data:', hex(rval)
+
+    for addr in range(0, 0x32, 4):
+      rval = wread(dev0, capWrkNum, 0x40000000 + addr)
+      print 'WSICAP META_REGION addr:', hex(addr), ' data:', hex(rval)
+
 
 
 

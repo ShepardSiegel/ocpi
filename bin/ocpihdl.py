@@ -31,7 +31,13 @@ def wop(device, workerNum, op):
     print 'wop got unexpected return', hex(rval)
   return(rval)
 
+def wwpage(device, workerNum, pageVal):
+  cmd = ["./ocpihdl", "wwpage", "-P", device, str(workerNum), str(pageVal)]
+  cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+  return(cmdout)
+
 def wread(device, workerNum, offset):
+  wwpage(device, workerNum, offset>>20)
   cmd = ["./ocpihdl", "wread", "-P", device, str(workerNum), str(offset), "1"]
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
   return(int(cmdout, 0))
@@ -42,6 +48,7 @@ def wadmin(device, offset, wdata):
   #return(int(cmdout, 0))
 
 def wwrite(device, workerNum, offset, wdata):
+  wwpage(device, workerNum, offset>>20)
   cmd = ["./ocpihdl", "wwrite", "-P", device, str(workerNum), str(offset), str(wdata)]
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
   #return(int(cmdout, 0))
