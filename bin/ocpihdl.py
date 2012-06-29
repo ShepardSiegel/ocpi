@@ -22,6 +22,15 @@ def radmin(device, offset):
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
   return(int(cmdout, 0))
 
+def wop(device, workerNum, op):
+  cmd = ["./ocpihdl", "wop", "-P", device, str(workerNum), op]
+  cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+  rval = int(cmdout, 0)
+  print 'worker', str(workerNum), 'command', op, 'returned', hex(rval)
+  if (rval != 0xc0de4201):
+    print 'wop got unexpected return', hex(rval)
+  return(rval)
+
 def wread(device, workerNum, offset):
   cmd = ["./ocpihdl", "wread", "-P", device, str(workerNum), str(offset), "1"]
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
