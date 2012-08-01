@@ -27,8 +27,8 @@ import ClientServer::*;
 import DefaultValue::*;
 
 interface OCEDPIfc#(numeric type ndw);
-  interface WciES                wci_s;    // Control and Configuration
-  interface Wti_s#(64)           wti_s;    // Worker Time Interface (for timestamping)
+  interface WciES                wciS0;    // Control and Configuration
+  interface Wti_s#(64)           wtiS0;    // Worker Time Interface (for timestamping)
   interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS0; // facing the application  (local)
   interface Server#(ABS,ABS)     server;   // facing the infrastructure (remote)
 endinterface
@@ -157,8 +157,8 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
   Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32) wmi_Es <- mkWmiStoES(wmi.wmi_s);
 
   // Control Op logic pushed down into OCBufQ
-  interface wci_s  = wci_Es;      // Provide the WCI interface
-  interface wti_s  = wti.slv;     // Provide the WTI interface 
+  interface wciS0  = wci_Es;      // Provide the WCI interface
+  interface wtiS0  = wti.slv;     // Provide the WTI interface 
   interface wmiS0  = wmi_Es;      // Provide the WMI interface
   interface server = edp.server;  // Provide the EDP interface
 

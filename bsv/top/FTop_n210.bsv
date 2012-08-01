@@ -97,7 +97,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   WSICaptureWorker4BIfc cap0     <- mkWSICaptureWorker4B(True,                                              clocked_by sys0_clk, reset_by(vWci[11].mReset_n));  // Worker 12
 //WciSlaveNullIfc#(32)  tieOff12 <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieOff13 <- mkWciSlaveNull;
-  OCEDP4BIfc edp0  <- mkOCEDP4B (?,True,True, True, reset_by rst[13]); // Ethernet Data Plane 0
+  OCEDP4BIfc edp0  <- mkOCEDP4B (?,True,True, True, clocked_by sys0_clk, reset_by vWci[13].mReset_n); // Ethernet Data Plane 0
 //WciSlaveNullIfc#(32)  tieOff14 <- mkWciSlaveNull;
 
 //mkConnection(vWci[0],  tieOff0.slv); 
