@@ -40,6 +40,7 @@ verilog work "../../rtl/mkGbeWorker.v"
 verilog work "../../rtl/mkICAPWorker.v"
 verilog work "../../rtl/mkFlashWorker.v"
 verilog work "../../rtl/mkDramServer_v6.v"
+verilog work "../../rtl/mkTimeClient.v"
 
 verilog work "../../coregen/dram_v6_mig34/mig_v3_4/user_design/rtl/controller/arb_mux.v"
 verilog work "../../coregen/dram_v6_mig34/mig_v3_4/user_design/rtl/controller/arb_row_col.v"

@@ -46,6 +46,7 @@ verilog work "../../rtl/mkGMAC.v"
 verilog work "../../rtl/mkGbeWorker.v"
 verilog work "../../rtl/mkICAPWorker.v"
 verilog work "../../rtl/mkFlashWorker.v"
+verilog work "../../rtl/mkTimeClient.v"
 
 verilog work "../../rtl/mkTLPSM.v"
 verilog work "../../rtl/mkTLPCM.v"

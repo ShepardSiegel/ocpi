@@ -226,6 +226,7 @@ interface TimeClientIfc;
   interface Wti_m#(64) wti_m;
 endinterface
 
+(* synthesize *)
 module mkTimeClient#(Clock sys0_clk, Reset sys0_rst, Clock wti_clk, Reset wti_rst) (TimeClientIfc);
 
   Reg#(GPS64_t)      now   <- mkSyncReg(unpack(0), sys0_clk, sys0_rst, wti_clk);
