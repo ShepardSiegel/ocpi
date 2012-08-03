@@ -5,6 +5,7 @@
 // primative, it is importBVI of Atomic Rules Verilog...
 //`define USE_SRLFIFO
 
+import ByteShifter ::*;
 import GMAC        ::*;
 import OCBufQ      ::*;
 import OCWip       ::*;
@@ -120,6 +121,11 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   Reg#(Bool)                 dmaStartMark         <- mkDReg(False);
   Reg#(Bool)                 dmaDoneMark          <- mkDReg(False);
+
+  // New State for the EDP is here...
+  Reg#(UInt#(16))            frameNumber          <- mkReg(0);
+  Reg#(UInt#(32))            xactionNumber        <- mkReg(0);
+  ByteShifter#(16,1,32)      edpTx                <- mkByteShifter;
 
 
   // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
@@ -400,8 +406,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Bit#(32) tlpDebug = {4'h0, pack(complTimerCount), 12'h0, pack(lastRuleFired)};
 
   interface Server server;
-    interface request  = toPut(inF);
-    interface response = toGet(outF);
+    interface request  = toPut(inF);   // Ethernet packets ingress from fabric to EDP
+    interface response = toGet(outF);  // Ethernet packets  egress from EDP to fabric
   endinterface
 
   // remote-facing buffer queue interface...

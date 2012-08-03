@@ -22,11 +22,12 @@ import XilinxExtra  ::*;
 
 interface GbeLiteIfc;
   method Action macAddr (Bit#(48) u);
-  interface Client#(CpReq,CpReadResp) cpClient;
-  interface GMII_RS   gmii;        // The GMII link
-  interface Reset     gmii_rstn;   // PHY GMII Reset
-  interface Clock     rxclkBnd;    // PHY GMII RX Clock
-  interface MDIO_Pads mdio ;       // The MDIO pads
+  interface Client#(CpReq,CpReadResp) cpClient;    // Control Plane Client
+  interface Client#(ABS, ABS)         dpClient;    // Data Plane Client
+  interface GMII_RS                   gmii;        // The GMII link
+  interface Reset                     gmii_rstn;   // PHY GMII Reset
+  interface Clock                     rxclkBnd;    // PHY GMII RX Clock
+  interface MDIO_Pads                 mdio ;       // The MDIO pads
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
@@ -93,6 +94,10 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
 
   DCPAdapterIfc               dcp                 <-  mkDCPAdapterAsync(cpClock, cpReset);
   FIFOF#(DCPResponse)         dcpRespF            <-  mkFIFOF;
+
+  FIFO#(ABS)                  edpRxF              <-  mkFIFO;
+  FIFO#(ABS)                  edpTxF              <-  mkFIFO;
+
 
 
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
@@ -297,10 +302,20 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     end
   endrule
 
+  // loop as placeholder...
+  rule ddp_placeholder;
+    edpRxF.enq(edpTxF.first);
+    edpTxF.deq();
+  endrule
+
 
   // Interfaces and Methods provided...
   method Action macAddr (Bit#(48) u) = macAddressCP._write(unpack(u));
   interface Client     cpClient   = dcp.client;
+  interface Client     dpClient;
+    interface request  = toGet(edpRxF);  // Ethernet packets ingress from fabric to EDP
+    interface response = toPut(edpTxF);  // Ethernet packets egress  form EDP to fabric
+  endinterface
   interface GMII_RS    gmii       = gmac.gmii;
   interface Reset      gmii_rstn  = phyRst.new_rst;
   interface Clock      rxclkBnd   = gmac.rxclkBnd;
