@@ -100,6 +100,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   OCEDP4BIfc edp0  <- mkOCEDP4B (?,True,True, True, clocked_by sys0_clk, reset_by vWci[13].mReset_n); // Ethernet Data Plane 0
 //WciSlaveNullIfc#(32)  tieOff14 <- mkWciSlaveNull;
 
+  mkConnection(gbe0.dpClient, edp0.server);
+
 //mkConnection(vWci[0],  tieOff0.slv); 
 //mkConnection(vWci[1],  tieOff1.slv); 
 //mkConnection(vWci[2],  tieOff2.slv); 

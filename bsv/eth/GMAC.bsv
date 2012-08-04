@@ -12,6 +12,7 @@ import Connectable       ::*;
 import CRC               ::*;
 import DReg              ::*;
 import FIFO              ::*;
+import FIFOF             ::*;
 import GetPut            ::*;
 import Vector            ::*;
 
@@ -254,6 +255,67 @@ module mkABS2EBS (ABS2EBSIfc);
   interface Put put = toPut(absF);
   interface Get get = toGet(ebsF);
 endmodule
+
+
+// ABSMerge styled after the much-used (TLP) mkPktMerge...
+
+interface ABSMergeIfc;
+  interface Put#(ABS) iport0;
+  interface Put#(ABS) iport1;
+  interface Get#(ABS) oport;
+endinterface
+
+module mkABSMerge (ABSMergeIfc);
+
+  FIFOF#(ABS) fi0        <- mkFIFOF;
+  FIFOF#(ABS) fi1        <- mkFIFOF;
+  FIFOF#(ABS) fo         <- mkFIFOF;
+  Reg#(Bool)  fi0HasPrio <- mkReg(True);   // True when fi0 has priority
+  Reg#(Bool)  fi0Active  <- mkReg(False);  // True on the 2nd to end cycle of fi0 packet
+  Reg#(Bool)  fi1Active  <- mkReg(False);  // True on the 2nd to end cycle of fi1 packet
+
+  function Bool isABSActive (ABS x);
+    if (x matches tagged ValidNotEOP .*) return True;
+    else                                 return False;
+  endfunction
+
+  (* descending_urgency = "arbitrate, fi0_advance, fi1_advance" *)
+  // The first two rules handle the non-contending 1st cycle and all 2-n cycle cases...
+  rule fi0_advance (!fi1Active);
+    let x = fi0.first; fi0.deq; fo.enq(x);
+    fi0Active  <= isABSActive(x);
+    fi0HasPrio <= False;
+  endrule
+
+  rule fi1_advance (!fi0Active);
+    let x = fi1.first; fi1.deq; fo.enq(x);
+    fi1Active  <= isABSActive(x);
+    fi0HasPrio <= True;
+  endrule
+
+  // The arbitrate rule handles the contending 1st cycle case by LRU.
+  // Both inputs are available, but neither is yet active...
+  rule arbitrate (fi0.notEmpty && fi1.notEmpty && !fi0Active && !fi1Active);
+    FIFOF#(ABS) fi = ((fi0HasPrio) ? fi0 : fi1);
+    let x = fi.first; fi.deq; fo.enq(x);
+    if (fi0HasPrio) fi0Active <= isABSActive(x);
+    else            fi1Active <= isABSActive(x);
+    fi0HasPrio <= !fi0HasPrio;
+  endrule
+
+ interface iport0 = toPut(fi0);
+ interface iport1 = toPut(fi1);
+ interface oport  = toGet(fo);
+
+endmodule: mkABSMerge
+
+
+
+
+
+
+
+
 
 // Interfaces...
 
