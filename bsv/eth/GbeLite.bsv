@@ -1,13 +1,14 @@
 // GbeLite.bsv - A Lightweight, non-Worker Gbe Core
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-import OCWip        ::*;
 import CPDefs       ::*;
+import DCP          ::*;
+import EDP          ::*;
 import GMAC         ::*;
 import MDIO         ::*;
+import OCWip        ::*;
 import SRLFIFO      ::*;
 import TimeService  ::*;
-import DCP          ::*;
 
 import ClientServer ::*;
 import Clocks       ::*;
@@ -95,6 +96,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   DCPAdapterIfc               dcp                 <-  mkDCPAdapterAsync(cpClock, cpReset);
   FIFOF#(DCPResponse)         dcpRespF            <-  mkFIFOF;
 
+  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset);
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
   FIFO#(ABS)                  edpTxF              <-  mkFIFO;
 
@@ -312,10 +314,11 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   // Interfaces and Methods provided...
   method Action macAddr (Bit#(48) u) = macAddressCP._write(unpack(u));
   interface Client     cpClient   = dcp.client;
-  interface Client     dpClient;
-    interface request  = toGet(edpRxF);  // Ethernet packets ingress from fabric to EDP
-    interface response = toPut(edpTxF);  // Ethernet packets egress  form EDP to fabric
-  endinterface
+  interface Client     dpClient   = edp.client;
+  //interface Client     dpClient;
+  //  interface request  = toGet(edpRxF);  // Ethernet packets ingress from fabric to EDP
+  //  interface response = toPut(edpTxF);  // Ethernet packets egress  form EDP to fabric
+  //endinterface
   interface GMII_RS    gmii       = gmac.gmii;
   interface Reset      gmii_rstn  = phyRst.new_rst;
   interface Clock      rxclkBnd   = gmac.rxclkBnd;
