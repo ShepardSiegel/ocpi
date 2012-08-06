@@ -9,22 +9,22 @@
 
 package OCEDP;
 
-import GMAC        ::*;
-import TLPMF       ::*;
-import OCWip       ::*;
-import OCBufQ      ::*;
-import TimeService ::*;
-import EDPServBC   ::*;
-import WmiServBC   ::*;
+import GMAC         ::*;
+import TLPMF        ::*;
+import OCWip        ::*;
+import OCBufQ       ::*;
+import TimeService  ::*;
+import EDPServBC    ::*;
+import WmiServBC    ::*;
 
-import PCIE::*;
-import BRAM::*;
-import DReg::*;
-import Vector::*;
-import GetPut::*;
-import Connectable::*;
-import ClientServer::*; 
-import DefaultValue::*;
+import BRAM         ::*;
+import DReg         ::*;
+import ClientServer ::*; 
+import Connectable  ::*;
+import DefaultValue ::*;
+import GetPut       ::*;
+import PCIE         ::*;
+import Vector       ::*;
 
 interface OCEDPIfc#(numeric type ndw);
   interface WciES                wciS0;    // Control and Configuration

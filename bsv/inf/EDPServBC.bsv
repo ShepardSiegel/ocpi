@@ -5,22 +5,64 @@
 // primative, it is importBVI of Atomic Rules Verilog...
 //`define USE_SRLFIFO
 
-import ByteShifter ::*;
-import GMAC        ::*;
-import OCBufQ      ::*;
-import OCWip       ::*;
-import PCIE        ::*;
-import SRLFIFO     ::*;
-import TLPBRAM     ::*;
-import TLPMF       ::*;
+import ByteShifter  ::*;
+import GMAC         ::*;
+import OCBufQ       ::*;
+import OCWip        ::*;
+import PCIE         ::*;
+import SRLFIFO      ::*;
+import TLPBRAM      ::*;
+import TLPMF        ::*;
 
-import BRAM::*;
-import ClientServer::*; 
-import DReg::*;
-import FIFO::*;
-import FIFOF::*;
-import GetPut::*;
-import Vector::*;
+import BRAM         ::*;
+import ClientServer ::*; 
+import DReg         ::*;
+import FIFO         ::*;
+import FIFOF        ::*;
+import GetPut       ::*;
+import StmtFSM      ::*;
+import Vector       ::*;
+
+// DataGramDataPlane (DGDP) types...
+
+typedef struct {
+  Bit#(16)  dstID;     // Destination ID of endpoint
+  Bit#(16)  srcID;     // Source ID of endpoint
+  Bit#(16)  frameSeq;  // Rolling sequence frame number
+  Bit#(16)  ackStart;  // Start of ACK sequence
+  Bit#(8)   ackCount;  // Tital number of ACKs
+  Bit#(8)   flags;     // b0: 1=frame has at least one message, 0=ACK-only frame (no messages)
+} DGDPframeHeader deriving (Bits, Eq);
+
+function Vector#(16,Bit#(8)) fhAs16ByteV (DGDPframeHeader h);
+  Vector#(10,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is dstID 
+  Vector#(6, Bit#(8)) v2 = unpack(0);
+  Vector#(16,Bit#(8)) v3 = append(v1,v2);
+  return(v3);
+endfunction
+
+typedef struct {
+  UInt#(32) transID;   // Transaction ID - rolling count unique to this source
+  Bit#(32)  flagAddr;  // Address where the (e.g. buffer full) flag should be written
+  Bit#(32)  flagData;  // Value of flag to write
+  UInt#(16) numMesg;   // Number of messages for this transaction
+  UInt#(16) mesgSeq;   // Message sequence number scoped to this transaction
+  Bit#(32)  dataAddr;  // Address where the data or metadata should be written
+  UInt#(16) dataLen;   // Length in Bytes of the data or metadata
+  Bit#(8)   mesgTyp;   // Enum for message type - may be depricated
+  Bit#(8)   flags;     // b0: 1=A message follows this one, 0=This is the last message in this frame
+} DGDPmesgHeader deriving (Bits, Eq);
+
+function Vector#(16,Bit#(8)) mhAs16ByteV (DGDPmesgHeader h, Bool first);
+  Vector#(24,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is transID 
+  Vector#(8, Bit#(8)) v2 = unpack(0);
+  Vector#(32,Bit#(8)) v3 = append(v1,v2);
+  if (first) return takeAt(0,  v3);
+  else       return takeAt(16, v3);
+endfunction
+
+
+
 
 interface EDPServBCIfc;
   interface Server#(ABS,ABS)     server;
@@ -125,7 +167,12 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // New State for the EDP is here...
   Reg#(UInt#(16))            frameNumber          <- mkReg(0);
   Reg#(UInt#(32))            xactionNumber        <- mkReg(0);
-  ByteShifter#(16,1,32)      edpTx                <- mkByteShifter;
+  ByteShifter#(16,1,64)      dgdpTx               <- mkByteShifter;
+  Reg#(Bool)                 doMetaMH             <- mkReg(False);
+  Reg#(Bool)                 doMesgMH             <- mkReg(False);
+  Reg#(Bool)                 firstMetaMH          <- mkReg(True);
+  Reg#(Bool)                 firstMesgMH          <- mkReg(True);
+
 
 
   // Note that there are few, if any, reasons why the maxReadReqSize should not be maxed out at 4096 in the current implementation.
@@ -163,6 +210,35 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     MemReqPacket mpkt = ReadHeader(rreq);
     tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM read request for metadata
     $display("[%0d]: %m: dmaRequestNearMeta FPactMesg-Step1/7", $time);
+
+    // Enqueue the DGDP Frame Header...
+    dgdpTx.enq(10,fhAs16ByteV(DGDPframeHeader {
+                                dstID    : fabMetaAddr[31:16],
+                                srcID    : fabMetaAddr[15:0],
+                                frameSeq : pack(frameNumber),
+                                ackStart : 0,
+                                ackCount : 0,
+                                flags    : 8'h01
+                              }));
+    frameNumber <= frameNumber + 1;
+    doMetaMH <= True;
+  endrule
+
+  rule send_metaMH (doMetaMH);
+    DGDPmesgHeader mh = DGDPmesgHeader {
+                                transID  : xactionNumber,
+                                flagAddr : fabFlowAddr,
+                                flagData : 32'h0000_0001,
+                                numMesg  : 2,
+                                mesgSeq  : 0,
+                                dataAddr : fabMetaAddr,
+                                dataLen  : 16,
+                                mesgTyp  : 8'h01, // metadata
+                                flags    : 8'h01 
+                              };
+    dgdpTx.enq( firstMetaMH?16:8, mhAs16ByteV(mh, firstMetaMH));
+    firstMetaMH <= !firstMetaMH;
+    doMetaMH    <= !firstMetaMH;
   endrule
 
   // Accept the first DW metadata back... 
@@ -188,6 +264,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     srcMesgAccu <= fabMesgAddr;  // Load the message src address accumulator so we can locally manage message segments
     fabMesgAccu <= fabMesgAddr;  // Load the message fab address accumulator so we can locally manage message segments
     $display("[%0d]: %m: dmaResponseNearMetaBody FPactMesg-Step2b/7 opcode:%0x nowMS:%0x nowLS:%0x", $time, opcode, nowMS, nowLS);
+
+    dgdpTx.enq(16, unpack({nowLS, nowMS, opcode, lastMetaV[0]})); // send 16B metadata
   endrule
 
   // Steps 3, 4a, 4b to be repeated 0-N times.
@@ -219,7 +297,27 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     remMesgAccu <= remMesgAccu + extend(thisRequestLength);  // increment the rem address accumulator
     tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM read request for message data
     $display("[%0d]: %m: dmaPushRequestMesg FPactMesg-Step3/7", $time);
+
+    doMesgMH <= True;
   endrule
+
+  rule send_mesgMH (doMesgMH);
+    DGDPmesgHeader mh = DGDPmesgHeader {
+                                transID  : xactionNumber,
+                                flagAddr : fabFlowAddr,
+                                flagData : 32'h0000_0001,
+                                numMesg  : 2,
+                                mesgSeq  : 1,
+                                dataAddr : fabMesgAddr,
+                                dataLen  : unpack(truncate(lastMetaV[0])), // length
+                                mesgTyp  : 0,       // data
+                                flags    : 8'h00    // no more messages
+                              };
+    dgdpTx.enq( firstMesgMH?16:8, mhAs16ByteV(mh, firstMesgMH));
+    firstMesgMH <= !firstMesgMH;
+    doMesgMH    <= !firstMesgMH;
+  endrule
+
 
   // Transform the local read response header to a PCIe posted write request header for push DMA...
   rule dmaPushResponseHeader (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==DMASrc && !tlpXmtBusy && postSeqDwell==0);

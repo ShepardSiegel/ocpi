@@ -28,14 +28,12 @@ module mkEDPAdapterSync (EDPAdapterIfc);
   Reg#(Maybe#(Bit#(8)))      lastTag   <- mkReg(tagged Invalid);  // The last tag captured (valid or not)
   Reg#(ABS)                  lastResp  <- mkRegU;                 // The last EDP response sent
 
-  Bit#(32) targAdvert = 32'h4000_0001;  // Set the target advertisement constant
-
-  rule edp_ingress;
+  rule edp_ingress;  // Ingress from Ethernet fabric to Datagram Dataplane 
     let x = edpReqF.first; edpReqF.deq;
     dgdpReqF.enq(x);
   endrule
 
-  rule edp_egress;
+  rule edp_egress;  // Egress from Datagram Dataplane to Ethernet fabric
     let y = dgdpRespF.first; dgdpRespF.deq;
     edpRespF.enq(y);
   endrule
