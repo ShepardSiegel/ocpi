@@ -5,7 +5,7 @@
 // primative, it is importBVI of Atomic Rules Verilog...
 //`define USE_SRLFIFO
 
-import ByteShifter  ::*;
+import ThingShifter ::*;
 import GMAC         ::*;
 import OCBufQ       ::*;
 import OCWip        ::*;
@@ -167,7 +167,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // New State for the EDP is here...
   Reg#(UInt#(16))            frameNumber          <- mkReg(0);
   Reg#(UInt#(32))            xactionNumber        <- mkReg(0);
-  ByteShifter#(16,1,64)      dgdpTx               <- mkByteShifter;
+  ThingShifter#(16,1,64, Bit#(8))      dgdpTx               <- mkThingShifter;
   Reg#(Bool)                 doMetaMH             <- mkReg(False);
   Reg#(Bool)                 doMesgMH             <- mkReg(False);
   Reg#(Bool)                 firstMetaMH          <- mkReg(True);
@@ -213,18 +213,18 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
     // Enqueue the DGDP Frame Header...
     dgdpTx.enq(10,fhAs16ByteV(DGDPframeHeader {
-                                dstID    : fabMetaAddr[31:16],
-                                srcID    : fabMetaAddr[15:0],
+                                dstID    : fabMesgAddrMS[31:16],  // (mesg, not meta or flow; per jek 2012-08-07
+                                srcID    : fabMesgAddrMS[15:0],
                                 frameSeq : pack(frameNumber),
                                 ackStart : 0,
                                 ackCount : 0,
                                 flags    : 8'h01
                               }));
     frameNumber <= frameNumber + 1;
-    doMetaMH <= True;
+    doMetaMH <= True;  // Send dgdp mesageheader for metadata...
   endrule
 
-  rule send_metaMH (doMetaMH);
+  rule send_metaMH (doMetaMH);  // Send dgdp mesageheader for metadata...
     DGDPmesgHeader mh = DGDPmesgHeader {
                                 transID  : xactionNumber,
                                 flagAddr : fabFlowAddr,
@@ -298,10 +298,10 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM read request for message data
     $display("[%0d]: %m: dmaPushRequestMesg FPactMesg-Step3/7", $time);
 
-    doMesgMH <= True;
+    doMesgMH <= True; // Triger to send the mesg-data message header...
   endrule
 
-  rule send_mesgMH (doMesgMH);
+  rule send_mesgMH (doMesgMH);  // Two cycles to send the mesg-data message header
     DGDPmesgHeader mh = DGDPmesgHeader {
                                 transID  : xactionNumber,
                                 flagAddr : fabFlowAddr,
@@ -323,23 +323,14 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule dmaPushResponseHeader (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==DMASrc && !tlpXmtBusy && postSeqDwell==0);
     Bool onlyBeatInSegment = (rres.dwLength==1);
     Bool lastSegmentInMesg = (rres.tag==8'h01); 
-
-    // This rule has two different behaviors depending on if we must make a 32b or 64b MWr request
-    if (fabMesgAddrMS=='0) begin  // 32b addr, use 3DW and send 1DW data...
-      MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, False); // TODO: Byte Enable Support
-      let w = PTW16 { data : {pack(h), fabMesgAccu, rres.data}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
-      //
-      // Replace with EDP - outF.enq(w);  // Out goes the 3DW request + 1 DW write data
-      //
-    end else begin               // 64b addr, use 4DW and no data in this MWr...
-      onlyBeatInSegment = False;
-      MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, True); // 4DW MWr
-      let w = PTW16 { data : {pack(h), fabMesgAddrMS, fabMesgAccu}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
-      //
-      // Replace with EDP - outF.enq(w);  // Out goes the 4DW request + no data
-      //
-    end
-
+    // 4DW only...
+    onlyBeatInSegment = False;
+    MemReqHdr1 h = makeWrReqHdr(pciDevice, rres.dwLength, '1, (rres.dwLength>1)?'1:'0, True); // 4DW MWr
+    let w = PTW16 { data : {pack(h), fabMesgAddrMS, fabMesgAccu}, be:'1, hit:7'h2, sof:True, eof:onlyBeatInSegment };
+    //
+    // Replace with EDP - outF.enq(w);  // Out goes the 4DW request + no data
+    // Nothing to do here
+    //
     outDwRemain <= rres.dwLength - ((fabMesgAddrMS=='0) ? 1 : 0);  // update dwords remaining
     fabMesgAccu <= fabMesgAccu + (extend(rres.dwLength)<<2);       // increment the fabric address accumulator
     if (!onlyBeatInSegment) tlpXmtBusy <= True;                    // acquire outbound mutex
@@ -365,7 +356,9 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
                 eof  : lastBeatInSegment };
     //
     // Replace with EDP - outF.enq(w);  // out goes follow-on write data
+    dgdpTx.enq(16, unpack(rbody.data)); // send 16B metadata
     //
+
     outDwRemain <= outDwRemain - 4;                                   // update DW remaining in this segment
     if (lastBeatInSegment)                      tlpXmtBusy <= False;  // release outbound mutex
     if (lastBeatInSegment && lastSegmentInMesg) xmtMetaOK  <= True;   // message sent, move on to metadata
@@ -495,6 +488,12 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   rule completionTimer;
     complTimerCount <= (complTimerRunning) ? complTimerCount + 1 : 0 ;
+  endrule
+
+  rule egress_pump (dgdpTx.bytes_available>0);
+    ABS e = tagged ValidNotEOP dgdpTx.bytes_out;
+    outF.enq(e);
+    dgdpTx.deq(1);
   endrule
 
   //
