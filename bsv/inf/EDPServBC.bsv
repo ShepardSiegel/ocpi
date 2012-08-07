@@ -490,8 +490,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     complTimerCount <= (complTimerRunning) ? complTimerCount + 1 : 0 ;
   endrule
 
-  rule egress_pump (dgdpTx.bytes_available>0);
-    ABS e = tagged ValidNotEOP dgdpTx.bytes_out;
+  rule egress_pump (dgdpTx.things_available>0);
+    ABS e = tagged ValidNotEOP unpack(pack(dgdpTx.things_out));
     outF.enq(e);
     dgdpTx.deq(1);
   endrule

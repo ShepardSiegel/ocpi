@@ -12,7 +12,7 @@ import Vector :: *;
 interface ThingShifter#( numeric type width_in,   // width of input     - things of Type t
                          numeric type width_out,  // width of output    - things of Type t
                          numeric type buf_sz,     // capacity of buffer - things of Type t
-                         type t);                 // the Type of thing this FIFO/shifter manipulates 
+                         type t);                 // the Type of thing this FIFO/shifter manipulates
 
   // A count of the space available in the buffer
   (* always_ready *)
@@ -48,14 +48,14 @@ module mkThingShifter(ThingShifter#(width_in,width_out,buf_sz,t))
           , Add#(_v4,count_out,count_buf) // count_buf >= count_out
           );
 
-  Reg#(Vector#(buf_sz,t))      vec         <-  mkReg(replicate('0));
+  Reg#(Vector#(buf_sz,t))      vec         <-  mkReg(replicate(unpack('0)));
   Reg#(UInt#(count_buf))       num_full    <-  mkReg(0);
   Reg#(UInt#(count_buf))       num_empty   <-  mkReg(fromInteger(valueOf(buf_sz)));
   RWire#(UInt#(count_in))      delta_enq   <-  mkRWire();
   RWire#(UInt#(count_out))     delta_deq   <-  mkRWire();
   RWire#(Vector#(width_in,t))  new_data    <-  mkRWire();
 
-  function t mk_mask(UInt#(count_in) n, Integer pos);
+  function Bit#(st) mk_mask(UInt#(count_in) n, Integer pos);
     return (fromInteger(pos) < n) ? '1 : '0;
   endfunction
 
@@ -70,7 +70,7 @@ module mkThingShifter(ThingShifter#(width_in,width_out,buf_sz,t))
      Vector#(buf_sz,t) added   = unpack('0);
      if (new_data.wget() matches tagged Valid .vin) begin
         UInt#(TAdd#(count_buf,cntSize)) bit_pos = fromInteger(valueOf(st)) * zeroExtend(num_full - zeroExtend(consumed));
-        Vector#(width_in,t) mask = genWith(mk_mask(supplied));
+        Vector#(width_in,Bit#(st)) mask = genWith(mk_mask(supplied));
         added = unpack(zeroExtend(pack(vin) & pack(mask)) << bit_pos);
      end
      vec <= unpack(pack(added) | pack(shifted));
