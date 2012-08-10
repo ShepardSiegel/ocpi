@@ -1,9 +1,10 @@
 // ThingShifter.bsv - A Type t orieneted FIFO
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-// This is a FIFO-like utility that allows a variable number of aligned things of Type t
-// to be enqueued at once and a variable number to be dequeued at once.
-// Derived from ByteShfter code by Jeff Newbern at Bluespec Inc.
+// This is a FIFO-like utility that allows a variable number of things of Type t
+// to be enqueued at once and a variable number of things to be dequeued at once.
+// Derived from ByteShifter code by Jeff Newbern at Bluespec Inc.
+// See also: Bluespc PAClib funnel components (similar functionality)
 
 package ThingShifter;
 
@@ -48,7 +49,8 @@ module mkThingShifter(ThingShifter#(width_in,width_out,buf_sz,t))
           , Add#(_v4,count_out,count_buf) // count_buf >= count_out
           );
 
-  Reg#(Vector#(buf_sz,t))      vec         <-  mkReg(replicate(unpack('0)));
+//Reg#(Vector#(buf_sz,t))      vec         <-  mkReg(replicate(unpack('0)));
+  Reg#(Vector#(buf_sz,t))      vec         <-  mkRegU;   // vec data can be undefined at reset
   Reg#(UInt#(count_buf))       num_full    <-  mkReg(0);
   Reg#(UInt#(count_buf))       num_empty   <-  mkReg(fromInteger(valueOf(buf_sz)));
   RWire#(UInt#(count_in))      delta_enq   <-  mkRWire();

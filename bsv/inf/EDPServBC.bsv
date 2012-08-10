@@ -34,11 +34,15 @@ typedef struct {
   Bit#(8)   flags;     // b0: 1=frame has at least one message, 0=ACK-only frame (no messages)
 } DGDPframeHeader deriving (Bits, Eq);
 
-function Vector#(16,Bit#(8)) fhAs16ByteV (DGDPframeHeader h);
+function Vector#(16,ABS) fhAs16ByteV (DGDPframeHeader h, Bool isEOP);
   Vector#(10,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is dstID 
-  Vector#(6, Bit#(8)) v2 = unpack(0);
+  Vector#(6, Bit#(8)) v2 = ?;
   Vector#(16,Bit#(8)) v3 = append(v1,v2);
-  return(v3);
+  // map with argument?
+  Vector#(16, ABS)    v4 = ?;
+  for (Integer i=0; i<16; i=i+1) v4[i] = tagged ValidNotEOP v3[i];
+  if (isEOP) v4[9] = tagged ValidEOP v3[9];
+  return(v4);
 endfunction
 
 typedef struct {
@@ -53,14 +57,17 @@ typedef struct {
   Bit#(8)   flags;     // b0: 1=A message follows this one, 0=This is the last message in this frame
 } DGDPmesgHeader deriving (Bits, Eq);
 
-function Vector#(16,Bit#(8)) mhAs16ByteV (DGDPmesgHeader h, Bool first);
+function Vector#(16,ABS) mhAs16ByteV (DGDPmesgHeader h, Bool first, Bool isEOP);
   Vector#(24,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is transID 
   Vector#(8, Bit#(8)) v2 = unpack(0);
   Vector#(32,Bit#(8)) v3 = append(v1,v2);
-  if (first) return takeAt(0,  v3);
-  else       return takeAt(16, v3);
+  // map with argument?
+  Vector#(32, ABS)    v4 = ?;
+  for (Integer i=0; i<32; i=i+1) v4[i] = tagged ValidNotEOP v3[i];
+  if (isEOP) v4[31] = tagged ValidEOP v3[31];
+  if (first) return (takeAt(0, v4));
+  else       return (takeAt(16,v4));
 endfunction
-
 
 
 
@@ -167,7 +174,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // New State for the EDP is here...
   Reg#(UInt#(16))            frameNumber          <- mkReg(0);
   Reg#(UInt#(32))            xactionNumber        <- mkReg(0);
-  ThingShifter#(16,1,64, Bit#(8))      dgdpTx               <- mkThingShifter;
+  ThingShifter#(16,1,64,ABS) dgdpTx               <- mkThingShifter;
   Reg#(Bool)                 doMetaMH             <- mkReg(False);
   Reg#(Bool)                 doMesgMH             <- mkReg(False);
   Reg#(Bool)                 firstMetaMH          <- mkReg(True);
@@ -213,13 +220,13 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
     // Enqueue the DGDP Frame Header...
     dgdpTx.enq(10,fhAs16ByteV(DGDPframeHeader {
-                                dstID    : fabMesgAddrMS[31:16],  // (mesg, not meta or flow; per jek 2012-08-07
+                                dstID    : fabMesgAddrMS[31:16],  // mesg, not meta or flow; per jek 2012-08-07
                                 srcID    : fabMesgAddrMS[15:0],
                                 frameSeq : pack(frameNumber),
                                 ackStart : 0,
                                 ackCount : 0,
                                 flags    : 8'h01
-                              }));
+                              }, False)); // TODO: set isEOP in all cases
     frameNumber <= frameNumber + 1;
     doMetaMH <= True;  // Send dgdp mesageheader for metadata...
   endrule
@@ -236,7 +243,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
                                 mesgTyp  : 8'h01, // metadata
                                 flags    : 8'h01 
                               };
-    dgdpTx.enq( firstMetaMH?16:8, mhAs16ByteV(mh, firstMetaMH));
+    dgdpTx.enq( firstMetaMH?16:8, mhAs16ByteV(mh, firstMetaMH, False)); // TODO: set isEOP in all cases
     firstMetaMH <= !firstMetaMH;
     doMetaMH    <= !firstMetaMH;
   endrule
@@ -265,7 +272,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     fabMesgAccu <= fabMesgAddr;  // Load the message fab address accumulator so we can locally manage message segments
     $display("[%0d]: %m: dmaResponseNearMetaBody FPactMesg-Step2b/7 opcode:%0x nowMS:%0x nowLS:%0x", $time, opcode, nowMS, nowLS);
 
-    dgdpTx.enq(16, unpack({nowLS, nowMS, opcode, lastMetaV[0]})); // send 16B metadata
+    Vector#(16,Bit#(8)) metaV = unpack({nowLS, nowMS, opcode, lastMetaV[0]}); // 16B metadata
+    dgdpTx.enq(16, map(tagValidData(False), metaV)); // send 16B metadata, no EOP 
   endrule
 
   // Steps 3, 4a, 4b to be repeated 0-N times.
@@ -313,7 +321,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
                                 mesgTyp  : 0,       // data
                                 flags    : 8'h00    // no more messages
                               };
-    dgdpTx.enq( firstMesgMH?16:8, mhAs16ByteV(mh, firstMesgMH));
+    dgdpTx.enq( firstMesgMH?16:8, mhAs16ByteV(mh, firstMesgMH, False)); //FIXME: Set EOP!!!
     firstMesgMH <= !firstMesgMH;
     doMesgMH    <= !firstMesgMH;
   endrule
@@ -356,7 +364,12 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
                 eof  : lastBeatInSegment };
     //
     // Replace with EDP - outF.enq(w);  // out goes follow-on write data
-    dgdpTx.enq(16, unpack(rbody.data)); // send 16B metadata
+    Vector#(16,Bit#(8)) metaV = unpack({lastMetaV[3], lastMetaV[2], lastMetaV[1], lastMetaV[0]}); // 16B metadata
+
+    Vector#(16,Bit#(8)) dataV = unpack(rbody.data); // 16B data
+    Vector#(16,ABS)     dabsV = map(tagValidData(False), dataV); 
+    dabsV[15] = tagged ValidEOP dataV[15];
+    dgdpTx.enq(16, dabsV);
     //
 
     outDwRemain <= outDwRemain - 4;                                   // update DW remaining in this segment
@@ -491,8 +504,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   rule egress_pump (dgdpTx.things_available>0);
-    ABS e = tagged ValidNotEOP unpack(pack(dgdpTx.things_out));
-    outF.enq(e);
+    outF.enq(dgdpTx.things_out[0]); // Just take the first one
     dgdpTx.deq(1);
   endrule
 
@@ -515,11 +527,11 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     method Action rdy     = nearBufReady._write(True);
     method Action frdy    = farBufReady._write(True);
     method Action credit  = creditReady._write(True);
-    method Action bufMeta (Bit#(16) bMeta); remMetaAddr<=bMeta; endmethod
-    method Action bufMesg (Bit#(16) bMesg); remMesgAddr<=bMesg; endmethod
-    method Action fabMeta (Bit#(32) fMeta); fabMetaAddr<=fMeta; endmethod
-    method Action fabMesg (Bit#(32) fMesg); fabMesgAddr<=fMesg; endmethod
-    method Action fabFlow (Bit#(32) fFlow); fabFlowAddr<=fFlow; endmethod
+    method Action bufMeta   (Bit#(16) bMeta);   remMetaAddr<=bMeta;     endmethod
+    method Action bufMesg   (Bit#(16) bMesg);   remMesgAddr<=bMesg;     endmethod
+    method Action fabMeta   (Bit#(32) fMeta);   fabMetaAddr<=fMeta;     endmethod
+    method Action fabMesg   (Bit#(32) fMesg);   fabMesgAddr<=fMesg;     endmethod
+    method Action fabFlow   (Bit#(32) fFlow);   fabFlowAddr<=fFlow;     endmethod
     method Action fabMetaMS (Bit#(32) fMetaMS); fabMetaAddrMS<=fMetaMS; endmethod
     method Action fabMesgMS (Bit#(32) fMesgMS); fabMesgAddrMS<=fMesgMS; endmethod
     method Action fabFlowMS (Bit#(32) fFlowMS); fabFlowAddrMS<=fFlowMS; endmethod

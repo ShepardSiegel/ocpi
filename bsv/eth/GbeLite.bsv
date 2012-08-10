@@ -12,6 +12,7 @@ import TimeService  ::*;
 
 import ClientServer ::*;
 import Clocks       ::*;
+import Connectable  ::*;
 import DReg         ::*;
 import FIFO         ::*;	
 import FIFOF        ::*;	
@@ -99,6 +100,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset);
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
   FIFO#(ABS)                  edpTxF              <-  mkFIFO;
+
+  ABSMergeIfc                 merge               <-  mkABSMerge;  // To merge egress packets from DCP and DGDP 
 
 
 
@@ -251,51 +254,51 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) begin
       let modHead = E8023Header {dst:h.src, src:macAddress, typ:h.typ};
       Vector#(14,Bit#(8)) respHeadV = unpack(pack(modHead)); 
-      gmac.tx.put(tagged ValidNotEOP respHeadV[13-txDCPPos]);
+      merge.iport0.put(tagged ValidNotEOP respHeadV[13-txDCPPos]);
       txDCPPos <= (txDCPPos==13) ? 0 : txDCPPos + 1;
       if (txDCPPos==13) rxHdr.clear;  // Release the rxHdr state, we are through with it
     end else begin
       case (rsp) matches
       tagged NOP   .n: begin
                          case (txDCPPos)
-                           0: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           1: gmac.tx.put(tagged ValidNotEOP 8'h0A); // NOP reseponse is 10B
-                           2: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           3: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           4: gmac.tx.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
-                           5: gmac.tx.put(tagged ValidNotEOP n.tag);
-                           6: gmac.tx.put(tagged ValidNotEOP n.targAdvert[31:24]);
-                           7: gmac.tx.put(tagged ValidNotEOP n.targAdvert[23:16]);
-                           8: gmac.tx.put(tagged ValidNotEOP n.targAdvert[15:8]);
-                           9: gmac.tx.put(tagged ValidEOP    n.targAdvert[7:0]);
+                           0: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           1: merge.iport0.put(tagged ValidNotEOP 8'h0A); // NOP reseponse is 10B
+                           2: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           3: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           4: merge.iport0.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
+                           5: merge.iport0.put(tagged ValidNotEOP n.tag);
+                           6: merge.iport0.put(tagged ValidNotEOP n.targAdvert[31:24]);
+                           7: merge.iport0.put(tagged ValidNotEOP n.targAdvert[23:16]);
+                           8: merge.iport0.put(tagged ValidNotEOP n.targAdvert[15:8]);
+                           9: merge.iport0.put(tagged ValidEOP    n.targAdvert[7:0]);
                          endcase 
                          txDCPPos <= (txDCPPos==9) ? 0 : txDCPPos + 1;
                          if (txDCPPos==9) dcpRespF.deq; // Finish
                        end
       tagged Write .w: begin
                          case (txDCPPos)
-                           0: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           1: gmac.tx.put(tagged ValidNotEOP 8'h06); // Write reseponse is 6B
-                           2: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           3: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           4: gmac.tx.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
-                           5: gmac.tx.put(tagged ValidEOP    w.tag);
+                           0: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           1: merge.iport0.put(tagged ValidNotEOP 8'h06); // Write reseponse is 6B
+                           2: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           3: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           4: merge.iport0.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
+                           5: merge.iport0.put(tagged ValidEOP    w.tag);
                          endcase
                          txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
                          if (txDCPPos==5) dcpRespF.deq; // Finish
                        end
       tagged Read  .r: begin
                          case (txDCPPos)
-                           0: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           1: gmac.tx.put(tagged ValidNotEOP 8'h0A); // Read response is 10B
-                           2: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           3: gmac.tx.put(tagged ValidNotEOP 8'h00);
-                           4: gmac.tx.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
-                           5: gmac.tx.put(tagged ValidNotEOP r.tag);
-                           6: gmac.tx.put(tagged ValidNotEOP r.data[31:24]);
-                           7: gmac.tx.put(tagged ValidNotEOP r.data[23:16]);
-                           8: gmac.tx.put(tagged ValidNotEOP r.data[15:8]);
-                           9: gmac.tx.put(tagged ValidEOP    r.data[7:0]);
+                           0: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           1: merge.iport0.put(tagged ValidNotEOP 8'h0A); // Read response is 10B
+                           2: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           3: merge.iport0.put(tagged ValidNotEOP 8'h00);
+                           4: merge.iport0.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
+                           5: merge.iport0.put(tagged ValidNotEOP r.tag);
+                           6: merge.iport0.put(tagged ValidNotEOP r.data[31:24]);
+                           7: merge.iport0.put(tagged ValidNotEOP r.data[23:16]);
+                           8: merge.iport0.put(tagged ValidNotEOP r.data[15:8]);
+                           9: merge.iport0.put(tagged ValidEOP    r.data[7:0]);
                          endcase 
                          txDCPPos <= (txDCPPos==9) ? 0 : txDCPPos + 1;
                          if (txDCPPos==9) dcpRespF.deq; // Finish
@@ -304,21 +307,17 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     end
   endrule
 
-  // loop as placeholder...
-  rule ddp_placeholder;
-    edpRxF.enq(edpTxF.first);
-    edpTxF.deq();
-  endrule
+    //edpRxF.enq(edpTxF.first);
+    //edpTxF.deq();
+
+  mkConnection(toGet(edpTxF), merge.iport1);  // Connect the dgdp to merge iport1 
+  mkConnection(merge.oport, gmac.tx);         // Connect the merge output to the gmac
 
 
   // Interfaces and Methods provided...
   method Action macAddr (Bit#(48) u) = macAddressCP._write(unpack(u));
   interface Client     cpClient   = dcp.client;
   interface Client     dpClient   = edp.client;
-  //interface Client     dpClient;
-  //  interface request  = toGet(edpRxF);  // Ethernet packets ingress from fabric to EDP
-  //  interface response = toPut(edpTxF);  // Ethernet packets egress  form EDP to fabric
-  //endinterface
   interface GMII_RS    gmii       = gmac.gmii;
   interface Reset      gmii_rstn  = phyRst.new_rst;
   interface Clock      rxclkBnd   = gmac.rxclkBnd;

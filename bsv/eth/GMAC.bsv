@@ -164,6 +164,10 @@ function Bit#(8) getData(ABS x);
   endcase
 endfunction
 
+function ABS tagValidData(Bool eop, Bit#(8) d);
+  return (eop ? tagged ValidEOP d : tagged ValidNotEOP d);
+endfunction
+
 
 interface ABSdetSopIfc;
   method Action observe (ABS x);
