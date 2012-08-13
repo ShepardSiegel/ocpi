@@ -35,6 +35,8 @@ verilog work "../../rtl/mkOCEDP4B.v"
 verilog work "../../rtl/mkLedN210.v"
 verilog work "../../rtl/mkIQADCWorker.v"
 verilog work "../../rtl/mkWSICaptureWorker4B.v"
+verilog work "../../rtl/mkWSIPatternWorker4B.v"
+verilog work "../../rtl/mkSMAdapter4B.v"
 verilog work "../../rtl/mkPWrk_n210.v"
 verilog work "../../rtl/mkFTop_n210.v"
 

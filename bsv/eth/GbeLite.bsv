@@ -97,7 +97,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   DCPAdapterIfc               dcp                 <-  mkDCPAdapterAsync(cpClock, cpReset);
   FIFOF#(DCPResponse)         dcpRespF            <-  mkFIFOF;
 
-  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset);
+  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, 48'h6789ab, 16'hf041);
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
   FIFO#(ABS)                  edpTxF              <-  mkFIFO;
 

@@ -155,8 +155,12 @@ Compiling verilog file "../../rtl/mkIQADCWorker.v" in library work
 Module <mkLedN210> compiled
 Compiling verilog file "../../rtl/mkWSICaptureWorker4B.v" in library work
 Module <mkIQADCWorker> compiled
-Compiling verilog file "../../rtl/mkPWrk_n210.v" in library work
+Compiling verilog file "../../rtl/mkWSIPatternWorker4B.v" in library work
 Module <mkWSICaptureWorker4B> compiled
+Compiling verilog file "../../rtl/mkSMAdapter4B.v" in library work
+Module <mkWSIPatternWorker4B> compiled
+Compiling verilog file "../../rtl/mkPWrk_n210.v" in library work
+Module <mkSMAdapter4B> compiled
 Compiling verilog file "../../rtl/mkFTop_n210.v" in library work
 Module <mkPWrk_n210> compiled
 Compiling verilog file "../../libsrc/hdl/ocpi/n210_uuid.v" in library work
@@ -190,9 +194,12 @@ Analyzing hierarchy for module <mkOCCP> in library <work>.
 
 Analyzing hierarchy for module <mkLedN210> in library <work>.
 
+
+
+
+
+
 Analyzing hierarchy for module <mkPWrk_n210> in library <work>.
-
-
 
 
 
@@ -255,6 +262,7 @@ Analyzing hierarchy for module <ResetToBool> in library <work>.
 
 
 
+
 Analyzing hierarchy for module <mkCRC32> in library <work>.
 
 
@@ -268,6 +276,24 @@ Analyzing top module <fpgaTop>.
 Module <fpgaTop> is correct for synthesis.
  
 Analyzing module <mkFTop_n210> in library <work>.
+"../../rtl/mkFTop_n210.v" line 3489: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 3576: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 4635: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 4661: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 4748: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 4774: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 4890: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 4990: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5105: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5131: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5178: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5201: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5240: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5264: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5304: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5326: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5432: Found Parallel Case directive in module <mkFTop_n210>.
+"../../rtl/mkFTop_n210.v" line 5458: Found Parallel Case directive in module <mkFTop_n210>.
 Module <mkFTop_n210> is correct for synthesis.
  
     Set user-defined property "CAPACITANCE =  DONT_CARE" for instance <clkIn> in unit <mkFTop_n210>.
@@ -281,21 +307,6 @@ Analyzing module <mkWSICaptureWorker4B> in library <work>.
 "../../rtl/mkWSICaptureWorker4B.v" line 2082: Found Parallel Case directive in module <mkWSICaptureWorker4B>.
 "../../rtl/mkWSICaptureWorker4B.v" line 2106: Found Parallel Case directive in module <mkWSICaptureWorker4B>.
 Module <mkWSICaptureWorker4B> is correct for synthesis.
- 
-Analyzing module <BRAM2.1> in library <work>.
-Module <BRAM2.1> is correct for synthesis.
- 
-Analyzing module <SizedFIFO.1> in library <work>.
-Module <SizedFIFO.1> is correct for synthesis.
- 
-Analyzing module <FIFO2.1> in library <work>.
-Module <FIFO2.1> is correct for synthesis.
- 
-Analyzing module <SizedFIFO.2> in library <work>.
-Module <SizedFIFO.2> is correct for synthesis.
- 
-Analyzing module <SizedFIFO.3> in library <work>.
-Module <SizedFIFO.3> is correct for synthesis.
  
 Analyzing module <clock_n210> in library <work>.
 Module <clock_n210> is correct for synthesis.
@@ -384,11 +395,11 @@ Module <mkOCCP> is correct for synthesis.
 Analyzing module <FIFO1.1> in library <work>.
 Module <FIFO1.1> is correct for synthesis.
  
-Analyzing module <FIFO2.2> in library <work>.
-Module <FIFO2.2> is correct for synthesis.
- 
 Analyzing module <FIFO2.3> in library <work>.
 Module <FIFO2.3> is correct for synthesis.
+ 
+Analyzing module <FIFO2.4> in library <work>.
+Module <FIFO2.4> is correct for synthesis.
  
 Analyzing module <BRAM1Load> in library <work>.
 INFO:Xst:2546 - "../../libsrc/hdl/bsv/BRAM1Load.v" line 70: reading initialization file "ramprom.data".
@@ -455,15 +466,12 @@ Analyzing module <mkOCEDP4B> in library <work>.
 "../../rtl/mkOCEDP4B.v" line 5958: Found Parallel Case directive in module <mkOCEDP4B>.
 Module <mkOCEDP4B> is correct for synthesis.
  
-Analyzing module <BRAM2.2> in library <work>.
-Module <BRAM2.2> is correct for synthesis.
+Analyzing module <BRAM2.3> in library <work>.
+Module <BRAM2.3> is correct for synthesis.
  
 Analyzing module <arSRLFIFOD.1> in library <work>.
 INFO:Xst:1432 - Contents of array <dat> may be accessed with a negative index, causing simulation mismatch.
 Module <arSRLFIFOD.1> is correct for synthesis.
- 
-Analyzing module <FIFO2.4> in library <work>.
-Module <FIFO2.4> is correct for synthesis.
  
 Analyzing module <FIFO2.5> in library <work>.
 Module <FIFO2.5> is correct for synthesis.
@@ -474,14 +482,21 @@ Module <FIFO2.6> is correct for synthesis.
 Analyzing module <FIFO2.7> in library <work>.
 Module <FIFO2.7> is correct for synthesis.
  
+Analyzing module <FIFO2.8> in library <work>.
+Module <FIFO2.8> is correct for synthesis.
+ 
 Analyzing module <SizedFIFO.4> in library <work>.
 Module <SizedFIFO.4> is correct for synthesis.
  
 Analyzing module <mkGbeLite> in library <work>.
+"../../rtl/mkGbeLite.v" line 1609: Found Parallel Case directive in module <mkGbeLite>.
+"../../rtl/mkGbeLite.v" line 1841: Found Parallel Case directive in module <mkGbeLite>.
+"../../rtl/mkGbeLite.v" line 2217: Found Parallel Case directive in module <mkGbeLite>.
+"../../rtl/mkGbeLite.v" line 2319: Found Parallel Case directive in module <mkGbeLite>.
 Module <mkGbeLite> is correct for synthesis.
  
-Analyzing module <FIFO2.8> in library <work>.
-Module <FIFO2.8> is correct for synthesis.
+Analyzing module <FIFO2.9> in library <work>.
+Module <FIFO2.9> is correct for synthesis.
  
 Analyzing module <SyncFIFO.2> in library <work>.
 	Calling function <incrGrayP>.
@@ -497,11 +512,11 @@ Analyzing module <SyncFIFO.3> in library <work>.
 	Calling function <incrGray>.
 Module <SyncFIFO.3> is correct for synthesis.
  
-Analyzing module <FIFO2.9> in library <work>.
-Module <FIFO2.9> is correct for synthesis.
- 
 Analyzing module <FIFO2.10> in library <work>.
 Module <FIFO2.10> is correct for synthesis.
+ 
+Analyzing module <FIFO2.11> in library <work>.
+Module <FIFO2.11> is correct for synthesis.
  
 Analyzing module <SyncFIFO.4> in library <work>.
 	Calling function <incrGrayP>.
@@ -558,11 +573,11 @@ Module <ClockInverter> is correct for synthesis.
 Analyzing module <ResetInverter> in library <work>.
 Module <ResetInverter> is correct for synthesis.
  
-Analyzing module <FIFO2.11> in library <work>.
-Module <FIFO2.11> is correct for synthesis.
- 
 Analyzing module <FIFO2.12> in library <work>.
 Module <FIFO2.12> is correct for synthesis.
+ 
+Analyzing module <FIFO2.13> in library <work>.
+Module <FIFO2.13> is correct for synthesis.
  
 Analyzing module <Counter.1> in library <work>.
 Module <Counter.1> is correct for synthesis.
@@ -573,11 +588,11 @@ Module <Counter.2> is correct for synthesis.
 Analyzing module <TriState> in library <work>.
 Module <TriState> is correct for synthesis.
  
-Analyzing module <FIFO2.13> in library <work>.
-Module <FIFO2.13> is correct for synthesis.
- 
 Analyzing module <FIFO2.14> in library <work>.
 Module <FIFO2.14> is correct for synthesis.
+ 
+Analyzing module <FIFO2.15> in library <work>.
+Module <FIFO2.15> is correct for synthesis.
  
 Analyzing module <SyncResetA.1> in library <work>.
 Module <SyncResetA.1> is correct for synthesis.
@@ -604,8 +619,8 @@ Module <SyncRegister.6> is correct for synthesis.
 Analyzing module <SyncRegister.7> in library <work>.
 Module <SyncRegister.7> is correct for synthesis.
  
-Analyzing module <BRAM2.3> in library <work>.
-Module <BRAM2.3> is correct for synthesis.
+Analyzing module <BRAM2.4> in library <work>.
+Module <BRAM2.4> is correct for synthesis.
  
 Analyzing module <ClockDiv> in library <work>.
 Module <ClockDiv> is correct for synthesis.
@@ -625,14 +640,29 @@ Module <SyncRegister.8> is correct for synthesis.
 Analyzing module <mkLedN210> in library <work>.
 Module <mkLedN210> is correct for synthesis.
  
+Analyzing module <BRAM2.1> in library <work>.
+Module <BRAM2.1> is correct for synthesis.
+ 
+Analyzing module <SizedFIFO.1> in library <work>.
+Module <SizedFIFO.1> is correct for synthesis.
+ 
+Analyzing module <FIFO10> in library <work>.
+Module <FIFO10> is correct for synthesis.
+ 
+Analyzing module <FIFO2.1> in library <work>.
+Module <FIFO2.1> is correct for synthesis.
+ 
+Analyzing module <SizedFIFO.2> in library <work>.
+Module <SizedFIFO.2> is correct for synthesis.
+ 
 Analyzing module <mkPWrk_n210> in library <work>.
 "../../rtl/mkPWrk_n210.v" line 795: Found Parallel Case directive in module <mkPWrk_n210>.
 "../../rtl/mkPWrk_n210.v" line 1113: Found Parallel Case directive in module <mkPWrk_n210>.
 "../../rtl/mkPWrk_n210.v" line 1137: Found Parallel Case directive in module <mkPWrk_n210>.
 Module <mkPWrk_n210> is correct for synthesis.
  
-Analyzing module <FIFO2.15> in library <work>.
-Module <FIFO2.15> is correct for synthesis.
+Analyzing module <FIFO2.16> in library <work>.
+Module <FIFO2.16> is correct for synthesis.
  
 Analyzing module <SizedFIFO.5> in library <work>.
 Module <SizedFIFO.5> is correct for synthesis.
@@ -645,6 +675,15 @@ Module <Counter.3> is correct for synthesis.
  
 Analyzing module <Counter.4> in library <work>.
 Module <Counter.4> is correct for synthesis.
+ 
+Analyzing module <BRAM2.2> in library <work>.
+Module <BRAM2.2> is correct for synthesis.
+ 
+Analyzing module <FIFO2.2> in library <work>.
+Module <FIFO2.2> is correct for synthesis.
+ 
+Analyzing module <SizedFIFO.3> in library <work>.
+Module <SizedFIFO.3> is correct for synthesis.
  
 
 =========================================================================
@@ -689,8 +728,6 @@ INFO:Xst:2679 - Register <wci_sfCapSet_1_1> in unit <mkOCCP> has a constant valu
 INFO:Xst:2679 - Register <wci_sfCapSet_2> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCapSet_3> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCapSet_4> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_sfCapSet_5> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_sfCapSet_6> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCapSet_8> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCapSet_9> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_slvPresent> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
@@ -700,8 +737,6 @@ INFO:Xst:2679 - Register <wci_slvPresent_14> in unit <mkOCCP> has a constant val
 INFO:Xst:2679 - Register <wci_slvPresent_2> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_slvPresent_3> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_slvPresent_4> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_slvPresent_5> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_slvPresent_6> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_slvPresent_8> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_slvPresent_9> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <switch_d> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
@@ -713,8 +748,6 @@ INFO:Xst:2679 - Register <wci_reqERR_14> in unit <mkOCCP> has a constant value o
 INFO:Xst:2679 - Register <wci_reqERR_2> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqERR_3> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqERR_4> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_reqERR_5> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_reqERR_6> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqERR_8> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqERR_9> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqFAIL> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
@@ -724,8 +757,6 @@ INFO:Xst:2679 - Register <wci_reqFAIL_14> in unit <mkOCCP> has a constant value 
 INFO:Xst:2679 - Register <wci_reqFAIL_2> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqFAIL_3> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqFAIL_4> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_reqFAIL_5> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_reqFAIL_6> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqFAIL_8> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_reqFAIL_9> in unit <mkOCCP> has a constant value of 000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCap> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
@@ -735,8 +766,6 @@ INFO:Xst:2679 - Register <wci_sfCap_14> in unit <mkOCCP> has a constant value of
 INFO:Xst:2679 - Register <wci_sfCap_2> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCap_3> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCap_4> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_sfCap_5> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wci_sfCap_6> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCap_8> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wci_sfCap_9> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <timeServ_ppsExtSync_d2> in unit <mkOCCP> has a constant value of 0 during circuit operation. The register is replaced by logic.
@@ -769,28 +798,13 @@ INFO:Xst:2679 - Register <edp_inIgnorePkt> in unit <mkOCEDP4B> has a constant va
 INFO:Xst:2679 - Register <edp_mesgComplReceived> in unit <mkOCEDP4B> has a constant value of XXXXXXXXXXXXXXXXX during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <edp_mesgLengthRemainPull> in unit <mkOCEDP4B> has a constant value of XXXXXXXXXXXXXXXXX during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wmi_wmi_statusR> in unit <mkOCEDP4B> has a constant value of XXXXXXXX during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wmi_peerIsReady> in unit <mkOCEDP4B> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <wti_nowReq> in unit <mkOCEDP4B> has a constant value of 0000000000000000000000000000000000000000000000000000000000000000000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <edp_complTimerCount> in unit <mkOCEDP4B> has a constant value of 000000000000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <dmaDoneTime> in unit <mkOCEDP4B> has a constant value of 0000000000000000000000000000000000000000000000000000000000000000 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <dmaStartTime> in unit <mkOCEDP4B> has a constant value of 0000000000000000000000000000000000000000000000000000000000000000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_bytesRemainResp> in unit <mkOCEDP4B> has a constant value of 00000000000000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_lastMesg> in unit <mkOCEDP4B> has a constant value of 11111110111111101111111111111110 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_p4B> in unit <mkOCEDP4B> has a constant value of 00 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_reqCount> in unit <mkOCEDP4B> has a constant value of 0000000000000000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_thisMesg> in unit <mkOCEDP4B> has a constant value of 11111110111111101111111111111110 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wmi_dhF_countReg> in unit <mkOCEDP4B> has a constant value of 00 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wmi_mFlagF_countReg> in unit <mkOCEDP4B> has a constant value of 00 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wmi_reqF_countReg> in unit <mkOCEDP4B> has a constant value of 00 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wmi_sFlagReg> in unit <mkOCEDP4B> has a constant value of 00000000000000000000000000000000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wrActive> in unit <mkOCEDP4B> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wrFinalize> in unit <mkOCEDP4B> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wrtCount> in unit <mkOCEDP4B> has a constant value of 0000000000000000 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_mesgStart> in unit <mkOCEDP4B> has a constant value of 0 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wmi_dhF_levelsValid> in unit <mkOCEDP4B> has a constant value of 1 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wmi_mFlagF_levelsValid> in unit <mkOCEDP4B> has a constant value of 1 during circuit operation. The register is replaced by logic.
-INFO:Xst:2679 - Register <wmi_wmi_reqF_levelsValid> in unit <mkOCEDP4B> has a constant value of 1 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <i> in unit <arSRLFIFOD_1> has a constant value of 0 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <edp_edp_egressHead> in unit <mkGbeLite> has a constant value of 1 during circuit operation. The register is replaced by logic.
+INFO:Xst:2679 - Register <edp_edp_egressIpHeadFsm_start_reg> in unit <mkGbeLite> has a constant value of 0 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <edp_edp_lastTag> in unit <mkGbeLite> has a constant value of 010101010 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <gbeControl> in unit <mkGbeLite> has a constant value of 00000000000000000000000100000001 during circuit operation. The register is replaced by logic.
 INFO:Xst:2679 - Register <rxDCPCnt> in unit <mkGbeLite> has a constant value of 00000000000000000000000000000000 during circuit operation. The register is replaced by logic.
@@ -868,6 +882,14 @@ Synthesizing Unit <SizedFIFO_1>.
 Unit <SizedFIFO_1> synthesized.
 
 
+Synthesizing Unit <FIFO10>.
+    Related source file is "../../libsrc/hdl/bsv/FIFO10.v".
+    Found 1-bit register for signal <empty_reg>.
+    Summary:
+	inferred   1 D-type flip-flop(s).
+Unit <FIFO10> synthesized.
+
+
 Synthesizing Unit <FIFO2_1>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 3-bit register for signal <data0_reg>.
@@ -901,6 +923,30 @@ Synthesizing Unit <SizedFIFO_2>.
 Unit <SizedFIFO_2> synthesized.
 
 
+Synthesizing Unit <BRAM2_2>.
+    Related source file is "../../libsrc/hdl/bsv/BRAM2.v".
+WARNING:Xst:646 - Signal <DOB_D1_R> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <DOA_D1_R> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+    Found 2048x61-bit dual-port RAM <Mram_RAM> for signal <RAM>.
+    Found 61-bit register for signal <DOA_R>.
+    Found 61-bit register for signal <DOB_R>.
+    Summary:
+	inferred   1 RAM(s).
+	inferred 122 D-type flip-flop(s).
+Unit <BRAM2_2> synthesized.
+
+
+Synthesizing Unit <FIFO2_2>.
+    Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
+    Found 34-bit register for signal <data0_reg>.
+    Found 34-bit register for signal <data1_reg>.
+    Found 1-bit register for signal <empty_reg>.
+    Found 1-bit register for signal <full_reg>.
+    Summary:
+	inferred  70 D-type flip-flop(s).
+Unit <FIFO2_2> synthesized.
+
+
 Synthesizing Unit <SizedFIFO_3>.
     Related source file is "../../libsrc/hdl/bsv/SizedFIFO.v".
     Found 2x61-bit dual-port RAM <Mram_arr> for signal <arr>.
@@ -932,7 +978,7 @@ Synthesizing Unit <FIFO1_1>.
 Unit <FIFO1_1> synthesized.
 
 
-Synthesizing Unit <FIFO2_2>.
+Synthesizing Unit <FIFO2_3>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 59-bit register for signal <data0_reg>.
     Found 59-bit register for signal <data1_reg>.
@@ -940,10 +986,10 @@ Synthesizing Unit <FIFO2_2>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred 120 D-type flip-flop(s).
-Unit <FIFO2_2> synthesized.
+Unit <FIFO2_3> synthesized.
 
 
-Synthesizing Unit <FIFO2_3>.
+Synthesizing Unit <FIFO2_4>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 40-bit register for signal <data0_reg>.
     Found 40-bit register for signal <data1_reg>.
@@ -951,7 +997,7 @@ Synthesizing Unit <FIFO2_3>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred  82 D-type flip-flop(s).
-Unit <FIFO2_3> synthesized.
+Unit <FIFO2_4> synthesized.
 
 
 Synthesizing Unit <BRAM1Load>.
@@ -1033,7 +1079,7 @@ Synthesizing Unit <SyncResetA_2>.
 Unit <SyncResetA_2> synthesized.
 
 
-Synthesizing Unit <BRAM2_2>.
+Synthesizing Unit <BRAM2_3>.
     Related source file is "../../libsrc/hdl/bsv/BRAM2.v".
 WARNING:Xst:646 - Signal <DOB_D1_R> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <DOA_D1_R> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
@@ -1043,7 +1089,7 @@ WARNING:Xst:646 - Signal <DOA_D1_R> is assigned but never used. This unconnected
     Summary:
 	inferred   1 RAM(s).
 	inferred  64 D-type flip-flop(s).
-Unit <BRAM2_2> synthesized.
+Unit <BRAM2_3> synthesized.
 
 
 Synthesizing Unit <arSRLFIFOD_1>.
@@ -1063,7 +1109,7 @@ Synthesizing Unit <arSRLFIFOD_1>.
 Unit <arSRLFIFOD_1> synthesized.
 
 
-Synthesizing Unit <FIFO2_4>.
+Synthesizing Unit <FIFO2_5>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 1-bit register for signal <data0_reg<0>>.
     Found 1-bit register for signal <data1_reg<0>>.
@@ -1071,10 +1117,10 @@ Synthesizing Unit <FIFO2_4>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred   4 D-type flip-flop(s).
-Unit <FIFO2_4> synthesized.
+Unit <FIFO2_5> synthesized.
 
 
-Synthesizing Unit <FIFO2_5>.
+Synthesizing Unit <FIFO2_6>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 130-bit register for signal <data0_reg>.
     Found 130-bit register for signal <data1_reg>.
@@ -1082,10 +1128,10 @@ Synthesizing Unit <FIFO2_5>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred 262 D-type flip-flop(s).
-Unit <FIFO2_5> synthesized.
+Unit <FIFO2_6> synthesized.
 
 
-Synthesizing Unit <FIFO2_6>.
+Synthesizing Unit <FIFO2_7>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 139-bit register for signal <data0_reg>.
     Found 139-bit register for signal <data1_reg>.
@@ -1093,10 +1139,10 @@ Synthesizing Unit <FIFO2_6>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred 280 D-type flip-flop(s).
-Unit <FIFO2_6> synthesized.
+Unit <FIFO2_7> synthesized.
 
 
-Synthesizing Unit <FIFO2_7>.
+Synthesizing Unit <FIFO2_8>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 61-bit register for signal <data0_reg>.
     Found 61-bit register for signal <data1_reg>.
@@ -1104,24 +1150,32 @@ Synthesizing Unit <FIFO2_7>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred 124 D-type flip-flop(s).
-Unit <FIFO2_7> synthesized.
+Unit <FIFO2_8> synthesized.
 
 
 Synthesizing Unit <SizedFIFO_4>.
     Related source file is "../../libsrc/hdl/bsv/SizedFIFO.v".
+    Found 2x38-bit dual-port RAM <Mram_arr> for signal <arr>.
     Found 38-bit register for signal <D_OUT>.
-    Found 76-bit register for signal <arr>.
+    Found 38-bit 4-to-1 multiplexer for signal <D_OUT$mux0000>.
     Found 1-bit register for signal <hasodata>.
+    Found 1-bit register for signal <head<0>>.
     Found 1-bit adder for signal <incr_head<0>>.
     Found 1-bit adder for signal <incr_tail<0>>.
     Found 1-bit register for signal <not_ring_full>.
+    Found 1-bit xor2 for signal <not_ring_full$xor0000> created at line 190.
+    Found 1-bit register for signal <ring_empty>.
+    Found 1-bit xor2 for signal <ring_empty$xor0000> created at line 171.
+    Found 1-bit register for signal <tail<0>>.
     Summary:
-	inferred 116 D-type flip-flop(s).
+	inferred   1 RAM(s).
+	inferred  43 D-type flip-flop(s).
 	inferred   2 Adder/Subtractor(s).
+	inferred  38 Multiplexer(s).
 Unit <SizedFIFO_4> synthesized.
 
 
-Synthesizing Unit <FIFO2_8>.
+Synthesizing Unit <FIFO2_9>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 44-bit register for signal <data0_reg>.
     Found 44-bit register for signal <data1_reg>.
@@ -1129,7 +1183,7 @@ Synthesizing Unit <FIFO2_8>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred  90 D-type flip-flop(s).
-Unit <FIFO2_8> synthesized.
+Unit <FIFO2_9> synthesized.
 
 
 Synthesizing Unit <SyncFIFO_2>.
@@ -1204,7 +1258,7 @@ WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/g> is assigned but never us
 Unit <SyncFIFO_3> synthesized.
 
 
-Synthesizing Unit <FIFO2_9>.
+Synthesizing Unit <FIFO2_10>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 78-bit register for signal <data0_reg>.
     Found 78-bit register for signal <data1_reg>.
@@ -1212,10 +1266,10 @@ Synthesizing Unit <FIFO2_9>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred 158 D-type flip-flop(s).
-Unit <FIFO2_9> synthesized.
+Unit <FIFO2_10> synthesized.
 
 
-Synthesizing Unit <FIFO2_10>.
+Synthesizing Unit <FIFO2_11>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 10-bit register for signal <data0_reg>.
     Found 10-bit register for signal <data1_reg>.
@@ -1223,7 +1277,7 @@ Synthesizing Unit <FIFO2_10>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred  22 D-type flip-flop(s).
-Unit <FIFO2_10> synthesized.
+Unit <FIFO2_11> synthesized.
 
 
 Synthesizing Unit <SyncFIFO_4>.
@@ -1262,7 +1316,7 @@ WARNING:Xst:646 - Signal <incrGrayP/1/incrGrayPBlock/g> is assigned but never us
 Unit <SyncFIFO_4> synthesized.
 
 
-Synthesizing Unit <FIFO2_11>.
+Synthesizing Unit <FIFO2_12>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 27-bit register for signal <data0_reg>.
     Found 27-bit register for signal <data1_reg>.
@@ -1270,10 +1324,10 @@ Synthesizing Unit <FIFO2_11>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred  56 D-type flip-flop(s).
-Unit <FIFO2_11> synthesized.
+Unit <FIFO2_12> synthesized.
 
 
-Synthesizing Unit <FIFO2_12>.
+Synthesizing Unit <FIFO2_13>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 17-bit register for signal <data0_reg>.
     Found 17-bit register for signal <data1_reg>.
@@ -1281,7 +1335,7 @@ Synthesizing Unit <FIFO2_12>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred  36 D-type flip-flop(s).
-Unit <FIFO2_12> synthesized.
+Unit <FIFO2_13> synthesized.
 
 
 Synthesizing Unit <Counter_1>.
@@ -1312,7 +1366,7 @@ Synthesizing Unit <TriState>.
 Unit <TriState> synthesized.
 
 
-Synthesizing Unit <FIFO2_13>.
+Synthesizing Unit <FIFO2_14>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 112-bit register for signal <data0_reg>.
     Found 112-bit register for signal <data1_reg>.
@@ -1320,10 +1374,10 @@ Synthesizing Unit <FIFO2_13>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred 226 D-type flip-flop(s).
-Unit <FIFO2_13> synthesized.
+Unit <FIFO2_14> synthesized.
 
 
-Synthesizing Unit <FIFO2_14>.
+Synthesizing Unit <FIFO2_15>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 32-bit register for signal <data0_reg>.
     Found 32-bit register for signal <data1_reg>.
@@ -1331,7 +1385,7 @@ Synthesizing Unit <FIFO2_14>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred  66 D-type flip-flop(s).
-Unit <FIFO2_14> synthesized.
+Unit <FIFO2_15> synthesized.
 
 
 Synthesizing Unit <SyncBit>.
@@ -1425,7 +1479,7 @@ INFO:Xst:738 - HDL ADVISOR - 624 flip-flops were inferred for signal <dat>. You 
 Unit <arSRLFIFOD_2> synthesized.
 
 
-Synthesizing Unit <BRAM2_3>.
+Synthesizing Unit <BRAM2_4>.
     Related source file is "../../libsrc/hdl/bsv/BRAM2.v".
 WARNING:Xst:646 - Signal <DOB_D1_R> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <DOA_D1_R> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
@@ -1435,7 +1489,7 @@ WARNING:Xst:646 - Signal <DOA_D1_R> is assigned but never used. This unconnected
     Summary:
 	inferred   1 RAM(s).
 	inferred  78 D-type flip-flop(s).
-Unit <BRAM2_3> synthesized.
+Unit <BRAM2_4> synthesized.
 
 
 Synthesizing Unit <ClockDiv>.
@@ -1463,7 +1517,7 @@ Synthesizing Unit <ResetToBool>.
 Unit <ResetToBool> synthesized.
 
 
-Synthesizing Unit <FIFO2_15>.
+Synthesizing Unit <FIFO2_16>.
     Related source file is "../../libsrc/hdl/bsv/FIFO2.v".
     Found 53-bit register for signal <data0_reg>.
     Found 53-bit register for signal <data1_reg>.
@@ -1471,7 +1525,7 @@ Synthesizing Unit <FIFO2_15>.
     Found 1-bit register for signal <full_reg>.
     Summary:
 	inferred 108 D-type flip-flop(s).
-Unit <FIFO2_15> synthesized.
+Unit <FIFO2_16> synthesized.
 
 
 Synthesizing Unit <SizedFIFO_5>.
@@ -2183,24 +2237,29 @@ WARNING:Xst:646 - Signal <_10_MUL_0_CONCAT_edp_dgdpTx_delta_deq_whas__075_ETC___
     Found 2-bit register for signal <bram_serverAdapterA_s1>.
     Found 3-bit register for signal <bram_serverAdapterB_1_cnt>.
     Found 3-bit adder for signal <bram_serverAdapterB_1_cnt_03_PLUS_IF_bram_serv_ETC___d209>.
+    Found 3-bit adder for signal <bram_serverAdapterB_1_cnt_03_PLUS_IF_bram_serv_ETC___d209$addsub0000> created at line 7520.
     Found 3-bit comparator less for signal <bram_serverAdapterB_1_cnt_03_SLT_3___d4836>.
     Found 2-bit register for signal <bram_serverAdapterB_1_s1>.
     Found 3-bit register for signal <bram_serverAdapterB_2_cnt>.
     Found 3-bit adder for signal <bram_serverAdapterB_2_cnt_21_PLUS_IF_bram_serv_ETC___d327>.
+    Found 3-bit adder for signal <bram_serverAdapterB_2_cnt_21_PLUS_IF_bram_serv_ETC___d327$addsub0000> created at line 7534.
     Found 3-bit comparator less for signal <bram_serverAdapterB_2_cnt_21_SLT_3___d4837>.
     Found 2-bit register for signal <bram_serverAdapterB_2_s1>.
     Found 3-bit register for signal <bram_serverAdapterB_3_cnt>.
     Found 3-bit adder for signal <bram_serverAdapterB_3_cnt_39_PLUS_IF_bram_serv_ETC___d445>.
+    Found 3-bit adder for signal <bram_serverAdapterB_3_cnt_39_PLUS_IF_bram_serv_ETC___d445$addsub0000> created at line 7540.
     Found 3-bit comparator less for signal <bram_serverAdapterB_3_cnt_39_SLT_3___d4838>.
     Found 2-bit register for signal <bram_serverAdapterB_3_s1>.
     Found 3-bit register for signal <bram_serverAdapterB_cnt>.
     Found 3-bit adder for signal <bram_serverAdapterB_cnt_5_PLUS_IF_bram_serverA_ETC___d91>.
+    Found 3-bit adder for signal <bram_serverAdapterB_cnt_5_PLUS_IF_bram_serverA_ETC___d91$addsub0000> created at line 7546.
     Found 3-bit comparator less for signal <bram_serverAdapterB_cnt_5_SLT_3___d4835>.
     Found 2-bit register for signal <bram_serverAdapterB_s1>.
     Found 12-bit subtractor for signal <byteCount__h28459>.
     Found 1-bit 4-to-1 multiplexer for signal <CASE_edp_tlpBRAM_mReqFD_OUT_BITS_30_TO_29_NOT_ETC__q5>.
     Found 1-bit 4-to-1 multiplexer for signal <CASE_edp_tlpBRAM_mReqFD_OUT_BITS_51_TO_50_NOT_ETC__q4>.
     Found 1-bit 4-to-1 multiplexer for signal <CASE_edp_tlpBRAM_readReqD_OUT_BITS_30_TO_29_N_ETC__q16>.
+    Found 1-bit 4-to-1 multiplexer for signal <CASE_wmi_p4B_NOT_wmi_p4B_EQ_3_OR_bram_serverAd_ETC__q17>.
     Found 8-bit register for signal <dpControl>.
     Found 1-bit register for signal <edp_creditReady>.
     Found 7-bit register for signal <edp_dgdpTx_num_empty>.
@@ -2294,6 +2353,7 @@ WARNING:Xst:646 - Signal <_10_MUL_0_CONCAT_edp_dgdpTx_delta_deq_whas__075_ETC___
     Found 32-bit 4-to-1 multiplexer for signal <IF_edp_tlpBRAM_readReq_first__97_BITS_30_TO_29_ETC___d6836>.
     Found 1-bit 4-to-1 multiplexer for signal <IF_edp_tlpBRAM_readReq_first__97_BITS_30_TO_29_ETC___d912>.
     Found 1-bit 4-to-1 multiplexer for signal <IF_wmi_addr_914_BITS_3_TO_2_915_EQ_0_916_THEN__ETC___d6917>.
+    Found 1-bit 4-to-1 multiplexer for signal <IF_wmi_p4B_971_EQ_1_974_THEN_bram_serverAdapte_ETC___d4980>.
     Found 16-bit adder for signal <MUX_bml_crdBuf_value$addsub0000> created at line 3263.
     Found 16-bit adder for signal <MUX_bml_fabBuf_value$addsub0000> created at line 3267.
     Found 32-bit adder for signal <MUX_bml_fabMesgAddr$addsub0000> created at line 3283.
@@ -2336,9 +2396,12 @@ WARNING:Xst:646 - Signal <_10_MUL_0_CONCAT_edp_dgdpTx_delta_deq_whas__075_ETC___
     Found 14-bit adder for signal <MUX_wmi_addr$write_1__VAL_1>.
     Found 2-bit subtractor for signal <MUX_wmi_bufDwell$write_1__VAL_3>.
     Found 14-bit subtractor for signal <MUX_wmi_bytesRemainReq$write_1__VAL_1>.
+    Found 14-bit subtractor for signal <MUX_wmi_bytesRemainResp$write_1__VAL_2>.
     Found 32-bit adder for signal <MUX_wmi_mesgCount$write_1__VAL_1>.
+    Found 2-bit adder for signal <MUX_wmi_p4B$write_1__VAL_2>.
     Found 2-bit adder for signal <MUX_wmi_wmi_respF_c_r$write_1__VAL_1>.
     Found 2-bit subtractor for signal <MUX_wmi_wmi_respF_c_r$write_1__VAL_2>.
+    Found 32-bit 4-to-1 multiplexer for signal <rdata__h169084>.
     Found 17-bit comparator equal for signal <rreq_tag__h144082$cmp_eq0000> created at line 7685.
     Found 13-bit adder for signal <spanToNextPage__h143888>.
     Found 13-bit comparator lessequal for signal <thisRequestLength__h143889$cmp_le0000> created at line 7694.
@@ -2358,7 +2421,9 @@ WARNING:Xst:646 - Signal <_10_MUL_0_CONCAT_edp_dgdpTx_delta_deq_whas__075_ETC___
     Found 14-bit register for signal <wmi_addr>.
     Found 2-bit register for signal <wmi_bufDwell>.
     Found 14-bit register for signal <wmi_bytesRemainReq>.
+    Found 14-bit register for signal <wmi_bytesRemainResp>.
     Found 1-bit register for signal <wmi_doneWithMesg>.
+    Found 32-bit register for signal <wmi_lastMesg>.
     Found 15-bit register for signal <wmi_lclMesgAddr>.
     Found 15-bit register for signal <wmi_lclMetaAddr>.
     Found 1-bit register for signal <wmi_mesgBufReady>.
@@ -2366,14 +2431,36 @@ WARNING:Xst:646 - Signal <_10_MUL_0_CONCAT_edp_dgdpTx_delta_deq_whas__075_ETC___
     Found 32-bit register for signal <wmi_mesgCount>.
     Found 1-bit register for signal <wmi_mesgDone>.
     Found 129-bit register for signal <wmi_mesgMeta>.
+    Found 1-bit register for signal <wmi_mesgStart>.
     Found 1-bit register for signal <wmi_metaBusy>.
+    Found 2-bit register for signal <wmi_p4B>.
     Found 1-bit register for signal <wmi_rdActive>.
+    Found 16-bit up counter for signal <wmi_reqCount>.
+    Found 32-bit register for signal <wmi_thisMesg>.
     Found 1-bit register for signal <wmi_wmi_blockReq>.
+    Found 2-bit register for signal <wmi_wmi_dhF_countReg>.
+    Found 2-bit addsub for signal <wmi_wmi_dhF_countReg$D_IN>.
+    Found 1-bit xor2 for signal <wmi_wmi_dhF_countReg$EN>.
+    Found 1-bit register for signal <wmi_wmi_dhF_levelsValid>.
     Found 1-bit register for signal <wmi_wmi_isReset_isInReset>.
+    Found 2-bit register for signal <wmi_wmi_mFlagF_countReg>.
+    Found 2-bit addsub for signal <wmi_wmi_mFlagF_countReg$D_IN>.
+    Found 1-bit xor2 for signal <wmi_wmi_mFlagF_countReg$EN>.
     Found 1-bit register for signal <wmi_wmi_operateD>.
+    Found 1-bit register for signal <wmi_wmi_peerIsReady>.
+    Found 2-bit register for signal <wmi_wmi_reqF_countReg>.
+    Found 2-bit addsub for signal <wmi_wmi_reqF_countReg$D_IN>.
+    Found 1-bit xor2 for signal <wmi_wmi_reqF_countReg$EN>.
+    Found 1-bit register for signal <wmi_wmi_reqF_levelsValid>.
     Found 2-bit register for signal <wmi_wmi_respF_c_r>.
     Found 34-bit register for signal <wmi_wmi_respF_q_0>.
     Found 34-bit register for signal <wmi_wmi_respF_q_1>.
+    Found 2-bit comparator greater for signal <wmi_wmi_sDataThreadBusy_dw$wget>.
+    Found 32-bit register for signal <wmi_wmi_sFlagReg>.
+    Found 2-bit comparator greater for signal <wmi_wmi_sThreadBusy_dw$wget>.
+    Found 1-bit register for signal <wmi_wrActive>.
+    Found 1-bit register for signal <wmi_wrFinalize>.
+    Found 16-bit up counter for signal <wmi_wrtCount>.
     Found 1-bit register for signal <wti_isReset_isInReset>.
     Found 17-bit comparator lessequal for signal <x__h143924$cmp_le0000> created at line 7719.
     Found 16-bit adder for signal <x__h174565>.
@@ -2402,12 +2489,12 @@ WARNING:Xst:646 - Signal <_10_MUL_0_CONCAT_edp_dgdpTx_delta_deq_whas__075_ETC___
     Found 5-bit comparator lessequal for signal <x__h52175$cmp_le0014> created at line 7734.
 INFO:Xst:738 - HDL ADVISOR - 640 flip-flops were inferred for signal <edp_dgdpTx_vec>. You may be trying to describe a RAM in a way that is incompatible with block and distributed RAM resources available on Xilinx devices, or with a specific template that is not supported. Please review the Xilinx resources documentation and the XST user manual for coding guidelines. Taking advantage of RAM resources will lead to improved device usage and reduced synthesis time.
     Summary:
-	inferred   6 Counter(s).
-	inferred 2441 D-type flip-flop(s).
-	inferred  85 Adder/Subtractor(s).
+	inferred   8 Counter(s).
+	inferred 2565 D-type flip-flop(s).
+	inferred  94 Adder/Subtractor(s).
 	inferred   2 Multiplier(s).
-	inferred  37 Comparator(s).
-	inferred 261 Multiplexer(s).
+	inferred  39 Comparator(s).
+	inferred 295 Multiplexer(s).
 	inferred   2 Combinational logic shifter(s).
 Unit <mkOCEDP4B> synthesized.
 
@@ -2454,8 +2541,8 @@ WARNING:Xst:646 - Signal <flashC_csReg_1$wget> is assigned but never used. This 
 WARNING:Xst:646 - Signal <flashC_clkReg_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <flashC_clkReg_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
     Using one-hot encoding for signal <wci_wslv_cState>.
-    Found 87x2-bit ROM for signal <COND_517$rom0000>.
-    Found 117x3-bit ROM for signal <COND_517$rom0001>.
+    Found 87x2-bit ROM for signal <COND_514$rom0000>.
+    Found 117x3-bit ROM for signal <COND_514$rom0001>.
     Found 32-bit register for signal <aReg>.
     Found 8-bit down counter for signal <doGetMAC>.
     Found 1-bit register for signal <flashC_clkReg>.
@@ -3114,6 +3201,8 @@ WARNING:Xst:646 - Signal <_281474976710656_MINUS_timeServ_delSecond__q1<27:0>> i
     Found 32-bit 4-to-1 multiplexer for signal <MUX_wci_respTimr_10$write_1__VAL_2>.
     Found 32-bit 4-to-1 multiplexer for signal <MUX_wci_respTimr_11$write_1__VAL_2>.
     Found 32-bit 4-to-1 multiplexer for signal <MUX_wci_respTimr_13$write_1__VAL_2>.
+    Found 32-bit 4-to-1 multiplexer for signal <MUX_wci_respTimr_5$write_1__VAL_2>.
+    Found 32-bit 4-to-1 multiplexer for signal <MUX_wci_respTimr_6$write_1__VAL_2>.
     Found 32-bit 4-to-1 multiplexer for signal <MUX_wci_respTimr_7$write_1__VAL_2>.
     Found 32-bit register for signal <readCntReg>.
     Found 3-bit register for signal <rom_serverAdapter_cnt>.
@@ -3255,6 +3344,8 @@ WARNING:Xst:646 - Signal <_281474976710656_MINUS_timeServ_delSecond__q1<27:0>> i
     Found 3-bit register for signal <wci_reqERR_10>.
     Found 3-bit register for signal <wci_reqERR_11>.
     Found 3-bit register for signal <wci_reqERR_13>.
+    Found 3-bit register for signal <wci_reqERR_5>.
+    Found 3-bit register for signal <wci_reqERR_6>.
     Found 3-bit register for signal <wci_reqERR_7>.
     Found 1-bit register for signal <wci_reqF_10_c_r>.
     Found 72-bit register for signal <wci_reqF_10_q_0>.
@@ -3289,6 +3380,8 @@ WARNING:Xst:646 - Signal <_281474976710656_MINUS_timeServ_delSecond__q1<27:0>> i
     Found 3-bit register for signal <wci_reqFAIL_10>.
     Found 3-bit register for signal <wci_reqFAIL_11>.
     Found 3-bit register for signal <wci_reqFAIL_13>.
+    Found 3-bit register for signal <wci_reqFAIL_5>.
+    Found 3-bit register for signal <wci_reqFAIL_6>.
     Found 3-bit register for signal <wci_reqFAIL_7>.
     Found 4-bit register for signal <wci_reqPend>.
     Found 4-bit register for signal <wci_reqPend_1>.
@@ -3353,6 +3446,8 @@ WARNING:Xst:646 - Signal <_281474976710656_MINUS_timeServ_delSecond__q1<27:0>> i
     Found 1-bit register for signal <wci_sfCap_10>.
     Found 1-bit register for signal <wci_sfCap_11>.
     Found 1-bit register for signal <wci_sfCap_13>.
+    Found 1-bit register for signal <wci_sfCap_5>.
+    Found 1-bit register for signal <wci_sfCap_6>.
     Found 1-bit register for signal <wci_sfCap_7>.
     Found 1-bit register for signal <wci_sfCapClear>.
     Found 1-bit register for signal <wci_sfCapClear_10>.
@@ -3372,15 +3467,21 @@ WARNING:Xst:646 - Signal <_281474976710656_MINUS_timeServ_delSecond__q1<27:0>> i
     Found 1-bit register for signal <wci_sfCapSet_10>.
     Found 1-bit register for signal <wci_sfCapSet_11>.
     Found 1-bit register for signal <wci_sfCapSet_13>.
+    Found 1-bit register for signal <wci_sfCapSet_5>.
+    Found 1-bit register for signal <wci_sfCapSet_6>.
     Found 1-bit register for signal <wci_sfCapSet_7>.
     Found 1-bit register for signal <wci_slvPresent_10>.
     Found 1-bit register for signal <wci_slvPresent_11>.
     Found 1-bit register for signal <wci_slvPresent_13>.
+    Found 1-bit register for signal <wci_slvPresent_5>.
+    Found 1-bit register for signal <wci_slvPresent_6>.
     Found 1-bit register for signal <wci_slvPresent_7>.
     Found 1-bit register for signal <wci_sThreadBusy_d>.
     Found 1-bit register for signal <wci_sThreadBusy_d_10>.
     Found 1-bit register for signal <wci_sThreadBusy_d_11>.
     Found 1-bit register for signal <wci_sThreadBusy_d_13>.
+    Found 1-bit register for signal <wci_sThreadBusy_d_5>.
+    Found 1-bit register for signal <wci_sThreadBusy_d_6>.
     Found 1-bit register for signal <wci_sThreadBusy_d_7>.
     Found 1-bit register for signal <wci_wReset_n>.
     Found 1-bit register for signal <wci_wReset_n_1>.
@@ -3449,10 +3550,10 @@ WARNING:Xst:646 - Signal <_281474976710656_MINUS_timeServ_delSecond__q1<27:0>> i
     Found 32-bit adder for signal <x__h71725>.
     Summary:
 	inferred   3 Counter(s).
-	inferred 3766 D-type flip-flop(s).
+	inferred 3786 D-type flip-flop(s).
 	inferred  54 Adder/Subtractor(s).
 	inferred  27 Comparator(s).
-	inferred 194 Multiplexer(s).
+	inferred 258 Multiplexer(s).
 	inferred  15 Combinational logic shifter(s).
 Unit <mkOCCP> synthesized.
 
@@ -3476,18 +3577,46 @@ WARNING:Xst:646 - Signal <mdi_pwTick$whas> is assigned but never used. This unco
 WARNING:Xst:646 - Signal <gbeControl<30:5>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <edp_edp_lastTag> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <edp_edp_lastResp> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressIpHeadFsm_state_overlap_pw$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressIpHeadFsm_state_fired_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressIpHeadFsm_state_fired_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressIpHeadFsm_start_wire$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressIpHeadFsm_start_reg_1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressIpHeadFsm_start_reg_1_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressIpHeadFsm_abort$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressIpHeadFsm_abort$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <edp_edp_egressHead> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <dcp_dcp_dcpReqF$D_OUT<31:24>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <dcp_dcp_dcpReqF$D_OUT<1:0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <dcpRespF$D_OUT<1:0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+    Found finite state machine <FSM_1> for signal <edp_edp_egressIpHeadFsm_state_mkFSMstate>.
+    -----------------------------------------------------------------------
+    | States             | 11                                             |
+    | Transitions        | 44                                             |
+    | Inputs             | 7                                              |
+    | Outputs            | 10                                             |
+    | Clock              | wciS0_Clk                 (rising_edge)        |
+    | Clock enable       | edp_edp_egressIpHeadFsm_state_mkFSMstate$EN (positive)       |
+    | Reset              | wciS0_MReset_n            (negative)           |
+    | Reset type         | synchronous                                    |
+    | Reset State        | 0000                                           |
+    | Encoding           | automatic                                      |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
     Found 195x2-bit ROM for signal <mdi_rPlayIndex$rom0000>.
     Found 8-bit 16-to-1 multiplexer for signal <CASE_rxHdr_pos_rxHdr_pV_BITS_111_TO_104_0_rxHd_ETC__q3>.
     Found 8-bit 16-to-1 multiplexer for signal <CASE_rxHdr_pos_rxHdr_sV_BITS_111_TO_104_0_rxHd_ETC__q2>.
     Found 78-bit 4-to-1 multiplexer for signal <dcp_dcp_dcpReqF$D_IN>.
-    Found 8-bit comparator equal for signal <dcp_dcp_dcpReqF_first__29_BITS_39_TO_32_34_EQ__ETC___d801>.
-    Found 8-bit comparator equal for signal <dcp_dcp_dcpReqF_first__29_BITS_71_TO_64_45_EQ__ETC___d802>.
+    Found 8-bit comparator equal for signal <dcp_dcp_dcpReqF_first__29_BITS_39_TO_32_34_EQ__ETC___d1014>.
+    Found 8-bit comparator equal for signal <dcp_dcp_dcpReqF_first__29_BITS_71_TO_64_45_EQ__ETC___d1015>.
     Found 44-bit register for signal <dcp_dcp_lastResp>.
     Found 9-bit register for signal <dcp_dcp_lastTag>.
-    Found 8-bit comparator equal for signal <IF_rxHdr_pos_25_EQ_0_41_THEN_rxHdr_sV_00_BITS__ETC___d410>.
+    Found 1-bit register for signal <edp_edp_egressIpHeadFsm_start_reg_1>.
+    Found 1-bit register for signal <edp_edp_egressIpHeadFsm_state_can_overlap>.
+    Found 1-bit register for signal <edp_edp_egressIpHeadFsm_state_fired>.
+    Found 3-bit register for signal <edp_edp_ix>.
+    Found 3-bit comparator less for signal <edp_edp_ix_75_ULT_2___d276>.
+    Found 8-bit comparator equal for signal <IF_rxHdr_pos_88_EQ_0_04_THEN_rxHdr_sV_63_BITS__ETC___d573>.
     Found 48-bit register for signal <macAddress>.
     Found 48-bit register for signal <macAddressCP>.
     Found 1-bit register for signal <mdi_rMDC>.
@@ -3516,19 +3645,22 @@ WARNING:Xst:646 - Signal <dcpRespF$D_OUT<1:0>> is assigned but never used. This 
     Found 1-bit register for signal <mdi_vrReadData_7>.
     Found 1-bit register for signal <mdi_vrReadData_8>.
     Found 1-bit register for signal <mdi_vrReadData_9>.
+    Found 1-bit register for signal <merge_fi0Active>.
+    Found 1-bit register for signal <merge_fi0HasPrio>.
+    Found 1-bit register for signal <merge_fi1Active>.
     Found 44-bit 4-to-1 multiplexer for signal <MUX_dcp_dcp_dcpRespF$enq_1__VAL_1>.
+    Found 3-bit adder for signal <MUX_edp_edp_ix$write_1__VAL_1>.
     Found 5-bit adder for signal <MUX_rxDCPMesgPos$write_1__VAL_3>.
     Found 4-bit adder for signal <MUX_rxHdr_mCnt$write_1__VAL_3>.
-    Found 4-bit adder for signal <MUX_rxHdr_pos$addsub0000> created at line 1248.
-    Found 4-bit comparator less for signal <MUX_rxHdr_pos$cmp_lt0000> created at line 1248.
+    Found 4-bit adder for signal <MUX_rxHdr_pos$addsub0000> created at line 1525.
+    Found 4-bit comparator less for signal <MUX_rxHdr_pos$cmp_lt0000> created at line 1525.
     Found 1-bit register for signal <phyMdiInit>.
     Found 25-bit register for signal <phyResetWaitCnt>.
-    Found 25-bit subtractor for signal <phyResetWaitCnt$addsub0000> created at line 1444.
-    Found 25-bit comparator lessequal for signal <phyResetWaitCnt$cmp_le0000> created at line 1444.
+    Found 25-bit subtractor for signal <phyResetWaitCnt$addsub0000> created at line 1867.
+    Found 25-bit comparator lessequal for signal <phyResetWaitCnt$cmp_le0000> created at line 1867.
     Found 25-bit comparator greater for signal <phyRst$ASSERT_IN>.
     Found 32-bit up counter for signal <rxAbortEOPC>.
     Found 32-bit up counter for signal <rxCount>.
-    Found 48-bit comparator equal for signal <rxDCPHdrF$cmp_eq0000> created at line 1855.
     Found 112-bit register for signal <rxDCPMesg>.
     Found 5-bit register for signal <rxDCPMesgPos>.
     Found 8-bit register for signal <rxDCPmt>.
@@ -3541,30 +3673,32 @@ WARNING:Xst:646 - Signal <dcpRespF$D_OUT<1:0>> is assigned but never used. This 
     Found 4-bit register for signal <rxHdr_pos>.
     Found 113-bit register for signal <rxHdr_pV>.
     Found 113-bit register for signal <rxHdr_sV>.
-    Found 48-bit comparator not equal for signal <rxHdr_sV_00_BIT_112_01_OR_NOT_rxHdr_sV_00_BITS_ETC___d313$cmp_ne0001> created at line 2027.
-    Found 8-bit comparator less for signal <rxHdr_sV_00_BITS_111_TO_64_05_EQ_0xFFFFFFFFFFF_ETC___d431$cmp_lt0000> created at line 2021.
-    Found 48-bit comparator equal for signal <rxHdr_sV_00_BITS_111_TO_64_05_EQ_macAddress_08___d309>.
+    Found 48-bit comparator not equal for signal <rxHdr_sV_63_BIT_112_64_OR_NOT_rxHdr_sV_63_BITS_ETC___d476$cmp_ne0000> created at line 2540.
+    Found 48-bit comparator equal for signal <rxHdr_sV_63_BITS_111_TO_64_68_EQ_0xFFFFFFFFFFF_ETC___d594$cmp_eq0000> created at line 2534.
+    Found 8-bit comparator less for signal <rxHdr_sV_63_BITS_111_TO_64_68_EQ_0xFFFFFFFFFFF_ETC___d594$cmp_lt0000> created at line 2534.
+    Found 48-bit comparator equal for signal <rxHdr_sV_63_BITS_111_TO_64_68_EQ_macAddress_71___d472>.
     Found 32-bit register for signal <rxHdrMatchCnt>.
-    Found 32-bit adder for signal <rxHdrMatchCnt$addsub0000> created at line 1527.
+    Found 32-bit adder for signal <rxHdrMatchCnt$addsub0000> created at line 1950.
     Found 128-bit register for signal <rxHeadCap>.
-    Found 32-bit comparator less for signal <rxHeadCap$cmp_lt0000> created at line 1582.
+    Found 32-bit comparator less for signal <rxHeadCap$cmp_lt0000> created at line 2005.
     Found 32-bit register for signal <rxLenCount>.
     Found 32-bit up counter for signal <rxOvfCount>.
     Found 32-bit register for signal <rxPipe>.
     Found 2-bit register for signal <rxPos>.
-    Found 2-bit adder for signal <rxPos$addsub0000> created at line 1606.
+    Found 2-bit adder for signal <rxPos$addsub0000> created at line 2029.
     Found 32-bit up counter for signal <rxValidEOPC>.
     Found 32-bit up counter for signal <rxValidNoEOPC>.
     Found 5-bit register for signal <txDCPPos>.
-    Found 5-bit adder for signal <txDCPPos_19_PLUS_1___d746>.
+    Found 5-bit adder for signal <txDCPPos_82_PLUS_1___d937>.
     Found 32-bit up counter for signal <txUndCount>.
-    Found 32-bit adder for signal <x__h67886>.
+    Found 32-bit adder for signal <x__h103080>.
     Summary:
+	inferred   1 Finite State Machine(s).
 	inferred   1 ROM(s).
 	inferred   8 Counter(s).
-	inferred 829 D-type flip-flop(s).
-	inferred   9 Adder/Subtractor(s).
-	inferred  11 Comparator(s).
+	inferred 838 D-type flip-flop(s).
+	inferred  10 Adder/Subtractor(s).
+	inferred  12 Comparator(s).
 	inferred 140 Multiplexer(s).
 Unit <mkGbeLite> synthesized.
 
@@ -3682,7 +3816,7 @@ WARNING:Xst:646 - Signal <adcCore_colGate_average_dw$wget> is assigned but never
 WARNING:Xst:646 - Signal <adcCore_averageDReg_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <adcCore_adcRst_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <adcCore_acquireDReg_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-    Found finite state machine <FSM_1> for signal <adcCore_iseqFsm_state_mkFSMstate>.
+    Found finite state machine <FSM_2> for signal <adcCore_iseqFsm_state_mkFSMstate>.
     -----------------------------------------------------------------------
     | States             | 11                                             |
     | Transitions        | 21                                             |
@@ -3696,7 +3830,7 @@ WARNING:Xst:646 - Signal <adcCore_acquireDReg_1$wget> is assigned but never used
     | Encoding           | automatic                                      |
     | Implementation     | LUT                                            |
     -----------------------------------------------------------------------
-    Found finite state machine <FSM_2> for signal <wsiM_burstKind>.
+    Found finite state machine <FSM_3> for signal <wsiM_burstKind>.
     -----------------------------------------------------------------------
     | States             | 3                                              |
     | Transitions        | 4                                              |
@@ -3915,10 +4049,540 @@ Unit <mkIQADCWorker> synthesized.
 
 Synthesizing Unit <mkFTop_n210>.
     Related source file is "../../rtl/mkFTop_n210.v".
+WARNING:Xst:646 - Signal <x__h52727<31:4>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <x__h27583<31:4>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <wsiBurstLength__h52586<15:12>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h58247> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h57619> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h57423> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h57240> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h55898> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h55839> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h5536> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h5392> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h5218> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h52127> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h37908> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h37764> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h37590> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h32784> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h31797> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h31307> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:1780 - Signal <v__h30214> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsi_Es_mReqInfo_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsi_Es_mData_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsi_Es_mData_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsi_Es_mDataInfo_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsi_Es_mCmd_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsi_Es_mByteEn_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsi_Es_mByteEn_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsi_Es_mBurstLength_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_wsiReq$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_reqFifo_r_enq$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_reqFifo_r_clr$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_reqFifo_doResetEnq$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_reqFifo_doResetDeq$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_reqFifo_doResetClr$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_peerIsReady_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_operateD_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_operateD_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiS_mesgWordLength> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_sThreadBusy_pw$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_reqFifo_x_wire$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_reqFifo_x_wire$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_reqFifo_q_0<55:0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_reqFifo_dequeueing$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_peerIsReady_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_peerIsReady_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_operateD_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wsiM_operateD_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_wmiResponse$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_trafficSticky> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_statusR> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_sThreadBusy_d_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_sThreadBusy_d_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_sDataThreadBusy_d_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_sDataThreadBusy_d_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_respF$D_OUT<33:32>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_reqF_x_wire$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_peerIsReady_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_peerIsReady_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_operateD_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_operateD_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_mFlagF_x_wire$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_mFlagF_x_wire$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_errorSticky> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_dhF_x_wire$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_dhF_x_wire$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_dhF_enqueueing$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_busyWithMessage> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_Em_sResp_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_Em_sResp_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_Em_sData_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wmi_Em_sData_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_wciReq$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_wEdge$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_wEdge$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_sThreadBusy_pw$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_sThreadBusy_d> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_sFlagReg_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_sFlagReg_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_respF_x_wire$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_respF_dequeueing$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_reqF_r_enq$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_reqF_r_clr$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_reqF$D_OUT<67:40>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_ctlAckReg_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wslv_cEdge> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mData_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mData_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mCmd_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mCmd_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mByteEn_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mByteEn_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mAddr_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mAddr_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mAddrSpace_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_wci_wci_Es_mAddrSpace_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_respF_wDataOut$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_respF_wDataOut$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_respF_wDataIn$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_respF_pwDequeue$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_readyToRequest> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_mesgPreRequest_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_mesgPreRequest_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_firstMsgReq> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_fabRespCredit_acc_v2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_fabRespCredit_acc_v2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_fabRespCredit_acc_v1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <sma0_fabRespCredit_acc_v1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:1780 - Signal <pwrk$i2cpad_sda> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:1780 - Signal <pwrk$i2cpad_scl> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wsiM_reqFifo_x_wire$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wsiM_reqFifo_x_wire$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wsiM_reqFifo_enqueueing$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wsiM_reqFifo_dequeueing$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wsiM_peerIsReady_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wsiM_operateD_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wsiM_operateD_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_wciReq$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_wEdge$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_wEdge$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_sThreadBusy_pw$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_sThreadBusy_d> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_sFlagReg_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_sFlagReg_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_respF_x_wire$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_respF_dequeueing$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_reqF_r_enq$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_reqF_r_clr$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_reqF$D_OUT<67:64>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_reqF$D_OUT<51:46>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_ctlAckReg_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wslv_cEdge> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mData_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mData_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mCmd_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mCmd_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mByteEn_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mByteEn_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mAddr_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mAddr_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mAddrSpace_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_wci_wci_Es_mAddrSpace_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_thisTMS> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_thisTLS> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_thisOpcode<31:8>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_statusReg_w$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_statusReg_w$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaPtr_modulus_bw$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaPtr_incAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaPtr_decAction$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_outData_outData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_outData_outData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_3_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_outData_outData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_2_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_outData_outData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterB_1_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_writeWithResp$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_s1_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_outData_outData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_outData_deqCalled$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_cnt_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_writeWithResp$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_s1_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_outData_deqCalled$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_cnt_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_3_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_writeWithResp$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_s1_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_outData_deqCalled$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_cnt_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_2_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_writeWithResp$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_s1_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_outData_deqCalled$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_cnt_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_metaBram_serverAdapterA_1_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_mesgLengthSoFar> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_isFirst> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_outData_outData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterB_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_writeWithResp$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_writeWithResp$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_s1_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_s1_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_outData_enqData$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_cnt_3$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_cnt_3$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_cnt_2$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_cnt_2$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_cnt_1$whas> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <pat0_dataBram_serverAdapterA_cnt_1$wget> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <iqadc$CLK_adcSdrClk> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:1780 - Signal <gbe0$mdio_mdd> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:1780 - Signal <gbe0$mdio_mdc> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <b__h51838<23:16>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+WARNING:Xst:646 - Signal <b__h26641<31:16>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+    Found finite state machine <FSM_4> for signal <pat0_wsiM_burstKind>.
+    -----------------------------------------------------------------------
+    | States             | 3                                              |
+    | Transitions        | 4                                              |
+    | Inputs             | 1                                              |
+    | Outputs            | 3                                              |
+    | Clock              | clkN210$clk0_buf          (rising_edge)        |
+    | Clock enable       | pat0_wsiM_burstKind$EN    (positive)           |
+    | Reset              | clkN210$clk0_rstn         (negative)           |
+    | Reset type         | synchronous                                    |
+    | Reset State        | 00                                             |
+    | Encoding           | automatic                                      |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found finite state machine <FSM_5> for signal <sma0_wsiM_burstKind>.
+    -----------------------------------------------------------------------
+    | States             | 3                                              |
+    | Transitions        | 4                                              |
+    | Inputs             | 1                                              |
+    | Outputs            | 3                                              |
+    | Clock              | clkN210$clk0_buf          (rising_edge)        |
+    | Clock enable       | sma0_wsiM_burstKind$EN    (positive)           |
+    | Reset              | clkN210$clk0_rstn         (negative)           |
+    | Reset type         | synchronous                                    |
+    | Reset State        | 00                                             |
+    | Encoding           | automatic                                      |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Found finite state machine <FSM_6> for signal <sma0_wsiS_burstKind>.
+    -----------------------------------------------------------------------
+    | States             | 3                                              |
+    | Transitions        | 4                                              |
+    | Inputs             | 1                                              |
+    | Outputs            | 3                                              |
+    | Clock              | clkN210$clk0_buf          (rising_edge)        |
+    | Clock enable       | sma0_wsiS_burstKind$EN    (positive)           |
+    | Reset              | clkN210$clk0_rstn         (negative)           |
+    | Reset type         | synchronous                                    |
+    | Reset State        | 00                                             |
+    | Encoding           | automatic                                      |
+    | Implementation     | LUT                                            |
+    -----------------------------------------------------------------------
+    Using one-hot encoding for signal <sma0_wci_wslv_cState>.
+    Using one-hot encoding for signal <pat0_wci_wslv_cState>.
+    Found 32-bit adder for signal <b__h26641>.
+    Found 12-bit adder for signal <b__h49026>.
+    Found 24-bit adder for signal <b__h51838>.
+    Found 12-bit comparator greater for signal <CAN_FIRE_RL_sma0_wmrd_mesgBodyPreRequest$cmp_gt0000> created at line 3034.
+    Found 1-bit 4-to-1 multiplexer for signal <CASE_pat0_splaFD_OUT_BITS_1_TO_0_NOT_pat0_spl_ETC__q1>.
+    Found 2-bit comparator greater for signal <cp$cmp_gt0000> created at line 5678.
+    Found 2-bit comparator greater for signal <cp$cmp_gt0001> created at line 5675.
+    Found 1-bit 4-to-1 multiplexer for signal <IF_pat0_splaF_first__015_BITS_1_TO_0_017_EQ_0__ETC___d1036>.
+    Found 32-bit 4-to-1 multiplexer for signal <IF_pat0_splaF_first__015_BITS_1_TO_0_017_EQ_0__ETC___d1069>.
+    Found 1-bit 4-to-1 multiplexer for signal <IF_pat0_wci_wslv_reqF_first__3_BITS_35_TO_34_0_ETC___d2508>.
+    Found 3-bit comparator less for signal <IF_pat0_wci_wslv_reqF_first__3_BITS_35_TO_34_0_ETC___d2508$cmp_lt0000> created at line 6574.
+    Found 3-bit comparator less for signal <IF_pat0_wci_wslv_reqF_first__3_BITS_35_TO_34_0_ETC___d2508$cmp_lt0001> created at line 6571.
+    Found 3-bit comparator less for signal <IF_pat0_wci_wslv_reqF_first__3_BITS_35_TO_34_0_ETC___d2508$cmp_lt0002> created at line 6568.
+    Found 3-bit comparator less for signal <IF_pat0_wci_wslv_reqF_first__3_BITS_35_TO_34_0_ETC___d2508$cmp_lt0003> created at line 6577.
+    Found 14-bit adder for signal <mlB__h56253>.
+    Found 3-bit adder for signal <mlInc__h56252$add0000> created at line 6142.
+    Found 32-bit subtractor for signal <MUX_pat0_bytesRemain$addsub0000> created at line 3459.
+    Found 32-bit comparator less for signal <MUX_pat0_bytesRemain$cmp_lt0000> created at line 3459.
+    Found 32-bit adder for signal <MUX_pat0_dataCount$write_1__VAL_2>.
+    Found 32-bit adder for signal <MUX_pat0_mesgCount$write_1__VAL_2>.
+    Found 32-bit subtractor for signal <MUX_pat0_mesgRemain$write_1__VAL_2>.
+    Found 16-bit subtractor for signal <MUX_pat0_metaPtr_modulus$write_1__VAL_1>.
+    Found 16-bit adder for signal <MUX_pat0_metaPtr_value$addsub0000> created at line 3466.
+    Found 16-bit comparator equal for signal <MUX_pat0_metaPtr_value$cmp_eq0000> created at line 3466.
+    Found 16-bit subtractor for signal <MUX_pat0_unrollCnt$write_1__VAL_2>.
+    Found 2-bit adder for signal <MUX_pat0_wci_wslv_respF_c_r$write_1__VAL_1>.
+    Found 2-bit subtractor for signal <MUX_pat0_wci_wslv_respF_c_r$write_1__VAL_2>.
+    Found 2-bit adder for signal <MUX_pat0_wsiM_reqFifo_c_r$write_1__VAL_1>.
+    Found 2-bit subtractor for signal <MUX_pat0_wsiM_reqFifo_c_r$write_1__VAL_2>.
+    Found 12-bit adder for signal <MUX_sma0_fabRespCredit_value$addsub0000> created at line 3538.
+    Found 12-bit adder for signal <MUX_sma0_fabRespCredit_value$write_1__VAL_2>.
+    Found 14-bit subtractor for signal <MUX_sma0_fabWordsRemain$write_1__VAL_2>.
+    Found 32-bit adder for signal <MUX_sma0_mesgCount$write_1__VAL_1>.
+    Found 14-bit adder for signal <MUX_sma0_mesgReqAddr$write_1__VAL_2>.
+    Found 16-bit subtractor for signal <MUX_sma0_unrollCnt$write_1__VAL_2>.
+    Found 2-bit adder for signal <MUX_sma0_wci_wslv_respF_c_r$write_1__VAL_1>.
+    Found 2-bit subtractor for signal <MUX_sma0_wci_wslv_respF_c_r$write_1__VAL_2>.
+    Found 2-bit adder for signal <MUX_sma0_wmi_dhF_c_r$write_1__VAL_1>.
+    Found 2-bit subtractor for signal <MUX_sma0_wmi_dhF_c_r$write_1__VAL_2>.
+    Found 2-bit adder for signal <MUX_sma0_wmi_mFlagF_c_r$write_1__VAL_1>.
+    Found 2-bit subtractor for signal <MUX_sma0_wmi_mFlagF_c_r$write_1__VAL_2>.
+    Found 2-bit adder for signal <MUX_sma0_wmi_reqF_c_r$write_1__VAL_1>.
+    Found 2-bit subtractor for signal <MUX_sma0_wmi_reqF_c_r$write_1__VAL_2>.
+    Found 2-bit adder for signal <MUX_sma0_wsiM_reqFifo_c_r$write_1__VAL_1>.
+    Found 2-bit subtractor for signal <MUX_sma0_wsiM_reqFifo_c_r$write_1__VAL_2>.
+    Found 12-bit comparator equal for signal <MUX_sma0_wsiM_reqFifo_x_wire$cmp_eq0000> created at line 3668.
+    Found 32-bit register for signal <pat0_bytesRemain>.
+    Found 3-bit comparator less for signal <pat0_bytesRemain$cmp_lt0000> created at line 4273.
+    Found 32-bit register for signal <pat0_controlReg>.
+    Found 3-bit register for signal <pat0_dataBram_serverAdapterA_cnt>.
+    Found 3-bit adder for signal <pat0_dataBram_serverAdapterA_cnt_82_PLUS_IF_pa_ETC___d288>.
+    Found 3-bit adder for signal <pat0_dataBram_serverAdapterA_cnt_82_PLUS_IF_pa_ETC___d288$addsub0000> created at line 6146.
+    Found 2-bit register for signal <pat0_dataBram_serverAdapterA_s1>.
+    Found 3-bit register for signal <pat0_dataBram_serverAdapterB_cnt>.
+    Found 3-bit adder for signal <pat0_dataBram_serverAdapterB_cnt_41_PLUS_IF_pa_ETC___d347>.
+    Found 3-bit adder for signal <pat0_dataBram_serverAdapterB_cnt_41_PLUS_IF_pa_ETC___d347$addsub0000> created at line 6154.
+    Found 3-bit comparator less for signal <pat0_dataBram_serverAdapterB_cnt_41_SLT_3___d2268>.
+    Found 2-bit register for signal <pat0_dataBram_serverAdapterB_s1>.
+    Found 32-bit register for signal <pat0_dataCount>.
+    Found 32-bit up counter for signal <pat0_dataPtr>.
+    Found 1-bit register for signal <pat0_doZLM>.
+    Found 32-bit register for signal <pat0_mesgCount>.
+    Found 32-bit register for signal <pat0_mesgRemain>.
+    Found 3-bit register for signal <pat0_metaBram_serverAdapterA_1_cnt>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterA_1_cnt_18_PLUS_IF__ETC___d524>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterA_1_cnt_18_PLUS_IF__ETC___d524$addsub0000> created at line 6171.
+    Found 2-bit register for signal <pat0_metaBram_serverAdapterA_1_s1>.
+    Found 3-bit register for signal <pat0_metaBram_serverAdapterA_2_cnt>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterA_2_cnt_36_PLUS_IF__ETC___d642>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterA_2_cnt_36_PLUS_IF__ETC___d642$addsub0000> created at line 6185.
+    Found 2-bit register for signal <pat0_metaBram_serverAdapterA_2_s1>.
+    Found 3-bit register for signal <pat0_metaBram_serverAdapterA_3_cnt>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterA_3_cnt_54_PLUS_IF__ETC___d760>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterA_3_cnt_54_PLUS_IF__ETC___d760$addsub0000> created at line 6191.
+    Found 2-bit register for signal <pat0_metaBram_serverAdapterA_3_s1>.
+    Found 3-bit register for signal <pat0_metaBram_serverAdapterA_cnt>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterA_cnt_00_PLUS_IF_pa_ETC___d406>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterA_cnt_00_PLUS_IF_pa_ETC___d406$addsub0000> created at line 6197.
+    Found 2-bit register for signal <pat0_metaBram_serverAdapterA_s1>.
+    Found 3-bit register for signal <pat0_metaBram_serverAdapterB_1_cnt>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterB_1_cnt_77_PLUS_IF__ETC___d583>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterB_1_cnt_77_PLUS_IF__ETC___d583$addsub0000> created at line 6203.
+    Found 2-bit register for signal <pat0_metaBram_serverAdapterB_1_s1>.
+    Found 3-bit register for signal <pat0_metaBram_serverAdapterB_2_cnt>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterB_2_cnt_95_PLUS_IF__ETC___d701>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterB_2_cnt_95_PLUS_IF__ETC___d701$addsub0000> created at line 6209.
+    Found 2-bit register for signal <pat0_metaBram_serverAdapterB_2_s1>.
+    Found 3-bit register for signal <pat0_metaBram_serverAdapterB_3_cnt>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterB_3_cnt_13_PLUS_IF__ETC___d819>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterB_3_cnt_13_PLUS_IF__ETC___d819$addsub0000> created at line 6215.
+    Found 2-bit register for signal <pat0_metaBram_serverAdapterB_3_s1>.
+    Found 3-bit register for signal <pat0_metaBram_serverAdapterB_cnt>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterB_cnt_59_PLUS_IF_pa_ETC___d465>.
+    Found 3-bit adder for signal <pat0_metaBram_serverAdapterB_cnt_59_PLUS_IF_pa_ETC___d465$addsub0000> created at line 6221.
+    Found 2-bit register for signal <pat0_metaBram_serverAdapterB_s1>.
+    Found 16-bit register for signal <pat0_metaPtr_modulus>.
+    Found 16-bit register for signal <pat0_metaPtr_value>.
+    Found 1-bit register for signal <pat0_splitReadInFlight>.
+    Found 32-bit register for signal <pat0_thisLength>.
+    Found 32-bit register for signal <pat0_thisOpcode>.
+    Found 16-bit register for signal <pat0_unrollCnt>.
+    Found 4-bit register for signal <pat0_wci_wslv_cState>.
+    Found 1-bit register for signal <pat0_wci_wslv_ctlAckReg>.
+    Found 1-bit register for signal <pat0_wci_wslv_ctlOpActive>.
+    Found 1-bit register for signal <pat0_wci_wslv_illegalEdge>.
+    Found 1-bit register for signal <pat0_wci_wslv_isReset_isInReset>.
+    Found 4-bit register for signal <pat0_wci_wslv_nState>.
+    Found 2-bit register for signal <pat0_wci_wslv_reqF_countReg>.
+    Found 2-bit addsub for signal <pat0_wci_wslv_reqF_countReg$D_IN>.
+    Found 1-bit xor2 for signal <pat0_wci_wslv_reqF_countReg$EN>.
+    Found 2-bit register for signal <pat0_wci_wslv_respF_c_r>.
+    Found 34-bit register for signal <pat0_wci_wslv_respF_q_0>.
+    Found 34-bit register for signal <pat0_wci_wslv_respF_q_1>.
+    Found 1-bit register for signal <pat0_wci_wslv_sFlagReg>.
+    Found 1-bit register for signal <pat0_wsiM_errorSticky>.
+    Found 32-bit up counter for signal <pat0_wsiM_iMesgCount>.
+    Found 1-bit register for signal <pat0_wsiM_isReset_isInReset>.
+    Found 1-bit register for signal <pat0_wsiM_operateD>.
+    Found 1-bit register for signal <pat0_wsiM_peerIsReady>.
+    Found 32-bit up counter for signal <pat0_wsiM_pMesgCount>.
+    Found 2-bit register for signal <pat0_wsiM_reqFifo_c_r>.
+    Found 61-bit register for signal <pat0_wsiM_reqFifo_q_0>.
+    Found 61-bit register for signal <pat0_wsiM_reqFifo_q_1>.
+    Found 8-bit register for signal <pat0_wsiM_statusR>.
+    Found 1-bit register for signal <pat0_wsiM_sThreadBusy_d>.
+    Found 32-bit up counter for signal <pat0_wsiM_tBusyCount>.
+    Found 1-bit register for signal <pat0_wsiM_trafficSticky>.
+    Found 32-bit up counter for signal <sma0_abortCount>.
+    Found 1-bit register for signal <sma0_doAbort>.
+    Found 1-bit register for signal <sma0_endOfMessage>.
+    Found 32-bit up counter for signal <sma0_errCount>.
+    Found 32-bit comparator not equal for signal <sma0_errCount$cmp_ne0000> created at line 4838.
+    Found 12-bit register for signal <sma0_fabRespCredit_value>.
+    Found 14-bit register for signal <sma0_fabWordsCurReq>.
+    Found 14-bit comparator lessequal for signal <sma0_fabWordsCurReq$cmp_le0000> created at line 4853.
+    Found 14-bit register for signal <sma0_fabWordsRemain>.
+    Found 32-bit register for signal <sma0_lastMesg>.
+    Found 32-bit register for signal <sma0_mesgCount>.
+    Found 14-bit register for signal <sma0_mesgLengthSoFar>.
+    Found 1-bit register for signal <sma0_mesgPreRequest>.
+    Found 14-bit register for signal <sma0_mesgReqAddr>.
+    Found 1-bit register for signal <sma0_mesgReqOK>.
+    Found 9-bit register for signal <sma0_opcode>.
+    Found 1-bit register for signal <sma0_readyToPush>.
+    Found 74-bit register for signal <sma0_respF_rCache>.
+    Found 12-bit register for signal <sma0_respF_rRdPtr>.
+    Found 12-bit up counter for signal <sma0_respF_rWrPtr>.
+    Found 32-bit register for signal <sma0_smaCtrl>.
+    Found 32-bit register for signal <sma0_thisMesg>.
+    Found 16-bit register for signal <sma0_unrollCnt>.
+    Found 32-bit up counter for signal <sma0_valExpect>.
+    Found 4-bit register for signal <sma0_wci_wslv_cState>.
+    Found 1-bit register for signal <sma0_wci_wslv_ctlAckReg>.
+    Found 1-bit register for signal <sma0_wci_wslv_ctlOpActive>.
+    Found 1-bit register for signal <sma0_wci_wslv_illegalEdge>.
+    Found 1-bit register for signal <sma0_wci_wslv_isReset_isInReset>.
+    Found 4-bit register for signal <sma0_wci_wslv_nState>.
+    Found 2-bit register for signal <sma0_wci_wslv_reqF_countReg>.
+    Found 2-bit addsub for signal <sma0_wci_wslv_reqF_countReg$D_IN>.
+    Found 1-bit xor2 for signal <sma0_wci_wslv_reqF_countReg$EN>.
+    Found 2-bit register for signal <sma0_wci_wslv_respF_c_r>.
+    Found 34-bit register for signal <sma0_wci_wslv_respF_q_0>.
+    Found 34-bit register for signal <sma0_wci_wslv_respF_q_1>.
+    Found 2-bit register for signal <sma0_wmi_dhF_c_r>.
+    Found 38-bit register for signal <sma0_wmi_dhF_q_0>.
+    Found 38-bit register for signal <sma0_wmi_dhF_q_1>.
+    Found 1-bit register for signal <sma0_wmi_isReset_isInReset>.
+    Found 2-bit register for signal <sma0_wmi_mFlagF_c_r>.
+    Found 32-bit register for signal <sma0_wmi_mFlagF_q_0>.
+    Found 32-bit register for signal <sma0_wmi_mFlagF_q_1>.
+    Found 1-bit register for signal <sma0_wmi_operateD>.
+    Found 1-bit register for signal <sma0_wmi_peerIsReady>.
+    Found 2-bit register for signal <sma0_wmi_reqF_c_r>.
+    Found 32-bit register for signal <sma0_wmi_reqF_q_0>.
+    Found 32-bit register for signal <sma0_wmi_reqF_q_1>.
+    Found 12-bit adder for signal <sma0_wmi_respF_i_notEmpty__718_AND_sma0_smaCtr_ETC___d1723$addsub0000> created at line 6259.
+    Found 12-bit comparator not equal for signal <sma0_wmi_respF_i_notEmpty__718_AND_sma0_smaCtr_ETC___d1723$cmp_ne0000> created at line 6259.
+    Found 1-bit register for signal <sma0_wmi_sDataThreadBusy_d>.
+    Found 32-bit register for signal <sma0_wmi_sFlagReg>.
+    Found 1-bit register for signal <sma0_wmi_sThreadBusy_d>.
+    Found 32-bit up counter for signal <sma0_wmwtBeginCount>.
+    Found 32-bit up counter for signal <sma0_wmwtFinalCount>.
+    Found 32-bit up counter for signal <sma0_wmwtPushCount>.
+    Found 32-bit up counter for signal <sma0_wsiM_iMesgCount>.
+    Found 1-bit register for signal <sma0_wsiM_isReset_isInReset>.
+    Found 1-bit register for signal <sma0_wsiM_operateD>.
+    Found 32-bit up counter for signal <sma0_wsiM_pMesgCount>.
+    Found 2-bit register for signal <sma0_wsiM_reqFifo_c_r>.
+    Found 61-bit register for signal <sma0_wsiM_reqFifo_q_0>.
+    Found 61-bit register for signal <sma0_wsiM_reqFifo_q_1>.
+    Found 8-bit register for signal <sma0_wsiM_statusR>.
+    Found 1-bit register for signal <sma0_wsiM_sThreadBusy_d>.
+    Found 32-bit up counter for signal <sma0_wsiM_tBusyCount>.
+    Found 1-bit register for signal <sma0_wsiM_trafficSticky>.
+    Found 32-bit up counter for signal <sma0_wsiS_iMesgCount>.
+    Found 1-bit register for signal <sma0_wsiS_isReset_isInReset>.
+    Found 1-bit register for signal <sma0_wsiS_operateD>.
+    Found 1-bit register for signal <sma0_wsiS_peerIsReady>.
+    Found 32-bit up counter for signal <sma0_wsiS_pMesgCount>.
+    Found 2-bit register for signal <sma0_wsiS_reqFifo_countReg>.
+    Found 2-bit addsub for signal <sma0_wsiS_reqFifo_countReg$D_IN>.
+    Found 1-bit xor2 for signal <sma0_wsiS_reqFifo_countReg$EN>.
+    Found 1-bit register for signal <sma0_wsiS_reqFifo_levelsValid>.
+    Found 8-bit register for signal <sma0_wsiS_statusR>.
+    Found 2-bit comparator greater for signal <sma0_wsiS_sThreadBusy_dw$wget>.
+    Found 32-bit up counter for signal <sma0_wsiS_tBusyCount>.
+    Found 1-bit register for signal <sma0_wsiS_trafficSticky>.
+    Found 12-bit register for signal <sma0_wsiS_wordCount>.
+    Found 12-bit adder for signal <sma0_wsiS_wordCount$addsub0000> created at line 5594.
+    Found 3-bit comparator less for signal <WILL_FIRE_RL_pat0_metaBram_serverAdapterA_1_stageReadResponseAlways$cmp_lt0000> created at line 2904.
+    Found 3-bit comparator less for signal <WILL_FIRE_RL_pat0_metaBram_serverAdapterA_1_stageReadResponseAlways$cmp_lt0001> created at line 2904.
+    Found 3-bit comparator less for signal <WILL_FIRE_RL_pat0_metaBram_serverAdapterA_1_stageReadResponseAlways$cmp_lt0002> created at line 2904.
+    Found 3-bit comparator less for signal <WILL_FIRE_RL_pat0_metaBram_serverAdapterA_1_stageReadResponseAlways$cmp_lt0003> created at line 2904.
+    Found 12-bit comparator not equal for signal <WILL_FIRE_RL_sma0_wmrd_mesgResptoWsi$cmp_ne0000> created at line 3214.
+    Found 6-bit comparator lessequal for signal <x__h27583$cmp_le0000> created at line 6282.
+    Found 6-bit comparator lessequal for signal <x__h27583$cmp_le0001> created at line 6282.
+    Found 12-bit adder for signal <x__h50380>.
+    Found 14-bit comparator equal for signal <x__h52382>.
+    Found 6-bit comparator lessequal for signal <x__h52727$cmp_le0000> created at line 6396.
+    Found 6-bit comparator lessequal for signal <x__h52727$cmp_le0001> created at line 6396.
+    Found 3-bit adder for signal <x__h56459>.
+    Found 3-bit adder for signal <x__h56471>.
+    Summary:
+	inferred   3 Finite State Machine(s).
+	inferred  17 Counter(s).
+	inferred 1353 D-type flip-flop(s).
+	inferred  60 Adder/Subtractor(s).
+	inferred  26 Comparator(s).
+	inferred  35 Multiplexer(s).
 Unit <mkFTop_n210> synthesized.
 
 
@@ -3934,8 +4598,6 @@ WARNING:Xst:1306 - Output <dac_smosi> is never assigned.
 Unit <fpgaTop> synthesized.
 
 INFO:Xst:1767 - HDL ADVISOR - Resource sharing has identified that some arithmetic operations in this design can share the same physical resources for reduced device utilization. For improved clock frequency you may try to disable resource sharing.
-WARNING:Xst:524 - All outputs of the instance <wmi_wmi_dhF> of the block <SizedFIFO_4> are unconnected in block <mkOCEDP4B>.
-   This instance will be removed from the design along with all underlying logic
 WARNING:Xst:524 - All outputs of the instance <col_cc> of the block <SyncBit> are unconnected in block <mkGMAC>.
    This instance will be removed from the design along with all underlying logic
 WARNING:Xst:524 - All outputs of the instance <crs_cc> of the block <SyncBit> are unconnected in block <mkGMAC>.
@@ -3945,17 +4607,19 @@ WARNING:Xst:524 - All outputs of the instance <crs_cc> of the block <SyncBit> ar
 HDL Synthesis Report
 
 Macro Statistics
-# RAMs                                                 : 46
- 1024x32-bit dual-port RAM                             : 5
+# RAMs                                                 : 66
+ 1024x32-bit dual-port RAM                             : 10
  1024x32-bit single-port RAM                           : 1
  1024x39-bit dual-port RAM                             : 1
  15x24-bit dual-port RAM                               : 1
  15x8-bit dual-port RAM                                : 1
  2048x32-bit dual-port RAM                             : 4
- 2x32-bit dual-port RAM                                : 21
- 2x61-bit dual-port RAM                                : 1
+ 2048x61-bit dual-port RAM                             : 1
+ 2x32-bit dual-port RAM                                : 31
+ 2x38-bit dual-port RAM                                : 1
+ 2x61-bit dual-port RAM                                : 2
  2x64-bit dual-port RAM                                : 1
- 2x72-bit dual-port RAM                                : 4
+ 2x72-bit dual-port RAM                                : 6
  4x10-bit dual-port RAM                                : 2
  4x40-bit dual-port RAM                                : 1
  4x59-bit dual-port RAM                                : 1
@@ -3967,31 +4631,33 @@ Macro Statistics
 # Multipliers                                          : 2
  12x4-bit multiplier                                   : 1
  6x4-bit multiplier                                    : 1
-# Adders/Subtractors                                   : 263
- 1-bit adder                                           : 67
+# Adders/Subtractors                                   : 360
+ 1-bit adder                                           : 95
  1-bit subtractor                                      : 15
  10-bit adder                                          : 1
  10-bit subtractor                                     : 8
  11-bit adder                                          : 3
- 12-bit adder                                          : 3
+ 12-bit adder                                          : 8
  12-bit subtractor                                     : 2
  13-bit adder                                          : 11
- 14-bit adder                                          : 2
- 14-bit subtractor                                     : 1
- 16-bit adder                                          : 14
- 16-bit subtractor                                     : 7
+ 14-bit adder                                          : 4
+ 14-bit subtractor                                     : 3
+ 16-bit adder                                          : 15
+ 16-bit subtractor                                     : 10
  17-bit adder                                          : 1
  17-bit subtractor                                     : 1
  18-bit adder                                          : 6
  18-bit subtractor                                     : 1
- 2-bit adder                                           : 14
- 2-bit addsub                                          : 5
- 2-bit subtractor                                      : 8
+ 2-bit adder                                           : 23
+ 2-bit addsub                                          : 10
+ 2-bit subtractor                                      : 15
+ 24-bit adder                                          : 1
  25-bit subtractor                                     : 1
  28-bit adder                                          : 1
- 3-bit adder                                           : 27
+ 3-bit adder                                           : 55
  3-bit subtractor                                      : 3
- 32-bit adder                                          : 30
+ 32-bit adder                                          : 34
+ 32-bit subtractor                                     : 2
  4-bit adder                                           : 8
  4-bit subtractor                                      : 6
  5-bit adder                                           : 4
@@ -4001,43 +4667,45 @@ Macro Statistics
  7-bit adder                                           : 2
  7-bit subtractor                                      : 3
  8-bit adder                                           : 2
-# Counters                                             : 23
- 16-bit up counter                                     : 5
+# Counters                                             : 40
+ 12-bit up counter                                     : 1
+ 16-bit up counter                                     : 7
  2-bit up counter                                      : 1
  28-bit up counter                                     : 2
  3-bit up counter                                      : 1
- 32-bit up counter                                     : 9
+ 32-bit up counter                                     : 23
  4-bit updown counter                                  : 3
  7-bit up counter                                      : 1
  8-bit down counter                                    : 1
-# Registers                                            : 1267
- 1-bit register                                        : 584
- 10-bit register                                       : 55
+# Registers                                            : 1532
+ 1-bit register                                        : 726
+ 10-bit register                                       : 61
  11-bit register                                       : 6
  112-bit register                                      : 5
  113-bit register                                      : 2
- 12-bit register                                       : 18
+ 12-bit register                                       : 20
  128-bit register                                      : 3
  129-bit register                                      : 2
  13-bit register                                       : 3
  130-bit register                                      : 2
  139-bit register                                      : 2
- 14-bit register                                       : 5
+ 14-bit register                                       : 10
  15-bit register                                       : 2
- 16-bit register                                       : 27
+ 16-bit register                                       : 31
  17-bit register                                       : 22
  18-bit register                                       : 9
- 2-bit register                                        : 59
+ 2-bit register                                        : 82
  24-bit register                                       : 1
  25-bit register                                       : 1
  27-bit register                                       : 2
  28-bit register                                       : 3
- 3-bit register                                        : 62
- 32-bit register                                       : 127
+ 3-bit register                                        : 79
+ 32-bit register                                       : 166
  33-bit register                                       : 20
- 34-bit register                                       : 25
+ 34-bit register                                       : 31
+ 38-bit register                                       : 3
  39-bit register                                       : 19
- 4-bit register                                        : 76
+ 4-bit register                                        : 80
  40-bit register                                       : 5
  44-bit register                                       : 5
  48-bit register                                       : 4
@@ -4047,35 +4715,41 @@ Macro Statistics
  57-bit register                                       : 1
  59-bit register                                       : 5
  6-bit register                                        : 1
- 61-bit register                                       : 5
+ 61-bit register                                       : 12
  64-bit register                                       : 5
  640-bit register                                      : 1
  65-bit register                                       : 1
  7-bit register                                        : 3
- 72-bit register                                       : 19
+ 72-bit register                                       : 21
+ 74-bit register                                       : 1
  78-bit register                                       : 2
- 8-bit register                                        : 18
- 9-bit register                                        : 1
-# Comparators                                          : 119
+ 8-bit register                                        : 21
+ 9-bit register                                        : 2
+# Comparators                                          : 147
  10-bit comparator lessequal                           : 6
  11-bit comparator not equal                           : 2
+ 12-bit comparator equal                               : 1
+ 12-bit comparator greater                             : 1
  12-bit comparator less                                : 1
+ 12-bit comparator not equal                           : 2
  13-bit comparator lessequal                           : 1
- 16-bit comparator equal                               : 5
+ 14-bit comparator equal                               : 1
+ 14-bit comparator lessequal                           : 1
+ 16-bit comparator equal                               : 6
  17-bit comparator equal                               : 1
  17-bit comparator lessequal                           : 1
- 2-bit comparator greater                              : 5
+ 2-bit comparator greater                              : 10
  2-bit comparator not equal                            : 4
  24-bit comparator less                                : 2
  25-bit comparator greater                             : 1
  25-bit comparator lessequal                           : 1
  28-bit comparator greater                             : 1
  28-bit comparator less                                : 1
- 3-bit comparator less                                 : 15
+ 3-bit comparator less                                 : 26
  3-bit comparator not equal                            : 12
  32-bit comparator equal                               : 1
  32-bit comparator greater                             : 1
- 32-bit comparator less                                : 18
+ 32-bit comparator less                                : 19
  32-bit comparator not equal                           : 1
  4-bit comparator equal                                : 4
  4-bit comparator greater                              : 1
@@ -4085,29 +4759,31 @@ Macro Statistics
  48-bit comparator not equal                           : 1
  5-bit comparator less                                 : 1
  5-bit comparator lessequal                            : 15
+ 6-bit comparator lessequal                            : 4
  7-bit comparator greatequal                           : 1
  7-bit comparator lessequal                            : 1
  8-bit comparator equal                                : 3
  8-bit comparator less                                 : 3
-# Multiplexers                                         : 80
+# Multiplexers                                         : 103
  1-bit 11-to-1 multiplexer                             : 2
  1-bit 117-to-1 multiplexer                            : 1
  1-bit 16-to-1 multiplexer                             : 1
  1-bit 18-to-1 multiplexer                             : 1
  1-bit 195-to-1 multiplexer                            : 2
- 1-bit 4-to-1 multiplexer                              : 16
+ 1-bit 4-to-1 multiplexer                              : 21
  1-bit 8-to-1 multiplexer                              : 2
  1-bit 87-to-1 multiplexer                             : 1
  10-bit 16-to-1 multiplexer                            : 2
  11-bit 4-to-1 multiplexer                             : 8
  32-bit 16-to-1 multiplexer                            : 1
- 32-bit 4-to-1 multiplexer                             : 31
+ 32-bit 4-to-1 multiplexer                             : 45
  33-bit 4-to-1 multiplexer                             : 1
+ 38-bit 4-to-1 multiplexer                             : 1
  39-bit 16-to-1 multiplexer                            : 1
  44-bit 4-to-1 multiplexer                             : 1
  5-bit 8-to-1 multiplexer                              : 1
- 61-bit 4-to-1 multiplexer                             : 1
- 72-bit 4-to-1 multiplexer                             : 4
+ 61-bit 4-to-1 multiplexer                             : 2
+ 72-bit 4-to-1 multiplexer                             : 6
  78-bit 4-to-1 multiplexer                             : 1
  8-bit 16-to-1 multiplexer                             : 2
 # Logic shifters                                       : 20
@@ -4118,10 +4794,10 @@ Macro Statistics
  640-bit shifter logical right                         : 1
 # Tristates                                            : 4
  1-bit tristate buffer                                 : 4
-# Xors                                                 : 163
+# Xors                                                 : 197
  1-bit xor11                                           : 2
  1-bit xor18                                           : 1
- 1-bit xor2                                            : 144
+ 1-bit xor2                                            : 178
  2-bit xor2                                            : 2
  3-bit xor2                                            : 8
  32-bit xor2                                           : 2
@@ -4133,7 +4809,34 @@ Macro Statistics
 *                       Advanced HDL Synthesis                          *
 =========================================================================
 
-Analyzing FSM <FSM_2> for best encoding.
+Analyzing FSM <FSM_6> for best encoding.
+Optimizing FSM <ftop/sma0_wsiS_burstKind/FSM> on signal <sma0_wsiS_burstKind[1:2]> with gray encoding.
+-------------------
+ State | Encoding
+-------------------
+ 00    | 00
+ 01    | 01
+ 10    | 11
+-------------------
+Analyzing FSM <FSM_5> for best encoding.
+Optimizing FSM <ftop/sma0_wsiM_burstKind/FSM> on signal <sma0_wsiM_burstKind[1:2]> with gray encoding.
+-------------------
+ State | Encoding
+-------------------
+ 00    | 00
+ 01    | 01
+ 10    | 11
+-------------------
+Analyzing FSM <FSM_4> for best encoding.
+Optimizing FSM <ftop/pat0_wsiM_burstKind/FSM> on signal <pat0_wsiM_burstKind[1:2]> with gray encoding.
+-------------------
+ State | Encoding
+-------------------
+ 00    | 00
+ 01    | 01
+ 10    | 11
+-------------------
+Analyzing FSM <FSM_3> for best encoding.
 Optimizing FSM <ftop/iqadc/wsiM_burstKind/FSM> on signal <wsiM_burstKind[1:2]> with gray encoding.
 -------------------
  State | Encoding
@@ -4142,8 +4845,25 @@ Optimizing FSM <ftop/iqadc/wsiM_burstKind/FSM> on signal <wsiM_burstKind[1:2]> w
  01    | 01
  10    | 11
 -------------------
-Analyzing FSM <FSM_1> for best encoding.
+Analyzing FSM <FSM_2> for best encoding.
 Optimizing FSM <ftop/iqadc/adcCore_iseqFsm_state_mkFSMstate/FSM> on signal <adcCore_iseqFsm_state_mkFSMstate[1:11]> with one-hot encoding.
+----------------------
+ State | Encoding
+----------------------
+ 0000  | 00000000001
+ 0001  | 00000000010
+ 0010  | 00000000100
+ 0011  | 00000001000
+ 0100  | 00000010000
+ 0101  | 00000100000
+ 0110  | 00001000000
+ 0111  | 00010000000
+ 1000  | 00100000000
+ 1001  | 01000000000
+ 1010  | 10000000000
+----------------------
+Analyzing FSM <FSM_1> for best encoding.
+Optimizing FSM <ftop/gbe0/edp_edp_egressIpHeadFsm_state_mkFSMstate/FSM> on signal <edp_edp_egressIpHeadFsm_state_mkFSMstate[1:11]> with one-hot encoding.
 ----------------------
  State | Encoding
 ----------------------
@@ -4208,11 +4928,7 @@ WARNING:Xst:1290 - Hierarchical block <wci_mReset_9> is unconnected in block <cp
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <edp_inF> is unconnected in block <edp0>.
    It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <wmi_wmi_mFlagF> is unconnected in block <edp0>.
-   It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <edpRxF> is unconnected in block <gbe0>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <edpTxF> is unconnected in block <gbe0>.
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <edp_dgdpReqAF> is unconnected in block <gbe0>.
    It will be removed from the design.
@@ -4238,9 +4954,11 @@ WARNING:Xst:1290 - Hierarchical block <timeServ_refPerPPS> is unconnected in blo
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <timeServ_rollingPPSIn> is unconnected in block <cp>.
    It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <wmi_wmi_reqF> is unconnected in block <edp0>.
+WARNING:Xst:1290 - Hierarchical block <edpTxF> is unconnected in block <gbe0>.
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <timeServ_ppsLostCC> is unconnected in block <cp>.
+   It will be removed from the design.
+WARNING:Xst:1290 - Hierarchical block <merge_fi1> is unconnected in block <gbe0>.
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <flashC_respF> is unconnected in block <pwrk>.
    It will be removed from the design.
@@ -4248,19 +4966,19 @@ WARNING:Xst:2404 -  FFs/Latches <ledReg<4:0>> (without init value) have a consta
 WARNING:Xst:2404 -  FFs/Latches <sDataSyncIn<27:0>> (without init value) have a constant value of 0 in block <SyncRegister_4>.
 WARNING:Xst:2404 -  FFs/Latches <sDataSyncIn<7:0>> (without init value) have a constant value of 0 in block <SyncRegister_5>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
-WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_10<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_1<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
+WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_10<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_11<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
-WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_13<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_12<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_14<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
-WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_3<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
+WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_13<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_2<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
+WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_3<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_4<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_5<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_6<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
-WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_7<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_8<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
+WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_7<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <wci_wStatus_9<31:28>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <timeServ_jamFracVal<49:48>> (without init value) have a constant value of 0 in block <mkOCCP>.
 WARNING:Xst:2404 -  FFs/Latches <adcCore_samp<31:30>> (without init value) have a constant value of 0 in block <mkIQADCWorker>.
@@ -4323,6 +5041,33 @@ INFO:Xst:3226 - The RAM <Mram_RAM> will be implemented as a BLOCK RAM, absorbing
     | ram_type           | Block                               |          |
     -----------------------------------------------------------------------
     | Port A                                                              |
+    |     aspect ratio   | 2048-word x 61-bit                  |          |
+    |     mode           | read-first                          |          |
+    |     clkA           | connected to signal <CLKA>          | rise     |
+    |     weA            | connected to signal <WEA>           | high     |
+    |     addrA          | connected to signal <ADDRA>         |          |
+    |     diA            | connected to signal <DIA>           |          |
+    |     doA            | connected to signal <DOA_R>         |          |
+    -----------------------------------------------------------------------
+    | optimization       | speed                               |          |
+    -----------------------------------------------------------------------
+    | Port B                                                              |
+    |     aspect ratio   | 2048-word x 61-bit                  |          |
+    |     mode           | write-first                         |          |
+    |     clkB           | connected to signal <CLKB>          | rise     |
+    |     addrB          | connected to signal <ADDRB>         |          |
+    |     doB            | connected to signal <DOB_R>         |          |
+    -----------------------------------------------------------------------
+    | optimization       | speed                               |          |
+    -----------------------------------------------------------------------
+Unit <BRAM2_2> synthesized (advanced).
+
+Synthesizing (advanced) Unit <BRAM2_3>.
+INFO:Xst:3226 - The RAM <Mram_RAM> will be implemented as a BLOCK RAM, absorbing the following register(s): <DOA_R> <DOB_R>
+    -----------------------------------------------------------------------
+    | ram_type           | Block                               |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
     |     aspect ratio   | 2048-word x 32-bit                  |          |
     |     mode           | read-first                          |          |
     |     clkA           | connected to signal <CLKA>          | rise     |
@@ -4344,9 +5089,9 @@ INFO:Xst:3226 - The RAM <Mram_RAM> will be implemented as a BLOCK RAM, absorbing
     -----------------------------------------------------------------------
     | optimization       | speed                               |          |
     -----------------------------------------------------------------------
-Unit <BRAM2_2> synthesized (advanced).
+Unit <BRAM2_3> synthesized (advanced).
 
-Synthesizing (advanced) Unit <BRAM2_3>.
+Synthesizing (advanced) Unit <BRAM2_4>.
 INFO:Xst:3226 - The RAM <Mram_RAM> will be implemented as a BLOCK RAM, absorbing the following register(s): <DOA_R> <DOB_R>
     -----------------------------------------------------------------------
     | ram_type           | Block                               |          |
@@ -4371,7 +5116,7 @@ INFO:Xst:3226 - The RAM <Mram_RAM> will be implemented as a BLOCK RAM, absorbing
     -----------------------------------------------------------------------
     | optimization       | speed                               |          |
     -----------------------------------------------------------------------
-Unit <BRAM2_3> synthesized (advanced).
+Unit <BRAM2_4> synthesized (advanced).
 
 Synthesizing (advanced) Unit <Counter_1>.
 The following registers are absorbed into accumulator <q_state>: 1 register on signal <q_state>.
@@ -4437,6 +5182,25 @@ INFO:Xst:3231 - The small RAM <Mram_arr> will be implemented on LUTs in order to
     |     doB            | connected to internal node          |          |
     -----------------------------------------------------------------------
 Unit <SizedFIFO_3> synthesized (advanced).
+
+Synthesizing (advanced) Unit <SizedFIFO_4>.
+INFO:Xst:3231 - The small RAM <Mram_arr> will be implemented on LUTs in order to maximize performance and save block RAM resources. If you want to force its implementation on block, use option/constraint ram_style.
+    -----------------------------------------------------------------------
+    | ram_type           | Distributed                         |          |
+    -----------------------------------------------------------------------
+    | Port A                                                              |
+    |     aspect ratio   | 2-word x 38-bit                     |          |
+    |     clkA           | connected to signal <CLK>           | rise     |
+    |     weA            | connected to signal <_and0000_0>    | high     |
+    |     addrA          | connected to signal <tail>          |          |
+    |     diA            | connected to signal <D_IN>          |          |
+    -----------------------------------------------------------------------
+    | Port B                                                              |
+    |     aspect ratio   | 2-word x 38-bit                     |          |
+    |     addrB          | connected to signal <head>          |          |
+    |     doB            | connected to internal node          |          |
+    -----------------------------------------------------------------------
+Unit <SizedFIFO_4> synthesized (advanced).
 
 Synthesizing (advanced) Unit <SizedFIFO_5>.
 INFO:Xst:3231 - The small RAM <Mram_arr> will be implemented on LUTs in order to maximize performance and save block RAM resources. If you want to force its implementation on block, use option/constraint ram_style.
@@ -4571,9 +5335,13 @@ INFO:Xst:3231 - The small RAM <Mram_fifoMem> will be implemented on LUTs in orde
     -----------------------------------------------------------------------
 Unit <SyncFIFO_5> synthesized (advanced).
 
+Synthesizing (advanced) Unit <mkFTop_n210>.
+The following registers are absorbed into accumulator <sma0_fabWordsRemain>: 1 register on signal <sma0_fabWordsRemain>.
+Unit <mkFTop_n210> synthesized (advanced).
+
 Synthesizing (advanced) Unit <mkOCEDP4B>.
-The following registers are absorbed into accumulator <edp_srcMesgAccu>: 1 register on signal <edp_srcMesgAccu>.
 The following registers are absorbed into accumulator <edp_remMesgAccu>: 1 register on signal <edp_remMesgAccu>.
+The following registers are absorbed into accumulator <edp_srcMesgAccu>: 1 register on signal <edp_srcMesgAccu>.
 Unit <mkOCEDP4B> synthesized (advanced).
 
 Synthesizing (advanced) Unit <arSRLFIFOD_1>.
@@ -4635,18 +5403,20 @@ Unit <arSRLFIFOD_2> synthesized (advanced).
 Advanced HDL Synthesis Report
 
 Macro Statistics
-# FSMs                                                 : 3
-# RAMs                                                 : 46
- 1024x32-bit dual-port block RAM                       : 5
+# FSMs                                                 : 7
+# RAMs                                                 : 66
+ 1024x32-bit dual-port block RAM                       : 10
  1024x32-bit single-port block RAM                     : 1
  1024x39-bit dual-port block RAM                       : 1
  15x24-bit dual-port distributed RAM                   : 1
  15x8-bit dual-port distributed RAM                    : 1
  2048x32-bit dual-port block RAM                       : 4
- 2x32-bit dual-port distributed RAM                    : 21
- 2x61-bit dual-port distributed RAM                    : 1
+ 2048x61-bit dual-port block RAM                       : 1
+ 2x32-bit dual-port distributed RAM                    : 31
+ 2x38-bit dual-port distributed RAM                    : 1
+ 2x61-bit dual-port distributed RAM                    : 2
  2x64-bit dual-port distributed RAM                    : 1
- 2x72-bit dual-port distributed RAM                    : 4
+ 2x72-bit dual-port distributed RAM                    : 6
  4x10-bit dual-port distributed RAM                    : 2
  4x40-bit dual-port distributed RAM                    : 1
  4x59-bit dual-port distributed RAM                    : 1
@@ -4658,32 +5428,33 @@ Macro Statistics
 # Multipliers                                          : 2
  12x4-bit multiplier                                   : 1
  6x4-bit multiplier                                    : 1
-# Adders/Subtractors                                   : 253
- 1-bit adder                                           : 67
+# Adders/Subtractors                                   : 349
+ 1-bit adder                                           : 95
  1-bit subtractor                                      : 15
  10-bit adder                                          : 1
  10-bit subtractor                                     : 8
  11-bit adder                                          : 2
- 12-bit adder                                          : 1
+ 12-bit adder                                          : 6
  12-bit subtractor                                     : 2
  13-bit adder                                          : 11
- 14-bit adder                                          : 2
- 14-bit subtractor                                     : 1
- 16-bit adder                                          : 13
- 16-bit subtractor                                     : 7
+ 14-bit adder                                          : 4
+ 14-bit subtractor                                     : 2
+ 16-bit adder                                          : 16
+ 16-bit subtractor                                     : 10
  17-bit adder                                          : 1
  17-bit subtractor                                     : 1
  18-bit adder                                          : 6
  18-bit subtractor                                     : 1
- 2-bit adder                                           : 14
- 2-bit addsub                                          : 5
- 2-bit subtractor                                      : 8
+ 2-bit adder                                           : 23
+ 2-bit addsub                                          : 10
+ 2-bit subtractor                                      : 15
  25-bit subtractor                                     : 1
  28-bit adder                                          : 1
- 3-bit adder                                           : 25
- 3-bit adder carry in                                  : 1
+ 3-bit adder                                           : 51
+ 3-bit adder carry in                                  : 2
  3-bit subtractor                                      : 3
- 32-bit adder                                          : 27
+ 32-bit adder                                          : 31
+ 32-bit subtractor                                     : 2
  4-bit adder                                           : 7
  4-bit subtractor                                      : 9
  5-bit adder                                           : 4
@@ -4693,44 +5464,51 @@ Macro Statistics
  7-bit adder                                           : 2
  7-bit subtractor                                      : 3
  8-bit adder                                           : 1
-# Counters                                             : 22
- 16-bit up counter                                     : 5
+# Counters                                             : 39
+ 12-bit up counter                                     : 1
+ 16-bit up counter                                     : 7
  2-bit up counter                                      : 1
  28-bit up counter                                     : 1
  3-bit up counter                                      : 1
- 32-bit up counter                                     : 9
+ 32-bit up counter                                     : 23
  4-bit updown counter                                  : 3
  7-bit up counter                                      : 1
  8-bit down counter                                    : 1
-# Accumulators                                         : 4
+# Accumulators                                         : 5
  10-bit up loadable accumulator                        : 1
+ 14-bit down loadable accumulator                      : 1
  16-bit up loadable accumulator                        : 1
  32-bit up loadable accumulator                        : 1
  8-bit up accumulator                                  : 1
-# Registers                                            : 13403
- Flip-Flops                                            : 13403
+# Registers                                            : 15504
+ Flip-Flops                                            : 15504
 # Shift Registers                                      : 59
  16-bit dynamic shift register                         : 59
-# Comparators                                          : 117
+# Comparators                                          : 145
  10-bit comparator lessequal                           : 6
  11-bit comparator not equal                           : 2
+ 12-bit comparator equal                               : 1
+ 12-bit comparator greater                             : 1
  12-bit comparator less                                : 1
+ 12-bit comparator not equal                           : 2
  13-bit comparator lessequal                           : 1
- 16-bit comparator equal                               : 5
+ 14-bit comparator equal                               : 1
+ 14-bit comparator lessequal                           : 1
+ 16-bit comparator equal                               : 6
  17-bit comparator equal                               : 1
  17-bit comparator lessequal                           : 1
- 2-bit comparator greater                              : 5
+ 2-bit comparator greater                              : 10
  2-bit comparator not equal                            : 4
  24-bit comparator less                                : 2
  25-bit comparator greater                             : 1
  25-bit comparator lessequal                           : 1
  28-bit comparator greater                             : 1
  28-bit comparator less                                : 1
- 3-bit comparator less                                 : 15
+ 3-bit comparator less                                 : 26
  3-bit comparator not equal                            : 12
  32-bit comparator equal                               : 1
  32-bit comparator greater                             : 1
- 32-bit comparator less                                : 17
+ 32-bit comparator less                                : 18
  32-bit comparator not equal                           : 1
  4-bit comparator equal                                : 4
  4-bit comparator greater                              : 1
@@ -4740,27 +5518,29 @@ Macro Statistics
  48-bit comparator not equal                           : 1
  5-bit comparator less                                 : 1
  5-bit comparator lessequal                            : 15
+ 6-bit comparator lessequal                            : 4
  7-bit comparator greatequal                           : 1
  7-bit comparator lessequal                            : 1
  8-bit comparator equal                                : 2
  8-bit comparator less                                 : 3
-# Multiplexers                                         : 75
+# Multiplexers                                         : 98
  1-bit 11-to-1 multiplexer                             : 2
  1-bit 117-to-1 multiplexer                            : 1
  1-bit 16-to-1 multiplexer                             : 1
  1-bit 18-to-1 multiplexer                             : 1
  1-bit 195-to-1 multiplexer                            : 2
- 1-bit 4-to-1 multiplexer                              : 16
+ 1-bit 4-to-1 multiplexer                              : 21
  1-bit 8-to-1 multiplexer                              : 2
  1-bit 87-to-1 multiplexer                             : 1
  11-bit 4-to-1 multiplexer                             : 8
  32-bit 16-to-1 multiplexer                            : 1
- 32-bit 4-to-1 multiplexer                             : 31
+ 32-bit 4-to-1 multiplexer                             : 45
  33-bit 4-to-1 multiplexer                             : 1
+ 38-bit 4-to-1 multiplexer                             : 1
  44-bit 4-to-1 multiplexer                             : 1
  5-bit 8-to-1 multiplexer                              : 1
- 61-bit 4-to-1 multiplexer                             : 1
- 72-bit 4-to-1 multiplexer                             : 4
+ 61-bit 4-to-1 multiplexer                             : 2
+ 72-bit 4-to-1 multiplexer                             : 6
  78-bit 4-to-1 multiplexer                             : 1
 # Logic shifters                                       : 20
  11-bit shifter logical left                           : 2
@@ -4768,10 +5548,10 @@ Macro Statistics
  32-bit shifter logical left                           : 15
  640-bit shifter logical left                          : 1
  640-bit shifter logical right                         : 1
-# Xors                                                 : 163
+# Xors                                                 : 197
  1-bit xor11                                           : 2
  1-bit xor18                                           : 1
- 1-bit xor2                                            : 144
+ 1-bit xor2                                            : 178
  2-bit xor2                                            : 2
  3-bit xor2                                            : 8
  32-bit xor2                                           : 2
@@ -4790,6 +5570,7 @@ WARNING:Xst:1989 - Unit <mkGMAC>: instances <txRS_iobTxClk_reset>, <txRS_iobTxEn
 WARNING:Xst:1989 - Unit <mkGMAC>: instances <txRS_iobTxClk_reset>, <txRS_iobTxErr_reset> of unit <ResetInverter> are equivalent, second instance is removed
 WARNING:Xst:1989 - Unit <mkIQADCWorker>: instances <adcCore_spiI_reqF_dCrossedsReset>, <adcCore_spiI_respF_sCrosseddReset> of unit <SyncReset0> are equivalent, second instance is removed
 WARNING:Xst:1989 - Unit <mkIQADCWorker>: instances <adcCore_spiI_reqF_sCrosseddReset>, <adcCore_spiI_respF_dCrossedsReset> of unit <SyncReset0> are equivalent, second instance is removed
+INFO:Xst:2146 - In block <mkFTop_n210>, Counter <sma0_abortCount> <sma0_wsiM_tBusyCount> are equivalent, XST will keep only <sma0_abortCount>.
 WARNING:Xst:1989 - Unit <mkIQADCWorker>: instances <adcCore_spiI_reqF_dCombinedReset>, <adcCore_spiI_respF_sCombinedReset> of unit <ResetEither> are equivalent, second instance is removed
 WARNING:Xst:1989 - Unit <mkIQADCWorker>: instances <adcCore_spiI_reqF_sCombinedReset>, <adcCore_spiI_respF_dCombinedReset> of unit <ResetEither> are equivalent, second instance is removed
 
@@ -4813,17 +5594,23 @@ Optimizing unit <BRAM2_1> ...
 
 Optimizing unit <SizedFIFO_1> ...
 
+Optimizing unit <FIFO10> ...
+
 Optimizing unit <FIFO2_1> ...
 
 Optimizing unit <SizedFIFO_2> ...
+
+Optimizing unit <BRAM2_2> ...
+
+Optimizing unit <FIFO2_2> ...
 
 Optimizing unit <SizedFIFO_3> ...
 
 Optimizing unit <FIFO1_1> ...
 
-Optimizing unit <FIFO2_2> ...
-
 Optimizing unit <FIFO2_3> ...
+
+Optimizing unit <FIFO2_4> ...
 
 Optimizing unit <BRAM1Load> ...
 
@@ -4833,11 +5620,9 @@ Optimizing unit <SyncHandshake> ...
 
 Optimizing unit <SyncResetA_2> ...
 
-Optimizing unit <BRAM2_2> ...
+Optimizing unit <BRAM2_3> ...
 
 Optimizing unit <arSRLFIFOD_1> ...
-
-Optimizing unit <FIFO2_4> ...
 
 Optimizing unit <FIFO2_5> ...
 
@@ -4845,9 +5630,9 @@ Optimizing unit <FIFO2_6> ...
 
 Optimizing unit <FIFO2_7> ...
 
-Optimizing unit <SizedFIFO_4> ...
-
 Optimizing unit <FIFO2_8> ...
+
+Optimizing unit <SizedFIFO_4> ...
 
 Optimizing unit <FIFO2_9> ...
 
@@ -4857,15 +5642,17 @@ Optimizing unit <FIFO2_11> ...
 
 Optimizing unit <FIFO2_12> ...
 
+Optimizing unit <FIFO2_13> ...
+
 Optimizing unit <Counter_1> ...
 
 Optimizing unit <Counter_2> ...
 
 Optimizing unit <TriState> ...
 
-Optimizing unit <FIFO2_13> ...
-
 Optimizing unit <FIFO2_14> ...
+
+Optimizing unit <FIFO2_15> ...
 
 Optimizing unit <SyncBit> ...
 
@@ -4875,11 +5662,11 @@ Optimizing unit <mkCRC32> ...
 
 Optimizing unit <arSRLFIFOD_2> ...
 
-Optimizing unit <BRAM2_3> ...
+Optimizing unit <BRAM2_4> ...
 
 Optimizing unit <ClockDiv> ...
 
-Optimizing unit <FIFO2_15> ...
+Optimizing unit <FIFO2_16> ...
 
 Optimizing unit <SizedFIFO_5> ...
 
@@ -4934,16 +5721,6 @@ Optimizing unit <mkIQADCWorker> ...
 Optimizing unit <mkGbeLite> ...
 
 Optimizing unit <mkFTop_n210> ...
-WARNING:Xst:1290 - Hierarchical block <wmi_wmi_mFlagF> is unconnected in block <edp0>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <bram_serverAdapterB_outDataCore> is unconnected in block <edp0>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <bram_serverAdapterB_3_outDataCore> is unconnected in block <edp0>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <bram_serverAdapterB_2_outDataCore> is unconnected in block <edp0>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <bram_serverAdapterB_1_outDataCore> is unconnected in block <edp0>.
-   It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <edp_inF> is unconnected in block <edp0>.
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <timeServ_ppsDisablePPS> is unconnected in block <cp>.
@@ -4982,8 +5759,6 @@ WARNING:Xst:1290 - Hierarchical block <edp_edp_edpReqF> is unconnected in block 
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <edp_edp_dgdpReqF> is unconnected in block <gbe0>.
    It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <edpTxF> is unconnected in block <gbe0>.
-   It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <edpRxF> is unconnected in block <gbe0>.
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <txDCPHdrF> is unconnected in block <gbe0>.
@@ -5000,36 +5775,37 @@ WARNING:Xst:1290 - Hierarchical block <intr_cc> is unconnected in block <gmac>.
    It will be removed from the design.
 WARNING:Xst:1290 - Hierarchical block <phyReset> is unconnected in block <gmac>.
    It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <wmi_wmi_reqF> is unconnected in block <edp0>.
+WARNING:Xst:1290 - Hierarchical block <sync> is unconnected in block <timeServ_ppsOKCC>.
    It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <flashC_respF> is unconnected in block <pwrk>.
+WARNING:Xst:1290 - Hierarchical block <sync> is unconnected in block <timeServ_ppsLostCC>.
    It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <timeServ_ppsOKCC> is unconnected in block <cp>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <timeServ_ppsLostCC> is unconnected in block <cp>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <timeServ_refPerPPS> is unconnected in block <cp>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <timeServ_rollingPPSIn> is unconnected in block <cp>.
-   It will be removed from the design.
-WARNING:Xst:1290 - Hierarchical block <mdi_fResponse> is unconnected in block <gbe0>.
+WARNING:Xst:1290 - Hierarchical block <edpTxF> is unconnected in block <gbe0>.
    It will be removed from the design.
 
 Mapping all equations...
 Building and optimizing final netlist ...
-Found area constraint ratio of 100 (+ 5) on block fpgaTop, actual ratio is 41.
+WARNING:Xst:1290 - Hierarchical block <mdi_fResponse> is unconnected in block <gbe0>.
+   It will be removed from the design.
+Found area constraint ratio of 100 (+ 5) on block fpgaTop, actual ratio is 55.
+WARNING:Xst:1290 - Hierarchical block <merge_fi1> is unconnected in block <gbe0>.
+   It will be removed from the design.
 FlipFlop ftop/cp/cpReq_10 has been replicated 1 time(s)
 FlipFlop ftop/cp/cpReq_11 has been replicated 1 time(s)
 FlipFlop ftop/cp/cpReq_12 has been replicated 1 time(s)
 FlipFlop ftop/cp/cpReq_13 has been replicated 1 time(s)
 FlipFlop ftop/cp/cpReq_14 has been replicated 1 time(s)
 FlipFlop ftop/cp/cpReq_15 has been replicated 1 time(s)
+FlipFlop ftop/cp/cpReq_16 has been replicated 1 time(s)
+FlipFlop ftop/cp/cpReq_17 has been replicated 1 time(s)
 FlipFlop ftop/cp/cpReq_20 has been replicated 1 time(s)
 FlipFlop ftop/cp/cpReq_21 has been replicated 1 time(s)
-FlipFlop ftop/cp/cpReq_22 has been replicated 1 time(s)
-FlipFlop ftop/cp/cpReq_37 has been replicated 1 time(s)
+FlipFlop ftop/cp/cpReq_36 has been replicated 1 time(s)
+FlipFlop ftop/cp/cpReq_37 has been replicated 2 time(s)
+FlipFlop ftop/cp/cpReq_6 has been replicated 1 time(s)
+FlipFlop ftop/cp/cpReq_7 has been replicated 1 time(s)
+FlipFlop ftop/cp/cpReq_8 has been replicated 1 time(s)
 FlipFlop ftop/cp/cpReq_9 has been replicated 1 time(s)
-PACKER Warning: Lut Msub_edp_dgdpTx_num_empty_D_IN_lut<4> driving carry Msub_edp_dgdpTx_num_empty_D_IN_cy<4> can not be packed with the carry due to conflict with the common signal requirement between the LUT inputs and the Carry DI/MAND pins. This would result in an extra LUT for a feedthrough.
+FlipFlop ftop/edp0/dpControl_0 has been replicated 1 time(s)
 
 Final Macro Processing ...
 
@@ -5081,8 +5857,8 @@ Unit <rstSync> processed.
 Final Register Report
 
 Macro Statistics
-# Registers                                            : 9182
- Flip-Flops                                            : 9182
+# Registers                                            : 11665
+ Flip-Flops                                            : 11665
 # Shift Registers                                      : 30
  2-bit shift register                                  : 30
 
@@ -5113,46 +5889,46 @@ Design Statistics
 # IOs                              : 146
 
 Cell Usage :
-# BELS                             : 21062
+# BELS                             : 28535
 #      AND2                        : 1
-#      GND                         : 67
-#      INV                         : 747
-#      LUT1                        : 1282
-#      LUT2                        : 2064
-#      LUT2_D                      : 95
-#      LUT2_L                      : 10
-#      LUT3                        : 4174
-#      LUT3_D                      : 111
-#      LUT3_L                      : 108
-#      LUT4                        : 6524
-#      LUT4_D                      : 399
-#      LUT4_L                      : 343
+#      GND                         : 103
+#      INV                         : 1044
+#      LUT1                        : 1844
+#      LUT2                        : 2434
+#      LUT2_D                      : 119
+#      LUT2_L                      : 77
+#      LUT3                        : 5632
+#      LUT3_D                      : 197
+#      LUT3_L                      : 146
+#      LUT4                        : 8326
+#      LUT4_D                      : 584
+#      LUT4_L                      : 714
 #      MULT_AND                    : 9
-#      MUXCY                       : 2563
-#      MUXF5                       : 586
-#      MUXF6                       : 124
+#      MUXCY                       : 3492
+#      MUXF5                       : 974
+#      MUXF6                       : 152
 #      MUXF7                       : 39
 #      OR2                         : 1
 #      OR3                         : 1
-#      VCC                         : 29
-#      XORCY                       : 1785
-# FlipFlops/Latches                : 9223
-#      FD                          : 568
+#      VCC                         : 37
+#      XORCY                       : 2609
+# FlipFlops/Latches                : 11706
+#      FD                          : 611
 #      FDC                         : 287
 #      FDCE                        : 589
-#      FDE                         : 2656
+#      FDE                         : 3356
 #      FDP                         : 17
-#      FDPE                        : 30
-#      FDR                         : 220
-#      FDRE                        : 3352
-#      FDRS                        : 10
-#      FDRSE                       : 36
-#      FDS                         : 607
-#      FDSE                        : 840
+#      FDPE                        : 37
+#      FDR                         : 305
+#      FDRE                        : 4621
+#      FDRS                        : 14
+#      FDRSE                       : 42
+#      FDS                         : 644
+#      FDSE                        : 1172
 #      ODDR2                       : 11
-# RAMS                             : 810
-#      RAM16X1D                    : 779
-#      RAMB16BWER                  : 31
+# RAMS                             : 1333
+#      RAM16X1D                    : 1291
+#      RAMB16BWER                  : 42
 # Shift Registers                  : 69
 #      SRL16                       : 28
 #      SRL16E                      : 41
@@ -5171,22 +5947,21 @@ Cell Usage :
 # Others                           : 1
 #      DNA_PORT                    : 1
 =========================================================================
-PACKER Warning: Lut Msub_edp_dgdpTx_num_empty_D_IN_lut<4> driving carry Msub_edp_dgdpTx_num_empty_D_IN_cy<4> can not be packed with the carry due to conflict with the common signal requirement between the LUT inputs and the Carry DI/MAND pins. This would result in an extra LUT for a feedthrough.
 
 Device utilization summary:
 ---------------------------
 
 Selected Device : 3sd3400afg676-5 
 
- Number of Slices:                     9580  out of  23872    40%  
- Number of Slice Flip Flops:           9223  out of  47744    19%  
- Number of 4 input LUTs:              17484  out of  47744    36%  
-    Number used as logic:             15857
+ Number of Slices:                    12293  out of  23872    51%  
+ Number of Slice Flip Flops:          11706  out of  47744    24%  
+ Number of 4 input LUTs:              23768  out of  47744    49%  
+    Number used as logic:             21117
     Number used as Shift registers:      69
-    Number used as RAMs:               1558
+    Number used as RAMs:               2582
  Number of IOs:                         146
  Number of bonded IOBs:                 103  out of    469    21%  
- Number of BRAMs:                        31  out of    126    24%  
+ Number of BRAMs:                        42  out of    126    33%  
  Number of GCLKs:                         6  out of     24    25%  
  Number of DCMs:                          1  out of      8    12%  
 
@@ -5211,8 +5986,8 @@ Clock Information:
 -----------------------------------+------------------------+-------+
 Clock Signal                       | Clock buffer(FF name)  | Load  |
 -----------------------------------+------------------------+-------+
-gmii_sysclk                        | IBUFG+BUFG+BUFG        | 1199  |
-sys0_clkp                          | dcm:CLK0               | 8728  |
+sys0_clkp                          | dcm:CLK0               | 11681 |
+gmii_sysclk                        | IBUFG+BUFG+BUFG        | 1252  |
 adc_clkout                         | IBUF+BUFG              | 18    |
 ftop/iqadc/adcCore_spiI_cd/cntr_2  | BUFG                   | 32    |
 gmii_rx_clk                        | BUFGP                  | 136   |
@@ -5240,6 +6015,7 @@ ftop/cp/wci_mReset_11/rstSync/IN_RST_N_inv(ftop/cp/wci_mReset_11/rstSync/IN_RST_
 ftop/cp/wci_mReset_13/rstSync/IN_RST_N_inv(ftop/cp/wci_mReset_13/rstSync/IN_RST_N_inv1_INV_0:O)                                    | NONE(ftop/cp/wci_mReset_13/rstSync/reset_hold_0)        | 17    |
 ftop/cp/wci_mReset_7/rstSync/IN_RST_N_inv(ftop/cp/wci_mReset_7/rstSync/IN_RST_N_inv1_INV_0:O)                                      | NONE(ftop/cp/wci_mReset_7/rstSync/reset_hold_0)         | 17    |
 ftop/gbe0/phyRst/rstSync/IN_RST_N_inv(ftop/gbe0/phyRst/rstSync/IN_RST_N_inv1_INV_0:O)                                              | NONE(ftop/gbe0/phyRst/rstSync/reset_hold_0)             | 17    |
+ftop/clkN210_clk0_rstn_inv(ftop/clkN210_clk0_rstn_inv1161_INV_0:O)                                                                 | NONE(ftop/pat0_wci_wslv_isReset_isInReset)              | 6     |
 ftop/cp/timeServ_nowInCC/sync/sRST_N_inv(ftop/cp/timeServ_nowInCC/sync/sRST_N_inv1_INV_0:O)                                        | NONE(ftop/cp/timeServ_nowInCC/sync/dLastState)          | 6     |
 ftop/iqadc/adcCore_acquireD/sync/sRST_N_inv(ftop/iqadc/adcCore_acquireD/sync/sRST_N_inv1_INV_0:O)                                  | NONE(ftop/iqadc/adcCore_acquireD/sync/dLastState)       | 6     |
 ftop/iqadc/adcCore_averageD/sync/sRST_N_inv(ftop/iqadc/adcCore_averageD/sync/sRST_N_inv1_INV_0:O)                                  | NONE(ftop/iqadc/adcCore_averageD/sync/dLastState)       | 6     |
@@ -5251,6 +6027,7 @@ ftop/gbe0/gmac/rxRS_rxOperateS/sRST_N_inv(ftop/gbe0/gmac/rxRS_rxOperateS/sRST_N_
 ftop/gbe0/gmac/txRS_txOperateS/sRST_N_inv(ftop/gbe0/gmac/txRS_txOperateS/sRST_N_inv1_INV_0:O)                                      | NONE(ftop/gbe0/gmac/txRS_txOperateS/dSyncReg1)          | 3     |
 ftop/iqadc/adcCore_spiI_cd/RST_N_inv(ftop/iqadc/adcCore_spiI_cd/RST_N_inv1_INV_0:O)                                                | NONE(ftop/iqadc/adcCore_spiI_cd/cntr_0)                 | 3     |
 ftop/cap0/wciS0_MReset_n_inv(ftop/cap0/wciS0_MReset_n_inv371_INV_0:O)                                                              | NONE(ftop/cap0/wci_wslv_isReset_isInReset)              | 2     |
+ftop/edp0/RST_N_inv(ftop/edp0/RST_N_inv1181_INV_0:O)                                                                               | NONE(ftop/edp0/wci_isReset_isInReset)                   | 2     |
 ftop/gbe0/gmac/rxRS_rxRst/IN_RST_N_inv(ftop/gbe0/gmac/rxRS_rxRst/IN_RST_N_inv1_INV_0:O)                                            | NONE(ftop/gbe0/gmac/rxRS_rxRst/reset_hold_0)            | 2     |
 ftop/gbe0/gmac/txRS_txRst/IN_RST_N_inv(ftop/gbe0/gmac/txRS_txRst/IN_RST_N_inv1_INV_0:O)                                            | NONE(ftop/gbe0/gmac/txRS_txRst/reset_hold_0)            | 2     |
 ftop/gmiixo_rst/IN_RST_N_inv(ftop/gmiixo_rst/IN_RST_N_inv1_INV_0:O)                                                                | NONE(ftop/gmiixo_rst/reset_hold_0)                      | 2     |
@@ -5263,7 +6040,6 @@ ftop/cp/wci_mReset_10/RST_N_inv(ftop/cp/wci_mReset_10/RST_N_inv1_INV_0:O)       
 ftop/cp/wci_mReset_11/RST_N_inv(ftop/cp/wci_mReset_11/RST_N_inv1_INV_0:O)                                                          | NONE(ftop/cp/wci_mReset_11/rst)                         | 1     |
 ftop/cp/wci_mReset_13/RST_N_inv(ftop/cp/wci_mReset_13/RST_N_inv1_INV_0:O)                                                          | NONE(ftop/cp/wci_mReset_13/rst)                         | 1     |
 ftop/cp/wci_mReset_7/RST_N_inv(ftop/cp/wci_mReset_7/RST_N_inv1_INV_0:O)                                                            | NONE(ftop/cp/wci_mReset_7/rst)                          | 1     |
-ftop/edp0/RST_N_inv(ftop/edp0/RST_N_inv1001_INV_0:O)                                                                               | NONE(ftop/edp0/wci_isReset_isInReset)                   | 1     |
 ftop/gbe0/phyRst/RST_N_inv(ftop/gbe0/phyRst/RST_N_inv1_INV_0:O)                                                                    | NONE(ftop/gbe0/phyRst/rst)                              | 1     |
 ftop/pwrk/wciS0_MReset_n_inv(ftop/pwrk/wciS0_MReset_n_inv1_INV_0:O)                                                                | NONE(ftop/pwrk/wci_wslv_isReset_isInReset)              | 1     |
 -----------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------+-------+
@@ -5272,7 +6048,7 @@ Timing Summary:
 ---------------
 Speed Grade: -5
 
-   Minimum period: 13.981ns (Maximum Frequency: 71.524MHz)
+   Minimum period: 12.830ns (Maximum Frequency: 77.944MHz)
    Minimum input arrival time before clock: 1.401ns
    Maximum output required time after clock: 7.658ns
    Maximum combinational path delay: 5.600ns
@@ -5282,102 +6058,101 @@ Timing Detail:
 All values displayed in nanoseconds (ns)
 
 =========================================================================
-Timing constraint: Default period analysis for Clock 'gmii_sysclk'
-  Clock period: 11.570ns (frequency: 86.429MHz)
-  Total number of paths / destination ports: 264460 / 2549
+Timing constraint: Default period analysis for Clock 'sys0_clkp'
+  Clock period: 12.830ns (frequency: 77.944MHz)
+  Total number of paths / destination ports: 3908735 / 32313
 -------------------------------------------------------------------------
-Delay:               11.570ns (Levels of Logic = 11)
-  Source:            ftop/gbe0/dcp_dcp_dcpReqF/data0_reg_67 (FF)
+Delay:               12.830ns (Levels of Logic = 12)
+  Source:            ftop/cp/cpReq_22 (FF)
+  Destination:       ftop/cp/cpRespF/data0_reg_0 (FF)
+  Source Clock:      sys0_clkp rising
+  Destination Clock: sys0_clkp rising
+
+  Data Path: ftop/cp/cpReq_22 to ftop/cp/cpRespF/data0_reg_0
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FDRE:C->Q            19   0.495   0.945  cpReq_22 (cpReq_22)
+     LUT4_D:I2->O          1   0.561   0.359  Msub_wn__h74423_xor<3>11 (wn__h74423<3>)
+     LUT4_D:I3->O         64   0.561   1.104  _theResult_____1__h74442<3>1 (_theResult_____1__h74442<3>)
+     LUT4_D:I2->O         11   0.561   0.795  WILL_FIRE_RL_cpDispatch_F_F_F_F_F_F_F_F_F_F_F_F_F_F_T_F_T_F_cmp_eq00001 (WILL_FIRE_RL_cpDispatch_F_F_F_F_F_F_F_F_F_F_F_F_F_F_T_F_T_F_cmp_eq0000)
+     LUT4_L:I3->LO         1   0.561   0.102  WILL_FIRE_RL_cpDispatch_F_F_F_F_F_F_F_F_F_F_F_F_F_F_T_F_F_F_F_T1_1 (WILL_FIRE_RL_cpDispatch_F_F_F_F_F_F_F_F_F_F_F_F_F_F_T_F_F_F_F_T1)
+     LUT4:I3->O            1   0.561   0.380  WILL_FIRE_RL_completeWorkerRead228 (WILL_FIRE_RL_completeWorkerRead228)
+     LUT4:I2->O            1   0.561   0.380  WILL_FIRE_RL_completeWorkerRead292 (WILL_FIRE_RL_completeWorkerRead292)
+     LUT4_D:I2->O          1   0.561   0.380  WILL_FIRE_RL_completeWorkerRead918_SW1 (N5461)
+     LUT4:I2->O            9   0.561   0.699  cpRespF_ENQ1 (cpRespF_ENQ)
+     begin scope: 'cpRespF'
+     LUT4_D:I3->O          9   0.561   0.699  d0h1 (d0h)
+     LUT4_L:I3->LO         1   0.561   0.123  data0_reg_or0000<17>_SW0 (N62)
+     LUT3:I2->O            1   0.561   0.000  data0_reg_17_rstpot (data0_reg_17_rstpot)
+     FD:D                      0.197          data0_reg_17
+    ----------------------------------------
+    Total                     12.830ns (6.863ns logic, 5.967ns route)
+                                       (53.5% logic, 46.5% route)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'gmii_sysclk'
+  Clock period: 11.747ns (frequency: 85.128MHz)
+  Total number of paths / destination ports: 246263 / 2661
+-------------------------------------------------------------------------
+Delay:               11.747ns (Levels of Logic = 10)
+  Source:            ftop/gbe0/dcp_dcp_dcpReqF/data0_reg_35 (FF)
   Destination:       ftop/gbe0/dcp_dcp_dcpRespF/data0_reg_2 (FF)
   Source Clock:      gmii_sysclk rising
   Destination Clock: gmii_sysclk rising
 
-  Data Path: ftop/gbe0/dcp_dcp_dcpReqF/data0_reg_67 to ftop/gbe0/dcp_dcp_dcpRespF/data0_reg_2
+  Data Path: ftop/gbe0/dcp_dcp_dcpReqF/data0_reg_35 to ftop/gbe0/dcp_dcp_dcpRespF/data0_reg_2
                                 Gate     Net
     Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
     ----------------------------------------  ------------
-     FD:C->Q               4   0.495   0.522  data0_reg_67 (data0_reg_67)
+     FD:C->Q               6   0.495   0.592  data0_reg_35 (data0_reg_35)
      end scope: 'dcp_dcp_dcpReqF'
-     LUT4:I2->O            1   0.561   0.423  dcp_dcp_dcpReqF_first__29_BITS_71_TO_64_45_EQ__ETC___d802853 (dcp_dcp_dcpReqF_first__29_BITS_71_TO_64_45_EQ__ETC___d802853)
-     LUT4:I1->O            3   0.562   0.474  dcp_dcp_dcpReqF_first__29_BITS_71_TO_64_45_EQ__ETC___d8028136 (dcp_dcp_dcpReqF_first__29_BITS_71_TO_64_45_EQ__ETC___d802)
-     LUT4:I2->O            1   0.561   0.380  WILL_FIRE_RL_dcp_dcp_dcp_request15 (WILL_FIRE_RL_dcp_dcp_dcp_request15)
-     LUT3:I2->O            1   0.561   0.000  WILL_FIRE_RL_dcp_dcp_dcp_request44_F (N154)
-     MUXF5:I0->O           5   0.229   0.604  WILL_FIRE_RL_dcp_dcp_dcp_request44 (WILL_FIRE_RL_dcp_dcp_dcp_request44)
-     LUT2:I1->O           10   0.562   0.752  WILL_FIRE_RL_dcp_dcp_dcp_request56 (WILL_FIRE_RL_dcp_dcp_dcp_request)
-     LUT4_D:I3->LO         1   0.561   0.166  MUX_dcp_dcp_dcpRespF_enq_1__SEL_11 (N163)
-     LUT2:I1->O            7   0.562   0.604  dcp_dcp_dcpRespF_ENQ1 (dcp_dcp_dcpRespF_ENQ)
+     LUT4:I2->O            1   0.561   0.423  dcp_dcp_dcpReqF_first__29_BITS_39_TO_32_34_EQ__ETC___d1014853 (dcp_dcp_dcpReqF_first__29_BITS_39_TO_32_34_EQ__ETC___d1014853)
+     LUT4:I1->O            4   0.562   0.522  dcp_dcp_dcpReqF_first__29_BITS_39_TO_32_34_EQ__ETC___d10148136 (dcp_dcp_dcpReqF_first__29_BITS_39_TO_32_34_EQ__ETC___d1014)
+     LUT3:I2->O            1   0.561   0.000  WILL_FIRE_RL_dcp_dcp_dcp_request161 (WILL_FIRE_RL_dcp_dcp_dcp_request161)
+     MUXF5:I1->O           1   0.229   0.359  WILL_FIRE_RL_dcp_dcp_dcp_request16_f5 (WILL_FIRE_RL_dcp_dcp_dcp_request16)
+     LUT4:I3->O           81   0.561   1.088  WILL_FIRE_RL_dcp_dcp_dcp_request58 (WILL_FIRE_RL_dcp_dcp_dcp_request)
+     LUT4:I3->O           41   0.561   1.077  MUX_dcp_dcp_dcpRespF_enq_1__SEL_11 (MUX_dcp_dcp_dcpRespF_enq_1__SEL_1)
+     LUT4:I3->O            7   0.561   0.604  dcp_dcp_dcpRespF_ENQ1 (dcp_dcp_dcpRespF_ENQ)
      begin scope: 'dcp_dcp_dcpRespF'
      LUT4_D:I3->O         41   0.561   1.077  d0h1 (d0h)
      LUT4:I3->O            1   0.561   0.357  data0_reg_or0000<8>_SW0 (N2)
      FDS:S                     0.435          data0_reg_8
     ----------------------------------------
-    Total                     11.570ns (6.211ns logic, 5.359ns route)
-                                       (53.7% logic, 46.3% route)
-
-=========================================================================
-Timing constraint: Default period analysis for Clock 'sys0_clkp'
-  Clock period: 13.981ns (frequency: 71.524MHz)
-  Total number of paths / destination ports: 3495860 / 23372
--------------------------------------------------------------------------
-Delay:               13.981ns (Levels of Logic = 13)
-  Source:            ftop/cp/cpReq_36 (FF)
-  Destination:       ftop/cp/cpRespF/data0_reg_0 (FF)
-  Source Clock:      sys0_clkp rising
-  Destination Clock: sys0_clkp rising
-
-  Data Path: ftop/cp/cpReq_36 to ftop/cp/cpRespF/data0_reg_0
-                                Gate     Net
-    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
-    ----------------------------------------  ------------
-     FDRE:C->Q            86   0.495   1.153  cpReq_36 (cpReq_36)
-     LUT2_D:I1->O          4   0.562   0.501  WILL_FIRE_RL_cpDispatch_F_F_F_F_T_T_F_cmp_eq00001 (WILL_FIRE_RL_cpDispatch_F_F_F_F_T_T_F_cmp_eq0000)
-     LUT4_D:I3->O         11   0.561   0.795  _theResult_____1__h74442<1>1_1 (_theResult_____1__h74442<1>1)
-     LUT4_D:I3->LO         1   0.561   0.102  WILL_FIRE_RL_cpDispatch_F_F_F_F_T_F_T_F_cmp_eq00001 (N2518)
-     LUT4:I3->O           17   0.561   0.895  WILL_FIRE_RL_cpDispatch_F_F_F_F_T_F_F_T1 (WILL_FIRE_RL_cpDispatch_F_F_F_F_T_F_F_T)
-     LUT4:I3->O            1   0.561   0.359  WILL_FIRE_RL_completeWorkerRead867 (WILL_FIRE_RL_completeWorkerRead867)
-     LUT4:I3->O            1   0.561   0.359  WILL_FIRE_RL_completeWorkerRead881 (WILL_FIRE_RL_completeWorkerRead881)
-     LUT4:I3->O            1   0.561   0.465  WILL_FIRE_RL_completeWorkerRead894 (WILL_FIRE_RL_completeWorkerRead894)
-     LUT4_D:I0->LO         1   0.561   0.123  WILL_FIRE_RL_completeWorkerRead918 (N2583)
-     LUT3:I2->O            7   0.561   0.604  cpRespF_ENQ1 (cpRespF_ENQ)
-     begin scope: 'cpRespF'
-     LUT4_D:I3->O         39   0.561   1.077  d0h1 (d0h)
-     LUT4_L:I3->LO         1   0.561   0.123  data0_reg_or0000<8>_SW0 (N2)
-     LUT3:I2->O            1   0.561   0.000  data0_reg_8_rstpot (data0_reg_8_rstpot)
-     FD:D                      0.197          data0_reg_8
-    ----------------------------------------
-    Total                     13.981ns (7.425ns logic, 6.556ns route)
-                                       (53.1% logic, 46.9% route)
+    Total                     11.747ns (5.648ns logic, 6.099ns route)
+                                       (48.1% logic, 51.9% route)
 
 =========================================================================
 Timing constraint: Default period analysis for Clock 'adc_clkout'
-  Clock period: 10.162ns (frequency: 98.408MHz)
+  Clock period: 10.122ns (frequency: 98.793MHz)
   Total number of paths / destination ports: 13348 / 19
 -------------------------------------------------------------------------
-Delay:               10.162ns (Levels of Logic = 10)
-  Source:            ftop/iqadc/fcAdc_grayCounter_rsCounter_12 (FF)
+Delay:               10.122ns (Levels of Logic = 11)
+  Source:            ftop/iqadc/fcAdc_grayCounter_rsCounter_13 (FF)
   Destination:       ftop/iqadc/fcAdc_grayCounter_rsCounter_0 (FF)
   Source Clock:      adc_clkout rising
   Destination Clock: adc_clkout rising
 
-  Data Path: ftop/iqadc/fcAdc_grayCounter_rsCounter_12 to ftop/iqadc/fcAdc_grayCounter_rsCounter_0
+  Data Path: ftop/iqadc/fcAdc_grayCounter_rsCounter_13 to ftop/iqadc/fcAdc_grayCounter_rsCounter_0
                                 Gate     Net
     Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
     ----------------------------------------  ------------
-     FD:C->Q               9   0.495   0.805  fcAdc_grayCounter_rsCounter_12 (fcAdc_grayCounter_rsCounter_12)
-     LUT4:I0->O            1   0.561   0.380  Mxor_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_fc_ETC___d1334_xo<0>4 (Mxor_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_fc_ETC___d1334_xo<0>4)
-     LUT3:I2->O            1   0.561   0.359  Mxor_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_fc_ETC___d1334_xo<0>44_SW0 (N218)
-     LUT4_D:I3->LO         1   0.561   0.208  Mxor_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_fc_ETC___d1334_xo<0>44 (N540)
-     LUT4:I0->O            3   0.561   0.559  IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<4>112 (N404)
-     LUT4:I0->O           35   0.561   1.074  IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<2>24 (IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<2>)
-     MUXF5:S->O            1   0.652   0.000  Mmux__varindex0000_9_f5 (Mmux__varindex0000_9_f5)
+     FD:C->Q               9   0.495   0.805  fcAdc_grayCounter_rsCounter_13 (fcAdc_grayCounter_rsCounter_13)
+     LUT4_L:I0->LO         1   0.561   0.208  IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<1>11 (IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<1>11)
+     LUT4:I0->O            1   0.561   0.423  IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<1>33_SW0 (N12)
+     LUT4:I1->O            1   0.562   0.465  IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<1>33 (IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<1>33)
+     LUT4_D:I0->LO         1   0.561   0.208  IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<1>61 (N4221)
+     LUT3:I0->O           22   0.561   1.097  IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<1>75 (IF_fcAdc_grayCounter_rsCounter_60_BIT_0_67_XOR_ETC___d1399<1>)
+     LUT3:I0->O            1   0.561   0.000  Mmux__varindex0000_102 (Mmux__varindex0000_102)
+     MUXF5:I1->O           1   0.229   0.000  Mmux__varindex0000_9_f5 (Mmux__varindex0000_9_f5)
      MUXF6:I0->O           1   0.239   0.000  Mmux__varindex0000_7_f6 (Mmux__varindex0000_7_f6)
      MUXF7:I0->O           2   0.239   0.403  Mmux__varindex0000_5_f7 (Mmux__varindex0000_5_f7)
      LUT3_D:I2->O          7   0.561   0.625  MUX_fcAdc_grayCounter_rsCounter_write_1__VAL_1<10>11 (N210)
      LUT4:I2->O            1   0.561   0.000  MUX_fcAdc_grayCounter_rsCounter_write_1__VAL_1<14>22 (MUX_fcAdc_grayCounter_rsCounter_write_1__VAL_1<14>)
      FD:D                      0.197          fcAdc_grayCounter_rsCounter_14
     ----------------------------------------
-    Total                     10.162ns (5.749ns logic, 4.413ns route)
-                                       (56.6% logic, 43.4% route)
+    Total                     10.122ns (5.888ns logic, 4.234ns route)
+                                       (58.2% logic, 41.8% route)
 
 =========================================================================
 Timing constraint: Default period analysis for Clock 'ftop/iqadc/adcCore_spiI_cd/cntr_2'
@@ -5412,16 +6187,16 @@ Delay:               6.413ns (Levels of Logic = 8)
 
 =========================================================================
 Timing constraint: Default period analysis for Clock 'gmii_rx_clk'
-  Clock period: 6.993ns (frequency: 143.001MHz)
-  Total number of paths / destination ports: 2300 / 310
+  Clock period: 7.252ns (frequency: 137.897MHz)
+  Total number of paths / destination ports: 2304 / 310
 -------------------------------------------------------------------------
-Delay:               6.993ns (Levels of Logic = 5)
+Delay:               7.252ns (Levels of Logic = 6)
   Source:            ftop/gbe0/gmac/rxRS_rxOperateS/dSyncReg2 (FF)
-  Destination:       ftop/gbe0/gmac/rxRS_crc/rRemainder_0 (FF)
+  Destination:       ftop/gbe0/gmac/rxRS_crc/rRemainder_4 (FF)
   Source Clock:      gmii_rx_clk rising
   Destination Clock: gmii_rx_clk rising
 
-  Data Path: ftop/gbe0/gmac/rxRS_rxOperateS/dSyncReg2 to ftop/gbe0/gmac/rxRS_crc/rRemainder_0
+  Data Path: ftop/gbe0/gmac/rxRS_rxOperateS/dSyncReg2 to ftop/gbe0/gmac/rxRS_crc/rRemainder_4
                                 Gate     Net
     Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
     ----------------------------------------  ------------
@@ -5429,13 +6204,14 @@ Delay:               6.993ns (Levels of Logic = 5)
      end scope: 'rxRS_rxOperateS'
      LUT3:I2->O            1   0.561   0.359  MUX_rxRS_rxF_enq_1__SEL_1120_SW0 (N161)
      LUT4:I3->O            4   0.561   0.565  MUX_rxRS_rxF_enq_1__SEL_1120 (N31)
-     LUT3:I1->O           34   0.562   1.139  WILL_FIRE_RL_rxRS_ingress_noadvance1 (WILL_FIRE_RL_rxRS_ingress_noadvance)
+     LUT3:I1->O           16   0.562   0.945  WILL_FIRE_RL_rxRS_ingress_noadvance1 (WILL_FIRE_RL_rxRS_ingress_noadvance)
      begin scope: 'rxRS_crc'
-     LUT2:I1->O           32   0.562   1.073  rRemainder_EN1 (rRemainder_EN)
-     FDSE:CE                   0.156          rRemainder_0
+     LUT2:I1->O           19   0.562   0.924  rRemainder_D_IN<16>21 (N14)
+     LUT4:I3->O            1   0.561   0.000  rRemainder_D_IN<31>1 (rRemainder_D_IN<31>)
+     FDSE:D                    0.197          rRemainder_31
     ----------------------------------------
-    Total                      6.993ns (2.897ns logic, 4.096ns route)
-                                       (41.4% logic, 58.6% route)
+    Total                      7.252ns (3.499ns logic, 3.753ns route)
+                                       (48.3% logic, 51.7% route)
 
 =========================================================================
 Timing constraint: Default OFFSET IN BEFORE for Clock 'sys0_clkp'
@@ -5592,15 +6368,15 @@ Delay:               5.600ns (Levels of Logic = 2)
 =========================================================================
 
 
-Total REAL time to Xst completion: 312.00 secs
-Total CPU time to Xst completion: 312.18 secs
+Total REAL time to Xst completion: 385.00 secs
+Total CPU time to Xst completion: 385.24 secs
  
 --> 
 
 
-Total memory usage is 1151188 kilobytes
+Total memory usage is 1263208 kilobytes
 
 Number of errors   :    0 (   0 filtered)
-Number of warnings : 1224 (   0 filtered)
-Number of infos    :  183 (   0 filtered)
+Number of warnings : 1482 (   0 filtered)
+Number of infos    :  161 (   0 filtered)
 

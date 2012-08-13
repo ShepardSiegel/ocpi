@@ -13,7 +13,9 @@ import OCCP              ::*;
 import OCEDP             ::*;
 import OCWip             ::*;
 import PWrk_n210         ::*;
+import SMAdapter         ::*;
 import WSICaptureWorker  ::*;
+import WSIPatternWorker  ::*;
 
 //import CPDefs            ::*;
 //import CTop              ::*;
@@ -80,6 +82,10 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys0_clk, sys0_rst, clocked_by sys0_clk, reset_by sys0_rst);
   mkConnection(gbe0.cpClient, cp.server);
 
+  WSIPatternWorker4BIfc  pat0    <- mkWSIPatternWorker(              True, clocked_by sys0_clk, reset_by sys0_rst);
+  SMAdapter4BIfc         sma0    <- mkSMAdapter       (32'h00000002, True, clocked_by sys0_clk, reset_by sys0_rst);
+
+
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 
 
@@ -100,15 +106,17 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   OCEDP4BIfc edp0  <- mkOCEDP4B (?,True,True, True, clocked_by sys0_clk, reset_by vWci[13].mReset_n); // Ethernet Data Plane 0
 //WciSlaveNullIfc#(32)  tieOff14 <- mkWciSlaveNull;
 
-  mkConnection(gbe0.dpClient, edp0.server);
+  mkConnection(gbe0.dpClient, edp0.server); // Path from dgdp to GbE
+  mkConnection(pat0.wsiM0, sma0.wsiS0);     // Connect the PatternWorker to the SMAAdapter
+  mkConnection(sma0.wmiM0, edp0.wmiS0);     // Connect the SMAAdapter to the DGDP WMI slave port
 
 //mkConnection(vWci[0],  tieOff0.slv); 
 //mkConnection(vWci[1],  tieOff1.slv); 
 //mkConnection(vWci[2],  tieOff2.slv); 
 //mkConnection(vWci[3],  tieOff3.slv); 
 //mkConnection(vWci[4],  tieOff4.slv); 
-//mkConnection(vWci[5],  tieOff5.slv); 
-//mkConnection(vWci[6],  tieOff6.slv); 
+  mkConnection(vWci[5],  pat0.wciS0); 
+  mkConnection(vWci[6],  sma0.wciS0); 
   mkConnection(vWci[7],  pwrk.wciS0);    // N210 Platform Worker
   mkConnection(vWci[8],  tieoff8.slv);   // 
   mkConnection(vWci[9],  tieOff9.slv);   // GbE Worker

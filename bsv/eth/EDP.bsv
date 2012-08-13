@@ -1,7 +1,7 @@
 // EDP.bsv - Ethernet Data Plane
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-// This module adds the 14B Ethernet header to the datagram-based data plane
+// This module adds the 14B Ethernet header to the datagram-based data plane on packet egress
 
 import GMAC         ::*;	  // for ABS defs
 
@@ -10,6 +10,7 @@ import Clocks       ::*;
 import Connectable  ::*;
 import FIFO         ::*;	
 import GetPut       ::*;
+import StmtFSM      ::*;
 import Vector       ::*;
 
 interface EDPAdapterIfc;
@@ -18,13 +19,16 @@ interface EDPAdapterIfc;
 endinterface 
 
 
-module mkEDPAdapterSync (EDPAdapterIfc);
+module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapterIfc);
   // FIFOs for Client/Server Interfaces...
-  FIFO#(ABS)      edpReqF    <- mkFIFO;   // Inbound   EDP  Requests
-  FIFO#(ABS)      edpRespF   <- mkFIFO;   // Outbound  EDP  Responses
-  FIFO#(ABS)      dgdpReqF   <- mkFIFO;   // Inbound   DGDP Requests
-  FIFO#(ABS)      dgdpRespF  <- mkFIFO;   // Outbound  DGDP Responses/Messages
+  FIFO#(ABS)      edpReqF     <- mkFIFO;   // Inbound   EDP  Requests
+  FIFO#(ABS)      edpRespF    <- mkFIFO;   // Outbound  EDP  Responses
+  FIFO#(ABS)      dgdpReqF    <- mkFIFO;   // Inbound   DGDP Requests
+  FIFO#(ABS)      dgdpRespF   <- mkFIFO;   // Outbound  DGDP Responses/Messages
   // The internal state of the EDP module...
+  Reg#(Bool)      egressHead  <- mkReg(True);
+  Reg#(UInt#(3))  ix          <- mkRegU; // used in StmtFSM
+  // Not used yet...
   Reg#(Maybe#(Bit#(8)))      lastTag   <- mkReg(tagged Invalid);  // The last tag captured (valid or not)
   Reg#(ABS)                  lastResp  <- mkRegU;                 // The last EDP response sent
 
@@ -37,6 +41,19 @@ module mkEDPAdapterSync (EDPAdapterIfc);
     let y = dgdpRespF.first; dgdpRespF.deq;
     edpRespF.enq(y);
   endrule
+
+  Vector#(6, Bit#(8)) daV = reverse(unpack(da));
+  Vector#(6, Bit#(8)) saV = reverse(unpack(sa));
+  Vector#(2, Bit#(8)) tyV = reverse(unpack(ty));
+  Stmt egressIpHead =
+  // Note state variable ix used in sequential iteration...
+  seq
+    for (ix<=0; ix<7; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP daV[ix]);
+    for (ix<=0; ix<7; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP saV[ix]);
+    for (ix<=0; ix<2; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP tyV[ix]);
+  endseq;
+  FSM egressIpHeadFsm <- mkFSM(egressIpHead);
+
 
   interface Server server;  // Facing the EDP Packet Side
     interface request  = toPut(edpReqF);
@@ -53,8 +70,12 @@ endmodule
 // We simply take the lean sync implementation as-is; and attach two async FIFOs to
 // the DGDP-facing side so they can be in their own clock domain. 
 
-module mkEDPAdapterAsync#(Clock dgdpClock, Reset dgdpReset) (EDPAdapterIfc);
-  EDPAdapterIfc            edp         <- mkEDPAdapterSync;
+module mkEDPAdapterAsync#(Clock      dgdpClock
+                        , Reset      dgdpReset
+                        , MACAddress da
+                        , MACAddress sa
+                        , EtherType  ty) (EDPAdapterIfc);
+  EDPAdapterIfc            edp         <- mkEDPAdapterSync(da,sa,ty);
   SyncFIFOIfc#(ABS)        dgdpReqAF   <- mkSyncFIFOFromCC(4, dgdpClock); 
   SyncFIFOIfc#(ABS)        dgdpRespAF  <- mkSyncFIFOToCC(  4, dgdpClock, dgdpReset); 
 

@@ -1,7 +1,7 @@
 Release 14.2 par P.28xd (lin64)
 Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 
-core980::  Fri Aug 10 11:38:23 2012
+core980::  Mon Aug 13 10:43:16 2012
 
 par -w -xe n fpgaTop_map.ncd fpgaTop.ncd fpgaTop.pcf 
 
@@ -44,9 +44,9 @@ Design Summary Report:
 
    Number of DCMs                            1 out of 8      12%
    Number of DNA_PORTs                       1 out of 1     100%
-   Number of RAMB16BWERs                    31 out of 126    24%
-   Number of Slices                      10994 out of 23872  46%
-      Number of SLICEMs                    892 out of 11936   7%
+   Number of RAMB16BWERs                    42 out of 126    33%
+   Number of Slices                      14266 out of 23872  59%
+      Number of SLICEMs                   1404 out of 11936  11%
 
 
 
@@ -90,8 +90,8 @@ Delay Expression: D_DCM_DLL_LOWF_MAXPERIOD_CLKIN
       SyncFlag = false
       SensePosFlag = false
       ExtraTag = "DCM_DFS_CLK_OUTPUTS"
-Starting initial Timing Analysis.  REAL time: 12 secs 
-Finished initial Timing Analysis.  REAL time: 13 secs 
+Starting initial Timing Analysis.  REAL time: 16 secs 
+Finished initial Timing Analysis.  REAL time: 16 secs 
 
 WARNING:Par:288 - The signal gmii_intr_IBUF has no load.  PAR will not attempt to route this signal.
 WARNING:Par:288 - The signal flash_miso_IBUF has no load.  PAR will not attempt to route this signal.
@@ -99,17 +99,17 @@ WARNING:Par:288 - The signal gmii_col_IBUF has no load.  PAR will not attempt to
 WARNING:Par:288 - The signal gmii_crs_IBUF has no load.  PAR will not attempt to route this signal.
 
 Starting Placer
-Total REAL time at the beginning of Placer: 13 secs 
-Total CPU  time at the beginning of Placer: 13 secs 
+Total REAL time at the beginning of Placer: 16 secs 
+Total CPU  time at the beginning of Placer: 16 secs 
 
 Phase 1.1  Initial Placement Analysis
-Phase 1.1  Initial Placement Analysis (Checksum:4a4707c9) REAL time: 14 secs 
+Phase 1.1  Initial Placement Analysis (Checksum:92cdb71c) REAL time: 18 secs 
 
 Phase 2.7  Design Feasibility Check
-Phase 2.7  Design Feasibility Check (Checksum:4a4707c9) REAL time: 14 secs 
+Phase 2.7  Design Feasibility Check (Checksum:92cdb71c) REAL time: 18 secs 
 
 Phase 3.31  Local Placement Optimization
-Phase 3.31  Local Placement Optimization (Checksum:4cf1e673) REAL time: 14 secs 
+Phase 3.31  Local Placement Optimization (Checksum:b3ba3bba) REAL time: 18 secs 
 
 Phase 4.2  Initial Clock and IO Placement
 
@@ -118,38 +118,38 @@ WARNING:Place:619 - This design is using a Side-BUFG site due to placement const
    whenever possible because they can reach every clock region on the device. Side-BUFG sites can reach only clock
    regions on the same side of the device and also preclude the use of certain Top and Bottom BUFGs in the same clock
    region.
-Phase 4.2  Initial Clock and IO Placement (Checksum:782175b3) REAL time: 19 secs 
+Phase 4.2  Initial Clock and IO Placement (Checksum:87ede108) REAL time: 23 secs 
 
-............................
-...........................................................................................................
+.........................
+................................................................................................................................................
 Phase 5.30  Global Clock Region Assignment
-Phase 5.30  Global Clock Region Assignment (Checksum:782175b3) REAL time: 30 secs 
+Phase 5.30  Global Clock Region Assignment (Checksum:87ede108) REAL time: 40 secs 
 
 Phase 6.36  Local Placement Optimization
-Phase 6.36  Local Placement Optimization (Checksum:782175b3) REAL time: 30 secs 
+Phase 6.36  Local Placement Optimization (Checksum:87ede108) REAL time: 40 secs 
 
 Phase 7.8  Global Placement
 ........................
-..........................................................................................................................................................
-..............................
-.............................................................................................
-..............................................................................................................
-......................................................................................................................
-..........................................
-...................
-Phase 7.8  Global Placement (Checksum:6a654ab2) REAL time: 1 mins 16 secs 
+......................................................................................................................................................................
+..........................
+......................................................................................................................................................................................
+......................................................................
+..................................................................................................
+...........................................................
+.............................
+Phase 7.8  Global Placement (Checksum:434b5091) REAL time: 1 mins 47 secs 
 
 Phase 8.5  Local Placement Optimization
-Phase 8.5  Local Placement Optimization (Checksum:6a654ab2) REAL time: 1 mins 16 secs 
+Phase 8.5  Local Placement Optimization (Checksum:434b5091) REAL time: 1 mins 48 secs 
 
 Phase 9.18  Placement Optimization
-Phase 9.18  Placement Optimization (Checksum:70330d6c) REAL time: 2 mins 
+Phase 9.18  Placement Optimization (Checksum:e9f9150) REAL time: 3 mins 4 secs 
 
 Phase 10.5  Local Placement Optimization
-Phase 10.5  Local Placement Optimization (Checksum:70330d6c) REAL time: 2 mins 1 secs 
+Phase 10.5  Local Placement Optimization (Checksum:e9f9150) REAL time: 3 mins 5 secs 
 
-Total REAL time to Placer completion: 2 mins 2 secs 
-Total CPU  time to Placer completion: 2 mins 2 secs 
+Total REAL time to Placer completion: 3 mins 6 secs 
+Total CPU  time to Placer completion: 3 mins 6 secs 
 Writing design to file fpgaTop.ncd
 
 
@@ -225,14 +225,14 @@ Delay Expression: D_DCM_DLL_LOWF_MAXPERIOD_CLKIN
 Starting Router
 
 
-Phase  1  : 78575 unrouted;      REAL time: 2 mins 20 secs 
+Phase  1  : 105610 unrouted;      REAL time: 3 mins 27 secs 
 
-Phase  2  : 67193 unrouted;      REAL time: 2 mins 22 secs 
+Phase  2  : 89240 unrouted;      REAL time: 3 mins 29 secs 
 
-Phase  3  : 17910 unrouted;      REAL time: 2 mins 31 secs 
+Phase  3  : 23901 unrouted;      REAL time: 3 mins 42 secs 
 
-Phase  4  : 22082 unrouted; (Setup:2298853, Hold:66080, Component Switching Limit:0)     REAL time: 2 mins 48 secs 
-WARNING:Route:441 - The router has detected a very high timing score (2298853) for this design. It is extremely unlikely
+Phase  4  : 28938 unrouted; (Setup:988780, Hold:70202, Component Switching Limit:0)     REAL time: 4 mins 17 secs 
+WARNING:Route:441 - The router has detected a very high timing score (988780) for this design. It is extremely unlikely
    the router will be able to meet your timing requirements. To prevent excessive run time the router will change
    strategy. The router will now work to completely route this design but not to improve timing. This behavior will
    allow you to use the Static Timing Report and FPGA Editor to isolate the paths with timing problems. The cause of
@@ -240,17 +240,17 @@ WARNING:Route:441 - The router has detected a very high timing score (2298853) f
    critical timing path. If you would prefer the router continue trying to meet timing and you are willing to accept a
    long run time set the option "-xe c" to override the present behavior.
 
-Phase  5  : 0 unrouted; (Setup:4648411, Hold:66558, Component Switching Limit:0)     REAL time: 3 mins 2 secs 
+Phase  5  : 0 unrouted; (Setup:3638568, Hold:69857, Component Switching Limit:0)     REAL time: 4 mins 32 secs 
 
 Updating file: fpgaTop.ncd with current fully routed design.
 
-Phase  6  : 0 unrouted; (Setup:4648411, Hold:66558, Component Switching Limit:0)     REAL time: 3 mins 12 secs 
+Phase  6  : 0 unrouted; (Setup:3638568, Hold:69857, Component Switching Limit:0)     REAL time: 4 mins 47 secs 
 
-Phase  7  : 0 unrouted; (Setup:4648411, Hold:66558, Component Switching Limit:0)     REAL time: 3 mins 13 secs 
+Phase  7  : 0 unrouted; (Setup:3638568, Hold:69857, Component Switching Limit:0)     REAL time: 4 mins 49 secs 
 
-Phase  8  : 0 unrouted; (Setup:4648411, Hold:28868, Component Switching Limit:0)     REAL time: 4 mins 42 secs 
+Phase  8  : 0 unrouted; (Setup:3638568, Hold:11945, Component Switching Limit:0)     REAL time: 6 mins 21 secs 
 
-Phase  9  : 0 unrouted; (Setup:4420099, Hold:28868, Component Switching Limit:0)     REAL time: 4 mins 46 secs 
+Phase  9  : 0 unrouted; (Setup:3296802, Hold:11945, Component Switching Limit:0)     REAL time: 6 mins 27 secs 
 WARNING:Route:455 - CLK Net:ftop/clkIn_O may have excessive skew because 
       4 CLK pins and 0 NON_CLK pins failed to route using a CLK template.
 WARNING:Route:455 - CLK Net:adc_sclkdrv may have excessive skew because 
@@ -258,8 +258,8 @@ WARNING:Route:455 - CLK Net:adc_sclkdrv may have excessive skew because
 WARNING:Route:455 - CLK Net:gmii_sysclk_IBUFG may have excessive skew because 
       0 CLK pins and 1 NON_CLK pins failed to route using a CLK template.
 
-Total REAL time to Router completion: 4 mins 47 secs 
-Total CPU time to Router completion: 4 mins 47 secs 
+Total REAL time to Router completion: 6 mins 28 secs 
+Total CPU time to Router completion: 6 mins 28 secs 
 
 Partition Implementation Status
 -------------------------------
@@ -286,21 +286,21 @@ Net Name: gmii_sysclk_IBUFG
 +---------------------+--------------+------+------+------------+-------------+
 |        Clock Net    |   Resource   |Locked|Fanout|Net Skew(ns)|Max Delay(ns)|
 +---------------------+--------------+------+------+------------+-------------+
-|        ftop/sys0Clk |  BUFGMUX_X1Y0| No   | 5555 |  0.484     |  1.843      |
+|        ftop/sys0Clk |  BUFGMUX_X1Y0| No   | 7583 |  0.454     |  1.813      |
 +---------------------+--------------+------+------+------------+-------------+
-|   gmii_rx_clk_BUFGP |  BUFGMUX_X3Y6|Yes   |   81 |  0.144     |  0.995      |
+|       debug_20_OBUF |  BUFGMUX_X0Y4| No   |   18 |  0.038     |  0.803      |
 +---------------------+--------------+------+------+------------+-------------+
-|   ftop/gmiixo_clk_O | BUFGMUX_X1Y10| No   |   95 |  0.308     |  1.745      |
+|         adc_sclkdrv | BUFGMUX_X2Y11| No   |   27 |  0.112     |  1.515      |
 +---------------------+--------------+------+------+------------+-------------+
-|         adc_sclkdrv | BUFGMUX_X2Y11| No   |   27 |  0.074     |  1.461      |
+|   ftop/gmiixo_clk_O | BUFGMUX_X1Y10| No   |   98 |  0.309     |  1.745      |
 +---------------------+--------------+------+------+------------+-------------+
-|       debug_20_OBUF |  BUFGMUX_X0Y4| No   |   18 |  0.075     |  0.872      |
+|   gmii_rx_clk_BUFGP |  BUFGMUX_X3Y6|Yes   |   87 |  0.205     |  0.995      |
 +---------------------+--------------+------+------+------------+-------------+
-|   gmii_sysclk_IBUFG |         Local|      |  741 |  0.333     |  0.991      |
+|   gmii_sysclk_IBUFG |         Local|      |  765 |  0.345     |  1.005      |
 +---------------------+--------------+------+------+------------+-------------+
-|        ftop/clkIn_O |         Local|      |    4 |  2.216     |  3.983      |
+|  ftop/cp/dna_cnt<0> |         Local|      |   11 |  0.000     |  6.345      |
 +---------------------+--------------+------+------+------------+-------------+
-|  ftop/cp/dna_cnt<0> |         Local|      |   11 |  0.000     |  8.152      |
+|        ftop/clkIn_O |         Local|      |    4 |  3.986     |  5.071      |
 +---------------------+--------------+------+------+------------+-------------+
 
 * Net Skew is the difference between the minimum and maximum routing
@@ -311,7 +311,7 @@ the minimum and maximum path delays which includes logic delays.
 * The fanout is the number of component pins not the individual BEL loads,
 for example SLICE loads not FF loads.
 
-Timing Score: 4448967 (Setup: 4420099, Hold: 28868, Component Switching Limit: 0)
+Timing Score: 3308747 (Setup: 3296802, Hold: 11945, Component Switching Limit: 0)
 
 WARNING:Par:468 - Your design did not meet timing.  The following are some suggestions to assist you to meet timing in
    your design.
@@ -339,18 +339,18 @@ Asterisk (*) preceding a constraint indicates it was not met.
   Constraint                                |    Check    | Worst Case |  Best Case | Timing |   Timing   
                                             |             |    Slack   | Achievable | Errors |    Score   
 ----------------------------------------------------------------------------------------------------------
-* TS_ftop_clkN210_clk0_unbuf = PERIOD TIMEG | SETUP       |    -5.790ns|    17.790ns|    1167|     1459616
-  RP "ftop_clkN210_clk0_unbuf"         TS_S | HOLD        |     0.448ns|            |       0|           0
+* TS_GMIISYSCLK = PERIOD TIMEGRP "GMIISYSCL | SETUP       |    -3.508ns|    11.508ns|    1218|     1552483
+  K" 8 ns HIGH 50%                          | HOLD        |    -4.680ns|            |      10|       11945
+----------------------------------------------------------------------------------------------------------
+* TS_ftop_clkN210_clk0_unbuf = PERIOD TIMEG | SETUP       |    -4.311ns|    16.311ns|    2022|     1744319
+  RP "ftop_clkN210_clk0_unbuf"         TS_S | HOLD        |     0.470ns|            |       0|           0
   YS0CLK HIGH 50%                           |             |            |            |        |            
 ----------------------------------------------------------------------------------------------------------
-* TS_GMIISYSCLK = PERIOD TIMEGRP "GMIISYSCL | SETUP       |    -5.580ns|    13.580ns|    1469|     2960483
-  K" 8 ns HIGH 50%                          | HOLD        |    -4.715ns|            |      10|       28868
+  TS_GMIIRXCLK = PERIOD TIMEGRP "GMIIRXCLK" | SETUP       |     0.267ns|     7.733ns|       0|           0
+   8 ns HIGH 50%                            | HOLD        |     0.742ns|            |       0|           0
 ----------------------------------------------------------------------------------------------------------
-  TS_GMIIRXCLK = PERIOD TIMEGRP "GMIIRXCLK" | SETUP       |     0.841ns|     7.159ns|       0|           0
-   8 ns HIGH 50%                            | HOLD        |     0.771ns|            |       0|           0
-----------------------------------------------------------------------------------------------------------
-  TS_SYS0CLK = PERIOD TIMEGRP "SYS0CLK" 12  | SETUP       |    10.338ns|     1.662ns|       0|           0
-  ns HIGH 50%                               | HOLD        |     1.233ns|            |       0|           0
+  TS_SYS0CLK = PERIOD TIMEGRP "SYS0CLK" 12  | SETUP       |    10.410ns|     1.590ns|       0|           0
+  ns HIGH 50%                               | HOLD        |     1.095ns|            |       0|           0
                                             | MINLOWPULSE |     6.000ns|     6.000ns|       0|           0
 ----------------------------------------------------------------------------------------------------------
 
@@ -365,8 +365,8 @@ Derived Constraints for TS_SYS0CLK
 |           Constraint          | Requirement |-------------+-------------|-------------+-------------|-------------+-------------|
 |                               |             |   Direct    | Derivative  |   Direct    | Derivative  |   Direct    | Derivative  |
 +-------------------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+
-|TS_SYS0CLK                     |     12.000ns|      6.000ns|     17.790ns|            0|         1167|            2|      3494757|
-| TS_ftop_clkN210_clk0_unbuf    |     12.000ns|     17.790ns|          N/A|         1167|            0|      3494757|            0|
+|TS_SYS0CLK                     |     12.000ns|      6.000ns|     16.311ns|            0|         2022|            2|      3897517|
+| TS_ftop_clkN210_clk0_unbuf    |     12.000ns|     16.311ns|          N/A|         2022|            0|      3897517|            0|
 +-------------------------------+-------------+-------------+-------------+-------------+-------------+-------------+-------------+
 
 2 constraints not met.
@@ -378,14 +378,14 @@ All signals are completely routed.
 
 WARNING:Par:283 - There are 4 loadless signals in this design. This design will cause Bitgen to issue DRC warnings.
 
-Total REAL time to PAR completion: 4 mins 53 secs 
-Total CPU time to PAR completion: 4 mins 53 secs 
+Total REAL time to PAR completion: 6 mins 36 secs 
+Total CPU time to PAR completion: 6 mins 36 secs 
 
-Peak Memory Usage:  1334 MB
+Peak Memory Usage:  1447 MB
 
 Placement: Completed - No errors found.
 Routing: Completed - No errors found.
-Timing: Completed - 2646 errors found.
+Timing: Completed - 3250 errors found.
 
 Number of error messages: 0
 Number of warning messages: 13
