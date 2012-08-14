@@ -24,6 +24,7 @@ import XilinxExtra  ::*;
 
 interface GbeLiteIfc;
   method Action macAddr (Bit#(48) u);
+  //interface WciES                     wciS0;       // Worker Control and Configuration
   interface Client#(CpReq,CpReadResp) cpClient;    // Control Plane Client
   interface Client#(ABS, ABS)         dpClient;    // Data Plane Client
   interface GMII_RS                   gmii;        // The GMII link
@@ -43,6 +44,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
 //MACAddress uAddr = 48'hA0_36_FA_25_3E_A5;   // A real Ettus N210 MAC Addr
 
   Clock  gmii_clk <- exposeCurrentClock;
+
+  WciESlaveIfc                wci                 <-  mkWciESlave(clocked_by cpClock, reset_by cpReset);
 
   Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0101);  // default to PHY MDIO addr 1 ([4:0]) for N210
   MDIO                        mdi                 <-  mkMDIO(6);
@@ -100,6 +103,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, macAddress, 16'hf041);
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
   FIFO#(ABS)                  edpTxF              <-  mkFIFO;
+  Reg#(Vector#(16,Bit#(8)))   edpDV               <-  mkRegU(clocked_by cpClock, reset_by cpReset);
 
   ABSMergeIfc                 merge               <-  mkABSMerge;  // To merge egress packets from DCP and DGDP 
 
@@ -314,9 +318,44 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   mkConnection(toGet(edpTxF), merge.iport1);  // Connect the dgdp to merge iport1 
   mkConnection(merge.oport, gmac.tx);         // Connect the merge output to the gmac
 
+`ifdef FOOPPPPP
+  // WCI Control....
+  Bit#(32) gbeStatus = 32'h0000_0000;
+
+  //(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
+  //(* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
+
+  rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
+    let wciReq <- wci.reqGet.get;
+    case (wciReq.addr[7:0]) matches
+     'h10 : edpDV      <= append(takeAt(4, edpDV), unpack(wciReq.data));
+     'h14 : edpDV      <= append(unpack(wciReq.data), takeAt(0, edpDV));
+    endcase
+    //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
+    wci.respPut.put(wciOKResponse); // write response
+  endrule
+
+  rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
+    let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
+    case (wciReq.addr[7:0]) matches
+     'h10 : rdat = pack(takeAt(0, edpDV));
+     'h14 : rdat = pack(takeAt(4, edpDV));
+    endcase
+    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
+    wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
+  endrule
+
+  rule wci_ctrl_IsO (wci.ctlState==Initialized && wci.ctlOp==Start); wci.ctlAck; endrule
+  rule wci_ctrl_EiI (wci.ctlState==Exists && wci.ctlOp==Initialize); wci.ctlAck; endrule
+  rule wci_ctrl_OrE (wci.isOperating && wci.ctlOp==Release);         wci.ctlAck; endrule
+
+
+`endif
+
 
   // Interfaces and Methods provided...
   method Action macAddr (Bit#(48) u) = macAddressCP._write(unpack(u));
+  //interface Wci_s      wciS0      = wci.slv;
   interface Client     cpClient   = dcp.client;
   interface Client     dpClient   = edp.client;
   interface GMII_RS    gmii       = gmac.gmii;

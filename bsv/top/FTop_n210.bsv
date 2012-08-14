@@ -98,7 +98,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //WciSlaveNullIfc#(32)  tieOff6  <- mkWciSlaveNull;
   PWrk_n210Ifc          pwrk     <- mkPWrk_n210(sys0_rst, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));
   WciSlaveNullIfc#(32)  tieoff8  <- mkWciSlaveNull;
-  WciSlaveNullIfc#(32)  tieOff9  <- mkWciSlaveNull;
+  WciSlaveNullIfc#(32)  tieoff9  <- mkWciSlaveNull;
   IQADCWorkerIfc        iqadc    <- mkIQADCWorker(True, sys0_clk, sys0_rst, sys0_clk, sys0_rst, adc_clkout, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
   WSICaptureWorker4BIfc cap0     <- mkWSICaptureWorker4B(True,                                              clocked_by sys0_clk, reset_by(vWci[11].mReset_n));  // Worker 12
 //WciSlaveNullIfc#(32)  tieOff12 <- mkWciSlaveNull;
@@ -119,7 +119,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   mkConnection(vWci[6],  sma0.wciS0); 
   mkConnection(vWci[7],  pwrk.wciS0);    // N210 Platform Worker
   mkConnection(vWci[8],  tieoff8.slv);   // 
-  mkConnection(vWci[9],  tieOff9.slv);   // GbE Worker
+  mkConnection(vWci[9],  tieoff9.slv);   // 
+  //mkConnection(vWci[9],  gbe0.wciS0);    // GbE Worker
   mkConnection(vWci[10], iqadc.wciS0);   // IQ-ADC
   mkConnection(vWci[11], cap0.wciS0);    // Capture Worker
 //mkConnection(vWci[12], tieOff12.slv); 
