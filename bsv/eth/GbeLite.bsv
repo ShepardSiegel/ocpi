@@ -97,7 +97,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   DCPAdapterIfc               dcp                 <-  mkDCPAdapterAsync(cpClock, cpReset);
   FIFOF#(DCPResponse)         dcpRespF            <-  mkFIFOF;
 
-  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, 48'h6789ab, 16'hf041);
+  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, macAddress, 16'hf041);
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
   FIFO#(ABS)                  edpTxF              <-  mkFIFO;
 
@@ -227,15 +227,16 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   // RX DCP Processing when we have a known good DCP packet
   rule rx_dcp;
     let rxh <- toGet(rxDCPHdrF).get;
-    Bit#(4) mTyp = rxDCPmt[7:4];
+    Bool    isDO = unpack(rxDCPmt[6]); // is Discovery Operation 
+    Bit#(2) mTyp = rxDCPmt[5:4];
     Bit#(4) mBe  = rxDCPmt[3:0];
     Vector#(4,Bit#(8)) dwa = takeAt(4, rxDCPMesg);
     Vector#(4,Bit#(8)) dwb = takeAt(0, rxDCPMesg);
     DCPMesgType mType = unpack(mTyp);
     case (mType)
-      NOP   : dcp.server.request.put(tagged NOP  ( DCPRequestNOP  {tag:rxDCPtag,   initAdvert:pack(dwb)}));
-      Write : dcp.server.request.put(tagged Write( DCPRequestWrite{be:mBe, tag:rxDCPtag, data:pack(dwb), addr:pack(dwa)}));
-      Read  : dcp.server.request.put(tagged Read ( DCPRequestRead {be:mBe, tag:rxDCPtag, addr:pack(dwb)}));
+      NOP   : dcp.server.request.put(tagged NOP  ( DCPRequestNOP  {isDO:isDO,         tag:rxDCPtag, initAdvert:pack(dwb)}));
+      Write : dcp.server.request.put(tagged Write( DCPRequestWrite{isDO:isDO, be:mBe, tag:rxDCPtag, data:pack(dwb), addr:pack(dwa)}));
+      Read  : dcp.server.request.put(tagged Read ( DCPRequestRead {isDO:isDO, be:mBe, tag:rxDCPtag, addr:pack(dwb)}));
     endcase
     // Done with request, reset rx for next DCP...
     rxDCPMesgPos <= 0;
@@ -265,7 +266,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
                            1: merge.iport0.put(tagged ValidNotEOP 8'h0A); // NOP reseponse is 10B
                            2: merge.iport0.put(tagged ValidNotEOP 8'h00);
                            3: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           4: merge.iport0.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
+                           4: merge.iport0.put(tagged ValidNotEOP (n.hasDO ? 8'h70:8'h30)); // DCP Response = OK
                            5: merge.iport0.put(tagged ValidNotEOP n.tag);
                            6: merge.iport0.put(tagged ValidNotEOP n.targAdvert[31:24]);
                            7: merge.iport0.put(tagged ValidNotEOP n.targAdvert[23:16]);
@@ -281,7 +282,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
                            1: merge.iport0.put(tagged ValidNotEOP 8'h06); // Write reseponse is 6B
                            2: merge.iport0.put(tagged ValidNotEOP 8'h00);
                            3: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           4: merge.iport0.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
+                           4: merge.iport0.put(tagged ValidNotEOP (w.hasDO ? 8'h70:8'h30)); // DCP Response = OK
                            5: merge.iport0.put(tagged ValidEOP    w.tag);
                          endcase
                          txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
@@ -293,7 +294,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
                            1: merge.iport0.put(tagged ValidNotEOP 8'h0A); // Read response is 10B
                            2: merge.iport0.put(tagged ValidNotEOP 8'h00);
                            3: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           4: merge.iport0.put(tagged ValidNotEOP 8'h30); // DCP Response = OK
+                           4: merge.iport0.put(tagged ValidNotEOP (r.hasDO ? 8'h70:8'h30)); // DCP Response = OK
                            5: merge.iport0.put(tagged ValidNotEOP r.tag);
                            6: merge.iport0.put(tagged ValidNotEOP r.data[31:24]);
                            7: merge.iport0.put(tagged ValidNotEOP r.data[23:16]);
