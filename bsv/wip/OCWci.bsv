@@ -403,9 +403,9 @@ endfunction
 module mkWciStoES#(Wci_s#(na) arg) ( Wci_Es#(na));
   Wire#(Bit#(3))   mCmd_w           <- mkDWire(0);
   Wire#(Bit#(1))   mAddrSpace_w     <- mkDWire(0);
+  Wire#(Bit#(4))   mByteEn_w        <- mkDWire(0);
   Wire#(Bit#(na))  mAddr_w          <- mkDWire(0);
   Wire#(Bit#(32))  mData_w          <- mkDWire(0);
-  Wire#(Bit#(4))   mByteEn_w        <- mkDWire(0);
 
   rule doAlways_Req;
      WciReq#(na)req = WciReq {
@@ -417,15 +417,15 @@ module mkWciStoES#(Wci_s#(na) arg) ( Wci_Es#(na));
     arg.putreq(req);
   endrule
 
-  method Action  mCmd(in)        = mCmd_w._write(in);
-  method Action  mAddrSpace(x)   = mAddrSpace_w._write(x);
-  method Action  mByteEn(x)      = mByteEn_w._write(x);
-  method Action  mAddr(x)        = mAddr_w._write(x);
-  method Action  mData(x)        = mData_w._write(x);
-  method         sResp           = pack(arg.resp.resp);
-  method         sData           = arg.resp.data;
-  method         sThreadBusy     = arg.sThreadBusy;
-  method         sFlag           = arg.sFlag;
+  method Action  mCmd(in)           = mCmd_w._write(in);
+  method Action  mAddrSpace(x)      = mAddrSpace_w._write(x);
+  method Action  mByteEn(x)         = mByteEn_w._write(x);
+  method Action  mAddr(x)           = mAddr_w._write(x);
+  method Action  mData(x)           = mData_w._write(x);
+  method         sResp              = pack(arg.resp.resp);
+  method         sData              = arg.resp.data;
+  method         sThreadBusy        = arg.sThreadBusy;
+  method         sFlag              = arg.sFlag;
   method Action  mFlag (Bit#(2) mf) = arg.mFlag(mf);
 endmodule
 
