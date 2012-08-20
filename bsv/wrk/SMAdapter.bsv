@@ -326,7 +326,8 @@ rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
      'h38 : rdat = !hasDebugLogic ? 0 : pack(wmwtBeginCount);
      'h3C : rdat = !hasDebugLogic ? 0 : pack(wmwtPushCount);
      'h40 : rdat = !hasDebugLogic ? 0 : pack(wmwtFinalCount);
-     'h44 : rdat = !hasDebugLogic ? 0 : 32'hFEED_C0DE;
+     'h44 : rdat = !hasDebugLogic ? 0 : extend(pack(wmi.anyBusy)); // TODO: Better WMI port diags
+     'h48 : rdat = !hasDebugLogic ? 0 : 32'hFEED_C0DE;
    endcase
    //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
      //$time, wciReq.addr, wciReq.byteEn, rdat);

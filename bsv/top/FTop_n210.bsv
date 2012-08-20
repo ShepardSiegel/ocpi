@@ -86,8 +86,10 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 
-  WSIPatternWorker4BIfc  pat0    <- mkWSIPatternWorker(              True, clocked_by sys0_clk, reset_by(vWci[5].mReset_n));
-  SMAdapter4BIfc         sma0    <- mkSMAdapter       (32'h00000002, True, clocked_by sys0_clk, reset_by(vWci[6].mReset_n));
+  // Make sure when calling out a specific interface, eg xxx4BIfc, you use the non-polymorphic mkXxx4B instance
+  // 2012-08-19 odd WSI behavior seen when non-synth, poly module was instanced instead. Should dig deeper.
+  WSIPatternWorker4BIfc  pat0    <- mkWSIPatternWorker4B(True,        clocked_by sys0_clk, reset_by(vWci[5].mReset_n));
+  SMAdapter4BIfc         sma0    <- mkSMAdapter4B(32'h00000002, True, clocked_by sys0_clk, reset_by(vWci[6].mReset_n));
 
 //WciSlaveNullIfc#(32)  tieOff0  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieOff1  <- mkWciSlaveNull;
@@ -108,7 +110,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //WciSlaveNullIfc#(32)  tieOff14 <- mkWciSlaveNull;
 
   mkConnection(gbe0.dpClient, edp0.server); // Path from dgdp to GbE
-  mkConnection(pat0.wsiM0, sma0.wsiS0);     // Connect the PatternWorker to the SMAAdapter
+  mkConnection(pat0.wsiM0, sma0.wsiS0, clocked_by sys0_clk, reset_by sys0_rst);     // Connect the PatternWorker to the SMAAdapter
   mkConnection(sma0.wmiM0, edp0.wmiS0);     // Connect the SMAAdapter to the DGDP WMI slave port
 
 //mkConnection(vWci[0],  tieOff0.slv); 

@@ -30,6 +30,7 @@ set shiftwidth=2
 set showcmd
 set tabstop=2
 set termencoding=utf-8
+set wildignore=*.pyc
 set window=115
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
@@ -45,11 +46,11 @@ badd +139 bsv/inf/TLPServBC.bsv
 badd +328 bsv/inf/EDPServBC.bsv
 badd +169 bsv/eth/GMAC.bsv
 badd +95 bsv/inf/OCBufQ.bsv
-badd +103 bsv/top/FTop_n210.bsv
+badd +111 bsv/top/FTop_n210.bsv
 badd +13 bsv/inf/CTop.bsv
 badd +108 bsv/inf/OCInf.bsv
 badd +42 bsv/eth/GbeLite.bsv
-badd +92 bsv/inf/TLPBRAM.bsv
+badd +126 bsv/inf/TLPBRAM.bsv
 badd +30 bsv/utl/ByteShifter.bsv
 badd +247 bsv/pci/PCIE_S4.bsv
 badd +586 bsv/inf/TLPMF.bsv
@@ -66,8 +67,11 @@ badd +148 bsv/app/OCApp.bsv
 badd +24 bsv/pwk/PWrk_n210.bsv
 badd +269 bsv/wip/OCWci.bsv
 badd +1 bsv/eth/GbeWrk.bsv
-badd +0 bsv/wip/OCWsi.bsv
-badd +5558 rtl/mkFTop_n210.v
+badd +443 bsv/wip/OCWsi.bsv
+badd +1301 rtl/mkFTop_n210.v
+badd +127 bsv/inf/OCCP.bsv
+badd +0 bsv/inf/WmiServBC.bsv
+badd +0 bin/dbgReceiveRDMA.py
 args bsv/inf/OCDP.bsv
 edit bsv/top/FTop_n210.bsv
 set splitbelow splitright
@@ -116,7 +120,16 @@ wincmd _ | wincmd |
 split
 wincmd _ | wincmd |
 split
-8wincmd k
+wincmd _ | wincmd |
+split
+wincmd _ | wincmd |
+split
+wincmd _ | wincmd |
+split
+11wincmd k
+wincmd w
+wincmd w
+wincmd w
 wincmd w
 wincmd w
 wincmd w
@@ -129,42 +142,48 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 48 + 58) / 116)
-exe 'vert 1resize ' . ((&columns * 137 + 122) / 245)
+exe '1resize ' . ((&lines * 46 + 58) / 116)
+exe 'vert 1resize ' . ((&columns * 129 + 142) / 285)
 exe '2resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 2resize ' . ((&columns * 137 + 122) / 245)
+exe 'vert 2resize ' . ((&columns * 129 + 142) / 285)
 exe '3resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 3resize ' . ((&columns * 137 + 122) / 245)
+exe 'vert 3resize ' . ((&columns * 129 + 142) / 285)
 exe '4resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 4resize ' . ((&columns * 137 + 122) / 245)
+exe 'vert 4resize ' . ((&columns * 129 + 142) / 285)
 exe '5resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 5resize ' . ((&columns * 137 + 122) / 245)
+exe 'vert 5resize ' . ((&columns * 129 + 142) / 285)
 exe '6resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 6resize ' . ((&columns * 137 + 122) / 245)
-exe '7resize ' . ((&lines * 30 + 58) / 116)
-exe 'vert 7resize ' . ((&columns * 137 + 122) / 245)
-exe '8resize ' . ((&lines * 12 + 58) / 116)
-exe 'vert 8resize ' . ((&columns * 137 + 122) / 245)
-exe '9resize ' . ((&lines * 11 + 58) / 116)
-exe 'vert 9resize ' . ((&columns * 137 + 122) / 245)
-exe '10resize ' . ((&lines * 12 + 58) / 116)
-exe 'vert 10resize ' . ((&columns * 107 + 122) / 245)
-exe '11resize ' . ((&lines * 12 + 58) / 116)
-exe 'vert 11resize ' . ((&columns * 107 + 122) / 245)
-exe '12resize ' . ((&lines * 12 + 58) / 116)
-exe 'vert 12resize ' . ((&columns * 107 + 122) / 245)
-exe '13resize ' . ((&lines * 4 + 58) / 116)
-exe 'vert 13resize ' . ((&columns * 107 + 122) / 245)
+exe 'vert 6resize ' . ((&columns * 129 + 142) / 285)
+exe '7resize ' . ((&lines * 48 + 58) / 116)
+exe 'vert 7resize ' . ((&columns * 129 + 142) / 285)
+exe '8resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 8resize ' . ((&columns * 129 + 142) / 285)
+exe '9resize ' . ((&lines * 6 + 58) / 116)
+exe 'vert 9resize ' . ((&columns * 129 + 142) / 285)
+exe '10resize ' . ((&lines * 9 + 58) / 116)
+exe 'vert 10resize ' . ((&columns * 155 + 142) / 285)
+exe '11resize ' . ((&lines * 7 + 58) / 116)
+exe 'vert 11resize ' . ((&columns * 155 + 142) / 285)
+exe '12resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 12resize ' . ((&columns * 155 + 142) / 285)
+exe '13resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 13resize ' . ((&columns * 155 + 142) / 285)
 exe '14resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 14resize ' . ((&columns * 107 + 122) / 245)
-exe '15resize ' . ((&lines * 31 + 58) / 116)
-exe 'vert 15resize ' . ((&columns * 107 + 122) / 245)
-exe '16resize ' . ((&lines * 13 + 58) / 116)
-exe 'vert 16resize ' . ((&columns * 107 + 122) / 245)
-exe '17resize ' . ((&lines * 10 + 58) / 116)
-exe 'vert 17resize ' . ((&columns * 107 + 122) / 245)
-exe '18resize ' . ((&lines * 11 + 58) / 116)
-exe 'vert 18resize ' . ((&columns * 107 + 122) / 245)
+exe 'vert 14resize ' . ((&columns * 155 + 142) / 285)
+exe '15resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 15resize ' . ((&columns * 155 + 142) / 285)
+exe '16resize ' . ((&lines * 51 + 58) / 116)
+exe 'vert 16resize ' . ((&columns * 155 + 142) / 285)
+exe '17resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 17resize ' . ((&columns * 155 + 142) / 285)
+exe '18resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 18resize ' . ((&columns * 155 + 142) / 285)
+exe '19resize ' . ((&lines * 24 + 58) / 116)
+exe 'vert 19resize ' . ((&columns * 155 + 142) / 285)
+exe '20resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 20resize ' . ((&columns * 155 + 142) / 285)
+exe '21resize ' . ((&lines * 5 + 58) / 116)
+exe 'vert 21resize ' . ((&columns * 155 + 142) / 285)
 argglobal
 setlocal noarabic
 setlocal autoindent
@@ -262,12 +281,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 94 - ((12 * winheight(0) + 24) / 48)
+let s:l = 92 - ((31 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-94
-normal! 050l
+92
+normal! 046l
 wincmd w
 argglobal
 edit bsv/wip/OCWci.bsv
@@ -892,12 +911,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 226 - ((0 * winheight(0) + 15) / 30)
+let s:l = 337 - ((25 * winheight(0) + 24) / 48)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-226
-normal! 04l
+337
+normal! 0
 wincmd w
 argglobal
 edit bsv/wrk/WSIPatternWorker.bsv
@@ -997,12 +1016,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 293 - ((11 * winheight(0) + 6) / 12)
+let s:l = 338 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-293
-normal! 08l
+338
+normal! 0
 wincmd w
 argglobal
 edit bsv/inf/TLPServBC.bsv
@@ -1102,7 +1121,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 8 - ((1 * winheight(0) + 5) / 11)
+let s:l = 8 - ((0 * winheight(0) + 3) / 6)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1207,7 +1226,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 76 - ((1 * winheight(0) + 6) / 12)
+let s:l = 76 - ((1 * winheight(0) + 4) / 9)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1312,7 +1331,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 47 - ((0 * winheight(0) + 6) / 12)
+let s:l = 47 - ((0 * winheight(0) + 3) / 7)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1417,7 +1436,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 62 - ((9 * winheight(0) + 6) / 12)
+let s:l = 62 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1522,7 +1541,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 100 - ((0 * winheight(0) + 2) / 4)
+let s:l = 100 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1732,12 +1751,222 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 117 - ((11 * winheight(0) + 15) / 31)
+let s:l = 125 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-117
-normal! 0107l
+125
+normal! 045l
+wincmd w
+argglobal
+edit bin/dbgReceiveRDMA.py
+setlocal noarabic
+setlocal autoindent
+setlocal autoread
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:XCOMM,n:>,fb:-
+setlocal commentstring=#%s
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'python'
+setlocal filetype=python
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=tcql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=s*\\(from\\|import\\)
+setlocal includeexpr=substitute(v:fname,'\\.','/','g')
+setlocal indentexpr=GetPythonIndent(v:lnum)
+setlocal indentkeys=0{,0},:,!^F,o,O,e,<:>,=elif,=except
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keymap=
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=pythoncomplete#Complete
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=2
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=.py
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'python'
+setlocal syntax=python
+endif
+setlocal tabstop=2
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 26 - ((25 * winheight(0) + 25) / 51)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+26
+normal! 032l
+wincmd w
+argglobal
+edit bsv/inf/OCCP.bsv
+setlocal noarabic
+setlocal autoindent
+setlocal autoread
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'bsv'
+setlocal filetype=bsv
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=tcql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=GetBSVIndent()
+setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keymap=
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=2
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'bsv'
+setlocal syntax=bsv
+endif
+setlocal tabstop=2
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 127 - ((0 * winheight(0) + 0) / 1)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+127
+normal! 0
 wincmd w
 argglobal
 edit bsv/wip/OCWsi.bsv
@@ -1837,12 +2066,117 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 488 - ((10 * winheight(0) + 6) / 13)
+let s:l = 437 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-488
-normal! 04l
+437
+normal! 023l
+wincmd w
+argglobal
+edit bsv/inf/WmiServBC.bsv
+setlocal noarabic
+setlocal autoindent
+setlocal autoread
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+setlocal nocursorcolumn
+setlocal nocursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'bsv'
+setlocal filetype=bsv
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=tcql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=0
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=GetBSVIndent()
+setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keymap=
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal modeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+setlocal numberwidth=4
+setlocal omnifunc=
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=2
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'bsv'
+setlocal syntax=bsv
+endif
+setlocal tabstop=2
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+setlocal wrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 65 - ((20 * winheight(0) + 12) / 24)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+65
+normal! 06l
 wincmd w
 argglobal
 edit bsv/inf/TLPBRAM.bsv
@@ -1942,12 +2276,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 92 - ((1 * winheight(0) + 5) / 10)
+let s:l = 126 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-92
-normal! 025l
+126
+normal! 033l
 wincmd w
 argglobal
 edit bsv/inf/EDPServBC.bsv
@@ -2047,49 +2381,56 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 66 - ((0 * winheight(0) + 5) / 11)
+let s:l = 132 - ((0 * winheight(0) + 2) / 5)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-66
+132
 normal! 057l
 wincmd w
-exe '1resize ' . ((&lines * 48 + 58) / 116)
-exe 'vert 1resize ' . ((&columns * 137 + 122) / 245)
+16wincmd w
+exe '1resize ' . ((&lines * 46 + 58) / 116)
+exe 'vert 1resize ' . ((&columns * 129 + 142) / 285)
 exe '2resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 2resize ' . ((&columns * 137 + 122) / 245)
+exe 'vert 2resize ' . ((&columns * 129 + 142) / 285)
 exe '3resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 3resize ' . ((&columns * 137 + 122) / 245)
+exe 'vert 3resize ' . ((&columns * 129 + 142) / 285)
 exe '4resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 4resize ' . ((&columns * 137 + 122) / 245)
+exe 'vert 4resize ' . ((&columns * 129 + 142) / 285)
 exe '5resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 5resize ' . ((&columns * 137 + 122) / 245)
+exe 'vert 5resize ' . ((&columns * 129 + 142) / 285)
 exe '6resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 6resize ' . ((&columns * 137 + 122) / 245)
-exe '7resize ' . ((&lines * 30 + 58) / 116)
-exe 'vert 7resize ' . ((&columns * 137 + 122) / 245)
-exe '8resize ' . ((&lines * 12 + 58) / 116)
-exe 'vert 8resize ' . ((&columns * 137 + 122) / 245)
-exe '9resize ' . ((&lines * 11 + 58) / 116)
-exe 'vert 9resize ' . ((&columns * 137 + 122) / 245)
-exe '10resize ' . ((&lines * 12 + 58) / 116)
-exe 'vert 10resize ' . ((&columns * 107 + 122) / 245)
-exe '11resize ' . ((&lines * 12 + 58) / 116)
-exe 'vert 11resize ' . ((&columns * 107 + 122) / 245)
-exe '12resize ' . ((&lines * 12 + 58) / 116)
-exe 'vert 12resize ' . ((&columns * 107 + 122) / 245)
-exe '13resize ' . ((&lines * 4 + 58) / 116)
-exe 'vert 13resize ' . ((&columns * 107 + 122) / 245)
+exe 'vert 6resize ' . ((&columns * 129 + 142) / 285)
+exe '7resize ' . ((&lines * 48 + 58) / 116)
+exe 'vert 7resize ' . ((&columns * 129 + 142) / 285)
+exe '8resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 8resize ' . ((&columns * 129 + 142) / 285)
+exe '9resize ' . ((&lines * 6 + 58) / 116)
+exe 'vert 9resize ' . ((&columns * 129 + 142) / 285)
+exe '10resize ' . ((&lines * 9 + 58) / 116)
+exe 'vert 10resize ' . ((&columns * 155 + 142) / 285)
+exe '11resize ' . ((&lines * 7 + 58) / 116)
+exe 'vert 11resize ' . ((&columns * 155 + 142) / 285)
+exe '12resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 12resize ' . ((&columns * 155 + 142) / 285)
+exe '13resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 13resize ' . ((&columns * 155 + 142) / 285)
 exe '14resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 14resize ' . ((&columns * 107 + 122) / 245)
-exe '15resize ' . ((&lines * 31 + 58) / 116)
-exe 'vert 15resize ' . ((&columns * 107 + 122) / 245)
-exe '16resize ' . ((&lines * 13 + 58) / 116)
-exe 'vert 16resize ' . ((&columns * 107 + 122) / 245)
-exe '17resize ' . ((&lines * 10 + 58) / 116)
-exe 'vert 17resize ' . ((&columns * 107 + 122) / 245)
-exe '18resize ' . ((&lines * 11 + 58) / 116)
-exe 'vert 18resize ' . ((&columns * 107 + 122) / 245)
+exe 'vert 14resize ' . ((&columns * 155 + 142) / 285)
+exe '15resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 15resize ' . ((&columns * 155 + 142) / 285)
+exe '16resize ' . ((&lines * 51 + 58) / 116)
+exe 'vert 16resize ' . ((&columns * 155 + 142) / 285)
+exe '17resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 17resize ' . ((&columns * 155 + 142) / 285)
+exe '18resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 18resize ' . ((&columns * 155 + 142) / 285)
+exe '19resize ' . ((&lines * 24 + 58) / 116)
+exe 'vert 19resize ' . ((&columns * 155 + 142) / 285)
+exe '20resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 20resize ' . ((&columns * 155 + 142) / 285)
+exe '21resize ' . ((&lines * 5 + 58) / 116)
+exe 'vert 21resize ' . ((&columns * 155 + 142) / 285)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
