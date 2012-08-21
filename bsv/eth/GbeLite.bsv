@@ -99,7 +99,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
 
   EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, macAddress, 16'hf041);
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
-  FIFO#(ABS)                  edpTxF              <-  mkFIFO;
+  //FIFO#(ABS)                  edpTxF              <-  mkFIFO;
   Reg#(Vector#(16,Bit#(8)))   edpDV               <-  mkRegU(clocked_by cpClock, reset_by cpReset);
 
   ABSMergeIfc                 merge               <-  mkABSMerge;  // To merge egress packets from DCP and DGDP 
@@ -309,11 +309,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     end
   endrule
 
-    //edpRxF.enq(edpTxF.first);
-    //edpTxF.deq();
-
-  mkConnection(toGet(edpTxF), merge.iport1);  // Connect the dgdp to merge iport1 
-  mkConnection(merge.oport, gmac.tx);         // Connect the merge output to the gmac
+  mkConnection(edp.server.response, merge.iport1);  // Connect the dgdp to merge iport1 
+  mkConnection(merge.oport, gmac.tx);               // Connect the merge output to the gmac
 
 
   // Interfaces and Methods provided...

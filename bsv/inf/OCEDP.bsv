@@ -136,6 +136,8 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
        'hA4 : rdat = !hasDebugLogic ? 0 : dmaStartTime[63:32];
        'hA8 : rdat = !hasDebugLogic ? 0 : dmaDoneTime[31:00];
        'hAC : rdat = !hasDebugLogic ? 0 : dmaDoneTime[63:32];
+       'hB0 : rdat = !hasDebugLogic ? 0 : extend(pack(edp.i_dbgBytesTxEnq));
+       'hB4 : rdat = !hasDebugLogic ? 0 : extend(pack(edp.i_dbgBytesTxDeq));
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);

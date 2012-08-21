@@ -48,7 +48,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
       rval = wread(dev0, gbeWrkNum, addr)
       print 'gbe addr:', hex(addr), ' data:', hex(rval)
 
-    for addr in range(0, 0xB0, 4):
+    for addr in range(0, 0xB8, 4):
       rval = wread(dev0, dp0WrkNum, addr)
       print 'dp0 addr:', hex(addr), ' data:', hex(rval)
 

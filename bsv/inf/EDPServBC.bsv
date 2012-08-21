@@ -76,6 +76,8 @@ interface EDPServBCIfc;
   interface BufQCIfc             bufq;
   method Action                  dpCtrl (DPControl dc);
   method Bit#(32)                i_flowDiagCount;
+  method Bit#(32)                i_dbgBytesTxEnq;
+  method Bit#(32)                i_dbgBytesTxDeq;
   method Bit#(32)                i_debug;
   method Vector#(4,Bit#(32))     i_meta;
   method Action                  now    (Bit#(64) arg);
@@ -179,6 +181,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)                 doMesgMH             <- mkReg(False);
   Reg#(Bool)                 firstMetaMH          <- mkReg(True);
   Reg#(Bool)                 firstMesgMH          <- mkReg(True);
+  Reg#(Bit#(32))             dbgBytesTxEnq        <- mkReg(0);
+  Reg#(Bit#(32))             dbgBytesTxDeq        <- mkReg(0);
 
 
 
@@ -229,6 +233,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
                               }, False)); // TODO: set isEOP in all cases
     frameNumber <= frameNumber + 1;
     doMetaMH <= True;  // Send dgdp mesageheader for metadata...
+    dbgBytesTxEnq <= dbgBytesTxEnq + 10;
   endrule
 
   rule send_metaMH (doMetaMH);  // Send dgdp mesageheader for metadata...
@@ -243,7 +248,10 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
                                 mesgTyp  : 8'h01, // metadata
                                 flags    : 8'h01 
                               };
-    dgdpTx.enq( firstMetaMH?16:8, mhAs16ByteV(mh, firstMetaMH, False)); // TODO: set isEOP in all cases
+
+    let byteCount = firstMetaMH?16:8;
+    dgdpTx.enq( byteCount, mhAs16ByteV(mh, firstMetaMH, False)); // TODO: set isEOP in all cases
+    dbgBytesTxEnq <= dbgBytesTxEnq + byteCount;
     firstMetaMH <= !firstMetaMH;
     doMetaMH    <= !firstMetaMH;
   endrule
@@ -274,6 +282,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
     Vector#(16,Bit#(8)) metaV = unpack({nowLS, nowMS, opcode, lastMetaV[0]}); // 16B metadata
     dgdpTx.enq(16, map(tagValidData(False), metaV)); // send 16B metadata, no EOP 
+    dbgBytesTxEnq <= dbgBytesTxEnq + 16;
   endrule
 
   // Steps 3, 4a, 4b to be repeated 0-N times.
@@ -321,7 +330,9 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
                                 mesgTyp  : 0,       // data
                                 flags    : 8'h00    // no more messages
                               };
-    dgdpTx.enq( firstMesgMH?16:8, mhAs16ByteV(mh, firstMesgMH, False)); //FIXME: Set EOP!!!
+    let byteCount = firstMesgMH?16:8;
+    dgdpTx.enq( byteCount, mhAs16ByteV(mh, firstMesgMH, False)); //FIXME: Set EOP!!!
+    dbgBytesTxEnq <= dbgBytesTxEnq + byteCount;
     firstMesgMH <= !firstMesgMH;
     doMesgMH    <= !firstMesgMH;
   endrule
@@ -370,6 +381,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Vector#(16,ABS)     dabsV = map(tagValidData(False), dataV); 
     dabsV[15] = tagged ValidEOP dataV[15];
     dgdpTx.enq(16, dabsV);
+    dbgBytesTxEnq <= dbgBytesTxEnq + 16;
     //
 
     outDwRemain <= outDwRemain - 4;                                   // update DW remaining in this segment
@@ -506,6 +518,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule egress_pump (dgdpTx.things_available>0);
     outF.enq(dgdpTx.things_out[0]); // Just take the first one
     dgdpTx.deq(1);
+    dbgBytesTxDeq <= dbgBytesTxDeq + 1;
   endrule
 
   //
@@ -540,6 +553,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // expose register interface so WCI can set/get these config properties...
   method Action dpCtrl (DPControl dc) = dpControl._write(dc);
   method Bit#(32)            i_flowDiagCount = flowDiagCount;
+  method Bit#(32)            i_dbgBytesTxEnq = dbgBytesTxEnq;
+  method Bit#(32)            i_dbgBytesTxDeq = dbgBytesTxDeq;
   method Bit#(32)            i_debug = tlpDebug;
   method Vector#(4,Bit#(32)) i_meta  = readVReg(lastMetaV);
   method Action now (Bit#(64) arg) = nowW._write(arg);
