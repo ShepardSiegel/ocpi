@@ -30,7 +30,7 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
 
   WciESlaveIfc                wci              <-  mkWciESlave;
   Reg#(Vector#(16,Bit#(8)))   edpDV            <-  mkRegU;
-  Wire#(Bit#(32))             dgdpEgressCnt_w  <-  mkWire;
+  Wire#(Bit#(32))             dgdpEgressCnt_w  <-  mkBypassWire;
 
   // WCI Control....
   Bit#(32) gbeStatus = 32'h0000_0000;
