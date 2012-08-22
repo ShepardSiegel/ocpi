@@ -22,13 +22,15 @@ interface GbeWrkIfc;
   interface WciES       wciS0;  // Worker Control and Configuration
   method    MACAddress  l2Dst;  // Ethernet Layer 2 Dest
   method    EtherType   l2Typ;  // Ethernet Layer 2 EtherType
+  method Action dgdpEgressCnt (Bit#(32) arg);
 endinterface 
 
 (* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
 module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
 
-  WciESlaveIfc                wci      <-  mkWciESlave;
-  Reg#(Vector#(16,Bit#(8)))   edpDV    <-  mkRegU;
+  WciESlaveIfc                wci              <-  mkWciESlave;
+  Reg#(Vector#(16,Bit#(8)))   edpDV            <-  mkRegU;
+  Wire#(Bit#(32))             dgdpEgressCnt_w  <-  mkWire;
 
   // WCI Control....
   Bit#(32) gbeStatus = 32'h0000_0000;
@@ -49,6 +51,7 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
   rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
     let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
     case (wciReq.addr[7:0]) matches
+     'h0C : rdat = pack(dgdpEgressCnt_w);
      'h10 : rdat = pack(takeAt(0, edpDV));
      'h14 : rdat = pack(takeAt(4, edpDV));
     endcase
@@ -64,4 +67,5 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
   interface Wci_s       wciS0   = wci.slv;
   method    MACAddress  l2Dst   = pack(takeAt(0,edpDV));
   method    EtherType   l2Typ   = pack(takeAt(6,edpDV));
+  method Action dgdpEgressCnt (Bit#(32) arg) = dgdpEgressCnt_w._write(arg);
 endmodule

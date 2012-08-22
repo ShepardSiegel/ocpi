@@ -137,6 +137,10 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   mkConnection(pwrk.macAddr, gbe0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the GBE
   mkConnection(iqadc.wsiM0, cap0.wsiS0);     // Connect the WSI output from the IQ-ADC to the Capture Worker
 
+  rule send_gbe_stats;
+    gbewrk.dgdpEgressCnt(gbe0.dgdpEgressCnt);
+  endrule
+
   method    Bit#(5)       led    = ledLogic.led;
   method    Bit#(32)      debug  = {16'h5555, 16'h0000};
   interface Clock         rxclkBnd   = gbe0.rxclkBnd;

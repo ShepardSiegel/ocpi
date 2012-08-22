@@ -176,7 +176,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // New State for the EDP is here...
   Reg#(UInt#(16))            frameNumber          <- mkReg(0);
   Reg#(UInt#(32))            xactionNumber        <- mkReg(0);
-  ThingShifter#(16,1,64,ABS) dgdpTx               <- mkThingShifter;
+  ThingShifter#(16,1,80,ABS) dgdpTx               <- mkThingShifter;
   Reg#(Bool)                 doMetaMH             <- mkReg(False);
   Reg#(Bool)                 doMesgMH             <- mkReg(False);
   Reg#(Bool)                 firstMetaMH          <- mkReg(True);
@@ -204,7 +204,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //
 
   // Request the metadata for the remote-facing ready buffer...
-  rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
+  rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0 && dgdpTx.space_available==80);
     dmaStartMark    <= True;
     remStart        <= True;   // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
@@ -293,7 +293,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Request the message from the remote-facing ready buffer...
   // Inhibit this rule while tlpRcvBusy with other rem buffer access...
   // If needed, make multiple requests until the full extent of the message is traversed, as signalled by mesgLengthRemainPush==0...
-  rule dmaPushRequestMesg (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0);
+  rule dmaPushRequestMesg (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0 &&& dgdpTx.space_available==0);
     Bit#(13) spanToNextPage = 4096 - extend(srcMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
     //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemainPush,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
     Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPush,extend(maxPayloadSize))),spanToNextPage);  // minimum of what we want and what we are allowed 

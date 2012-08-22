@@ -24,6 +24,7 @@ import XilinxExtra  ::*;
 
 interface GbeLiteIfc;
   method Action macAddr (Bit#(48) u);
+  method Bit#(32) dgdpEgressCnt;
   interface Client#(CpReq,CpReadResp) cpClient;    // Control Plane Client
   interface Client#(ABS, ABS)         dpClient;    // Data Plane Client
   interface GMII_RS                   gmii;        // The GMII link
@@ -101,6 +102,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
   //FIFO#(ABS)                  edpTxF              <-  mkFIFO;
   Reg#(Vector#(16,Bit#(8)))   edpDV               <-  mkRegU(clocked_by cpClock, reset_by cpReset);
+  Reg#(Bit#(32))              txEgressCnt         <-  mkReg(0);
+  Reg#(Bit#(32))              txEgressCntCP       <-  mkSyncRegFromCC(0, cpClock);
 
   ABSMergeIfc                 merge               <-  mkABSMerge;  // To merge egress packets from DCP and DGDP 
 
@@ -309,12 +312,26 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     end
   endrule
 
-  mkConnection(edp.server.response, merge.iport1);  // Connect the dgdp to merge iport1 
+
+  rule consume_tx_devnull;
+    let t <- edp.server.response.get;
+    txEgressCnt <= txEgressCnt + 1;
+  endrule
+
+  rule update_tx_stat;
+    txEgressCntCP <= txEgressCnt;
+  endrule
+
+
+  //FIXME: No way for DGDP TX to get out!
+  //mkConnection(edp.server.response, merge.iport1);  // Connect the dgdp to merge iport1 
+
   mkConnection(merge.oport, gmac.tx);               // Connect the merge output to the gmac
 
 
   // Interfaces and Methods provided...
   method Action macAddr (Bit#(48) u) = macAddressCP._write(unpack(u));
+  method Bit#(32)   dgdpEgressCnt = txEgressCntCP;
   interface Client     cpClient   = dcp.client;
   interface Client     dpClient   = edp.client;
   interface GMII_RS    gmii       = gmac.gmii;
