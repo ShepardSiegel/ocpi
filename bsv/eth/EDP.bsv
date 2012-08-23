@@ -70,14 +70,14 @@ endmodule
 // We simply take the lean sync implementation as-is; and attach two async FIFOs to
 // the DGDP-facing side so they can be in their own clock domain. 
 
-module mkEDPAdapterAsync#(Clock      dgdpClock
-                        , Reset      dgdpReset
+module mkEDPAdapterAsync#(Clock      cpClock
+                        , Reset      cpReset
                         , MACAddress da
                         , MACAddress sa
                         , EtherType  ty) (EDPAdapterIfc);
   EDPAdapterIfc            edp         <- mkEDPAdapterSync(da,sa,ty);
-  SyncFIFOIfc#(ABS)        dgdpReqAF   <- mkSyncFIFOFromCC(4, dgdpClock); 
-  SyncFIFOIfc#(ABS)        dgdpRespAF  <- mkSyncFIFOToCC(  4, dgdpClock, dgdpReset); 
+  SyncFIFOIfc#(ABS)        dgdpReqAF   <- mkSyncFIFOFromCC(4, cpClock); 
+  SyncFIFOIfc#(ABS)        dgdpRespAF  <- mkSyncFIFOToCC(  4, cpClock, cpReset); 
 
   mkConnection(edp.client.request, toPut(dgdpReqAF));
   mkConnection(toGet(dgdpRespAF), edp.client.response);
