@@ -111,6 +111,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //WciSlaveNullIfc#(32)  tieOff14 <- mkWciSlaveNull;
 
   mkConnection(gbe0.dpClient, edp0.server); // Path from dgdp to GbE
+
   mkConnection(pat0.wsiM0, sma0.wsiS0, clocked_by sys0_clk, reset_by sys0_rst);     // Connect the PatternWorker to the SMAAdapter
   mkConnection(sma0.wmiM0, edp0.wmiS0);     // Connect the SMAAdapter to the DGDP WMI slave port
 

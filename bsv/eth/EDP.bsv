@@ -76,8 +76,8 @@ module mkEDPAdapterAsync#(Clock      cpClock
                         , MACAddress sa
                         , EtherType  ty) (EDPAdapterIfc);
   EDPAdapterIfc            edp         <- mkEDPAdapterSync(da,sa,ty);
-  SyncFIFOIfc#(ABS)        dgdpReqAF   <- mkSyncFIFOFromCC(4, cpClock); 
-  SyncFIFOIfc#(ABS)        dgdpRespAF  <- mkSyncFIFOToCC(  4, cpClock, cpReset); 
+  SyncFIFOIfc#(ABS)        dgdpReqAF   <- mkSyncFIFOFromCC(4, cpClock);           // L2 to dgdp
+  SyncFIFOIfc#(ABS)        dgdpRespAF  <- mkSyncFIFOToCC(  4, cpClock, cpReset);  // dgdp to L2
 
   mkConnection(edp.client.request, toPut(dgdpReqAF));
   mkConnection(toGet(dgdpRespAF), edp.client.response);
