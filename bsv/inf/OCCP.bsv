@@ -120,8 +120,10 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
 
     //FIXME: Specalized for n210 platform development!
     //return (i<7||i>11) ? mkWciMasterNull : mkWciMaster;  
+    if (i==5 || i==6 || i==7 || i==9 || i==10 || i==13) return mkWciMaster;
+    else return mkWciMasterNull;
 
-    return  mkWciMaster; // all get WCI masters
+    //return  mkWciMaster; // all get WCI masters
   endfunction
   Vector#(Nwcit,WciMasterIfc#(20,32)) wci <- genWithM(makeWciMaster);  
 

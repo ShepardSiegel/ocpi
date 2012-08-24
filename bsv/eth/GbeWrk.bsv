@@ -29,6 +29,7 @@ endinterface
 module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
 
   WciESlaveIfc                wci              <-  mkWciESlave;
+  Reg#(Bit#(32))              ctlReg           <-  mkRegU;
   Reg#(Vector#(16,Bit#(8)))   edpDV            <-  mkRegU;
   Wire#(Bit#(32))             dgdpEgressCnt_w  <-  mkBypassWire;
 
@@ -41,6 +42,7 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
   rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
     let wciReq <- wci.reqGet.get;
     case (wciReq.addr[7:0]) matches
+     'h00 : ctlReg     <= wciReq.data;
      'h10 : edpDV      <= append(takeAt(4, edpDV), unpack(wciReq.data));
      'h14 : edpDV      <= append(unpack(wciReq.data), takeAt(0, edpDV));
     endcase
@@ -51,6 +53,7 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
   rule wci_cfrd (wci.configRead);  // WCI Configuration Property Reads...
     let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
     case (wciReq.addr[7:0]) matches
+     'h00 : rdat = pack(ctlReg);
      'h0C : rdat = pack(dgdpEgressCnt_w);
      'h10 : rdat = pack(takeAt(0, edpDV));
      'h14 : rdat = pack(takeAt(4, edpDV));

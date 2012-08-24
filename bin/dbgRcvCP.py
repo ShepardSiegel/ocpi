@@ -2,7 +2,7 @@
 # dbgRcvCP.py - manipulate a few Rcv control Plane (CP) workers
 # Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-from ocpihdl import probe, wadmin, radmin, wwrite, wread, wreset, wunreset, wwctl, wop, testScratchReg
+from ocpihdl import probe, wadmin, radmin, wwrite, wread, wreset, wunreset, wwctl, wop, testScratchReg, testAdminReg, rwsr
 
 import os
 import subprocess
@@ -36,14 +36,22 @@ where <argfoop> is a valid foop.""" % (prog_name)
       wunreset(dev0, w)
       wwctl(dev0, w, 0x8000000F)
 
+    print 'Testing admin scratch regsiters...'
+    testAdminReg(dev0, 0x20)
+    testAdminReg(dev0, 0x24)
+
     print 'Initializing each worker...'
     for w in workerList:
       wwctl(dev0, w, 'initialize')
 
+    print 'Probing Worker Control Status...'
+    for w in workerList:
+      rwsr(dev0, w)
+
     print 'Testing scratch registers...'
     testScratchReg(dev0, 5, 0)
     testScratchReg(dev0, 6, 0)
-    #testScratchReg(dev0, 9, 0)
+    testScratchReg(dev0, 9, 0)
     #testScratchReg(dev0, 13, 0)
 
     print 'Done.'

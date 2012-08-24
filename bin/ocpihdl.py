@@ -69,7 +69,26 @@ def wwctl(device, workerNum, wdata):
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
   #return(int(cmdout, 0))
 
-# Functions that build off of primitives above
+
+def rwsr(device, workerNum):
+  wpone = (workerNum + 1) & 0xF
+  addr = (wpone<<16) | 0xFFE0
+  wsr = radmin(device, addr)
+  print 'Worker: ' + str(workerNum) + ' WSR: ' + hex(wsr)
+
+
+# Functions that build off of primitives above...
+
+def testAdminReg(device, offset):
+  origValue = radmin(device, offset)
+  for bit in range(32):
+    tval = 1<<bit
+    wadmin(device, offset, tval)
+    gval = radmin(device, offset)
+    if (tval != gval):
+      print 'Mismatch: Expected: ' + hex(tval) + ' Got: ' + hex(gval)
+  wadmin(device, offset, origValue)
+
 
 def testScratchReg(device, workerNum, offset):
   origValue = wread(device, workerNum, offset)
@@ -78,7 +97,7 @@ def testScratchReg(device, workerNum, offset):
     wwrite(device, workerNum, offset, tval)
     gval = wread(device, workerNum, offset)
     if (tval != gval):
-      print 'Mismatch worker: ' + str(workerNum) + ' Expected: ' + str(tval) + ' Got: ' + str(gval)
+      print 'Mismatch worker: ' + str(workerNum) + ' Expected: ' + hex(tval) + ' Got: ' + hex(gval)
   wwrite(device, workerNum, offset, origValue)
 
 
