@@ -69,6 +69,18 @@ def wwctl(device, workerNum, wdata):
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
   #return(int(cmdout, 0))
 
+# Functions that build off of primitives above
+
+def testScratchReg(device, workerNum, offset):
+  origValue = wread(device, workerNum, offset)
+  for bit in range(32):
+    tval = 1<<bit
+    wwrite(device, workerNum, offset, tval)
+    gval = wread(device, workerNum, offset)
+    if (tval != gval):
+      print 'Mismatch worker: ' + str(workerNum) + ' Expected: ' + str(tval) + ' Got: ' + str(gval)
+  wwrite(device, workerNum, offset, origValue)
+
 
 def main(argv):
   if len(argv) != 2:
