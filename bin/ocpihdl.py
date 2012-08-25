@@ -69,12 +69,13 @@ def wwctl(device, workerNum, wdata):
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
   #return(int(cmdout, 0))
 
-
 def rwsr(device, workerNum):
   wpone = (workerNum + 1) & 0xF
   addr = (wpone<<16) | 0xFFE0
   wsr = radmin(device, addr)
-  print 'Worker: ' + str(workerNum) + ' WSR: ' + hex(wsr)
+  addr = (wpone<<16) | 0xFFE4
+  wcr = radmin(device, addr)
+  print 'Worker: ' + str(workerNum) + ' WSR: ' + hex(wsr) + '  WCR: ' + hex(wcr)
 
 
 # Functions that build off of primitives above...
@@ -98,6 +99,7 @@ def testScratchReg(device, workerNum, offset):
     gval = wread(device, workerNum, offset)
     if (tval != gval):
       print 'Mismatch worker: ' + str(workerNum) + ' Expected: ' + hex(tval) + ' Got: ' + hex(gval)
+      break
   wwrite(device, workerNum, offset, origValue)
 
 

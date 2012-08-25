@@ -28,7 +28,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
     gbeWrkNum = 9   # GBE
     dp0WrkNum = 13  # dgdp dp0
 
-    workerList = [5,6,9,13]
+    workerList = [5,6,7,9,10,13]
 
     print 'Reset cycling each worker...'
     for w in workerList:
@@ -40,11 +40,15 @@ where <argfoop> is a valid foop.""" % (prog_name)
     testAdminReg(dev0, 0x20)
     testAdminReg(dev0, 0x24)
 
+    print 'Probing Worker Control Status ahead of init...'
+    for w in workerList:
+      rwsr(dev0, w)
+
     print 'Initializing each worker...'
     for w in workerList:
-      wwctl(dev0, w, 'initialize')
+      wop(dev0, w, 'initialize')
 
-    print 'Probing Worker Control Status...'
+    print 'Probing Worker Control Status after init...'
     for w in workerList:
       rwsr(dev0, w)
 
