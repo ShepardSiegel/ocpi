@@ -313,14 +313,14 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   endrule
 
 
-  //rule consume_tx_devnull;
-  //  let t <- edp.server.response.get;
-  //  txEgressCnt <= txEgressCnt + 1;
-  //endrule
+  rule consume_tx_devnull;
+    let t <- edp.server.response.get;
+    txEgressCnt <= txEgressCnt + 1;
+  endrule
 
-  //rule update_tx_stat;
-  //  txEgressCntCP <= txEgressCnt;
-  //endrule
+  rule update_tx_stat;
+    txEgressCntCP <= txEgressCnt;  // This wont fire on every cycle as the implicit condition of the CP._write is at a lower clock rate
+  endrule
 
 
   //FIXME: No way for DGDP TX to get out!

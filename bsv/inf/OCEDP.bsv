@@ -61,6 +61,8 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
   Reg#(Bit#(64))   dmaStartTime     <- mkReg(0);
   Reg#(Bit#(64))   dmaDoneTime      <- mkReg(0);
 
+  Reg#(Bit#(32))   edpDebug         <- mkReg(0);
+
   rule capture_startTime (edp.dmaStartPulse); dmaStartTime <= wti.now; endrule
   rule capture_doneTime  (edp.dmaDonePulse);  dmaDoneTime  <= wti.now; endrule
 
@@ -88,6 +90,7 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
        'h94 : bml.i_fabMesgBaseMS <= truncate(unpack(wciReq.data));
        'h98 : bml.i_fabMetaBaseMS <= truncate(unpack(wciReq.data));
        'h9C : bml.i_fabFlowBaseMS <= truncate(unpack(wciReq.data));
+       'hB8 : edpDebug            <= wciReq.data;
      endcase
      $display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
      wci.respPut.put(wciOKResponse); // write response
@@ -138,6 +141,7 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
        'hAC : rdat = !hasDebugLogic ? 0 : dmaDoneTime[63:32];
        'hB0 : rdat = !hasDebugLogic ? 0 : extend(pack(edp.i_dbgBytesTxEnq));
        'hB4 : rdat = !hasDebugLogic ? 0 : extend(pack(edp.i_dbgBytesTxDeq));
+       'hB8 : rdat = !hasDebugLogic ? 0 : edpDebug;
      endcase
      $display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x",
        $time, wciReq.addr, wciReq.byteEn, rdat);

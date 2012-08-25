@@ -25,20 +25,28 @@ where <argfoop> is a valid foop.""" % (prog_name)
 
     patWrkNum = 5   # pattern gen
     smaWrkNum = 6   # SMA
+    plaWrkNum = 7   # Platform
     gbeWrkNum = 9   # GBE
+    adcWrkNum = 10  # IQADC
     dp0WrkNum = 13  # dgdp dp0
 
     workerList = [5,6,7,9,10,13]
 
     print 'Reset cycling each worker...'
     for w in workerList:
-      wreset(dev0, w)
-      wunreset(dev0, w)
-      wwctl(dev0, w, 0x8000000F)
+      print 'Worker: ' + str(w)
+      #print 'reset'
+      #wreset(dev0, w)
+      #print 'unreset'
+      #wunreset(dev0, w)
+      #print 'f-value timeout'
+      #wwctl(dev0, w, 0x8000000F)
 
     print 'Testing admin scratch regsiters...'
     testAdminReg(dev0, 0x20)
     testAdminReg(dev0, 0x24)
+
+    sys.exit(0)
 
     print 'Probing Worker Control Status ahead of init...'
     for w in workerList:
@@ -56,7 +64,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
     testScratchReg(dev0, 5, 0)
     testScratchReg(dev0, 6, 0)
     testScratchReg(dev0, 9, 0)
-    #testScratchReg(dev0, 13, 0)
+    testScratchReg(dev0, 13, 0xB8)
 
     print 'Done.'
     sys.exit(0)

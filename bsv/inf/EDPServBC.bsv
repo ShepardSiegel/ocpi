@@ -559,7 +559,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   method Vector#(4,Bit#(32)) i_meta  = readVReg(lastMetaV);
   method Action now (Bit#(64) arg) = nowW._write(arg);
   method Bool  dmaStartPulse = dmaStartMark;
-  method Bool  dmaDonePulse = dmaDoneMark;
+  method Bool  dmaDonePulse  = dmaDoneMark;
 
 endmodule
 
