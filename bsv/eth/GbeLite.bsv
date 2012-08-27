@@ -98,7 +98,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   DCPAdapterIfc               dcp                 <-  mkDCPAdapterAsync(cpClock, cpReset);
   FIFOF#(DCPResponse)         dcpRespF            <-  mkFIFOF;
 
-  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, macAddress, 16'hf041);
+  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, 48'h6789ab, 16'he142);
+  //EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, macAddress, 16'hf041);
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
   //FIFO#(ABS)                  edpTxF              <-  mkFIFO;
   Reg#(Vector#(16,Bit#(8)))   edpDV               <-  mkRegU(clocked_by cpClock, reset_by cpReset);
@@ -259,51 +260,51 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     if (rxHdr matches tagged E8023Head .h &&& h.typ==16'hF040) begin
       let modHead = E8023Header {dst:h.src, src:macAddress, typ:h.typ};
       Vector#(14,Bit#(8)) respHeadV = unpack(pack(modHead)); 
-      merge.iport0.put(tagged ValidNotEOP respHeadV[13-txDCPPos]);
+      merge.iport1.put(tagged ValidNotEOP respHeadV[13-txDCPPos]);
       txDCPPos <= (txDCPPos==13) ? 0 : txDCPPos + 1;
       if (txDCPPos==13) rxHdr.clear;  // Release the rxHdr state, we are through with it
     end else begin
       case (rsp) matches
       tagged NOP   .n: begin
                          case (txDCPPos)
-                           0: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           1: merge.iport0.put(tagged ValidNotEOP 8'h0A); // NOP reseponse is 10B
-                           2: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           3: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           4: merge.iport0.put(tagged ValidNotEOP (n.hasDO ? 8'h70:8'h30)); // DCP Response = OK
-                           5: merge.iport0.put(tagged ValidNotEOP n.tag);
-                           6: merge.iport0.put(tagged ValidNotEOP n.targAdvert[31:24]);
-                           7: merge.iport0.put(tagged ValidNotEOP n.targAdvert[23:16]);
-                           8: merge.iport0.put(tagged ValidNotEOP n.targAdvert[15:8]);
-                           9: merge.iport0.put(tagged ValidEOP    n.targAdvert[7:0]);
+                           0: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           1: merge.iport1.put(tagged ValidNotEOP 8'h0A); // NOP reseponse is 10B
+                           2: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           3: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           4: merge.iport1.put(tagged ValidNotEOP (n.hasDO ? 8'h70:8'h30)); // DCP Response = OK
+                           5: merge.iport1.put(tagged ValidNotEOP n.tag);
+                           6: merge.iport1.put(tagged ValidNotEOP n.targAdvert[31:24]);
+                           7: merge.iport1.put(tagged ValidNotEOP n.targAdvert[23:16]);
+                           8: merge.iport1.put(tagged ValidNotEOP n.targAdvert[15:8]);
+                           9: merge.iport1.put(tagged ValidEOP    n.targAdvert[7:0]);
                          endcase 
                          txDCPPos <= (txDCPPos==9) ? 0 : txDCPPos + 1;
                          if (txDCPPos==9) dcpRespF.deq; // Finish
                        end
       tagged Write .w: begin
                          case (txDCPPos)
-                           0: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           1: merge.iport0.put(tagged ValidNotEOP 8'h06); // Write reseponse is 6B
-                           2: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           3: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           4: merge.iport0.put(tagged ValidNotEOP (w.hasDO ? 8'h70:8'h30)); // DCP Response = OK
-                           5: merge.iport0.put(tagged ValidEOP    w.tag);
+                           0: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           1: merge.iport1.put(tagged ValidNotEOP 8'h06); // Write reseponse is 6B
+                           2: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           3: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           4: merge.iport1.put(tagged ValidNotEOP (w.hasDO ? 8'h70:8'h30)); // DCP Response = OK
+                           5: merge.iport1.put(tagged ValidEOP    w.tag);
                          endcase
                          txDCPPos <= (txDCPPos==5) ? 0 : txDCPPos + 1;
                          if (txDCPPos==5) dcpRespF.deq; // Finish
                        end
       tagged Read  .r: begin
                          case (txDCPPos)
-                           0: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           1: merge.iport0.put(tagged ValidNotEOP 8'h0A); // Read response is 10B
-                           2: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           3: merge.iport0.put(tagged ValidNotEOP 8'h00);
-                           4: merge.iport0.put(tagged ValidNotEOP (r.hasDO ? 8'h70:8'h30)); // DCP Response = OK
-                           5: merge.iport0.put(tagged ValidNotEOP r.tag);
-                           6: merge.iport0.put(tagged ValidNotEOP r.data[31:24]);
-                           7: merge.iport0.put(tagged ValidNotEOP r.data[23:16]);
-                           8: merge.iport0.put(tagged ValidNotEOP r.data[15:8]);
-                           9: merge.iport0.put(tagged ValidEOP    r.data[7:0]);
+                           0: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           1: merge.iport1.put(tagged ValidNotEOP 8'h0A); // Read response is 10B
+                           2: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           3: merge.iport1.put(tagged ValidNotEOP 8'h00);
+                           4: merge.iport1.put(tagged ValidNotEOP (r.hasDO ? 8'h70:8'h30)); // DCP Response = OK
+                           5: merge.iport1.put(tagged ValidNotEOP r.tag);
+                           6: merge.iport1.put(tagged ValidNotEOP r.data[31:24]);
+                           7: merge.iport1.put(tagged ValidNotEOP r.data[23:16]);
+                           8: merge.iport1.put(tagged ValidNotEOP r.data[15:8]);
+                           9: merge.iport1.put(tagged ValidEOP    r.data[7:0]);
                          endcase 
                          txDCPPos <= (txDCPPos==9) ? 0 : txDCPPos + 1;
                          if (txDCPPos==9) dcpRespF.deq; // Finish
@@ -313,9 +314,14 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   endrule
 
 
+// sls 2012-08-27 Insist that DCP responses are more urgent than requests...
+(* descending_urgency = "dcp_dcp_cp_response, dcp_dcp_dcp_request" *)
+
+
   rule consume_tx_devnull;
     let t <- edp.server.response.get;
     txEgressCnt <= txEgressCnt + 1;
+    merge.iport0.put(t);
   endrule
 
   rule update_tx_stat;

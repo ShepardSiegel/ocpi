@@ -26,21 +26,13 @@ module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapter
   FIFO#(ABS)      dgdpReqF    <- mkFIFO;   // Inbound   DGDP Requests
   FIFO#(ABS)      dgdpRespF   <- mkFIFO;   // Outbound  DGDP Responses/Messages
   // The internal state of the EDP module...
-  Reg#(Bool)      egressHead  <- mkReg(True);
+  Reg#(Bool)      egressHead  <- mkReg(False);  // Send the L2 Header
+  Reg#(Bool)      egressLoad  <- mkReg(False);  // Send the L2 Payload
+  Reg#(Bool)      oneShotTest <- mkReg(False);
   Reg#(UInt#(3))  ix          <- mkRegU; // used in StmtFSM
   // Not used yet...
   Reg#(Maybe#(Bit#(8)))      lastTag   <- mkReg(tagged Invalid);  // The last tag captured (valid or not)
   Reg#(ABS)                  lastResp  <- mkRegU;                 // The last EDP response sent
-
-  rule edp_ingress;  // Ingress from Ethernet fabric to Datagram Dataplane 
-    let x = edpReqF.first; edpReqF.deq;
-    dgdpReqF.enq(x);
-  endrule
-
-  rule edp_egress;  // Egress from Datagram Dataplane to Ethernet fabric
-    let y = dgdpRespF.first; dgdpRespF.deq;
-    edpRespF.enq(y);
-  endrule
 
   Vector#(6, Bit#(8)) daV = reverse(unpack(da));
   Vector#(6, Bit#(8)) saV = reverse(unpack(sa));
@@ -51,8 +43,24 @@ module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapter
     for (ix<=0; ix<6; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP daV[ix]);
     for (ix<=0; ix<6; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP saV[ix]);
     for (ix<=0; ix<2; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP tyV[ix]);
+    for (ix<=0; ix<6; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP pack(extend(ix)));
+    edpRespF.enq(tagged ValidEOP 8'h33);
   endseq;
   FSM egressIpHeadFsm <- mkFSM(egressIpHead);
+
+  rule edp_ingress;  // Ingress from Ethernet fabric to Datagram Dataplane 
+    let x = edpReqF.first; edpReqF.deq;
+    //dgdpReqF.enq(x);
+  endrule
+
+  rule edp_egress;  // Egress from Datagram Dataplane to Ethernet fabric
+    let y = dgdpRespF.first; dgdpRespF.deq;
+    //edpRespF.enq(y);
+    if (!oneShotTest) begin
+      oneShotTest <= True;
+      egressIpHeadFsm.start;
+    end
+  endrule
 
 
   interface Server server;  // Facing the EDP Packet Side

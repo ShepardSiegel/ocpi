@@ -275,8 +275,8 @@ module mkABSMerge (ABSMergeIfc);
   FIFOF#(ABS) fi1        <- mkFIFOF;
   FIFOF#(ABS) fo         <- mkFIFOF;
   Reg#(Bool)  fi0HasPrio <- mkReg(True);   // True when fi0 has priority
-  Reg#(Bool)  fi0Active  <- mkReg(False);  // True on the 2nd to end cycle of fi0 packet
-  Reg#(Bool)  fi1Active  <- mkReg(False);  // True on the 2nd to end cycle of fi1 packet
+  Reg#(Bool)  fi0Active  <- mkReg(False);  // True on the 2nd through the EOP cycle of fi0 packet
+  Reg#(Bool)  fi1Active  <- mkReg(False);  // True on the 2nd through the EOP cycle of fi1 packet
 
   function Bool isABSActive (ABS x);
     if (x matches tagged ValidNotEOP .*) return True;
