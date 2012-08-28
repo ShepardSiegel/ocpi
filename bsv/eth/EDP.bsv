@@ -40,10 +40,11 @@ module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapter
   Stmt egressIpHead =
   // Note state variable ix used in sequential iteration...
   seq
-    for (ix<=0; ix<6; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP daV[ix]);
-    for (ix<=0; ix<6; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP saV[ix]);
-    for (ix<=0; ix<2; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP tyV[ix]);
-    for (ix<=0; ix<6; ix<=ix+1) edpRespF.enq(tagged ValidNotEOP pack(extend(ix)));
+    ix<=0; while (ix<6) action ix<=ix+1; edpRespF.enq(tagged ValidNotEOP daV[ix]); endaction
+    ix<=0; while (ix<6) action ix<=ix+1; edpRespF.enq(tagged ValidNotEOP saV[ix]); endaction
+    ix<=0; while (ix<2) action ix<=ix+1; edpRespF.enq(tagged ValidNotEOP tyV[ix]); endaction
+    edpRespF.enq(tagged ValidNotEOP 8'h11);
+    edpRespF.enq(tagged ValidNotEOP 8'h22);
     edpRespF.enq(tagged ValidEOP 8'h33);
   endseq;
   FSM egressIpHeadFsm <- mkFSM(egressIpHead);

@@ -573,7 +573,7 @@ module mkTxRSAsync#(Clock txClk) (TxRSIfc);
   Reg#(Bool)               doPad        <- mkReg(False,     clocked_by txClk, reset_by txRst);
   Reg#(Bool)               isSOF        <- mkReg(True,      clocked_by txClk, reset_by txRst);
   Reg#(Bool)               unfD         <- mkReg(False,     clocked_by txClk, reset_by txRst);
-  SyncFIFOIfc#(ABS)        txF          <- mkSyncFIFOFromCC(8, txClk);  // ~6 cycle fallthrough
+  SyncFIFOIfc#(ABS)        txF          <- mkSyncFIFOFromCC(16, txClk);  // ~6 cycle fallthrough; sls 2012-08-28 from 8 to 16
   SyncBitIfc#(Bit#(1))     unfBit       <- mkSyncBitToCC(txClk, txRst);
 
   rule operate_condition; txOperateS.send(pack(txOperateD)); endrule // send the operate DReg from CC to txClk domain
