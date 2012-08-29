@@ -23,7 +23,9 @@ import XilinxCells  ::*;
 import XilinxExtra  ::*;
 
 interface GbeLiteIfc;
-  method Action macAddr (Bit#(48) u);
+  method Action macAddr (MACAddress u);
+  method Action l2Dst   (MACAddress d);
+  method Action l2Typ   (EtherType  t);
   method Bit#(32) dgdpEgressCnt;
   interface Client#(CpReq,CpReadResp) cpClient;    // Control Plane Client
   interface Client#(ABS, ABS)         dpClient;    // Data Plane Client
