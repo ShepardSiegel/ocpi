@@ -46,8 +46,6 @@ where <argfoop> is a valid foop.""" % (prog_name)
     testAdminReg(dev0, 0x20)
     testAdminReg(dev0, 0x24)
 
-    sys.exit(0)
-
     print 'Probing Worker Control Status ahead of init...'
     for w in workerList:
       rwsr(dev0, w)

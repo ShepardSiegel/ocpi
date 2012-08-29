@@ -56,6 +56,12 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   CrossingReg#(MACAddress)    macAddressCP        <-  mkNullCrossingReg(gmii_clk, uAddr, clocked_by cpClock, reset_by cpReset);
   Reg#(MACAddress)            macAddress          <-  mkReg(uAddr);
 
+  CrossingReg#(MACAddress)    l2DstCP             <-  mkNullCrossingReg(gmii_clk, ?,     clocked_by cpClock, reset_by cpReset);
+  Reg#(MACAddress)            l2DstR              <-  mkRegU;
+
+  CrossingReg#(EtherType)     l2TypCP             <-  mkNullCrossingReg(gmii_clk, ?,     clocked_by cpClock, reset_by cpReset);
+  Reg#(EtherType)             l2TypR              <-  mkRegU;
+
   MakeResetIfc                phyRst              <-  mkReset(16, True, cpClock);   
   Reg#(Int#(25))              phyResetWaitCnt     <-  mkReg(fromInteger(phyResetStart));
 
@@ -100,7 +106,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   DCPAdapterIfc               dcp                 <-  mkDCPAdapterAsync(cpClock, cpReset);
   FIFOF#(DCPResponse)         dcpRespF            <-  mkFIFOF;
 
-  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, 48'h012345, macAddress, 16'hf041);
+  EDPAdapterIfc               edp                 <-  mkEDPAdapterAsync(cpClock, cpReset, l2DstR, macAddress, l2TypR);
   FIFO#(ABS)                  edpRxF              <-  mkFIFO;
   //FIFO#(ABS)                  edpTxF              <-  mkFIFO;
   Reg#(Vector#(16,Bit#(8)))   edpDV               <-  mkRegU(clocked_by cpClock, reset_by cpReset);
@@ -110,7 +116,6 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   ABSMergeIfc                 merge               <-  mkABSMerge;  // To merge egress packets from DCP and DGDP 
 
 
-
   Integer myWordShift = 2; // log2(4) 4B Wide WSI
   Bit#(5) myPhyAddr = gbeControl[4:0];
   Bool txLoopback  = unpack(gbeControl[8]); 
@@ -118,9 +123,10 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
   Bool phyResetBit = unpack(gbeControl[31]);
   Bool phyResetOK  = (phyResetWaitCnt==0);   // Reset 5 mS config read interval has elapsed
 
-  rule update_mac_addr;
-    macAddress <= macAddressCP.crossed;
-  endrule
+  // TODO: Consdier trade of passing these in as edp arguments vs. edp Action methods
+  rule update_mac_addr;   macAddress <= macAddressCP.crossed; endrule
+  rule update_l2Dst_addr; l2DstR <= l2DstCP.crossed;          endrule
+  rule update_l2Typ_addr; l2TypR <= l2TypCP.crossed;          endrule
 
   rule phy_reset_drive (phyResetWaitCnt > fromInteger(phyResetRelease));
     phyRst.assertReset();  // Assert Phy Reset while count is great than release point
@@ -340,6 +346,8 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
 
   // Interfaces and Methods provided...
   method Action macAddr (Bit#(48) u) = macAddressCP._write(unpack(u));
+  method Action l2Dst   (MACAddress d) = l2DstCP._write(d);
+  method Action l2Typ   (EtherType  t) = l2TypCP._write(t);
   method Bit#(32)   dgdpEgressCnt = txEgressCntCP;
   interface Client     cpClient   = dcp.client;
   interface Client     dpClient   = edp.client;

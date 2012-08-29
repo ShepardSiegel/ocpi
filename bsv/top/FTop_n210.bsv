@@ -142,6 +142,13 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
     gbewrk.dgdpEgressCnt(gbe0.dgdpEgressCnt);
   endrule
 
+  // Connect gbewrk values into gbe0...
+  (* fire_when_enabled *) 
+  rule send_gbe_l2Dst;
+    gbe0.l2Dst(gbewrk.l2Dst);
+    gbe0.l2Typ(gbewrk.l2Typ);
+  endrule
+
   method    Bit#(5)       led    = ledLogic.led;
   method    Bit#(32)      debug  = {16'h5555, 16'h0000};
   interface Clock         rxclkBnd   = gbe0.rxclkBnd;
