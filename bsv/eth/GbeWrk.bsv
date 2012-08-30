@@ -77,7 +77,8 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
   interface Wci_s       wciS0   = wci.slv;
   //method    MACAddress  l2Dst   = pack(takeAt(0,edpDV));
   //method    EtherType   l2Typ   = pack(takeAt(6,edpDV));
-  method    MACAddress  l2Dst   =  {r14[15:0], r10};
+  //method    MACAddress  l2Dst   =  {r14[15:0], r10};
+  method    MACAddress  l2Dst   =  {r10[7:0], r10[15:8], r10[23:16], r10[31:24], r14[7:0], r14[15:8]};
   method    EtherType   l2Typ   =  r14[31:16];
   method Action dgdpEgressCnt (Bit#(32) arg) = dgdpEgressCnt_w._write(arg);
 endmodule
