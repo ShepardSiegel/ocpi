@@ -20,8 +20,8 @@ import XilinxExtra  ::*;
 
 interface GbeWrkIfc;
   interface WciES       wciS0;  // Worker Control and Configuration
-  method    MACAddress  l2Dst;  // Ethernet Layer 2 Dest
-  method    EtherType   l2Typ;  // Ethernet Layer 2 EtherType
+  (* always_ready *) method    MACAddress  l2Dst;  // Ethernet Layer 2 Dest
+  (* always_ready *) method    EtherType   l2Typ;  // Ethernet Layer 2 EtherType
   method Action dgdpEgressCnt (Bit#(32) arg);
 endinterface 
 
@@ -30,21 +30,26 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
 
   WciESlaveIfc                wci              <-  mkWciESlave;
   Reg#(Bit#(32))              ctlReg           <-  mkRegU;
-  Reg#(Vector#(16,Bit#(8)))   edpDV            <-  mkRegU;
+  // TODO: Sort out Vector takeAt and append issue...
+  //Reg#(Vector#(8,Bit#(8)))    edpDV            <-  mkRegU;
+  Reg#(Bit#(32))              r10              <- mkReg(0);
+  Reg#(Bit#(32))              r14              <- mkReg(0);
   Wire#(Bit#(32))             dgdpEgressCnt_w  <-  mkDWire(?);
 
   // WCI Control....
   Bit#(32) gbeStatus = 32'h0000_0000;
 
-  //(* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
-  //(* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
+  (* descending_urgency = "wci_wslv_ctl_op_complete, wci_wslv_ctl_op_start, wci_cfwr, wci_cfrd" *)
+  (* mutually_exclusive = "wci_cfwr, wci_cfrd, wci_ctrl_EiI, wci_ctrl_IsO, wci_ctrl_OrE" *)
 
   rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
     let wciReq <- wci.reqGet.get;
     case (wciReq.addr[7:0]) matches
      'h00 : ctlReg     <= wciReq.data;
-     'h10 : edpDV      <= append(takeAt(4, edpDV), unpack(wciReq.data));
-     'h14 : edpDV      <= append(unpack(wciReq.data), takeAt(0, edpDV));
+     //'h10 : edpDV      <= append(takeAt(4, edpDV), unpack(wciReq.data));
+     //'h14 : edpDV      <= append(unpack(wciReq.data), takeAt(0, edpDV));
+     'h10 : r10        <= wciReq.data;
+     'h14 : r14        <= wciReq.data;
     endcase
     //$display("[%0d]: %m: WCI CONFIG WRITE Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, wciReq.data);
     wci.respPut.put(wciOKResponse); // write response
@@ -55,8 +60,10 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
     case (wciReq.addr[7:0]) matches
      'h00 : rdat = pack(ctlReg);
      'h0C : rdat = pack(dgdpEgressCnt_w);
-     'h10 : rdat = pack(takeAt(0, edpDV));
-     'h14 : rdat = pack(takeAt(4, edpDV));
+     //'h10 : rdat = pack(takeAt(0, edpDV));
+     //'h14 : rdat = pack(takeAt(4, edpDV));
+     'h10 : rdat = r10;
+     'h14 : rdat = r14;
     endcase
     //$display("[%0d]: %m: WCI CONFIG READ Addr:%0x BE:%0x Data:%0x", $time, wciReq.addr, wciReq.byteEn, rdat);
     wci.respPut.put(WciResp{resp:DVA, data:rdat}); // read response
@@ -68,7 +75,9 @@ module mkGbeWrk#(parameter Bool hasDebugLogic) (GbeWrkIfc);
 
   // Interfaces and Methods provided...
   interface Wci_s       wciS0   = wci.slv;
-  method    MACAddress  l2Dst   = pack(takeAt(0,edpDV));
-  method    EtherType   l2Typ   = pack(takeAt(6,edpDV));
+  //method    MACAddress  l2Dst   = pack(takeAt(0,edpDV));
+  //method    EtherType   l2Typ   = pack(takeAt(6,edpDV));
+  method    MACAddress  l2Dst   =  {r14[15:0], r10};
+  method    EtherType   l2Typ   =  r14[31:16];
   method Action dgdpEgressCnt (Bit#(32) arg) = dgdpEgressCnt_w._write(arg);
 endmodule

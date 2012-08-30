@@ -5,10 +5,12 @@
 
 import GMAC         ::*;	  // for ABS defs
 
+import BRAMFIFO     ::*;
 import ClientServer ::*; 
 import Clocks       ::*;
 import Connectable  ::*;
 import FIFO         ::*;	
+import FIFOF        ::*;	
 import GetPut       ::*;
 import StmtFSM      ::*;
 import Vector       ::*;
@@ -34,6 +36,9 @@ module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapter
   Reg#(Maybe#(Bit#(8)))      lastTag   <- mkReg(tagged Invalid);  // The last tag captured (valid or not)
   Reg#(ABS)                  lastResp  <- mkRegU;                 // The last EDP response sent
 
+ // FIFOF#(ABS)      dgdpRespBF <- mkSizedBRAMFIFOF(1024);
+ // FIFO#(Bit#(0));  dgdpEOPBF  <- mkFIFO;
+
   Vector#(6, Bit#(8)) daV = reverse(unpack(da));
   Vector#(6, Bit#(8)) saV = reverse(unpack(sa));
   Vector#(2, Bit#(8)) tyV = reverse(unpack(ty));
@@ -49,10 +54,19 @@ module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapter
   endseq;
   FSM egressIpHeadFsm <- mkFSM(egressIpHead);
 
+  /*
   rule edp_ingress;  // Ingress from Ethernet fabric to Datagram Dataplane 
     let x = edpReqF.first; edpReqF.deq;
     //dgdpReqF.enq(x);
   endrule
+
+  rule edp_egress_r1;  // Take Egress from Datagram Dataplane to Ethernet fabric and ENQ in RespBF
+    let y = dgdpRespF.first; dgdpRespF.deq;
+    dgdpRespBF.enq(y);
+    if (y matches tagged ValidEOP .*) dgdpEOPBF.enq(?);
+  endrule
+
+*/
 
   rule edp_egress;  // Egress from Datagram Dataplane to Ethernet fabric
     let y = dgdpRespF.first; dgdpRespF.deq;
