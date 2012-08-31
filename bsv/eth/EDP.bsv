@@ -52,7 +52,7 @@ module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapter
 
   rule edp_ingress;  // Ingress from Ethernet fabric to Datagram Dataplane 
     let x = edpReqF.first; edpReqF.deq;
-    //dgdpReqF.enq(x);  Uncomment when we accept return
+    //dgdpReqF.enq(x); 
   endrule
 
   rule egress_r0;  // Take Egress from Datagram Dataplane to Ethernet fabric and ENQ in RespBF
@@ -69,7 +69,7 @@ module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapter
 
   rule egress_body (egressIpHeadFsm.done && egressLoadOK);
     let z = dgdpRespBF.first; dgdpRespBF.deq;
-    //edpRespF.enq(z);
+    edpRespF.enq(z);
     if (z matches tagged ValidEOP .*) egressLoadOK <= False;  // When we reach EOP, gate this rule condition off
   endrule
 
