@@ -23,20 +23,21 @@ endinterface
 
 module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapterIfc);
   // FIFOs for Client/Server Interfaces...
-  FIFO#(ABS)      edpReqF       <- mkFIFO;   // Inbound   EDP  Requests
-  FIFO#(ABS)      edpRespF      <- mkFIFO;   // Outbound  EDP  Responses
-  FIFO#(ABS)      dgdpReqF      <- mkFIFO;   // Inbound   DGDP Requests
-  FIFO#(ABS)      dgdpRespF     <- mkFIFO;   // Outbound  DGDP Responses/Messages
+  FIFO#(ABS)      edpReqF     <- mkFIFO;   // Inbound   EDP  Requests
+  FIFO#(ABS)      edpRespF    <- mkFIFO;   // Outbound  EDP  Responses
+  FIFO#(ABS)      dgdpReqF    <- mkFIFO;   // Inbound   DGDP Requests
+  FIFO#(ABS)      dgdpRespF   <- mkFIFO;   // Outbound  DGDP Responses/Messages
   // The internal state of the EDP module...
-  Reg#(Bool)      egressHead    <- mkReg(False);  // Send the L2 Header
-  Reg#(Bool)      egressLoadOK  <- mkReg(False);  // Send the L2 Payload
-  Reg#(UInt#(3))  ix            <- mkRegU; // used in StmtFSM
+  Reg#(Bool)      egressHead  <- mkReg(False);  // Send the L2 Header
+  Reg#(Bool)      egressLoad  <- mkReg(False);  // Send the L2 Payload
+  Reg#(Bool)      oneShotTest <- mkReg(False);
+  Reg#(UInt#(3))  ix          <- mkRegU; // used in StmtFSM
   // Not used yet...
   Reg#(Maybe#(Bit#(8)))      lastTag   <- mkReg(tagged Invalid);  // The last tag captured (valid or not)
   Reg#(ABS)                  lastResp  <- mkRegU;                 // The last EDP response sent
 
-  FIFOF#(ABS)      dgdpRespBF <- mkSizedBRAMFIFOF(1024);
-  //FIFO#(Bit#(0));  dgdpEOPBF  <- mkFIFO;
+ // FIFOF#(ABS)      dgdpRespBF <- mkSizedBRAMFIFOF(1024);
+ // FIFO#(Bit#(0));  dgdpEOPBF  <- mkFIFO;
 
   Vector#(6, Bit#(8)) daV = reverse(unpack(da));
   Vector#(6, Bit#(8)) saV = reverse(unpack(sa));
@@ -47,30 +48,33 @@ module mkEDPAdapterSync#(MACAddress da, MACAddress sa, EtherType ty) (EDPAdapter
     ix<=0; while (ix<6) action ix<=ix+1; edpRespF.enq(tagged ValidNotEOP daV[ix]); endaction
     ix<=0; while (ix<6) action ix<=ix+1; edpRespF.enq(tagged ValidNotEOP saV[ix]); endaction
     ix<=0; while (ix<2) action ix<=ix+1; edpRespF.enq(tagged ValidNotEOP tyV[ix]); endaction
+    edpRespF.enq(tagged ValidNotEOP 8'h11);
+    edpRespF.enq(tagged ValidNotEOP 8'h22);
+    edpRespF.enq(tagged ValidEOP 8'h33);
   endseq;
   FSM egressIpHeadFsm <- mkFSM(egressIpHead);
 
+  /*
   rule edp_ingress;  // Ingress from Ethernet fabric to Datagram Dataplane 
     let x = edpReqF.first; edpReqF.deq;
-    //dgdpReqF.enq(x);  Uncomment when we accept return
+    //dgdpReqF.enq(x);
   endrule
 
-  rule egress_r0;  // Take Egress from Datagram Dataplane to Ethernet fabric and ENQ in RespBF
+  rule edp_egress_r1;  // Take Egress from Datagram Dataplane to Ethernet fabric and ENQ in RespBF
     let y = dgdpRespF.first; dgdpRespF.deq;
     dgdpRespBF.enq(y);
-    if (y matches tagged ValidEOP .*) egressHead <= True;
+    if (y matches tagged ValidEOP .*) dgdpEOPBF.enq(?);
   endrule
 
-  rule egress_head (egressHead);
-    egressHead   <= False;
-    egressLoadOK <= True;
-    egressIpHeadFsm.start;
-  endrule
+*/
 
-  rule egress_body (egressIpHeadFsm.done && egressLoadOK);
-    let z = dgdpRespBF.first; dgdpRespBF.deq;
-    //edpRespF.enq(z);
-    if (z matches tagged ValidEOP .*) egressLoadOK <= False;  // When we reach EOP, gate this rule condition off
+  rule edp_egress;  // Egress from Datagram Dataplane to Ethernet fabric
+    let y = dgdpRespF.first; dgdpRespF.deq;
+    //edpRespF.enq(y);
+    if (!oneShotTest) begin
+      oneShotTest <= True;
+      egressIpHeadFsm.start;
+    end
   endrule
 
 
