@@ -3,7 +3,7 @@
 
 // This module adds the 14B Ethernet header to the datagram-based data plane on packet egress
 
-import GMAC         ::*;	  // for ABS defs
+import E8023        ::*;	  // for ABS defs
 
 import BRAMFIFO     ::*;
 import ClientServer ::*; 

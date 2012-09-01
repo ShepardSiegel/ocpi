@@ -9,7 +9,7 @@
 
 package OCEDP;
 
-import GMAC         ::*;
+import E8023        ::*;
 import TLPMF        ::*;
 import OCWip        ::*;
 import OCBufQ       ::*;

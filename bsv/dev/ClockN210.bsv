@@ -14,8 +14,8 @@ interface ClockN210Ifc;
   method    Bool   isLocked;
   interface Clock  clk0;
   interface Reset  rst0;   // active-low
-//interface Clock  clkdv;
-//interface Reset  rstdv;  // active-low
+  interface Clock  clkdv;
+  interface Reset  rstdv;  // active-low
 //interface Clock  clk2x;
 //interface Reset  rst2x;  // active-low
 //interface Clock  clk125;
@@ -31,12 +31,12 @@ module vMkClockN210#(Clock clk, Reset rstn)(ClockN210Ifc);
    input_reset rst_src(rstIn) clocked_by(clk_src) = rstn;
 
    output_clock clk0   (clk0_buf);
-// output_clock clkdv  (clkdv_buf);
+   output_clock clkdv  (clkdv_buf);
 // output_clock clk2x  (clk2x_buf);
 // output_clock clk125 (clk125_buf);
    
    output_reset rst0   (clk0_rstn)   clocked_by(clk0);
-// output_reset rstdv  (clkdv_rstn)  clocked_by(clkdv);
+   output_reset rstdv  (clkdv_rstn)  clocked_by(clkdv);
 // output_reset rst2x  (clk2x_rstn)  clocked_by(clk2x);
 // output_reset rst125 (clk125_rstn) clocked_by(clk125);
 

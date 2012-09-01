@@ -6,7 +6,7 @@
 //`define USE_SRLFIFO
 
 import ThingShifter ::*;
-import GMAC         ::*;
+import E8023        ::*;
 import OCBufQ       ::*;
 import OCWip        ::*;
 import PCIE         ::*;

@@ -59,29 +59,34 @@ interface FTop_n210Ifc;
   interface  TI62P4X_Pads  adc;
   interface  I2C_Pins      i2c;
   interface  SPIFLASH_Pads flash;
-  interface  Clock         sys0Clk;
+  interface  Clock         sys0Clk;    // So that clk and rst are seen at this i/f bounds...
+  interface  Clock         sys1Clk;
   interface  Reset         sys0Rst;
+  interface  Reset         sys1Rst;
 endinterface: FTop_n210Ifc
 
 (* synthesize, no_default_clock, no_default_reset, clock_prefix="", reset_prefix="" *)
 module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Reference
-                    Clock gmii_sysclk,                 // 125 MHz from GbE PHY - stable clock, once enabled after reset
+                    Clock gmii_sysclk,                 // 125 MHz from GbE PHY  - stable clock, once enabled after reset
                     Clock gmii_rx_clk,                 // 125 MHz GMII RX Clock - agile recovered rx clock, when 1Gb link up
                     Clock adc_clkout,                  // CMOS SDR Output Clock from ADC
                     Reset fpga_rstn)                   // FPGA User Reset Pushbutton S2
                     (FTop_n210Ifc);
 
-  Clock            clkIn      <- mkClockIBUFDS(sys0_clkp, sys0_clkn);     // sys0: 100 MHz Clock and Reset (from clock gen)
+  // Clocks and Resets...
+  Clock            clkIn      <- mkClockIBUFDS(sys0_clkp, sys0_clkn); // 100 MHz Clock and Reset (from ext clock gen device)
   ClockN210Ifc     clkN210    <- mkClockN210(clkIn, fpga_rstn);
-  Clock            sys0_clk   = clkN210.clk0;
-  Reset            sys0_rst   = clkN210.rst0;
-  Clock            gmiixo_clk <- mkClockBUFG(clocked_by gmii_sysclk);
-  Reset            gmiixo_rst <- mkAsyncReset(2, sys0_rst, gmiixo_clk);
+  Clock            sys0_clk   = clkN210.clk0;   // 100 MHz system clock 0 
+  Reset            sys0_rst   = clkN210.rst0;   // 100 MHz system reset 0 
+  Clock            sys1_clk   = clkN210.clkdv;  //  50 MHz system clock 1 
+  Reset            sys1_rst   = clkN210.rstdv;  //  50 MHz system reset 1 
+  Clock            gmiixo_clk <- mkClockBUFG (clocked_by gmii_sysclk);   // 125 MHz clock from GbE PHY
+  Reset            gmiixo_rst <- mkAsyncReset(2, sys0_rst, gmiixo_clk);  // 125 MHz reset from GbE PHY
 
-  LedN210Ifc       ledLogic   <- mkLedN210(clocked_by sys0_clk, reset_by sys0_rst);
-
-  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, gmiixo_clk, gmiixo_rst, sys0_clk, sys0_rst, clocked_by gmii_sysclk, reset_by gmiixo_rst);
-  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys0_clk, sys0_rst, clocked_by sys0_clk, reset_by sys0_rst);
+  // Module Instantiations...
+  LedN210Ifc       ledLogic   <- mkLedN210(clocked_by sys1_clk, reset_by sys1_rst);
+  GbeLiteIfc       gbe0       <- mkGbeLite(False, gmii_rx_clk, gmiixo_clk, gmiixo_rst, sys1_clk, sys1_rst, clocked_by gmii_sysclk, reset_by gmiixo_rst);
+  OCCPIfc#(Nwcit)  cp         <- mkOCCP(?, sys1_clk, sys1_rst, clocked_by sys1_clk, reset_by sys1_rst);
 
   mkConnection(gbe0.cpClient, cp.server);
 
@@ -89,8 +94,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 
   // Make sure when calling out a specific interface, eg xxx4BIfc, you use the non-polymorphic mkXxx4B instance
   // 2012-08-19 odd WSI behavior seen when non-synth, poly module was instanced instead. Should dig deeper.
-  WSIPatternWorker4BIfc  pat0    <- mkWSIPatternWorker4B(True,        clocked_by sys0_clk, reset_by(vWci[5].mReset_n));
-  SMAdapter4BIfc         sma0    <- mkSMAdapter4B(32'h00000002, True, clocked_by sys0_clk, reset_by(vWci[6].mReset_n));
+  WSIPatternWorker4BIfc  pat0    <- mkWSIPatternWorker4B(True,        clocked_by sys1_clk, reset_by(vWci[5].mReset_n));
+  SMAdapter4BIfc         sma0    <- mkSMAdapter4B(32'h00000002, True, clocked_by sys1_clk, reset_by(vWci[6].mReset_n));
 
 //WciSlaveNullIfc#(32)  tieOff0  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieOff1  <- mkWciSlaveNull;
@@ -99,20 +104,20 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 //WciSlaveNullIfc#(32)  tieOff4  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieOff5  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieOff6  <- mkWciSlaveNull;
-  PWrk_n210Ifc          pwrk     <- mkPWrk_n210(sys0_rst, clocked_by sys0_clk, reset_by(vWci[7].mReset_n));
+  PWrk_n210Ifc          pwrk     <- mkPWrk_n210(sys1_rst, clocked_by sys1_clk, reset_by(vWci[7].mReset_n));
 //WciSlaveNullIfc#(32)  tieoff8  <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieoff9  <- mkWciSlaveNull;
-  GbeWrkIfc             gbewrk   <- mkGbeWrk(True, clocked_by sys0_clk, reset_by(vWci[9].mReset_n));
-  IQADCWorkerIfc        iqadc    <- mkIQADCWorker(True, sys0_clk, sys0_rst, sys0_clk, sys0_rst, adc_clkout, clocked_by sys0_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
-  WSICaptureWorker4BIfc cap0     <- mkWSICaptureWorker4B(True,                                              clocked_by sys0_clk, reset_by(vWci[11].mReset_n));  // Worker 12
+  GbeWrkIfc             gbewrk   <- mkGbeWrk(True, clocked_by sys1_clk, reset_by(vWci[9].mReset_n));
+  IQADCWorkerIfc        iqadc    <- mkIQADCWorker(True, sys1_clk, sys1_rst, sys1_clk, sys1_rst, adc_clkout, clocked_by sys1_clk, reset_by(vWci[10].mReset_n));  // Worker 11 
+  WSICaptureWorker4BIfc cap0     <- mkWSICaptureWorker4B(True,                                              clocked_by sys1_clk, reset_by(vWci[11].mReset_n));  // Worker 12
 //WciSlaveNullIfc#(32)  tieOff12 <- mkWciSlaveNull;
 //WciSlaveNullIfc#(32)  tieOff13 <- mkWciSlaveNull;
-  OCEDP4BIfc edp0  <- mkOCEDP4B (?,True,True, True, clocked_by sys0_clk, reset_by vWci[13].mReset_n); // Ethernet Data Plane 0
+  OCEDP4BIfc edp0  <- mkOCEDP4B (?,True,True, True, clocked_by sys1_clk, reset_by vWci[13].mReset_n); // Ethernet Data Plane 0
 //WciSlaveNullIfc#(32)  tieOff14 <- mkWciSlaveNull;
 
   mkConnection(gbe0.dpClient, edp0.server); // Path from dgdp to GbE
 
-  mkConnection(pat0.wsiM0, sma0.wsiS0, clocked_by sys0_clk, reset_by sys0_rst);     // Connect the PatternWorker to the SMAAdapter
+  mkConnection(pat0.wsiM0, sma0.wsiS0, clocked_by sys1_clk, reset_by sys1_rst);     // Connect the PatternWorker to the SMAAdapter
   mkConnection(sma0.wmiM0, edp0.wmiS0);     // Connect the SMAAdapter to the DGDP WMI slave port
 
 //mkConnection(vWci[0],  tieOff0.slv); 
@@ -159,6 +164,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   interface I2C_Pins      i2c        = pwrk.i2cpad;
   interface SPIFLASH_Pads flash      = pwrk.spipad;
   interface Clock         sys0Clk    = sys0_clk;
+  interface Clock         sys1Clk    = sys1_clk;
   interface Reset         sys0Rst    = sys0_rst;
+  interface Reset         sys1Rst    = sys1_rst;
 endmodule: mkFTop_n210
 

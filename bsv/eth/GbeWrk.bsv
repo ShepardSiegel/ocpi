@@ -2,7 +2,7 @@
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import CPDefs       ::*;
-import GMAC         ::*;
+import E8023         ::*;
 import OCWip        ::*;
 import SRLFIFO      ::*;
 

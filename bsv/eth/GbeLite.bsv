@@ -4,6 +4,7 @@
 import CPDefs       ::*;
 import DCP          ::*;
 import EDP          ::*;
+import E8023        ::*;
 import GMAC         ::*;
 import MDIO         ::*;
 import OCWip        ::*;

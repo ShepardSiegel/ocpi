@@ -40,8 +40,8 @@ module mkLedN210 (LedN210Ifc);
   endrule
 
   function Bit#(5) initBlink (Bit#(32) cnt);
-    Bool gateBit = unpack(cnt[22]);
-    case (cnt[26:24])
+    Bool gateBit = unpack(cnt[21]);
+    case (cnt[25:23])
       0, 1, 2, 6, 7 : return~(gateBit ? 5'h1C : 5'h00);
       3 : return~(5'h04);
       4 : return~(5'h0C);
@@ -50,7 +50,7 @@ module mkLedN210 (LedN210Ifc);
   endfunction
 
   function Bit#(5) ledStatus (Bit#(32) cnt, Bit#(5) ctl);
-    Bool gateBit = unpack(cnt[24]);
+    Bool gateBit = unpack(cnt[23]);
     return~((gateBit ? 5'h01 : 5'h00) | ctl);
   endfunction
 
