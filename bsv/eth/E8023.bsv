@@ -135,6 +135,7 @@ typedef enum {
   SFD      = 8'hD5
 } EthernetOctets deriving (Bits, Eq);
 
+
 // Abortable Byte Stream (ABS)...
 // The Atomic Rules 2b encoding that is friendly to FIFO width (8b+2b); plus easy for k-LUT decoding
 typedef union tagged {
@@ -143,6 +144,8 @@ typedef union tagged {
   void    EmptyEOP;     // The end of a sequence has occured, the last data was sent before; indicates good EOP
   void    AbortEOP;     // The sequence has ended with an abort, all data and metadata from this packet is bad
 } ABS deriving (Bits, Eq);
+
+typedef Vector#(4,ABS) QABS;
 
 function Bool isEOP(ABS x);
   case(x) matches

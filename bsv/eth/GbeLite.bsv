@@ -321,12 +321,9 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     end
   endrule
 
-
 // sls 2012-08-27 Insist that DCP responses are more urgent than requests...
 (* descending_urgency = "dcp_dcp_cp_response, dcp_dcp_dcp_request" *)
-
 (* descending_urgency = "tx_dcp, rx_dcp, rx_data, rx_drop_frame" *)
-
 
   rule consume_tx_devnull;
     let t <- edp.server.response.get;
@@ -338,12 +335,7 @@ module mkGbeLite#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock gmiixo_
     txEgressCntCP <= txEgressCnt;  // This wont fire on every cycle as the implicit condition of the CP._write is at a lower clock rate
   endrule
 
-
-  //FIXME: No way for DGDP TX to get out!
-  //mkConnection(edp.server.response, merge.iport1);  // Connect the dgdp to merge iport1 
-
   mkConnection(merge.oport, gmac.tx);               // Connect the merge output to the gmac
-
 
   // Interfaces and Methods provided...
   method Action macAddr (Bit#(48) u) = macAddressCP._write(unpack(u));
