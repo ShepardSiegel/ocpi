@@ -59,7 +59,7 @@ typedef union tagged {
 
 
 (* synthesize *)
-module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit));
+module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit));
 
   FIFO#(CpReq)      cpReqF       <- mkFIFO;                  // Inbound  Requests
   FIFO#(CpReadResp) cpRespF      <- mkFIFO;                  // Outbound Responses
@@ -80,10 +80,10 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
   Reg#(Bool)        warmResetP   <-  mkDReg(False);          // Warm Reset Pulse
 
 `ifdef ALTERA_100MHZ_SYS0CLK
-  TSMParams altera100 = TSMParams {curFreq:125e6, refFreq: 100e6};  // Altera alst4 has 100 MHz sys0 clk
-  TimeServerIfc     timeServ     <-  mkTimeServer(altera100,    sys0_clk, sys0_rst); // Instance the Time Server
+  TSMParams altera100 = TSMParams {curFreq:125e6, refFreq: 100e6};  // Altera alst4 has 100 MHz time clk
+  TimeServerIfc     timeServ     <-  mkTimeServer(altera100,    time_clk, time_rst); // Instance the Time Server
 `else
-  TimeServerIfc     timeServ     <-  mkTimeServer(defaultValue, sys0_clk, sys0_rst); // Instance the Time Server
+  TimeServerIfc     timeServ     <-  mkTimeServer(defaultValue, time_clk, time_rst); // Instance the Time Server
 `endif
 
   Reg#(GPS64_t)     deltaTime    <-  mkReg(0.0);
@@ -120,7 +120,8 @@ module mkOCCP#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCCPIfc#(Nwcit)
 
     //FIXME: Specalized for n210 platform development!
     //return (i<7||i>11) ? mkWciMasterNull : mkWciMaster;  
-    if (i==5 || i==6 || i==7 || i==9 || i==10 || i==13) return mkWciMaster;
+    //if (i==5 || i==6 || i==7 || i==9 || i==10 || i==13) return mkWciMaster;
+    if ( i==7 || i==9 ) return mkWciMaster;
     else return mkWciMasterNull;
 
     //return  mkWciMaster; // all get WCI masters

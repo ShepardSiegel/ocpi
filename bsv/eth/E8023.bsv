@@ -314,4 +314,52 @@ module mkABSMerge (ABSMergeIfc);
 
 endmodule: mkABSMerge
 
+// ABS-QABS Conversion Modules...
+
+interface ABS2QABSIfc;
+  interface Put#(ABS)   putSerial;
+  interface Get#(QABS)  getVector;
+endinterface
+
+module mkABS2QABS (ABS2QABSIfc);  // make a QABS vector from serial ABS stream...
+  FIFO#(ABS)           inF   <-  mkFIFO;
+  FIFO#(QABS)          outF  <-  mkFIFO;
+  Reg#(Vector#(3,ABS)) sr    <-  mkRegU; 
+  Reg#(UInt#(2))       ptr   <-  mkReg(0);
+
+  rule unfunnel; 
+    let b = inF.first; inF.deq;     // take the new ABS element b
+    sr <= shiftInAt0(sr, b);        // shift it in to the shift register
+    ptr <= isEOP(b) ? 0 : ptr+1;    // reset the pointer on EOP, else inc
+    QABS rslt = cons(b, sr);        // candidate for QABS enq
+    if (ptr==3 || isEOP(b))         // enq outF on 4th, or at EOP
+      outF.enq(rslt);
+  endrule
+
+  interface Put  putSerial = toPut(inF);
+  interface Get  getVector = toGet(outF);
+endmodule
+
+interface QABS2ABSIfc;
+  interface Put#(QABS) putVector;
+  interface Get#(ABS)  getSerial;
+endinterface
+
+module mkQABS2ABS (QABS2ABSIfc);  // make a serial ABS stream from a QABS vector...
+  FIFO#(QABS)     inF   <-  mkFIFO;
+  FIFO#(ABS)      outF  <-  mkFIFO;
+  Reg#(UInt#(2))  ptr   <-  mkReg(0);
+
+  rule funnel; 
+    let qb = inF.first;                 // observe the QABS Vector contents
+    ptr <= isEOP(qb[ptr]) ? 0 : ptr+1;  // reset the pointer on EOP, else inc
+    outF.enq(qb[ptr]);
+    if (ptr==3 || isEOP(qb[ptr]))       // Consume (deque) inF on 4th, or at EOP
+      inF.deq;
+  endrule
+
+  interface Put putVector = toPut(inF);
+  interface Get getSerial = toGet(outF);
+endmodule
+
 endpackage: E8023

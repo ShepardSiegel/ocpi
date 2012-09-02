@@ -35,43 +35,29 @@ endinterface: QBGMACIfc
 
 (* synthesize *)
 module mkQBGMAC#(Clock rxClk, Clock txClk, Reset gmRst)(QBGMACIfc);
-  GMACIfc                     gmac                <-  mkGMAC(rxClk, txClk, clocked_by txClk, reset_by gmRst);
+  GMACIfc              gmac    <- mkGMAC(rxClk, txClk, clocked_by txClk, reset_by gmRst);
+  ABS2QABSIfc          rxfun   <- mkABS2QABS(clocked_by txClk, reset_by gmRst);
+  QABS2ABSIfc          txfun   <- mkQABS2ABS(clocked_by txClk, reset_by gmRst);
+  SyncFIFOIfc#(QABS)   rxF     <- mkSyncFIFOToCC(8, txClk, gmRst);
+  SyncBitIfc#(Bit#(1)) ovfBit  <- mkSyncBitToCC(txClk, gmRst);
+  SyncFIFOIfc#(QABS)   txF     <- mkSyncFIFOFromCC(8, txClk);
+  SyncBitIfc#(Bit#(1)) unfBit  <- mkSyncBitToCC(txClk, gmRst);
 
+  mkConnection(gmac.rx, rxfun.putSerial);
+  mkConnection(txfun.getSerial, gmac.tx);
+
+  interface GMII_RS     gmii         = gmac.gmii;
+  interface Clock       rxclkBnd     = gmac.rxclkBnd; 
+//interface Reset       gmii_rstn;
+  interface Get         rx           = rxfun.getVector;
+  interface Put         tx           = txfun.putVector;
+    /*
+  method Action         rxOperate;
+  method Action         txOperate;
+  method Bool           rxOverFlow;
+  method Bool           txUnderFlow;
+  method Bool           phyInterrupt;
+    */
 endmodule: mkQBGMAC 
-
-// ABS-QABS Conversion Modules...
-
-interface ABS2QABSIfc;
-  interface Put#(ABS);
-  interface Get#(QABS);
-endinterface
-
-module mkABS2QABS (ABS2QABSIfc);
-  FIFO#(ABS)          inF   <-  mkFIFO;
-  FIFO#(QABS)         outF  <-  mkFIFO;
-  Reg#(Vector#(3,ABS) sr    <- mkRegU; 
-
-  rule ingress_abs;
-    let b = inF.first; inF.deq;
-
-  endrule
-
-  interface Put#(ABS)  = toPut(inF);
-  interface Get#(QABS) = toGet(outF);
-endmodule
-
-interface QABS2ABSIfc;
-  interface Put#(QABS);
-  interface Get#(ABS);
-endinterface
-
-module mkQABS2ABS (QABS2ABSIfc);
-  FIFO#(QABS)  inF   <-  mkFIFO;
-  FIFO#(ABS)   outF  <-  mkFIFO;
-
-  interface Put#(QABS) = toPut(inF);
-  interface Get#(ABS)  = toGet(outF);
-endmodule
-
 
 endpackage: QBGMAC
