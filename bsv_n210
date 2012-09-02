@@ -1,0 +1,1 @@
+	make platform_n210 >& logs/n210-`date +%Y%m%d_%H%M`.log

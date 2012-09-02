@@ -1,4 +1,4 @@
-// GbeQABSWrk.bsv - a Gbe Worker with a QABS Typed Client Interface
+// GbeQABS.bsv - a Gbe Device (not a worker) with a QABS Typed Client Interface
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import E8023        ::*;
@@ -21,7 +21,7 @@ import Vector       ::*;
 import XilinxCells  ::*;
 import XilinxExtra  ::*;
 
-interface GbeQABSWrkIfc;
+interface GbeQABSIfc;
   method Action macAddr (MACAddress u);
   method Action l2Dst   (MACAddress d);
   method Action l2Typ   (EtherType  t);
@@ -37,12 +37,12 @@ interface GbeQABSWrkIfc;
   interface MDIO_Pads                 mdio ;       // The MDIO pads
 endinterface 
 
-(* synthesize, default_clock_osc="wciS0_Clk", default_reset="wciS0_MReset_n" *)
-module mkGbeQABSWrk#(parameter Bool hasDebugLogic, 
-                               Clock gmii_rx_clk,
-                               Clock gmiixo_clk,
-                               Reset gmiixo_rst)
-                               (GbeQABSWrkIfc);
+(* synthesize *)
+module mkGbeQABS#(parameter Bool hasDebugLogic, 
+                            Clock gmii_rx_clk,
+                            Clock gmiixo_clk,
+                            Reset gmiixo_rst)
+                            (GbeQABSIfc);
 
   Integer phyResetStart   = 750_000 + 3_125;  // 25 uS Reset Assertion
   Integer phyResetRelease = 750_000;          // 6  mS Reset Recovery (configration)

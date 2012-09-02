@@ -6,7 +6,7 @@ import ClockN210         ::*;
 import LedN210           ::*;
 import Config            ::*;
 import GMAC              ::*;
-import GbeQABSWrk        ::*;
+import GbeQABS           ::*;
 import GbeWrk            ::*;
 import IQADCWorker       ::*;
 import MDIO              ::*;
@@ -86,7 +86,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 
   // Module Instantiations...
   LedN210Ifc       ledLogic   <- mkLedN210(clocked_by sys1_clk, reset_by sys1_rst);
-  GbeQABSWrkIfc    gbe0       <- mkGbeQABSWrk(
+  GbeQABSIfc       gbe0       <- mkGbeQABS(
                                    True,          // hasDebugLogic
                                    gmii_rx_clk,   // passed down as rxClk (agile from rx)
                                    gmiixo_clk,    // passed down as txClk and (stable after reset) BUFG driven
