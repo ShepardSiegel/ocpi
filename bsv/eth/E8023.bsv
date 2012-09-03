@@ -129,6 +129,63 @@ module mkE8023HCap (E8023HCapIfc);
 endmodule
 
 
+`ifdef NEW_QABS_FEATURE
+
+// QABS Flavor Header Processing...
+interface QABSFilterIfc;
+  interface Put#(QABS) putUpstream;
+  interface Get#(QABS) getFiltered;
+  method Action setAddr (MACAddress a);
+endinterface
+
+module mkQABSFilter (QABSFilterIfc);
+  FIFO#(QABS)           inF    <-  mkFIFO;
+  FIFO#(QABS)           outF   <-  mkFIFO;
+  Reg#(Vector#(4,ABS))  sr     <-  mkRegU; 
+  Reg#(UInt#(4))        ptr    <-  mkReg(0);
+  Reg#(Bool)            pass   <-  mkReg(True);
+
+  rule proc; 
+    let qb = inF.first;  inF.deq;           // Get the upstream QABS Vector contents
+    if (ptr<4)  shiftInAt0(sr,qb);          // Stash away first four words 
+    Bool hasEOP = reduceOr(map(isEOP,qb));  // Test for any EOP cells
+    ptr <= hasEOP ? 0:(ptr==4) ? 4:ptr+1;   // ptr counts up to 4, until reset 
+    Bit#(32) dw = pack(map(getData,qb));    // Extract data from the QABS stream
+    case (ptr)
+      0 :   action pass <= (dw==32'hFF_FF_FF_FF || dw==uAddr[5:2]);                 inF.deq; endaction // Test dst[5:2]
+      1 :   action pass <= (dw[15:0]==16'hFF_FF || dw[15:0]==uAddr[1:0]) || pass;   inF.deq; endaction // Test dst[1:0] src[5:4]
+      2 :   action                                                                  inF.deq; endaction // Test src[3:0]
+      3 :   pass <= (dw[15:0]==16'F0_40) || pass;                                                      // Test eTyp
+      4 :   if (pass)  // src_3210        no inF.deq (hold)
+      5 :   if (pass)  // src_10, dat_10 inf.deq
+    endcase
+
+    outF.enq(qb[ptr]);
+    if (ptr==3 || isEOP(qb[ptr]))       // Consume (deque) inF on 4th, or at EOP
+      inF.deq;
+  endrule
+
+  interface Put putUpstream = toPut(inF);
+  interface Get getFilter   = toGet(outF);
+endmodule
+
+`endif
+
+
+// TODO: Make n-bit version...
+  function Bit#(4) genBE (UInt#(2) p);
+    case (p)
+      0 : return(4'b1111);
+      1 : return(4'b0001);
+      2 : return(4'b0011);
+      3 : return(4'b0111);
+    endcase
+  endfunction
+
+
+
+
+
 typedef enum {
   PAD      = 8'h00,
   PREAMBLE = 8'h55,

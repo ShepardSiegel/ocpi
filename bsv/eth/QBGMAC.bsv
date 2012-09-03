@@ -51,7 +51,10 @@ module mkQBGMAC#(Clock rxClk, Clock txClk, Reset gmRst)(QBGMACIfc);
   SyncFIFOIfc#(QABS)   txF     <- mkSyncFIFOFromCC(8, txClk);
   SyncBitIfc#(Bit#(1)) unfBit  <- mkSyncBitToCC(txClk, gmRst);
 
-  mkConnection(gmac.rx, rxfun.putSerial);
+  mkConnection(gmac.rx, rxfun.putSerial);     // RX: gmac ABS -> rxFunnel QABS (125MHz)x4 -> rxF (50MHz)x4 QABS
+  mkConnection(rxfun.getVector, toPut(rxF));
+
+  mkConnection(toGet(txF), txfun.putVector);  // TX: QABS (50MHz)x4 txF (125MHz)x4 -> txFunnel ABS -> gmac
   mkConnection(txfun.getSerial, gmac.tx);
 
   // Plase the DReg values onto the one bit syncronizers...
@@ -65,15 +68,13 @@ module mkQBGMAC#(Clock rxClk, Clock txClk, Reset gmRst)(QBGMACIfc);
   interface GMII_RS     gmii         = gmac.gmii;
   interface Clock       rxclkBnd     = gmac.rxclkBnd; 
 //interface Reset       gmii_rstn;
-  interface Get         rx           = rxfun.getVector;
-  interface Put         tx           = txfun.putVector;
+  interface Get         rx           = toGet(rxF);
+  interface Put         tx           = toPut(txF);
   method Action         rxOperate    = rxOperD._write(True);
   method Action         txOperate    = txOperD._write(True);
-    /*
-  method Bool           rxOverFlow;
-  method Bool           txUnderFlow;
-  method Bool           phyInterrupt;
-    */
+  method Bool           rxOverFlow   = False; // TODO: pass these up...
+  method Bool           txUnderFlow  = False;
+  method Bool           phyInterrupt = False;
 endmodule: mkQBGMAC 
 
 endpackage: QBGMAC

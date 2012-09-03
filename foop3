@@ -46,7 +46,7 @@ badd +139 bsv/inf/TLPServBC.bsv
 badd +519 bsv/inf/EDPServBC.bsv
 badd +232 bsv/eth/GMAC.bsv
 badd +95 bsv/inf/OCBufQ.bsv
-badd +82 bsv/top/FTop_n210.bsv
+badd +175 bsv/top/FTop_n210.bsv
 badd +13 bsv/inf/CTop.bsv
 badd +108 bsv/inf/OCInf.bsv
 badd +153 bsv/eth/GbeLite.bsv
@@ -81,9 +81,10 @@ badd +33 libsrc/hdl/ocpi/fpgaTop_n210.v
 badd +42 bsv/dev/ClockN210.bsv
 badd +1 libsrc/hdl/ocpi/clock_n210.v
 badd +25 bsv/eth/E8023.bsv
-badd +0 bsv/eth/QBGMAC.bsv
-badd +1 bsv/eth/GbeQABSWrk.bsv
+badd +1 bsv/eth/QBGMAC.bsv
+badd +6 bsv/eth/GbeQABSWrk.bsv
 badd +60 bsv/eth/EDCP.bsv
+badd +1 bsv/eth/GbeQABS.bsv
 args bsv/inf/OCDP.bsv
 edit bsv/top/FTop_n210.bsv
 set splitbelow splitright
@@ -172,60 +173,60 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 40 + 58) / 116)
-exe 'vert 1resize ' . ((&columns * 122 + 131) / 263)
+exe '1resize ' . ((&lines * 45 + 58) / 116)
+exe 'vert 1resize ' . ((&columns * 131 + 151) / 302)
 exe '2resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 2resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 2resize ' . ((&columns * 131 + 151) / 302)
 exe '3resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 3resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 3resize ' . ((&columns * 131 + 151) / 302)
 exe '4resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 4resize ' . ((&columns * 122 + 131) / 263)
-exe '5resize ' . ((&lines * 23 + 58) / 116)
-exe 'vert 5resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 4resize ' . ((&columns * 131 + 151) / 302)
+exe '5resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 5resize ' . ((&columns * 131 + 151) / 302)
 exe '6resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 6resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 6resize ' . ((&columns * 131 + 151) / 302)
 exe '7resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 7resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 7resize ' . ((&columns * 131 + 151) / 302)
 exe '8resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 8resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 8resize ' . ((&columns * 131 + 151) / 302)
 exe '9resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 9resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 9resize ' . ((&columns * 131 + 151) / 302)
 exe '10resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 10resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 10resize ' . ((&columns * 131 + 151) / 302)
 exe '11resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 11resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 11resize ' . ((&columns * 131 + 151) / 302)
 exe '12resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 12resize ' . ((&columns * 122 + 131) / 263)
-exe '13resize ' . ((&lines * 29 + 58) / 116)
-exe 'vert 13resize ' . ((&columns * 122 + 131) / 263)
-exe '14resize ' . ((&lines * 17 + 58) / 116)
-exe 'vert 14resize ' . ((&columns * 140 + 131) / 263)
-exe '15resize ' . ((&lines * 29 + 58) / 116)
-exe 'vert 15resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 12resize ' . ((&columns * 131 + 151) / 302)
+exe '13resize ' . ((&lines * 46 + 58) / 116)
+exe 'vert 13resize ' . ((&columns * 131 + 151) / 302)
+exe '14resize ' . ((&lines * 4 + 58) / 116)
+exe 'vert 14resize ' . ((&columns * 170 + 151) / 302)
+exe '15resize ' . ((&lines * 42 + 58) / 116)
+exe 'vert 15resize ' . ((&columns * 170 + 151) / 302)
 exe '16resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 16resize ' . ((&columns * 140 + 131) / 263)
-exe '17resize ' . ((&lines * 15 + 58) / 116)
-exe 'vert 17resize ' . ((&columns * 140 + 131) / 263)
-exe '18resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 18resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 16resize ' . ((&columns * 170 + 151) / 302)
+exe '17resize ' . ((&lines * 43 + 58) / 116)
+exe 'vert 17resize ' . ((&columns * 170 + 151) / 302)
+exe '18resize ' . ((&lines * 2 + 58) / 116)
+exe 'vert 18resize ' . ((&columns * 170 + 151) / 302)
 exe '19resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 19resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 19resize ' . ((&columns * 170 + 151) / 302)
 exe '20resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 20resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 20resize ' . ((&columns * 170 + 151) / 302)
 exe '21resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 21resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 21resize ' . ((&columns * 170 + 151) / 302)
 exe '22resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 22resize ' . ((&columns * 140 + 131) / 263)
-exe '23resize ' . ((&lines * 4 + 58) / 116)
-exe 'vert 23resize ' . ((&columns * 140 + 131) / 263)
-exe '24resize ' . ((&lines * 8 + 58) / 116)
-exe 'vert 24resize ' . ((&columns * 140 + 131) / 263)
-exe '25resize ' . ((&lines * 7 + 58) / 116)
-exe 'vert 25resize ' . ((&columns * 140 + 131) / 263)
-exe '26resize ' . ((&lines * 8 + 58) / 116)
-exe 'vert 26resize ' . ((&columns * 140 + 131) / 263)
-exe '27resize ' . ((&lines * 7 + 58) / 116)
-exe 'vert 27resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 22resize ' . ((&columns * 170 + 151) / 302)
+exe '23resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 23resize ' . ((&columns * 170 + 151) / 302)
+exe '24resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 24resize ' . ((&columns * 170 + 151) / 302)
+exe '25resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 25resize ' . ((&columns * 170 + 151) / 302)
+exe '26resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 26resize ' . ((&columns * 170 + 151) / 302)
+exe '27resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 27resize ' . ((&columns * 170 + 151) / 302)
 argglobal
 setlocal noarabic
 setlocal autoindent
@@ -323,12 +324,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 9 - ((8 * winheight(0) + 20) / 40)
+let s:l = 122 - ((43 * winheight(0) + 22) / 45)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-9
-normal! 018l
+122
+normal! 068l
 wincmd w
 argglobal
 edit libsrc/hdl/ocpi/clock_n210.v
@@ -743,12 +744,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 35 - ((9 * winheight(0) + 11) / 23)
+let s:l = 34 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-35
-normal! 036l
+34
+normal! 033l
 wincmd w
 argglobal
 edit bsv/pwk/PWrk_n210.bsv
@@ -1583,7 +1584,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 21 - ((0 * winheight(0) + 14) / 29)
+let s:l = 21 - ((0 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1688,12 +1689,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 67 - ((11 * winheight(0) + 8) / 17)
+let s:l = 300 - ((0 * winheight(0) + 2) / 4)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-67
-normal! 017l
+300
+normal! 0
 wincmd w
 argglobal
 edit bsv/eth/EDCP.bsv
@@ -1793,12 +1794,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 82 - ((7 * winheight(0) + 14) / 29)
+let s:l = 156 - ((32 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-82
-normal! 024l
+156
+normal! 0
 wincmd w
 argglobal
 edit bsv/eth/GbeWrk.bsv
@@ -1906,7 +1907,7 @@ normal! zt
 normal! 08l
 wincmd w
 argglobal
-edit bsv/eth/GbeQABSWrk.bsv
+edit bsv/eth/GbeQABS.bsv
 setlocal noarabic
 setlocal autoindent
 setlocal autoread
@@ -2003,12 +2004,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 21 - ((7 * winheight(0) + 7) / 15)
+let s:l = 28 - ((9 * winheight(0) + 21) / 43)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-21
-normal! 016l
+28
+normal! 017l
 wincmd w
 argglobal
 edit bsv/eth/QBGMAC.bsv
@@ -2108,12 +2109,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 22 - ((0 * winheight(0) + 0) / 1)
+let s:l = 40 - ((1 * winheight(0) + 1) / 2)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-22
-normal! 0
+40
+normal! 015l
 wincmd w
 argglobal
 edit bsv/eth/E8023.bsv
@@ -2213,12 +2214,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 357 - ((0 * winheight(0) + 0) / 1)
+let s:l = 175 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-357
-normal! 034l
+175
+normal! 029l
 wincmd w
 argglobal
 edit bsv/eth/GMAC.bsv
@@ -2318,12 +2319,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 102 - ((0 * winheight(0) + 0) / 1)
+let s:l = 136 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-102
-normal! 015l
+136
+normal! 038l
 wincmd w
 argglobal
 edit bin/ocpihdl.py
@@ -2633,7 +2634,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 30 - ((0 * winheight(0) + 2) / 4)
+let s:l = 30 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2738,7 +2739,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 123 - ((0 * winheight(0) + 4) / 8)
+let s:l = 123 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2843,7 +2844,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 437 - ((0 * winheight(0) + 3) / 7)
+let s:l = 437 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2948,7 +2949,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 65 - ((0 * winheight(0) + 4) / 8)
+let s:l = 65 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -3053,7 +3054,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 126 - ((0 * winheight(0) + 3) / 7)
+let s:l = 126 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -3061,60 +3062,60 @@ normal! zt
 normal! 033l
 wincmd w
 15wincmd w
-exe '1resize ' . ((&lines * 40 + 58) / 116)
-exe 'vert 1resize ' . ((&columns * 122 + 131) / 263)
+exe '1resize ' . ((&lines * 45 + 58) / 116)
+exe 'vert 1resize ' . ((&columns * 131 + 151) / 302)
 exe '2resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 2resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 2resize ' . ((&columns * 131 + 151) / 302)
 exe '3resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 3resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 3resize ' . ((&columns * 131 + 151) / 302)
 exe '4resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 4resize ' . ((&columns * 122 + 131) / 263)
-exe '5resize ' . ((&lines * 23 + 58) / 116)
-exe 'vert 5resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 4resize ' . ((&columns * 131 + 151) / 302)
+exe '5resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 5resize ' . ((&columns * 131 + 151) / 302)
 exe '6resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 6resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 6resize ' . ((&columns * 131 + 151) / 302)
 exe '7resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 7resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 7resize ' . ((&columns * 131 + 151) / 302)
 exe '8resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 8resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 8resize ' . ((&columns * 131 + 151) / 302)
 exe '9resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 9resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 9resize ' . ((&columns * 131 + 151) / 302)
 exe '10resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 10resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 10resize ' . ((&columns * 131 + 151) / 302)
 exe '11resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 11resize ' . ((&columns * 122 + 131) / 263)
+exe 'vert 11resize ' . ((&columns * 131 + 151) / 302)
 exe '12resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 12resize ' . ((&columns * 122 + 131) / 263)
-exe '13resize ' . ((&lines * 29 + 58) / 116)
-exe 'vert 13resize ' . ((&columns * 122 + 131) / 263)
-exe '14resize ' . ((&lines * 17 + 58) / 116)
-exe 'vert 14resize ' . ((&columns * 140 + 131) / 263)
-exe '15resize ' . ((&lines * 29 + 58) / 116)
-exe 'vert 15resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 12resize ' . ((&columns * 131 + 151) / 302)
+exe '13resize ' . ((&lines * 46 + 58) / 116)
+exe 'vert 13resize ' . ((&columns * 131 + 151) / 302)
+exe '14resize ' . ((&lines * 4 + 58) / 116)
+exe 'vert 14resize ' . ((&columns * 170 + 151) / 302)
+exe '15resize ' . ((&lines * 42 + 58) / 116)
+exe 'vert 15resize ' . ((&columns * 170 + 151) / 302)
 exe '16resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 16resize ' . ((&columns * 140 + 131) / 263)
-exe '17resize ' . ((&lines * 15 + 58) / 116)
-exe 'vert 17resize ' . ((&columns * 140 + 131) / 263)
-exe '18resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 18resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 16resize ' . ((&columns * 170 + 151) / 302)
+exe '17resize ' . ((&lines * 43 + 58) / 116)
+exe 'vert 17resize ' . ((&columns * 170 + 151) / 302)
+exe '18resize ' . ((&lines * 2 + 58) / 116)
+exe 'vert 18resize ' . ((&columns * 170 + 151) / 302)
 exe '19resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 19resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 19resize ' . ((&columns * 170 + 151) / 302)
 exe '20resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 20resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 20resize ' . ((&columns * 170 + 151) / 302)
 exe '21resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 21resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 21resize ' . ((&columns * 170 + 151) / 302)
 exe '22resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 22resize ' . ((&columns * 140 + 131) / 263)
-exe '23resize ' . ((&lines * 4 + 58) / 116)
-exe 'vert 23resize ' . ((&columns * 140 + 131) / 263)
-exe '24resize ' . ((&lines * 8 + 58) / 116)
-exe 'vert 24resize ' . ((&columns * 140 + 131) / 263)
-exe '25resize ' . ((&lines * 7 + 58) / 116)
-exe 'vert 25resize ' . ((&columns * 140 + 131) / 263)
-exe '26resize ' . ((&lines * 8 + 58) / 116)
-exe 'vert 26resize ' . ((&columns * 140 + 131) / 263)
-exe '27resize ' . ((&lines * 7 + 58) / 116)
-exe 'vert 27resize ' . ((&columns * 140 + 131) / 263)
+exe 'vert 22resize ' . ((&columns * 170 + 151) / 302)
+exe '23resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 23resize ' . ((&columns * 170 + 151) / 302)
+exe '24resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 24resize ' . ((&columns * 170 + 151) / 302)
+exe '25resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 25resize ' . ((&columns * 170 + 151) / 302)
+exe '26resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 26resize ' . ((&columns * 170 + 151) / 302)
+exe '27resize ' . ((&lines * 1 + 58) / 116)
+exe 'vert 27resize ' . ((&columns * 170 + 151) / 302)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
