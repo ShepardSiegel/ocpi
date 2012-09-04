@@ -12,6 +12,7 @@ import E8023        ::*;
 import ClientServer ::*; 
 import Clocks       ::*;
 import Connectable  ::*;
+import DReg         ::*;
 import FIFO         ::*;	
 import GetPut       ::*;
 import Vector       ::*;
@@ -24,24 +25,24 @@ typedef enum {
 } DCPMesgType deriving (Bits, Eq);
 
 typedef struct {
-  Bool     isDO;
-  Bit#(8)  tag;
-  Bit#(32) initAdvert;
+  Bool       isDO;
+  Bit#(8)    tag;
+  Bit#(32)   initAdvert;
 } DCPRequestNOP deriving (Bits, Eq);
 
 typedef struct {
-  Bool     isDO;
-  Bit#(4)  be;
-  Bit#(8)  tag;
-  Bit#(32) data;
-  Bit#(32) addr;
+  Bool       isDO;
+  Bit#(4)    be;
+  Bit#(8)    tag;
+  Bit#(32)   data;
+  Bit#(32)   addr;
 } DCPRequestWrite deriving (Bits, Eq);
 
 typedef struct {
-  Bool     isDO;
-  Bit#(4)  be;
-  Bit#(8)  tag;
-  Bit#(32) addr;
+  Bool       isDO;
+  Bit#(4)    be;
+  Bit#(8)    tag;
+  Bit#(32)   addr;
 } DCPRequestRead deriving (Bits, Eq);
 
 typedef union tagged {
@@ -93,16 +94,59 @@ module mkEDCPAdapter (EDCPAdapterIfc);
   FIFO#(QABS)                ecpReqF     <- mkFIFO;
   FIFO#(QABS)                ecpRespF    <- mkFIFO;
 
+  Reg#(UInt#(4))             ptr         <- mkReg(0);
+  Reg#(MACAddress)           eMAddr      <- mkRegU;
+  FIFO#(MACAddress)          eMAddrF     <- mkFIFO1;
+  Reg#(EtherType)            eTyp        <- mkRegU;
+  Reg#(Bit#(16))             ePli        <- mkRegU;
+  Reg#(Bit#(32))             eDMH        <- mkRegU;
+  Reg#(Bit#(32))             eAddr       <- mkRegU;
+  Reg#(Bit#(32))             eData       <- mkRegU;
+  Reg#(Bool)                 eDoReq      <- mkDReg(False);
+
+
   FIFO#(DCPRequest)          dcpReqF     <- mkFIFO;   // Inbound   DCP Requests
   FIFO#(DCPResponse)         dcpRespF    <- mkFIFO;   // Outbound  DCP Responses
   FIFO#(CpReq)               cpReqF      <- mkFIFO;
   FIFO#(CpReadResp)          cpRespF     <- mkFIFO;
   // The internal state of the DCP module...
-  Reg#(Bool)                 doInFlight <- mkReg(False);          // True when a Discovery Operation (DO) is in flight
+  Reg#(Bool)                 doInFlight <- mkReg(False);           // True when a Discovery Operation (DO) is in flight
   Reg#(Maybe#(Bit#(8)))      lastTag    <- mkReg(tagged Invalid);  // The last tag captured (valid or not)
   Reg#(DCPResponse )         lastResp   <- mkRegU;                 // The last CP response sent
 
   Bit#(32) targAdvert = 32'h4000_0001;  // Set the target advertisement constant
+
+  rule ecp_ingress (!eDoReq);
+    let qb = ecpReqF.first;  ecpReqF.deq;      // Get the upstream QABS Vector contents
+    Bit#(32) dw = pack(map(getData,qb));       // Extract data from the QABS stream
+    Bool hasEOP = unpack(reduceOr(pack(map(isEOP,qb))));     // Test for any EOP cells
+    ptr <= hasEOP ? 0:(ptr==6) ? 6:ptr+1;      // ptr counts up to 6 until EOP reset // TODO Abort 
+    case (ptr)
+      1 : eMAddr  <= {dw[15:0], 32'h00000000};
+      2 : eMAddr  <= eMAddr | extend(dw);
+      3 : action eTyp <= dw[15:0]; ePli <= dw[31:16]; endaction
+      4 : eDMH   <= dw;
+      5 : eAddr  <= dw;
+      6 : eData  <= dw;
+    endcase
+    eDoReq <= (eTyp==16'hF040 && hasEOP) && ((ePli==10 && ptr==5)||(ePli==14 && ptr==6));
+  endrule
+
+  rule rx_exp_dcp (eDoReq);
+    Bool    isDO = unpack(eDMH[22]);
+    Bit#(2) mTyp = eDMH[21:20];
+    Bit#(4) mBe  = eDMH[19:16];
+    Bit#(8) mTag = eDMH[31:24];
+    DCPMesgType mType = unpack(mTyp);
+    case (mType)
+      NOP   : dcpReqF.enq(tagged NOP  ( DCPRequestNOP  {isDO:isDO,         tag:mTag, initAdvert:eAddr}));
+      Write : dcpReqF.enq(tagged Write( DCPRequestWrite{isDO:isDO, be:mBe, tag:mTag, data:eData, addr:eAddr}));
+      Read  : dcpReqF.enq(tagged Read ( DCPRequestRead {isDO:isDO, be:mBe, tag:mTag, addr:eAddr}));
+    endcase
+    eMAddrF.enq(eMAddr); // push the partner MAC address so we know where to send the response
+  endrule
+
+
 
   rule dcp_request;
     let x = dcpReqF.first; dcpReqF.deq;
@@ -163,86 +207,6 @@ endpackage
 // For reference within this file, remove code when debugged, this code not intended for use here...
 `ifdef FROM_GbeLite_Obsolete
 
-  method Action macAddr (MACAddress u);
-  method Action l2Dst   (MACAddress d);
-  method Action l2Typ   (EtherType  t);
-  ...
-  method Action macAddr (Bit#(48) u) = macAddress._write(unpack(u));
-  method Action l2Dst   (MACAddress d) = l2DstR._write(d);
-  method Action l2Typ   (EtherType  t) = l2TypR._write(t);
-
-  MACAddress bAddr = 48'hFF_FF_FF_FF_FF_FF;
-  MACAddress uAddr = 48'h00_0A_35_42_01_00;   // A fake Xilinx MAC Addr
-//MACAddress uAddr = 48'hA0_36_FA_25_3E_A5;   // A real Ettus N210 MAC Addr
-
-  Reg#(MACAddress)            macAddress          <-  mkReg(uAddr);
-  Reg#(MACAddress)            l2DstR              <-  mkRegU;
-  Reg#(EtherType)             l2TypR              <-  mkRegU;
-
-
-  Reg#(Bit#(32))              gbeControl          <-  mkReg(32'h0000_0101);  // default to PHY MDIO addr 1 ([4:0]) for N210
-  MDIO                        mdi                 <-  mkMDIO(6);
-  Reg#(Bool)                  phyMdiInit          <-  mkReg(False);
-  Reg#(Bool)                  splitReadInFlight   <-  mkReg(False);          // True when split read
-
-  QBGMACIfc                   gmac                <-  mkQBGMAC(gmii_rx_clk, gmiixo_clk, gmiixo_rst);
-  Reg#(MACAddress)            macAddress          <-  mkReg(uAddr);
-  Reg#(MACAddress)            l2DstR              <-  mkRegU;
-  Reg#(EtherType)             l2TypR              <-  mkRegU;
-
-  Clock  cpClock <- exposeCurrentClock;
-  MakeResetIfc                phyRst              <-  mkReset(16, True, cpClock);   
-  Reg#(Int#(25))              phyResetWaitCnt     <-  mkReg(fromInteger(phyResetStart));
-
-  Reg#(Vector#(4,Bit#(8)))    rxPipe              <-  mkRegU;
-  Reg#(UInt#(2))              rxPos               <-  mkReg(0);
-
-  Reg#(Bit#(32))              rxCount             <-  mkReg(0);
-  Reg#(Bit#(32))              txCount             <-  mkReg(0);
-  Reg#(Bit#(32))              rxOvfCount          <-  mkReg(0);
-  Reg#(Bit#(32))              txUndCount          <-  mkReg(0);
-
-  Reg#(Bit#(32))              rxValidNoEOPC       <-  mkReg(0);
-  Reg#(Bit#(32))              rxValidEOPC         <-  mkReg(0);
-  Reg#(Bit#(32))              rxEmptyEOPC         <-  mkReg(0);
-  Reg#(Bit#(32))              rxAbortEOPC         <-  mkReg(0);
-
-  E8023HCapIfc                rxHdr               <-  mkE8023HCap;
-  Reg#(Bit#(32))              rxLenCount          <-  mkReg(0);
-  Reg#(Bit#(32))              rxLenLast           <-  mkReg(0);
-  Reg#(Bit#(32))              rxHdrMatchCnt       <-  mkReg(0);
-  Reg#(Vector#(16,Bit#(8)))   rxHeadCap           <-  mkReg(unpack(0));   // Debug Only
-  Reg#(Bool)                  rxDropFrame         <-  mkReg(False);
-  Reg#(Bit#(32))              rxDropCnt           <-  mkReg(0);
-
-  FIFOF#(E8023Header)         rxDCPHdrF           <-  mkFIFOF;
-  Reg#(Vector#(14,Bit#(8)))   rxDCPMesg           <-  mkRegU;
-  Reg#(UInt#(5))              rxDCPMesgPos        <-  mkReg(0);
-  Reg#(Bit#(32))              rxDCPCnt            <-  mkReg(0);
-  Reg#(UInt#(8))              rxDCPPLI            <-  mkReg(maxBound);  // max 255B for now
-  Reg#(Bit#(8))               rxDCPmt             <-  mkRegU;
-  Reg#(Bit#(8))               rxDCPtag            <-  mkRegU;
-
-  Reg#(Bit#(32))              txDCPCnt            <-  mkReg(0);
-  FIFO#(E8023Header)          txDCPHdrF           <-  mkFIFO;
-  Reg#(UInt#(5))              txDCPPos            <-  mkReg(0);
-
-  FIFOF#(Bit#(32))            txDBGF              <-  mkFIFOF;
-  Reg#(UInt#(5))              txDBGPos            <-  mkReg(0);
-  Reg#(Bit#(32))              txDBGCnt            <-  mkReg(0);
-
-
-/*
-  The Tagged Union of Type ABS has the following members...
-
-  Tagged     hasData   isEOP  isAbort
-  ValidNotEOP   Y      N      N
-  ValidEOP      Y      Y      N
-  EmptyEOP      N      Y      N
-  AbortEOP      N      N      Y
-
-  We may write Action functions to collect the state to update when we haveData, haveEOP, etc.
-*/
 
   function Action rxDCPMesgCapt (Bit#(8) d);
     return ( action
@@ -274,59 +238,8 @@ endpackage
     endaction);
   endfunction
 
-  rule rx_drop_frame (rxDropFrame);  // Actions to take when we've decided not to use this frame...
-    rxHdr.clear;                     // Clear rxHdr state (resetting _pos), this packet means nothing to us
-    rxDCPMesgPos <= 0;               // Clear DCP Mesg Capture pointer to zero
-    rxDropFrame <= False;            // Do this once per frame
-    rxDropCnt <= rxDropCnt + 1;      // Increment diagnostic counter
-  endrule
 
 
-  // RX from GMAC...
-  rule rx_data;
-    let rx <- gmac.rx.get;
-    rxCount <= rxCount + 1;
-    case (rx) matches
-      tagged ValidNotEOP .z :  begin
-        rxAdvance(True,z,False,False);
-        rxValidNoEOPC <= rxValidNoEOPC + 1; // diagnostic
-      end
-      tagged ValidEOP    .z :  begin
-        rxAdvance(True,z,True,False);
-        rxValidEOPC <= rxValidEOPC + 1;     // diagnostic
-      end
-      tagged EmptyEOP       : begin
-        rxAdvance(False,?,True,False);
-        rxEmptyEOPC <= rxEmptyEOPC + 1;     // diagnostic
-      end
-      tagged AbortEOP       : begin
-        rxAdvance(False,?,True,True);
-        rxAbortEOPC <= rxAbortEOPC + 1;     // diagnostic
-      end
-    endcase
-  endrule
-
-
-
-  // RX DCP Processing when we have a known good DCP packet
-  rule rx_dcp;
-    let rxh <- toGet(rxDCPHdrF).get;
-    Bool    isDO = unpack(rxDCPmt[6]); // is Discovery Operation 
-    Bit#(2) mTyp = rxDCPmt[5:4];
-    Bit#(4) mBe  = rxDCPmt[3:0];
-    Vector#(4,Bit#(8)) dwa = takeAt(4, rxDCPMesg);
-    Vector#(4,Bit#(8)) dwb = takeAt(0, rxDCPMesg);
-    DCPMesgType mType = unpack(mTyp);
-    case (mType)
-      NOP   : dcp.server.request.put(tagged NOP  ( DCPRequestNOP  {isDO:isDO,         tag:rxDCPtag, initAdvert:pack(dwb)}));
-      Write : dcp.server.request.put(tagged Write( DCPRequestWrite{isDO:isDO, be:mBe, tag:rxDCPtag, data:pack(dwb), addr:pack(dwa)}));
-      Read  : dcp.server.request.put(tagged Read ( DCPRequestRead {isDO:isDO, be:mBe, tag:rxDCPtag, addr:pack(dwb)}));
-    endcase
-    // Done with request, reset rx for next DCP...
-    rxDCPMesgPos <= 0;
-    rxDCPPLI <= maxBound;
-  endrule
- 
   rule tx_dcp_fifo;
     let r <- dcp.server.response.get;
     dcpRespF.enq(r);
