@@ -193,6 +193,8 @@ typedef enum {
 } EthernetOctets deriving (Bits, Eq);
 
 
+
+//
 // Abortable Byte Stream (ABS)...
 // The Atomic Rules 2b encoding that is friendly to FIFO width (8b+2b); plus easy for k-LUT decoding
 typedef union tagged {
@@ -202,7 +204,6 @@ typedef union tagged {
   void    AbortEOP;     // The sequence has ended with an abort, all data and metadata from this packet is bad
 } ABS deriving (Bits, Eq);
 
-typedef Vector#(4,ABS) QABS;
 
 function Bool isEOP(ABS x);
   case(x) matches
@@ -226,7 +227,6 @@ function ABS tagValidData(Bool eop, Bit#(8) d);
   return (eop ? tagged ValidEOP d : tagged ValidNotEOP d);
 endfunction
 
-
 interface ABSdetSopIfc;
   method Action observe (ABS x);
   method Bool   sop;
@@ -243,6 +243,29 @@ module mkABSdetSop (ABSdetSopIfc);
   method Action observe (ABS x) = dW._write(x);
   method Bool sop = isSOP;
 endmodule
+
+// Extend ABS to QABS...
+typedef Vector#(4,ABS) QABS;
+
+function QABS qabsFromBits(Bit#(32) d, Bit#(4) eop);  // TODO: rewrite using map
+  QABS v = ?;
+  v[0] = unpack(eop[0]) ? tagged ValidEOP d[7:0]   : tagged ValidNotEOP d[7:0]  ;
+  v[1] = unpack(eop[1]) ? tagged ValidEOP d[15:8]  : tagged ValidNotEOP d[15:8] ;
+  v[2] = unpack(eop[2]) ? tagged ValidEOP d[23:16] : tagged ValidNotEOP d[23:16];
+  v[3] = unpack(eop[3]) ? tagged ValidEOP d[31:24] : tagged ValidNotEOP d[31:24];
+  return(v);
+endfunction
+
+  function QABS qabsFromVector (Vector#(4,Bit#(8)) dV, Vector#(4,Bit#(1)) eopV);
+    QABS z = ?;
+      z[0] = tagValidData(unpack(eopV[0]), dV[0]);
+      z[1] = tagValidData(unpack(eopV[1]), dV[1]);
+      z[2] = tagValidData(unpack(eopV[2]), dV[2]);
+      z[3] = tagValidData(unpack(eopV[3]), dV[3]);
+    return(z);
+  endfunction
+
+
 
 // Explicit Byte Stream (EBS)...
 // Has 4b of unencoded explicit status for abort, empty, sof, and eof...
@@ -390,7 +413,7 @@ module mkABS2QABS (ABS2QABSIfc);  // make a QABS vector from serial ABS stream..
     ptr <= isEOP(b) ? 0 : ptr+1;    // reset the pointer on EOP, else inc
     QABS rslt = cons(b, sr);        // candidate for QABS enq
     if (ptr==3 || isEOP(b))         // enq outF on 4th, or at EOP
-      outF.enq(rslt);
+      outF.enq(reverse(rslt));      // reverse to place first octet in QABS LSBs
   endrule
 
   interface Put  putSerial = toPut(inF);

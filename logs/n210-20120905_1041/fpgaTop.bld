@@ -1,0 +1,132 @@
+Release 14.2 ngdbuild P.28xd (lin64)
+Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
+
+Command Line: /opt/Xilinx/14.2/ISE_DS/ISE/bin/lin64/unwrapped/ngdbuild -sd
+../../coregen/pcie_4243_axi_k6_gtx_x4_250 -sd ../../coregen/fft_v5_4k_strm_nat
+-sd ../../coregen/ddc_4243_4ch_v5 -aul -aut -uc n210.ucf -p xc3sd3400a-fg676-5
+fpgaTop_csi.ngc fpgaTop.ngd
+
+Reading NGO file "/home/shep/projects/ocpi/build/tmp-n210/fpgaTop_csi.ngc" ...
+Gathering constraint information from source properties...
+Done.
+
+Annotating constraints to design from ucf file "n210.ucf" ...
+Resolving constraint associations...
+Checking Constraint Associations...
+INFO:ConstraintSystem:178 - TNM 'SYS0CLK', used in period specification
+   'TS_SYS0CLK', was traced into DCM_SP instance dcm. The following new TNM
+   groups and period specifications were generated at the DCM_SP output(s): 
+   CLK0: <TIMESPEC TS_ftop_clkN210_clk0_unbuf = PERIOD "ftop_clkN210_clk0_unbuf"
+   TS_SYS0CLK HIGH 50%>
+
+INFO:ConstraintSystem:178 - TNM 'SYS0CLK', used in period specification
+   'TS_SYS0CLK', was traced into DCM_SP instance dcm. The following new TNM
+   groups and period specifications were generated at the DCM_SP output(s): 
+   CLKDV: <TIMESPEC TS_ftop_clkN210_clkdv_unbuf = PERIOD
+   "ftop_clkN210_clkdv_unbuf" TS_SYS0CLK * 2 HIGH 50%>
+
+Done...
+
+INFO:NgdBuild:1222 - Setting CLKIN_PERIOD attribute associated with DCM instance
+   dcm to 10.000000 ns based on the period specification (<TIMESPEC "TS_SYS0CLK"
+   = PERIOD "SYS0CLK" 10 ns HIGH 50 % ;> [n210.ucf(470)]).
+Checking expanded design ...
+WARNING:NgdBuild:452 - logical net 'N3' has no driver
+WARNING:NgdBuild:452 - logical net 'N4' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_da_i<11>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_da_i<12>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_da_i<13>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<0>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<10>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<11>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<12>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<13>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<1>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<2>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<3>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<4>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<5>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<6>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<7>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<8>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_db_i<9>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_oe' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/adc_sclkn' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<10>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<11>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<12>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<13>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<14>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<15>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<16>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<17>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<18>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<20>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<21>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<22>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<23>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<24>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<25>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<26>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<27>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<28>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<29>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<30>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<31>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<8>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MAddr<9>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MByteEn<0>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MByteEn<1>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MByteEn<2>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_7_MByteEn<3>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<10>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<11>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<12>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<13>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<14>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<15>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<16>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<17>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<18>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<19>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<20>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<21>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<22>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<23>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<24>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<25>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<26>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<27>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<28>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<29>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<30>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<31>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<8>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MAddr<9>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MByteEn<0>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MByteEn<1>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MByteEn<2>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/cp_wci_Vm_9_MByteEn<3>' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/flash_miso_i' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/gmii_col_i' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/gmii_crs_i' has no driver
+WARNING:NgdBuild:452 - logical net 'ftop/gmii_intr_i' has no driver
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+NGDBUILD Design Results Summary:
+  Number of errors:     0
+  Number of warnings:  80
+
+Total memory usage is 488872 kilobytes
+
+Writing NGD file "fpgaTop.ngd" ...
+Total REAL time to NGDBUILD completion:  6 sec
+Total CPU time to NGDBUILD completion:   6 sec
+
+Writing NGDBUILD log file "fpgaTop.bld"...
