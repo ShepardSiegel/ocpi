@@ -87,6 +87,7 @@ typedef union tagged {
 interface EDCPAdapterIfc;
   interface Server#(QABS,QABS)         server; 
   interface Client#(CpReq,CpReadResp)  client; 
+  method Action macAddr (MACAddress u);  // Our local unicast MAC address
 endinterface 
 
 (* synthesize *)
@@ -95,8 +96,10 @@ module mkEDCPAdapter (EDCPAdapterIfc);
   FIFO#(QABS)                ecpReqF     <- mkFIFO;
   FIFO#(QABS)                ecpRespF    <- mkFIFO;
 
+  Reg#(MACAddress)           uMAddr      <- mkRegU;   // unicast MAC address of this device
   Reg#(UInt#(4))             ptr         <- mkReg(0);
-  Reg#(MACAddress)           eMAddr      <- mkRegU;
+  Reg#(MACAddress)           eDAddr      <- mkRegU;   // captured destination address of incident packet
+  Reg#(MACAddress)           eMAddr      <- mkRegU;   // captured source address of incident packet
   FIFO#(MACAddress)          eMAddrF     <- mkFIFO;
   Reg#(EtherType)            eTyp        <- mkRegU;
   Reg#(Bit#(16))             ePli        <- mkRegU;
@@ -122,7 +125,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
 
   MACAddress bAddr = 48'hFF_FF_FF_FF_FF_FF;
 //MACAddress uAddr = 48'h00_0A_35_42_01_00;   // A fake Xilinx MAC Addr
-  MACAddress uAddr = 48'hA0_36_FA_25_3E_A5;   // A real Ettus N210 MAC Addr
+//MACAddress uAddr = 48'hA0_36_FA_25_3E_A5;   // A real Ettus N210 MAC Addr
   Bit#(32) targAdvert = 32'h4000_0001;  // Set the target advertisement constant
 
   // Data in QABS has first byte on the wire in LSB
@@ -139,14 +142,17 @@ module mkEDCPAdapter (EDCPAdapterIfc);
     Bool hasEOP = unpack(reduceOr(pack(map(isEOP,qb))));     // Test for any EOP cells
     ptr <= hasEOP ? 0:(ptr==6) ? 6:ptr+1;      // ptr counts up to 6 until EOP reset // TODO Abort 
     case (ptr)
-      1 : eMAddr  <= {bedw[15:0], 32'h00000000};
+      0 : eDAddr  <= {bedw, 16'h0000};
+      1 : action eMAddr  <= {bedw[15:0], 32'h00000000}; eDAddr <= eDAddr | {32'h00000000, bedw[31:16]}; endaction
       2 : eMAddr  <= eMAddr | extend(bedw);
       3 : action eTyp <= {dw[7:0],dw[15:8]}; ePli <= {dw[23:16],dw[31:24]}; endaction
       4 : eDMH   <= bedw;
       5 : eAddr  <= bedw;
       6 : eData  <= bedw;
     endcase
-    eDoReq <= (eTyp==16'hF040) && ((ePli==10 && ptr==5)||(ePli==14 && ptr==6));  // TODO Qualify with bAddr and uAddr, hasEOP
+    eDoReq <= ((eDAddr==bAddr) || (eDAddr==uMAddr))  // Dest address matches broadcast or unicast MAC address
+           &&  (eTyp==16'hF040)                      // EtherType matches 
+           && ((ePli==10 && ptr==5)||(ePli==14 && ptr==6));  // TODO Qualify non-aborted hasEOP (wait for EOP, padding?)
   endrule
 
   rule rx_exp_dcp (eDoReq);
@@ -202,7 +208,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
 
 
   Vector#(6, Bit#(8)) daV  = reverse(unpack(eeMDst));
-  Vector#(6, Bit#(8)) saV  = reverse(unpack(uAddr));
+  Vector#(6, Bit#(8)) saV  = reverse(unpack(uMAddr));
   Vector#(2, Bit#(8)) tyV  = reverse(unpack(16'hF040));
   Vector#(4, Bit#(1)) allV = unpack(4'b0000);
   Vector#(4, Bit#(1)) lasV = unpack(4'b1000);
@@ -263,6 +269,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
     interface request  = toGet(cpReqF);
     interface response = toPut(cpRespF);
   endinterface
+  method Action macAddr (MACAddress u) = uMAddr._write(u);  // Our local unicast MAC address
 endmodule
 
 endpackage

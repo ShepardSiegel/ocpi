@@ -152,8 +152,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   //mkConnection(vWci[13], edp0.wciS0);    // EDP0
 //mkConnection(vWci[14], tieOff14.slv); 
 
-// new home...
-  //mkConnection(pwrk.macAddr, gbe0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the GBE
+  mkConnection(pwrk.macAddr, edcp.macAddr);  // Connect the EEPROM-sourced MAC Addr to the GBE
 
   //mkConnection(iqadc.wsiM0, cap0.wsiS0);     // Connect the WSI output from the IQ-ADC to the Capture Worker
 
