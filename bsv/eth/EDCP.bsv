@@ -150,10 +150,11 @@ module mkEDCPAdapter (EDCPAdapterIfc);
   endrule
 
   rule rx_exp_dcp (eDoReq);
-    Bool    isDO = unpack(eDMH[22]);
-    Bit#(2) mTyp = eDMH[21:20];
-    Bit#(4) mBe  = eDMH[19:16];
-    Bit#(8) mTag = eDMH[31:24];
+    Bit#(32) leDMH = reverseBytes(eDMH);
+    Bool    isDO = unpack(leDMH[22]);
+    Bit#(2) mTyp = leDMH[21:20];
+    Bit#(4) mBe  = leDMH[19:16];
+    Bit#(8) mTag = leDMH[31:24];
     DCPMesgType mType = unpack(mTyp);
     case (mType)
       NOP   : dcpReqF.enq(tagged NOP  ( DCPRequestNOP  {isDO:isDO,         tag:mTag, initAdvert:eAddr}));
@@ -202,7 +203,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
 
   Vector#(6, Bit#(8)) daV  = reverse(unpack(eeMDst));
   Vector#(6, Bit#(8)) saV  = reverse(unpack(uAddr));
-  Vector#(2, Bit#(8)) tyV  = reverse(unpack(16'hF0D0));
+  Vector#(2, Bit#(8)) tyV  = reverse(unpack(16'hF040));
   Vector#(4, Bit#(1)) allV = unpack(4'b0000);
   Vector#(4, Bit#(1)) lasV = unpack(4'b1000);
 
@@ -217,25 +218,25 @@ module mkEDCPAdapter (EDCPAdapterIfc);
      ecpRespF.enq(qabsFromBits(pack(saV)[47:16],  4'b0000));
      ecpRespF.enq(qabsFromBits({pack(pliV)[15:0], pack(tyV)}, 4'b0000));
      if (isWrtResp)
-       ecpRespF.enq(qabsFromBits(pack(dmhV),  4'b1000));
-     else
-       ecpRespF.enq(qabsFromBits(pack(dmhV),  4'b0000));
+       ecpRespF.enq(qabsFromBits(reverseBytes(pack(dmhV)),  4'b1000));
+     else seq
+       ecpRespF.enq(qabsFromBits(reverseBytes(pack(dmhV)),  4'b0000));
        ecpRespF.enq(qabsFromBits(pack(rspV),  4'b1000));
+     endseq
   endseq;
   FSM edpFsm <- mkFSM(egressDCPPacket);
    
   // This rule sets up the state needed for egressDCPPacket to run...
   rule ecp_egress (edpFsm.done);
 
-    let da = eMAddrF.first; eMAddrF.deq;
-    eeMDst <= da;
+    let da = eMAddrF.first; eMAddrF.deq; eeMDst <= da;  // take the return MAC address for the da
 
-    let rsp = dcpRespF.first;  dcpRespF.deq;
+    let rsp = dcpRespF.first;  dcpRespF.deq;            // tahe the DCP response
     case (rsp) matches
       tagged NOP   .n: begin
-        eePli <= 10;  // NOP reseponse is 10B  // Reverse Bytes?
+        eePli <= 10;  // NOP reseponse is 10B
         eeDmh <= { n.tag, n.hasDO?8'h70:8'h30, 16'h0000}; // DCP Response = OK
-        eeDat <= n.targAdvert;   // Reverse Bytes?
+        eeDat <= n.targAdvert;
         isWrtResp <= False;
         end
       tagged Write .w: begin
@@ -246,15 +247,13 @@ module mkEDCPAdapter (EDCPAdapterIfc);
       tagged Read  .r: begin
         eePli <= 10;  // Read reseponse is 10B
         eeDmh <= { r.tag, r.hasDO?8'h70:8'h30, 16'h0000}; // DCP Response = OK
-        eeDat <= r.data;   // Reverse Bytes?
+        eeDat <= r.data;
         isWrtResp <= False;
         end
-      endcase
+    endcase
 
    edpFsm.start;  // egress the DCP packet...
-
   endrule
-
 
   interface Server server;  // Outward Facing the L2 Packet Side
     interface request  = toPut(ecpReqF);
