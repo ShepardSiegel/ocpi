@@ -5,6 +5,7 @@
 import ClockN210         ::*;
 import LedN210           ::*;
 import Config            ::*;
+import E8023             ::*;
 import GMAC              ::*;
 import GbeQABS           ::*;
 import GbeWrk            ::*;
@@ -98,9 +99,11 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
                                    sys1_clk,      // time_clk timebase
                                    sys1_rst,      // time_rst reset
                                    clocked_by sys1_clk, reset_by sys1_rst);
+  QABSMFIfc       emux        <- mkQABSMF(16'hF040, clocked_by sys1_clk, reset_by sys1_rst);
 
-  mkConnection(gbe0.client, edcp.server);  // GBE  <-> EDCP
-  mkConnection(edcp.client, cp.server);    // EDCP <-> CP
+  mkConnection(gbe0.client,  emux.server);  // GBE  <-> EMUX
+  mkConnection(emux.client0, edcp.server);  // EMUX <-> EDCP
+  mkConnection(edcp.client,  cp.server);    // EDCP <-> CP
 
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 

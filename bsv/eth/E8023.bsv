@@ -8,6 +8,7 @@ package E8023;
 
 import CounterM          ::*;
 
+import ClientServer      ::*; 
 import Clocks            ::*;
 import Connectable       ::*;
 import CRC               ::*;
@@ -441,5 +442,125 @@ module mkQABS2ABS (QABS2ABSIfc);  // make a serial ABS stream from a QABS vector
   interface Put putVector = toPut(inF);
   interface Get getSerial = toGet(outF);
 endmodule
+
+// QABS Utility Modules...
+
+  function Bool hasQABSEOP(QABS x)   = Vector::any(isEOP,x);
+  function Bool isQABSActive(QABS x) = !hasQABSEOP(x);
+
+interface QABSMergeIfc;
+  interface Put#(QABS) iport0;
+  interface Put#(QABS) iport1;
+  interface Get#(QABS) oport;
+endinterface
+
+module mkQABSMerge (QABSMergeIfc);
+
+  FIFOF#(QABS) fi0        <- mkFIFOF;
+  FIFOF#(QABS) fi1        <- mkFIFOF;
+  FIFOF#(QABS) fo         <- mkFIFOF;
+  Reg#(Bool)   fi0HasPrio <- mkReg(True);   // True when fi0 has priority
+  Reg#(Bool)   fi0Active  <- mkReg(False);  // True on the 2nd through the EOP cycle of fi0 packet
+  Reg#(Bool)   fi1Active  <- mkReg(False);  // True on the 2nd through the EOP cycle of fi1 packet
+
+  (* descending_urgency = "arbitrate, fi0_advance, fi1_advance" *)
+  // The first two rules handle the non-contending 1st cycle and all 2-n cycle cases...
+  rule fi0_advance (!fi1Active);
+    let x = fi0.first; fi0.deq; fo.enq(x);
+    fi0Active  <= isQABSActive(x);
+    fi0HasPrio <= False;
+  endrule
+
+  rule fi1_advance (!fi0Active);
+    let x = fi1.first; fi1.deq; fo.enq(x);
+    fi1Active  <= isQABSActive(x);
+    fi0HasPrio <= True;
+  endrule
+
+  // The arbitrate rule handles the contending 1st cycle case by LRU.
+  // Both inputs are available, but neither is yet active...
+  rule arbitrate (fi0.notEmpty && fi1.notEmpty && !fi0Active && !fi1Active);
+    FIFOF#(QABS) fi = ((fi0HasPrio) ? fi0 : fi1);
+    let x = fi.first; fi.deq; fo.enq(x);
+    if (fi0HasPrio) fi0Active <= isQABSActive(x);
+    else            fi1Active <= isQABSActive(x);
+    fi0HasPrio <= !fi0HasPrio;
+  endrule
+
+ interface iport0 = toPut(fi0);
+ interface iport1 = toPut(fi1);
+ interface oport  = toGet(fo);
+endmodule
+
+
+interface QABSForkIfc;
+  interface Put#(QABS)  src;
+  interface Get#(QABS)  dst0;
+  interface Get#(QABS)  dst1;
+endinterface
+
+module mkQABSFork#(EtherType et0) (QABSForkIfc);
+  FIFO#(QABS)           srcF    <-  mkFIFO;
+  FIFO#(QABS)           d0F     <-  mkFIFO;
+  FIFO#(QABS)           d1F     <-  mkFIFO;
+  Reg#(Vector#(3,QABS)) sr      <-  mkRegU; 
+  Reg#(UInt#(3))        ptr     <-  mkReg(0);
+  Reg#(Bool)            staged  <-  mkReg(False);
+  Reg#(Bool)            match0  <-  mkReg(False);
+  Reg#(Bool)            decided <-  mkReg(False);
+
+
+  // Shift three words of QABS into the shift regsister until the EtherType
+  // is visible on srcF.first[15:0]. If a match with et0, push packet to end out d0.
+  // If not, push packet to end out d1
+
+  rule stage (!staged); 
+    let b = srcF.first; srcF.deq;        // take the new QABS element b
+    sr <= shiftInAt0(sr, b);             // shift it in to the shift register
+    ptr <= hasQABSEOP(b) ? 0 : ptr+1;    // reset the pointer on EOP, else inc
+    staged <= (ptr==2);                  // Set when 3 words are staged
+  endrule
+
+  rule decide (staged && !decided);
+    let b = srcF.first;                  // observe EType and Compare
+    Bit#(32) dw = pack(map(getData,qb)); // Extract data from the QABS stream
+    Bit#(16) seenEt = {dw[7:0,dw[15:8]};
+    match0  <= (seenEt==et0);
+    decided <= True;
+  endrule
+
+  rule decided
+ 
+
+  interface Put  src  = toPut(srcF);
+  interface Get  dst0 = toGet(d0F);
+  interface Get  dst1 = toGet(d1F);
+endmodule
+
+
+interface QABSMFIfc;
+  interface Server#(QABS,QABS) server; 
+  interface Client#(QABS,QABS) client0; 
+  interface Client#(QABS,QABS) client1; 
+endinterface 
+
+module mkQABSMF#(EtherType et0) (QABSMFIfc);
+  QABSMergeIfc  merge  <-  mkQABSMerge;
+  QABSForkIfc   frk    <-  mkQABSFork(et0);
+  
+  interface Server server; 
+    interface request  = frk.src;
+    interface response = merge.oport;
+  endinterface
+  interface Client client0; 
+    interface request  = frk.dst0;
+    interface response = merge.iport0;
+  endinterface
+  interface Client client1; 
+    interface request  = frk.dst1;
+    interface response = merge.iport1;
+  endinterface
+endmodule
+
 
 endpackage: E8023
