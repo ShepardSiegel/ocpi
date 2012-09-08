@@ -500,36 +500,55 @@ interface QABSForkIfc;
 endinterface
 
 module mkQABSFork#(EtherType et0) (QABSForkIfc);
-  FIFO#(QABS)           srcF    <-  mkFIFO;
-  FIFO#(QABS)           d0F     <-  mkFIFO;
-  FIFO#(QABS)           d1F     <-  mkFIFO;
-  Reg#(Vector#(3,QABS)) sr      <-  mkRegU; 
-  Reg#(UInt#(3))        ptr     <-  mkReg(0);
-  Reg#(Bool)            staged  <-  mkReg(False);
-  Reg#(Bool)            match0  <-  mkReg(False);
-  Reg#(Bool)            decided <-  mkReg(False);
+  FIFO#(QABS)           srcF       <-  mkFIFO;
+  FIFO#(QABS)           d0F        <-  mkFIFO;
+  FIFO#(QABS)           d1F        <-  mkFIFO;
+  Reg#(Vector#(3,QABS)) sr         <-  mkRegU; 
+  Reg#(UInt#(3))        ptr        <-  mkReg(0);
+  Reg#(Bool)            staged     <-  mkReg(False);
+  Reg#(Bool)            match0     <-  mkReg(False);
+  Reg#(Bool)            decided    <-  mkReg(False);
+  Reg#(Bool)            stageSent  <-  mkReg(False);
 
 
   // Shift three words of QABS into the shift regsister until the EtherType
   // is visible on srcF.first[15:0]. If a match with et0, push packet to end out d0.
   // If not, push packet to end out d1
+  // For each packet this module sees, the expected, exclusive rule sequence is stage, decide, egress
 
-  rule stage (!staged); 
-    let b = srcF.first; srcF.deq;        // take the new QABS element b
-    sr <= shiftInAt0(sr, b);             // shift it in to the shift register
-    ptr <= hasQABSEOP(b) ? 0 : ptr+1;    // reset the pointer on EOP, else inc
-    staged <= (ptr==2);                  // Set when 3 words are staged
+  rule stage (!staged && !decided); 
+    let b = srcF.first; srcF.deq;         // take the new QABS element b
+    sr <= shiftInAtN(sr, b);              // shift it down into the shift register
+    ptr <= hasQABSEOP(b) ? 0 : ptr+1;     // reset the pointer on EOP, else inc
+    staged <= (ptr==2);                   // Set when 3 words are staged
   endrule
 
   rule decide (staged && !decided);
-    let b = srcF.first;                  // observe EType and Compare
-    Bit#(32) dw = pack(map(getData,qb)); // Extract data from the QABS stream
-    Bit#(16) seenEt = {dw[7:0,dw[15:8]};
-    match0  <= (seenEt==et0);
+    let b = srcF.first;                   // observe EType and Compare
+    Bit#(32) dw = pack(map(getData,b));   // Extract data from the QABS stream
+    Bit#(16) seenEt = {dw[7:0],dw[15:8]}; // Pick off the observed, incident EtherType
+    match0  <= (seenEt==et0);             // If it matches, it's for dst0
     decided <= True;
+    ptr     <= 0;                         // Reset ptr for use in egress
   endrule
 
-  rule decided
+  rule egress(staged && decided);
+    FIFO#(QABS) dstF = match0 ? d0F:d1F;  // Use dstF as a shorthand for the selected output
+    if (!stageSent) begin                 // If we haven't sent the staged data yet
+      dstF.enq(sr[ptr]);                  // Out goes three QABS words (12B) of stabed sr
+      ptr <= ptr + 1;                     // Increment the word pointer
+      stageSent <= (ptr==2);              // Assert stageSent when weve sent all three
+    end else begin
+      let c = srcF.first; srcF.deq;       // take the new QABS element b
+      dstF.enq(c);                        // Out goes the 4th to Nth QABS word
+      if (hasQABSEOP(c)) begin            // On any EOP, the packet is over, reset // TODO: Handle Abort
+        ptr       <= 0;
+        staged    <= False;
+        decided   <= False;
+        stageSent <= False;
+      end
+    end
+  endrule
  
 
   interface Put  src  = toPut(srcF);
@@ -544,6 +563,7 @@ interface QABSMFIfc;
   interface Client#(QABS,QABS) client1; 
 endinterface 
 
+(* synthesize *)
 module mkQABSMF#(EtherType et0) (QABSMFIfc);
   QABSMergeIfc  merge  <-  mkQABSMerge;
   QABSForkIfc   frk    <-  mkQABSFork(et0);
