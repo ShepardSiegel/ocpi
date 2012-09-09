@@ -104,9 +104,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
                                    clocked_by sys1_clk, reset_by sys1_rst);
 
   mkConnection(gbe0.client,  emux.server);  // GBE  <-> EMUX
-  mkConnection(emux.client0, edcp.server);  // EMUX <-> EDCP  Port-0 Control Plane
+  mkConnection(emux.client0, edcp.server);  // EMUX <-> EDCP
   mkConnection(edcp.client,  cp.server);    // EDCP <-> CP
-  //mkConnection(emux,client1, edp0.server);  // EMUX <-> DGDP  Port-1 Data Plane
 
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 
@@ -133,6 +132,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   //OCEDP4BIfc edp0  <- mkOCEDP4B (?,True,True, True, clocked_by sys1_clk, reset_by vWci[13].mReset_n); // Ethernet Data Plane 0
 //WciSlaveNullIfc#(32)  tieOff14 <- mkWciSlaveNull;
 
+  //mkConnection(gbe0.dpClient, edp0.server); // Path from dgdp to GbE
 
   //mkConnection(pat0.wsiM0, sma0.wsiS0, clocked_by sys1_clk, reset_by sys1_rst);     // Connect the PatternWorker to the SMAAdapter
   //mkConnection(sma0.wmiM0, edp0.wmiS0);     // Connect the SMAAdapter to the DGDP WMI slave port
