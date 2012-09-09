@@ -16,10 +16,11 @@ def main(argv):
   p = Ether()
   p.src  = '00:26:E1:01:01:00'   # Linux Host Source MAC Address
 # p.dst  = '00:0A:35:42:01:00'   # Xilinx FPGA Dest MAC Address
-  p.dst  = 'A0:36:FA:25:3B:81'   # Ettus FPGA Dest MAC Address
+# p.dst  = 'A0:36:FA:25:3B:81'   # Ettus FPGA Dest MAC Address
+  p.dst  = 'A0:36:FA:25:3E:A5'   # Ettus N210 Dest MAC Address
   p.type = 0xF040                # EtherType TCP
   #p.payload = "\x00\x0A\x00\x00\x0F\x05\x80\x00\x00\x01"                    # 10B NOP
-  p.payload = "\x00\x0E\x00\x00\x1F\x06\x00\x00\x00\x24\x12\x34\x56\x78"     # 14B Write 0x24 with 0x12345678
+  p.payload = "\x00\x0E\x00\x00\x1F\x56\x00\x00\x00\x24\x22\x33\x44\x55"     # 14B Write 0x24 with 0x1234567F
   #p.payload = "\x00\x0A\x00\x00\x2F\x07\x00\x00\x00\x24"                     # 10B Read 0x24
   #p.payload = "\x00\x0A\x00\x00\x2F\x07\x00\x00\x00\x00"                     # 10B Read 0x00
   print "Sending packet..."

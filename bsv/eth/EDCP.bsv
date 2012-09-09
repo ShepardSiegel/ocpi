@@ -140,7 +140,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
     Bit#(32) dw = pack(map(getData,qb));       // Extract data from the QABS stream
     Bit#(32) bedw = reverseBytes(dw);
     Bool hasEOP = unpack(reduceOr(pack(map(isEOP,qb))));     // Test for any EOP cells
-    ptr <= hasEOP ? 0:(ptr==6) ? 6:ptr+1;      // ptr counts up to 6 until EOP reset // TODO Abort 
+    ptr <= hasEOP ? 0:(ptr==15) ? 15:ptr+1;      // ptr counts up to 15 until EOP reset // TODO Abort 
     case (ptr)
       0 : eDAddr  <= {bedw, 16'h0000};
       1 : action eMAddr  <= {bedw[15:0], 32'h00000000}; eDAddr <= eDAddr | {32'h00000000, bedw[31:16]}; endaction
@@ -155,7 +155,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
            && ((ePli==10 && ptr==5)||(ePli==14 && ptr==6));  // TODO Qualify non-aborted hasEOP (wait for EOP, padding?)
   endrule
 
-  rule rx_exp_dcp (eDoReq);
+  rule rx_ecp_dcp (eDoReq);
     Bit#(32) leDMH = reverseBytes(eDMH);
     Bool    isDO = unpack(leDMH[22]);
     Bit#(2) mTyp = leDMH[21:20];
