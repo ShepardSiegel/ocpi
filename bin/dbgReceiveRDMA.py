@@ -8,8 +8,8 @@ import os
 import subprocess
 import sys
 
-#dev0 = 'ether:eth1/A0:36:FA:25:3B:81'
-dev0 = 'ether:eth1/A0:36:FA:25:3E:A5'
+dev0 = 'ether:eth1/A0:36:FA:25:3B:81'
+#dev0 = 'ether:eth1/A0:36:FA:25:3E:A5'
 
 def main(argv):
   if len(argv) != 2:

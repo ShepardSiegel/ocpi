@@ -49,6 +49,9 @@ module mkEDDPAdapter (EDDPAdapterIfc);
   Reg#(Bit#(32))             eeDat      <- mkRegU;
 
 
+  mkConnection(toGet(edpReqF), toPut(dpReqF));
+  mkConnection(toGet(dpRespF), toPut(edpRespF));
+
   interface Server server;  // Outward Facing the L2 Packet Side
     interface request  = toPut(edpReqF);
     interface response = toGet(edpRespF);

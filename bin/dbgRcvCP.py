@@ -30,7 +30,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
     adcWrkNum = 10  # IQADC
     dp0WrkNum = 13  # dgdp dp0
 
-    workerList = [7,9]
+    workerList = [5,6,7,9,10,13]
 
     print 'Reset cycling each worker...'
     for w in workerList:
@@ -39,8 +39,8 @@ where <argfoop> is a valid foop.""" % (prog_name)
       wreset(dev0, w)
       print 'unreset'
       wunreset(dev0, w)
-      #print 'f-value timeout'
-      #wwctl(dev0, w, 0x8000000F)
+      print 'f-value timeout'
+      wwctl(dev0, w, 0x8000000F)
 
     print 'Testing admin scratch regsiters...'
     testAdminReg(dev0, 0x20)
@@ -59,10 +59,10 @@ where <argfoop> is a valid foop.""" % (prog_name)
       rwsr(dev0, w)
 
     print 'Testing scratch registers...'
-    #testScratchReg(dev0, 5, 0)
-    #testScratchReg(dev0, 6, 0)
+    testScratchReg(dev0, 5, 0)
+    testScratchReg(dev0, 6, 0)
     testScratchReg(dev0, 9, 0)
-    #testScratchReg(dev0, 13, 0xB8)
+    testScratchReg(dev0, 13, 0xB8)
 
     print 'Done.'
     sys.exit(0)
