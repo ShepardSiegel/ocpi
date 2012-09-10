@@ -1,6 +1,8 @@
 // EDP.bsv - Ethernet Data Plane
 // Copyright (c) 2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
+// OBSOLETE as of 2012-09-10 for EDDP
+
 // This module adds the 14B Ethernet header to the datagram-based data plane on packet egress
 
 import E8023        ::*;	  // for ABS defs

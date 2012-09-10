@@ -11,6 +11,9 @@ unlet s:cpo_save
 set autoindent
 set backspace=indent,eol,start
 set backup
+set cscopeprg=/usr/bin/cscope
+set cscopetag
+set cscopeverbose
 set expandtab
 set fileencodings=utf-8,latin1
 set formatoptions=tcql
@@ -42,29 +45,29 @@ endif
 set shortmess=aoO
 badd +80 bsv/inf/OCDP.bsv
 badd +34 bsv/inf/OCEDP.bsv
-badd +31 bsv/inf/TLPServBC.bsv
+badd +21 bsv/inf/TLPServBC.bsv
 badd +519 bsv/inf/EDPServBC.bsv
 badd +232 bsv/eth/GMAC.bsv
-badd +95 bsv/inf/OCBufQ.bsv
-badd +8 bsv/top/FTop_n210.bsv
+badd +104 bsv/inf/OCBufQ.bsv
+badd +96 bsv/top/FTop_n210.bsv
 badd +13 bsv/inf/CTop.bsv
 badd +108 bsv/inf/OCInf.bsv
-badd +308 bsv/eth/GbeLite.bsv
+badd +12 bsv/eth/GbeLite.bsv
 badd +132 bsv/inf/TLPBRAM.bsv
 badd +30 bsv/utl/ByteShifter.bsv
 badd +247 bsv/pci/PCIE_S4.bsv
 badd +586 bsv/inf/TLPMF.bsv
 badd +189 bsv/eth/DCP.bsv
-badd +31 bsv/eth/EDP.bsv
+badd +4 bsv/eth/EDP.bsv
 badd +29 scripts/buildhdl/fpgaTop-n210.prj
 badd +109 scripts/buildhdl/fpgaTop-ml605.prj
-badd +1 bsv/dev/AD9512.bsv
+badd +56 bsv/dev/AD9512.bsv
 badd +103 bsv/utl/TypeShifter.bsv
-badd +78 bsv/utl/ThingShifter.bsv
-badd +350 bsv/wrk/SMAdapter.bsv
-badd +1 bsv/wrk/WSIPatternWorker.bsv
+badd +80 bsv/utl/ThingShifter.bsv
+badd +368 bsv/wrk/SMAdapter.bsv
+badd +287 bsv/wrk/WSIPatternWorker.bsv
 badd +148 bsv/app/OCApp.bsv
-badd +24 bsv/pwk/PWrk_n210.bsv
+badd +31 bsv/pwk/PWrk_n210.bsv
 badd +193 bsv/wip/OCWci.bsv
 badd +1 bsv/eth/GbeWrk.bsv
 badd +441 bsv/wip/OCWsi.bsv
@@ -73,18 +76,19 @@ badd +128 bsv/inf/OCCP.bsv
 badd +69 bsv/inf/WmiServBC.bsv
 badd +19 bin/dbgReceiveRDMA.py
 badd +38 bsv/dev/DRAM_v6.bsv
-badd +1 bsv/dev/Max19692.bsv
+badd +85 bsv/dev/Max19692.bsv
 badd +30 bin/dbgRcvCP.py
 badd +82 bin/ocpihdl.py
 badd +474 ucf/n210.ucf
 badd +33 libsrc/hdl/ocpi/fpgaTop_n210.v
-badd +42 bsv/dev/ClockN210.bsv
-badd +1 libsrc/hdl/ocpi/clock_n210.v
+badd +32 bsv/dev/ClockN210.bsv
+badd +35 libsrc/hdl/ocpi/clock_n210.v
 badd +236 bsv/eth/E8023.bsv
 badd +1 bsv/eth/QBGMAC.bsv
 badd +6 bsv/eth/GbeQABSWrk.bsv
-badd +122 bsv/eth/EDCP.bsv
+badd +150 bsv/eth/EDCP.bsv
 badd +1 bsv/eth/GbeQABS.bsv
+badd +0 bsv/eth/EDDP.bsv
 args bsv/inf/OCDP.bsv
 edit bsv/top/FTop_n210.bsv
 set splitbelow splitright
@@ -103,28 +107,7 @@ wincmd _ | wincmd |
 split
 wincmd _ | wincmd |
 split
-wincmd _ | wincmd |
-split
-wincmd _ | wincmd |
-split
-wincmd _ | wincmd |
-split
-wincmd _ | wincmd |
-split
-wincmd _ | wincmd |
-split
-wincmd _ | wincmd |
-split
-wincmd _ | wincmd |
-split
-13wincmd k
-wincmd w
-wincmd w
-wincmd w
-wincmd w
-wincmd w
-wincmd w
-wincmd w
+6wincmd k
 wincmd w
 wincmd w
 wincmd w
@@ -158,50 +141,36 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 68 + 58) / 116)
-exe 'vert 1resize ' . ((&columns * 134 + 154) / 308)
-exe '2resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 2resize ' . ((&columns * 134 + 154) / 308)
-exe '3resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 3resize ' . ((&columns * 134 + 154) / 308)
+exe '1resize ' . ((&lines * 15 + 58) / 116)
+exe 'vert 1resize ' . ((&columns * 130 + 144) / 289)
+exe '2resize ' . ((&lines * 15 + 58) / 116)
+exe 'vert 2resize ' . ((&columns * 130 + 144) / 289)
+exe '3resize ' . ((&lines * 9 + 58) / 116)
+exe 'vert 3resize ' . ((&columns * 130 + 144) / 289)
 exe '4resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 4resize ' . ((&columns * 134 + 154) / 308)
-exe '5resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 5resize ' . ((&columns * 134 + 154) / 308)
-exe '6resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 6resize ' . ((&columns * 134 + 154) / 308)
-exe '7resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 7resize ' . ((&columns * 134 + 154) / 308)
-exe '8resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 8resize ' . ((&columns * 134 + 154) / 308)
-exe '9resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 9resize ' . ((&columns * 134 + 154) / 308)
-exe '10resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 10resize ' . ((&columns * 134 + 154) / 308)
-exe '11resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 11resize ' . ((&columns * 134 + 154) / 308)
-exe '12resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 12resize ' . ((&columns * 134 + 154) / 308)
-exe '13resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 13resize ' . ((&columns * 134 + 154) / 308)
-exe '14resize ' . ((&lines * 21 + 58) / 116)
-exe 'vert 14resize ' . ((&columns * 134 + 154) / 308)
-exe '15resize ' . ((&lines * 36 + 58) / 116)
-exe 'vert 15resize ' . ((&columns * 173 + 154) / 308)
-exe '16resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 16resize ' . ((&columns * 173 + 154) / 308)
-exe '17resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 17resize ' . ((&columns * 173 + 154) / 308)
-exe '18resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 18resize ' . ((&columns * 173 + 154) / 308)
-exe '19resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 19resize ' . ((&columns * 173 + 154) / 308)
-exe '20resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 20resize ' . ((&columns * 173 + 154) / 308)
-exe '21resize ' . ((&lines * 55 + 58) / 116)
-exe 'vert 21resize ' . ((&columns * 173 + 154) / 308)
-exe '22resize ' . ((&lines * 11 + 58) / 116)
-exe 'vert 22resize ' . ((&columns * 173 + 154) / 308)
+exe 'vert 4resize ' . ((&columns * 130 + 144) / 289)
+exe '5resize ' . ((&lines * 37 + 58) / 116)
+exe 'vert 5resize ' . ((&columns * 130 + 144) / 289)
+exe '6resize ' . ((&lines * 16 + 58) / 116)
+exe 'vert 6resize ' . ((&columns * 130 + 144) / 289)
+exe '7resize ' . ((&lines * 15 + 58) / 116)
+exe 'vert 7resize ' . ((&columns * 130 + 144) / 289)
+exe '8resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 8resize ' . ((&columns * 158 + 144) / 289)
+exe '9resize ' . ((&lines * 14 + 58) / 116)
+exe 'vert 9resize ' . ((&columns * 158 + 144) / 289)
+exe '10resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 10resize ' . ((&columns * 158 + 144) / 289)
+exe '11resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 11resize ' . ((&columns * 158 + 144) / 289)
+exe '12resize ' . ((&lines * 14 + 58) / 116)
+exe 'vert 12resize ' . ((&columns * 158 + 144) / 289)
+exe '13resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 13resize ' . ((&columns * 158 + 144) / 289)
+exe '14resize ' . ((&lines * 14 + 58) / 116)
+exe 'vert 14resize ' . ((&columns * 158 + 144) / 289)
+exe '15resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 15resize ' . ((&columns * 158 + 144) / 289)
 argglobal
 setlocal noarabic
 setlocal autoindent
@@ -299,15 +268,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 102 - ((29 * winheight(0) + 34) / 68)
+let s:l = 130 - ((9 * winheight(0) + 7) / 15)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-102
-normal! 041l
+130
+normal! 0
 wincmd w
 argglobal
-edit libsrc/hdl/ocpi/clock_n210.v
+edit libsrc/hdl/ocpi/fpgaTop_n210.v
 setlocal noarabic
 setlocal autoindent
 setlocal autoread
@@ -404,117 +373,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 64 - ((0 * winheight(0) + 0) / 1)
+let s:l = 91 - ((8 * winheight(0) + 7) / 15)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-64
-normal! 01l
-wincmd w
-argglobal
-edit bsv/dev/ClockN210.bsv
-setlocal noarabic
-setlocal autoindent
-setlocal autoread
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'bsv'
-setlocal filetype=bsv
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcql
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=GetBSVIndent()
-setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keymap=
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=2
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=0
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'bsv'
-setlocal syntax=bsv
-endif
-setlocal tabstop=2
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 28 - ((0 * winheight(0) + 0) / 1)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-28
-normal! 0
+91
+normal! 026l
 wincmd w
 argglobal
 edit ucf/n210.ucf
@@ -614,12 +478,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 474 - ((0 * winheight(0) + 0) / 1)
+let s:l = 478 - ((4 * winheight(0) + 4) / 9)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-474
-normal! 037l
+478
+normal! 034l
 wincmd w
 argglobal
 edit scripts/buildhdl/fpgaTop-n210.prj
@@ -719,15 +583,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 35 - ((0 * winheight(0) + 0) / 1)
+let s:l = 45 - ((0 * winheight(0) + 0) / 1)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-35
-normal! 031l
+45
+normal! 037l
 wincmd w
 argglobal
-edit bsv/pwk/PWrk_n210.bsv
+edit bsv/inf/OCEDP.bsv
 setlocal noarabic
 setlocal autoindent
 setlocal autoread
@@ -824,12 +688,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 23 - ((0 * winheight(0) + 0) / 1)
+let s:l = 1 - ((0 * winheight(0) + 18) / 37)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-23
-normal! 028l
+1
+normal! 0
 wincmd w
 argglobal
 edit bsv/inf/OCBufQ.bsv
@@ -929,15 +793,15 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 95 - ((0 * winheight(0) + 0) / 1)
+let s:l = 104 - ((7 * winheight(0) + 8) / 16)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-95
-normal! 045l
+104
+normal! 038l
 wincmd w
 argglobal
-edit bsv/dev/AD9512.bsv
+edit bsv/inf/EDPServBC.bsv
 setlocal noarabic
 setlocal autoindent
 setlocal autoread
@@ -1034,642 +898,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 52 - ((0 * winheight(0) + 0) / 1)
+let s:l = 27 - ((6 * winheight(0) + 7) / 15)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-52
-normal! 020l
-wincmd w
-argglobal
-edit bsv/dev/Max19692.bsv
-setlocal noarabic
-setlocal autoindent
-setlocal autoread
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'bsv'
-setlocal filetype=bsv
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcql
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=GetBSVIndent()
-setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keymap=
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=2
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=0
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'bsv'
-setlocal syntax=bsv
-endif
-setlocal tabstop=2
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 79 - ((0 * winheight(0) + 0) / 1)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-79
+27
 normal! 0
-wincmd w
-argglobal
-edit bsv/utl/ThingShifter.bsv
-setlocal noarabic
-setlocal autoindent
-setlocal autoread
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'bsv'
-setlocal filetype=bsv
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcql
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=GetBSVIndent()
-setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keymap=
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=2
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=0
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'bsv'
-setlocal syntax=bsv
-endif
-setlocal tabstop=2
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 78 - ((0 * winheight(0) + 0) / 1)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-78
-normal! 034l
-wincmd w
-argglobal
-edit bsv/wrk/SMAdapter.bsv
-setlocal noarabic
-setlocal autoindent
-setlocal autoread
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'bsv'
-setlocal filetype=bsv
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcql
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=GetBSVIndent()
-setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keymap=
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=2
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=0
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'bsv'
-setlocal syntax=bsv
-endif
-setlocal tabstop=2
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 378 - ((0 * winheight(0) + 0) / 1)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-378
-normal! 036l
-wincmd w
-argglobal
-edit bsv/wrk/WSIPatternWorker.bsv
-setlocal noarabic
-setlocal autoindent
-setlocal autoread
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'bsv'
-setlocal filetype=bsv
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcql
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=GetBSVIndent()
-setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keymap=
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=2
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=0
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'bsv'
-setlocal syntax=bsv
-endif
-setlocal tabstop=2
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 285 - ((0 * winheight(0) + 0) / 1)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-285
-normal! 067l
-wincmd w
-argglobal
-edit bsv/eth/EDP.bsv
-setlocal noarabic
-setlocal autoindent
-setlocal autoread
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'bsv'
-setlocal filetype=bsv
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcql
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=0
-setlocal imsearch=0
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=GetBSVIndent()
-setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keymap=
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=2
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=0
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'bsv'
-setlocal syntax=bsv
-endif
-setlocal tabstop=2
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 51 - ((0 * winheight(0) + 0) / 1)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-51
-normal! 039l
-wincmd w
-argglobal
-edit bsv/inf/TLPServBC.bsv
-setlocal noarabic
-setlocal autoindent
-setlocal autoread
-setlocal balloonexpr=
-setlocal nobinary
-setlocal bufhidden=
-setlocal buflisted
-setlocal buftype=
-setlocal nocindent
-setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
-setlocal cinoptions=
-setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-setlocal commentstring=/*%s*/
-setlocal complete=.,w,b,u,t,i
-setlocal completefunc=
-setlocal nocopyindent
-setlocal nocursorcolumn
-setlocal nocursorline
-setlocal define=
-setlocal dictionary=
-setlocal nodiff
-setlocal equalprg=
-setlocal errorformat=
-setlocal expandtab
-if &filetype != 'bsv'
-setlocal filetype=bsv
-endif
-setlocal foldcolumn=0
-setlocal foldenable
-setlocal foldexpr=0
-setlocal foldignore=#
-setlocal foldlevel=0
-setlocal foldmarker={{{,}}}
-setlocal foldmethod=manual
-setlocal foldminlines=1
-setlocal foldnestmax=20
-setlocal foldtext=foldtext()
-setlocal formatexpr=
-setlocal formatoptions=tcql
-setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
-setlocal grepprg=
-setlocal iminsert=2
-setlocal imsearch=2
-setlocal include=
-setlocal includeexpr=
-setlocal indentexpr=GetBSVIndent()
-setlocal indentkeys=!^F,o,O,0),0},=begin,=end,=join,=endcase,=join_any,=join_none,=endmodule,=endfunction,=endtask,=endspecify,=endclass,=endpackage,=endsequence,=endclocking,=endrule,=endmethod,=endinterface,=endgroup,=endprogram,=endproperty,=`else,=`endif
-setlocal noinfercase
-setlocal iskeyword=@,48-57,_,192-255
-setlocal keymap=
-setlocal keywordprg=
-setlocal nolinebreak
-setlocal nolisp
-setlocal nolist
-setlocal makeprg=
-setlocal matchpairs=(:),{:},[:]
-setlocal modeline
-setlocal modifiable
-setlocal nrformats=octal,hex
-set number
-setlocal number
-setlocal numberwidth=4
-setlocal omnifunc=
-setlocal path=
-setlocal nopreserveindent
-setlocal nopreviewwindow
-setlocal quoteescape=\\
-setlocal noreadonly
-setlocal norightleft
-setlocal rightleftcmd=search
-setlocal noscrollbind
-setlocal shiftwidth=2
-setlocal noshortname
-setlocal nosmartindent
-setlocal softtabstop=0
-setlocal nospell
-setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
-setlocal spellfile=
-setlocal spelllang=en
-setlocal statusline=
-setlocal suffixesadd=
-setlocal swapfile
-setlocal synmaxcol=3000
-if &syntax != 'bsv'
-setlocal syntax=bsv
-endif
-setlocal tabstop=2
-setlocal tags=
-setlocal textwidth=0
-setlocal thesaurus=
-setlocal nowinfixheight
-setlocal nowinfixwidth
-setlocal wrap
-setlocal wrapmargin=0
-silent! normal! zE
-let s:l = 31 - ((0 * winheight(0) + 10) / 21)
-if s:l < 1 | let s:l = 1 | endif
-exe s:l
-normal! zt
-31
-normal! 024l
 wincmd w
 argglobal
 edit bsv/inf/OCCP.bsv
@@ -1769,7 +1003,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 123 - ((24 * winheight(0) + 18) / 36)
+let s:l = 123 - ((1 * winheight(0) + 6) / 13)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -1777,7 +1011,7 @@ normal! zt
 normal! 096l
 wincmd w
 argglobal
-edit bsv/eth/GbeLite.bsv
+edit bsv/eth/EDDP.bsv
 setlocal noarabic
 setlocal autoindent
 setlocal autoread
@@ -1874,12 +1108,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 191 - ((0 * winheight(0) + 0) / 1)
+let s:l = 66 - ((13 * winheight(0) + 7) / 14)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-191
-normal! 063l
+66
+normal! 036l
 wincmd w
 argglobal
 edit bsv/eth/EDCP.bsv
@@ -1979,12 +1213,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 140 - ((0 * winheight(0) + 0) / 1)
+let s:l = 150 - ((3 * winheight(0) + 6) / 13)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-140
-normal! 030l
+150
+normal! 024l
 wincmd w
 argglobal
 edit bsv/eth/GbeWrk.bsv
@@ -2084,7 +1318,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 73 - ((0 * winheight(0) + 0) / 1)
+let s:l = 73 - ((1 * winheight(0) + 6) / 13)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2189,7 +1423,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 94 - ((0 * winheight(0) + 0) / 1)
+let s:l = 94 - ((0 * winheight(0) + 7) / 14)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2294,7 +1528,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 52 - ((0 * winheight(0) + 0) / 1)
+let s:l = 52 - ((0 * winheight(0) + 6) / 13)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2399,7 +1633,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 543 - ((22 * winheight(0) + 27) / 55)
+let s:l = 543 - ((0 * winheight(0) + 7) / 14)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -2504,58 +1738,44 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 40 - ((0 * winheight(0) + 5) / 11)
+let s:l = 40 - ((0 * winheight(0) + 6) / 13)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 40
 normal! 013l
 wincmd w
-21wincmd w
-exe '1resize ' . ((&lines * 68 + 58) / 116)
-exe 'vert 1resize ' . ((&columns * 134 + 154) / 308)
-exe '2resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 2resize ' . ((&columns * 134 + 154) / 308)
-exe '3resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 3resize ' . ((&columns * 134 + 154) / 308)
+4wincmd w
+exe '1resize ' . ((&lines * 15 + 58) / 116)
+exe 'vert 1resize ' . ((&columns * 130 + 144) / 289)
+exe '2resize ' . ((&lines * 15 + 58) / 116)
+exe 'vert 2resize ' . ((&columns * 130 + 144) / 289)
+exe '3resize ' . ((&lines * 9 + 58) / 116)
+exe 'vert 3resize ' . ((&columns * 130 + 144) / 289)
 exe '4resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 4resize ' . ((&columns * 134 + 154) / 308)
-exe '5resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 5resize ' . ((&columns * 134 + 154) / 308)
-exe '6resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 6resize ' . ((&columns * 134 + 154) / 308)
-exe '7resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 7resize ' . ((&columns * 134 + 154) / 308)
-exe '8resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 8resize ' . ((&columns * 134 + 154) / 308)
-exe '9resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 9resize ' . ((&columns * 134 + 154) / 308)
-exe '10resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 10resize ' . ((&columns * 134 + 154) / 308)
-exe '11resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 11resize ' . ((&columns * 134 + 154) / 308)
-exe '12resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 12resize ' . ((&columns * 134 + 154) / 308)
-exe '13resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 13resize ' . ((&columns * 134 + 154) / 308)
-exe '14resize ' . ((&lines * 21 + 58) / 116)
-exe 'vert 14resize ' . ((&columns * 134 + 154) / 308)
-exe '15resize ' . ((&lines * 36 + 58) / 116)
-exe 'vert 15resize ' . ((&columns * 173 + 154) / 308)
-exe '16resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 16resize ' . ((&columns * 173 + 154) / 308)
-exe '17resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 17resize ' . ((&columns * 173 + 154) / 308)
-exe '18resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 18resize ' . ((&columns * 173 + 154) / 308)
-exe '19resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 19resize ' . ((&columns * 173 + 154) / 308)
-exe '20resize ' . ((&lines * 1 + 58) / 116)
-exe 'vert 20resize ' . ((&columns * 173 + 154) / 308)
-exe '21resize ' . ((&lines * 55 + 58) / 116)
-exe 'vert 21resize ' . ((&columns * 173 + 154) / 308)
-exe '22resize ' . ((&lines * 11 + 58) / 116)
-exe 'vert 22resize ' . ((&columns * 173 + 154) / 308)
+exe 'vert 4resize ' . ((&columns * 130 + 144) / 289)
+exe '5resize ' . ((&lines * 37 + 58) / 116)
+exe 'vert 5resize ' . ((&columns * 130 + 144) / 289)
+exe '6resize ' . ((&lines * 16 + 58) / 116)
+exe 'vert 6resize ' . ((&columns * 130 + 144) / 289)
+exe '7resize ' . ((&lines * 15 + 58) / 116)
+exe 'vert 7resize ' . ((&columns * 130 + 144) / 289)
+exe '8resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 8resize ' . ((&columns * 158 + 144) / 289)
+exe '9resize ' . ((&lines * 14 + 58) / 116)
+exe 'vert 9resize ' . ((&columns * 158 + 144) / 289)
+exe '10resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 10resize ' . ((&columns * 158 + 144) / 289)
+exe '11resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 11resize ' . ((&columns * 158 + 144) / 289)
+exe '12resize ' . ((&lines * 14 + 58) / 116)
+exe 'vert 12resize ' . ((&columns * 158 + 144) / 289)
+exe '13resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 13resize ' . ((&columns * 158 + 144) / 289)
+exe '14resize ' . ((&lines * 14 + 58) / 116)
+exe 'vert 14resize ' . ((&columns * 158 + 144) / 289)
+exe '15resize ' . ((&lines * 13 + 58) / 116)
+exe 'vert 15resize ' . ((&columns * 158 + 144) / 289)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
