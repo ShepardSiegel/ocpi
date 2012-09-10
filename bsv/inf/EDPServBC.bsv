@@ -72,7 +72,7 @@ endfunction
 
 
 interface EDPServBCIfc;
-  interface Server#(ABS,ABS)     server;
+  interface Server#(QABS,QABS)   server;
   interface BufQCIfc             bufq;
   method Action                  dpCtrl (DPControl dc);
   method Bit#(32)                i_flowDiagCount;
@@ -115,8 +115,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Bool useSRL = False; // Set to False to allow for Bluesim simulation)
 `endif
 
-  FIFOF#(ABS)                inF                  <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // The PTW16 inbound from the NoC
-  FIFOF#(ABS)                outF                 <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // The PTW16 outbound to the NoC
+  FIFOF#(QABS)               inF                  <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // The PTW16 inbound from the NoC
+  FIFOF#(QABS)               outF                 <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // The PTW16 outbound to the NoC
   TLPBRAMIfc                 tlpBRAM              <- mkTLPBRAM(mem);
   FIFOF#(Bit#(1))            tailEventF           <- mkFIFOF;
   Reg#(Bool)                 inIgnorePkt          <- mkRegU;
@@ -176,7 +176,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // New State for the EDP is here...
   Reg#(UInt#(16))            frameNumber          <- mkReg(0);
   Reg#(UInt#(32))            xactionNumber        <- mkReg(0);
-  ThingShifter#(16,1,80,ABS) dgdpTx               <- mkThingShifter;
+  ThingShifter#(16,4,80,ABS) dgdpTx               <- mkThingShifter;
   Reg#(Bool)                 doMetaMH             <- mkReg(False);
   Reg#(Bool)                 doMesgMH             <- mkReg(False);
   Reg#(Bool)                 firstMetaMH          <- mkReg(True);
@@ -515,10 +515,15 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     complTimerCount <= (complTimerRunning) ? complTimerCount + 1 : 0 ;
   endrule
 
-  rule egress_pump (dgdpTx.things_available>0);
-    outF.enq(dgdpTx.things_out[0]); // Just take the first one
-    dgdpTx.deq(1);
-    dbgBytesTxDeq <= dbgBytesTxDeq + 1;
+  rule egress_pump (dgdpTx.things_available>4);
+    QABS tx = ?;
+    tx[0] = dgdpTx.things_out[0]; 
+    tx[1] = dgdpTx.things_out[1]; 
+    tx[2] = dgdpTx.things_out[2]; 
+    tx[3] = dgdpTx.things_out[3]; 
+    outF.enq(tx); 
+    dgdpTx.deq(4);
+    dbgBytesTxDeq <= dbgBytesTxDeq + 4;
   endrule
 
   //

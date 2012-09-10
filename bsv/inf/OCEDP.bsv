@@ -30,7 +30,7 @@ interface OCEDPIfc#(numeric type ndw);
   interface WciES                wciS0;    // Control and Configuration
   interface Wti_s#(64)           wtiS0;    // Worker Time Interface (for timestamping)
   interface Wmi_Es#(14,12,TMul#(ndw,32),0,TMul#(ndw,4),32)  wmiS0; // facing the application  (local)
-  interface Server#(ABS,ABS)     server;   // facing the infrastructure (remote)
+  interface Server#(QABS,QABS)     server;   // facing the infrastructure (remote)
 endinterface
 
 module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull, parameter Bool hasDebugLogic) (OCEDPIfc#(ndw))

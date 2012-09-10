@@ -95,7 +95,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
                                    gmiixo_rst,    // passed down reset, resynced thrrough system reset
                                    clocked_by sys1_clk, reset_by sys1_rst);
   EDCPAdapterIfc   edcp       <- mkEDCPAdapter(clocked_by sys1_clk, reset_by sys1_rst);
-  EDDPAdapterIfc   eddp       <- mkEDDPAdapter(clocked_by sys1_clk, reset_by sys1_rst);
+  EDDPAdapterIfc   eddp0      <- mkEDDPAdapter(clocked_by sys1_clk, reset_by sys1_rst);
   OCCPIfc#(Nwcit)  cp         <- mkOCCP(
                                    ?,             // pciDevice (not used)
                                    sys1_clk,      // time_clk timebase
@@ -124,9 +124,9 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
 
   mkConnection(gbe0.client,  emux.server);   // GBE  <-> EMUX
   mkConnection(emux.client0, edcp.server);   // EMUX <-> EDCP   Port-0 Control Plane
-  mkConnection(emux,client1, eddp.server);   // EMUX <-> EDDP   Port-1 Data Plane
+  mkConnection(emux.client1, eddp0.server);  // EMUX <-> EDDP   Port-1 Data Plane
   mkConnection(edcp.client,  cp.server);     // EDCP <-> CP
-  mkConnection(eddp.client,  edp.server);    // EDDP <-> DP
+  mkConnection(eddp0.client,  edp0.server);  // EDDP0 <-> DP0
 
   mkConnection(pat0.wsiM0, sma0.wsiS0);      // Connect the PatternWorker to the SMAAdapter
   mkConnection(sma0.wmiM0, edp0.wmiS0);      // Connect the SMAAdapter to the DGDP WMI slave port
@@ -141,7 +141,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   //mkConnection(vWci[11], cap0.wciS0);    // Capture Worker
 
   mkConnection(pwrk.macAddr, edcp.macAddr);   // Connect the EEPROM-sourced MAC Addr to the EDCP
-  mkConnection(pwrk.macAddr, eddp0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the EDDP0
+  mkConnection(pwrk.macAddr, eddp0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the EDDP
 
   //mkConnection(iqadc.wsiM0, cap0.wsiS0);     // Connect the WSI output from the IQ-ADC to the Capture Worker
 
