@@ -61,6 +61,8 @@ assign debug[19]    = adc_smiso;
 assign debug[20]    = adc_clkout;
 assign debug[31:21] = adc_da[10:0];  // 11b of 14
 
+
+// Glue and ECO logic implemented at this level...
 wire adc_sclkdrv, adc_sclkgate;
 assign adc_sclk = adc_sclkdrv||!adc_sclkgate||adc_sen; // keep adc_sclk high when gated off
 

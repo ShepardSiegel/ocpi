@@ -322,8 +322,8 @@ interface ABS2EBSIfc;
 endinterface
 
 module mkABS2EBS (ABS2EBSIfc);
-  FIFO#(ABS) absF <- mkFIFO;
-  FIFO#(EBS) ebsF <- mkFIFO;
+  FIFO#(ABS) absF  <- mkFIFO;
+  FIFO#(EBS) ebsF  <- mkFIFO;
   Reg#(Bool) isSOP <- mkReg(True);
 
   // This rule expands (decodes) 2b ABS to 4b EBS...
