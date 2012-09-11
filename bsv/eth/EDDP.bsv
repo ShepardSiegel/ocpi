@@ -24,24 +24,31 @@ interface EDDPAdapterIfc;
   method Action dstType (EtherType  t);  // The EtherType for TX'd Producer packets
   method Bool edpRx;
   method Bool edpTx;
+  method Bool edpTxEOP;
 endinterface 
 
 (* synthesize *)
 module mkEDDPAdapter (EDDPAdapterIfc);
   // FIFOs for Client/Server Interfaces...
-  FIFO#(QABS)                edpReqF     <- mkFIFO;
-  FIFO#(QABS)                edpRespF    <- mkFIFO;
-  FIFO#(QABS)                dpReqF      <- mkFIFO;
-  FIFO#(QABS)                dpRespF     <- mkFIFO;
+  FIFO#(QABS)                edpReqF      <- mkFIFO;
+  FIFO#(QABS)                edpRespF     <- mkFIFO;
+  FIFO#(QABS)                dpReqF       <- mkFIFO;
+  FIFO#(QABS)                dpRespF      <- mkFIFO;
 
-  Reg#(Bool)                 edpIngress  <- mkDReg(False);
-  Reg#(Bool)                 edpEgress   <- mkDReg(False);
+  Reg#(Bool)                 edpIngress   <- mkDReg(False);
+  Reg#(Bool)                 edpEgress    <- mkDReg(False);
+  Reg#(Bool)                 edpEgressEOP <- mkDReg(False);
 
-  Reg#(MACAddress)           dMAddr      <- mkRegU;        // supplied dest address for tx frames
-  Reg#(MACAddress)           uMAddr      <- mkRegU;        // unicast MAC address of this device
-  Reg#(EtherType)            dEType      <- mkRegU;        // supplied EtherType    for tx frames
-  Reg#(Bit#(16))             eeDID       <- mkRegU;        // captured DGDP destination ID (DID)
-  Reg#(Bool)                 txPayload   <- mkReg(False);  // Send DGDP payload following header
+  Reg#(MACAddress)           dMAddr       <- mkRegU;        // supplied dest address for tx frames
+  Reg#(MACAddress)           uMAddr       <- mkRegU;        // unicast MAC address of this device
+  Reg#(EtherType)            dEType       <- mkRegU;        // supplied EtherType    for tx frames
+  Reg#(Bit#(16))             eeDID        <- mkRegU;        // captured DGDP destination ID (DID)
+  Reg#(Bool)                 txPayload    <- mkReg(False);  // Send DGDP payload following header
+
+  Reg#(ABS)                  dbge0        <- mkRegU;
+  Reg#(ABS)                  dbge1        <- mkRegU;
+  Reg#(ABS)                  dbge2        <- mkRegU;
+  Reg#(ABS)                  dbge3        <- mkRegU;
 
 
   // Non-functional bypass logic for scafolding...
@@ -93,7 +100,13 @@ module mkEDDPAdapter (EDDPAdapterIfc);
   rule egress_body (txPayload);
     let t = dpRespF.first; dpRespF.deq;  // Accept more from the DGDP TX
     edpRespF.enq(t);
-    txPayload <= !hasQABSEOP(t);         // End the frame on EOP
+    txPayload    <= !hasQABSEOP(t);      // End the frame on EOP
+    edpEgressEOP <=  hasQABSEOP(t);      // End the frame on EOP
+    edpEgress <= True;
+    dbge0 <= t[0];
+    dbge1 <= t[1];
+    dbge2 <= t[2];
+    dbge3 <= t[3];
   endrule
 
   interface Server server;  // Outward Facing the L2 Packet Side
@@ -107,8 +120,9 @@ module mkEDDPAdapter (EDDPAdapterIfc);
   method Action macAddr (MACAddress u) = uMAddr._write(u);  // Our local unicast MAC address
   method Action dstAddr (MACAddress d) = dMAddr._write(d);  // The destination MAC address for Producer packets
   method Action dstType (EtherType  t) = dEType._write(t);  // The EtherType for TX'd Producer packets
-  method Bool   edpRx = edpIngress;
-  method Bool   edpTx = edpEgress;
+  method Bool   edpRx    = edpIngress;
+  method Bool   edpTx    = edpEgress;
+  method Bool   edpTxEOP = edpEgressEOP;
 endmodule
 
 endpackage

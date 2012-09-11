@@ -88,6 +88,8 @@ interface EDCPAdapterIfc;
   interface Server#(QABS,QABS)         server; 
   interface Client#(CpReq,CpReadResp)  client; 
   method Action macAddr (MACAddress u);  // Our local unicast MAC address
+  method Bool ecpRx;
+  method Bool ecpTx;
 endinterface 
 
 (* synthesize *)
@@ -107,6 +109,9 @@ module mkEDCPAdapter (EDCPAdapterIfc);
   Reg#(Bit#(32))             eAddr       <- mkRegU;
   Reg#(Bit#(32))             eData       <- mkRegU;
   Reg#(Bool)                 eDoReq      <- mkDReg(False);
+
+  Reg#(Bool)                 ecpIngress  <- mkDReg(False);
+  Reg#(Bool)                 ecpEgress   <- mkDReg(False);
 
   FIFO#(DCPRequest)          dcpReqF     <- mkFIFO;   // Inbound   DCP Requests
   FIFO#(DCPResponse)         dcpRespF    <- mkFIFO;   // Outbound  DCP Responses
@@ -136,6 +141,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
   endfunction
 
   rule ecp_ingress (!eDoReq);
+    ecpIngress <= True;
     let qb = ecpReqF.first;  ecpReqF.deq;      // Get the upstream QABS Vector contents
     Bit#(32) dw = pack(map(getData,qb));       // Extract data from the QABS stream
     Bit#(32) bedw = reverseBytes(dw);
@@ -231,6 +237,10 @@ module mkEDCPAdapter (EDCPAdapterIfc);
      endseq
   endseq;
   FSM edpFsm <- mkFSM(egressDCPPacket);
+
+  rule egress_monitor;
+    ecpEgress <= !edpFsm.done;
+  endrule
    
   // This rule sets up the state needed for egressDCPPacket to run...
   rule ecp_egress (edpFsm.done);
@@ -270,6 +280,8 @@ module mkEDCPAdapter (EDCPAdapterIfc);
     interface response = toPut(cpRespF);
   endinterface
   method Action macAddr (MACAddress u) = uMAddr._write(u);  // Our local unicast MAC address
+  method Bool ecpRx = ecpIngress;
+  method Bool ecpTx = ecpEgress;
 endmodule
 
 endpackage

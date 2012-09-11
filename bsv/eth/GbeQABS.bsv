@@ -26,6 +26,8 @@ import XilinxExtra  ::*;
 
 interface GbeQABSIfc;
   interface Client#(QABS,QABS)        client;      // Facing Internal FPGA server(s) interface(s)
+  method Bool gmRx;
+  method Bool gmTx;
 
   interface GMII_RS                   gmii;        // The GMII link
   interface Reset                     gmii_rstn;   // PHY GMII Reset
@@ -55,6 +57,8 @@ module mkGbeQABS#(parameter Bool hasDebugLogic,
   Reg#(Int#(25))              phyResetWaitCnt     <-  mkReg(fromInteger(phyResetStart));
 
   // Stats...
+  Reg#(Bool)                  ethIngress          <- mkDReg(False);
+  Reg#(Bool)                  ethEgress           <- mkDReg(False);
   Reg#(Bit#(32))              rxCount             <-  mkReg(0);
   Reg#(Bit#(32))              txCount             <-  mkReg(0);
   Reg#(Bit#(32))              rxOvfCount          <-  mkReg(0);
@@ -95,12 +99,14 @@ module mkGbeQABS#(parameter Bool hasDebugLogic,
   rule rx_pump;
     let rx <- gmac.rx.get;
     eReqF.enq(rx);
+    ethIngress <= True;
     rxCount <= rxCount + 1; // TODO: Count RX in Bytes, not in 0-4 Byte QABS word cycles
   endrule
 
   rule tx_pump;
     let tx = eRespF.first; eRespF.deq;
     gmac.tx.put(tx);
+    ethEgress <= True;
     txCount <= txCount + 1; // TODO: Count TX in Bytes, not in 0-4 Byte QABS word cycles
   endrule
 
@@ -110,6 +116,8 @@ module mkGbeQABS#(parameter Bool hasDebugLogic,
     interface request  = toGet(eReqF);
     interface response = toPut(eRespF);
   endinterface
+  method Bool gmRx = ethIngress;
+  method Bool gmTx = ethEgress;
   interface GMII_RS    gmii       = gmac.gmii;
   interface Reset      gmii_rstn  = phyRst.new_rst;
   interface Clock      rxclkBnd   = gmac.rxclkBnd;

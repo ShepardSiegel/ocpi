@@ -34,6 +34,7 @@ typedef struct {
   Bit#(8)   flags;     // b0: 1=frame has at least one message, 0=ACK-only frame (no messages)
 } DGDPframeHeader deriving (Bits, Eq);
 
+/*
 function Vector#(16,ABS) fhAs16ByteV (DGDPframeHeader h, Bool isEOP);
   Vector#(10,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is dstID 
   Vector#(6, Bit#(8)) v2 = ?;
@@ -42,6 +43,21 @@ function Vector#(16,ABS) fhAs16ByteV (DGDPframeHeader h, Bool isEOP);
   Vector#(16, ABS)    v4 = ?;
   for (Integer i=0; i<16; i=i+1) v4[i] = tagged ValidNotEOP v3[i];
   if (isEOP) v4[9] = tagged ValidEOP v3[9];
+  return(v4);
+endfunction
+*/
+
+// Version with two empty ABS cells at head...
+function Vector#(16,ABS) fhAs16ByteV (DGDPframeHeader h, Bool isEOP);
+  Vector#(10,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is dstID 
+  Vector#(6, Bit#(8)) v2 = ?;
+  Vector#(16,Bit#(8)) v3 = append(v1,v2);
+  // map with argument?
+  Vector#(16, ABS)    v4 = ?;
+  v4[0] = tagged ValidNotEOP 8'h42;  // bogus
+  v4[1] = tagged ValidNotEOP 8'h43;  // bogus
+  for (Integer i=0; i<14; i=i+1) v4[i+2] = tagged ValidNotEOP v3[i];
+  if (isEOP) v4[11] = tagged ValidEOP v3[11];
   return(v4);
 endfunction
 
@@ -223,7 +239,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     $display("[%0d]: %m: dmaRequestNearMeta FPactMesg-Step1/7", $time);
 
     // Enqueue the DGDP Frame Header...
-    dgdpTx.enq(10,fhAs16ByteV(DGDPframeHeader {
+    // Set to 12 not 10 to allow two bogus cells at head
+    dgdpTx.enq(12,fhAs16ByteV(DGDPframeHeader {
                                 dstID    : fabMesgAddrMS[31:16],  // mesg, not meta or flow; per jek 2012-08-07
                                 srcID    : fabMesgAddrMS[15:0],
                                 frameSeq : pack(frameNumber),

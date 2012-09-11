@@ -38,6 +38,7 @@ import Clocks            ::*;
 import ClientServer      ::*;
 import Connectable       ::*;
 import DefaultValue      ::*;
+import DReg              ::*;
 import FIFO              ::*;
 import GetPut            ::*;
 import TieOff            ::*;
@@ -85,6 +86,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   Reset            sys1_rst   = clkN210.rstdv;  //  50 MHz system reset 1 
   Clock            gmiixo_clk <- mkClockBUFG (clocked_by gmii_sysclk);   // 125 MHz clock from GbE PHY
   Reset            gmiixo_rst <- mkAsyncReset(2, sys0_rst, gmiixo_clk);  // 125 MHz reset from GbE PHY
+  Reg#(Bit#(32))   dbgReg     <- mkDReg(0,     clocked_by sys1_clk, reset_by sys1_rst);
+  Reg#(Bool)       tog50      <- mkDReg(False, clocked_by sys1_clk, reset_by sys1_rst);
 
   // Module Instantiations...
   LedN210Ifc       ledLogic   <- mkLedN210(clocked_by sys1_clk, reset_by sys1_rst);
@@ -126,7 +129,7 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   mkConnection(emux.client0, edcp.server);   // EMUX <-> EDCP   Port-0 Control Plane
   mkConnection(emux.client1, eddp0.server);  // EMUX <-> EDDP   Port-1 Data Plane
   mkConnection(edcp.client,  cp.server);     // EDCP <-> CP
-  mkConnection(eddp0.client,  edp0.server);  // EDDP0 <-> DP0
+  mkConnection(eddp0.client, edp0.server);   // EDDP0 <-> DP0
 
   mkConnection(pat0.wsiM0, sma0.wsiS0);      // Connect the PatternWorker to the SMAAdapter
   mkConnection(sma0.wmiM0, edp0.wmiS0);      // Connect the SMAAdapter to the DGDP WMI slave port
@@ -156,8 +159,23 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
     eddp0.dstType(gbewrk.l2Typ);
   endrule
 
+  rule connect_debug;
+    dbgReg <= { pack(gbe0.gmRx), pack(edcp.ecpRx), pack(eddp0.edpRx), 1'b0,     // 15:12
+                pack(gbe0.gmTx), pack(edcp.ecpTx), pack(eddp0.edpTx), 1'b0,     // 11:08
+                pack(eddp0.edpTxEOP),  // 7
+                1'b0,
+                1'b0,
+                1'b0,
+                1'b0,
+                1'b0,
+                1'b0,
+                pack(tog50),           // 0
+                16'h0000 };
+    tog50 <= !tog50;
+  endrule
+
   method    Bit#(5)       led    = ledLogic.led;
-  method    Bit#(32)      debug  = {16'h5555, 16'h0000};
+  method    Bit#(32)      debug  = dbgReg;
   interface Clock         rxclkBnd   = gbe0.rxclkBnd;
   interface Reset         gmii_rstn  = gbe0.gmii_rstn;
   interface GMII          gmii       = gbe0.gmii;
