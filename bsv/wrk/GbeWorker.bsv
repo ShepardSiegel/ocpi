@@ -3,6 +3,7 @@
 
 import OCWip        ::*;
 import CPDefs       ::*;
+import E8023        ::*;
 import GMAC         ::*;
 import MDIO         ::*;
 import SRLFIFO      ::*;
@@ -195,7 +196,7 @@ module mkGbeWorker#(parameter Bool hasDebugLogic, Clock gmii_rx_clk, Clock sys1_
   // RX DCP Processing when we have a known good DCP packet
   rule rx_dcp (wci.isOperating);
     let rxh <- toGet(rxDCPHdrF).get;
-    Bit#(4) mTyp = (rxDCPMesg[rxDCPMesgPos-5])[7:4];
+    Bit#(2) mTyp = (rxDCPMesg[rxDCPMesgPos-5])[5:4];  // TODO: CHECKME
     Bit#(4) mBe  = (rxDCPMesg[rxDCPMesgPos-5])[3:0];
     Bit#(8) tag  =  rxDCPMesg[rxDCPMesgPos-6];
     Vector#(4,Bit#(8)) dwa = takeAt(4, rxDCPMesg);

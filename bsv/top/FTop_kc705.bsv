@@ -139,7 +139,7 @@ module mkFTop_kc705#(Clock sys0_clkp, Clock sys0_clkn, Reset sys0_rstn,
   interface LCD      lcd     = lcd_ctrl.ifc;
   //interface GPSIfc   gps     = ctop.gps;
   //interface FLASH_IO flash   = flash0.flash;
-  interface Clock      rxclk     = gbe0.rxclk;
+  interface Clock      rxclk     = gbe0.rxclkBnd;
   interface Reset      gmii_rstn = gbe0.gmii_rstn;
   interface GMII       gmii      = gbe0.gmii;
   interface MDIO_Pads  mdio      = gbe0.mdio;
