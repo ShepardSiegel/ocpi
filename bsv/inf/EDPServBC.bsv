@@ -86,7 +86,6 @@ function Vector#(16,ABS) mhAs16ByteV (DGDPmesgHeader h, Bool first, Bool isEOP);
 endfunction
 
 
-
 interface EDPServBCIfc;
   interface Server#(QABS,QABS)   server;
   interface BufQCIfc             bufq;
@@ -125,14 +124,8 @@ typedef enum {
 
 module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(32) wci, Bool hasPush, Bool hasPull) (EDPServBCIfc);
 
-`ifdef USE_SRLFIFO
-  Bool useSRL = True;  // Set to True to use SRLFIFOD primitive (more storage, fewer DFFs, more MSLICES/SRLs ) (needs Verilog simulator)
-`else
-  Bool useSRL = False; // Set to False to allow for Bluesim simulation)
-`endif
-
-  FIFOF#(QABS)               inF                  <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // The PTW16 inbound from the NoC
-  FIFOF#(QABS)               outF                 <- useSRL ? mkSRLFIFOD(4) : mkFIFOF;  // The PTW16 outbound to the NoC
+  FIFOF#(QABS)               inF                  <- mkFIFOF;       // The QABS RX inbound from the fabric
+  FIFOF#(QABS)               outF                 <- mkFIFOF;       // The QABS TX outbound to the fabric
   TLPBRAMIfc                 tlpBRAM              <- mkTLPBRAM(mem);
   FIFOF#(Bit#(1))            tailEventF           <- mkFIFOF;
   Reg#(Bool)                 inIgnorePkt          <- mkRegU;
@@ -192,13 +185,40 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // New State for the EDP is here...
   Reg#(UInt#(16))            frameNumber          <- mkReg(0);
   Reg#(UInt#(32))            xactionNumber        <- mkReg(0);
-  ThingShifter#(16,4,80,ABS) dgdpTx               <- mkThingShifter;
   Reg#(Bool)                 doMetaMH             <- mkReg(False);
   Reg#(Bool)                 doMesgMH             <- mkReg(False);
   Reg#(Bool)                 firstMetaMH          <- mkReg(True);
   Reg#(Bool)                 firstMesgMH          <- mkReg(True);
   Reg#(Bit#(32))             dbgBytesTxEnq        <- mkReg(0);
   Reg#(Bit#(32))             dbgBytesTxDeq        <- mkReg(0);
+  Reg#(UInt#(32))            dataAddr             <- mkReg(0);
+  Reg#(UInt#(16))            dataLen              <- mkReg(0);
+  Reg#(UInt#(16))            ackStart             <- mkReg(0);
+  Reg#(UInt#(8))             ackCount             <- mkReg(0);
+  Reg#(UInt#(8))             frmFlags             <- mkReg(8'h01);
+  Reg#(UInt#(16))            mesgSeq              <- mkReg(0);
+  Reg#(Bit#(8))              mhFlags              <- mkReg(0);
+
+  QDW2DWIfc                  outFunl              <- mkQDW2DW;
+
+  Stmt seqFrameHeader =
+  seq
+     outF.enq(qabsFromBits({fabMesgAddrMS[31:16], 16'h0000},                  4'b0000));   // 2B
+     outF.enq(qabsFromBits({pack(frameNumber), fabMesgAddr[15:0] },           4'b0000));   // 4B
+     outF.enq(qabsFromBits({pack(frmFlags), pack(ackCount), pack(ackStart) }, 4'b0000));   // 4B 
+  endseq;
+  FSM fhFsm <- mkFSM(seqFrameHeader);
+
+  Stmt seqMesgHeader =
+  seq
+     outF.enq(qabsFromBits(pack(xactionNumber),         4'b0000));   // 4B
+     outF.enq(qabsFromBits(pack(fabFlowAddr),           4'b0000));   // 4B
+     outF.enq(qabsFromBits(32'h0000_0001,               4'b0000));   // 4B
+     outF.enq(qabsFromBits({pack(mesgSeq), 16'h0002},   4'b0000));   // 4B
+     outF.enq(qabsFromBits(pack(dataAddr),              4'b0000));   // 4B
+     outF.enq(qabsFromBits({8'h01,8'h01,pack(dataLen)}, 4'b1000));   // 4B
+  endseq;
+  FSM mhFsm <- mkFSM(seqMesgHeader);
 
 
 
@@ -220,7 +240,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //
 
   // Request the metadata for the remote-facing ready buffer...
-  rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0 && dgdpTx.space_available==80);
+  rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
     dmaStartMark    <= True;
     remStart        <= True;   // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
@@ -237,40 +257,18 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     MemReqPacket mpkt = ReadHeader(rreq);
     tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM read request for metadata
     $display("[%0d]: %m: dmaRequestNearMeta FPactMesg-Step1/7", $time);
-
-    // Enqueue the DGDP Frame Header...
-    // Set to 12 not 10 to allow two bogus cells at head
-    dgdpTx.enq(12,fhAs16ByteV(DGDPframeHeader {
-                                dstID    : fabMesgAddrMS[31:16],  // mesg, not meta or flow; per jek 2012-08-07
-                                srcID    : fabMesgAddrMS[15:0],
-                                frameSeq : pack(frameNumber),
-                                ackStart : 0,
-                                ackCount : 0,
-                                flags    : 8'h01
-                              }, False)); // TODO: set isEOP in all cases
+    fhFsm.start;
     frameNumber <= frameNumber + 1;
-    doMetaMH <= True;  // Send dgdp mesageheader for metadata...
-    dbgBytesTxEnq <= dbgBytesTxEnq + 10;
+    doMetaMH <= True; 
   endrule
 
-  rule send_metaMH (doMetaMH);  // Send dgdp mesageheader for metadata...
-    DGDPmesgHeader mh = DGDPmesgHeader {
-                                transID  : xactionNumber,
-                                flagAddr : fabFlowAddr,
-                                flagData : 32'h0000_0001,
-                                numMesg  : 2,
-                                mesgSeq  : 0,
-                                dataAddr : fabMetaAddr,
-                                dataLen  : 16,
-                                mesgTyp  : 8'h01, // metadata
-                                flags    : 8'h01 
-                              };
-
-    let byteCount = firstMetaMH?16:8;
-    dgdpTx.enq( byteCount, mhAs16ByteV(mh, firstMetaMH, False)); // TODO: set isEOP in all cases
-    dbgBytesTxEnq <= dbgBytesTxEnq + byteCount;
-    firstMetaMH <= !firstMetaMH;
-    doMetaMH    <= !firstMetaMH;
+  rule send_metaMH (doMetaMH && fhFsm.done);  // Send dgdp mesageheader for metadata...
+    mesgSeq  <= 0;
+    dataAddr <= unpack(fabMetaAddr);
+    dataLen  <= 16;
+    mhFlags  <= 1;
+    mhFsm.start;
+    doMetaMH  <= False;
   endrule
 
   // Accept the first DW metadata back... 
@@ -297,10 +295,14 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     fabMesgAccu <= fabMesgAddr;  // Load the message fab address accumulator so we can locally manage message segments
     $display("[%0d]: %m: dmaResponseNearMetaBody FPactMesg-Step2b/7 opcode:%0x nowMS:%0x nowLS:%0x", $time, opcode, nowMS, nowLS);
 
-    Vector#(16,Bit#(8)) metaV = unpack({nowLS, nowMS, opcode, lastMetaV[0]}); // 16B metadata
-    dgdpTx.enq(16, map(tagValidData(False), metaV)); // send 16B metadata, no EOP 
-    dbgBytesTxEnq <= dbgBytesTxEnq + 16;
+    outFunl.putVector.put(unpack({nowLS, nowMS, opcode, lastMetaV[0]})); // 16B metadata
   endrule
+
+  rule drain_outFunl;
+    let a <- outFunl.getSerial.get;
+    outF.enq(qabsFromBits(a, 4'b0000));
+  endrule
+
 
   // Steps 3, 4a, 4b to be repeated 0-N times.
   //   0 times if there is no message data to be moved.
@@ -310,7 +312,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Request the message from the remote-facing ready buffer...
   // Inhibit this rule while tlpRcvBusy with other rem buffer access...
   // If needed, make multiple requests until the full extent of the message is traversed, as signalled by mesgLengthRemainPush==0...
-  rule dmaPushRequestMesg (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0 &&& dgdpTx.space_available==0);
+  rule dmaPushRequestMesg (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0);
     Bit#(13) spanToNextPage = 4096 - extend(srcMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
     //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemainPush,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
     Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPush,extend(maxPayloadSize))),spanToNextPage);  // minimum of what we want and what we are allowed 
@@ -335,23 +337,13 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     doMesgMH <= True; // Triger to send the mesg-data message header...
   endrule
 
-  rule send_mesgMH (doMesgMH);  // Two cycles to send the mesg-data message header
-    DGDPmesgHeader mh = DGDPmesgHeader {
-                                transID  : xactionNumber,
-                                flagAddr : fabFlowAddr,
-                                flagData : 32'h0000_0001,
-                                numMesg  : 2,
-                                mesgSeq  : 1,
-                                dataAddr : fabMesgAddr,
-                                dataLen  : unpack(truncate(lastMetaV[0])), // length
-                                mesgTyp  : 0,       // data
-                                flags    : 8'h00    // no more messages
-                              };
-    let byteCount = firstMesgMH?16:8;
-    dgdpTx.enq( byteCount, mhAs16ByteV(mh, firstMesgMH, False)); //FIXME: Set EOP!!!
-    dbgBytesTxEnq <= dbgBytesTxEnq + byteCount;
-    firstMesgMH <= !firstMesgMH;
-    doMesgMH    <= !firstMesgMH;
+  rule send_mesgMH (doMesgMH);  // TODO: and FIFO serialization guard
+    mesgSeq  <= 1;
+    dataAddr <= unpack(fabMesgAddr);
+    dataLen  <= unpack(truncate(lastMetaV[0]));
+    mhFlags  <= 0;
+    mhFsm.start;
+    doMesgMH <= False;
   endrule
 
 
@@ -394,12 +386,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     // Replace with EDP - outF.enq(w);  // out goes follow-on write data
     Vector#(16,Bit#(8)) metaV = unpack({lastMetaV[3], lastMetaV[2], lastMetaV[1], lastMetaV[0]}); // 16B metadata
 
-    Vector#(16,Bit#(8)) dataV = unpack(rbody.data); // 16B data
-    Vector#(16,ABS)     dabsV = map(tagValidData(False), dataV); 
-    dabsV[15] = tagged ValidEOP dataV[15];
-    dgdpTx.enq(16, dabsV);
-    dbgBytesTxEnq <= dbgBytesTxEnq + 16;
-    //
+    outFunl.putVector.put(unpack(rbody.data));
 
     outDwRemain <= outDwRemain - 4;                                   // update DW remaining in this segment
     if (lastBeatInSegment)                      tlpXmtBusy <= False;  // release outbound mutex
@@ -459,6 +446,9 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     tlpMetaSent     <= False;
     tailEventF.enq(0);  // Send a tail event that does NOT generate a remDone (done in dmaXmtMetaBody)
     $display("[%0d]: %m: dmaXmtTailEvent FPactMesg-Step7/7", $time);
+
+   outF.enq(qabsFromBits(32'h44332211, 4'b1000));   // 2B
+
   endrule
 
   // This rule used at the end of all Active transfers to purposefully insert a small amount of dwell time...
@@ -532,17 +522,6 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     complTimerCount <= (complTimerRunning) ? complTimerCount + 1 : 0 ;
   endrule
 
-  rule egress_pump (dgdpTx.things_available>4);
-    QABS tx = ?;
-    tx[0] = dgdpTx.things_out[0]; 
-    tx[1] = dgdpTx.things_out[1]; 
-    tx[2] = dgdpTx.things_out[2]; 
-    tx[3] = dgdpTx.things_out[3]; 
-    outF.enq(tx); 
-    dgdpTx.deq(4);
-    dbgBytesTxDeq <= dbgBytesTxDeq + 4;
-  endrule
-
   //
   // Access of TLPBRAM by EDP Control Plane - may be nice feature to have
   //
@@ -584,5 +563,30 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   method Bool  dmaDonePulse  = dmaDoneMark;
 
 endmodule
+
+
+// 4:1 DWORD funnel...
+
+interface QDW2DWIfc;
+  interface Put#(Vector#(4,Bit#(32))) putVector;
+  interface Get#(Bit#(32))            getSerial;
+endinterface
+
+module mkQDW2DW (QDW2DWIfc);  // make a serial ABS stream from a QABS vector...
+  FIFO#(Vector#(4,Bit#(32))) inF   <-  mkFIFO;
+  FIFO#(Bit#(32))            outF  <-  mkFIFO;
+  Reg#(UInt#(2))             ptr   <-  mkReg(0);
+
+  rule funnel; 
+    let qb = inF.first;  
+    ptr <= ptr+1; 
+    outF.enq(qb[ptr]);
+    if (ptr==3) inF.deq;
+  endrule
+
+  interface Put putVector = toPut(inF);
+  interface Get getSerial = toGet(outF);
+endmodule
+
 
 
