@@ -15,6 +15,7 @@ import TLPBRAM      ::*;
 import TLPMF        ::*;
 
 import BRAM         ::*;
+import BRAMFIFO     ::*;	
 import ClientServer ::*; 
 import DReg         ::*;
 import FIFO         ::*;
@@ -124,8 +125,10 @@ typedef enum {
 
 module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(32) wci, Bool hasPush, Bool hasPull) (EDPServBCIfc);
 
-  FIFOF#(QABS)               inF                  <- mkFIFOF;       // The QABS RX inbound from the fabric
-  FIFOF#(QABS)               outF                 <- mkFIFOF;       // The QABS TX outbound to the fabric
+  FIFOF#(QABS)               inF                  <- mkFIFOF;                // The QABS RX inbound from the fabric
+  FIFOF#(QABS)               outF                 <- mkFIFOF;                // The QABS TX outbound to the fabric
+  FIFOF#(QABS)               outBF                <- mkSizedBRAMFIFOF(1024);
+  FIFOF#(Bit#(0))            outTF                <- mkFIFOF;
   TLPBRAMIfc                 tlpBRAM              <- mkTLPBRAM(mem);
   FIFOF#(Bit#(1))            tailEventF           <- mkFIFOF;
   Reg#(Bool)                 inIgnorePkt          <- mkRegU;
@@ -183,8 +186,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bool)                 dmaDoneMark          <- mkDReg(False);
 
   // New State for the EDP is here...
-  Reg#(UInt#(16))            frameNumber          <- mkReg(0);
-  Reg#(UInt#(32))            xactionNumber        <- mkReg(0);
+  Reg#(UInt#(16))            frameNumber          <- mkReg(16'h1234);
+  Reg#(UInt#(32))            xactionNumber        <- mkReg(32'h1234_5678);
   Reg#(Bool)                 doMetaMH             <- mkReg(False);
   Reg#(Bool)                 doMesgMH             <- mkReg(False);
   Reg#(Bool)                 firstMetaMH          <- mkReg(True);
@@ -203,20 +206,20 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   Stmt seqFrameHeader =
   seq
-     outF.enq(qabsFromBits({fabMesgAddrMS[31:16], 16'h0000},                  4'b0000));   // 2B
-     outF.enq(qabsFromBits({pack(frameNumber), fabMesgAddr[15:0] },           4'b0000));   // 4B
-     outF.enq(qabsFromBits({pack(frmFlags), pack(ackCount), pack(ackStart) }, 4'b0000));   // 4B 
+     outBF.enq(qabsFromBits({fabMesgAddrMS[31:16], 16'h0000},                  4'b0000));   // 2B
+     outBF.enq(qabsFromBits({pack(frameNumber), fabMesgAddr[15:0] },           4'b0000));   // 4B
+     outBF.enq(qabsFromBits({pack(frmFlags), pack(ackCount), pack(ackStart) }, 4'b0000));   // 4B 
   endseq;
   FSM fhFsm <- mkFSM(seqFrameHeader);
 
   Stmt seqMesgHeader =
   seq
-     outF.enq(qabsFromBits(pack(xactionNumber),         4'b0000));   // 4B
-     outF.enq(qabsFromBits(pack(fabFlowAddr),           4'b0000));   // 4B
-     outF.enq(qabsFromBits(32'h0000_0001,               4'b0000));   // 4B
-     outF.enq(qabsFromBits({pack(mesgSeq), 16'h0002},   4'b0000));   // 4B
-     outF.enq(qabsFromBits(pack(dataAddr),              4'b0000));   // 4B
-     outF.enq(qabsFromBits({8'h01,8'h01,pack(dataLen)}, 4'b1000));   // 4B
+     outBF.enq(qabsFromBits(pack(xactionNumber),         4'b0000));   // 4B
+     outBF.enq(qabsFromBits(pack(fabFlowAddr),           4'b0000));   // 4B
+     outBF.enq(qabsFromBits(32'h0000_0001,               4'b0000));   // 4B
+     outBF.enq(qabsFromBits({pack(mesgSeq), 16'h0002},   4'b0000));   // 4B
+     outBF.enq(qabsFromBits(pack(dataAddr),              4'b0000));   // 4B
+     outBF.enq(qabsFromBits({8'h01,8'h01,pack(dataLen)}, 4'b0000));   // 4B
   endseq;
   FSM mhFsm <- mkFSM(seqMesgHeader);
 
@@ -240,7 +243,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //
 
   // Request the metadata for the remote-facing ready buffer...
-  rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0);
+  rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0 && !outBF.notEmpty && !outTF.notEmpty);
     dmaStartMark    <= True;
     remStart        <= True;   // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
@@ -280,7 +283,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Accept the remaining metadata back and then commit to MesgMeta format..
-  rule dmaResponseNearMetaBody (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadBody .rres &&& rres.role==Metadata);
+  rule dmaResponseNearMetaBody (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadBody .rres &&& rres.role==Metadata &&& mhFsm.done);
     tlpBRAM.getsResp.deq;
     Vector#(4, DWord) vWords = reverse(unpack(rres.data));
     Bit#(32) opcode  = byteSwap(vWords[0]); lastMetaV[1] <= opcode;
@@ -300,7 +303,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   rule drain_outFunl;
     let a <- outFunl.getSerial.get;
-    outF.enq(qabsFromBits(a, 4'b0000));
+    outBF.enq(qabsFromBits(a, 4'b0000));
   endrule
 
 
@@ -337,7 +340,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     doMesgMH <= True; // Triger to send the mesg-data message header...
   endrule
 
-  rule send_mesgMH (doMesgMH);  // TODO: and FIFO serialization guard
+  rule send_mesgMH (doMesgMH && outFunl.isEmpty);  // Ensure Metadata Message body is clear before we send the MH for the data...
     mesgSeq  <= 1;
     dataAddr <= unpack(fabMesgAddr);
     dataLen  <= unpack(truncate(lastMetaV[0]));
@@ -372,7 +375,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // continue the transformation for the local-read to fabric-write payload body...
   // this rule finishes up the push without regard to message address space
-  rule dmaPushResponseBody (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadBody .rbody &&& rbody.role==DMASrc);
+  rule dmaPushResponseBody (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadBody .rbody &&& rbody.role==DMASrc &&& mhFsm.done);
     tlpBRAM.getsResp.deq;
     Bool lastBeatInSegment = (outDwRemain <= 4);
     Bool lastSegmentInMesg = (rbody.tag==8'h01); 
@@ -447,7 +450,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     tailEventF.enq(0);  // Send a tail event that does NOT generate a remDone (done in dmaXmtMetaBody)
     $display("[%0d]: %m: dmaXmtTailEvent FPactMesg-Step7/7", $time);
 
-   outF.enq(qabsFromBits(32'h44332211, 4'b1000));   // 2B
+   outBF.enq(qabsFromBits(32'h44332211, 4'b1000));   // 2B
+   outTF.enq(?); // send the frame in outBF
 
   endrule
 
@@ -522,6 +526,16 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     complTimerCount <= (complTimerRunning) ? complTimerCount + 1 : 0 ;
   endrule
 
+  rule output_pump (outTF.notEmpty);    // outTF occupancy enables frame output pump
+    let z = outBF.first; outBF.deq;
+    outF.enq(z);
+  endrule
+
+  rule frame_complete (outTF.notEmpty && !outBF.notEmpty); // When outBF empties, deq outTF
+    outTF.deq;
+  endrule
+
+
   //
   // Access of TLPBRAM by EDP Control Plane - may be nice feature to have
   //
@@ -570,12 +584,13 @@ endmodule
 interface QDW2DWIfc;
   interface Put#(Vector#(4,Bit#(32))) putVector;
   interface Get#(Bit#(32))            getSerial;
+  method Bool isEmpty;
 endinterface
 
 module mkQDW2DW (QDW2DWIfc);  // make a serial ABS stream from a QABS vector...
-  FIFO#(Vector#(4,Bit#(32))) inF   <-  mkFIFO;
-  FIFO#(Bit#(32))            outF  <-  mkFIFO;
-  Reg#(UInt#(2))             ptr   <-  mkReg(0);
+  FIFOF#(Vector#(4,Bit#(32))) inF   <-  mkFIFOF;
+  FIFOF#(Bit#(32))            outF  <-  mkFIFOF;
+  Reg#(UInt#(2))              ptr   <-  mkReg(0);
 
   rule funnel; 
     let qb = inF.first;  
@@ -586,6 +601,7 @@ module mkQDW2DW (QDW2DWIfc);  // make a serial ABS stream from a QABS vector...
 
   interface Put putVector = toPut(inF);
   interface Get getSerial = toGet(outF);
+  method Bool isEmpty = (!inF.notEmpty && !outF.notEmpty);
 endmodule
 
 
