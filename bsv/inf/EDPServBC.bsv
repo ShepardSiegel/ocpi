@@ -275,7 +275,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
   // Accept the first DW metadata back... 
-  rule dmaResponseNearMetaHead (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==Metadata);
+  rule dmaResponseNearMetaHead (hasPush && actMesgP &&& tlpBRAM.getsResp.first matches tagged ReadHead .rres &&& rres.role==Metadata &&& mhFsm.done);
     tlpBRAM.getsResp.deq;
     mesgLengthRemainPush <= truncate(byteSwap(rres.data));  // undo the PCI byteSwap on the 1st DW (mesgLength)
     lastMetaV[0]         <=          byteSwap(rres.data);   // push length
@@ -299,12 +299,23 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     $display("[%0d]: %m: dmaResponseNearMetaBody FPactMesg-Step2b/7 opcode:%0x nowMS:%0x nowLS:%0x", $time, opcode, nowMS, nowLS);
 
     outFunl.putVector.put(unpack({nowLS, nowMS, opcode, lastMetaV[0]})); // 16B metadata
+    doMesgMH <= True; // Triger to send the mesg-data message header...
   endrule
 
   rule drain_outFunl;
     let a <- outFunl.getSerial.get;
     outBF.enq(qabsFromBits(a, 4'b0000));
   endrule
+
+  rule send_mesgMH (mhFsm.done && doMesgMH && outFunl.isEmpty);  // Ensure Metadata Message body is clear before we send the MH for the data...
+    mesgSeq  <= 1;
+    dataAddr <= unpack(fabMesgAddr);
+    dataLen  <= unpack(truncate(lastMetaV[0]));
+    mhFlags  <= 0;
+    mhFsm.start;
+    doMesgMH <= False;
+  endrule
+
 
 
   // Steps 3, 4a, 4b to be repeated 0-N times.
@@ -315,7 +326,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Request the message from the remote-facing ready buffer...
   // Inhibit this rule while tlpRcvBusy with other rem buffer access...
   // If needed, make multiple requests until the full extent of the message is traversed, as signalled by mesgLengthRemainPush==0...
-  rule dmaPushRequestMesg (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0);
+  rule dmaPushRequestMesg (hasPush && actMesgP &&& fabMeta matches tagged Valid .meta &&& meta.length!=0 &&& !tlpRcvBusy &&& mesgLengthRemainPush!=0 &&& !doMesgMH &&& mhFsm.done);
     Bit#(13) spanToNextPage = 4096 - extend(srcMesgAccu[11:0]);                                                 // how far until we hit a PCIe 4K Page
     //Bit#(13) thisRequestLength = min(min(truncate(min(mesgLengthRemainPush,4096)),maxPayloadSize),spanToNextPage);  // minimum of what we want and what we are allowed
     Bit#(13) thisRequestLength = min(truncate(min(mesgLengthRemainPush,extend(maxPayloadSize))),spanToNextPage);  // minimum of what we want and what we are allowed 
@@ -336,17 +347,6 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     remMesgAccu <= remMesgAccu + extend(thisRequestLength);  // increment the rem address accumulator
     tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM read request for message data
     $display("[%0d]: %m: dmaPushRequestMesg FPactMesg-Step3/7", $time);
-
-    doMesgMH <= True; // Triger to send the mesg-data message header...
-  endrule
-
-  rule send_mesgMH (doMesgMH && outFunl.isEmpty);  // Ensure Metadata Message body is clear before we send the MH for the data...
-    mesgSeq  <= 1;
-    dataAddr <= unpack(fabMesgAddr);
-    dataLen  <= unpack(truncate(lastMetaV[0]));
-    mhFlags  <= 0;
-    mhFsm.start;
-    doMesgMH <= False;
   endrule
 
 
