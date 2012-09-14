@@ -206,8 +206,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   Stmt seqFrameHeader =
   seq
-     outBF.enq(qabsFromBits({fabMesgAddrMS[31:16], 16'h0000},                  4'b0000));   // 2B
-     outBF.enq(qabsFromBits({pack(frameNumber), fabMesgAddr[15:0] },           4'b0000));   // 4B
+     outBF.enq(qabsFromBits({fabMesgAddrMS[23:16], fabMesgAddrMS[31:24], 16'h0000},       4'b0000));   // 2B
+     outBF.enq(qabsFromBits({pack(frameNumber), fabMesgAddrMS[15:0]}, 4'b0000));   // 4B
      outBF.enq(qabsFromBits({pack(frmFlags), pack(ackCount), pack(ackStart) }, 4'b0000));   // 4B 
   endseq;
   FSM fhFsm <- mkFSM(seqFrameHeader);
