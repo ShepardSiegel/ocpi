@@ -204,6 +204,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   QDW2DWIfc                  outFunl              <- mkQDW2DW;
 
+  // Data goes on-the-wire LS Octet First...
   Stmt seqFrameHeader =
   seq
      outBF.enq(qabsFromBits({fabMesgAddrMS[23:16], fabMesgAddrMS[31:24], 16'h0000},       4'b0000));   // 2B
@@ -389,7 +390,14 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     // Replace with EDP - outF.enq(w);  // out goes follow-on write data
     Vector#(16,Bit#(8)) metaV = unpack({lastMetaV[3], lastMetaV[2], lastMetaV[1], lastMetaV[0]}); // 16B metadata
 
-    outFunl.putVector.put(unpack(rbody.data));
+    
+    // 
+    // Data Push Body
+    //
+    Vector#(4,Bit#(32)) rd = unpack(reverseDWORDS(rbody.data));  // Reverse the order of the DWORDs
+                        rd = map(reverseBYTES, rd);              // Then reverse the Bytes within each DWORD
+    outFunl.putVector.put(rd);
+    //outFunl.putVector.put(unpack(rbody.data));
 
     outDwRemain <= outDwRemain - 4;                                   // update DW remaining in this segment
     if (lastBeatInSegment)                      tlpXmtBusy <= False;  // release outbound mutex
@@ -450,7 +458,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     tailEventF.enq(0);  // Send a tail event that does NOT generate a remDone (done in dmaXmtMetaBody)
     $display("[%0d]: %m: dmaXmtTailEvent FPactMesg-Step7/7", $time);
 
-   outBF.enq(qabsFromBits(32'h44332211, 4'b1000));   // 2B
+   outBF.enq(qabsFromBits(reverseBYTES(32'hFEEDC0DE), 4'b1000));   // Tail FE on the wire first
    outTF.enq(?); // send the frame in outBF
 
   endrule
