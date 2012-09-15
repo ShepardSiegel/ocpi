@@ -148,6 +148,7 @@ endfunction
   endrule
 
   Bool patGenEnabled = unpack(controlReg[0]);
+  Bool noRecycleData = unpack(controlReg[1]);
 
   rule request_meta (wci.isOperating && patGenEnabled && mesgRemain>0) ;
     metaPtr.inc;
@@ -181,7 +182,7 @@ endfunction
       let dReq  = BRAMRequest { write:False, address:truncate(dataPtr), datain:0, responseOnWrite:False };
       dataBramsA[i].request.put(dReq); 
     end
-    dataPtr <= dataPtr + 1;
+    dataPtr <= (bytesRemain==4 && !noRecycleData) ? 0 : dataPtr + 1;
     bytesRemain <= (bytesRemain<4) ? 0 : bytesRemain - 4;
   endrule
 
