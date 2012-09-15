@@ -200,27 +200,31 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(UInt#(8))             ackCount             <- mkReg(0);
   Reg#(UInt#(8))             frmFlags             <- mkReg(8'h01);
   Reg#(UInt#(16))            mesgSeq              <- mkReg(0);
+  Reg#(Bit#(8))              mhType               <- mkReg(0);
   Reg#(Bit#(8))              mhFlags              <- mkReg(0);
 
   QDW2DWIfc                  outFunl              <- mkQDW2DW;
 
+  Bit#(16) dstID = fabMesgAddrMS[15:0];
+  Bit#(16) srcID = fabMesgAddrMS[31:16];
+
   // Data goes on-the-wire LS Octet First...
   Stmt seqFrameHeader =
   seq
-     outBF.enq(qabsFromBits({fabMesgAddrMS[23:16], fabMesgAddrMS[31:24], 16'h0000},       4'b0000));   // 2B
-     outBF.enq(qabsFromBits({pack(frameNumber), fabMesgAddrMS[15:0]}, 4'b0000));   // 4B
+     outBF.enq(qabsFromBits({dstID,          16'h0000},                        4'b0000));   // 2B
+     outBF.enq(qabsFromBits({pack(frameNumber), srcID},                        4'b0000));   // 4B 
      outBF.enq(qabsFromBits({pack(frmFlags), pack(ackCount), pack(ackStart) }, 4'b0000));   // 4B 
   endseq;
   FSM fhFsm <- mkFSM(seqFrameHeader);
 
   Stmt seqMesgHeader =
   seq
-     outBF.enq(qabsFromBits(pack(xactionNumber),         4'b0000));   // 4B
-     outBF.enq(qabsFromBits(pack(fabFlowAddr),           4'b0000));   // 4B
-     outBF.enq(qabsFromBits(32'h0000_0001,               4'b0000));   // 4B
-     outBF.enq(qabsFromBits({pack(mesgSeq), 16'h0002},   4'b0000));   // 4B
-     outBF.enq(qabsFromBits(pack(dataAddr),              4'b0000));   // 4B
-     outBF.enq(qabsFromBits({8'h01,8'h01,pack(dataLen)}, 4'b0000));   // 4B
+     outBF.enq(qabsFromBits(pack(xactionNumber),            4'b0000));   // 4B
+     outBF.enq(qabsFromBits(pack(fabFlowAddr),              4'b0000));   // 4B
+     outBF.enq(qabsFromBits(32'h0000_0001,                  4'b0000));   // 4B
+     outBF.enq(qabsFromBits({pack(mesgSeq), 16'h0002},      4'b0000));   // 4B
+     outBF.enq(qabsFromBits(pack(dataAddr),                 4'b0000));   // 4B
+     outBF.enq(qabsFromBits({mhFlags,mhType,pack(dataLen)}, 4'b0000));   // 4B
   endseq;
   FSM mhFsm <- mkFSM(seqMesgHeader);
 
@@ -270,6 +274,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     mesgSeq  <= 0;
     dataAddr <= unpack(fabMetaAddr);
     dataLen  <= 16;
+    mhType   <= 1;  // meta
     mhFlags  <= 1;
     mhFsm.start;
     doMetaMH  <= False;
@@ -312,6 +317,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     mesgSeq  <= 1;
     dataAddr <= unpack(fabMesgAddr);
     dataLen  <= unpack(truncate(lastMetaV[0]));
+    mhType   <= 0;  // data
     mhFlags  <= 0;
     mhFsm.start;
     doMesgMH <= False;

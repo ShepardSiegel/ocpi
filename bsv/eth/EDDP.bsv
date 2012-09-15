@@ -93,7 +93,7 @@ module mkEDDPAdapter (EDDPAdapterIfc);
   rule egress_setup (edpFsm.done && !txPayload);
     let t = dpRespF.first; dpRespF.deq;  // The first QABS from DGDP will have two empty ABS cells + DID
     Bit#(32) dw = pack(map(getData,t));  // Extract raw data from the QABS TX stream
-    eeDID <= dw[31:16];                  // Pick off the DID ignoring the bubbles in Bytes 0/1 
+    eeDID <= {dw[23:16],dw[31:24]};      // Pick off the DID ignoring the bubbles in Bytes 0/1 
     edpFsm.start;                        // egress the DGDP L2 header with DID included (14+2=16B)
   endrule
 

@@ -132,7 +132,7 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
        'h88 : rdat = !hasDebugLogic ? 0 : extend(pack(edp.i_meta[2]));
        'h8C : rdat = !hasDebugLogic ? 0 : extend(pack(edp.i_meta[3]));
        'h90 : rdat = !hasDebugLogic ? 0 : 32'hC0DE_0111; // for OPED pcore 1_11
-       'h94 : rdat = extend(pack(bml.i_fabMesgBaseMS)); 
+       'h94 : rdat = extend(pack(bml.i_fabMesgBaseMS));  // For DGDP 0x_ssss_dddd where ssss=src and dddd=dst 
        'h98 : rdat = extend(pack(bml.i_fabMetaBaseMS));
        'h9C : rdat = extend(pack(bml.i_fabFlowBaseMS));
        'hA0 : rdat = !hasDebugLogic ? 0 : dmaStartTime[31:00];
