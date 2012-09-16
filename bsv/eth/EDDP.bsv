@@ -59,9 +59,10 @@ module mkEDDPAdapter (EDDPAdapterIfc);
   // RX / Ingress from Ethernet...
   //
 
-  rule ingress_chomp;             // FIXME: consume ingress packets blindly until we are making solid outputs
-    let x <- toGet(edpReqF).get;  // chomp
+  rule ingress_to_dgdp;
+    let x <- toGet(edpReqF).get;
     edpIngress <= True;
+    dpReqF.enq(x);
   endrule
 
 

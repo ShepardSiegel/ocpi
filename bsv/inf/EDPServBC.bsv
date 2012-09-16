@@ -202,6 +202,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(UInt#(16))            mesgSeq              <- mkReg(0);
   Reg#(Bit#(8))              mhType               <- mkReg(0);
   Reg#(Bit#(8))              mhFlags              <- mkReg(0);
+  
+  Reg#(Bool)                 frmAckOK             <- mkReg(True);
 
   QDW2DWIfc                  outFunl              <- mkQDW2DW;
 
@@ -248,7 +250,8 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //
 
   // Request the metadata for the remote-facing ready buffer...
-  rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0 && !outBF.notEmpty && !outTF.notEmpty);
+  rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0 && !outBF.notEmpty && !outTF.notEmpty && frmAckOK);
+    frmAckOK        <= False;  // Just one at a time
     dmaStartMark    <= True;
     remStart        <= True;   // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
@@ -548,6 +551,13 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   rule frame_complete (outTF.notEmpty && !outBF.notEmpty); // When outBF empties, deq outTF
     outTF.deq;
   endrule
+
+  rule ingress;
+    let x <- toGet(inF).get;
+    Bool hasEOP = unpack(reduceOr(pack(map(isEOP,x))));
+    frmAckOK <= hasEOP;  // Blindly take ACK on EOP, assume 1
+  endrule
+
 
 
   //
