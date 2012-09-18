@@ -39,6 +39,8 @@ module mkEDDPAdapter (EDDPAdapterIfc);
   Reg#(Bool)                 edpEgress    <- mkDReg(False);
   Reg#(Bool)                 edpEgressEOP <- mkDReg(False);
 
+  Reg#(UInt#(4))             igPtr       <- mkReg(0);
+
   Reg#(MACAddress)           dMAddr       <- mkRegU;        // supplied dest address for tx frames
   Reg#(MACAddress)           uMAddr       <- mkRegU;        // unicast MAC address of this device
   Reg#(EtherType)            dEType       <- mkRegU;        // supplied EtherType    for tx frames
@@ -61,8 +63,10 @@ module mkEDDPAdapter (EDDPAdapterIfc);
 
   rule ingress_to_dgdp;
     let x <- toGet(edpReqF).get;
+    Bool hasEOP = unpack(reduceOr(pack(map(isEOP,x)))); 
+    igPtr <= hasEOP ? 0:(igPtr==15) ? 15:igPtr+1; 
     edpIngress <= True;
-    dpReqF.enq(x);
+    if (igPtr>3) dpReqF.enq(x);  // strip off the first 4 cycles 12B  14B L2 + 2B DID
   endrule
 
 

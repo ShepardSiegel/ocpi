@@ -66,6 +66,10 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
   rule capture_startTime (edp.dmaStartPulse); dmaStartTime <= wti.now; endrule
   rule capture_doneTime  (edp.dmaDonePulse);  dmaDoneTime  <= wti.now; endrule
 
+  rule pass_door_bell (edp.doorBellPulse);
+     bml.remo.fabric;
+  endrule
+
 // WCI Connection to dataplane control and configuration...
 (* descending_urgency = "wci_ctl_op_complete, wci_ctl_op_start, wci_cfwr, wci_cfrd" *)
 (* mutually_exclusive = "wci_cfwr, wci_cfrd" *)
@@ -79,7 +83,7 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
        'h0C : bml.i_metaBase      <= truncate(unpack(wciReq.data));
        'h10 : bml.i_mesgSize      <= truncate(unpack(wciReq.data));
        'h14 : bml.i_metaSize      <= truncate(unpack(wciReq.data));
-       'h18 : begin bml.remo.fabric;  $display("[%0d] %m: fabDoneAvail Event",$time); end
+       //'h18 : begin bml.remo.fabric;  $display("[%0d] %m: fabDoneAvail Event",$time); end
        'h50 : bml.i_fabMesgBase   <= truncate(unpack(wciReq.data));
        'h54 : bml.i_fabMetaBase   <= truncate(unpack(wciReq.data));
        'h58 : bml.i_fabMesgSize   <= truncate(unpack(wciReq.data));

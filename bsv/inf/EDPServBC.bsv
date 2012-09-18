@@ -5,7 +5,7 @@
 // primative, it is importBVI of Atomic Rules Verilog...
 //`define USE_SRLFIFO
 
-import ThingShifter ::*;
+import DGDP         ::*;
 import E8023        ::*;
 import OCBufQ       ::*;
 import OCWip        ::*;
@@ -24,68 +24,6 @@ import GetPut       ::*;
 import StmtFSM      ::*;
 import Vector       ::*;
 
-// DataGramDataPlane (DGDP) types...
-
-typedef struct {
-  Bit#(16)  dstID;     // Destination ID of endpoint
-  Bit#(16)  srcID;     // Source ID of endpoint
-  Bit#(16)  frameSeq;  // Rolling sequence frame number
-  Bit#(16)  ackStart;  // Start of ACK sequence
-  Bit#(8)   ackCount;  // Tital number of ACKs
-  Bit#(8)   flags;     // b0: 1=frame has at least one message, 0=ACK-only frame (no messages)
-} DGDPframeHeader deriving (Bits, Eq);
-
-/*
-function Vector#(16,ABS) fhAs16ByteV (DGDPframeHeader h, Bool isEOP);
-  Vector#(10,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is dstID 
-  Vector#(6, Bit#(8)) v2 = ?;
-  Vector#(16,Bit#(8)) v3 = append(v1,v2);
-  // map with argument?
-  Vector#(16, ABS)    v4 = ?;
-  for (Integer i=0; i<16; i=i+1) v4[i] = tagged ValidNotEOP v3[i];
-  if (isEOP) v4[9] = tagged ValidEOP v3[9];
-  return(v4);
-endfunction
-*/
-
-// Version with two empty ABS cells at head...
-function Vector#(16,ABS) fhAs16ByteV (DGDPframeHeader h, Bool isEOP);
-  Vector#(10,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is dstID 
-  Vector#(6, Bit#(8)) v2 = ?;
-  Vector#(16,Bit#(8)) v3 = append(v1,v2);
-  // map with argument?
-  Vector#(16, ABS)    v4 = ?;
-  v4[0] = tagged ValidNotEOP 8'h42;  // bogus
-  v4[1] = tagged ValidNotEOP 8'h43;  // bogus
-  for (Integer i=0; i<14; i=i+1) v4[i+2] = tagged ValidNotEOP v3[i];
-  if (isEOP) v4[11] = tagged ValidEOP v3[11];
-  return(v4);
-endfunction
-
-typedef struct {
-  UInt#(32) transID;   // Transaction ID - rolling count unique to this source
-  Bit#(32)  flagAddr;  // Address where the (e.g. buffer full) flag should be written
-  Bit#(32)  flagData;  // Value of flag to write
-  UInt#(16) numMesg;   // Number of messages for this transaction
-  UInt#(16) mesgSeq;   // Message sequence number scoped to this transaction
-  Bit#(32)  dataAddr;  // Address where the data or metadata should be written
-  UInt#(16) dataLen;   // Length in Bytes of the data or metadata
-  Bit#(8)   mesgTyp;   // Enum for message type - may be depricated
-  Bit#(8)   flags;     // b0: 1=A message follows this one, 0=This is the last message in this frame
-} DGDPmesgHeader deriving (Bits, Eq);
-
-function Vector#(16,ABS) mhAs16ByteV (DGDPmesgHeader h, Bool first, Bool isEOP);
-  Vector#(24,Bit#(8)) v1 = reverse(unpack(pack(h)));  // reverse element order so that v[0] is transID 
-  Vector#(8, Bit#(8)) v2 = unpack(0);
-  Vector#(32,Bit#(8)) v3 = append(v1,v2);
-  // map with argument?
-  Vector#(32, ABS)    v4 = ?;
-  for (Integer i=0; i<32; i=i+1) v4[i] = tagged ValidNotEOP v3[i];
-  if (isEOP) v4[31] = tagged ValidEOP v3[31];
-  if (first) return (takeAt(0, v4));
-  else       return (takeAt(16,v4));
-endfunction
-
 
 interface EDPServBCIfc;
   interface Server#(QABS,QABS)   server;
@@ -99,6 +37,7 @@ interface EDPServBCIfc;
   method Action                  now    (Bit#(64) arg);
   method Bool                    dmaStartPulse;
   method Bool                    dmaDonePulse;
+  method Bool                    doorBellPulse;
 endinterface
 
 typedef enum {Idle,NearReqMeta,NearRespMeta,NearReqMesg,PushMesgHead,PushMesgBody,
@@ -204,8 +143,13 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(Bit#(8))              mhFlags              <- mkReg(0);
   
   Reg#(Bool)                 frmAckOK             <- mkReg(True);
+  Reg#(Bool)                 frmMesgBusy          <- mkReg(False);
 
   QDW2DWIfc                  outFunl              <- mkQDW2DW;
+
+  Reg#(UInt#(4))             igPtr                <- mkReg(0);
+  Reg#(Bool)                 doorBell             <- mkDReg(False);
+
 
   Bit#(16) dstID = fabMesgAddrMS[15:0];
   Bit#(16) srcID = fabMesgAddrMS[31:16];
@@ -252,6 +196,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   // Request the metadata for the remote-facing ready buffer...
   rule dmaRequestNearMeta (hasPush && actMesgP && !reqMetaInFlight && !isValid(fabMeta) && nearBufReady && farBufReady && postSeqDwell==0 && !outBF.notEmpty && !outTF.notEmpty && frmAckOK);
     frmAckOK        <= False;  // Just one at a time
+    frmMesgBusy     <= True;   // Frame Message in progress - block others
     dmaStartMark    <= True;
     remStart        <= True;   // Indicate to buffer-management remote move start
     reqMetaInFlight <= True;
@@ -469,6 +414,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
    outBF.enq(qabsFromBits(reverseBYTES(32'hFEEDC0DE), 4'b1000));   // Tail FE on the wire first
    outTF.enq(?); // send the frame in outBF
+   frmMesgBusy <= False;  // release the guard so we can send ack-only frames to ack the flow control
 
   endrule
 
@@ -552,9 +498,16 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     outTF.deq;
   endrule
 
+  // Temporary Blind Assumption:
+  // All messages in signal exactly one flow control event and ack one previously sent frame
   rule ingress;
     let x <- toGet(inF).get;
+    Bit#(32) dw = pack(map(getData,x));
     Bool hasEOP = unpack(reduceOr(pack(map(isEOP,x))));
+    igPtr <= hasEOP ? 0:(igPtr==15) ? 15:igPtr+1; 
+    if (igPtr==0) ackStart <= unpack(dw[15:0]); // pick off the incident FS and copy it to ackStart for next transmission
+    if (hasEOP)  ackCount <= 1;    // To replace the 0 default used on the first frame
+    if (hasEOP)  doorBell <= True; // To abstract the 0-nm message containing the flow control doorbell write 
     frmAckOK <= hasEOP;  // Blindly take ACK on EOP, assume 1
   endrule
 
@@ -599,7 +552,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   method Action now (Bit#(64) arg) = nowW._write(arg);
   method Bool  dmaStartPulse = dmaStartMark;
   method Bool  dmaDonePulse  = dmaDoneMark;
-
+  method Bool  doorBellPulse = doorBell;
 endmodule
 
 
