@@ -505,7 +505,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Bit#(32) dw = pack(map(getData,x));
     Bool hasEOP = unpack(reduceOr(pack(map(isEOP,x))));
     igPtr <= hasEOP ? 0:(igPtr==15) ? 15:igPtr+1; 
-    if (igPtr==0) ackStart <= unpack(dw[15:0]); // pick off the incident FS and copy it to ackStart for next transmission
+    if (igPtr==0) ackStart <= unpack({dw[23:16],dw[31:24]}); // pick off the incident FS and copy it to ackStart for next transmission
     if (hasEOP)  ackCount <= 1;    // To replace the 0 default used on the first frame
     if (hasEOP)  doorBell <= True; // To abstract the 0-nm message containing the flow control doorbell write 
     frmAckOK <= hasEOP;  // Blindly take ACK on EOP, assume 1
