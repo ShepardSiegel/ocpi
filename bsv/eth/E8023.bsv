@@ -583,4 +583,40 @@ module mkQABSMF#(EtherType et0) (QABSMFIfc);
 endmodule
 
 
+interface QABSMF3Ifc;
+  interface Server#(QABS,QABS) server; 
+  interface Client#(QABS,QABS) client0; 
+  interface Client#(QABS,QABS) client1; 
+  interface Client#(QABS,QABS) client2; 
+endinterface 
+
+(* synthesize *)
+module mkQABSMF3#(EtherType et0, Bit#(16) did) (QABSMF3Ifc);
+  QABSMergeIfc  merge0  <-  mkQABSMerge;
+  QABSMergeIfc  merge1  <-  mkQABSMerge;
+  QABSForkIfc   fork0   <-  mkQABSFork(et0);
+  QABSForkIfc   fork1   <-  mkQABSFork(did);  // TODO: Fork on DID, not Ethertype
+
+  mkConnection(fork0.dst1, fork1.src);
+  mkConnection(merge1.oport, merge0.iport1);
+  
+  interface Server server; 
+    interface request  = fork0.src;
+    interface response = merge0.oport;
+  endinterface
+  interface Client client0; 
+    interface request  = fork0.dst0;
+    interface response = merge0.iport0;
+  endinterface
+  interface Client client1; 
+    interface request  = fork1.dst0;
+    interface response = merge1.iport0;
+  endinterface
+  interface Client client2; 
+    interface request  = fork1.dst1;
+    interface response = merge1.iport1;
+  endinterface
+endmodule
+
+
 endpackage: E8023

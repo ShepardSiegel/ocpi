@@ -120,7 +120,8 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
 
     //FIXME: Specalized for n210 platform development!
     //return (i<7||i>11) ? mkWciMasterNull : mkWciMaster;  
-    if (i==5 || i==6 || i==7 || i==9 || i==10 || i==13) return mkWciMaster;   // uSed for CP + DP
+    if (i==2 || i==3 || i==4 || i==7 || i==9 || i==10 || i==13 || i==14) return mkWciMaster;   // used for n210 bias loopback
+    //if (i==5 || i==6 || i==7 || i==9 || i==10 || i==13) return mkWciMaster;   // used for CP + DP
     //if ( i==7 || i==9 ) return mkWciMaster;   // sls used with 20120908_1121 for emux debug testing
     else return mkWciMasterNull;
 

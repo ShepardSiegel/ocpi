@@ -17,7 +17,6 @@ import OCCP              ::*;
 import OCEDP             ::*;
 import OCWip             ::*;
 import PWrk_n210         ::*;
-import BiasWorker        ::*;
 import SMAdapter         ::*;
 import WSICaptureWorker  ::*;
 import WSIPatternWorker  ::*;
@@ -100,56 +99,49 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
                                    clocked_by sys1_clk, reset_by sys1_rst);
   EDCPAdapterIfc   edcp       <- mkEDCPAdapter(clocked_by sys1_clk, reset_by sys1_rst);
   EDDPAdapterIfc   eddp0      <- mkEDDPAdapter(clocked_by sys1_clk, reset_by sys1_rst);
-  EDDPAdapterIfc   eddp1      <- mkEDDPAdapter(clocked_by sys1_clk, reset_by sys1_rst);
   OCCPIfc#(Nwcit)  cp         <- mkOCCP(
                                    ?,             // pciDevice (not used)
                                    sys1_clk,      // time_clk timebase
                                    sys1_rst,      // time_rst reset
                                    clocked_by sys1_clk, reset_by sys1_rst);
-  QABSMF3Ifc      emux        <- mkQABSMF3(
+  QABSMFIfc       emux        <- mkQABSMF(
                                    16'hF040,      // Which EtherType to fork to port0
-                                   16'h0003,      // Which DID to fork to port1 (consumer dataplane)
                                    clocked_by sys1_clk, reset_by sys1_rst);
 
 
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 
+  // Make sure when calling out a specific interface, eg xxx4BIfc, you use the non-polymorphic mkXxx4B instance
+  // 2012-08-19 odd WSI behavior seen when non-synth, poly module was instanced instead. Should dig deeper.
 
-  SMAdapter4BIfc         sma0    <- mkSMAdapter4B (32'h00000001, True, clocked_by sys1_clk, reset_by(vWci[2].mReset_n));
-  BiasWorker4BIfc        bias    <- mkBiasWorker4B(              True, clocked_by sys1_clk, reset_by(vWci[3].mReset_n));
-  SMAdapter4BIfc         sma1    <- mkSMAdapter4B (32'h00000002, True, clocked_by sys1_clk, reset_by(vWci[4].mReset_n));
+  WSIPatternWorker4BIfc  pat0    <- mkWSIPatternWorker4B(True,        clocked_by sys1_clk, reset_by(vWci[5].mReset_n));
+  SMAdapter4BIfc         sma0    <- mkSMAdapter4B(32'h00000002, True, clocked_by sys1_clk, reset_by(vWci[6].mReset_n));
+  PWrk_n210Ifc           pwrk    <- mkPWrk_n210(sys1_rst,             clocked_by sys1_clk, reset_by(vWci[7].mReset_n));
+  GbeWrkIfc              gbewrk  <- mkGbeWrk(True,                    clocked_by sys1_clk, reset_by(vWci[9].mReset_n));
+  IQADCWorkerIfc         iqadc   <- mkIQADCWorker(True, sys1_clk, sys1_rst, sys1_clk, sys1_rst, adc_clkout,
+                                                                      clocked_by sys1_clk, reset_by(vWci[10].mReset_n));
+  OCEDP4BIfc             edp0    <- mkOCEDP4B(?,True,True, True,      clocked_by sys1_clk, reset_by vWci[13].mReset_n);
 
-  PWrk_n210Ifc           pwrk    <- mkPWrk_n210 (sys1_rst,             clocked_by sys1_clk, reset_by(vWci[7].mReset_n));
-  GbeWrkIfc              gbewrk  <- mkGbeWrk (True,                    clocked_by sys1_clk, reset_by(vWci[9].mReset_n));
-  IQADCWorkerIfc         iqadc   <- mkIQADCWorker (True, sys1_clk, sys1_rst, sys1_clk, sys1_rst, adc_clkout,
-                                                                       clocked_by sys1_clk, reset_by(vWci[10].mReset_n));
-
-  OCEDP4BIfc             edp0    <- mkOCEDP4B (?,True,True, True,      clocked_by sys1_clk, reset_by vWci[13].mReset_n);
-  OCEDP4BIfc             edp1    <- mkOCEDP4B (?,True,True, True,      clocked_by sys1_clk, reset_by vWci[14].mReset_n);
+  //WSICaptureWorker4BIfc cap0     <- mkWSICaptureWorker4B(True, clocked_by sys1_clk, reset_by(vWci[11].mReset_n)); 
 
 
   mkConnection(gbe0.client,  emux.server);   // GBE  <-> EMUX
   mkConnection(emux.client0, edcp.server);   // EMUX <-> EDCP   Port-0 Control Plane
-  mkConnection(emux.client1, eddp0.server);  // EMUX <-> EDDP0  Port-1 Data Plane 0
-  mkConnection(emux.client2, eddp1.server);  // EMUX <-> EDDP1  Port-2 Data Plane 1
-
+  mkConnection(emux.client1, eddp0.server);  // EMUX <-> EDDP   Port-1 Data Plane
   mkConnection(edcp.client,  cp.server);     // EDCP <-> CP
-  mkConnection(eddp0.client, edp0.server);   // EDDP0 <-> DP0  (Ethernet consumer)
-  mkConnection(eddp1.client, edp1.server);   // EDDP1 <-> DP1  (Ethernet producer)
+  mkConnection(eddp0.client, edp0.server);   // EDDP0 <-> DP0
 
-  mkConnection(sma0.wmiM0, edp0.wmiS0);      // EDP0->SMA0
-  mkConnection(sma0.wsiM0, bias.wsiS0);      // SMA0->Bias
-  mkConnection(bias.wsiM0, sma1.wsiS0);      // Bias->SMA1
-  mkConnection(sma1.wmiM0, edp1.wmiS0);      // SMA1->EDP1
+  mkConnection(pat0.wsiM0, sma0.wsiS0);      // Connect the PatternWorker to the SMAAdapter
+  mkConnection(sma0.wmiM0, edp0.wmiS0);      // Connect the SMAAdapter to the DGDP WMI slave port
 
-  mkConnection(vWci[2],  sma0.wciS0);        // SMA0
-  mkConnection(vWci[3],  bias.wciS0);        // Bias Worker
-  mkConnection(vWci[4],  sma1.wciS0);        // SMA1
+  mkConnection(vWci[5],  pat0.wciS0);        // Pattern Worker
+  mkConnection(vWci[6],  sma0.wciS0);        // SMA0
   mkConnection(vWci[7],  pwrk.wciS0);        // N210 Platform Worker
   mkConnection(vWci[9],  gbewrk.wciS0);      // GbE Worker
   mkConnection(vWci[10], iqadc.wciS0);       // IQ-ADC
   mkConnection(vWci[13], edp0.wciS0);        // EDP0
-  mkConnection(vWci[14], edp1.wciS0);        // EDP1
+
+  //mkConnection(vWci[11], cap0.wciS0);    // Capture Worker
 
   mkConnection(pwrk.macAddr, edcp.macAddr);   // Connect the EEPROM-sourced MAC Addr to the EDCP
   mkConnection(pwrk.macAddr, eddp0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the EDDP
