@@ -61,11 +61,17 @@ where <argfoop> is a valid foop.""" % (prog_name)
       rwsr(dev0, w)
 
     print 'Testing scratch registers...'
+    print 'sma0'
     testScratchReg(dev0, sma0WrkNum, 0)
+    print 'bias'
     testScratchReg(dev0, biasWrkNum, 0x4)
+    print 'sma1'
     testScratchReg(dev0, sma1WrkNum, 0)
-    testScratchReg(dev0, gbrWrkNum,  0)
+    print 'gbe'
+    testScratchReg(dev0, gbeWrkNum,  0)
+    print 'dp0'
     testScratchReg(dev0, dp0WrkNum,  0xB8)
+    print 'dp1'
     testScratchReg(dev0, dp1WrkNum,  0xB8)
 
     print 'Done.'
