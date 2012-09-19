@@ -66,6 +66,7 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
   rule capture_startTime (edp.dmaStartPulse); dmaStartTime <= wti.now; endrule
   rule capture_doneTime  (edp.dmaDonePulse);  dmaDoneTime  <= wti.now; endrule
 
+  // This rule sends the each received doorbell event to the OCBufQ buffer management...
   rule pass_door_bell (edp.doorBellPulse);
      bml.remo.fabric;
   endrule
@@ -83,7 +84,7 @@ module mkOCEDP#(PciId pciDevice, parameter Bool hasPush, parameter Bool hasPull,
        'h0C : bml.i_metaBase      <= truncate(unpack(wciReq.data));
        'h10 : bml.i_mesgSize      <= truncate(unpack(wciReq.data));
        'h14 : bml.i_metaSize      <= truncate(unpack(wciReq.data));
-       //'h18 : begin bml.remo.fabric;  $display("[%0d] %m: fabDoneAvail Event",$time); end
+       //'h18 : begin bml.remo.fabric;  $display("[%0d] %m: fabDoneAvail Event",$time); end    // TODO Note CP doorbell ringing is disabled in Ethernet version
        'h50 : bml.i_fabMesgBase   <= truncate(unpack(wciReq.data));
        'h54 : bml.i_fabMetaBase   <= truncate(unpack(wciReq.data));
        'h58 : bml.i_fabMesgSize   <= truncate(unpack(wciReq.data));
