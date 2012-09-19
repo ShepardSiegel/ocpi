@@ -499,7 +499,7 @@ interface QABSForkIfc;
   interface Get#(QABS)  dst1;
 endinterface
 
-module mkQABSFork#(EtherType et0) (QABSForkIfc);
+module mkQABSFork#(Bit#(16) pat, Bool useEt) (QABSForkIfc);
   FIFO#(QABS)           srcF       <-  mkFIFO;
   FIFO#(QABS)           d0F        <-  mkFIFO;
   FIFO#(QABS)           d1F        <-  mkFIFO;
@@ -511,8 +511,10 @@ module mkQABSFork#(EtherType et0) (QABSForkIfc);
   Reg#(Bool)            stageSent  <-  mkReg(False);
 
 
-  // Shift three words of QABS into the shift regsister until the EtherType
-  // is visible on srcF.first[15:0]. If a match with et0, push packet to end out d0.
+  // Shift three words of QABS into the shift regsister until either
+  // i)  the EtherType is visible on srcF.first[15:0]. 
+  // ii) the first word of the payload is visible on srcF.first[31:16]
+  // If a match with pat, push packet to end out d0.
   // If not, push packet to end out d1
   // For each packet this module sees, the expected, exclusive rule sequence is stage, decide, egress
 
@@ -526,8 +528,10 @@ module mkQABSFork#(EtherType et0) (QABSForkIfc);
   rule decide (staged && !decided);
     let b = srcF.first;                   // observe EType and Compare
     Bit#(32) dw = pack(map(getData,b));   // Extract data from the QABS stream
-    Bit#(16) seenEt = {dw[7:0],dw[15:8]}; // Pick off the observed, incident EtherType
-    match0  <= (seenEt==et0);             // If it matches, it's for dst0
+    Bit#(16) seenEt = {dw[7:0],  dw[15:8]};   // Pick off the observed, incident EtherType
+    Bit#(16) seenPl = {dw[23:16],dw[31:24]};  // Pick off the observed, incident first Payload word
+    Bit#(16) seen = (useEt) ? seenEt : seenPl;
+    match0  <= (pat==seen);               // If it matches, it's for dst0
     decided <= True;
     ptr     <= 0;                         // Reset ptr for use in egress
   endrule
@@ -566,7 +570,7 @@ endinterface
 (* synthesize *)
 module mkQABSMF#(EtherType et0) (QABSMFIfc);
   QABSMergeIfc  merge  <-  mkQABSMerge;
-  QABSForkIfc   frk    <-  mkQABSFork(et0);
+  QABSForkIfc   frk    <-  mkQABSFork(et0, True);  // Use EtherType for fork
   
   interface Server server; 
     interface request  = frk.src;
@@ -594,8 +598,8 @@ endinterface
 module mkQABSMF3#(EtherType et0, Bit#(16) did) (QABSMF3Ifc);
   QABSMergeIfc  merge0  <-  mkQABSMerge;
   QABSMergeIfc  merge1  <-  mkQABSMerge;
-  QABSForkIfc   fork0   <-  mkQABSFork(et0);
-  QABSForkIfc   fork1   <-  mkQABSFork(did);  // TODO: Fork on DID, not Ethertype
+  QABSForkIfc   fork0   <-  mkQABSFork(et0, True);   // Use EtherType for fork
+  QABSForkIfc   fork1   <-  mkQABSFork(did, False);  // Use DID for fork
 
   mkConnection(fork0.dst1, fork1.src);
   mkConnection(merge1.oport, merge0.iport1);
