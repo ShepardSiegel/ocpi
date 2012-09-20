@@ -124,8 +124,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   IQADCWorkerIfc         iqadc   <- mkIQADCWorker (True, sys1_clk, sys1_rst, sys1_clk, sys1_rst, adc_clkout,
                                                                        clocked_by sys1_clk, reset_by(vWci[10].mReset_n));
 
-  OCEDP4BIfc             edp0    <- mkOCEDP4B (?,True,True, True,      clocked_by sys1_clk, reset_by vWci[13].mReset_n);
-  OCEDP4BIfc             edp1    <- mkOCEDP4B (?,True,True, True,      clocked_by sys1_clk, reset_by vWci[14].mReset_n);
+  OCEDP4BIfc             edp0    <- mkOCEDP4B (?,False,True, True,      clocked_by sys1_clk, reset_by vWci[13].mReset_n);
+  OCEDP4BIfc             edp1    <- mkOCEDP4B (?,True,False, True,      clocked_by sys1_clk, reset_by vWci[14].mReset_n);
 
 
   mkConnection(gbe0.client,  emux.server);   // GBE  <-> EMUX
@@ -152,7 +152,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   mkConnection(vWci[14], edp1.wciS0);        // EDP1
 
   mkConnection(pwrk.macAddr, edcp.macAddr);   // Connect the EEPROM-sourced MAC Addr to the EDCP
-  mkConnection(pwrk.macAddr, eddp0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the EDDP
+  mkConnection(pwrk.macAddr, eddp0.macAddr);  // Connect the EEPROM-sourced MAC Addr to the EDDP-0
+  mkConnection(pwrk.macAddr, eddp1.macAddr);  // Connect the EEPROM-sourced MAC Addr to the EDDP-1
 
   //mkConnection(iqadc.wsiM0, cap0.wsiS0);     // Connect the WSI output from the IQ-ADC to the Capture Worker
 
@@ -168,8 +169,8 @@ module mkFTop_n210#(Clock sys0_clkp, Clock sys0_clkn,  // 100 MHz Board XO Refer
   endrule
 
   rule connect_debug;
-    dbgReg <= { pack(gbe0.gmRx), pack(edcp.ecpRx), pack(eddp0.edpRx), 1'b0,     // 15:12
-                pack(gbe0.gmTx), pack(edcp.ecpTx), pack(eddp0.edpTx), 1'b0,     // 11:08
+    dbgReg <= { pack(gbe0.gmRx), pack(edcp.ecpRx), pack(eddp0.edpRx), pack(eddp1.edpRx),     // 15:12
+                pack(gbe0.gmTx), pack(edcp.ecpTx), pack(eddp0.edpTx), pack(eddp1.edpTx),     // 11:08
                 pack(eddp0.edpTxEOP),  // 7
                 1'b0,
                 1'b0,

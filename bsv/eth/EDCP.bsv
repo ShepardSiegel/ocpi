@@ -140,6 +140,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
     return (pack(reverse(b)));
   endfunction
 
+  // This rule digests all inbound packets and decides if the rx_ecp_dcp rule should file with a DCP Request...
   rule ecp_ingress (!eDoReq);
     ecpIngress <= True;
     let qb = ecpReqF.first;  ecpReqF.deq;      // Get the upstream QABS Vector contents
@@ -161,6 +162,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
            && ((ePli==10 && ptr==5)||(ePli==14 && ptr==6));  // TODO Qualify non-aborted hasEOP (wait for EOP, padding?)
   endrule
 
+  // Here we enque something in the dcpReqF for dcp_to_cp_request to act on...
   rule rx_ecp_dcp (eDoReq);
     Bit#(32) leDMH = reverseBytes(eDMH);
     Bool    isDO = unpack(leDMH[22]);
@@ -177,6 +179,8 @@ module mkEDCPAdapter (EDCPAdapterIfc);
   endrule
 
 
+  // Here we decide if the request can be responded to here (such as a NOP) or if we need to pass this to the CP
+  // If not a discovery operation (DO), we check the tag for a match so that we don't re-issue a CP command twice 
   rule dcp_to_cp_request;
     let x = dcpReqF.first; dcpReqF.deq;
     case (x) matches
@@ -204,6 +208,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
     endcase
   endrule
 
+  // Here we consume responses from the CP and turn them into DCP responses...
   rule cp_to_dcp_response;
     let y = cpRespF.first; cpRespF.deq;
     DCPResponse dcpr = (tagged Read( DCPResponseRead{hasDO:doInFlight, data:y.data, tag:y.tag, code:RESP_OK}));
@@ -211,6 +216,9 @@ module mkEDCPAdapter (EDCPAdapterIfc);
     if (!doInFlight) lastResp <= dcpr;    // Save dcpr in lastResponse for possible re-transmission
     doInFlight <= False;
   endrule
+
+
+  // The following code waits for a DCP response in dcpRespF and then prepends the L2 Ethernet header...
 
 
   Vector#(6, Bit#(8)) daV  = reverse(unpack(eeMDst));
@@ -247,7 +255,7 @@ module mkEDCPAdapter (EDCPAdapterIfc);
 
     let da = eMAddrF.first; eMAddrF.deq; eeMDst <= da;  // take the return MAC address for the da
 
-    let rsp = dcpRespF.first;  dcpRespF.deq;            // tahe the DCP response
+    let rsp = dcpRespF.first;  dcpRespF.deq;            // take the DCP response
     case (rsp) matches
       tagged NOP   .n: begin
         eePli <= 10;  // NOP reseponse is 10B

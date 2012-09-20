@@ -65,6 +65,7 @@ typedef enum {
 module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciDevice, WciSlaveIfc#(32) wci, Bool hasPush, Bool hasPull) (EDPServBCIfc);
 
   FIFOF#(QABS)               inF                  <- mkFIFOF;                // The QABS RX inbound from the fabric
+  FIFOF#(QABS)               inProcF              <- mkFIFOF;                // 
   FIFOF#(QABS)               outF                 <- mkFIFOF;                // The QABS TX outbound to the fabric
   FIFOF#(QABS)               outBF                <- mkSizedBRAMFIFOF(1024);
   FIFOF#(Bit#(0))            outTF                <- mkFIFOF;
@@ -188,6 +189,9 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   //TODO: Understand why psDwell=1 failed dmaTestBasic4 on 2010-11-02
   // Non-Zero dwell required until BufQ logic is cleared of all dead-reckoning; then suggest removal
   Bit#(4) psDwell = (actFlow ? 8 : 4);  // Was 15 in all modes through Q3-CY2011 ; halved and halved again when not activeFlow
+
+
+  // hasPush Transmit...
 
   //
   // FPactMesg - Fabric Producer Push DMA Sequence...
@@ -498,6 +502,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     outTF.deq;
   endrule
 
+
   // Temporary Blind Assumption:
   // All messages in signal exactly one flow control event and ack one previously sent frame
   rule ingress;
@@ -509,6 +514,14 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     if (hasEOP)  ackCount <= 1;    // To replace the 0 default used on the first frame
     if (hasEOP)  doorBell <= True; // To abstract the 0-nm message containing the flow control doorbell write 
     frmAckOK <= hasEOP;  // Blindly take ACK on EOP, assume 1
+    if (hasPull && ptr>1) inProcF.enq(x);  // If receive message, drop frame header; but pass message and data to inProc
+  endrule
+
+  // hasPull Receive...
+
+  // This rule will first fire with the 
+  rule rcv_message;
+    let x <- toGet(inProcF).get;
   endrule
 
 
