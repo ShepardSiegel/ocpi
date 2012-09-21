@@ -514,7 +514,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     if (hasEOP)  ackCount <= 1;    // To replace the 0 default used on the first frame
     if (hasEOP)  doorBell <= True; // To abstract the 0-nm message containing the flow control doorbell write 
     frmAckOK <= hasEOP;  // Blindly take ACK on EOP, assume 1
-    if (hasPull && ptr>1) inProcF.enq(x);  // If receive message, drop frame header; but pass message and data to inProc
+    if (hasPull && igPtr>1) inProcF.enq(x);  // If receive message, drop frame header; but pass message and data to inProc
   endrule
 
   // hasPull Receive...
