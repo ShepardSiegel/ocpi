@@ -1,0 +1,489 @@
+Release 14.2 par P.28xd (lin64)
+Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
+
+core980::  Wed Sep 12 08:30:21 2012
+
+par -w -xe n fpgaTop_map.ncd fpgaTop.ncd fpgaTop.pcf 
+
+
+Constraints file: fpgaTop.pcf.
+Loading device for application Rf_Device from file '7k325t.nph' in environment /opt/Xilinx/14.2/ISE_DS/ISE/.
+   "fpgaTop" is an NCD, version 3.2, device xc7k325t, package ffg900, speed -1
+
+Initializing temperature to 85.000 Celsius. (default - Range: 0.000 to 85.000 Celsius)
+Initializing voltage to 0.970 Volts. (default - Range: 0.970 to 1.030 Volts)
+
+
+Device speed data version:  "PRELIMINARY 1.06 2012-07-14".
+
+
+
+Device Utilization Summary:
+
+Slice Logic Utilization:
+  Number of Slice Registers:                14,333 out of 407,600    3%
+    Number used as Flip Flops:              14,329
+    Number used as Latches:                      0
+    Number used as Latch-thrus:                  0
+    Number used as AND/OR logics:                4
+  Number of Slice LUTs:                     17,424 out of 203,800    8%
+    Number used as logic:                   13,994 out of 203,800    6%
+      Number using O6 output only:          12,731
+      Number using O5 output only:             658
+      Number using O5 and O6:                  605
+      Number used as ROM:                        0
+    Number used as Memory:                   2,996 out of  64,000    4%
+      Number used as Dual Port RAM:            340
+        Number using O6 output only:            36
+        Number using O5 output only:             4
+        Number using O5 and O6:                300
+      Number used as Single Port RAM:            0
+      Number used as Shift Register:         2,656
+        Number using O6 output only:         2,656
+        Number using O5 output only:             0
+        Number using O5 and O6:                  0
+    Number used exclusively as route-thrus:    434
+      Number with same-slice register load:    389
+      Number with same-slice carry load:        43
+      Number with other load:                    2
+
+Slice Logic Distribution:
+  Number of occupied Slices:                 5,964 out of  50,950   11%
+  Number of LUT Flip Flop pairs used:       19,944
+    Number with an unused Flip Flop:         6,192 out of  19,944   31%
+    Number with an unused LUT:               2,520 out of  19,944   12%
+    Number of fully used LUT-FF pairs:      11,232 out of  19,944   56%
+    Number of slice register sites lost
+      to control set restrictions:               0 out of 407,600    0%
+
+  A LUT Flip Flop pair for this architecture represents one LUT paired with
+  one Flip Flop within a slice.  A control set is a unique combination of
+  clock, reset, set, and enable signals for a registered element.
+  The Slice Logic Distribution report is not meaningful if the design is
+  over-mapped for a non-slice resource or if Placement fails.
+  OVERMAPPING of BRAM resources should be ignored if the design is
+  over-mapped for a non-BRAM resource or if placement fails.
+
+IO Utilization:
+  Number of bonded IOBs:                        60 out of     500   12%
+    Number of LOCed IOBs:                       60 out of      60  100%
+    IOB Flip Flops:                             11
+    Number of bonded IPADs:                     12
+      Number of LOCed IPADs:                     4 out of      12   33%
+    Number of bonded OPADs:                      8
+
+Specific Feature Utilization:
+  Number of RAMB36E1/FIFO36E1s:                 25 out of     445    5%
+    Number using RAMB36E1 only:                 25
+    Number using FIFO36E1 only:                  0
+  Number of RAMB18E1/FIFO18E1s:                  0 out of     890    0%
+  Number of BUFG/BUFGCTRLs:                      7 out of      32   21%
+    Number used as BUFGs:                        6
+    Number used as BUFGCTRLs:                    1
+  Number of IDELAYE2/IDELAYE2_FINEDELAYs:        1 out of     500    1%
+    Number used as IDELAYE2s:                    1
+    Number used as IDELAYE2_FINEDELAYs:          0
+  Number of ILOGICE2/ILOGICE3/ISERDESE2s:        0 out of     500    0%
+  Number of ODELAYE2/ODELAYE2_FINEDELAYs:        0 out of     150    0%
+  Number of OLOGICE2/OLOGICE3/OSERDESE2s:       12 out of     500    2%
+    Number used as OLOGICE2s:                   12
+    Number used as OLOGICE3s:                    0
+    Number used as OSERDESE2s:                   0
+  Number of PHASER_IN/PHASER_IN_PHYs:            0 out of      40    0%
+  Number of PHASER_OUT/PHASER_OUT_PHYs:          0 out of      40    0%
+  Number of BSCANs:                              0 out of       4    0%
+  Number of BUFHCEs:                             0 out of     168    0%
+  Number of BUFRs:                               1 out of      40    2%
+  Number of CAPTUREs:                            0 out of       1    0%
+  Number of DNA_PORTs:                           0 out of       1    0%
+  Number of DSP48E1s:                            0 out of     840    0%
+  Number of EFUSE_USRs:                          0 out of       1    0%
+  Number of FRAME_ECCs:                          0 out of       1    0%
+  Number of GTXE2_CHANNELs:                      4 out of      16   25%
+    Number of LOCed GTXE2_CHANNELs:              4 out of       4  100%
+  Number of GTXE2_COMMONs:                       1 out of       4   25%
+  Number of ICAPs:                               0 out of       2    0%
+  Number of IDELAYCTRLs:                         1 out of      10   10%
+  Number of IN_FIFOs:                            0 out of      40    0%
+  Number of MMCME2_ADVs:                         1 out of      10   10%
+  Number of OUT_FIFOs:                           0 out of      40    0%
+  Number of PCIE_2_1s:                           1 out of       1  100%
+    Number of LOCed PCIE_2_1s:                   1 out of       1  100%
+  Number of PHASER_REFs:                         0 out of      10    0%
+  Number of PHY_CONTROLs:                        0 out of      10    0%
+  Number of PLLE2_ADVs:                          0 out of      10    0%
+  Number of STARTUPs:                            0 out of       1    0%
+  Number of XADCs:                               0 out of       1    0%
+
+
+Overall effort level (-ol):   Standard 
+Router effort level (-rl):    High 
+
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_txd<7>
+WARNING:Timing:3225 - Timing constraint COMP "gmii_txd<7>" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_txd<6>
+WARNING:Timing:3225 - Timing constraint COMP "gmii_txd<6>" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_txd<5>
+WARNING:Timing:3225 - Timing constraint COMP "gmii_txd<5>" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_txd<4>
+WARNING:Timing:3225 - Timing constraint COMP "gmii_txd<4>" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_txd<3>
+WARNING:Timing:3225 - Timing constraint COMP "gmii_txd<3>" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_txd<2>
+WARNING:Timing:3225 - Timing constraint COMP "gmii_txd<2>" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_txd<1>
+WARNING:Timing:3225 - Timing constraint COMP "gmii_txd<1>" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_txd<0>
+WARNING:Timing:3225 - Timing constraint COMP "gmii_txd<0>" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_tx_en
+WARNING:Timing:3225 - Timing constraint COMP "gmii_tx_en" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+WARNING:Timing:3175 - gmii_gtx_clk does not clock data to gmii_tx_er
+WARNING:Timing:3225 - Timing constraint COMP "gmii_tx_er" OFFSET = OUT 6 ns AFTER COMP "gmii_gtx_clk"; ignored during timing analysis
+Starting initial Timing Analysis.  REAL time: 26 secs 
+Finished initial Timing Analysis.  REAL time: 26 secs 
+
+WARNING:Par:288 - The signal ftop/gbe0/gmac/txRS_txF/Mram_fifoMem1_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/rom_serverAdapter_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to route
+   this signal.
+WARNING:Par:288 - The signal ftop/gbe0/gmac/rxRS_rxF/Mram_fifoMem1_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/rom_serverAdapter_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to route
+   this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/rom_serverAdapter_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to route
+   this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/rom_serverAdapter_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to route
+   this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr12_RAMA_D1_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr12_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/rom_serverAdapter_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to route
+   this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr7_RAMC_D1_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr7_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr6_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop$wci_m_2_MByteEn<3> has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop$wci_m_2_MAddr<9> has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/gbe0/wci_wslv_reqF/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp$wci_Vm_13_MAddr<9> has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp$wci_Vm_13_MByteEn<3> has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_3_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_3_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_2_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem1_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem2_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem6_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem7_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem8_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem9_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem10_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_1_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_1_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_2_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_2_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem3_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem4_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr12_RAMA_D1_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr12_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_1_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_2_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_2_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/cp/timeServ_setRefF/Mram_fifoMem5_RAMD_D1_O has no load.  PAR will not attempt to route this
+   signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr6_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_1_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_1_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_3_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_3_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr7_RAMC_D1_DPO has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr7_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/wci_reqF/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp1/bram_serverAdapterA_3_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_2_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_2_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_2_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_2_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_3_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_1_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_1_outDataCore/Mram_arr4_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_2_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_1_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_1_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_3_outDataCore/Mram_arr1_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_3_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_3_outDataCore/Mram_arr5_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_3_outDataCore/Mram_arr2_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+WARNING:Par:288 - The signal ftop/ctop/inf/dp0/bram_serverAdapterA_1_outDataCore/Mram_arr3_RAMD_D1_O has no load.  PAR will not attempt to
+   route this signal.
+Starting Router
+
+
+Phase  1  : 108198 unrouted;      REAL time: 34 secs 
+
+Phase  2  : 91141 unrouted;      REAL time: 40 secs 
+
+Phase  3  : 29832 unrouted;      REAL time: 1 mins 23 secs 
+
+Phase  4  : 29832 unrouted; (Setup:0, Hold:5599, Component Switching Limit:0)     REAL time: 1 mins 33 secs 
+
+Updating file: fpgaTop.ncd with current fully routed design.
+
+Phase  5  : 0 unrouted; (Setup:0, Hold:5362, Component Switching Limit:0)     REAL time: 1 mins 56 secs 
+
+Phase  6  : 0 unrouted; (Setup:0, Hold:5362, Component Switching Limit:0)     REAL time: 1 mins 56 secs 
+
+Phase  7  : 0 unrouted; (Setup:0, Hold:5362, Component Switching Limit:0)     REAL time: 1 mins 56 secs 
+
+Phase  8  : 0 unrouted; (Setup:0, Hold:5362, Component Switching Limit:0)     REAL time: 1 mins 56 secs 
+
+Phase  9  : 0 unrouted; (Setup:0, Hold:0, Component Switching Limit:0)     REAL time: 1 mins 57 secs 
+Total REAL time to Router completion: 1 mins 57 secs 
+Total CPU time to Router completion: 1 mins 58 secs 
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+Generating "PAR" statistics.
+
+**************************
+Generating Clock Report
+**************************
+
++---------------------+--------------+------+------+------------+-------------+
+|        Clock Net    |   Resource   |Locked|Fanout|Net Skew(ns)|Max Delay(ns)|
++---------------------+--------------+------+------+------------+-------------+
+|        ftop/p125clk | BUFGCTRL_X0Y4| No   | 3679 |  0.554     |  1.914      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/pciw_pci0_pcie_ |              |      |      |            |             |
+|ep/gt_top_i/pipe_wra |              |      |      |            |             |
+|     pper_i/clk_dclk | BUFGCTRL_X0Y1| No   |   78 |  0.215     |  1.662      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/pciw_pci0_pcie_ |              |      |      |            |             |
+|         ep/pipe_clk | BUFGCTRL_X0Y2| No   |  295 |  0.712     |  2.120      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/sys0_clk$O_BUFG |              |      |      |            |             |
+|                     | BUFGCTRL_X0Y0| No   |  187 |  0.493     |  1.857      |
++---------------------+--------------+------+------+------------+-------------+
+|     ftop/sys1_clk$O |BUFGCTRL_X0Y30| No   |   56 |  0.135     |  1.656      |
++---------------------+--------------+------+------+------------+-------------+
+|          ftop/rxclk |  Regional Clk| No   |   45 |  0.082     |  0.726      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/pciw_pci0_pcie_ |              |      |      |            |             |
+|         ep/user_clk | BUFGCTRL_X0Y3| No   |   49 |  0.035     |  1.499      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/pciw_pci0_pcie_ |              |      |      |            |             |
+|ep/gt_top_i/pipe_wra |              |      |      |            |             |
+|pper_i/pipe_clock_in |              |      |      |            |             |
+|t.pipe_clock_i/refcl |              |      |      |            |             |
+|                   k |BUFGCTRL_X0Y31| No   |    1 |  0.000     |  2.182      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/pciw_pci0_clk$O |              |      |      |            |             |
+|                     |         Local|      |    5 |  0.000     |  0.001      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/pciw_pci0_pcie_ |              |      |      |            |             |
+|ep/gt_top_i/pipe_wra |              |      |      |            |             |
+|pper_i/qpll_qplloutc |              |      |      |            |             |
+|                  lk |         Local|      |    4 |  0.000     |  0.000      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/pciw_pci0_pcie_ |              |      |      |            |             |
+|ep/gt_top_i/pipe_wra |              |      |      |            |             |
+|pper_i/qpll_qplloutr |              |      |      |            |             |
+|               efclk |         Local|      |    4 |  0.000     |  0.000      |
++---------------------+--------------+------+------+------------+-------------+
+|ftop/pciw_pci0_pcie_ |              |      |      |            |             |
+|ep/gt_top_i/pipe_wra |              |      |      |            |             |
+|pper_i/pipe_clock_in |              |      |      |            |             |
+|t.pipe_clock_i/mmcm_ |              |      |      |            |             |
+|                  fb |         Local|      |    1 |  0.000     |  0.014      |
++---------------------+--------------+------+------+------------+-------------+
+
+* Net Skew is the difference between the minimum and maximum routing
+only delays for the net. Note this is different from Clock Skew which
+is reported in TRCE timing report. Clock Skew is the difference between
+the minimum and maximum path delays which includes logic delays.
+
+* The fanout is the number of component pins not the individual BEL loads,
+for example SLICE loads not FF loads.
+
+Timing Score: 0 (Setup: 0, Hold: 0, Component Switching Limit: 0)
+
+Number of Timing Constraints that were not applied: 10
+
+Asterisk (*) preceding a constraint indicates it was not met.
+   This may be due to a setup or hold violation.
+
+----------------------------------------------------------------------------------------------------------
+  Constraint                                |    Check    | Worst Case |  Best Case | Timing |   Timing   
+                                            |             |    Slack   | Achievable | Errors |    Score   
+----------------------------------------------------------------------------------------------------------
+  TS_SYS0CLK = PERIOD TIMEGRP "SYS0CLK" 200 | SETUP       |     0.480ns|     4.520ns|       0|           0
+   MHz HIGH 50%                             | HOLD        |     0.136ns|            |       0|           0
+                                            | MINPERIOD   |     0.239ns|     4.761ns|       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rxd<4>" OFFSET = IN 0.5 ns VAL | SETUP       |     0.410ns|     0.090ns|       0|           0
+  ID 3 ns BEFORE COMP "gmii_rx_clk"         | HOLD        |     1.034ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rxd<1>" OFFSET = IN 0.5 ns VAL | SETUP       |     0.577ns|    -0.077ns|       0|           0
+  ID 3 ns BEFORE COMP "gmii_rx_clk"         | HOLD        |     0.767ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rxd<2>" OFFSET = IN 0.5 ns VAL | SETUP       |     0.617ns|    -0.117ns|       0|           0
+  ID 3 ns BEFORE COMP "gmii_rx_clk"         | HOLD        |     0.736ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rxd<0>" OFFSET = IN 0.5 ns VAL | SETUP       |     0.624ns|    -0.124ns|       0|           0
+  ID 3 ns BEFORE COMP "gmii_rx_clk"         | HOLD        |     0.702ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rxd<7>" OFFSET = IN 0.5 ns VAL | SETUP       |     0.671ns|    -0.171ns|       0|           0
+  ID 3 ns BEFORE COMP "gmii_rx_clk"         | HOLD        |     0.645ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rxd<3>" OFFSET = IN 0.5 ns VAL | SETUP       |     0.675ns|    -0.175ns|       0|           0
+  ID 3 ns BEFORE COMP "gmii_rx_clk"         | HOLD        |     0.656ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rxd<5>" OFFSET = IN 0.5 ns VAL | SETUP       |     0.723ns|    -0.223ns|       0|           0
+  ID 3 ns BEFORE COMP "gmii_rx_clk"         | HOLD        |     0.562ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rxd<6>" OFFSET = IN 0.5 ns VAL | SETUP       |     0.738ns|    -0.238ns|       0|           0
+  ID 3 ns BEFORE COMP "gmii_rx_clk"         | HOLD        |     0.547ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rx_dv" OFFSET = IN 0.5 ns VALI | SETUP       |     0.746ns|    -0.246ns|       0|           0
+  D 3 ns BEFORE COMP "gmii_rx_clk"          | HOLD        |     0.581ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_rx_er" OFFSET = IN 0.5 ns VALI | SETUP       |     0.779ns|    -0.279ns|       0|           0
+  D 3 ns BEFORE COMP "gmii_rx_clk"          | HOLD        |     0.533ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  TS_GMII_GTX_CLK = PERIOD TIMEGRP "GMII_GT | SETUP       |     3.736ns|     4.264ns|       0|           0
+  X_CLK" 125 MHz HIGH 50%                   | HOLD        |     0.149ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  TS_GMII_RX_CLK = PERIOD TIMEGRP "GMII_RX_ | SETUP       |     4.165ns|     3.835ns|       0|           0
+  CLK" 125 MHz HIGH 50%                     | HOLD        |     0.106ns|            |       0|           0
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_txd<7>" OFFSET = OUT 6 ns AFTE | N/A         |         N/A|         N/A|     N/A|         N/A
+  R COMP "gmii_gtx_clk"                     |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_txd<6>" OFFSET = OUT 6 ns AFTE | N/A         |         N/A|         N/A|     N/A|         N/A
+  R COMP "gmii_gtx_clk"                     |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_txd<5>" OFFSET = OUT 6 ns AFTE | N/A         |         N/A|         N/A|     N/A|         N/A
+  R COMP "gmii_gtx_clk"                     |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_txd<4>" OFFSET = OUT 6 ns AFTE | N/A         |         N/A|         N/A|     N/A|         N/A
+  R COMP "gmii_gtx_clk"                     |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_txd<3>" OFFSET = OUT 6 ns AFTE | N/A         |         N/A|         N/A|     N/A|         N/A
+  R COMP "gmii_gtx_clk"                     |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_txd<2>" OFFSET = OUT 6 ns AFTE | N/A         |         N/A|         N/A|     N/A|         N/A
+  R COMP "gmii_gtx_clk"                     |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_txd<1>" OFFSET = OUT 6 ns AFTE | N/A         |         N/A|         N/A|     N/A|         N/A
+  R COMP "gmii_gtx_clk"                     |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_txd<0>" OFFSET = OUT 6 ns AFTE | N/A         |         N/A|         N/A|     N/A|         N/A
+  R COMP "gmii_gtx_clk"                     |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_tx_en" OFFSET = OUT 6 ns AFTER | N/A         |         N/A|         N/A|     N/A|         N/A
+   COMP "gmii_gtx_clk"                      |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+  COMP "gmii_tx_er" OFFSET = OUT 6 ns AFTER | N/A         |         N/A|         N/A|     N/A|         N/A
+   COMP "gmii_gtx_clk"                      |             |            |            |        |            
+----------------------------------------------------------------------------------------------------------
+
+
+All constraints were met.
+INFO:Timing:2761 - N/A entries in the Constraints List may indicate that the 
+   constraint is not analyzed due to the following: No paths covered by this 
+   constraint; Other constraints intersect with this constraint; or This 
+   constraint was disabled by a Path Tracing Control. Please run the Timespec 
+   Interaction Report (TSI) via command line (trce tsi) or Timing Analyzer GUI.
+
+
+Generating Pad Report.
+
+All signals are completely routed.
+
+WARNING:Par:283 - There are 81 loadless signals in this design. This design will cause Bitgen to issue DRC warnings.
+
+Total REAL time to PAR completion: 2 mins 3 secs 
+Total CPU time to PAR completion: 2 mins 4 secs 
+
+Peak Memory Usage:  1534 MB
+
+Placer: Placement generated during map.
+Routing: Completed - No errors found.
+Timing: Completed - No errors found.
+
+Number of error messages: 0
+Number of warning messages: 103
+Number of info messages: 0
+
+Writing design to file fpgaTop.ncd
+
+
+
+PAR done!

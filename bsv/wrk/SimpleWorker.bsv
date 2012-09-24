@@ -50,7 +50,6 @@ rule wci_cfwr (wci.configWrite); // WCI Configuration Property Writes...
 endrule
 
 rule wci_cfrd (wci.configRead); // WCI Configuration Property Reads...
- Bool allowResponse = True;
  let wciReq <- wci.reqGet.get; Bit#(32) rdat = '0;
    case (wciReq.addr[7:0]) matches
      'h00 : rdat = pack(r0);
