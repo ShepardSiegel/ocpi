@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Revision: 25100 $
-// $Date: 2011-09-01 18:44:19 +0000 (Thu, 01 Sep 2011) $
+// $Revision: 28325 $
+// $Date: 2012-04-25 18:22:57 +0000 (Wed, 25 Apr 2012) $
 
 `ifdef BSV_ASSIGNMENT_DELAY
 `else
@@ -53,6 +53,7 @@ module BRAM1Load(CLK,
    reg [DATA_WIDTH-1:0]           DO_R;
    reg [DATA_WIDTH-1:0]           DO_R2;
 
+   // synopsys translate_off
    initial
    begin : init_block
 `ifdef BSV_NO_INITIAL_BLOCKS
@@ -69,6 +70,7 @@ module BRAM1Load(CLK,
       else
         $readmemh(FILENAME, RAM, 0, MEMSIZE-1);
    end
+   // synopsys translate_on
 
    always @(posedge CLK) begin
       if (EN) begin

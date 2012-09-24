@@ -1,5 +1,5 @@
 
-// Copyright (c) 2000-2009 Bluespec, Inc.
+// Copyright (c) 2000-2012 Bluespec, Inc.
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,17 +19,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Revision: 24080 $
-// $Date: 2011-05-18 19:32:52 +0000 (Wed, 18 May 2011) $
+// $Revision: 29441 $
+// $Date: 2012-08-27 21:58:03 +0000 (Mon, 27 Aug 2012) $
 
 `ifdef BSV_ASSIGNMENT_DELAY
 `else
-`define BSV_ASSIGNMENT_DELAY
+  `define BSV_ASSIGNMENT_DELAY
 `endif
+
+`ifdef BSV_POSITIVE_RESET
+  `define BSV_RESET_VALUE 1'b1
+  `define BSV_RESET_EDGE posedge
+`else
+  `define BSV_RESET_VALUE 1'b0
+  `define BSV_RESET_EDGE negedge
+`endif
+
 
 // N -bit counter with load, set and 2 increment
 module Counter(CLK,
-               RST_N,
+               RST,
                Q_OUT,
                DATA_A, ADDA,
                DATA_B, ADDB,
@@ -40,7 +49,7 @@ module Counter(CLK,
    parameter init = 0;
 
    input                 CLK;
-   input                 RST_N;
+   input                 RST;
    input [width - 1 : 0] DATA_A;
    input                 ADDA;
    input [width - 1 : 0] DATA_B;
@@ -58,8 +67,8 @@ module Counter(CLK,
 
    assign                 Q_OUT = q_state ;
 
-   always@(posedge CLK /*or negedge RST_N*/ ) begin
-    if (RST_N == 0)
+   always@(posedge CLK /*or `BSV_RESET_EDGE RST*/ ) begin
+    if (RST == `BSV_RESET_VALUE)
       q_state  <= `BSV_ASSIGNMENT_DELAY init;
     else
       begin
@@ -67,7 +76,7 @@ module Counter(CLK,
            q_state <= `BSV_ASSIGNMENT_DELAY DATA_F ;
          else
            q_state <= `BSV_ASSIGNMENT_DELAY (SETC ? DATA_C : q_state ) + (ADDA ? DATA_A : {width {1'b0}}) + (ADDB ? DATA_B : {width {1'b0}} ) ;
-      end // else: !if(RST_N == 0)
+      end // else: !if(RST == `BSV_RESET_VALUE)
    end // always@ (posedge CLK)
 
 `ifdef BSV_NO_INITIAL_BLOCKS
