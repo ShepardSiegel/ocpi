@@ -151,6 +151,22 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   Reg#(UInt#(4))             igPtr                <- mkReg(0);
   Reg#(Bool)                 doorBell             <- mkDReg(False);
 
+  Reg#(UInt#(4))             rcvPtr               <- mkReg(0);
+  Reg#(Bit#(32))             rcvTID               <- mkRegU;
+  Reg#(Bit#(32))             rcvFA                <- mkRegU;
+  Reg#(Bit#(32))             rcvFV                <- mkRegU;
+  Reg#(Bit#(16))             rcvNM                <- mkRegU;
+  Reg#(Bit#(16))             rcvMS                <- mkRegU;
+  Reg#(Bit#(32))             rcvDA                <- mkRegU;
+  Reg#(Bit#(16))             rcvDL                <- mkRegU;
+  Reg#(Bit#(8))              rcvMT                <- mkRegU;
+  Reg#(Bit#(8))              rcvTM                <- mkRegU;
+  Reg#(Bool)                 rcvDoCompletion      <- mkReg(False);
+
+  Reg#(Bit#(32))             rcvLiveDA            <- mkRegU;
+  Reg#(Bit#(16))             rcvLiveDL            <- mkRegU;
+
+
 
   Bit#(16) dstID = fabMesgAddrMS[15:0];
   Bit#(16) srcID = fabMesgAddrMS[31:16];
@@ -510,18 +526,80 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
     Bit#(32) dw = pack(map(getData,x));
     Bool hasEOP = unpack(reduceOr(pack(map(isEOP,x))));
     igPtr <= hasEOP ? 0:(igPtr==15) ? 15:igPtr+1; 
-    if (igPtr==0) ackStart <= unpack({dw[23:16],dw[31:24]}); // pick off the incident FS and copy it to ackStart for next transmission
-    if (hasEOP)  ackCount <= 1;    // To replace the 0 default used on the first frame
-    if (hasEOP)  doorBell <= True; // To abstract the 0-nm message containing the flow control doorbell write 
-    frmAckOK <= hasEOP;  // Blindly take ACK on EOP, assume 1
-    if (hasPull && igPtr>1) inProcF.enq(x);  // If receive message, drop frame header; but pass message and data to inProc
+
+    // Fabric Transmit specific behavior...
+    if (hasPush) begin
+      if (igPtr==0) ackStart <= unpack({dw[23:16],dw[31:24]}); // pick off the incident FS and copy it to ackStart for next transmission
+      if (hasEOP)  ackCount <= 1;    // To replace the 0 default used on the first frame
+      if (hasEOP)  doorBell <= True; // To abstract the 0-nm message containing the flow control doorbell write 
+      frmAckOK <= hasEOP;  // Blindly take ACK on EOP, assume 1
+    end
+
+    // Fabric Receive specifc behavior...
+    if (hasPull) begin
+      if (igPtr>1) inProcF.enq(x);  // If receive message, drop frame header; but pass message and data to inProc
+    end
+
   endrule
 
   // hasPull Receive...
 
+  // Data in QABS has first byte on the wire in LSB
+  function Bit#(32) reverseBytes (Bit#(32) a);
+    Vector#(4,Bit#(8)) b = unpack(a);
+    return (pack(reverse(b)));
+  endfunction
+
   // This rule will first fire with the 
-  rule rcv_message;
+  rule rcv_message (hasPull);
     let x <- toGet(inProcF).get;
+    Bit#(32) dw  = pack(map(getData,x));
+    Bit#(32) rdw = reverseBytes(dw);
+    Bool hasEOP = unpack(reduceOr(pack(map(isEOP,x))));
+    Bool isEOM  = (rcvPtr>5) && (rcvDL==0);  // End of message when we have header adn rcvDL==0
+    rcvPtr <= (hasEOP||isEOM) ? 0:(rcvPtr==15) ? 15:rcvPtr+1; 
+
+    case (rcvPtr)  // Capture the 24B message header in 6 cycles...
+      0 : rcvTID <= rdw;
+      1 : rcvFA  <= rdw;
+      2 : rcvFV  <= rdw;
+      3 : action
+          rcvNM  <= rdw[15:0];
+          rcvMS  <= rdw[31:16];
+        endaction
+      4 : rcvDA  <= rdw;
+      5 : action
+          rcvDL  <= rdw[15:0];
+          rcvMT  <= rdw[23:16];
+          rcvTM  <= rdw[31:24];
+        endaction
+    endcase
+
+    rcvDoCompletion <= hasEOP && (rcvPtr>=5);  // Ring the doorbell on EOP
+
+    // Write the message body to the BRAM one DWORD at a time using the 1-DW in header
+    // form that begins 3DW PCIe-style writes. This is 1/4 the available write bandwidth of 16B/cycle...
+    if (rcvPtr>5 && rcvDL>0) begin
+       rcvDA <= rcvDA + 4;  // Bump the DA
+       rcvDL <= rcvDL - 4;  // Bump the DL
+       WriteReq wreq = WriteReq {
+         skipHeadData : False,
+         dwAddr       : truncate(rcvDA>>2),
+         dwLength     : 1,      // the length in DW of this request
+         data         : dw,     // data still in Big-Endian Format
+         firstBE      : '1,
+         lastBE       : '1 };
+       MemReqPacket mpkt = WriteHeader(wreq);
+       tlpBRAM.putReq.put(mpkt);  // Enqueue BRAM write request header to store message
+    end
+
+  endrule
+
+  rule rcv_completion (hasPull && rcvDoCompletion);
+    rcvDoCompletion <= False;
+    // For now, we assume the completion event is only rining the doorbell.
+    // In general, we should use rcvFA and rcvFV
+    doorBell <= True;
   endrule
 
 
