@@ -150,6 +150,13 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   Reg#(UInt#(4))             igPtr                <- mkReg(0);
   Reg#(Bool)                 doorBell             <- mkDReg(False);
+  Reg#(Bit#(16))             igDID                <- mkRegU;
+  Reg#(Bit#(16))             igSID                <- mkRegU;
+  Reg#(Bit#(16))             igFS                 <- mkRegU;
+  Reg#(Bit#(16))             igAS                 <- mkRegU;
+  Reg#(Bit#(8))              igAC                 <- mkRegU;
+  Reg#(Bit#(8))              igF                  <- mkRegU;
+
 
   Reg#(UInt#(4))             rcvPtr               <- mkReg(0);
   Reg#(Bit#(32))             rcvTID               <- mkRegU;
@@ -519,13 +526,32 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
   endrule
 
 
+  // Data in QABS has first byte on the wire in LSB
+  function Bit#(32) reverseBytes (Bit#(32) a);
+    Vector#(4,Bit#(8)) b = unpack(a);
+    return (pack(reverse(b)));
+  endfunction
+
   // Temporary Blind Assumption:
   // All messages in signal exactly one flow control event and ack one previously sent frame
   rule ingress;
     let x <- toGet(inF).get;
     Bit#(32) dw = pack(map(getData,x));
+    Bit#(32) rdw = reverseBytes(dw);
     Bool hasEOP = unpack(reduceOr(pack(map(isEOP,x))));
     igPtr <= hasEOP ? 0:(igPtr==15) ? 15:igPtr+1; 
+
+    case (igPtr)
+      0 : action
+        igSID <= rdw[15:0];
+        igFS  <= rdw[31:16];
+      endaction
+      1 : action
+        igAS  <= rdw[15:0];
+        igAC  <= rdw[23:16];
+        igF   <= rdw[31:24];
+      endaction
+    endcase
 
     // Fabric Transmit specific behavior...
     if (hasPush) begin
@@ -544,13 +570,7 @@ module mkEDPServBC#(Vector#(4,BRAMServer#(DPBufHWAddr,Bit#(32))) mem, PciId pciD
 
   // hasPull Receive...
 
-  // Data in QABS has first byte on the wire in LSB
-  function Bit#(32) reverseBytes (Bit#(32) a);
-    Vector#(4,Bit#(8)) b = unpack(a);
-    return (pack(reverse(b)));
-  endfunction
-
-  // This rule will first fire with the 
+  // This rule will first fire with the zero or more message headers and message bodys...
   rule rcv_message (hasPull);
     let x <- toGet(inProcF).get;
     Bit#(32) dw  = pack(map(getData,x));
