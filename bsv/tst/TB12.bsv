@@ -150,7 +150,7 @@ module mkTB12();
   endrule
 
   rule terminate (simCycle==1000);
-    $display("[%0d]: %m: mkTB11 termination", $time);
+    $display("[%0d]: %m: mkTB12 termination", $time);
     $finish;
   endrule
 
