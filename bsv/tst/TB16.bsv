@@ -34,16 +34,15 @@ module mkTB16();
   //Wsi_Es#(12,32,4,8,0) wsi_Es <- mkWsiStoES(wsiS.slv);  // Convert the conventional to explicit 
   //mkConnection(biasWorker.wsiM0,  wsi_Es);              // Connect the biasWorker wsi-M output to the Sinc wsiS
 
-
   rule do_r_open (r_hdl matches tagged Invalid);
-    let hdl <- $fopen("host2cp.dat", "r");
+    let hdl <- $fopen("/tmp/OpenCPI0_Req", "r");
     r_hdl <= tagged Valid hdl;
   endrule
 
-//rule do_w_open (w_hdl matches tagged Invalid);
-//  let hdl <- $fopen("cp2host.dat", "w");
-//  w_hdl <= tagged Valid hdl;
-//endrule
+  rule do_w_open (w_hdl matches tagged Invalid);
+    let hdl <- $fopen("/tmp/OpenCPI0_Resp", "w");
+    w_hdl <= tagged Valid hdl;
+  endrule
 
   rule do_r_char (r_hdl matches tagged Valid .hdl &&& !inEOF);
     int i <- $fgetc(hdl);
@@ -51,20 +50,19 @@ module mkTB16();
         $display("[%0d]: do_r_char fgetc returned -1 after %0d Bytes", $time, h2cpByteCount);
         $fclose(hdl);
         inEOF <= True;
-        //$finish(0);
       end
       else begin
         Bit#(8) c = truncate(pack(i));
         h2cpByteCount <= h2cpByteCount + 1;
         $display("[%0d]: get_cp read %x on byte %x ", $time, c, h2cpByteCount);
-        //inF.enq(c);
+        inF.enq(c);
       end
   endrule
 
-  /*
   rule do_w_char (w_hdl matches tagged Valid .hdl);
     let c = outF.first; outF.deq;
-    $fwrite(hdl, c);
+    $fwrite(hdl, "%h", c);
+    $fflush(hdl);
     cp2hByteCount <= cp2hByteCount + 1;
     $display("[%0d]: get_cp write %x on byte %x ", $time, c, cp2hByteCount);
   endrule
@@ -72,7 +70,6 @@ module mkTB16();
   rule copy;
     outF.enq(inF.first); inF.deq;
   endrule
-*/
 
   // Simulation Control...
   rule increment_simCycle;
