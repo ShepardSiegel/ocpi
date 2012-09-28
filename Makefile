@@ -736,6 +736,7 @@ clean:
 	rm -fR `find . -name \*~`
 	rm -fR bin/*.log
 	rm -fR scripts/_impactbatch.log
+	rm -fR fuse.xmsgs fuseRelaunch.cmd
 	mkdir obj
 
 clean-isim:
