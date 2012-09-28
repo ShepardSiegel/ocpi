@@ -8,6 +8,7 @@ BTEST8    ?= TB8
 BTEST14   ?= TB14
 BTEST15   ?= TB15
 BTEST16   ?= TB16
+BTEST17   ?= TB17
 BTEST_WMEMI ?= WmemiTB
 ITEST     ?= TB2
 ITEST1    ?= TB1
@@ -19,6 +20,7 @@ ITEST12   ?= TB12
 ITEST13   ?= TB13
 ITEST15   ?= TB15
 ITEST16   ?= TB16
+ITEST17   ?= TB17
 OPED      ?= OPED
 A4LS      ?= A4LS
 NFT       ?= TB_nft
@@ -229,6 +231,25 @@ bsim16: $(OBJ)
 	$(OBJ)/mk$(BTEST16).bexe -V
 
 ######################################################################
+bsim17: $(OBJ)
+
+	# compile to bluesim backend
+	#echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
+	bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(BTEST17).bsv
+
+	# create bluesim executable
+	bsc -sim -keep-inlined-boundaries \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-o $(OBJ)/mk$(BTEST17).bexe -e mk$(BTEST17) $(OBJ)/*.ba
+
+	# run bluesim executable
+	$(OBJ)/mk$(BTEST17).bexe -V
+
+######################################################################
 bsim_wmemi: $(OBJ)
 
   # compile to bluesim backend
@@ -432,6 +453,30 @@ isim16: $(OBJ)
 		$(BSVTST)/$(ITEST16).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST16) -o runsim
+	./runsim -testplusarg bscvcd
+
+	# create verilog executable
+	#cd $(OBJ) && bsc -vsim modelsim -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
+
+	# run verilog
+	#cd $(OBJ) && mk$(ITEST).vexe > mk$(ITEST).runlog
+
+	#@# test to be sure the word "PASSED" is in the log file
+	#@ if !(grep -c PASSED $(OBJ)/mk$(ITEST).runlog) then exit 2; fi
+
+######################################################################
+isim17: $(OBJ)
+
+	# compile to verilog backend for ISim
+	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		$(BSVTST)/$(ITEST17).bsv
+
+	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST17) -o runsim
 	./runsim -testplusarg bscvcd
 
 	# create verilog executable

@@ -23,3 +23,5 @@ TB12.bsv  -
 TB13.bsv  - 
 TB14.bsv  - 
 TB15.bsv  -  Testing WSIPatternWorker to WSICaptureWorker
+TB16.bsv  -  Prototype for "test platform" testbench
+TB17.bsv  -  BiasWorker Example with test platform
