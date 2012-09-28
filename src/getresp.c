@@ -7,7 +7,8 @@ main(argc, argv)
 FILE * fd;
 int c;
 char str[3];
-int i, j = 0;
+int i = 0;
+int j = 0;
 int v;
 
   fd = fopen("/tmp/OpenCPI0_Resp", "r");
@@ -15,7 +16,16 @@ int v;
     perror("Error opening named pipe");
     return(1);
   }
+
+  // This loop for straight binary, one-byte-per-byte...
+  do {
+    c = getc(fd);
+      printf("%s got response %d with value %d\n", argv[0], i, c);
+      i++;
+  } while (c != EOF );
  
+  // This way to accept two bytes per byte hex nibbles of ascii to binary...
+  /*
   do {
     c = getc(fd);
     if (j%2) {
@@ -29,6 +39,7 @@ int v;
     str[0] = (char)c;
   j++;
   } while (c != EOF );
+  */
 
 	fclose(fd);
   return(0);

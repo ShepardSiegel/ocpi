@@ -61,7 +61,7 @@ module mkTB16();
 
   rule do_w_char (w_hdl matches tagged Valid .hdl);
     let c = outF.first; outF.deq;
-    $fwrite(hdl, "%h", c);
+    $fwrite(hdl, "%c", c);
     $fflush(hdl);
     cp2hByteCount <= cp2hByteCount + 1;
     $display("[%0d]: get_cp write %x on byte %x ", $time, c, cp2hByteCount);
