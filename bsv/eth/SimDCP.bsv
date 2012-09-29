@@ -124,22 +124,23 @@ module mkSimDCP (SimDCPIfc);
     Bool isEOP = (ptr==((isWrite)?13:9));    // The 10th or 14th byte 
     ptr <= isEOP ? 0:(ptr==15) ? 15:ptr+1;   // ptr counts up to 15 until EOP reset 
     case (ptr)
-      0  : ePli  <= 0    | extend(b<<8);
-      1  : ePli  <= ePli | extend(b<<0);
-      2  : eDMH  <= 0    | extend(b<<24);
-      3  : eDMH  <= eDMH | extend(b<<16);
-      4  : eDMH  <= eDMH | extend(b<<8);
-      5  : eDMH  <= eDMH | extend(b<<0);
-      6  : eAddr <= 0    | extend(b<<24);
-      7  : eAddr <= eAddr| extend(b<<16);
-      8  : eAddr <= eAddr| extend(b<<8);
-      9  : eAddr <= eAddr| extend(b<<0);
-      10 : eData <= eData| extend(b<<24);
-      11 : eData <= eData| extend(b<<16);
-      12 : eData <= eData| extend(b<<8);
-      13 : eData <= eData| extend(b<<0);
+      0  : ePli   <= 0    | extend(b<<8);
+      1  : ePli   <= ePli | extend(b<<0);
+      2  : eDMH   <= {              b, 24'h000000};
+      3  : eDMH   <= {eDMH[31:24],  b, 16'h0000  };
+      4  : eDMH   <= {eDMH[31:16],  b, 8'h00     };
+      5  : eDMH   <= {eDMH[31:8],   b            };
+      6  : eAddr  <= {              b, 24'h000000};
+      7  : eAddr  <= {eAddr[31:24], b, 16'h0000  };
+      8  : eAddr  <= {eAddr[31:16], b, 8'h00     };
+      9  : eAddr  <= {eAddr[31:8],  b            };
+      10 : eData  <= {              b, 24'h000000};
+      11 : eData  <= {eData[31:24], b, 16'h0000  };
+      12 : eData  <= {eData[31:16], b, 8'h00     };
+      13 : eData  <= {eData[31:8],  b            };
     endcase
     eDoReq <= isEOP;
+    //$display("sim_ingress ptr:%d b:%0x, eDMH:%0x",ptr,b, eDMH);
   endrule
 
   function Bit#(32) reverseBytes (Bit#(32) a);
@@ -150,6 +151,7 @@ module mkSimDCP (SimDCPIfc);
   // Here we enque something in the dcpReqF for dcp_to_cp_request to act on...
   rule rx_sim_dcp (eDoReq);
     Bit#(32) leDMH = reverseBytes(eDMH);
+    //$display("edmH:%0x  leDMH%0x", eDMH, leDMH);
     Bool    isDO = unpack(leDMH[22]);
     Bit#(2) mTyp = leDMH[21:20];
     Bit#(4) mBe  = leDMH[19:16];
@@ -159,6 +161,11 @@ module mkSimDCP (SimDCPIfc);
       NOP   : dcpReqF.enq(tagged NOP  ( DCPRequestNOP  {isDO:isDO,         tag:mTag, initAdvert:eAddr}));
       Write : dcpReqF.enq(tagged Write( DCPRequestWrite{isDO:isDO, be:mBe, tag:mTag, data:eData, addr:eAddr}));
       Read  : dcpReqF.enq(tagged Read ( DCPRequestRead {isDO:isDO, be:mBe, tag:mTag, addr:eAddr}));
+    endcase
+    case (mType)
+      NOP   : $display("[%0d]: rx_sim_dcp REQUEST: NOP ", $time);
+      Write : $display("[%0d]: rx_sim_dcp REQUEST: WRITE Addr:%0x Data:%0x", $time, eAddr, eData);
+      Read  : $display("[%0d]: rx_sim_dcp REQUEST: READ Addr:%0x ", $time, eAddr);
     endcase
   endrule
 
@@ -187,7 +194,10 @@ module mkSimDCP (SimDCPIfc);
           cpReqF.enq(tagged ReadRequest(  CpReadReq {dwAddr:truncate(r.addr>>2), byteEn:r.be, tag:r.tag}));    // Issue the Read
           if (!r.isDO) lastTag <= (tagged Valid r.tag); // Capture the tag into lastTag
           if ( r.isDO) doInFlight <= True;
-        end else dcpRespF.enq(lastResp);   // Retransmit the lastResp since tags match
+        end else begin
+          dcpRespF.enq(lastResp);   // Retransmit the lastResp since tags match
+          $display("[%0d]: dcp_to_cp_request ***TAG MATCH*** (Returning Previous Response)", $time);
+        end
         end
     endcase
   endrule
@@ -229,17 +239,20 @@ module mkSimDCP (SimDCPIfc);
         eeDmh <= { n.tag, n.hasDO?8'h70:8'h30, 16'h0000}; // DCP Response = OK
         eeDat <= n.targAdvert;
         isWrtResp <= False;
+        $display("[%0d]: sim_egress NOP RESPONSE", $time);
         end
       tagged Write .w: begin
         eePli <= 6;  // Write reseponse is 6B
         eeDmh <= { w.tag, w.hasDO?8'h70:8'h30, 16'h0000}; // DCP Response = OK
         isWrtResp <= True;
+        $display("[%0d]: sim_egress WRITE RESPONSE", $time);
         end
       tagged Read  .r: begin
         eePli <= 10;  // Read reseponse is 10B
         eeDmh <= { r.tag, r.hasDO?8'h70:8'h30, 16'h0000}; // DCP Response = OK
         eeDat <= r.data;
         isWrtResp <= False;
+        $display("[%0d]: sim_egress READ RESPONSE Data:%0x ", $time, r.data);
         end
     endcase
    edpFsm.start;  // egress the DCP packet...

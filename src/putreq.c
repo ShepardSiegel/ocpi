@@ -5,13 +5,45 @@ main(argc, argv)
   char *argv[];
 {
 FILE * fd;
-int i;
+int i, j;
+
+int nopA[10] = {0x00, 0x0A, 0x00, 0x00, 0x0F, 0x05, 0x80, 0x00, 0x00, 0x01};
+int rd0[10]  = {0x00, 0x0A, 0x00, 0x00, 0x2F, 0x06, 0x00, 0x00, 0x00, 0x00};  // Read 0x00
+int rd4[10]  = {0x00, 0x0A, 0x00, 0x00, 0x2F, 0x07, 0x00, 0x00, 0x00, 0x04};  // Read 0x04
+int wtA[14]  = {0x00, 0x0E, 0x00, 0x00, 0x1F, 0x08, 0x00, 0x00, 0x00, 0x24, 0xFE,0xED,0xC0,0xDE};
+int rdA[10]  = {0x00, 0x0A, 0x00, 0x00, 0x2F, 0x09, 0x00, 0x00, 0x00, 0x24};  // Read 0x24
 
   fd = fopen("/tmp/OpenCPI0_Req", "w");
 
   for(i=0; i<10 ;i++) {
-    fputc(i, fd);
-    printf("%s sent request %d (0x%02x)\n", argv[0], i, i);
+    j = nopA[i];
+    fputc(j, fd);
+    printf("%s sent request %d (0x%02x)\n", argv[0], i, j);
+  }
+
+  for(i=0; i<10 ;i++) {
+    j = rd0[i];
+    fputc(j, fd);
+    printf("%s sent request %d (0x%02x)\n", argv[0], i, j);
+  }
+
+  for(i=0; i<10 ;i++) {
+    j = rd4[i];
+    fputc(j, fd);
+    printf("%s sent request %d (0x%02x)\n", argv[0], i, j);
+  }
+
+
+  for(i=0; i<14 ;i++) {
+    j = wtA[i];
+    fputc(j, fd);
+    printf("%s sent request %d (0x%02x)\n", argv[0], i, j);
+  }
+
+  for(i=0; i<10 ;i++) {
+    j = rdA[i];
+    fputc(j, fd);
+    printf("%s sent request %d (0x%02x)\n", argv[0], i, j);
   }
 
 	fclose(fd);
