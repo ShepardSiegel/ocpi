@@ -164,8 +164,8 @@ module mkSimDCP (SimDCPIfc);
     endcase
     case (mType)
       NOP   : $display("[%0d]: rx_sim_dcp REQUEST: NOP ", $time);
-      Write : $display("[%0d]: rx_sim_dcp REQUEST: WRITE Addr:%0x Data:%0x", $time, eAddr, eData);
-      Read  : $display("[%0d]: rx_sim_dcp REQUEST: READ Addr:%0x ", $time, eAddr);
+      Write : $display("[%0d]: rx_sim_dcp REQUEST: WRITE Addr:0x%0x Data:0x%0x", $time, eAddr, eData);
+      Read  : $display("[%0d]: rx_sim_dcp REQUEST: READ  Addr:0x%0x ", $time, eAddr);
     endcase
   endrule
 
@@ -239,20 +239,20 @@ module mkSimDCP (SimDCPIfc);
         eeDmh <= { n.tag, n.hasDO?8'h70:8'h30, 16'h0000}; // DCP Response = OK
         eeDat <= n.targAdvert;
         isWrtResp <= False;
-        $display("[%0d]: sim_egress NOP RESPONSE", $time);
+        $display("[%0d]: sim_egress NOP_RESPONSE", $time);
         end
       tagged Write .w: begin
         eePli <= 6;  // Write reseponse is 6B
         eeDmh <= { w.tag, w.hasDO?8'h70:8'h30, 16'h0000}; // DCP Response = OK
         isWrtResp <= True;
-        $display("[%0d]: sim_egress WRITE RESPONSE", $time);
+        $display("[%0d]: sim_egress WRITE_RESPONSE", $time);
         end
       tagged Read  .r: begin
         eePli <= 10;  // Read reseponse is 10B
         eeDmh <= { r.tag, r.hasDO?8'h70:8'h30, 16'h0000}; // DCP Response = OK
         eeDat <= r.data;
         isWrtResp <= False;
-        $display("[%0d]: sim_egress READ RESPONSE Data:%0x ", $time, r.data);
+        $display("[%0d]: sim_egress READ_RESPONSE Data:0x%0x ", $time, r.data);
         end
     endcase
    edpFsm.start;  // egress the DCP packet...

@@ -48,7 +48,7 @@ module mkSimIO (SimIOIfc);
       else begin
         Bit#(8) c = truncate(pack(i));
         h2cpByteCount <= h2cpByteCount + 1;
-        $display("[%0d]: get_cp read 0x%x  Host->Simulator request_readCount:%0d ", $time, c, h2cpByteCount);
+        //$display("[%0d]: get_cp read 0x%x  Host->Simulator request_readCount:%0d ", $time, c, h2cpByteCount);
         reqF.enq(c);
       end
   endrule
@@ -58,7 +58,7 @@ module mkSimIO (SimIOIfc);
     $fwrite(hdl, "%c", c);  // %c should allow $fputc-like functionality
     $fflush(hdl);
     cp2hByteCount <= cp2hByteCount + 1;
-    $display("[%0d]: get_cp write 0x%x  Simulator->Host response_writeCount:%0d ", $time, c, cp2hByteCount);
+    //$display("[%0d]: get_cp write 0x%x  Simulator->Host response_writeCount:%0d ", $time, c, cp2hByteCount);
   endrule
 
   interface Client host;
