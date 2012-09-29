@@ -5,6 +5,7 @@ import Config       ::*;
 import OCWip        ::*;
 import BiasWorker   ::*;
 import OCCP         ::*;
+import SimDCP       ::*;
 import SimIO        ::*;
 import WSIPatternWorker ::*;
 import WSICaptureWorker ::*;
@@ -24,6 +25,7 @@ module mkTB18();
 
   Reg#(Bit#(16))          simCycle       <- mkReg(0);      // simulation cycle counter
   SimIOIfc                simIO          <- mkSimIO;       // simulator file IO
+  SimDCPIfc               simDCP         <- mkSimDCP;      // decode DCP to control plane
   OCCPIfc#(Nwcit)         cp             <- mkOCCP(
                                             ?,             // pciDevice (not used)
                                             sys1_clk,      // time_clk timebase
@@ -36,6 +38,8 @@ module mkTB18();
   BiasWorker4BIfc        bias  <- mkBiasWorker4B(    True, clocked_by sys1_clk, reset_by(vWci[3].mReset_n));
   WSICaptureWorker4BIfc  cap0  <- mkWSICaptureWorker(True, clocked_by sys1_clk, reset_by(vWci[4].mReset_n));
 
+  mkConnection(simIO.host,simDCP.host);   // Connect simIO to simDCP 
+  mkConnection(simDCP.client,cp.server);  // Connect simDCP to Control Plane 
 
   mkConnection(pat0.wsiM0, bias.wsiS0);   // PAT0->Bias
   mkConnection(bias.wsiM0, cap0.wsiS0);   // Bias->CAP0
@@ -44,8 +48,6 @@ module mkTB18();
   mkConnection(vWci[3],  bias.wciS0);     // Bias Worker
   mkConnection(vWci[4],  cap0.wciS0);     // CAP0
 
-
-  //mkConnection(simIO.host.request, simIO.host.response);
 
   // Simulation Control...
   rule increment_simCycle;
