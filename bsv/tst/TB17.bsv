@@ -36,7 +36,7 @@ module mkTB17();
   endrule
 
   rule terminate (simCycle==10000);
-    $display("[%0d]: %m: mkTB16 termination by terminate rule (timeout)", $time);
+    $display("[%0d]: %m: mkTB17 termination by terminate rule (timeout)", $time);
     $finish;
   endrule
 
