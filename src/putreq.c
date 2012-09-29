@@ -9,9 +9,9 @@ int i;
 
   fd = fopen("/tmp/OpenCPI0_Req", "w");
 
-  for(i=0; i<256 ;i++) {
+  for(i=0; i<10 ;i++) {
     fputc(i, fd);
-    printf("%s sent request %d\n", argv[0], i);
+    printf("%s sent request %d (0x%02x)\n", argv[0], i, i);
   }
 
 	fclose(fd);

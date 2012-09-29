@@ -14,8 +14,8 @@ import Real         ::*;
 (* synthesize *)
 module mkTB17();
 
-  Reg#(Bit#(16))          simCycle       <- mkReg(0);               // simulation cycle counter
-  SimIOIfc                simIO          <- mkSimIO;                // simulator file IO
+  Reg#(Bit#(16))          simCycle       <- mkReg(0);      // simulation cycle counter
+  SimIOIfc                simIO          <- mkSimIO;       // simulator file IO
 
 
   // It is each WCI master's job to generate for each WCI M-S pairing a mReset_n signal that can reset each worker
@@ -35,8 +35,8 @@ module mkTB17();
     simCycle <= simCycle + 1;
   endrule
 
-  rule terminate (simCycle==1000);
-    $display("[%0d]: %m: mkTB16 termination", $time);
+  rule terminate (simCycle==10000);
+    $display("[%0d]: %m: mkTB16 termination by terminate rule (timeout)", $time);
     $finish;
   endrule
 

@@ -20,7 +20,7 @@ int v;
   // This loop for straight binary, one-byte-per-byte...
   do {
     c = getc(fd);
-      printf("%s got response %d with value %d\n", argv[0], i, c);
+      printf("%s got response %d with value %d (0x%02x)\n", argv[0], i, c, c);
       i++;
   } while (c != EOF );
  

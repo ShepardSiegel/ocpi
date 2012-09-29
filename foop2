@@ -19,6 +19,7 @@ set guioptions=aegimrLt
 set helplang=en
 set history=50
 set hlsearch
+set iminsert=0
 set incsearch
 set mouse=a
 set printfont=Lucida_Console:h8
@@ -28,7 +29,7 @@ set shiftwidth=2
 set showcmd
 set tabstop=2
 set termencoding=utf-8
-set window=113
+set window=89
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -41,10 +42,10 @@ badd +59 bsv/tst/TB16.bsv
 badd +79 bsv/tst/TB17.bsv
 badd +59 bsv/tst/SimIO.bsv
 badd +271 bsv/eth/EDCP.bsv
-badd +0 Makefile
+badd +491 Makefile
 badd +52 rtl/mkTB17.v
 badd +1 rtl/mkSimIO
-badd +0 rtl/mkSimIO.v
+badd +1 rtl/mkSimIO.v
 args bsv/tst/TB16.bsv
 edit Makefile
 set splitbelow splitright
@@ -67,16 +68,16 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe '1resize ' . ((&lines * 24 + 57) / 114)
-exe 'vert 1resize ' . ((&columns * 139 + 139) / 279)
-exe '2resize ' . ((&lines * 87 + 57) / 114)
-exe 'vert 2resize ' . ((&columns * 139 + 139) / 279)
-exe '3resize ' . ((&lines * 65 + 57) / 114)
-exe 'vert 3resize ' . ((&columns * 139 + 139) / 279)
-exe '4resize ' . ((&lines * 9 + 57) / 114)
-exe 'vert 4resize ' . ((&columns * 139 + 139) / 279)
-exe '5resize ' . ((&lines * 36 + 57) / 114)
-exe 'vert 5resize ' . ((&columns * 139 + 139) / 279)
+exe '1resize ' . ((&lines * 16 + 45) / 90)
+exe 'vert 1resize ' . ((&columns * 108 + 103) / 206)
+exe '2resize ' . ((&lines * 71 + 45) / 90)
+exe 'vert 2resize ' . ((&columns * 108 + 103) / 206)
+exe '3resize ' . ((&lines * 46 + 45) / 90)
+exe 'vert 3resize ' . ((&columns * 97 + 103) / 206)
+exe '4resize ' . ((&lines * 5 + 45) / 90)
+exe 'vert 4resize ' . ((&columns * 97 + 103) / 206)
+exe '5resize ' . ((&lines * 35 + 45) / 90)
+exe 'vert 5resize ' . ((&columns * 97 + 103) / 206)
 argglobal
 setlocal noarabic
 setlocal autoindent
@@ -174,7 +175,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 491 - ((11 * winheight(0) + 12) / 24)
+let s:l = 491 - ((0 * winheight(0) + 8) / 16)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -279,12 +280,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 57 - ((56 * winheight(0) + 43) / 87)
+let s:l = 33 - ((32 * winheight(0) + 35) / 71)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-57
-normal! 018l
+33
+normal! 0
 wincmd w
 argglobal
 edit rtl/mkSimIO.v
@@ -330,7 +331,7 @@ setlocal formatexpr=
 setlocal formatoptions=croqlm1
 setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
 setlocal grepprg=
-setlocal iminsert=2
+setlocal iminsert=0
 setlocal imsearch=0
 setlocal include=
 setlocal includeexpr=
@@ -384,12 +385,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 206 - ((10 * winheight(0) + 32) / 65)
+let s:l = 207 - ((15 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-206
-normal! 0
+207
+normal! 05l
 wincmd w
 argglobal
 edit rtl/mkTB17.v
@@ -489,7 +490,7 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 52 - ((5 * winheight(0) + 4) / 9)
+let s:l = 52 - ((0 * winheight(0) + 2) / 5)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -594,24 +595,24 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 22 - ((13 * winheight(0) + 18) / 36)
+let s:l = 29 - ((12 * winheight(0) + 17) / 35)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-22
-normal! 039l
+29
+normal! 080l
 wincmd w
 3wincmd w
-exe '1resize ' . ((&lines * 24 + 57) / 114)
-exe 'vert 1resize ' . ((&columns * 139 + 139) / 279)
-exe '2resize ' . ((&lines * 87 + 57) / 114)
-exe 'vert 2resize ' . ((&columns * 139 + 139) / 279)
-exe '3resize ' . ((&lines * 65 + 57) / 114)
-exe 'vert 3resize ' . ((&columns * 139 + 139) / 279)
-exe '4resize ' . ((&lines * 9 + 57) / 114)
-exe 'vert 4resize ' . ((&columns * 139 + 139) / 279)
-exe '5resize ' . ((&lines * 36 + 57) / 114)
-exe 'vert 5resize ' . ((&columns * 139 + 139) / 279)
+exe '1resize ' . ((&lines * 16 + 45) / 90)
+exe 'vert 1resize ' . ((&columns * 108 + 103) / 206)
+exe '2resize ' . ((&lines * 71 + 45) / 90)
+exe 'vert 2resize ' . ((&columns * 108 + 103) / 206)
+exe '3resize ' . ((&lines * 46 + 45) / 90)
+exe 'vert 3resize ' . ((&columns * 97 + 103) / 206)
+exe '4resize ' . ((&lines * 5 + 45) / 90)
+exe 'vert 4resize ' . ((&columns * 97 + 103) / 206)
+exe '5resize ' . ((&lines * 35 + 45) / 90)
+exe 'vert 5resize ' . ((&columns * 97 + 103) / 206)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
