@@ -3,7 +3,7 @@
 
 import Connectable  ::*;
 import ClientServer ::*;
-import FIFO         ::*;
+import FIFOF        ::*;
 import GetPut       ::*;
 
 interface SimIOIfc;
@@ -13,14 +13,14 @@ endinterface
 (* synthesize *)
 module mkSimIO (SimIOIfc);
 
-  UInt#(16) skipAmt = 16;
+  UInt#(16) skipAmt = 32;
 
   Reg#(Maybe#(File))      r_hdl          <- mkReg(tagged Invalid);  // file read handle
   Reg#(Maybe#(File))      w_hdl          <- mkReg(tagged Invalid);  // file write handle
   Reg#(Bit#(32))          h2cpByteCount  <- mkReg(0);               // Host to Control Plane Byte Count
   Reg#(Bit#(32))          cp2hByteCount  <- mkReg(0);               // Control Plane to Host Byte Count
-  FIFO#(Bit#(8))          reqF           <- mkFIFO;                 // input queue from host
-  FIFO#(Bit#(8))          respF          <- mkFIFO;                 // output queue ito host
+  FIFOF#(Bit#(8))         reqF           <- mkFIFOF;                // input queue from host
+  FIFOF#(Bit#(8))         respF          <- mkFIFOF;                // output queue ito host
   Reg#(UInt#(16))         skipCnt        <- mkReg(skipAmt);
 
   rule skipUpdate;
@@ -38,6 +38,7 @@ module mkSimIO (SimIOIfc);
     w_hdl <= tagged Valid hdl;
   endrule
 
+  //rule do_r_char (r_hdl matches tagged Valid .hdl &&& skipCnt==0 &&& !respF.notEmpty);  // only get if respF is EMPTY!
   rule do_r_char (r_hdl matches tagged Valid .hdl &&& skipCnt==0);
     int i <- $fgetc(hdl);
     if (i == -1) begin
@@ -58,7 +59,7 @@ module mkSimIO (SimIOIfc);
     $fwrite(hdl, "%c", c);  // %c should allow $fputc-like functionality
     $fflush(hdl);
     cp2hByteCount <= cp2hByteCount + 1;
-    //$display("[%0d]: get_cp write 0x%x  Simulator->Host response_writeCount:%0d ", $time, c, cp2hByteCount);
+    $display("[%0d]: get_cp write 0x%x  Simulator->Host response_writeCount:%0d ", $time, c, cp2hByteCount);
   endrule
 
   interface Client host;

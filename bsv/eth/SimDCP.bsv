@@ -158,9 +158,9 @@ module mkSimDCP (SimDCPIfc);
     Bit#(8) mTag = leDMH[31:24];
     DCPMesgType mType = unpack(mTyp);
     case (mType)
-      NOP   : dcpReqF.enq(tagged NOP  ( DCPRequestNOP  {isDO:isDO,         tag:mTag, initAdvert:eAddr}));
+      NOP   : dcpReqF.enq(tagged NOP  ( DCPRequestNOP  {isDO:isDO,         tag:mTag,       initAdvert:eAddr}));
       Write : dcpReqF.enq(tagged Write( DCPRequestWrite{isDO:isDO, be:mBe, tag:mTag, data:eData, addr:eAddr}));
-      Read  : dcpReqF.enq(tagged Read ( DCPRequestRead {isDO:isDO, be:mBe, tag:mTag, addr:eAddr}));
+      Read  : dcpReqF.enq(tagged Read ( DCPRequestRead {isDO:isDO, be:mBe, tag:mTag,             addr:eAddr}));
     endcase
     case (mType)
       NOP   : $display("[%0d]: rx_sim_dcp REQUEST: NOP ", $time);
@@ -217,10 +217,10 @@ module mkSimDCP (SimDCPIfc);
   seq
      simRespF.enq(truncate(eePli>> 8));
      simRespF.enq(truncate(eePli>> 0));
-     simRespF.enq(truncate(eeDmh>>24));
-     simRespF.enq(truncate(eeDmh>>16));
-     simRespF.enq(truncate(eeDmh>> 8));
      simRespF.enq(truncate(eeDmh>> 0));
+     simRespF.enq(truncate(eeDmh>> 8));
+     simRespF.enq(truncate(eeDmh>>16));
+     simRespF.enq(truncate(eeDmh>>24));
      if (!isWrtResp) seq
        simRespF.enq(truncate(eeDat>>24));
        simRespF.enq(truncate(eeDat>>16));

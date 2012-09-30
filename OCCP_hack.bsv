@@ -65,7 +65,8 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
   FIFO#(CpReadResp) cpRespF      <- mkFIFO;                  // Outbound Responses
 
   Reg#(CPReq)       cpReq        <-  mkReg(tagged Idle);     // reqeust pending
-  Reg#(Bool)        dispatched   <-  mkReg(False);           // Set when current cpReq is dispatched
+  FIFOF#(Bit#(0))   dispatchF    <-  mkFIFOF;                // Used to order the dispatch after the request
+  FIFOF#(Bit#(0))   cpReqActF    <-  mkFIFOF;                // Not Empty when a request in in flight
   Reg#(Bit#(4))     wrkAct       <-  mkReg(0);               // Number of Active Worker
   Reg#(DWord)       scratch20    <-  mkReg(0);               // Scratch register at 0x20
   Reg#(DWord)       scratch24    <-  mkReg(0);               // Scratch register at 0x24
@@ -112,7 +113,7 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
     devDNAV <= unpack(deviceDNA); // place 64b in 2 DWORD structure
   endrule
 
-  Wire#(Vector#(16, Bit#(32))) uuidV   <- mkDWire(unpack(?)); // uuid   as a Vector of 16 32b DWORDs
+  Wire#(Vector#(16, Bit#(32))) uuidV   <- mkWire; // uuid   as a Vector of 16 32b DWORDs
 
   function makeWciMaster (Integer i);
     //return (i<5||i>12) ? mkWciMaster : mkWciMasterNull;  // only instance the 7 (0:4,13:14) we need
@@ -159,6 +160,7 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
 
     endcase
     cpReq  <= tagged Idle;
+    cpReqActF.deq;
     //$display("[%0d]: %m: setAdminReg WRITE-RETIRED Addr:%0x Data:%0x", $time, bAddr, wd);
   endaction
   endfunction
@@ -271,6 +273,7 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
     CpReadResp crr = CpReadResp { tag:seqTag, data:fromMaybe(32'hDEAD_C0DE, arr) };  // use tag from seqTag
     cpRespF.enq(crr);
     cpReq  <= tagged Idle;
+    cpReqActF.deq;
   endrule
 
   function WCI_SPACE decodeCP(Bit#(22) dwAddr); // 16MB CP Decode Policy
@@ -279,9 +282,10 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
     else                        return(Config);
   endfunction
 
-  (* descending_urgency = "reqRcv, cpDispatch, completeWorkerWrite, completeWorkerRead" *)
 
-  rule cpDispatch (!dispatched);
+  //(* descending_urgency = "reqRcv, cpDispatch, completeWorkerWrite, completeWorkerRead" *)
+
+  rule cpDispatch (dispatchF.notEmpty && cpReqActF.notEmpty);
     (* split *)
     case (cpReq) matches
       tagged AdminWt {wData:.wd, bAddr:.ba}:  setAdminReg(truncate(ba),  wd); 
@@ -289,14 +293,14 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
       tagged WrkWt   {sp:.s, wData:.wd, bAddr:.ba, be:.be}:  reqWorker(s, True,  ba, wd, be);
       tagged WrkRd   {sp:.s, tag:.tag,  bAddr:.ba, be:.be}:  reqWorker(s, False, ba, ?,  be);
     endcase
-    dispatched <= True;
-    $display("[%0d]: %m: OCCP cpDispatch fired" , $time);
+    dispatchF.deq;
   endrule
 
   rule completeWorkerWrite (cpReq matches tagged WrkWt .x );
     let r <- wci[wrkAct].resp;
     wrkAct <= 0;
     cpReq  <= tagged Idle;
+    cpReqActF.deq;
     //$display("[%0d]: %m: Worker:%0x write acknowledged" , $time, wrkAct);
   endrule
 
@@ -307,6 +311,7 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
     cpRespF.enq(crr);
     wrkAct <= 0;
     cpReq  <= tagged Idle;
+    cpReqActF.deq;
     //$display("[%0d]: %m: Worker:%0x read data received:%0x" , $time, wrkAct, rtnData);
   endrule
 
@@ -325,9 +330,9 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
         Control: cpReq <= tagged WrkRd   {sp:Control, tag:x.tag,    bAddr:truncate({x.dwAddr,2'b0}), be:x.byteEn}; 
         Config:  cpReq <= tagged WrkRd   {sp:Config,  tag:x.tag,    bAddr:truncate({x.dwAddr,2'b0}), be:x.byteEn};
       endcase
-      $display("[%0d]: %m: OCCP rcv_req ReadRequest dwAddr:0x%0x" , $time, x.dwAddr);
     end
-    dispatched <= False;
+    cpReqActF.enq(?);   // Enq a token to cover the whole cp flight
+    dispatchF.enq(?);   // Enq a token to let cpDispatch fire once
   endrule
 
   function Wci_m#(32) get_wci_Em (WciMasterIfc#(20,32) i) = i.mas;

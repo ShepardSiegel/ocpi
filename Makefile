@@ -258,13 +258,14 @@ bsim18: $(OBJ)
 	#echo Bit#\(32\) compileTime = `date +%s`\; // Bluesim `date` > bsv/utl/CompileTime.bsv
 	bsc -u -sim -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions \
+		-keep-fires \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D DEFINE_NDW=1 \
 		$(BSVTST)/$(BTEST18).bsv
 
 	# create bluesim executable
-	bsc -sim -keep-inlined-boundaries \
+	bsc -sim -keep-inlined-boundaries -keep-fires \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-o $(OBJ)/mk$(BTEST18).bexe -e mk$(BTEST18) $(OBJ)/*.ba
 
