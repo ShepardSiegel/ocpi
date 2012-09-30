@@ -54,7 +54,7 @@ module mkTB18();
     simCycle <= simCycle + 1;
   endrule
 
-  rule terminate (simCycle==10000);
+  rule terminate (simCycle==64000);
     $display("[%0d]: %m: mkTB18 termination by terminate rule (timeout)", $time);
     $finish;
   endrule
