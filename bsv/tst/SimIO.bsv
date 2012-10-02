@@ -33,7 +33,7 @@ module mkSimIO (SimIOIfc);
 
   rule passTime (spinCredit>0);
     spinCredit.acc2(-1);
-    $display("[%0d]: passing time - spinCredit:%0d dcpCredit:%0d", $time, spinCredit, dcpCredit);
+    //$display("[%0d]: passing time - spinCredit:%0d dcpCredit:%0d", $time, spinCredit, dcpCredit);
   endrule
 
   rule do_w_open (w_hdl matches tagged Invalid);                         // Open response channel first
@@ -65,14 +65,16 @@ module mkSimIO (SimIOIfc);
     end else begin
         Bit#(8) c = truncate(pack(i));
         h2ioByteCount <= h2ioByteCount + 1;
-        $display("[%0d]: get_ioctl read 0x%x  Host->Simulator ioctl_readCount:%0d ", $time, c, h2ioByteCount);
+        //$display("[%0d]: get_ioctl read 0x%x  Host->Simulator ioctl_readCount:%0d ", $time, c, h2ioByteCount);
         isOpcode <= !isOpcode;
         if (isOpcode) begin
           ioOpcode <= c;
         end else begin
           case (ioOpcode)
             0   : spinCredit.acc1(unpack(extend(c)));
-            1   : dcpCredit.acc1(unpack(extend(c)));
+            1   : dcpCredit.acc1 (unpack(extend(c)));
+            253 : action $dumpoff; $display("[%0d]: dumpoff called", $time); endaction
+            254 : action $dumpon;  $display("[%0d]: dumpon called", $time);  endaction
             255 : doTerminate <= True;
           endcase
         end
@@ -89,7 +91,7 @@ module mkSimIO (SimIOIfc);
       else begin
         Bit#(8) c = truncate(pack(i));
         h2cpByteCount <= h2cpByteCount + 1;
-        $display("[%0d]: get_cp read 0x%x  Host->Simulator DCP request_readCount:%0d ", $time, c, h2cpByteCount);
+        //$display("[%0d]: get_cp read 0x%x  Host->Simulator DCP request_readCount:%0d ", $time, c, h2cpByteCount);
         reqF.enq(c);
         dcpCredit.acc2(-1);
       end
@@ -100,7 +102,7 @@ module mkSimIO (SimIOIfc);
     $fwrite(hdl, "%c", c);  // %c should allow $fputc-like functionality
     $fflush(hdl);
     cp2hByteCount <= cp2hByteCount + 1;
-    $display("[%0d]: get_cp write 0x%x  Simulator->Host response_writeCount:%0d ", $time, c, cp2hByteCount);
+    //$display("[%0d]: get_cp write 0x%x  Simulator->Host response_writeCount:%0d ", $time, c, cp2hByteCount);
   endrule
 
   rule do_terminate (doTerminate);

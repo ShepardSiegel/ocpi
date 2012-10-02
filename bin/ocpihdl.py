@@ -49,6 +49,11 @@ def wadmin(device, offset, wdata):
   #return(int(cmdout, 0))
 
 def wwrite(device, workerNum, offset, wdata):
+  cmd = ["./ocpihdl", "wwrite", "-P", device, str(workerNum), str(offset), str(wdata)]
+  cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+  #return(int(cmdout, 0))
+
+def wwritePage(device, workerNum, offset, wdata):
   wwpage(device, workerNum, offset>>20)
   cmd = ["./ocpihdl", "wwrite", "-P", device, str(workerNum), str(offset), str(wdata)]
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -66,6 +71,11 @@ def wunreset(device, workerNum):
 
 def wwctl(device, workerNum, wdata):
   cmd = ["./ocpihdl", "wwctl", "-P", device, str(workerNum), str(wdata)]
+  cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+  #return(int(cmdout, 0))
+
+def wwpage(device, workerNum, wpage):
+  cmd = ["./ocpihdl", "wwpage", "-P", device, str(workerNum), str(wpage)]
   cmdout = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
   #return(int(cmdout, 0))
 

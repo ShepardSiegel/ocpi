@@ -185,7 +185,9 @@ module mkSimDCP (SimDCPIfc);
           cpReqF.enq(tagged WriteRequest( CpWriteReq{dwAddr:truncate(w.addr>>2), byteEn:w.be, data:w.data}));  // Issue the Write
           if (!w.isDO) lastTag <= (tagged Valid w.tag); // Capture the tag into lastTag
           if ( w.isDO) doInFlight <= True;
-        end 
+        end else begin
+          $display("[%0d]: dcp_to_cp_request ***TAG MATCH IN DCP WRITE*** (Not Forwarding Write Request to OCCP)", $time);
+        end
         dcpRespF.enq(tagged Write( DCPResponseWrite{hasDO:w.isDO, tag:w.tag, code:RESP_OK})); // Blind ACK the Write regardless if tag match or not
         //TODO: When CP write responses are non-blind (from non-posted requests), make write machine use lastResp like Read
         end
@@ -196,7 +198,7 @@ module mkSimDCP (SimDCPIfc);
           if ( r.isDO) doInFlight <= True;
         end else begin
           dcpRespF.enq(lastResp);   // Retransmit the lastResp since tags match
-          $display("[%0d]: dcp_to_cp_request ***TAG MATCH*** (Returning Previous Response)", $time);
+          $display("[%0d]: dcp_to_cp_request ***TAG MATCH IN DCP READ*** (Returning Previous Response)", $time);
         end
         end
     endcase

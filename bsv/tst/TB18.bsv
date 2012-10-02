@@ -34,9 +34,9 @@ module mkTB18();
 
   Vector#(Nwcit, WciEM) vWci = cp.wci_Vm;
 
-  WSIPatternWorker4BIfc  pat0  <- mkWSIPatternWorker(True, clocked_by sys1_clk, reset_by(vWci[2].mReset_n));
-  BiasWorker4BIfc        bias  <- mkBiasWorker4B(    True, clocked_by sys1_clk, reset_by(vWci[3].mReset_n));
-  WSICaptureWorker4BIfc  cap0  <- mkWSICaptureWorker(True, clocked_by sys1_clk, reset_by(vWci[4].mReset_n));
+  WSIPatternWorker4BIfc  pat0  <- mkWSIPatternWorker4B(True, clocked_by sys1_clk, reset_by(vWci[2].mReset_n));
+  BiasWorker4BIfc        bias  <- mkBiasWorker4B(      True, clocked_by sys1_clk, reset_by(vWci[3].mReset_n));
+  WSICaptureWorker4BIfc  cap0  <- mkWSICaptureWorker4B(True, clocked_by sys1_clk, reset_by(vWci[4].mReset_n));
 
   mkConnection(simIO.host,simDCP.host);   // Connect simIO to simDCP 
   mkConnection(simDCP.client,cp.server);  // Connect simDCP to Control Plane 
@@ -54,9 +54,9 @@ module mkTB18();
     simCycle <= simCycle + 1;
   endrule
 
-  rule terminate (simCycle==64000);
-    $display("[%0d]: %m: mkTB18 termination by terminate rule (timeout)", $time);
-    $finish;
-  endrule
+//rule terminate (simCycle==64000);
+//  $display("[%0d]: %m: mkTB18 termination by terminate rule (timeout)", $time);
+//  $finish;
+//endrule
 
 endmodule: mkTB18

@@ -290,7 +290,7 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
       tagged WrkRd   {sp:.s, tag:.tag,  bAddr:.ba, be:.be}:  reqWorker(s, False, ba, ?,  be);
     endcase
     dispatched <= True;
-    $display("[%0d]: %m: OCCP cpDispatch fired" , $time);
+    //$display("[%0d]: %m: OCCP cpDispatch fired" , $time);
   endrule
 
   rule completeWorkerWrite (cpReq matches tagged WrkWt .x );
@@ -325,7 +325,7 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
         Control: cpReq <= tagged WrkRd   {sp:Control, tag:x.tag,    bAddr:truncate({x.dwAddr,2'b0}), be:x.byteEn}; 
         Config:  cpReq <= tagged WrkRd   {sp:Config,  tag:x.tag,    bAddr:truncate({x.dwAddr,2'b0}), be:x.byteEn};
       endcase
-      $display("[%0d]: %m: OCCP rcv_req ReadRequest dwAddr:0x%0x" , $time, x.dwAddr);
+      //$display("[%0d]: %m: OCCP rcv_req ReadRequest dwAddr:0x%0x" , $time, x.dwAddr);
     end
     dispatched <= False;
   endrule
