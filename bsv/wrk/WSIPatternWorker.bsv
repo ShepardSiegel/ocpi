@@ -248,9 +248,11 @@ endfunction
    end else if (wciReq.addr[31:20] == 'h800) begin // Data Region...
      let dReq  = BRAMRequest {write:True, address:truncate(wciReq.addr[31:2]), datain:wciReq.data, responseOnWrite:False };
       dataBramsB[0].request.put(dReq); 
+      $display("[%0d]: %m: Write to Pattern Gen DATA region addr:%0x data:%0x", $time, wciReq.addr, wciReq.data);
    end else if (wciReq.addr[31:20] == 'h400) begin // Meta Region...
      let mReq  = BRAMRequest {write:True, address:truncate(wciReq.addr[31:4]), datain:wciReq.data, responseOnWrite:False };
      metaBramsB[wciReq.addr[3:2]].request.put(mReq); 
+     $display("[%0d]: %m: Write to Pattern Gen META region addr:%0x data:%0x", $time, wciReq.addr, wciReq.data);
    end
    wci.respPut.put(wciOKResponse); // write response
   endrule

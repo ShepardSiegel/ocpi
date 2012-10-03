@@ -696,6 +696,7 @@ module mkWciMaster (WciMasterIfc#(nda,na)) provisos (
           end
           4'hC: begin // Worker Control Byte Offset 0x30...
             pageWindow <= truncate(wdata);  // Write the pageWindow register
+            $display("[%0d]: %m: pageWindow register written with %0x ", $time, wdata);
           end
         endcase
         respF.enq(WciResp{resp:DVA,data:'0});    // need to ack Control writes

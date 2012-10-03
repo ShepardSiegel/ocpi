@@ -1,0 +1,98 @@
+[*]
+[*] GTKWave Analyzer v3.3.39 (w)1999-2012 BSI
+[*] Wed Oct  3 14:32:45 2012
+[*]
+[dumpfile] "/home/shep/projects/ocpi/dump.vcd"
+[dumpfile_mtime] "Wed Oct  3 14:13:26 2012"
+[dumpfile_size] 5563816
+[savefile] "/home/shep/projects/ocpi/biaswave1.gtkw"
+[timestart] 81637
+[size] 2560 1553
+[pos] -313 -310
+*-5.658140 81669 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] main.
+[treeopen] main.top.
+[treeopen] main.top.bias.
+[sst_width] 469
+[signals_width] 231
+[sst_expanded] 1
+[sst_vpaned_height] 491
+@22
+main.top.simCycle[15:0]
+@200
+-
+-Pattern Gen
+@22
+main.top.pat0.wsiM0_MBurstLength[11:0]
+@28
+main.top.pat0.wsiM0_MBurstPrecise
+@22
+main.top.pat0.wsiM0_MByteEn[3:0]
+@28
+main.top.pat0.wsiM0_MCmd[2:0]
+main.top.pat0.wsiM0_MDataInfo
+@22
+main.top.pat0.wsiM0_MData[31:0]
+main.top.pat0.wsiM0_MReqInfo[7:0]
+@28
+main.top.pat0.wsiM0_MReqLast
+main.top.pat0.wsiM0_MReset_n
+main.top.pat0.wsiM0_SReset_n
+main.top.pat0.wsiM0_SThreadBusy
+@22
+main.top.pat0.wsiM_iMesgCount[31:0]
+main.top.pat0.wsiM_pMesgCount[31:0]
+main.top.pat0.wsiM_tBusyCount[31:0]
+@200
+-
+-Bias Worker
+@22
+main.top.bias.wsiM0_MBurstLength[11:0]
+@28
+main.top.bias.wsiM0_MBurstPrecise
+@22
+main.top.bias.wsiM0_MByteEn[3:0]
+@28
+main.top.bias.wsiM0_MCmd[2:0]
+main.top.bias.wsiM0_MDataInfo
+@22
+main.top.bias.wsiM0_MData[31:0]
+main.top.bias.wsiM0_MReqInfo[7:0]
+@28
+main.top.bias.wsiM0_MReqLast
+main.top.bias.wsiM0_MReset_n
+main.top.bias.wsiM0_SReset_n
+main.top.bias.wsiM0_SThreadBusy
+@22
+main.top.bias.wsiM_iMesgCount[31:0]
+main.top.bias.wsiM_pMesgCount[31:0]
+main.top.bias.wsiM_tBusyCount[31:0]
+@200
+-
+-Capture Worker
+@22
+main.top.cap0.wsiS0_MBurstLength[11:0]
+@28
+main.top.cap0.wsiS0_MBurstPrecise
+@22
+main.top.cap0.wsiS0_MByteEn[3:0]
+@28
+main.top.cap0.wsiS0_MCmd[2:0]
+main.top.cap0.wsiS0_MDataInfo
+@22
+main.top.cap0.wsiS0_MData[31:0]
+main.top.cap0.wsiS0_MReqInfo[7:0]
+@28
+main.top.cap0.wsiS0_MReqLast
+main.top.cap0.wsiS0_MReset_n
+main.top.cap0.wsiS0_SReset_n
+@29
+main.top.cap0.wsiS0_SThreadBusy
+@22
+main.top.cap0.dataCount[31:0]
+main.top.cap0.metaCount[31:0]
+main.top.cap0.wsiS_iMesgCount[31:0]
+main.top.cap0.wsiS_pMesgCount[31:0]
+main.top.cap0.wsiS_tBusyCount[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

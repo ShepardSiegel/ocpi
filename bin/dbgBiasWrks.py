@@ -77,7 +77,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
     wwrite(dev0,  pat0WrkNum, 0x000C, 0x00000043);
 
     print 'Set Page Register to Data Region on Pattern Generator...'
-    wwpage(dev0,  pat0WrkNum, 0x400);
+    wwpage(dev0,  pat0WrkNum, 0x800);
     print 'Write Data Region...'
     wwrite(dev0,  pat0WrkNum, 0x0000, 0x03020100);
     wwrite(dev0,  pat0WrkNum, 0x0004, 0x07060504);
