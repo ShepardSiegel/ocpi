@@ -8,6 +8,10 @@ import os
 import subprocess
 import sys
 
+def argTest(arg):
+  print arg
+  print hex(arg)
+
 #dev0 = 'ether:eth1/A0:36:FA:25:3B:81'
 #dev0 = 'ether:eth1/A0:36:FA:25:3E:A5'
 dev0 = 'sim:OpenCPI0'
@@ -20,9 +24,11 @@ where <argfoop> is a valid foop.""" % (prog_name)
     sys.exit(1)
   else:
     print 'argv 1 is ' + argv[1]
+
     if probe(dev0):
       print 'Device not Found'. dev0
       sys.exit(1)
+
 
     pat0WrkNum = 2   # Pattern
     biasWrkNum = 3   # Bias
@@ -71,7 +77,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
     print 'Set Page Register to Metadata on Pattern Generator...'
     wwpage(dev0,  pat0WrkNum, 0x400);
     print 'Write Metadata...'
-    wwrite(dev0,  pat0WrkNum, 0x0000, 0x00000010); # 16B
+    wwrite(dev0,  pat0WrkNum, 0x0000, 0x00000100); # 256
     wwrite(dev0,  pat0WrkNum, 0x0004, 0x00000002); # opcode 2
     wwrite(dev0,  pat0WrkNum, 0x0008, 0x00000042);
     wwrite(dev0,  pat0WrkNum, 0x000C, 0x00000043);
@@ -79,11 +85,15 @@ where <argfoop> is a valid foop.""" % (prog_name)
     print 'Set Page Register to Data Region on Pattern Generator...'
     wwpage(dev0,  pat0WrkNum, 0x800);
     print 'Write Data Region...'
-    wwrite(dev0,  pat0WrkNum, 0x0000, 0x03020100);
-    wwrite(dev0,  pat0WrkNum, 0x0004, 0x07060504);
-    wwrite(dev0,  pat0WrkNum, 0x0008, 0x0B0A0908);
-    wwrite(dev0,  pat0WrkNum, 0x000C, 0x0F0E0D0C);
-    wwrite(dev0,  pat0WrkNum, 0x0010, 0x13121110);
+    #wwrite(dev0,  pat0WrkNum, 0x0000, 0x03020100);
+    #wwrite(dev0,  pat0WrkNum, 0x0004, 0x07060504);
+    #wwrite(dev0,  pat0WrkNum, 0x0008, 0x0B0A0908);
+    #wwrite(dev0,  pat0WrkNum, 0x000C, 0x0F0E0D0C);
+    #wwrite(dev0,  pat0WrkNum, 0x0010, 0x13121110);
+
+    startWord = 0x03020100;
+    for i in range(64):
+      wwrite(dev0,  pat0WrkNum, i*4, i);
 
     print 'ReturnPage Register to 0 on Pattern Generator...'
     wwpage(dev0,  pat0WrkNum, 0x0);  # Page 0

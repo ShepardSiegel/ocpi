@@ -525,6 +525,7 @@ isim18: $(OBJ)
 		$(BSVTST)/$(ITEST18).bsv
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST18) -o runsim
+	# uncomment next line to run
 	./runsim -testplusarg bscvcd
 
 	# create verilog executable

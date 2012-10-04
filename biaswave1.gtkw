@@ -1,39 +1,43 @@
 [*]
 [*] GTKWave Analyzer v3.3.39 (w)1999-2012 BSI
-[*] Wed Oct  3 14:32:45 2012
+[*] Thu Oct  4 18:23:01 2012
 [*]
 [dumpfile] "/home/shep/projects/ocpi/dump.vcd"
-[dumpfile_mtime] "Wed Oct  3 14:13:26 2012"
-[dumpfile_size] 5563816
+[dumpfile_mtime] "Thu Oct  4 18:12:14 2012"
+[dumpfile_size] 28342073
 [savefile] "/home/shep/projects/ocpi/biaswave1.gtkw"
-[timestart] 81637
+[timestart] 28920000
 [size] 2560 1553
-[pos] -313 -310
-*-5.658140 81669 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -269 -266
+*-18.025078 29170000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] main.
 [treeopen] main.top.
 [treeopen] main.top.bias.
+[treeopen] main.top.cp.
 [sst_width] 469
 [signals_width] 231
 [sst_expanded] 1
-[sst_vpaned_height] 491
-@22
+[sst_vpaned_height] 1044
+@24
 main.top.simCycle[15:0]
+@29
+main.top.cp.cpReqF.ENQ
+@28
+main.top.cp.cpRespF.ENQ
 @200
 -
 -Pattern Gen
 @22
-main.top.pat0.wsiM0_MBurstLength[11:0]
+#{wsiM0_MBurstLength[11:0]} main.top.pat0.wsiM0_MBurstLength[11] main.top.pat0.wsiM0_MBurstLength[10] main.top.pat0.wsiM0_MBurstLength[9] main.top.pat0.wsiM0_MBurstLength[8] main.top.pat0.wsiM0_MBurstLength[7] main.top.pat0.wsiM0_MBurstLength[6] main.top.pat0.wsiM0_MBurstLength[5] main.top.pat0.wsiM0_MBurstLength[4] main.top.pat0.wsiM0_MBurstLength[3] main.top.pat0.wsiM0_MBurstLength[2] main.top.pat0.wsiM0_MBurstLength[1] main.top.pat0.wsiM0_MBurstLength[0]
 @28
 main.top.pat0.wsiM0_MBurstPrecise
 @22
-main.top.pat0.wsiM0_MByteEn[3:0]
+#{wsiM0_MByteEn[3:0]} main.top.pat0.wsiM0_MByteEn[3] main.top.pat0.wsiM0_MByteEn[2] main.top.pat0.wsiM0_MByteEn[1] main.top.pat0.wsiM0_MByteEn[0]
 @28
-main.top.pat0.wsiM0_MCmd[2:0]
-main.top.pat0.wsiM0_MDataInfo
+#{wsiM0_MCmd[2:0]} main.top.pat0.wsiM0_MCmd[2] main.top.pat0.wsiM0_MCmd[1] main.top.pat0.wsiM0_MCmd[0]
 @22
-main.top.pat0.wsiM0_MData[31:0]
-main.top.pat0.wsiM0_MReqInfo[7:0]
+#{wsiM0_MData[31:0]} main.top.pat0.wsiM0_MData[31] main.top.pat0.wsiM0_MData[30] main.top.pat0.wsiM0_MData[29] main.top.pat0.wsiM0_MData[28] main.top.pat0.wsiM0_MData[27] main.top.pat0.wsiM0_MData[26] main.top.pat0.wsiM0_MData[25] main.top.pat0.wsiM0_MData[24] main.top.pat0.wsiM0_MData[23] main.top.pat0.wsiM0_MData[22] main.top.pat0.wsiM0_MData[21] main.top.pat0.wsiM0_MData[20] main.top.pat0.wsiM0_MData[19] main.top.pat0.wsiM0_MData[18] main.top.pat0.wsiM0_MData[17] main.top.pat0.wsiM0_MData[16] main.top.pat0.wsiM0_MData[15] main.top.pat0.wsiM0_MData[14] main.top.pat0.wsiM0_MData[13] main.top.pat0.wsiM0_MData[12] main.top.pat0.wsiM0_MData[11] main.top.pat0.wsiM0_MData[10] main.top.pat0.wsiM0_MData[9] main.top.pat0.wsiM0_MData[8] main.top.pat0.wsiM0_MData[7] main.top.pat0.wsiM0_MData[6] main.top.pat0.wsiM0_MData[5] main.top.pat0.wsiM0_MData[4] main.top.pat0.wsiM0_MData[3] main.top.pat0.wsiM0_MData[2] main.top.pat0.wsiM0_MData[1] main.top.pat0.wsiM0_MData[0]
+#{wsiM0_MReqInfo[7:0]} main.top.pat0.wsiM0_MReqInfo[7] main.top.pat0.wsiM0_MReqInfo[6] main.top.pat0.wsiM0_MReqInfo[5] main.top.pat0.wsiM0_MReqInfo[4] main.top.pat0.wsiM0_MReqInfo[3] main.top.pat0.wsiM0_MReqInfo[2] main.top.pat0.wsiM0_MReqInfo[1] main.top.pat0.wsiM0_MReqInfo[0]
 @28
 main.top.pat0.wsiM0_MReqLast
 main.top.pat0.wsiM0_MReset_n
@@ -47,17 +51,16 @@ main.top.pat0.wsiM_tBusyCount[31:0]
 -
 -Bias Worker
 @22
-main.top.bias.wsiM0_MBurstLength[11:0]
+#{wsiM0_MBurstLength[11:0]} main.top.bias.wsiM0_MBurstLength[11] main.top.bias.wsiM0_MBurstLength[10] main.top.bias.wsiM0_MBurstLength[9] main.top.bias.wsiM0_MBurstLength[8] main.top.bias.wsiM0_MBurstLength[7] main.top.bias.wsiM0_MBurstLength[6] main.top.bias.wsiM0_MBurstLength[5] main.top.bias.wsiM0_MBurstLength[4] main.top.bias.wsiM0_MBurstLength[3] main.top.bias.wsiM0_MBurstLength[2] main.top.bias.wsiM0_MBurstLength[1] main.top.bias.wsiM0_MBurstLength[0]
 @28
 main.top.bias.wsiM0_MBurstPrecise
 @22
-main.top.bias.wsiM0_MByteEn[3:0]
+#{wsiM0_MByteEn[3:0]} main.top.bias.wsiM0_MByteEn[3] main.top.bias.wsiM0_MByteEn[2] main.top.bias.wsiM0_MByteEn[1] main.top.bias.wsiM0_MByteEn[0]
 @28
-main.top.bias.wsiM0_MCmd[2:0]
-main.top.bias.wsiM0_MDataInfo
+#{wsiM0_MCmd[2:0]} main.top.bias.wsiM0_MCmd[2] main.top.bias.wsiM0_MCmd[1] main.top.bias.wsiM0_MCmd[0]
 @22
-main.top.bias.wsiM0_MData[31:0]
-main.top.bias.wsiM0_MReqInfo[7:0]
+#{wsiM0_MData[31:0]} main.top.bias.wsiM0_MData[31] main.top.bias.wsiM0_MData[30] main.top.bias.wsiM0_MData[29] main.top.bias.wsiM0_MData[28] main.top.bias.wsiM0_MData[27] main.top.bias.wsiM0_MData[26] main.top.bias.wsiM0_MData[25] main.top.bias.wsiM0_MData[24] main.top.bias.wsiM0_MData[23] main.top.bias.wsiM0_MData[22] main.top.bias.wsiM0_MData[21] main.top.bias.wsiM0_MData[20] main.top.bias.wsiM0_MData[19] main.top.bias.wsiM0_MData[18] main.top.bias.wsiM0_MData[17] main.top.bias.wsiM0_MData[16] main.top.bias.wsiM0_MData[15] main.top.bias.wsiM0_MData[14] main.top.bias.wsiM0_MData[13] main.top.bias.wsiM0_MData[12] main.top.bias.wsiM0_MData[11] main.top.bias.wsiM0_MData[10] main.top.bias.wsiM0_MData[9] main.top.bias.wsiM0_MData[8] main.top.bias.wsiM0_MData[7] main.top.bias.wsiM0_MData[6] main.top.bias.wsiM0_MData[5] main.top.bias.wsiM0_MData[4] main.top.bias.wsiM0_MData[3] main.top.bias.wsiM0_MData[2] main.top.bias.wsiM0_MData[1] main.top.bias.wsiM0_MData[0]
+#{wsiM0_MReqInfo[7:0]} main.top.bias.wsiM0_MReqInfo[7] main.top.bias.wsiM0_MReqInfo[6] main.top.bias.wsiM0_MReqInfo[5] main.top.bias.wsiM0_MReqInfo[4] main.top.bias.wsiM0_MReqInfo[3] main.top.bias.wsiM0_MReqInfo[2] main.top.bias.wsiM0_MReqInfo[1] main.top.bias.wsiM0_MReqInfo[0]
 @28
 main.top.bias.wsiM0_MReqLast
 main.top.bias.wsiM0_MReset_n
@@ -71,22 +74,20 @@ main.top.bias.wsiM_tBusyCount[31:0]
 -
 -Capture Worker
 @22
-main.top.cap0.wsiS0_MBurstLength[11:0]
+#{wsiS0_MBurstLength[11:0]} main.top.cap0.wsiS0_MBurstLength[11] main.top.cap0.wsiS0_MBurstLength[10] main.top.cap0.wsiS0_MBurstLength[9] main.top.cap0.wsiS0_MBurstLength[8] main.top.cap0.wsiS0_MBurstLength[7] main.top.cap0.wsiS0_MBurstLength[6] main.top.cap0.wsiS0_MBurstLength[5] main.top.cap0.wsiS0_MBurstLength[4] main.top.cap0.wsiS0_MBurstLength[3] main.top.cap0.wsiS0_MBurstLength[2] main.top.cap0.wsiS0_MBurstLength[1] main.top.cap0.wsiS0_MBurstLength[0]
 @28
 main.top.cap0.wsiS0_MBurstPrecise
 @22
-main.top.cap0.wsiS0_MByteEn[3:0]
+#{wsiS0_MByteEn[3:0]} main.top.cap0.wsiS0_MByteEn[3] main.top.cap0.wsiS0_MByteEn[2] main.top.cap0.wsiS0_MByteEn[1] main.top.cap0.wsiS0_MByteEn[0]
 @28
-main.top.cap0.wsiS0_MCmd[2:0]
-main.top.cap0.wsiS0_MDataInfo
+#{wsiS0_MCmd[2:0]} main.top.cap0.wsiS0_MCmd[2] main.top.cap0.wsiS0_MCmd[1] main.top.cap0.wsiS0_MCmd[0]
 @22
-main.top.cap0.wsiS0_MData[31:0]
-main.top.cap0.wsiS0_MReqInfo[7:0]
+#{wsiS0_MData[31:0]} main.top.cap0.wsiS0_MData[31] main.top.cap0.wsiS0_MData[30] main.top.cap0.wsiS0_MData[29] main.top.cap0.wsiS0_MData[28] main.top.cap0.wsiS0_MData[27] main.top.cap0.wsiS0_MData[26] main.top.cap0.wsiS0_MData[25] main.top.cap0.wsiS0_MData[24] main.top.cap0.wsiS0_MData[23] main.top.cap0.wsiS0_MData[22] main.top.cap0.wsiS0_MData[21] main.top.cap0.wsiS0_MData[20] main.top.cap0.wsiS0_MData[19] main.top.cap0.wsiS0_MData[18] main.top.cap0.wsiS0_MData[17] main.top.cap0.wsiS0_MData[16] main.top.cap0.wsiS0_MData[15] main.top.cap0.wsiS0_MData[14] main.top.cap0.wsiS0_MData[13] main.top.cap0.wsiS0_MData[12] main.top.cap0.wsiS0_MData[11] main.top.cap0.wsiS0_MData[10] main.top.cap0.wsiS0_MData[9] main.top.cap0.wsiS0_MData[8] main.top.cap0.wsiS0_MData[7] main.top.cap0.wsiS0_MData[6] main.top.cap0.wsiS0_MData[5] main.top.cap0.wsiS0_MData[4] main.top.cap0.wsiS0_MData[3] main.top.cap0.wsiS0_MData[2] main.top.cap0.wsiS0_MData[1] main.top.cap0.wsiS0_MData[0]
+#{wsiS0_MReqInfo[7:0]} main.top.cap0.wsiS0_MReqInfo[7] main.top.cap0.wsiS0_MReqInfo[6] main.top.cap0.wsiS0_MReqInfo[5] main.top.cap0.wsiS0_MReqInfo[4] main.top.cap0.wsiS0_MReqInfo[3] main.top.cap0.wsiS0_MReqInfo[2] main.top.cap0.wsiS0_MReqInfo[1] main.top.cap0.wsiS0_MReqInfo[0]
 @28
 main.top.cap0.wsiS0_MReqLast
 main.top.cap0.wsiS0_MReset_n
 main.top.cap0.wsiS0_SReset_n
-@29
 main.top.cap0.wsiS0_SThreadBusy
 @22
 main.top.cap0.dataCount[31:0]
