@@ -77,7 +77,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
     print 'Set Page Register to Metadata on Pattern Generator...'
     wwpage(dev0,  pat0WrkNum, 0x400);
     print 'Write Metadata...'
-    wwrite(dev0,  pat0WrkNum, 0x0000, 0x00000100); # 256
+    wwrite(dev0,  pat0WrkNum, 0x0000, 0x00000080); # 32*4=128
     wwrite(dev0,  pat0WrkNum, 0x0004, 0x00000002); # opcode 2
     wwrite(dev0,  pat0WrkNum, 0x0008, 0x00000042);
     wwrite(dev0,  pat0WrkNum, 0x000C, 0x00000043);
@@ -92,7 +92,7 @@ where <argfoop> is a valid foop.""" % (prog_name)
     #wwrite(dev0,  pat0WrkNum, 0x0010, 0x13121110);
 
     startWord = 0x03020100;
-    for i in range(64):
+    for i in range(32):
       wwrite(dev0,  pat0WrkNum, i*4, i);
 
     print 'ReturnPage Register to 0 on Pattern Generator...'
