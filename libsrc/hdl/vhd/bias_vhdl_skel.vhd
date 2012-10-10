@@ -7,39 +7,24 @@
 
 library IEEE; use IEEE.std_logic_1164.all; use ieee.numeric_std.all;
 library ocpi; use ocpi.types.all; -- remove this to avoid all ocpi name collisions
+
 architecture rtl of bias_vhdl_worker is
 begin
-
-  variable moveData : std_logic;  -- combi decode of non-reset when source and sink are ready to move data
 
   reg : process(ctl_in.clk) is
   begin
 
   if rising_edge(ctl_in.clk) then
-
-    if ctl_in.reset then
-      in_out.SReset_n     = '0';
-      in_out.SThreadBusy  = '1';
-      moveData := 0;
-    else
-      in_out.SReset_n     = '1';
-      in_out.SThreadBusy  = '0';
-      moveData := in_out.ready && out_out.ready;
-    end if;
-
   -- Non-reset condtionalized synchronous assignments...
-    in_out.take         <= moveData;
-    out_out.give        <= moveData;
+    in_out.take         <= in_in.ready and out_in.ready;
+    out_out.give        <= in_in.ready and out_in.ready;
     out_out.data        <= in_in.data;
     out_out.byte_enable <= in_in.byte_enable;
     out_out.som         <= in_in.som;
     out_out.eom         <= in_in.eom;
     out_out.valid       <= in_in.valid;
-    
-  end if
-
   end if;
+
   end process reg;
 
-  
 end rtl;

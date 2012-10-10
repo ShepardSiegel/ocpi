@@ -63,6 +63,7 @@ OCAPP_S3b   ?= OCApp_scenario3b
 OCAPP_S4    ?= OCApp_scenario4
 
 VLG_HDL   = libsrc/hdl/ocpi
+VHD_HDL   = libsrc/hdl/vhd
 
 # Select if we use the local or opencpi-referenced build - only uncomment one of these..
 # scripts/buildhdl was the "original" self-contained ocpi upstream dir. No longer the default.
@@ -526,7 +527,44 @@ isim18: $(OBJ)
 
 	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST18) -o runsim
 	# uncomment next line to run
-	./runsim -testplusarg bscvcd
+	#./runsim -testplusarg bscvcd
+
+	# create verilog executable
+	#cd $(OBJ) && bsc -vsim modelsim -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
+
+	# run verilog
+	#cd $(OBJ) && mk$(ITEST).vexe > mk$(ITEST).runlog
+
+	#@# test to be sure the word "PASSED" is in the log file
+	#@ if !(grep -c PASSED $(OBJ)/mk$(ITEST).runlog) then exit 2; fi
+
+######################################################################
+isim18vhd: $(OBJ)
+
+	# compile to verilog backend for ISim
+	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D DEFINE_NDW=1 \
+		$(BSVTST)/$(ITEST18).bsv
+
+	rm rtl/mkBiasWorker4B.v
+
+	vhpcomp -work ocpi $(VHD_HDL)/ocpi_ocp.vhd $(VHD_HDL)/ocpi_types.vhd $(VHD_HDL)/ocpi_wci.vhd $(VHD_HDL)/ocpi_worker.vhd $(VHD_HDL)/ocpi_types_body.vhd $(VHD_HDL)/ocpi_wci_body.vhd  $(VHD_HDL)/ocpi_wci_impl.vhd  $(VHD_HDL)/ocpi_props.vhd $(VHD_HDL)/ocpi_props_impl.vhd
+	vhpcomp -work work $(VHD_HDL)/bias_vhdl_defs.vhd $(VHD_HDL)/bias_vhdl_impl.vhd $(VHD_HDL)/bias_vhdl_skel.vhd 
+
+
+	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps \
+	  -vdir $(RTL) \
+		-bdir $(OBJ) \
+		-vsearch $(VHD_HDL):$(VLG_HDL):+ \
+		-e mk$(ITEST18) \
+		-o runsim
+	# uncomment next line to run
+	#./runsim -testplusarg bscvcd
 
 	# create verilog executable
 	#cd $(OBJ) && bsc -vsim modelsim -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
