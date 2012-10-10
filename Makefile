@@ -64,6 +64,7 @@ OCAPP_S4    ?= OCApp_scenario4
 
 VLG_HDL   = libsrc/hdl/ocpi
 VHD_HDL   = libsrc/hdl/vhd
+BSV_HDL   = libsrc/hdl/bsv
 
 # Select if we use the local or opencpi-referenced build - only uncomment one of these..
 # scripts/buildhdl was the "original" self-contained ocpi upstream dir. No longer the default.
@@ -541,39 +542,39 @@ isim18: $(OBJ)
 ######################################################################
 isim18vhd: $(OBJ)
 
-	# compile to verilog backend for ISim
-	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
-	bsc -u -verilog -elab \
-		-keep-inlined-boundaries -no-warn-action-shadowing \
-		-aggressive-conditions -no-show-method-conf \
-		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
-		-p $(BSVDIRS):lib:+ \
-		-D DEFINE_NDW=1 \
-		$(BSVTST)/$(ITEST18).bsv
+  # Ensure BSV mkBiasWorker4B Verilog does not exist in path...
+	rm -f rtl/mkBiasWorker4B.v
 
-	rm rtl/mkBiasWorker4B.v
+	vhpcomp -work ocpi \
+	$(VHD_HDL)/ocpi_ocp.vhd \
+	$(VHD_HDL)/ocpi_types.vhd \
+	$(VHD_HDL)/ocpi_wci.vhd \
+	$(VHD_HDL)/ocpi_worker.vhd \
+	$(VHD_HDL)/ocpi_types_body.vhd \
+	$(VHD_HDL)/ocpi_wci_body.vhd  \
+	$(VHD_HDL)/ocpi_wci_impl.vhd  \
+	$(VHD_HDL)/ocpi_props.vhd \
+	$(VHD_HDL)/ocpi_props_impl.vhd
 
-	vhpcomp -work ocpi $(VHD_HDL)/ocpi_ocp.vhd $(VHD_HDL)/ocpi_types.vhd $(VHD_HDL)/ocpi_wci.vhd $(VHD_HDL)/ocpi_worker.vhd $(VHD_HDL)/ocpi_types_body.vhd $(VHD_HDL)/ocpi_wci_body.vhd  $(VHD_HDL)/ocpi_wci_impl.vhd  $(VHD_HDL)/ocpi_props.vhd $(VHD_HDL)/ocpi_props_impl.vhd
 	vhpcomp -work work $(VHD_HDL)/bias_vhdl_defs.vhd $(VHD_HDL)/bias_vhdl_impl.vhd $(VHD_HDL)/bias_vhdl_skel.vhd 
 
+	vlogcomp -work work $(VHD_HDL)/mkBiasWorker4B.v $(BSV_HDL)/FIFO2.v
 
-	bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps \
-	  -vdir $(RTL) \
-		-bdir $(OBJ) \
-		-vsearch $(VHD_HDL):$(VLG_HDL):+ \
-		-e mk$(ITEST18) \
-		-o runsim
-	# uncomment next line to run
-	#./runsim -testplusarg bscvcd
+	fuse -v 0 -o runsim.isim -prj /tmp/fuse.prj.b10833 \
+	-sourcelibdir rtl \
+	-sourcelibdir libsrc/hdl/vhd \
+	-sourcelibdir libsrc/hdl/ocpi \
+	-sourcelibdir /opt/Bluespec/Bluespec-2012.09.beta1B/lib/Libraries \
+	-sourcelibdir /opt/Bluespec/Bluespec-2012.09.beta1B/lib/Verilog \
+	-sourcelibext .v \
+	-d TOP=mkTB18 \
+	-d BSV_TIMESCALE=1ns/1ps \
+	-L unisims_ver \
+	-L ocpi \
+	-L work \
+	-t worx_mkTB18.glbl \
+	-t worx_mkTB18.main 
 
-	# create verilog executable
-	#cd $(OBJ) && bsc -vsim modelsim -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
-
-	# run verilog
-	#cd $(OBJ) && mk$(ITEST).vexe > mk$(ITEST).runlog
-
-	#@# test to be sure the word "PASSED" is in the log file
-	#@ if !(grep -c PASSED $(OBJ)/mk$(ITEST).runlog) then exit 2; fi
 
 ######################################################################
 verilog_scenario0: $(OBJ)
