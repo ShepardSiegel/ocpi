@@ -268,7 +268,7 @@ architecture rtl of bias_vhdl_in_wsi is
 component FIFO2
   generic (width   : natural := 1; \guarded\ : natural := 1);
   port(    CLK     : in  std_logic;
-           RST_N   : in  std_logic;
+           RST     : in  std_logic;
            D_IN    : in  std_logic_vector(width - 1 downto 0);
            ENQ     : in  std_logic;
            DEQ     : in  std_logic;
@@ -285,7 +285,7 @@ begin
   fifo : FIFO2
     generic map(width => 32)
     port map(   clk     => wci_clk,
-                rst_n   => my_reset_n,
+                rst     => my_reset_n,
                 d_in    => ocp_in.MData,
                 enq     => my_enq,
                 full_n  => fifo_full_n,

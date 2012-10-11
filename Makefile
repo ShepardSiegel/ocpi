@@ -540,6 +540,33 @@ isim18: $(OBJ)
 	#@ if !(grep -c PASSED $(OBJ)/mk$(ITEST).runlog) then exit 2; fi
 
 ######################################################################
+vls18: $(OBJ)
+
+	# compile to verilog backend for ISim
+	#echo Bit#\(32\) compileTime = `date +%s`\; // ISim `date` > bsv/utl/CompileTime.bsv
+	bsc -u -verilog -elab \
+		-keep-inlined-boundaries -no-warn-action-shadowing \
+		-aggressive-conditions -no-show-method-conf \
+		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
+		-p $(BSVDIRS):lib:+ \
+		-D DEFINE_NDW=1 \
+		$(BSVTST)/$(ITEST18).bsv
+
+	# Holding place for Vivado build scripts
+	#bsc -vsim isim -D BSV_TIMESCALE=1ns/1ps -vdir $(RTL) -bdir $(OBJ) -vsearch $(VLG_HDL):+ -e mk$(ITEST18) -o runsim
+	# uncomment next line to run
+	#./runsim -testplusarg bscvcd
+
+	# create verilog executable
+	#cd $(OBJ) && bsc -vsim modelsim -keep-inlined-boundaries -o mk$(ITEST).vexe -e mk$(ITEST) *.v
+
+	# run verilog
+	#cd $(OBJ) && mk$(ITEST).vexe > mk$(ITEST).runlog
+
+	#@# test to be sure the word "PASSED" is in the log file
+	#@ if !(grep -c PASSED $(OBJ)/mk$(ITEST).runlog) then exit 2; fi
+
+######################################################################
 isim18vhd: $(OBJ)
 
   # Ensure BSV mkBiasWorker4B Verilog does not exist in path...

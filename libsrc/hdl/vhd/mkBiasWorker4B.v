@@ -38,7 +38,7 @@ module mkBiasWorker4B(
 // Instance the VHDL Bias Worker "bias_vhdl"...
   bias_vhdl bias_vi(
     .ctl_Clk               (wciS0_Clk),           // in  std_logic;
-    .ctl_MAddr             (wciS0_MAddr),         // in  std_logic_vector(4 downto 0);
+    .ctl_MAddr             (wciS0_MAddr[4:0]),    // in  std_logic_vector(4 downto 0);
     .ctl_MAddrSpace        (wciS0_MAddrSpace),    // in  std_logic_vector(0 downto 0);
     .ctl_MCmd              (wciS0_MCmd),          // in  std_logic_vector(2 downto 0);
     .ctl_MData             (wciS0_MData),         // in  std_logic_vector(31 downto 0);
