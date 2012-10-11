@@ -4,6 +4,7 @@ This directory is split into these sub-directories:
  app - Applications, collections of worker componentes with well-defined interfaces
  axi - AXI, AXI bridges
  dev - Devices, code that reflects low-level devices, also importBVI to wrap Verilog devices
+ dpp - Datagram RDMA Data Plane Protocol (DG-R-DPP) or just DPP
  eth - Ethernet devices and support
  inf - Infrastructure, OpenCPI Infrastructure IP
  pci - PCI Express definitions and implementations
