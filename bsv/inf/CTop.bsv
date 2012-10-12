@@ -92,7 +92,7 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   // for (Integer i=0; i<iNwti_app; i=i+1) mkConnection(wtiM[i].mas, app.wti_s[i]); 
 
   // We can't quite use these functions as is as per 2012-01-12 dialog with Joe Stoy
-  // zipWithM(mkConnection, wtiM.mas, app.wti_s); // mkConnection zipped over argumernts
+  // zipWithM(mkConnection, wtiM.mas, app.wti_s); // mkConnection zipped over arguments
   // mkConnection(wtiM.mas, app.wti_s);           // mkConnection understands Vectors of Connectable
 
   // So we write a functon to select the desired subinterface of the master...
