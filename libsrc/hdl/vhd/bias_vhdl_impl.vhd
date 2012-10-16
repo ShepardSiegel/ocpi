@@ -1,8 +1,114 @@
--- THIS FILE WAS GENERATED ON Thu Oct  4 16:01:56 2012 EDT
+-- THIS FILE WAS GENERATED ON Mon Oct 15 08:27:13 2012 EDT
 -- BASED ON THE FILE: bias_vhdl.xml
 -- YOU PROBABLY SHOULD NOT EDIT IT
 -- This file contains the implementation declarations for worker bias_vhdl
 -- Interface definition signal names defined with pattern rule: "%s_"
+
+--                   OCP-based Control Interface, based on the WCI profile,
+--                      used for clk/reset, control and configuration
+--                                           /\
+--                                          /--\
+--               +--------------------OCP----||----OCP---------------------------+
+--               |                          \--/                                 |
+--               |                           \/                                  |
+--               |                   Entity: <worker>                            |
+--               |                                                               |
+--               O   +------------------------------------------------------+    O
+--               C   |            Entity: <worker>_worker                   |    C
+--               P   |                                                      |    P
+--               |   | This "inner layer" is the code you write, based      |    |
+-- Data Input    |\  | on definitions the in <worker>_worker_defs package,  |    |\  Data Output
+-- Port based  ==| \ | and the <worker>_worker entity, both in this file,   |   =| \ Port based
+-- on the WSI  ==| / | both in the "work" library.                          |   =| / on the WSI
+-- OCP Profile   |/  | Package and entity declaration is this               |    |/  OCP Profile
+--               O   | <worker>_impl.vhd file. Architeture is in your       |    |
+--               O   |  <worker>.vhd file                                   |    O
+--               C   |                                                      |    C
+--               P   +------------------------------------------------------+    P
+--               |                                                               |
+--               |     This outer layer is the "worker shell" code which         |
+--               |     is automatically generated.  The "worker shell" is        |
+--               |     defined as the <worker> entity using definitions in       |
+--               |     the <worker>_defs package.  The worker shell is also      |
+--               |     defined as a VHDL component in the <worker>_defs package, |
+--               |     as declared in the <worker>_defs.vhd file.                |
+--               |     The worker shell "architecture" is also in this file,      |
+--               |     as well as some subsidiary modules.                       |
+--               +---------------------------------------------------------------+
+
+-- This package defines types needed for the inner worker entity's generics or ports
+library IEEE;
+  use IEEE.std_logic_1164.all;
+  use IEEE.numeric_std.all;
+library ocpi;
+ use ocpi.all; use ocpi.types.all;
+package bias_vhdl_worker_defs is
+
+  -- The following two records are for the inner/worker interfaces for port "ctl"
+  type worker_ctl_in_t is record
+    clk              : std_logic;        -- clock for this worker
+    reset            : Bool_t;           -- reset for this worker, at least 16 clocks long
+    control_op       : wci.control_op_t; -- control op in progress, or no_op_e
+    state            : wci.state_t;      -- wci state: see state_t
+    is_operating     : Bool_t;           -- shorthand for state = operating_e
+    abort_control_op : Bool_t;           -- demand that slow control op finish now
+    is_big_endian    : Bool_t;           -- for endian-switchable workers
+  end record worker_ctl_in_t;
+  type worker_ctl_out_t is record
+    done             : Bool_t;           -- is the pending prop access/config op done?
+    attention        : Bool_t;           -- worker wants attention
+  end record worker_ctl_out_t;
+
+  -- The following two records are for the inner/worker interfaces for port "in"
+  type worker_in_in_t is record
+    reset            : Bool_t;           -- this port is being reset from the outside
+    ready            : Bool_t;           -- this port is ready for data to be taken
+                                         -- one or more of: som, eom, valid are true
+    data             : std_logic_vector(31 downto 0);
+    byte_enable      : std_logic_vector(3 downto 0);
+    som, eom, valid  : Bool_t;           -- valid means data and byte_enable are present
+  end record worker_in_in_t;
+  type worker_in_out_t is record
+    take             : Bool_t;           -- take data now from this port
+                                         -- can be asserted when ready is true
+  end record worker_in_out_t;
+
+  -- The following two records are for the inner/worker interfaces for port "out"
+  type worker_out_in_t is record
+    reset            : Bool_t;           -- this port is being reset from the outside
+    ready            : Bool_t;           -- this port is ready for data to be given
+  end record worker_out_in_t;
+  type worker_out_out_t is record
+    give             : Bool_t;           -- give data now to this port
+                                         -- can be asserted when ready is true
+    data             : std_logic_vector(31 downto 0);
+    byte_enable      : std_logic_vector(3 downto 0);
+    som, eom, valid : Bool_t;            -- one or more must be true when 'give' is asserted
+  end record worker_out_out_t;
+end package bias_vhdl_worker_defs;
+
+-- This is the entity to be implemented, depending on the above record types.
+library ocpi; use ocpi.types.all;
+library work; use work.bias_vhdl_worker_defs.all;
+entity bias_vhdl_worker is
+  port(
+    -- Signals for control and configuration.  See record types above.
+    ctl_in            : in  worker_ctl_in_t;
+    ctl_out           : out worker_ctl_out_t;
+    -- Registered inputs for this worker's writable properties
+    biasValue_value   : in  ULong_t;
+    biasValue_written : in  Bool_t;
+    -- Signals for WSI input port named "in".  See record types above.
+    in_in             : in  worker_in_in_t;
+    in_out            : out worker_in_out_t;
+    -- Signals for WSI output port named "out".  See record types above.
+    out_in            : in  worker_out_in_t;
+    out_out           : out worker_out_out_t);
+end entity bias_vhdl_worker;
+-- The rest of the file below here is the implementation of the wrapper
+-- which surrounds the entity to be implemented, above.
+
+
 
 -- Worker-specific definitions that are needed outside entities below
 package body bias_vhdl_defs is
@@ -128,27 +234,27 @@ entity bias_vhdl is
   signal wci_reset : boolean;
   -- these signals provide the values of writable properties
   signal biasValue_value : ULong_t;
-  signal biasValue_written : bool_t;
-  signal wci_attention, wci_is_operating: bool_t;
-  signal wci_is_big_endian, wci_abort_control_op, wci_done : bool_t;
+  signal biasValue_written : Bool_t;
+  signal wci_attention, wci_is_operating: Bool_t;
+  signal wci_is_big_endian, wci_abort_control_op, wci_done : Bool_t;
   signal wci_control_op : wci.control_op_t;
   signal wci_state : wci.state_t;
-  signal in_take : bool_t;
-  signal in_ready : bool_t;
-  signal in_reset : bool_t; -- this port is being reset from the outside
+  signal in_take : Bool_t;
+  signal in_ready : Bool_t;
+  signal in_reset : Bool_t; -- this port is being reset from the outside
   signal in_data  : std_logic_vector(31 downto 0);
   signal in_byte_enable: std_logic_vector(3 downto 0);
-  signal in_som : bool_t;    -- valid eom
-  signal in_eom : bool_t;    -- valid som
-  signal in_valid : bool_t;   -- valid data
-  signal out_give : bool_t;
-  signal out_ready : bool_t;
-  signal out_reset : bool_t; -- this port is being reset from the outside
+  signal in_som : Bool_t;    -- valid eom
+  signal in_eom : Bool_t;    -- valid som
+  signal in_valid : Bool_t;   -- valid data
+  signal out_give : Bool_t;
+  signal out_ready : Bool_t;
+  signal out_reset : Bool_t; -- this port is being reset from the outside
   signal out_data  : std_logic_vector(31 downto 0);
   signal out_byte_enable: std_logic_vector(3 downto 0);
-  signal out_som : bool_t;    -- valid eom
-  signal out_eom : bool_t;    -- valid som
-  signal out_valid : bool_t;   -- valid data
+  signal out_som : Bool_t;    -- valid eom
+  signal out_eom : Bool_t;    -- valid som
+  signal out_valid : Bool_t;   -- valid data
 end entity bias_vhdl;
 
 -- Here we define and implement the WCI interface module for this worker,
@@ -173,11 +279,9 @@ entity bias_vhdl_wci is
     is_big_endian     : out boolean;          -- for endian-switchable workers
     abort_control_op  : out boolean;          -- forcible abort a control-op when
                                               -- worker uses 'done' to delay it
-    --
-    -- outputs for this worker's writable properties
-    --
+    -- Outputs for this worker's writable properties
     biasValue_value   : out ULong_t;
-    biasValue_written : out bool_t
+    biasValue_written : out Bool_t
   );
 end entity;
 architecture rtl of bias_vhdl_wci is
@@ -252,23 +356,22 @@ entity bias_vhdl_in_wsi is
         ocp_out        : out in_out_t;
         -- Signals connected from the worker's WCI to this interface;
         wci_clk        : in  std_logic;
-        wci_reset      : in  bool_t;
+        wci_reset      : in  Bool_t;
         -- Interior signals used by worker logic
-        reset          : out bool_t; -- this port is being reset from outside
-        ready          : out bool_t; -- data can be taken
-        take           : in bool_t;
+        reset          : out Bool_t; -- this port is being reset from outside
+        ready          : out Bool_t; -- data can be taken
+        take           : in Bool_t;
         data       : out std_logic_vector(31 downto 0);
         byte_enable    : out std_logic_vector(3 downto 0);
-        som, eom, valid : out bool_t);
+        som, eom, valid : out Bool_t);
 end entity;
-library util;
 architecture rtl of bias_vhdl_in_wsi is
   signal fifo_full_n, fifo_empty_n : std_logic;
   signal my_take, my_reset_n, my_enq : std_logic;
 component FIFO2
   generic (width   : natural := 1; \guarded\ : natural := 1);
   port(    CLK     : in  std_logic;
-           RST     : in  std_logic;
+           RST_N   : in  std_logic;
            D_IN    : in  std_logic_vector(width - 1 downto 0);
            ENQ     : in  std_logic;
            DEQ     : in  std_logic;
@@ -285,7 +388,7 @@ begin
   fifo : FIFO2
     generic map(width => 32)
     port map(   clk     => wci_clk,
-                rst     => my_reset_n,
+                rst_n   => my_reset_n,
                 d_in    => ocp_in.MData,
                 enq     => my_enq,
                 full_n  => fifo_full_n,
@@ -303,18 +406,17 @@ entity bias_vhdl_out_wsi is
         ocp_out        : out out_out_t;
         -- Signals connected from the worker's WCI to this interface;
         wci_clk        : in  std_logic;
-        wci_reset      : in  bool_t;
+        wci_reset      : in  Bool_t;
         -- Interior signals used by worker logic
-        reset          : out bool_t; -- this port is being reset from outside
-        ready          : out bool_t; -- data can be given
-        give           : in  bool_t;
+        reset          : out Bool_t; -- this port is being reset from outside
+        ready          : out Bool_t; -- data can be given
+        give           : in  Bool_t;
         data       : in  std_logic_vector(31 downto 0);
         byte_enable    : in  std_logic_vector(3 downto 0);
-        som, eom, valid : in  bool_t);
+        som, eom, valid : in  Bool_t);
 end entity;
-library util;
 architecture rtl of bias_vhdl_out_wsi is
-  signal my_reset : bool_t;
+  signal my_reset : Bool_t;
 begin
   my_reset <= wci_reset or (ocp_in.SReset_n = '0');
   reset <= my_reset;
@@ -335,23 +437,6 @@ begin
     else std_logic_vector(to_unsigned(2, ocp_out.MBurstLength'length));
   ocp_out.MByteEn <= byte_enable;
 end architecture rtl;
-library ocpi; use ocpi.types.all;
-library work; use work.bias_vhdl_defs.all;
-entity bias_vhdl_worker is
-  port(
-    -- Input signals for control and configuration
-    ctl_in  : in worker_ctl_in_t;
-    ctl_out : out worker_ctl_out_t;
-    -- Input signals for writable property values
-    biasValue_value   : in  ULong_t;
-    biasValue_written : in  bool_t;
-    -- Signals for WSI input port named "in"
-    in_in         : in worker_in_in_t;
-    in_out        : out worker_in_out_t;
-    -- Signals for WSI output port named "out"
-    out_in         : in worker_out_in_t;
-    out_out        : out worker_out_out_t);
-end entity bias_vhdl_worker;
 library IEEE; use IEEE.std_logic_1164.all; use ieee.numeric_std.all;
 library ocpi; use ocpi.types.all; -- remove this to avoid all ocpi name collisions
 architecture rtl of bias_vhdl is

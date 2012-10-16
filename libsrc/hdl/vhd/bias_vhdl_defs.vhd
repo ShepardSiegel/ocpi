@@ -1,4 +1,4 @@
--- THIS FILE WAS GENERATED ON Thu Oct  4 16:01:55 2012 EDT
+-- THIS FILE WAS GENERATED ON Mon Oct 15 08:27:13 2012 EDT
 -- BASED ON THE FILE: bias_vhdl.xml
 -- YOU PROBABLY SHOULD NOT EDIT IT
 -- This file contains the VHDL declarations for the worker with
@@ -123,20 +123,6 @@ constant worker : ocpi.wci.worker_t;
     SResp               : ocpi.ocp.SResp_t;
     SThreadBusy         : std_logic_vector(0 downto 0);
   end record ctl_out_t;
-  -- These two records are for the inner/worker interfaces for port "ctl"
-  type worker_ctl_in_t is record
-    clk           : std_logic;
-    reset         : bool_t;
-    control_op    : wci.control_op_t; -- control op in progress, or no_op_e
-    state         : wci.state_t;      -- wci state: see state_t
-    is_operating  : bool_t;           -- shorthand for state==operating_e
-    abort_control_op : bool_t;
-    is_big_endian : bool_t;           -- for endian-switchable workers
-  end record worker_ctl_in_t;
-  type worker_ctl_out_t is record
-    done          : bool_t;           -- is the pending prop access/config op done?
-    attention     : bool_t;           -- worker wants attention
-  end record worker_ctl_out_t;
 
   -- These 2 records correspond to the input and output sides of the OCP bundle
   -- for the "bias_vhdl" worker's "WSI" profile interface named "in"
@@ -158,17 +144,6 @@ constant worker : ocpi.wci.worker_t;
     SReset_n            : std_logic;
     SThreadBusy         : std_logic_vector(0 downto 0);
   end record in_out_t;
-  -- These two records are for the inner/worker interfaces for port "in"
-  type worker_in_in_t is record
-    reset           : bool_t; -- this port is being reset from the outside
-    ready           : bool_t; -- this port is ready for data to be taken
-    data            : std_logic_vector(31 downto 0);
-    byte_enable     : std_logic_vector(3 downto 0);
-    som, eom, valid : bool_t;
-  end record worker_in_in_t;
-  type worker_in_out_t is record
-    take            : bool_t; -- take data now from this port
-  end record worker_in_out_t;
 
   -- These 2 records correspond to the input and output sides of the OCP bundle
   -- for the "bias_vhdl" worker's "WSI" profile interface named "out"
@@ -190,15 +165,4 @@ constant worker : ocpi.wci.worker_t;
     MReqLast            : std_logic;
     MReset_n            : std_logic;
   end record out_out_t;
-  -- These two records are for the inner/worker interfaces for port "out"
-  type worker_out_in_t is record
-    reset           : bool_t; -- this port is being reset from the outside
-    ready           : bool_t; -- this port is ready for data to be given
-  end record worker_out_in_t;
-  type worker_out_out_t is record
-    give            : bool_t; -- give data now to this port
-    data            : std_logic_vector(31 downto 0);
-    byte_enable     : std_logic_vector(3 downto 0);
-    som, eom, valid : bool_t;
-  end record worker_out_out_t;
 end package bias_vhdl_defs;
