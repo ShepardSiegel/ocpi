@@ -1,5 +1,5 @@
 // FreqCounter.bsv
-// Copyright (c) 2009-2010 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 import Clocks      ::*;
 import DReg        ::*;
@@ -16,12 +16,13 @@ module mkFreqCounter#(Clock testClk) (FreqCounterIfc#(n)) provisos(Add#(1,a_,n))
 
   Clock            wciClk       <- exposeCurrentClock();
   Reset            wciRst       <- exposeCurrentReset();
+  Reset            testRst      <- mkAsyncReset(2, wciRst, testClk);
   Reg#(Bool)       pulseAction  <- mkDReg(False);
   Reg#(Bit#(n))    countNow     <- mkReg('1);
   Reg#(Bit#(n))    countPast    <- mkReg('1);
   Reg#(Bit#(n))    frequency    <- mkReg('1);
   Reg#(Bit#(16))   sampleCount  <- mkReg(0);
-  GrayCounter#(n)  grayCounter   <- mkGrayCounter(0, wciClk, wciRst, clocked_by testClk, reset_by noReset);
+  GrayCounter#(n)  grayCounter  <- mkGrayCounter(0, wciClk, wciRst, clocked_by testClk, reset_by testRst);
 
   rule gray_inc;
     grayCounter.incr();

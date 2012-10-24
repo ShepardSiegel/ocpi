@@ -49,4 +49,4 @@ run
 -iob auto
 -equivalent_register_removal YES
 -slice_utilization_ratio_maxmargin 5
--change_error_to_warning "HDLCompiler:532 HDLCompiler:597 HDLCompiler:1128 HDLCompiler:1831"
+-change_error_to_warning "HDLCompiler:532 HDLCompiler:597"
