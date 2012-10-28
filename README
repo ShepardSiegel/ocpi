@@ -13,6 +13,7 @@ ssiegel 2011-10-04 USE 13.3 prep
 ssiegel 2011-12-12 64b Host address capability
 ssiegel 2012-01-19 ISE 13.4 Library Build
 ssiegel 2012-01-30 Bluespec Release 2012.01.A (BRAM Prims Updated)
+ssiegel 2012-10-28 ISE 14.3 / Vivado 2012.3 refresh
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
@@ -58,6 +59,7 @@ OpenCPI website: www.opencpi.org
      alcy4
      alst4
      htgs4
+     n210
 
   Make will copy files into $(OCPI_DIR)/build/tmp-<target> and run the vendor tools. When the build sucessfully completes, the build/tmp-<target> directory will be remaned build/<target>-<timestamp>
 
@@ -154,7 +156,7 @@ OpenCPI website: www.opencpi.org
       https://github.com/ShepardSiegel/ocpi
     With the intent that select files would be merged to the OpenCPI public repo:
       https://github.com/opencpi/opencpi
-    At this writing 2011-04-03, the transition is underway. Stay tuned.
+    At this writing 2012-10-28, the transition is underway. Stay tuned.
 
   "The FPGA timebase is not advancing, with or without a GPS input signal, what do I do?"
     Look at the timeStatus and timeControl registers. You can observe the various signals on
@@ -174,3 +176,4 @@ OpenCPI website: www.opencpi.org
 2011-09-30 ISE 13.3 Libraries
 2012-01-19 ISE 13.4 Libraries
 2012-01-30 Bluespec Release 2012.01.A (BRAM Prims Updated)
+2012-10-28 Bluespec Release 2012.09.beta1B (more aggressive rule schedules) ISE 14.3 / Vivado 2012.3
