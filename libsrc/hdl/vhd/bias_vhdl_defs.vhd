@@ -1,4 +1,4 @@
--- THIS FILE WAS GENERATED ON Mon Oct 15 08:27:13 2012 EDT
+-- THIS FILE WAS GENERATED ON Tue Oct 30 13:46:44 2012 EDT
 -- BASED ON THE FILE: bias_vhdl.xml
 -- YOU PROBABLY SHOULD NOT EDIT IT
 -- This file contains the VHDL declarations for the worker with

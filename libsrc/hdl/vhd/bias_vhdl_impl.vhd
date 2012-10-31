@@ -1,4 +1,4 @@
--- THIS FILE WAS GENERATED ON Mon Oct 15 08:27:13 2012 EDT
+-- THIS FILE WAS GENERATED ON Tue Oct 30 13:46:44 2012 EDT
 -- BASED ON THE FILE: bias_vhdl.xml
 -- YOU PROBABLY SHOULD NOT EDIT IT
 -- This file contains the implementation declarations for worker bias_vhdl
@@ -41,8 +41,14 @@ library IEEE;
   use IEEE.std_logic_1164.all;
   use IEEE.numeric_std.all;
 library ocpi;
- use ocpi.all; use ocpi.types.all;
+  use ocpi.all; use ocpi.types.all;
 package bias_vhdl_worker_defs is
+
+  -- The following record is for the writable properties of worker "bias_vhdl"
+  type worker_props_write_t is record
+    biasValue         : ULong_t;
+    biasValue_written : Bool_t;
+  end record worker_props_write_t;
 
   -- The following two records are for the inner/worker interfaces for port "ctl"
   type worker_ctl_in_t is record
@@ -61,7 +67,7 @@ package bias_vhdl_worker_defs is
 
   -- The following two records are for the inner/worker interfaces for port "in"
   type worker_in_in_t is record
-    reset            : Bool_t;           -- this port is being reset from the outside
+    reset            : Bool_t;           -- this port is being reset from the outside peer
     ready            : Bool_t;           -- this port is ready for data to be taken
                                          -- one or more of: som, eom, valid are true
     data             : std_logic_vector(31 downto 0);
@@ -75,7 +81,7 @@ package bias_vhdl_worker_defs is
 
   -- The following two records are for the inner/worker interfaces for port "out"
   type worker_out_in_t is record
-    reset            : Bool_t;           -- this port is being reset from the outside
+    reset            : Bool_t;           -- this port is being reset from the outside peer
     ready            : Bool_t;           -- this port is ready for data to be given
   end record worker_out_in_t;
   type worker_out_out_t is record
@@ -95,9 +101,8 @@ entity bias_vhdl_worker is
     -- Signals for control and configuration.  See record types above.
     ctl_in            : in  worker_ctl_in_t;
     ctl_out           : out worker_ctl_out_t;
-    -- Registered inputs for this worker's writable properties
-    biasValue_value   : in  ULong_t;
-    biasValue_written : in  Bool_t;
+    -- Input values and strobes for this worker's writable properties
+    props_write       : in  worker_props_write_t;
     -- Signals for WSI input port named "in".  See record types above.
     in_in             : in  worker_in_in_t;
     in_out            : out worker_in_out_t;
@@ -105,7 +110,7 @@ entity bias_vhdl_worker is
     out_in            : in  worker_out_in_t;
     out_out           : out worker_out_out_t);
 end entity bias_vhdl_worker;
--- The rest of the file below here is the implementation of the wrapper
+-- The rest of the file below here is the implementation of the worker shell
 -- which surrounds the entity to be implemented, above.
 
 
@@ -231,7 +236,7 @@ entity bias_vhdl is
   alias out_Opcode: out_OpCode_t is out_MReqInfo(7 downto 0);
   -- Opcode/operation value declarations for protocol "stream32" on interface "out"
   constant out_data_Op               : out_Opcode_t := b"00000000"; -- 0x00
-  signal wci_reset : boolean;
+  signal wci_reset : bool_t;
   -- these signals provide the values of writable properties
   signal biasValue_value : ULong_t;
   signal biasValue_written : Bool_t;
@@ -265,19 +270,19 @@ library IEEE;
 library ocpi;
   use ocpi.all; use ocpi.types.all;
 library work;
- use work.all;
+ use work.all; use work.bias_vhdl_defs.all;
 entity bias_vhdl_wci is
   port(
-    inputs            : in  wci.in_t;  -- signal bundle from wci interface
-    done              : in  boolean := true;  -- worker uses this to delay completion
-    attention         : in  boolean := false; -- worker indicates an attention condition
-    outputs           : out wci.out_t; -- signal bundle to wci interface
-    reset             : out boolean;          -- wci reset for worker
+    inputs            : in  ctl_in_t;         -- signal bundle from wci interface
+    done              : in  bool_t := btrue;  -- worker uses this to delay completion
+    attention         : in  bool_t := bfalse; -- worker indicates an attention condition
+    outputs           : out wci.out_t;        -- signal bundle to wci interface
+    reset             : out bool_t;           -- wci reset for worker
     control_op        : out wci.control_op_t; -- control op in progress, or no_op_e
     state             : out wci.state_t;      -- wci state: see state_t
-    is_operating      : out boolean;          -- shorthand for state==operating_e
-    is_big_endian     : out boolean;          -- for endian-switchable workers
-    abort_control_op  : out boolean;          -- forcible abort a control-op when
+    is_operating      : out bool_t;           -- shorthand for state==operating_e
+    is_big_endian     : out bool_t;           -- for endian-switchable workers
+    abort_control_op  : out bool_t;          -- forcible abort a control-op when
                                               -- worker uses 'done' to delay it
     -- Outputs for this worker's writable properties
     biasValue_value   : out ULong_t;
@@ -285,33 +290,42 @@ entity bias_vhdl_wci is
   );
 end entity;
 architecture rtl of bias_vhdl_wci is
-  signal my_clk   : std_logic; -- internal usage of output
-  signal my_reset : boolean; -- internal usage of output
+  signal my_reset : bool_t; -- internal usage of output
   -- signals for property reads and writes
   signal offsets       : wci.offset_a_t(0 to 0);  -- offsets within each property
   signal indices       : wci.offset_a_t(0 to 0);  -- array index for array properties
-  signal hi32          : boolean;                 -- high word of 64 bit value
+  signal hi32          : bool_t;                 -- high word of 64 bit value
   signal nbytes_1      : types.byte_offset_t;       -- # bytes minus one being read/written
   -- signals between the decoder and the writable property registers
-  signal write_enables : wci.boolean_array_t(0 to 0);
+  signal write_enables : bool_array_t(0 to 0);
   signal data          : wci.data_a_t (0 to 0);   -- data being written, right justified
   -- signals between the decoder and the readback mux
-  signal read_enables  : wci.boolean_array_t(0 to 0);
+  signal read_enables  : bool_array_t(0 to 0);
   signal readback_data : wci.data_a_t(bias_vhdl_defs.properties'range);
   -- internal signals between property registers and the readback mux
   -- for those that are writable, readable, and not volatile
   signal my_biasValue_value   : ULong_t;
+  -- temp signal to workaround isim/fuse crash bug
+  signal wciAddr : std_logic_vector(31 downto 0);
 begin
-  outputs.SFlag(0) <= '1' when attention else '0';
+  wciAddr(inputs.MAddr'range) <= inputs.MAddr;
+  wciAddr(31 downto inputs.MAddr'length) <= (others => '0');
+  outputs.SFlag(0) <= '1' when its(attention) else '0';
   outputs.SFlag(1) <= '1'; -- worker is present
-  outputs.SThreadBusy(0) <= '0' when done else '1';
-  my_clk <= inputs.Clk;
-  my_reset <= inputs.MReset_n = '0';
+  outputs.SThreadBusy(0) <= '0' when its(done) else '1';
+  my_reset <= to_bool(inputs.MReset_n = '0');
   reset <= my_reset;
   x : component wci.decoder
       generic map(worker                 => bias_vhdl_defs.worker,
                   properties             => bias_vhdl_defs.properties)
-      port map(   ocp_in                 => inputs,
+      port map(   ocp_in.Clk             => inputs.Clk,
+                  ocp_in.Maddr           => wciAddr,
+                  ocp_in.MAddrSpace(0) => inputs.MAddrSpace(0),
+                  ocp_in.MByteEn       => "0000",
+                  ocp_in.MCmd          => inputs.MCmd,
+                  ocp_in.MData         => inputs.MData,
+                  ocp_in.MFlag         => inputs.MFlag,
+                  ocp_in.MReset_n      => inputs.MReset_n,
                   done                   => done,
                   resp                   => outputs.SResp,
                   write_enables          => write_enables,
@@ -334,7 +348,7 @@ readback : component wci.readback
   biasValue : component ocpi.props.ULong_property
     generic map(worker       => bias_vhdl_defs.worker,
                 property     => bias_vhdl_defs.properties(0))
-    port map(   clk          => my_clk,
+    port map(   clk          => inputs.Clk,
                 reset        => my_reset,
                 write_enable => write_enables(0),
                 data         => data(0)(31 downto 0),
@@ -358,7 +372,7 @@ entity bias_vhdl_in_wsi is
         wci_clk        : in  std_logic;
         wci_reset      : in  Bool_t;
         -- Interior signals used by worker logic
-        reset          : out Bool_t; -- this port is being reset from outside
+        reset          : out Bool_t; -- this port is being reset from outside/peer
         ready          : out Bool_t; -- data can be taken
         take           : in Bool_t;
         data       : out std_logic_vector(31 downto 0);
@@ -381,10 +395,10 @@ component FIFO2
            D_OUT   : out std_logic_vector(width - 1 downto 0));
 end component FIFO2;
 begin
-  my_take <= '1' when take else '0';
+  my_take <= '1' when its(take) else '0';
   my_enq <= '1' when ocp_in.MCmd = ocpi.ocp.MCmd_WRITE else '0';
   my_reset_n <= '0' when wci_reset or (ocp_in.MReset_n = '0') else '1';
-  ready <= true when fifo_empty_n = '1' else false;
+  ready <= btrue when fifo_empty_n = '1' else bfalse;
   fifo : FIFO2
     generic map(width => 32)
     port map(   clk     => wci_clk,
@@ -408,7 +422,7 @@ entity bias_vhdl_out_wsi is
         wci_clk        : in  std_logic;
         wci_reset      : in  Bool_t;
         -- Interior signals used by worker logic
-        reset          : out Bool_t; -- this port is being reset from outside
+        reset          : out Bool_t; -- this port is being reset from outside/peer
         ready          : out Bool_t; -- data can be given
         give           : in  Bool_t;
         data       : in  std_logic_vector(31 downto 0);
@@ -422,18 +436,18 @@ begin
   reset <= my_reset;
   reg: process(wci_clk) is begin
     if rising_edge(wci_clk) then
-      if my_reset then
-        ready <= false;
+      if its(my_reset) then
+        ready <= bfalse;
       else
-        ready <= ocp_in.SThreadBusy(0) = '0';
+        ready <= not to_bool(ocp_in.SThreadBusy(0));
       end if;
     end if;
   end process;
-  ocp_out.MCmd <= ocpi.ocp.MCmd_WRITE when give else ocpi.ocp.MCmd_IDLE;
+  ocp_out.MCmd <= ocpi.ocp.MCmd_WRITE when its(give) else ocpi.ocp.MCmd_IDLE;
   ocp_out.MData <= data;
-  ocp_out.MReqLast <= '1' when eom else '0';
+  ocp_out.MReqLast <= '1' when its(eom) else '0';
   ocp_out.MBurstLength <=
-    std_logic_vector(to_unsigned(1,ocp_out.MBurstLength'length)) when eom
+    std_logic_vector(to_unsigned(1,ocp_out.MBurstLength'length)) when its(eom)
     else std_logic_vector(to_unsigned(2, ocp_out.MBurstLength'length));
   ocp_out.MByteEn <= byte_enable;
 end architecture rtl;
@@ -447,10 +461,8 @@ begin
   wci : entity bias_vhdl_wci
     port map(-- These first signals are just for use by the wci module, not the worker
              inputs.Clk        => ctl_Clk,
-             inputs.MAddr(4 downto 0) => ctl_MAddr,
-             inputs.MAddr(31 downto 5) => (others => '0'),
+             inputs.MAddr => ctl_MAddr,
              inputs.MAddrSpace => ctl_MAddrSpace,
-             inputs.MByteEn    => unused,
              inputs.MCmd       => ctl_MCmd,
              inputs.MData      => ctl_MData,
              inputs.MFlag      => ctl_MFlag,
@@ -548,6 +560,6 @@ bias_vhdl : entity bias_vhdl_worker
     out_out.som => out_som,
     out_out.eom => out_eom,
     out_out.valid => out_valid,
-    biasValue_value => biasValue_value,
-    biasValue_written => biasValue_written);
+    props_write.biasValue => biasValue_value,
+    props_write.biasValue_written => biasValue_written);
 end rtl;

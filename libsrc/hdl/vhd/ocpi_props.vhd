@@ -11,27 +11,27 @@ package props is
 -- registered bool property value, with write pulse 
 --
 component bool_property 
-  generic(worker : worker_t; property : property_t; default : bool_t := false); 
+  generic(worker : worker_t; property : property_t; default : bool_t := bfalse); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(0 downto 0); 
         value : out bool_t; 
-        written : out boolean); 
+        written : out bool_t); 
 end component; 
 --
 -- registered bool property array value, with write pulse
 --
 component bool_array_property 
-  generic(worker : worker_t; property : property_t; default : bool_t := false); 
+  generic(worker : worker_t; property : property_t; default : bool_t := bfalse); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out bool_array_t(0 to property.nitems-1); 
-        written : out boolean; 
+        written : out bool_t; 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        any_written : out boolean; 
+        any_written : out bool_t; 
         nbytes_1 : in byte_offset_t);
 end component; 
 --
@@ -58,11 +58,11 @@ end component;
 component char_property 
   generic(worker : worker_t; property : property_t; default : char_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(char_t'range); 
         value : out char_t; 
-        written : out boolean); 
+        written : out bool_t); 
 end component; 
 --
 -- registered char property array value, with write pulse
@@ -70,13 +70,13 @@ end component;
 component char_array_property 
   generic(worker : worker_t; property : property_t; default : char_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out char_array_t(0 to property.nitems-1); 
-        written : out boolean; 
+        written : out bool_t; 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        any_written : out boolean; 
+        any_written : out bool_t; 
         nbytes_1 : in byte_offset_t);
 end component; 
 --
@@ -103,12 +103,12 @@ end component;
 component double_property 
   generic(worker : worker_t; property : property_t; default : double_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out double_t; 
-        written : out boolean; 
-        hi32 : in boolean); 
+        written : out bool_t; 
+        hi32 : in bool_t); 
 end component; 
 --
 -- registered double property array value, with write pulse
@@ -116,14 +116,14 @@ end component;
 component double_array_property 
   generic(worker : worker_t; property : property_t; default : double_t := (others => '0'));
   port (clk : in std_logic;
-        reset : in boolean;
-        write_enable : in boolean;
+        reset : in bool_t;
+        write_enable : in bool_t;
         data : in std_logic_vector(31 downto 0);
         value : out double_array_t(0 to property.nitems-1);
-        written : out boolean;
+        written : out bool_t;
         index : in unsigned(worker.decode_width-1 downto 0);
-        any_written : out boolean;
-        hi32 : in boolean);
+        any_written : out bool_t;
+        hi32 : in bool_t);
 end component; 
 --
 -- readback scalar >32 property 
@@ -132,7 +132,7 @@ component read_double_property
   generic (worker : worker_t; property : property_t); 
   port (value : in double_t; 
         data_out : out std_logic_vector(31 downto 0); 
-        hi32 : in boolean);
+        hi32 : in bool_t);
 end component; 
 --
 -- readback scalar >32 property array 
@@ -142,7 +142,7 @@ component read_double_array_property
   port (value : in double_array_t(0 to property.nitems-1); 
         data_out : out std_logic_vector(31 downto 0); 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        hi32 : in boolean);
+        hi32 : in bool_t);
 end component;
 --
 -- registered float property value, with write pulse 
@@ -150,11 +150,11 @@ end component;
 component float_property 
   generic(worker : worker_t; property : property_t; default : float_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(float_t'range); 
         value : out float_t; 
-        written : out boolean); 
+        written : out bool_t); 
 end component; 
 --
 -- registered float property array value, with write pulse
@@ -162,13 +162,13 @@ end component;
 component float_array_property 
   generic(worker : worker_t; property : property_t; default : float_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out float_array_t(0 to property.nitems-1); 
-        written : out boolean; 
+        written : out bool_t; 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        any_written : out boolean; 
+        any_written : out bool_t; 
         nbytes_1 : in byte_offset_t);
 end component; 
 --
@@ -195,11 +195,11 @@ end component;
 component short_property 
   generic(worker : worker_t; property : property_t; default : short_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(short_t'range); 
         value : out short_t; 
-        written : out boolean); 
+        written : out bool_t); 
 end component; 
 --
 -- registered short property array value, with write pulse
@@ -207,13 +207,13 @@ end component;
 component short_array_property 
   generic(worker : worker_t; property : property_t; default : short_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out short_array_t(0 to property.nitems-1); 
-        written : out boolean; 
+        written : out bool_t; 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        any_written : out boolean; 
+        any_written : out bool_t; 
         nbytes_1 : in byte_offset_t);
 end component; 
 --
@@ -240,11 +240,11 @@ end component;
 component long_property 
   generic(worker : worker_t; property : property_t; default : long_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(long_t'range); 
         value : out long_t; 
-        written : out boolean); 
+        written : out bool_t); 
 end component; 
 --
 -- registered long property array value, with write pulse
@@ -252,13 +252,13 @@ end component;
 component long_array_property 
   generic(worker : worker_t; property : property_t; default : long_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out long_array_t(0 to property.nitems-1); 
-        written : out boolean; 
+        written : out bool_t; 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        any_written : out boolean; 
+        any_written : out bool_t; 
         nbytes_1 : in byte_offset_t);
 end component; 
 --
@@ -285,11 +285,11 @@ end component;
 component uchar_property 
   generic(worker : worker_t; property : property_t; default : uchar_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(uchar_t'range); 
         value : out uchar_t; 
-        written : out boolean); 
+        written : out bool_t); 
 end component; 
 --
 -- registered uchar property array value, with write pulse
@@ -297,13 +297,13 @@ end component;
 component uchar_array_property 
   generic(worker : worker_t; property : property_t; default : uchar_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out uchar_array_t(0 to property.nitems-1); 
-        written : out boolean; 
+        written : out bool_t; 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        any_written : out boolean; 
+        any_written : out bool_t; 
         nbytes_1 : in byte_offset_t);
 end component; 
 --
@@ -330,11 +330,11 @@ end component;
 component ulong_property 
   generic(worker : worker_t; property : property_t; default : ulong_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(ulong_t'range); 
         value : out ulong_t; 
-        written : out boolean); 
+        written : out bool_t); 
 end component; 
 --
 -- registered ulong property array value, with write pulse
@@ -342,13 +342,13 @@ end component;
 component ulong_array_property 
   generic(worker : worker_t; property : property_t; default : ulong_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out ulong_array_t(0 to property.nitems-1); 
-        written : out boolean; 
+        written : out bool_t; 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        any_written : out boolean; 
+        any_written : out bool_t; 
         nbytes_1 : in byte_offset_t);
 end component; 
 --
@@ -375,11 +375,11 @@ end component;
 component ushort_property 
   generic(worker : worker_t; property : property_t; default : ushort_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(ushort_t'range); 
         value : out ushort_t; 
-        written : out boolean); 
+        written : out bool_t); 
 end component; 
 --
 -- registered ushort property array value, with write pulse
@@ -387,13 +387,13 @@ end component;
 component ushort_array_property 
   generic(worker : worker_t; property : property_t; default : ushort_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out ushort_array_t(0 to property.nitems-1); 
-        written : out boolean; 
+        written : out bool_t; 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        any_written : out boolean; 
+        any_written : out bool_t; 
         nbytes_1 : in byte_offset_t);
 end component; 
 --
@@ -420,12 +420,12 @@ end component;
 component longlong_property 
   generic(worker : worker_t; property : property_t; default : longlong_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out longlong_t; 
-        written : out boolean; 
-        hi32 : in boolean); 
+        written : out bool_t; 
+        hi32 : in bool_t); 
 end component; 
 --
 -- registered longlong property array value, with write pulse
@@ -433,14 +433,14 @@ end component;
 component longlong_array_property 
   generic(worker : worker_t; property : property_t; default : longlong_t := (others => '0'));
   port (clk : in std_logic;
-        reset : in boolean;
-        write_enable : in boolean;
+        reset : in bool_t;
+        write_enable : in bool_t;
         data : in std_logic_vector(31 downto 0);
         value : out longlong_array_t(0 to property.nitems-1);
-        written : out boolean;
+        written : out bool_t;
         index : in unsigned(worker.decode_width-1 downto 0);
-        any_written : out boolean;
-        hi32 : in boolean);
+        any_written : out bool_t;
+        hi32 : in bool_t);
 end component; 
 --
 -- readback scalar >32 property 
@@ -449,7 +449,7 @@ component read_longlong_property
   generic (worker : worker_t; property : property_t); 
   port (value : in longlong_t; 
         data_out : out std_logic_vector(31 downto 0); 
-        hi32 : in boolean);
+        hi32 : in bool_t);
 end component; 
 --
 -- readback scalar >32 property array 
@@ -459,7 +459,7 @@ component read_longlong_array_property
   port (value : in longlong_array_t(0 to property.nitems-1); 
         data_out : out std_logic_vector(31 downto 0); 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        hi32 : in boolean);
+        hi32 : in bool_t);
 end component;
 --
 -- registered ulonglong property value, with write pulse 
@@ -467,12 +467,12 @@ end component;
 component ulonglong_property 
   generic(worker : worker_t; property : property_t; default : ulonglong_t := (others => '0')); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out ulonglong_t; 
-        written : out boolean; 
-        hi32 : in boolean); 
+        written : out bool_t; 
+        hi32 : in bool_t); 
 end component; 
 --
 -- registered ulonglong property array value, with write pulse
@@ -480,14 +480,14 @@ end component;
 component ulonglong_array_property 
   generic(worker : worker_t; property : property_t; default : ulonglong_t := (others => '0'));
   port (clk : in std_logic;
-        reset : in boolean;
-        write_enable : in boolean;
+        reset : in bool_t;
+        write_enable : in bool_t;
         data : in std_logic_vector(31 downto 0);
         value : out ulonglong_array_t(0 to property.nitems-1);
-        written : out boolean;
+        written : out bool_t;
         index : in unsigned(worker.decode_width-1 downto 0);
-        any_written : out boolean;
-        hi32 : in boolean);
+        any_written : out bool_t;
+        hi32 : in bool_t);
 end component; 
 --
 -- readback scalar >32 property 
@@ -496,7 +496,7 @@ component read_ulonglong_property
   generic (worker : worker_t; property : property_t); 
   port (value : in ulonglong_t; 
         data_out : out std_logic_vector(31 downto 0); 
-        hi32 : in boolean);
+        hi32 : in bool_t);
 end component; 
 --
 -- readback scalar >32 property array 
@@ -506,7 +506,7 @@ component read_ulonglong_array_property
   port (value : in ulonglong_array_t(0 to property.nitems-1); 
         data_out : out std_logic_vector(31 downto 0); 
         index : in unsigned(worker.decode_width-1 downto 0); 
-        hi32 : in boolean);
+        hi32 : in bool_t);
 end component;
 --
 -- registered string property value, with write pulse 
@@ -514,11 +514,11 @@ end component;
 component string_property 
   generic(worker : worker_t; property : property_t; default : string_t := ("00000000","00000000"));
   port (clk : in std_logic;
-        reset : in boolean;
-        write_enable : in boolean;
+        reset : in bool_t;
+        write_enable : in bool_t;
         data : in std_logic_vector(31 downto 0);
         value : out string_t(0 to property.string_length);
-        written : out boolean;
+        written : out bool_t;
         offset : in unsigned(worker.decode_width-1 downto 0));
 end component; 
 --
@@ -527,14 +527,14 @@ end component;
 component string_array_property 
   generic(worker : worker_t; property : property_t; default : string_array_t := (("00000000","00000000"),("00000000","00000000"))); 
   port (clk : in std_logic; 
-        reset : in boolean; 
-        write_enable : in boolean; 
+        reset : in bool_t; 
+        write_enable : in bool_t; 
         data : in std_logic_vector(31 downto 0); 
         value : out string_array_t(0 to property.nitems-1,
                                             0 to (property.string_length+4)/4*4-1);
-        written : out boolean;
+        written : out bool_t;
         index : in unsigned(worker.decode_width-1 downto 0);
-        any_written : out boolean; 
+        any_written : out bool_t; 
         offset : in unsigned(worker.decode_width-1 downto 0));
 end component; 
 --
@@ -556,5 +556,4 @@ component read_string_array_property
            data_out : out std_logic_vector(31 downto 0);
            offset   : in  unsigned(worker.decode_width-1 downto 0));
 end component;
-function from_bool_array(ba : bool_array_t; index, nbytes_1, byte_offset : unsigned) return word_t;
 end package props;
