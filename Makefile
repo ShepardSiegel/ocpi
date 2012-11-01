@@ -55,7 +55,7 @@ BSVAPP    ?= bsv/app
 BSVTOP    ?= bsv/top
 BSVINF    ?= bsv/inf
 BSVAXI    ?= bsv/axi
-BSVDIRS   ?= ./bsv/app:./bsv/axi:./bsv/dev:./bsv/inf:./bsv/prm:./bsv/top:./bsv/tst:./bsv/utl:./bsv/wip:./bsv/wrk:./bsv/pci:./bsv/eth:./bsv/pwk
+BSVDIRS   ?= ./bsv/app:./bsv/axi:./bsv/dev:./bsv/inf:./bsv/prm:./bsv/top:./bsv/tst:./bsv/utl:./bsv/wip:./bsv/wrk:./bsv/pci:./bsv/eth:./bsv/pwk:./bsv/dpp
 
 OCAPP_S0    ?= OCApp_scenario0
 OCAPP_S1    ?= OCApp_scenario1
@@ -628,7 +628,7 @@ isim18vhd: $(OBJ)
 
 	vlogcomp -work work $(VHD_HDL)/mkBiasWorker4B.v $(BSV_HDL)/FIFO2.v
 
-	fuse -v 0 -o runsim.isim -prj /tmp/fuse.prj.b10833 \
+	fuse -v 0 -o runsim.isim -prj /tmp/fuse.prj.qn7779 \
 	-sourcelibdir rtl \
 	-sourcelibdir libsrc/hdl/vhd \
 	-sourcelibdir libsrc/hdl/ocpi \
