@@ -29,16 +29,18 @@ def emitPacket(dataStr):
     p.dst  = '00:0A:35:42:01:00'   # Xilinx FPGA Dest MAC Address
     p.type = 0xF042                # EtherType 
     p.payload = dataStr            # The dataString payload of Bytes
-    sendp(p, iface="eth1")
+    sendp(p, iface="eth1", verbose=0)
 
 def main(argv):
   print """Hello from %s""" % (prog_name)
 
   f = open('t100', 'r')
-  for row in range(1):   # 1080
-    for col in range(1): # 1920
+  for row in range(1080):   # 1080
+    #print 'row: ' + str(row)
+    for col in range(2): # 1920
+      #print 'col: ' + str(col)
       dataStr = '\x00\x00'
-      for oct in range(5): # 1920/8=240  FIXME
+      for oct in range(960): # 1920/2=960  FIXME
         g = int(f.read(2),16)
         b = int(f.read(2),16)
         r = int(f.read(2),16)
