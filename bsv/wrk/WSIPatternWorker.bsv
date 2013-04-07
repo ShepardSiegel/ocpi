@@ -182,7 +182,8 @@ endfunction
       let dReq  = BRAMRequest { write:False, address:truncate(dataPtr), datain:0, responseOnWrite:False };
       dataBramsA[i].request.put(dReq); 
     end
-    dataPtr <= (bytesRemain==4 && !noRecycleData) ? 0 : dataPtr + 1;
+    //dataPtr <= (bytesRemain==4 && !noRecycleData) ? 0 : dataPtr + 1; // Original, bug, fails to wrap
+    dataPtr <= (bytesRemain<=4 && !noRecycleData) ? 0 : dataPtr + 1;   // and Suggested Fix
     bytesRemain <= (bytesRemain<4) ? 0 : bytesRemain - 4;
   endrule
 
