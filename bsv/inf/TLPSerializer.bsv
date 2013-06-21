@@ -28,6 +28,7 @@ typedef enum {Idle,RdPush,RdFinal} RdStage deriving (Bits, Eq);
 // For Reads:  Use the firstBE condition for the first DW, then make dwLength DW requests
 //             up until the last, where lastBE is used
 
+(* synthesize *)
 module mkTLPSerializer#(PciId pciDevice) (TLPSerializerIfc);
 
   FIFO#(PTW16)          inF                <- mkFIFO;   // inbound TLPs
