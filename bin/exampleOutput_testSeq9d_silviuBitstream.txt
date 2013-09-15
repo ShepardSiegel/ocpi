@@ -1,0 +1,74 @@
+OCCP Admin Space
+ Open:         0x4f70656e "nepO"
+ CPI:          0x43504900 ""
+ revision:     0x00000001
+ birthday:     0x4fce0b8d Tue Jun  5 13:37:17 2012
+ workerMask:   0x0000781e workers 1 2 3 4 11 12 13 14 exist
+ pci_dev_id:   0x00000400
+ attention:    0x00000000
+ cpStatus:     0x00000000
+ scratch20:    0x00000000
+ scratch24:    0x00000000
+ cpControl:    0x00000000
+ timeStatus:   0x10000054 timeSetSticky 
+ timeControl:  0x00000000
+ gpsTimeMS:    0x5235ca5f (1379256927) Sun Sep 15 14:55:27 2013
+ gpsTimeLS:    0x390aaf6f (956997760)
+ deltaTimeMS:  0x00000000
+ deltaTimeLS:  0x00000000
+ refPerPPS:    0x00000000 (0)
+ dnaLS:        0xa9a50470
+ dnaMS:        0x00d3005e
+ numDPMemReg:  0x00000002 (2)
+ DP 0:      0x10000008
+ DP 1:      0x10020008
+ UUID[ 3: 0]: 0xc0000000 0xd0000000 0xe0000000 0xf0000000
+ UUID[ 7: 4]: 0x80000000 0x90000000 0xa0000000 0xb0000000
+ UUID[11: 8]: 0x40000000 0x50000000 0x60000000 0x70000000
+ UUID[15:12]: 0x00000000 0x10000000 0x20000000 0x30000000
+Worker 12, writing control register value: 0xf
+Worker 12, writing control register value: 0x8000000f
+Worker 12 control op: initialize(0)
+Result: 0xc0de4201
+Worker 12 control op: start(4)
+Result: 0xc0de4201
+Read Memory Controler Status Instant after Reset...
+Worker 12, offset:0x00000000(4), hexVal:0x00000010 decVal:16, 8
+Worker 12, offset:0x00000004(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000008(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x0000000c(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000010(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000014(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000018(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x0000001c(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000020(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000024(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000028(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x0000002c(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000030(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000034(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000038(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x0000003c(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000040(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000044(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000048(4), hexVal:0x00000000 decVal:0, 8
+Read Memory Controler Status After One Second Training Dead-Reckoning Sleep...
+Worker 12, offset:0x00000000(4), hexVal:0x00000001 decVal:1, 8
+Worker 12, offset:0x00000004(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000008(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x0000000c(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000010(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000014(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000018(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x0000001c(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000020(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000024(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000028(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x0000002c(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000030(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000034(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000038(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x0000003c(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000040(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000044(4), hexVal:0x00000000 decVal:0, 8
+Worker 12, offset:0x00000048(4), hexVal:0x00000000 decVal:0, 8
