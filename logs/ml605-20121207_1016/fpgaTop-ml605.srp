@@ -1,0 +1,117 @@
+Release 14.3 - xst P.40xd (lin64)
+Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
+--> 
+Parameter xsthdpini set to ocpihdp_v6.ini
+
+
+Total REAL time to Xst completion: 2.00 secs
+Total CPU time to Xst completion: 0.05 secs
+ 
+--> 
+
+TABLE OF CONTENTS
+  1) Synthesis Options Summary
+  2) HDL Parsing
+  3) HDL Elaboration
+  4) HDL Synthesis
+       4.1) HDL Synthesis Report
+  5) Advanced HDL Synthesis
+       5.1) Advanced HDL Synthesis Report
+  6) Low Level Synthesis
+  7) Partition Report
+  8) Design Summary
+       8.1) Primitive and Black Box Usage
+       8.2) Device utilization summary
+       8.3) Partition Resource Summary
+       8.4) Timing Report
+            8.4.1) Clock Information
+            8.4.2) Asynchronous Control Signals Information
+            8.4.3) Timing Summary
+            8.4.4) Timing Details
+            8.4.5) Cross Clock Domains Report
+
+
+=========================================================================
+*                      Synthesis Options Summary                        *
+=========================================================================
+---- Source Parameters
+Input File Name                    : "fpgaTop-ml605.prj"
+Input Format                       : mixed
+
+---- Target Parameters
+Output File Name                   : "fpgaTop"
+Output Format                      : NGC
+Target Device                      : xc6vlx240t-ff1156-1
+
+---- Source Options
+Top Module Name                    : fpgaTop
+Automatic FSM Extraction           : YES
+FSM Encoding Algorithm             : Auto
+Safe Implementation                : No
+FSM Style                          : lut
+RAM Extraction                     : Yes
+RAM Style                          : Auto
+ROM Extraction                     : Yes
+Shift Register Extraction          : YES
+ROM Style                          : Auto
+Resource Sharing                   : YES
+Asynchronous To Synchronous        : NO
+Use DSP Block                      : auto
+Automatic Register Balancing       : NO
+
+---- Target Options
+LUT Combining                      : off
+Reduce Control Sets                : off
+Add IO Buffers                     : YES
+Global Maximum Fanout              : 100000
+Add Generic Clock Buffer(BUFG)     : 32
+Register Duplication               : YES
+Optimize Instantiated Primitives   : NO
+Use Clock Enable                   : Auto
+Use Synchronous Set                : Auto
+Use Synchronous Reset              : Auto
+Pack IO Registers into IOBs        : auto
+Equivalent register Removal        : YES
+
+---- General Options
+Optimization Goal                  : Speed
+Optimization Effort                : 2
+Power Reduction                    : NO
+Library Search Order               : fpgaTop.lso
+Keep Hierarchy                     : soft
+Netlist Hierarchy                  : rebuilt
+RTL Output                         : Yes
+Global Optimization                : AllClockNets
+Read Cores                         : optimize
+Write Timing Constraints           : NO
+Cross Clock Analysis               : NO
+Hierarchy Separator                : /
+Bus Delimiter                      : <>
+Case Specifier                     : maintain
+Slice Utilization Ratio            : 100
+BRAM Utilization Ratio             : 100
+DSP48 Utilization Ratio            : 100
+Auto BRAM Packing                  : NO
+Slice Utilization Ratio Delta      : 5
+
+---- Other Options
+change_error_to_warning            : "HDLCompiler:532 HDLCompiler:597"
+
+=========================================================================
+
+INFO:Xst - Changing 'HDLCompiler:532' to warning
+INFO:Xst - Changing 'HDLCompiler:597' to warning
+
+=========================================================================
+*                          HDL Parsing                                  *
+=========================================================================
+ERROR:Xst:2927 - "/home/shep/projects/ocpi/build/tmp-ml605/fpgaTop-ml605.prj" line 27: Source file ../../rtl/mkDDCWorker.v does not exist
+--> 
+
+
+Total memory usage is 383116 kilobytes
+
+Number of errors   :    1 (   0 filtered)
+Number of warnings :    0 (   0 filtered)
+Number of infos    :    2 (   0 filtered)
+
