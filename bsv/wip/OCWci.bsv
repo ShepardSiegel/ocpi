@@ -5,6 +5,8 @@
 // It should contain the WCI higher-level attributes; not the protocol-specific bits
 // It will typically be imported by the protocol-specific packages for its common WCI abstraction
 
+//TODO MAddrSpace and SThreadbusy need to be vectors Check all profiles
+
 package OCWci;
 
 import OCWipDefs::*;
@@ -551,6 +553,8 @@ interface WciMasterIfc#(numeric type nda, numeric type na);
   method Bool                  present;
   interface Wci_m#(na)         mas;
 endinterface
+
+// TODO: See Jim Email about two databus read codes for conrtol op
 
 module mkWciMaster (WciMasterIfc#(nda,na)) provisos (
     Add#(a_,5,nda),       // Insist that there are at least 5 address bits in nda to allow control ops

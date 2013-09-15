@@ -1,5 +1,5 @@
-// CPDefs.bsv -the data structures used byu OCCP
-// Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
+// CPDefs.bsv -the data structures used by OCCP
+// Copyright (c) 2009-2013 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package CPDefs;
 
