@@ -363,6 +363,8 @@ module mkPCIExpressEndpointS4GX#(Clock sclk, Reset srstn, Clock pclk, Reset prst
 
     Bit#(128) raw = pack(vdw); // We need the data to peek at bit 66 to see if we are 64b memory-alligned or not
     Bool txBubble = sof && !unpack(raw[66]) && unpack(raw[30]);
+    // FIXME: The dwords available test in the next line does not work correctly when TX stream is fully occupied or more than one message
+    // May be that the DWORD shifter needs to carry eof inband with data. Talk with jek on 20131021
     Bool eof = txEofF.notEmpty && (txDws.dwords_available <= 4) && !txBubble; // Cant end on a txBubble
 
     // The deqAmount is how many DWORDs we will deq from txDws this cycle. It can never be more than 4, 3 if a txBubble
