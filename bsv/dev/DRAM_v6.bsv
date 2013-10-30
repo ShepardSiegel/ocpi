@@ -1,8 +1,6 @@
 // DRAM_v6.bsv - BSV code to provide DRAM functionality
 // Copyright (c) 2010-2013  Atomic Rules LCC ALL RIGHTS RESERVED
 
-// 2013-10-29 sls Place MIG into reset when DramServer device worker is in Reset
-
 package DRAM_v6;
 
 import Clocks            ::*;
@@ -172,7 +170,6 @@ interface DRAM_USR16B;                             // 16B Usr interface
 endinterface
 
 interface DramControllerUiIfc;
-  Action                         migReset;  // Input to MIG to force re-calibration
   interface DRAM_USR16B          usr;       // user interface
   interface DDR3_64              dram;      // dram pins
   interface DRAM_DBG_32B         dbg;       // debug port
@@ -186,7 +183,7 @@ import "BVI" v6_mig37 =
 module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
 
   default_clock clk();
-  default_reset rst(sys_rst);  // active-high input to MIG used to force re-calibration, made by
+  default_reset rst(sys_rst);  // active-high expected by MIG "sys_rst"
 
   input_clock (clk_ref) = sys0_clk;  // 200 MHz Stable Source feeding IODELAY CONTROL LOGIC
   input_clock (clk_sys) = mem_clk;   // 200 MHz Clock feeding X0Y9 MMCM
@@ -276,12 +273,10 @@ module mkDramController#(Clock sys0_clk, Clock mem_clk) (DramControllerIfc);
 endmodule: mkDramController
 
 module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
-  Reset                 rst_n         <- exposeCurrentReset;  // module reset from sys0_rst
-  MakeResetIfc          migRst        <- mkReset(16, True, sys0_clk);
-  Reset                 rst_x         <- mkResetEither(rst_n, migRst.new_rst); // Either of these two active-low will reset MIG
-  Reset                 rst_p         <- mkResetInverter(rst_x); // Turn rst_x from active-low to active-high rst_p
-  Reset                 mem_rst_p     <- mkAsyncReset(16, rst_p, sys0_clk); // active-high for importBVI use
-  DramControllerIfc     memc          <- vMkV6DDR3(sys0_clk, mem_clk, clocked_by sys0_clk, reset_by mem_rst_p);
+  Reset                 rst_n         <- exposeCurrentReset;                // module reset will be asserted when worker is reset
+  Reset                 rst_stretch_n <- mkAsyncReset(16, rst_n, sys0_clk); // stretch for 16 sys0_clk cycles
+  Reset                 rst_stretch_p <- mkResetInverter(rst_stretch_n, clocked_by sys0_clk);  // Invert reset to become active-high
+  DramControllerIfc     memc          <- vMkV6DDR3(sys0_clk, mem_clk, clocked_by sys0_clk, reset_by rst_stretch_p); // pass in active-high reset
   FIFO#(DramReq16B)     reqF          <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
 //FIFO#(Bit#(128))      respF         <- mkFIFO(        clocked_by memc.uclk, reset_by memc.urst_n);
   FIFOF#(Bit#(128))     respF         <- mkSRLFIFOD(4,  clocked_by memc.uclk, reset_by memc.urst_n);
@@ -340,7 +335,7 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
     memc.app.wdf_mask (~myBE);               // Invert myBE to be a "mask"
     wdfWren <= True;                         // Assert the write data enable (W1)
     wdfEnd  <= True;                         // Assert wdf end
-    if (unpack(memc.app.wdf_rdy)) begin     // When the write-data W1 is (finally) accepted...
+    if (unpack(memc.app.wdf_rdy)) begin      // When the write-data W1 is (finally) accepted...
       secondBeat <= False;                   // Clear the secondBeat state
       reqF.deq();                            // Deq, we are done with write request
     end
@@ -366,7 +361,6 @@ module mkDramControllerUi#(Clock sys0_clk, Clock mem_clk) (DramControllerUiIfc);
     if (unpack(memc.app.rd_data_end)) rdpF.deq; // we are done with this read response, deq the rdpF
   endrule
 
-  Action migReset = migRst.assertReset;  // Input to MIG to force re-calibration
   interface DRAM_USR16B usr;
     method    Bool initComplete = unpack(memc.app.init_complete);
     method    Bool appFull      = !unpack(memc.app.cmd_rdy);

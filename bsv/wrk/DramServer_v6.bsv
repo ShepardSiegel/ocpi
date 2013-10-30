@@ -1,8 +1,6 @@
 // DramServer_v6.bsv
 // Copyright (c) 2010-2013 Atomic Rules LLC - ALL RIGHTS RESERVED
 
-//2013-10-29 sls Place MIG into reset when DramServer device worker is in Reset
-
 package DramServer_v6;
 
 import Accum::*;
@@ -49,7 +47,6 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   Reg#(Bit#(8))                    respCount                  <- mkReg(0);
   Reg#(Bool)                       splitReadInFlight          <- mkReg(False); 
   FIFOF#(Bit#(2))                  splaF                      <- mkSRLFIFOD(4);
-  Reg#(Bool)                       forcedMigRst               <- mkDReg(False);
 
   Reg#(Bit#(DqsWidth))             dbg_wl_dqs_inverted        <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(TMul#(2,DqsWidth)))    dbg_wr_calib_clk_delay     <- mkSyncRegToCC(0, uclk, urst_n);
@@ -84,11 +81,6 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   Reg#(Bit#(32))                   wmemiRdResp                <- mkReg(0);
 
   Reg#(Bool)                       pioReadInFlight            <- mkReg(False);  // TODO: Add PIO low-priority mutex 
-
-  rule worker_reset_actions (wci.wrkReset);  // This rule should file if worker is reset allowing active reset of MIG
-    memc.migReset;  // drive reset into MIG to force idle, re-calibration
-    forcedMigRst <= True; // Status bit allows hardware verification (can't read back reset worker)
-  endrule
 
   rule operating_actions (wci.isOperating);
      wmemi.operate();
@@ -139,8 +131,8 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   mkConnection(memc.usr.response, toPut(lrespF));
 
   Bit#(32) dramStatus = extend({respCount, 
-    1'h0, forcedMigRst, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read});
-  //      6             5                  4             3             2             1             0
+    2'b00, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read});
+  //       5                  4             3             2             1             0
 
 
 // Connection to the Wmemi...
@@ -288,4 +280,3 @@ endrule
 endmodule : mkDramServer_v6
 
 endpackage : DramServer_v6
-
