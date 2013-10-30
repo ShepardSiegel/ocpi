@@ -118,6 +118,15 @@ interface DRAM_DEBUG#(numeric type dqsWidth, numeric type dqsCntWidth);
   method Action                    inc_rd_dqs         (Bit#(1) i);
   method Action                    dec_rd_dqs         (Bit#(1) i);
   method Action                    inc_dec_sel        (Bit#(dqsCntWidth) i);
+  method Action                    wr_dqs_tap_set     (Bit#(1) i);
+  method Action                    wr_dq_tap_set      (Bit#(1) i);
+  method Action                    wr_tap_set_en      (Bit#(1) i);
+  method Action                    inc_rd_fps         (Bit#(1) i);
+  method Action                    pd_msb_sel         (Bit#(1) i);
+  method Action                    sel_idel_cpt       (Bit#(1) i);
+  method Action                    sel_idel_rsync     (Bit#(1) i);
+  method Action                    pd_byte_sel        (Bit#(1) i);
+  method Action                    dec_rd_fps         (Bit#(1) i);
   method Bit#(TMul#(5,dqsWidth))   dqs_p_tap_cnt;
   method Bit#(TMul#(5,dqsWidth))   dqs_n_tap_cnt;
   method Bit#(TMul#(5,dqsWidth))   dq_tap_cnt;
@@ -179,6 +188,98 @@ interface DramControllerUiIfc;
   method Bit#(16) respCount;                // diagnostc
 endinterface: DramControllerUiIfc
 
+import "BVI" v6_mig39_2 = 
+module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
+
+  default_clock clk();
+  default_reset rst(sys_rst);  // active-high expected by MIG "sys_rst"
+
+  input_clock (clk_ref) = sys0_clk;  // 200 MHz Stable Source feeding IODELAY CONTROL LOGIC
+  input_clock (clk_sys) = mem_clk;   // 200 MHz Clock feeding X0Y9 MMCM
+
+  output_clock    uclk     (ui_clk);
+  output_reset    urst_n   (ui_clk_sync_rst_n) clocked_by (uclk); 
+
+  interface DDR3_64 dram;
+    ifc_inout  io_dq(ddr3_dq)       clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_addr     addr      clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_ba       ba        clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_ras_n    ras_n     clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_cas_n    cas_n     clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_we_n     we_n      clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_reset_n  reset_n   clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_cs_n     cs_n      clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_odt      odt       clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_cke      cke       clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_dm       dm        clocked_by(mem_clk) reset_by(rst);
+    ifc_inout  io_dqs_p(ddr3_dqs_p) clocked_by(mem_clk) reset_by(rst);
+    ifc_inout  io_dqs_n(ddr3_dqs_n) clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_ck_p     ck_p      clocked_by(mem_clk) reset_by(rst);
+    method  ddr3_ck_n     ck_n      clocked_by(mem_clk) reset_by(rst);
+  endinterface: dram
+
+  interface DRAM_APP_32B app;
+    method                    cmd      (app_cmd)        enable((*inhigh*)ena1) clocked_by(uclk) reset_by(urst_n);
+    method                    en       ()               enable(app_en)         clocked_by(uclk) reset_by(urst_n);
+    method app_rdy            cmd_rdy                                          clocked_by(uclk) reset_by(urst_n);
+    method                    addr     (app_addr)       enable((*inhigh*)ena3) clocked_by(uclk) reset_by(urst_n); // tg_addr became app_addr in v37
+    method                    wdf_wren ()               enable(app_wdf_wren)   clocked_by(uclk) reset_by(urst_n);
+    method                    wdf_data (app_wdf_data)   enable((*inhigh*)ena5) clocked_by(uclk) reset_by(urst_n);
+    method                    wdf_mask (app_wdf_mask)   enable((*inhigh*)ena6) clocked_by(uclk) reset_by(urst_n);
+    method                    wdf_end  (app_wdf_end)    enable((*inhigh*)ena7) clocked_by(uclk) reset_by(urst_n);
+    method app_wdf_rdy        wdf_rdy                                          clocked_by(uclk) reset_by(urst_n);
+    method app_rd_data        rd_data                                          clocked_by(uclk) reset_by(urst_n);
+    method app_rd_data_end    rd_data_end                                      clocked_by(uclk) reset_by(urst_n);
+    method app_rd_data_valid  rd_data_valid                                    clocked_by(uclk) reset_by(urst_n);
+    method phy_init_done      init_complete                                    clocked_by(uclk) reset_by(urst_n);
+  endinterface: app
+
+  interface DRAM_DBG_32B dbg;
+    method dbg_wl_dqs_inverted       wl_dqs_inverted                           clocked_by(uclk) reset_by(urst_n);
+    method dbg_wr_calib_clk_delay    wr_calib_clk_delay                        clocked_by(uclk) reset_by(urst_n);
+    method dbg_wl_odelay_dqs_tap_cnt wl_odelay_dqs_tap_cnt                     clocked_by(uclk) reset_by(urst_n);
+    method dbg_wl_odelay_dq_tap_cnt  wl_odelay_dq_tap_cnt                      clocked_by(uclk) reset_by(urst_n);
+    method dbg_rdlvl_done            rdlvl_done                                clocked_by(uclk) reset_by(urst_n);
+    method dbg_rdlvl_err             rdlvl_err                                 clocked_by(uclk) reset_by(urst_n);
+    method dbg_cpt_tap_cnt           cpt_tap_cnt                               clocked_by(uclk) reset_by(urst_n);
+    method dbg_cpt_first_edge_cnt    cpt_first_edge_cnt                        clocked_by(uclk) reset_by(urst_n);
+    method dbg_cpt_second_edge_cnt   cpt_second_edge_cnt                       clocked_by(uclk) reset_by(urst_n);
+    method dbg_rd_bitslip_cnt        rd_bitslip_cnt                            clocked_by(uclk) reset_by(urst_n);
+    method dbg_rd_clkdly_cnt         rd_clkdly_cnt                             clocked_by(uclk) reset_by(urst_n);
+    method dbg_rd_active_dly         rd_active_dly                             clocked_by(uclk) reset_by(urst_n);
+    method dbg_dqs_p_tap_cnt         dqs_p_tap_cnt                             clocked_by(uclk) reset_by(urst_n);
+    method dbg_dqs_n_tap_cnt         dqs_n_tap_cnt                             clocked_by(uclk) reset_by(urst_n);
+    method dbg_dq_tap_cnt            dq_tap_cnt                                clocked_by(uclk) reset_by(urst_n);
+    method dbg_rddata                rddata                                    clocked_by(uclk) reset_by(urst_n);
+    method pd_off             (dbg_pd_off)              enable((*inhigh*)enb1) clocked_by(uclk) reset_by(urst_n);
+    method pd_maintain_off    (dbg_pd_maintain_off)     enable((*inhigh*)enb2) clocked_by(uclk) reset_by(urst_n);
+    method pd_maintain_0_only (dbg_pd_maintain_0_only)  enable((*inhigh*)enb3) clocked_by(uclk) reset_by(urst_n);
+    method ocb_mon_off        (dbg_ocb_mon_off)         enable((*inhigh*)enb4) clocked_by(uclk) reset_by(urst_n);
+    method inc_cpt            (dbg_inc_cpt)             enable((*inhigh*)enb5) clocked_by(uclk) reset_by(urst_n);
+    method dec_cpt            (dbg_dec_cpt)             enable((*inhigh*)enb6) clocked_by(uclk) reset_by(urst_n);
+    method inc_rd_dqs         (dbg_inc_rd_dqs)          enable((*inhigh*)enb7) clocked_by(uclk) reset_by(urst_n);
+    method dec_rd_dqs         (dbg_dec_rd_dqs)          enable((*inhigh*)enb8) clocked_by(uclk) reset_by(urst_n);
+    method inc_dec_sel        (dbg_inc_dec_sel)         enable((*inhigh*)enb9) clocked_by(uclk) reset_by(urst_n);
+    method wr_dqs_tap_set     (dbg_wr_dqs_tap_set)      enable((*inhigh*)enba) clocked_by(uclk) reset_by(urst_n);
+    method wr_dq_tap_set      (dbg_wr_dq_tap_set)       enable((*inhigh*)enbb) clocked_by(uclk) reset_by(urst_n);
+    method wr_tap_set_en      (dbg_wr_tap_set_en)       enable((*inhigh*)enbc) clocked_by(uclk) reset_by(urst_n);
+    method inc_rd_fps         (dbg_inc_rd_fps)          enable((*inhigh*)enbd) clocked_by(uclk) reset_by(urst_n);
+    method pd_msb_sel         (dbg_pd_msb_sel)          enable((*inhigh*)enbe) clocked_by(uclk) reset_by(urst_n);
+    method sel_idel_cpt       (dbg_sel_idel_cpt)        enable((*inhigh*)enbf) clocked_by(uclk) reset_by(urst_n);
+    method sel_idel_rsync     (dbg_sel_idel_rsync)      enable((*inhigh*)enbg) clocked_by(uclk) reset_by(urst_n);
+    method pd_byte_sel        (dbg_pd_byte_sel)         enable((*inhigh*)enbh) clocked_by(uclk) reset_by(urst_n);
+    method dec_rd_fps         (dbg_dec_rd_fps)          enable((*inhigh*)enbi) clocked_by(uclk) reset_by(urst_n);
+  endinterface: dbg
+
+    schedule (dbg_wl_dqs_inverted, dbg_wr_calib_clk_delay, dbg_wl_odelay_dqs_tap_cnt, dbg_wl_odelay_dq_tap_cnt, dbg_rdlvl_done, dbg_rdlvl_err, dbg_cpt_tap_cnt, dbg_cpt_first_edge_cnt, dbg_cpt_second_edge_cnt, dbg_rd_bitslip_cnt, dbg_rd_clkdly_cnt, dbg_rd_active_dly, dbg_dqs_p_tap_cnt, dbg_dqs_n_tap_cnt, dbg_dq_tap_cnt, dbg_rddata) CF
+             (dbg_wl_dqs_inverted, dbg_wr_calib_clk_delay, dbg_wl_odelay_dqs_tap_cnt, dbg_wl_odelay_dq_tap_cnt, dbg_rdlvl_done, dbg_rdlvl_err, dbg_cpt_tap_cnt, dbg_cpt_first_edge_cnt, dbg_cpt_second_edge_cnt, dbg_rd_bitslip_cnt, dbg_rd_clkdly_cnt, dbg_rd_active_dly, dbg_dqs_p_tap_cnt, dbg_dqs_n_tap_cnt, dbg_dq_tap_cnt, dbg_rddata);
+
+  schedule (dbg_pd_off, dbg_pd_maintain_off, dbg_pd_maintain_0_only, dbg_ocb_mon_off, dbg_inc_cpt, dbg_dec_cpt , dbg_inc_rd_dqs, dbg_dec_rd_dqs, dbg_inc_dec_sel, dbg_wr_dqs_tap_set, dbg_wr_dq_tap_set, dbg_wr_tap_set_en, dbg_inc_rd_fps, dbg_pd_msb_sel, dbg_sel_idel_cpt, dbg_sel_idel_rsync, dbg_pd_byte_sel, dbg_dec_rd_fps, app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end ) CF
+           (dbg_pd_off, dbg_pd_maintain_off, dbg_pd_maintain_0_only, dbg_ocb_mon_off, dbg_inc_cpt, dbg_dec_cpt , dbg_inc_rd_dqs, dbg_dec_rd_dqs, dbg_inc_dec_sel, dbg_wr_dqs_tap_set, dbg_wr_dq_tap_set, dbg_wr_tap_set_en, dbg_inc_rd_fps, dbg_pd_msb_sel, dbg_sel_idel_cpt, dbg_sel_idel_rsync, dbg_pd_byte_sel, dbg_dec_rd_fps, app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end );
+
+endmodule: vMkV6DDR3
+
+`ifdef OLDER_MIG37
 import "BVI" v6_mig37 = 
 module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
 
@@ -262,6 +363,7 @@ module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
              app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end );
 
 endmodule: vMkV6DDR3
+`endif
 
 module mkDramController#(Clock sys0_clk, Clock mem_clk) (DramControllerIfc);
   Clock                 clk           <-  exposeCurrentClock;
