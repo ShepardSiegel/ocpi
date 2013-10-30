@@ -222,11 +222,9 @@ module v6_mig39_2 #
   localparam APP_DATA_WIDTH      = PAYLOAD_WIDTH * 4;
   localparam APP_MASK_WIDTH      = APP_DATA_WIDTH / 8;
 
-  wire                                clk_ref;
   wire                                sys_clk;
   wire                                mmcm_clk;
   wire                                iodelay_ctrl_rdy;
-      
   (* KEEP = "TRUE" *) wire            sda_i;
   (* KEEP = "TRUE" *) wire            scl_i;
   wire                                rst;
@@ -244,86 +242,7 @@ module v6_mig39_2 #
   wire [47:0]                         traffic_rd_data_counts;
 
 
-  wire [5*DQS_WIDTH-1:0]              dbg_cpt_first_edge_cnt;
-  wire [5*DQS_WIDTH-1:0]              dbg_cpt_second_edge_cnt;
-  wire [5*DQS_WIDTH-1:0]              dbg_cpt_tap_cnt;
-  wire                                dbg_dec_cpt;
-  wire                                dbg_dec_rd_dqs;
-  wire                                dbg_dec_rd_fps;
-  wire [5*DQS_WIDTH-1:0]              dbg_dq_tap_cnt;
-  wire [5*DQS_WIDTH-1:0]              dbg_dqs_tap_cnt;
-  wire                                dbg_inc_cpt;
-  wire [DQS_CNT_WIDTH-1:0]            dbg_inc_dec_sel;
-  wire                                dbg_inc_rd_dqs;
-  wire                                dbg_inc_rd_fps;
-  wire                                dbg_ocb_mon_off;
-  wire                                dbg_pd_off;
-  wire                                dbg_pd_maintain_off;
-  wire                                dbg_pd_maintain_0_only;
-  wire [4:0]                          dbg_rd_active_dly;
-  wire [3*DQS_WIDTH-1:0]              dbg_rd_bitslip_cnt;
-  wire [2*DQS_WIDTH-1:0]              dbg_rd_clkdly_cnt;
-  wire [4*DQ_WIDTH-1:0]               dbg_rddata;
-  wire [1:0]                          dbg_rdlvl_done;
-  wire [1:0]                          dbg_rdlvl_err;
-  wire [1:0]                          dbg_rdlvl_start;
-  wire [DQS_WIDTH-1:0]                dbg_wl_dqs_inverted;
-  wire [5*DQS_WIDTH-1:0]              dbg_wl_odelay_dq_tap_cnt;
-  wire [5*DQS_WIDTH-1:0]              dbg_wl_odelay_dqs_tap_cnt;
-  wire [2*DQS_WIDTH-1:0]              dbg_wr_calib_clk_delay;
-  wire [5*DQS_WIDTH-1:0]              dbg_wr_dq_tap_set;
-  wire [5*DQS_WIDTH-1:0]              dbg_wr_dqs_tap_set;
-  wire                                dbg_wr_tap_set_en;
-  wire                                dbg_idel_up_all;
-  wire                                dbg_idel_down_all;
-  wire                                dbg_idel_up_cpt;
-  wire                                dbg_idel_down_cpt;
-  wire                                dbg_idel_up_rsync;
-  wire                                dbg_idel_down_rsync;
-  wire                                dbg_sel_all_idel_cpt;
-  wire                                dbg_sel_all_idel_rsync;
-  wire                                dbg_pd_inc_cpt;
-  wire                                dbg_pd_dec_cpt;
-  wire                                dbg_pd_inc_dqs;
-  wire                                dbg_pd_dec_dqs;
-  wire                                dbg_pd_disab_hyst;
-  wire                                dbg_pd_disab_hyst_0;
-  wire                                dbg_wrlvl_done;
-  wire                                dbg_wrlvl_err;
-  wire                                dbg_wrlvl_start;
-  wire [4:0]                          dbg_tap_cnt_during_wrlvl;
-  wire [19:0]                         dbg_rsync_tap_cnt;
-  wire [255:0]                        dbg_phy_pd;
-  wire [255:0]                        dbg_phy_read;
-  wire [255:0]                        dbg_phy_rdlvl;
-  wire [255:0]                        dbg_phy_top;
-  wire [3:0]                          dbg_pd_msb_sel;
-  wire [DQS_WIDTH-1:0]                dbg_rd_data_edge_detect;
-  wire [DQS_CNT_WIDTH-1:0]            dbg_sel_idel_cpt;
-  wire [DQS_CNT_WIDTH-1:0]            dbg_sel_idel_rsync;
-  wire [DQS_CNT_WIDTH-1:0]            dbg_pd_byte_sel;
-  wire [2:0]                          vio_data_mode;
-  wire [2:0]                          vio_addr_mode;
-
-  wire                                ddr3_cs0_clk;
-  wire [35:0]                         ddr3_cs0_control;
-  wire [383:0]                        ddr3_cs0_data;
-  wire [7:0]                          ddr3_cs0_trig;
-  wire [255:0]                        ddr3_cs1_async_in;
-  wire [35:0]                         ddr3_cs1_control;
-  wire [255:0]                        ddr3_cs2_async_in;
-  wire [35:0]                         ddr3_cs2_control;
-  wire [255:0]                        ddr3_cs3_async_in;
-  wire [35:0]                         ddr3_cs3_control;
-  wire                                ddr3_cs4_clk;
-  wire [35:0]                         ddr3_cs4_control;
-  wire [31:0]                         ddr3_cs4_sync_out;
-
-  //***************************************************************************
-
-
   assign app_hi_pri = 1'b0;
-
   assign ui_clk = clk;
   assign ui_clk_sync_rst_n = !rst;  // Make active-low output reset
 
