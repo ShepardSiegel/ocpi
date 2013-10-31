@@ -783,6 +783,7 @@ platform_ml605: $(OBJ)
 	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
+		-remove-dollar \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \
@@ -799,6 +800,7 @@ platform_kc705: $(OBJ)
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
 		-show-range-conflict \
+		-remove-dollar \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW1 \
@@ -814,6 +816,7 @@ platform_vc707: $(OBJ)
 	echo Bit#\(32\) compileTime = `date +%s`\; // Verilog `date` > bsv/utl/CompileTime.bsv
 	bsc -u -verilog -elab -keep-inlined-boundaries -no-warn-action-shadowing \
 		-aggressive-conditions -no-show-method-conf \
+		-remove-dollar \
 		-vdir $(RTL) -bdir $(OBJ) -simdir $(OBJ) \
 		-p $(BSVDIRS):lib:+ \
 		-D USE_NDW4 \

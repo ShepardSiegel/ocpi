@@ -1,5 +1,5 @@
 // DramServer_v6.bsv
-// Copyright (c) 2010-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
+// Copyright (c) 2010-2013 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 package DramServer_v6;
 
@@ -115,7 +115,7 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
      responseCount             <= memc.respCount;
   endrule
 
-  rule debug_update;
+  rule debug_update;  // Tie of debug control inpputs to no-op zero
     memc.dbg.pd_off(0);
     memc.dbg.pd_maintain_off(0);
     memc.dbg.pd_maintain_0_only(0);
@@ -125,14 +125,23 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
     memc.dbg.inc_rd_dqs(0);
     memc.dbg.dec_rd_dqs(0);
     memc.dbg.inc_dec_sel(0);
+    memc.dbg.wr_dqs_tap_set(0);
+    memc.dbg.wr_dq_tap_set(0);
+    memc.dbg.wr_tap_set_en(0);
+    memc.dbg.inc_rd_fps(0);
+    memc.dbg.pd_msb_sel(0);
+    memc.dbg.sel_idel_cpt(0);
+    memc.dbg.sel_idel_rsync(0);
+    memc.dbg.pd_byte_sel(0);
+    memc.dbg.dec_rd_fps(0);
   endrule
 
   mkConnection(toGet(lreqF), memc.usr.request);
   mkConnection(memc.usr.response, toPut(lrespF));
 
   Bit#(32) dramStatus = extend({respCount, 
-    2'h0, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read});
-  //      5                  4             3             2             1             0
+    2'b00, memIsResetCC.read, appFull.read, wdfFull.read, secBeat.read, firBeat.read, initComplete.read});
+  //       5                  4             3             2             1             0
 
 
 // Connection to the Wmemi...
@@ -280,4 +289,3 @@ endrule
 endmodule : mkDramServer_v6
 
 endpackage : DramServer_v6
-
