@@ -19,6 +19,9 @@ import XilinxCells       :: *;
 import SRLFIFO ::*;
 import XilinxExtra :: *;
 
+`define MIG_37
+//`define MIG_392
+
 
 typedef struct {
   Bool      isRead; // request is read
@@ -118,6 +121,11 @@ interface DRAM_DEBUG#(numeric type dqsWidth, numeric type dqsCntWidth);
   method Action                    inc_rd_dqs         (Bit#(1) i);
   method Action                    dec_rd_dqs         (Bit#(1) i);
   method Action                    inc_dec_sel        (Bit#(dqsCntWidth) i);
+  method Bit#(TMul#(5,dqsWidth))   dqs_p_tap_cnt;
+  method Bit#(TMul#(5,dqsWidth))   dqs_n_tap_cnt;
+  method Bit#(TMul#(5,dqsWidth))   dq_tap_cnt;
+  method Bit#(TMul#(4,dqsWidth))   rddata;
+`ifdef MIG_392
   method Action                    wr_dqs_tap_set     (Bit#(1) i);
   method Action                    wr_dq_tap_set      (Bit#(1) i);
   method Action                    wr_tap_set_en      (Bit#(1) i);
@@ -127,13 +135,9 @@ interface DRAM_DEBUG#(numeric type dqsWidth, numeric type dqsCntWidth);
   method Action                    sel_idel_rsync     (Bit#(1) i);
   method Action                    pd_byte_sel        (Bit#(1) i);
   method Action                    dec_rd_fps         (Bit#(1) i);
-  method Bit#(TMul#(5,dqsWidth))   dqs_p_tap_cnt;
-  method Bit#(TMul#(5,dqsWidth))   dqs_n_tap_cnt;
-  method Bit#(TMul#(5,dqsWidth))   dq_tap_cnt;
-  method Bit#(TMul#(4,dqsWidth))   rddata;
+`endif
 endinterface: DRAM_DEBUG
 typedef DRAM_DEBUG#(8,3) DRAM_DBG_32B;
-
 
 (* always_enabled, always_ready *)
 interface DRAM_INF#(numeric type bmWidth);
@@ -188,6 +192,7 @@ interface DramControllerUiIfc;
   method Bit#(16) respCount;                // diagnostc
 endinterface: DramControllerUiIfc
 
+`ifdef MIG_392
 import "BVI" v6_mig39_2 = 
 module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
 
@@ -278,8 +283,9 @@ module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
            (dbg_pd_off, dbg_pd_maintain_off, dbg_pd_maintain_0_only, dbg_ocb_mon_off, dbg_inc_cpt, dbg_dec_cpt , dbg_inc_rd_dqs, dbg_dec_rd_dqs, dbg_inc_dec_sel, dbg_wr_dqs_tap_set, dbg_wr_dq_tap_set, dbg_wr_tap_set_en, dbg_inc_rd_fps, dbg_pd_msb_sel, dbg_sel_idel_cpt, dbg_sel_idel_rsync, dbg_pd_byte_sel, dbg_dec_rd_fps, app_cmd, app_en, app_addr, app_wdf_wren, app_wdf_data, app_wdf_mask, app_wdf_end );
 
 endmodule: vMkV6DDR3
+`endif
 
-`ifdef OLDER_MIG37
+`ifdef MIG_37
 import "BVI" v6_mig37 = 
 module vMkV6DDR3#(Clock sys0_clk, Clock mem_clk)(DramControllerIfc);
 

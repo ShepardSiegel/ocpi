@@ -66,6 +66,8 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   Reg#(Bit#(TMul#(4,DqsWidth)))    dbg_rddata                 <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(16))                   requestCount               <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(16))                   responseCount              <- mkSyncRegToCC(0, uclk, urst_n);
+  Reg#(Bit#(32))                   uclkUpdateCnt              <- mkReg(0, clocked_by uclk, reset_by urst_n);
+  Reg#(Bit#(32))                   wci_uclkUpdateCnt          <- mkSyncRegToCC(0, uclk, urst_n);
 
   Reg#(Bit#(16))                   pReg                       <- mkReg(0);
   Reg#(Bit#(16))                   mReg                       <- mkReg(0);
@@ -94,6 +96,8 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   rule update_secBeat;      secBeat.send(pack(memc.usr.secBeat)); endrule
 
   //(* no_implicit_conditions, fire_when_enabled *)
+  // mkSyncRegToCC have guarded _write methods
+  // This rule is in the 200 MHz uclk domain - output from MIG
   rule update_debug (True);
      dbg_wl_dqs_inverted       <= memc.dbg.wl_dqs_inverted;
      dbg_wr_calib_clk_delay    <= memc.dbg.wr_calib_clk_delay;
@@ -113,8 +117,14 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
      dbg_rddata                <= memc.dbg.rddata;
      requestCount              <= memc.reqCount;
      responseCount             <= memc.respCount;
+     uclkUpdateCnt             <= uclkUpdateCnt + 1;  // Count update cycles
   endrule
 
+  rule update_ucnt;
+     wci_uclkUpdateCnt         <= uclkUpdateCnt;
+  endrule
+
+  (* no_implicit_conditions, fire_when_enabled *)
   rule debug_update;  // Tie of debug control inpputs to no-op zero
     memc.dbg.pd_off(0);
     memc.dbg.pd_maintain_off(0);
@@ -125,6 +135,7 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
     memc.dbg.inc_rd_dqs(0);
     memc.dbg.dec_rd_dqs(0);
     memc.dbg.inc_dec_sel(0);
+`ifdef MIG_392
     memc.dbg.wr_dqs_tap_set(0);
     memc.dbg.wr_dq_tap_set(0);
     memc.dbg.wr_tap_set_en(0);
@@ -134,6 +145,7 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
     memc.dbg.sel_idel_rsync(0);
     memc.dbg.pd_byte_sel(0);
     memc.dbg.dec_rd_fps(0);
+`endif
   endrule
 
   mkConnection(toGet(lreqF), memc.usr.request);
@@ -260,6 +272,7 @@ endrule
        'h90 : rdat = (!hasDebugLogic) ? 0 : wmemiWrReq;
        'h94 : rdat = (!hasDebugLogic) ? 0 : wmemiRdReq;
        'h98 : rdat = (!hasDebugLogic) ? 0 : wmemiRdResp;
+       'h9C : rdat = (!hasDebugLogic) ? 0 : wci_uclkUpdateCnt; // should spin with updates
       endcase
     end else begin
        readDram4B(truncate({pReg,wciReq.addr[18:2],2'b0}));
