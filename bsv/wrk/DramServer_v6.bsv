@@ -11,6 +11,7 @@ import SRLFIFO ::*;
 
 import Clocks::*;
 import Connectable::*;
+import DReg::*; 
 import FIFO::*;
 import FIFOF::*;
 import Vector::*;
@@ -23,6 +24,10 @@ interface DramServer_v6Ifc;
   interface WciES         wciS0;    // Worker Control and Configuration
   interface WmemiES16B    wmemiS0;  // The Wmemi slave interface provided to the application
   interface DDR3_64       dram;     // The interface to the DRAM pins
+  // Diagnostics...
+  (*always_ready*) method Bool isInReset;
+  (*always_ready*) method Bool isReset;
+  (*always_ready*) method Bool isTrained;
 endinterface
 
 typedef 8 DqsWidth;
@@ -47,6 +52,7 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   Reg#(Bit#(8))                    respCount                  <- mkReg(0);
   Reg#(Bool)                       splitReadInFlight          <- mkReg(False); 
   FIFOF#(Bit#(2))                  splaF                      <- mkSRLFIFOD(4);
+  Reg#(Bool)                       memInReset                 <- mkDReg(True);
 
   Reg#(Bit#(DqsWidth))             dbg_wl_dqs_inverted        <- mkSyncRegToCC(0, uclk, urst_n);
   Reg#(Bit#(TMul#(2,DqsWidth)))    dbg_wr_calib_clk_delay     <- mkSyncRegToCC(0, uclk, urst_n);
@@ -83,6 +89,10 @@ module mkDramServer_v6#(parameter Bool hasDebugLogic, Clock sys0_clk, Reset sys0
   Reg#(Bit#(32))                   wmemiRdResp                <- mkReg(0);
 
   Reg#(Bool)                       pioReadInFlight            <- mkReg(False);  // TODO: Add PIO low-priority mutex 
+
+  rule clear_reset;  // This rule will fire when WCI is not reset, clearing memInReset bit
+    memInReset <= False;
+  endrule
 
   rule operating_actions (wci.isOperating);
      wmemi.operate();
@@ -295,6 +305,9 @@ endrule
 
   WmemiES16B wmemi_Es <- mkWmemiStoES(wmemi.slv);
 
+  method Bool isInReset = memInReset;
+  method Bool isReset   = unpack(memIsResetCC.read);
+  method Bool isTrained = unpack(initComplete.read);
   interface WciES       wciS0    = wci.slv;
   interface WmemiES16B  wmemiS0  = wmemi_Es;
   interface DDR3_64     dram     = memc.dram; 

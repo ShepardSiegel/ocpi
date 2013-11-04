@@ -152,7 +152,7 @@ module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board
   interface Reset    p125rst = p125Rst;
   method  led   =
     //{5'b10100, pack(blinkLed), 1'b0, pack(pmemMonW8.grab), pack(pmemMonW8.head), pack(pmemMonW8.body), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
-    {5'b10100, pack(blinkLed), 4'h0, infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
+    {5'b10100, pack(blinkLed), 1'b0, pack(dram0.isTrained), pack(dram0.isReset), pack(dram0.isInReset), infLed, pack(pciw.linkUp)}; //13 leds are on active high on ML605
   interface LCD        lcd       = lcd_ctrl.ifc;
   interface GPSIfc     gps       = ctop.gps;
   interface FLASH_IO   flash     = flash0.flash;
