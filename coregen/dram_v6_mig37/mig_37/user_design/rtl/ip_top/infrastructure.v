@@ -118,8 +118,9 @@ module infrastructure #
   // be getting stable clock cycles while reset asserted (i.e. since reset
   // depends on DCM lock status)
   // COMMENTED, RC, 01/13/09 - causes pack error in MAP w/ larger #
-  localparam RST_SYNC_NUM = 15;
+  //localparam RST_SYNC_NUM = 15;
   //  localparam RST_SYNC_NUM = 25;
+  localparam RST_SYNC_NUM = 65;
   // Round up for clk reset delay to ensure that CLKDIV reset deassertion
   // occurs at same time or after CLK reset deassertion (still need to
   // consider route delay - add one or two extra cycles to be sure!)
@@ -320,10 +321,8 @@ module infrastructure #
   assign rst_tmp = sys_rst_act_hi | ~pll_lock | ~iodelay_ctrl_rdy;
 
   always @(posedge clk_bufg or posedge rst_tmp)
-    if (rst_tmp)
-      rstdiv0_sync_r <= #TCQ {RST_DIV_SYNC_NUM{1'b1}};
-    else
-      rstdiv0_sync_r <= #TCQ rstdiv0_sync_r << 1;
+    if (rst_tmp) rstdiv0_sync_r <= #TCQ {RST_DIV_SYNC_NUM{1'b1}};
+    else         rstdiv0_sync_r <= #TCQ rstdiv0_sync_r << 1;       // Shift in a Zero
 
   assign rstdiv0 = rstdiv0_sync_r[RST_DIV_SYNC_NUM-1];
 

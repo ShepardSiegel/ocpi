@@ -154,8 +154,8 @@ module v6_mig37 #
    parameter DATA_WIDTH              = 64,
    parameter PAYLOAD_WIDTH           = (ECC_TEST == "OFF") ? DATA_WIDTH : DQ_WIDTH,
    parameter RST_ACT_LOW             = 0,
-                                        // =1 for active low reset,
-                                       // =0 for active high.
+                                       // =0 for active high reset
+                                       // =1 for active  low reset
    //parameter INPUT_CLK_TYPE          = "DIFFERENTIAL",
    parameter INPUT_CLK_TYPE          = "SINGLE_ENDED",
                                        // input clock type DIFFERNTIAL or SINGLE_ENDED
@@ -307,41 +307,18 @@ module v6_mig37 #
      .DI (1'b0),
      .S  (1'b1)
      );
-  assign clk_ref_p = 1'b0;
-  assign clk_ref_n = 1'b0;
-  assign sys_clk_p = 1'b0;
-  assign sys_clk_n = 1'b0;
 
-  //***************************************************************************
+  iodelay_ctrl #(
+    .TCQ              (TCQ),
+    .IODELAY_GRP      (IODELAY_GRP),
+    .RST_ACT_LOW      (RST_ACT_LOW)
+  ) u_iodelay_ctrl (
+    .clk_ref          (clk_ref),
+    .sys_rst          (sys_rst),
+    .iodelay_ctrl_rdy (iodelay_ctrl_rdy)
+  );
 
-
-  iodelay_ctrl #
-    (
-     .TCQ            (TCQ),
-     .IODELAY_GRP    (IODELAY_GRP),
-     .INPUT_CLK_TYPE (INPUT_CLK_TYPE),
-     .RST_ACT_LOW    (RST_ACT_LOW)
-     )
-    u_iodelay_ctrl
-      (
-       .clk_ref_p        (clk_ref_p),
-       .clk_ref_n        (clk_ref_n),
-       .clk_ref          (clk_ref),
-       .sys_rst          (sys_rst),
-       .iodelay_ctrl_rdy (iodelay_ctrl_rdy)
-       );
-
-   assign mmcm_clk = clk_sys;  // The DRAM clock
-
-       /* 
-  clk_ibuf #
-    ( .INPUT_CLK_TYPE (INPUT_CLK_TYPE)) u_clk_ibuf
-    ( .sys_clk_p         (sys_clk_p),
-      .sys_clk_n         (sys_clk_n),
-      .sys_clk           (clk_sys),
-      .mmcm_clk          (mmcm_clk)
-      );
-     */
+  assign mmcm_clk = clk_sys;  // The DRAM clock
 
   infrastructure #
     (
