@@ -3,6 +3,7 @@
 
 package OCInf;
 
+import BLUART       ::*;
 import Config       ::*;
 import OCWip        ::*;
 import CPMux        ::*;
@@ -47,6 +48,7 @@ interface OCInfIfc#(numeric type nWci_ctop, numeric type ndw);
   method    GPS64_t   cpNow;
   interface GPSIfc    gps;
   method Action uuid (Bit#(512) arg);
+  interface UART_pads upads;
 endinterface
 
 module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#(Nwci_ctop,ndw))
@@ -132,6 +134,7 @@ module mkOCInf_poly#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (OCInfIfc#
   interface          wmiDP0 = dp0.wmiS0;
   interface          wmiDP1 = dp1.wmiS0;
   method Action uuid (Bit#(512) arg) = cp.uuid(arg); // Pass the UUID from the infrastrucrture down to the control plane
+  interface UART_pads upads = cp.upads;
 
 endmodule : mkOCInf_poly
 

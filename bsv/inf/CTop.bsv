@@ -3,6 +3,7 @@
 
 package CTop;
 
+import BLUART      ::*;
 import OCInf       ::*;
 import OCApp       ::*;
 import TLPMF       ::*;
@@ -32,6 +33,7 @@ interface CTopIfc#(numeric type ndw);
   interface Wsi_Em#(12,TMul#(ndw,32),TMul#(ndw,4),8,0)  wsi_m_dac;  
   interface  WmemiEM16B  wmemiM0;
   interface  GPSIfc      gps;
+  interface  UART_pads   upads;
 endinterface 
 
 module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
@@ -128,6 +130,7 @@ module mkCTop#(PciId pciDevice, Clock sys0_clk, Reset sys0_rst) (CTopIfc#(ndw))
   //interface Wsi_s wsi_s_adc   = app.wsi_s_adc; // The ADC device-worker to the application  // FIXME Poly Width
   //interface Wsi_m wsi_m_dac   = app.wsi_m_dac; // The DAC device-worker to the application  // FIXME Poly Width
   interface WmemiEM16B wmemiM0 = app.wmemiM0;
+  interface UART_pads  upads   = inf.upads;
 endmodule : mkCTop
 
 // Synthesizeable, non-polymorphic modules that use the poly module above...

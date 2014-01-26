@@ -11,6 +11,7 @@
 ## 2010-11-29 Moved ppsExtIn to ML605 J56 SMA Connector
 ## 2010-12-19 pci core path changed
 ## 2012-03-06 GMII/PHY Port Glossing
+## 2104-01-26 Added upads, 4-signals for ML605 UART
 
 CONFIG PART = XC6VLX240T-FF1156-1 ;
 
@@ -84,6 +85,12 @@ NET  "lcd_rw"    LOC = AC14 | IOSTANDARD = LVCMOS25 ;
 #NET  "ppsOut"    LOC = AD20 | IOSTANDARD = "LVCMOS25"; #FMC HPC H8 on J64
 NET  "ppsOut"     LOC = V34 | IOSTANDARD = "LVCMOS25"; #ML605 Board J57 (user_sma_gpio_p)
 NET  "ppsExtIn"   LOC = W34 | IOSTANDARD = "LVCMOS25"; #ML605 Board J56 (user_sma_gpio_n)
+
+# USB UART...
+NET "upads_rts"     LOC = "T24";    ## 22  on U34  (CTS)
+NET "upads_cts_arg" LOC = "T23";    ## 23  on U34  (RTS)
+NET "upads_tx"      LOC = "J25";    ## 24  on U34  (RX)
+NET "upads_rx_arg"  LOC = "J24";    ## 25  on U34  (TX)
 
 PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_int_i.CLR" TIG ;
 PIN "ftop/pciw_pci0_pcie_ep/ep/trn_reset_n_i.CLR" TIG ;

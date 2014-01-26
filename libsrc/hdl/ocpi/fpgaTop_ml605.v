@@ -1,5 +1,6 @@
 // fpgaTop_ml605.v - ssiegel 2009-03-17
 // 2012-02-11 ssiegel Added MDIO port
+// 2014-01-26 ssiegel Added UART port
 
 module fpgaTop(
   input  wire        sys0_clkp,      // sys0 Clock +
@@ -22,6 +23,11 @@ module fpgaTop(
   output wire        lcd_rw,         // LCD read-not-write
   input  wire        ppsExtIn,       // PPS in
   output wire        ppsOut,         // PPS out
+
+  output wire        upads_rts,      // USB UART...
+  output wire        upads_tx,
+  input  wire        upads_cts_arg,
+  input  wire        upads_rx_arg,
 
   output wire        gmii_rstn,      // Alaska GMII...
 	output wire        gmii_gtx_clk,
@@ -120,6 +126,11 @@ assign flp_com_sdc2m = (flpCDC_com_sdc2m && flpCDC_sclkgate) || (flpDAC_com_sdc2
   .lcd_rw            (lcd_rw),
   .gps_ppsSyncIn_x   (ppsExtIn),
   .gps_ppsSyncOut    (ppsOut),
+
+  .upads_rts         (upads_rts),
+  .upads_tx          (upads_tx),
+  .upads_cts_arg     (upads_cts_arg),
+  .upads_rx_arg      (upads_rx_arg),
 
 	.gmii_rstn         (gmii_rstn),
 	.gmii_tx_txd       (gmii_txd),
