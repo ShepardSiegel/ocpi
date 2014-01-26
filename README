@@ -14,6 +14,7 @@ ssiegel 2011-12-12 64b Host address capability
 ssiegel 2012-01-19 ISE 13.4 Library Build
 ssiegel 2012-01-30 Bluespec Release 2012.01.A (BRAM Prims Updated)
 ssiegel 2012-10-28 ISE 14.3 / Vivado 2012.3 refresh
+ssiegel 2014-01-26 ISE 14.7 / Vibado 2013.4 / Added USB-UART to CP for ML605 platform
 Principal Author: Shepard Siegel, Atomic Rules LLC
 <shepard period siegel at atomicrules period com>
 OpenCPI website: www.opencpi.org
@@ -165,7 +166,12 @@ OpenCPI website: www.opencpi.org
     the frequency of the XO to be set as a configuration property. Now it is compiled into the code.
     If the incident XO is too far out of tolerance; there may be no timebase at all.
 
-10. Notes
+10. Standard USB-UART Settings (for the UART intergrated into the Control Plane)
+  115200 baud, 8 data bits, 1 stop bit, no parity
+  Baud rate is programable from 115200 default
+  Write ASCII byte codes to Admin offset 0x70 to send TX data
+
+11. Notes
 2010-12-18 ISE 12.4 Libraries
 2010-12-16 XUPV5 testOK on core920
 2010-12-16 ML605 testOK, but some issue (same) with SX95T and ML555 (multiple changed in flight?)
@@ -177,3 +183,4 @@ OpenCPI website: www.opencpi.org
 2012-01-19 ISE 13.4 Libraries
 2012-01-30 Bluespec Release 2012.01.A (BRAM Prims Updated)
 2012-10-28 Bluespec Release 2012.09.beta1B (more aggressive rule schedules) ISE 14.3 / Vivado 2012.3
+2014-01-26 Bluespec Release 2013.01.beta5, ISE 14.7 / Vivado 2013.4 / Quartus 
