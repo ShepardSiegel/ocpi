@@ -134,7 +134,7 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
   endfunction
 
   rule init_uart_text (!uartInited);
-    Vector#(40,Bit#(8)) initText = uartLine("OpenCPI USB-UART v0.01 2014-01-26 *good*");
+    Vector#(40,Bit#(8)) initText = uartLine("OpenCPI USB-UART v0.01 2014-01-24 *safe*");
     case (uartTxtP)
       0,42   : bluart.txChar.put(8'h0d); // CR
       1,43   : bluart.txChar.put(8'h0a); // LF
