@@ -46,6 +46,7 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
   Reg#(Bool)                     isTesting         <- mkReg(False);
   Reg#(Bool)                     isWriter          <- mkReg(True);
   Reg#(Bool)                     isReader          <- mkReg(False);
+  Reg#(Bool)                     isCharPush        <- mkReg(False);
   Reg#(UInt#(32))                hwordAddr         <- mkReg(0);
   Reg#(UInt#(32))                unrollCnt         <- mkReg(0);
   Reg#(UInt#(32))                respCnt           <- mkReg(0);
@@ -67,12 +68,13 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
   rule free_inc; freeCnt <= freeCnt + 1; endrule
 
   Bool haltOnError = unpack(tstCtrl[0]);
+  Bool charPerLoop = unpack(tstCtrl[1]);  // set to cause write to BLUART on loop
 
   function Bit#(36) hwordAsBytes(UInt#(32) hwAddr);
     return ( {pack(hwordAddr), 4'h0} );  // 4b up-shifted to convert hword to Bytes
   endfunction
 
-  rule write_req (wci.isOperating && isTesting && isWriter && !isReader);
+  rule write_req (wci.isOperating && isTesting && isWriter && !isReader && !isCharPush);
     let d <- wgen.stream.get;
     wmemi.req(True, hwordAsBytes(hwordAddr), 1);         // Write Request 
     wmemi.dh(d, '1, True);                               // Write 16B Datahandshake
@@ -98,6 +100,7 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
       testCycleCount <= testCycleCount + 1;
       wtCycStart <= freeCnt;
       rdDuration <= freeCnt - rdCycStart;
+      isCharPush <= charPerLoop;
     end
   endrule
 
@@ -111,7 +114,13 @@ module mkMemiTestWorker#(parameter Bool hasDebugLogic) (MemiTestWorkerIfc);
     end
     wmemiRdResp <= wmemiRdResp + 1;
   endrule
-  
+
+  rule char_push (wci.isOperating && isTesting && isWriter && !isReader && isCharPush);
+    wmemi.req(True, 36'h08000002C, 1);                         // Write Request - set bit 31 to write AXI; 2C is TX
+    wmemi.dh(128'h0000000000000000000000000000002B, '1, True); // Write 16B Datahandshake 2B is ASCII '+'
+    isCharPush <= False;
+  endrule
+
 
 // WCI...
 Bit#(32) testStatus = {31'h0, pack(isReader)};
