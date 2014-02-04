@@ -1,5 +1,8 @@
 // BLUART.bsv - A Bluespec SystemVerilog (BSV) UART
 // Copyright (c) 2014 Atomic Rules LLC - ALL RIGHTS RESERVED
+//
+// Default Configuration: 115200 baud, 8 bits, 1 stop bit, no parity
+// Baud rate may be set at runtime by the setClkDiv method
 
 package BLUART;
 
@@ -20,12 +23,12 @@ interface UART_pads;
 endinterface: UART_pads
 
 interface BLUARTIfc;
-  interface Put#(UInt#(16)) setClkDiv;    // clkDiv = module clock / desired baudrate
-  method UInt#(16)          txLevel;
-  method UInt#(16)          rxLevel;
-  interface Put#(Bit#(8))   txChar;
-  interface Get#(Bit#(8))   rxChar;
-  interface UART_pads       pads;
+  interface Put#(UInt#(16)) setClkDiv;    // clkDiv = module clock freq / desired baudrate
+  method UInt#(8)           txLevel;      // 0=Nothing to send;    1=Sending TX data
+  method UInt#(8)           rxLevel;      // 0=Nothing to receive; 1=One or more Bytes in rxF
+  interface Put#(Bit#(8))   txChar;       // Method to Put() TX data
+  interface Get#(Bit#(8))   rxChar;       // Method to Get() RX data
+  interface UART_pads       pads;         // Interface to UART pads
 endinterface
 
 
@@ -40,7 +43,7 @@ module mkBLUART (BLUARTIfc);
 
   Reg#(UInt#(16))   rxBaudCnt  <- mkReg(0);
   Reg#(UInt#(4))    rxBitCnt   <- mkReg(0);
-  FIFOF#(Bit#(8))   rxF        <- mkFIFOF;
+  FIFOF#(Bit#(8))   rxF        <- mkSizedFIFOF(4);
   Reg#(Bit#(1))     rxInReg    <- mkReg(1);
   Reg#(Bit#(1))     rxCtsReg   <- mkReg(1);
   Reg#(Vector#(2,Bit#(1))) rxD <- mkReg(unpack('1));
@@ -59,18 +62,8 @@ module mkBLUART (BLUARTIfc);
   endrule
 
   rule tx_DataMux;
-    case (txBitCnt)
-      0 : txData <= 1;
-      1 : txData <= 0;  // 1 stop bit
-      2 : txData <= txF.first[0];
-      3 : txData <= txF.first[1];
-      4 : txData <= txF.first[2];
-      5 : txData <= txF.first[3];
-      6 : txData <= txF.first[4];
-      7 : txData <= txF.first[5];
-      8 : txData <= txF.first[6];
-      9 : txData <= txF.first[7];
-    endcase
+    Bit#(10) txa = {txF.first, 2'b01};  // 1 stop bit, then data
+    txData <= txa[txBitCnt];            // LS first, parallel to serial
   endrule
 
   // Rx Logic...
@@ -83,13 +76,13 @@ module mkBLUART (BLUARTIfc);
   (* fire_when_enabled, no_implicit_conditions *)
   rule update_rxCnts;
     rxD <= shiftInAt0(rxD, rxInReg);
-    if      (rxGo)              rxBaudCnt <= 1;     // Start baud counter on new bit falling edge 
-    else if (rxStop)            rxBaudCnt <= 0;     // Clear when done
-    else if (rxBaudCnt>=clkDiv) rxBaudCnt <= 1;     // Hold at clkDic
+    if      (rxGo)              rxBaudCnt <= 1;              // Start baud counter
+    else if (rxStop)            rxBaudCnt <= 0;              // Clear when done
+    else if (rxBaudCnt>=clkDiv) rxBaudCnt <= 1;              // Hold at clkDiv
     else if (rxBaudCnt!=0)      rxBaudCnt <= rxBaudCnt + 1;  // Inc rxBaudCnt
-    if      (rxGo)              rxBitCnt <= 1;
-    else if (rxStop)            rxBitCnt <= 0;
-    else if (rxBaudCnt==clkDiv) rxBitCnt <= rxBitCnt + 1;
+    if      (rxGo)              rxBitCnt  <= 1;              // Start bit counter
+    else if (rxStop)            rxBitCnt  <= 0;              // Stop bit counter
+    else if (rxBaudCnt==clkDiv) rxBitCnt  <= rxBitCnt + 1;   // Inc rxBitCnt
   endrule
 
   rule rx_d_shift (rxShift);
@@ -100,14 +93,14 @@ module mkBLUART (BLUARTIfc);
     rxF.enq(pack(rxV));
   endrule
 
-  method UInt#(16) txLevel = (txF.notEmpty) ? 1 : 0;
-  method UInt#(16) rxLevel = (rxF.notEmpty) ? 1 : 0;
-  interface Put txChar     = toPut(txF);
-  interface Put setClkDiv  = toPut(asReg(clkDiv));
-  interface Get rxChar     = toGet(rxF);
+  interface Put txChar    = toPut(txF);
+  interface Get rxChar    = toGet(rxF);
+  interface Put setClkDiv = toPut(asReg(clkDiv));
+  method UInt#(8) txLevel = (txF.notEmpty) ? 1 : 0;
+  method UInt#(8) rxLevel = (rxF.notEmpty) ? 1 : 0;
   interface UART_pads pads;
-    method Bool    rts = True;             // connect to CTS
-    method Bool    tx  = unpack(txData);   // connect to RX
+    method Bool    rts = True;                                   // connect to CTS
+    method Bool    tx  = unpack(txData);                         // connect to RX
     method Action  cts (Bool arg) = rxCtsReg._write(pack(arg));  // connect to RTS
     method Action  rx  (Bool arg) = rxInReg._write(pack(arg));   // connect to TX
   endinterface

@@ -2,6 +2,8 @@
 // Copyright (c) 2009-2012 Atomic Rules LLC - ALL RIGHTS RESERVED
 
 // Application Imports...
+import ARAXI4L           ::*;
+import AXBLUART          ::*;
 import BLUART            ::*;
 import Config            ::*;
 import CPDefs            ::*;
@@ -22,6 +24,7 @@ import WsiAdapter        ::*;
 import XilinxExtra       ::*;
 import ProtocolMonitor   ::*;
 import PCIEwrap          ::*;
+import WmemiTap          ::*;
 
 // BSV Imports...
 import Clocks            ::*;
@@ -84,6 +87,9 @@ module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board
   Reg#(Bool)       needs_init <- mkReg(True,     clocked_by p125Clk, reset_by p125Rst);
   Reg#(UInt#(32))  freeCnt    <- mkReg(0,        clocked_by p125Clk, reset_by p125Rst);
 
+  WmemiTapIfc      wmemiTap   <- mkWmemiTap(     clocked_by p125Clk, reset_by p125Rst);
+  AXBLUARTIfc      axbluart   <- mkAXBLUART(     clocked_by p125Clk, reset_by p125Rst);
+
   rule inc_freecnt; freeCnt <= freeCnt + 1; endrule
 
   // Poly approach...
@@ -138,7 +144,11 @@ module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board
   mkConnection(tcGbe0.wti_m, gbe0.wtiS0); 
 
   // Wmemi...
-  mkConnection(ctop.wmemiM0, dram0.wmemiS0);
+  mkConnection(ctop.wmemiM0, wmemiTap.wmemiS0);
+  mkConnection(wmemiTap.wmemiM0, dram0.wmemiS0);
+
+  A4L_Em a4lm <- mkA4MtoEm(wmemiTap.axiM0, clocked_by p125Clk, reset_by p125Rst);
+  mkConnection(a4lm, axbluart.s_axi);
 
   rule init_lcd if (needs_init);  // Paint the 16x2 LCD...
      Vector#(16,Bit#(8))  text1 = lcdLine("  Atomic Rules  ");
@@ -165,6 +175,6 @@ module mkFTop_ml605#(Clock sys0_clkp,     Clock sys0_clkn,      // 200 MHz Board
   interface MDIO_Pads  mdio      = gbe0.mdio;
   interface SPI32Pads  flpCDC    = fmc150.padsCDC;
   interface SPI5Pads   flpDAC    = fmc150.padsDAC;
-  interface UART_pads  upads     = ctop.upads;
+  interface UART_pads  upads     = axbluart.upads;
 endmodule: mkFTop_ml605
 

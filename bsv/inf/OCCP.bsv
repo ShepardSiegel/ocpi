@@ -3,7 +3,7 @@
 
 package OCCP;
 
-import BLUART        ::*;
+//import BLUART        ::*;
 import CPDefs        ::*;
 import OCWip         ::*;
 import TimeService   ::*;
@@ -48,7 +48,7 @@ interface OCCPIfc#(numeric type nWci);
   (* always_ready *)                 method Bit#(2) led;
   (* always_ready, always_enabled *) method Action  switch (Bit#(3) x);
   (* always_ready, always_enabled *) method Action  uuid   (Bit#(512) arg);
-  interface UART_pads upads;
+ // interface UART_pads upads;
 endinterface
 
 typedef union tagged {
@@ -98,9 +98,9 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
   FIFOF#(DWordM)    adminResp4F  <-  mkFIFOF1;               // Admin region read-response FIFO - region 4
   FIFO#(DWordM)     adminRespF   <-  mkFIFO1;                // Admin region read-response FIFO - aggregate
 
-  BLUARTIfc         bluart       <-  mkBLUART;               // Instance our tiny UART
-  Reg#(Bool)        uartInited   <-  mkReg(False);
-  Reg#(UInt#(6))    uartTxtP     <-  mkReg(0);
+  //BLUARTIfc         bluart       <-  mkBLUART;               // Instance our tiny UART
+  //Reg#(Bool)        uartInited   <-  mkReg(False);
+  //Reg#(UInt#(6))    uartTxtP     <-  mkReg(0);
 
   BRAM_Configure cfg = defaultValue;
     cfg.memorySize = 1024;  // Number of DWORD entries in 4KB ROM
@@ -133,16 +133,16 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
      return text;
   endfunction
 
-  rule init_uart_text (!uartInited);
-    Vector#(40,Bit#(8)) initText = uartLine("OpenCPI USB-UART v0.01 2014-01-26 *good*");
-    case (uartTxtP)
-      0,42   : bluart.txChar.put(8'h0d); // CR
-      1,43   : bluart.txChar.put(8'h0a); // LF
-      default: bluart.txChar.put(initText[uartTxtP-2]);
-    endcase
-    uartTxtP <= uartTxtP + 1;
-    if (uartTxtP==43) uartInited <= True;
-  endrule
+//  rule init_uart_text (!uartInited);
+//    Vector#(40,Bit#(8)) initText = uartLine("OpenCPI USB-UART v0.01 2014-01-24 *safe*");
+//    case (uartTxtP)
+//      0,42   : bluart.txChar.put(8'h0d); // CR
+//      1,43   : bluart.txChar.put(8'h0a); // LF
+//      default: bluart.txChar.put(initText[uartTxtP-2]);
+//    endcase
+//    uartTxtP <= uartTxtP + 1;
+//    if (uartTxtP==43) uartInited <= True;
+//  endrule
 
   function makeWciMaster (Integer i);
     //return (i<5||i>12) ? mkWciMaster : mkWciMasterNull;  // only instance the 7 (0:4,13:14) we need
@@ -187,8 +187,8 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
 
       'h4C : readCntReg   <= unpack(wd);
 
-      'h6C : bluart.setClkDiv.put(truncate(unpack(wd)));
-      'h70 : bluart.txChar.put(truncate(unpack(wd)));
+ //     'h6C : bluart.setClkDiv.put(truncate(unpack(wd)));
+  //    'h70 : bluart.txChar.put(truncate(unpack(wd)));
 
     endcase
     cpReq  <= tagged Idle;
@@ -248,12 +248,12 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
       'h50 : rv = Valid(pack(devDNAV[0]));                      // LSBs of devDNA
       'h54 : rv = Valid(pack(devDNAV[1]));                      // MSBs of devDNA
 
-      'h60 : rv = Valid(extend(pack(bluart.txLevel)));
-      'h64 : rv = Valid(extend(pack(bluart.rxLevel)));
-      'h68 : action
-               let d <- bluart.rxChar.get();
-               rv = Valid(extend(unpack(d)));
-       endaction
+//      'h60 : rv = Valid(extend(pack(bluart.txLevel)));
+//      'h64 : rv = Valid(extend(pack(bluart.rxLevel)));
+//      'h68 : action
+//               let d <- bluart.rxChar.get();
+//               rv = Valid(extend(unpack(d)));
+//       endaction
 
       'h7C : rv = Valid(32'd2);                                 // DP Mem Region Descriptors...
       'h80 : rv = Valid(pack(dpMemRegion0));  
@@ -389,7 +389,7 @@ module mkOCCP#(PciId pciDevice, Clock time_clk, Reset time_rst) (OCCPIfc#(Nwcit)
   method led       = scratch24[1:0];
   method Action  switch    (Bit#(3) x);     switch_d <= x;           endmethod
   method Action  uuid      (Bit#(512) arg); uuidV   <= unpack(arg);  endmethod
-  interface UART_pads upads = bluart.pads;
+//  interface UART_pads upads = bluart.pads;
 
 endmodule: mkOCCP
 endpackage: OCCP
