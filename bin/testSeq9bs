@@ -1,0 +1,58 @@
+#!/bin/sh
+# Script tstseq9b for bringing up V5 Memory controller, and flat-map sequence
+
+echo "admin probe"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 settime
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 admin
+
+echo "reset workers"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwctl 12 0x0000000F
+
+echo "unreset workers"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwctl 12 0x8000000F
+
+echo "initialize workers"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wop 12 initialize
+
+echo "start workers"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wop 12 start
+
+# wait for controller ready...
+sleep 1
+
+echo "Read Memory Controler Status"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread 12 0 19
+
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80000 0x03020100
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80004 0x07060504
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80008 0x0B0A0908
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x8000C 0x0F0E0D0C
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80010 0x13121110
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80014 0x17161514
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80018 0x1B1A1918
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x8001C 0x1F1E1D1C
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80020 0x23222120
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80024 0x27262524
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80028 0x2B2A2928
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x8002C 0x2F2E2D2C
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80030 0x33323130
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80034 0x37363534
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x80038 0x3B3A3938
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x8003C 0x3F3E3D3C
+
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread  12 0x80000 16
+
+
+echo "Read"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x58 0x00000000 # read addr
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread  12 0x80 4
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x58 0x00000010 # read addr
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread  12 0x80 4
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x58 0x00000020 # read addr
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread  12 0x80 4
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 12 0x58 0x00000030 # read addr
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread  12 0x80 4
+
+
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 dtest 12 0x80000 3
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread 12 0x50 1

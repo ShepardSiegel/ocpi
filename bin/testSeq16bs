@@ -1,0 +1,33 @@
+#!/bin/sh
+# Script tstseq9b for bringing up V5 Memory controller, and flat-map sequence
+
+echo "admin probe"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 settime
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 admin
+
+echo "reset workers"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwctl 12 0x0000000F
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwctl 1 0x0000000F
+
+echo "unreset workers"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwctl 12 0x8000000F
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwctl 1 0x8000000F
+
+echo "initialize workers"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wop 12 initialize
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wop 1 initialize
+
+echo "start workers"
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wop 12 start
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wop 1 start
+
+# wait for controller ready...
+sleep 2
+
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 1 0x04 0x4000
+
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread 1 0 11
+
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wwrite 1 0x30 0
+
+/home/silviu/crash/isa/fpga/platform/host_interface/Lib/test/hdl/linux-x86_64-bin/swctl 0xF1000000 0xF2FF0000 wread 1 0 11
