@@ -75,11 +75,15 @@ rule a4l_cfrd;  // AXI4-Lite Configuration Property Reads...
     'h14 : rdat = 32'hBABECAFE;       // return a constant
     'h18 : rdat = 32'hF00DFACE;       // return a constant
     'h1C : rdat = 32'hFEEDC0DE;       // return a constant
-    'h24 : rdat = extend(pack(bluart.txLevel));
-    'h28 : rdat = extend(pack(bluart.rxLevel));
-    'h30 : action
-             let d <- bluart.rxChar.get();
-             rdat = extend(unpack(d));
+    'h24 : rdat = extend(pack(bluart.txLevel));  // return the count of chars in the txFIFO
+    'h28 : rdat = extend(pack(bluart.rxLevel));  // return the count of chars in the rxFIFO
+    'h30 : action  // Check to see if there is anything in the rxFIFO...
+             if (bluart.rxLevel > 0) begin // if so, get that data and return
+               let d <- bluart.rxChar.get();
+               rdat = extend(unpack(d));
+             end else begin                // if not, return 0
+               rdat = 0;
+             end
            endaction
   endcase
   a4l.f.rdResp.enq(A4LRdResp{data:rdat,resp:OKAY}); // Return the read data
