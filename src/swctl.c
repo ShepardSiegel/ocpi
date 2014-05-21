@@ -115,7 +115,7 @@ typedef struct {
 
 
 typedef int func(volatile OCCP_Space *, char **, volatile OCCP_WorkerControl *, volatile uint8_t *, volatile OCDP_Space *);
-static func admin, wdump, wread, wwrite, wadmin, radmin, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset, mwpost;
+static func admin, wdump, wread, wwrite, wadmin, radmin, wadmin64, radmin64, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset, mwpost;
 
 typedef struct {
   char *name;
@@ -130,6 +130,8 @@ static OCCP_Command commands[] = {
   {"wwrite", wwrite, 1},     // write worker config
   {"wadmin", wadmin},        // write admin space
   {"radmin", radmin},        // read  admin space
+  {"wadmin64", wadmin64},    // write admin space 64b
+  {"radmin64", radmin64},    // read  admin space 64b
   {"settime", settime},      // set the FPGA to system time
   {"deltatime", deltatime},  // Measure the difference of FPGA-Host (+ means FPGA leading)
   {"wop", wop, 1},           // do control op
@@ -336,6 +338,31 @@ admin(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
   uint32_t *pv = (uint32_t *)((uint8_t *)&p->admin + off);
 
   printf("Admin space, offset 0x%x, read value: 0x%x\n", off, *pv);
+  return 0;
+}
+
+ static int
+ wadmin64(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  unsigned off = atoi_any(*ap++, 0);
+  //unsigned val = atoi_any(*ap, 0); // Does not handle 64b properly, use strtoull() instead
+  char *end;
+  unsigned long long val = strtoull(*ap, &end, 16);
+  uint64_t *pv = (uint64_t *)((uint8_t *)&p->admin + off);
+
+  printf("Admin space, offset 0x%x, writing 64b value: 0x%016llx\n", off, val);
+  *pv = val;
+  return 0;
+}
+
+ static int
+ radmin64(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  unsigned off = atoi_any(*ap, 0);
+  uint64_t *pv = (uint64_t *)((uint8_t *)&p->admin + off);
+  unsigned long long val = *pv;
+
+  printf("Admin space, offset 0x%x, read 64b value: 0x%016llx\n", off, val);
   return 0;
 }
 
