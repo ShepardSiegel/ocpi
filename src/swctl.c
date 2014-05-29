@@ -115,7 +115,7 @@ typedef struct {
 
 
 typedef int func(volatile OCCP_Space *, char **, volatile OCCP_WorkerControl *, volatile uint8_t *, volatile OCDP_Space *);
-static func admin, wdump, wread, wwrite, wadmin, radmin, wadmin64, radmin64, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset, mwpost;
+static func admin, wdump, wread, wwrite, wadmin, radmin, wadmin64, radmin64, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset, mwpost, sendpkt;
 
 typedef struct {
   char *name;
@@ -146,6 +146,7 @@ static OCCP_Command commands[] = {
   {"wunreset", wunreset, 1}, // deassert reset for worker
   {"wreset", wreset, 1},     // assert reset for worker
   {"mwpost", mwpost},        // meassure write post rate
+  {"sendpkt", sendpkt},      // send test packet (select implementations)
   {0}
 };
 
@@ -872,3 +873,36 @@ dwrite(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volati
 
   return 0;
 }
+
+ static int
+ sendpkt(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  unsigned off = 0x2800; // start of packet memory
+  //unsigned long long val;
+  uint64_t *pv = (uint64_t *)((uint8_t *)&p->admin + off);
+
+  unsigned off2 = 0x20a0;
+  unsigned val2 = 60;
+  uint32_t *pv2 = (uint32_t *)((uint8_t *)&p->admin + off2);
+
+  // 60B packet to send...
+  *pv++ = 0x60006c7c46dd6000;
+  *pv++ = 0x00450008727c46dd;
+  *pv++ = 0x1140004000002e00;
+  *pv++ = 0x000a3000000ab926;
+  *pv++ = 0x1a00050d050d0400;
+  *pv++ = 0x0000000000000000;
+  *pv++ = 0x0000000100000000;
+  *pv++ = 0x0000000000000002;
+
+  //int i;
+  //for (i=0;i<100;i++) *pv2 = val2; // send the packet
+  
+  *pv2 = 60;
+
+  printf("sent packet\n");
+
+
+  return 0;
+}
+
