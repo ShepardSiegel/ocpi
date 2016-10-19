@@ -115,7 +115,7 @@ typedef struct {
 
 
 typedef int func(volatile OCCP_Space *, char **, volatile OCCP_WorkerControl *, volatile uint8_t *, volatile OCDP_Space *);
-static func admin, wdump, wread, wwrite, wadmin, radmin, wadmin64, radmin64, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset, mwpost, sendpkt;
+static func admin, wdump, wread, wwrite, wadmin, radmin, wadmin64, radmin64, radminseq, radminseq3, settime, deltatime, wop, wwctl, wwpage, dtest, smtest, dmeta, dpnd, dread, dwrite, wunreset, wreset, mwpost, sendpkt;
 
 typedef struct {
   char *name;
@@ -132,6 +132,8 @@ static OCCP_Command commands[] = {
   {"radmin", radmin},        // read  admin space
   {"wadmin64", wadmin64},    // write admin space 64b
   {"radmin64", radmin64},    // read  admin space 64b
+  {"radminseq", radminseq},  // read  admin space sequence
+  {"radminseq3", radminseq3},  // read  admin space triplet sequence
   {"settime", settime},      // set the FPGA to system time
   {"deltatime", deltatime},  // Measure the difference of FPGA-Host (+ means FPGA leading)
   {"wop", wop, 1},           // do control op
@@ -339,6 +341,61 @@ admin(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatil
   uint32_t *pv = (uint32_t *)((uint8_t *)&p->admin + off);
 
   printf("Admin space, offset 0x%x, read value: 0x%x\n", off, *pv);
+  return 0;
+}
+
+ static int
+ radminseq(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  int i;
+  uint32_t v1, v2, v3, v4;
+  unsigned off = atoi_any(*ap, 0);
+  uint32_t *pv  = (uint32_t *)((uint8_t *)&p->admin + off);
+  uint32_t *pv2 = (uint32_t *)((uint8_t *)&p->admin + off + 4);
+  // Now read in quick sequence...
+  for (i=0; i<1000000; i++) {
+  v1 = *pv;
+  v2 = *pv2;
+  v3 = *pv;
+  v4 = *pv2;
+  if (v1 != v3) break;
+  if (v2 != v4) break;
+  }
+
+  printf("Admin space, offset 0x%x, read value: 0x%x\n", off,   v1);
+  printf("Admin space, offset 0x%x, read value: 0x%x\n", off+4, v2);
+  printf("Admin space, offset 0x%x, read value: 0x%x\n", off,   v3);
+  printf("Admin space, offset 0x%x, read value: 0x%x\n", off+4, v4);
+  return 0;
+}
+
+ static int
+ radminseq3(volatile OCCP_Space *p, char **ap, volatile OCCP_WorkerControl *w, volatile uint8_t *config, volatile OCDP_Space *dp)
+{
+  int i;
+  uint32_t v1a, v1b, v2a, v2b, v3a, v3b;
+  unsigned off = atoi_any(*ap, 0);
+  uint32_t *pv1 = (uint32_t *)((uint8_t *)&p->admin + off);
+  uint32_t *pv2 = (uint32_t *)((uint8_t *)&p->admin + off + 4);
+  uint32_t *pv3 = (uint32_t *)((uint8_t *)&p->admin + off + 8);
+  // Now read in quick sequence...
+  for (i=0; i<1000000; i++) {
+    v1a = *pv1;
+    v2a = *pv2;
+    v3a = *pv3;
+    v1b = *pv1;
+    v2b = *pv2;
+    v3b = *pv3;
+
+    if ((v1a!=v1b)||(v2a!=v2b)||(v3a!=v3b)) {
+      printf("MISMATCH DETECTED on cycle %d\n", i);
+      break;
+    }
+  }
+
+  printf("Admin space, offset 0x%x, read value: 0x%x\n", off,   v1a);
+  printf("Admin space, offset 0x%x, read value: 0x%x\n", off+4, v2a);
+  printf("Admin space, offset 0x%x, read value: 0x%x\n", off+8, v3a);
   return 0;
 }
 
